@@ -1,0 +1,254 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-107471"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/ODBC%20Application%20Tuning"></a><title>ODBC Application Tuning</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1033"/>
+<meta name="dcterms.created" content="2014-12-10T16:46:47Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen In-Memory Database C Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E21637-09"/>
+<meta name="dcterms.isVersionOf" content="TTCDV"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="xa_dtp.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="c_ref.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21637-09.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">11/15</span> <!-- End Header -->
+<div id="TTCDV363" class="chapter"><a id="BCGGGCEH"></a>
+<h1 class="chapter"><span class="secnum">7</span> ODBC Application Tuning</h1>
+<p>This chapter describes how to tune an ODBC application to run optimally on a TimesTen database. See <a class="olink TTOPR411" href="../TTOPR/perform.htm#TTOPR411">&#34;TimesTen Database Performance Tuning&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Operations Guide</span> for more general tuning tips.</p>
+<p>This chapter includes the following topics:</p>
+<ul>
+<li>
+<p><a href="#CHDDEBBG">Bypass driver manager if appropriate</a></p>
+</li>
+<li>
+<p><a href="#CHDIBDAB">Using arrays of parameters for batch execution</a></p>
+</li>
+<li>
+<p><a href="#CHDCEHII">Avoid excessive binds</a></p>
+</li>
+<li>
+<p><a href="#CHDIDJIJ">Avoid SQLGetData</a></p>
+</li>
+<li>
+<p><a href="#CHDEFGFI">Avoid data type conversions</a></p>
+</li>
+<li>
+<p><a href="#CHDJHJHD">Bulk fetch rows of TimesTen data</a></p>
+</li>
+</ul>
+<a id="CHDDEBBG"></a>
+<div id="TTCDV364" class="sect1">
+<h2 class="sect1">Bypass driver man<a id="sthref465"></a>ager if appropriate</h2>
+<p>TimesTen permits ODBC applications that do not need some of the functionality provided by a driver manager to link without one. In particular, applications that do not need ODBC access to database systems other than TimesTen should omit the driver manager. This is done by linking the application directly with the TimesTen direct or client driver, as described in <a href="compiling.htm#CHDHFIIG">&#34;Linking options&#34;</a>. The performance improvement is significant.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+It is permissible for some applications connected to a database to be linked with the driver manager, while others connected to the same database are direct-linked.</div>
+</div>
+<!-- class="sect1" -->
+<a id="CHDIBDAB"></a>
+<div id="TTCDV365" class="sect1">
+<h2 class="sect1">Using arrays of parameters for <a id="sthref466"></a><a id="sthref467"></a><a id="sthref468"></a>batch execution</h2>
+<p>You can improve performance by using groups, referred to as <span class="italic">batches</span>, of statement executions in your application.</p>
+<p>The <code dir="ltr">SQLParamOptions</code> ODBC function enables an application to specify multiple values for the set of parameters assigned by <code dir="ltr">SQLBindParameter</code>. This is useful for processing the same SQL statement multiple times with various parameter values. For example, your application can specify multiple sets of values for the set of parameters associated with an <code dir="ltr">INSERT</code> statement, and then execute the <code dir="ltr">INSERT</code> statement once to perform all the insert operations.</p>
+<p>TimesTen supports the use of <code dir="ltr">SQLParamOptions</code> with <code dir="ltr">INSERT</code>, <code dir="ltr">UPDATE</code>, <code dir="ltr">DELETE</code>, and <code dir="ltr">MERGE</code> statements, but not with <code dir="ltr">SELECT</code> statements. TimesTen recommends the following batch sizes for TimesTen 11<span class="italic">g</span> Release 2 (11.2.2):</p>
+<ul>
+<li>
+<p>256 for <code dir="ltr">INSERT</code> statements</p>
+</li>
+<li>
+<p>31 for <code dir="ltr">UPDATE</code> statements</p>
+</li>
+<li>
+<p>31 for <code dir="ltr">DELETE</code> statements</p>
+</li>
+<li>
+<p>31 for <code dir="ltr">MERGE</code> statements</p>
+</li>
+</ul>
+<p><a href="#BCGFFAAE">Table 7-1</a> provides a summary of <code dir="ltr">SQLParamOptions</code> arguments. Refer to ODBC API reference documentation for details.</p>
+<div id="TTCDV366" class="tblhruleformal">
+<p class="titleintable"><a id="sthref469"></a><a id="BCGFFAAE"></a>Table 7-1 <a id="sthref470"></a>SQLParamOptions arguments</p>
+<table class="cellalignment4366" title="SQLParamOptions arguments" summary="Summary of SQLParamOptions arguments." dir="ltr">
+<thead>
+<tr class="cellalignment4360">
+<th class="cellalignment4367" id="r1c1-t3">Argument</th>
+<th class="cellalignment4367" id="r1c2-t3">Type</th>
+<th class="cellalignment4367" id="r1c3-t3">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4360">
+<td class="cellalignment4368" id="r2c1-t3" headers="r1c1-t3">
+<p><code dir="ltr"><span class="codeinlineitalic">hstmt</span></code></p>
+</td>
+<td class="cellalignment4368" headers="r2c1-t3 r1c2-t3">
+<p><code dir="ltr">SQLHSTMT</code></p>
+</td>
+<td class="cellalignment4368" headers="r2c1-t3 r1c3-t3">
+<p>Statement handle</p>
+</td>
+</tr>
+<tr class="cellalignment4360">
+<td class="cellalignment4368" id="r3c1-t3" headers="r1c1-t3">
+<p><code dir="ltr"><span class="codeinlineitalic">crow</span></code></p>
+</td>
+<td class="cellalignment4368" headers="r3c1-t3 r1c2-t3">
+<p><code dir="ltr">SQLROWSETSIZE</code></p>
+</td>
+<td class="cellalignment4368" headers="r3c1-t3 r1c3-t3">
+<p>Number of values for each parameter</p>
+</td>
+</tr>
+<tr class="cellalignment4360">
+<td class="cellalignment4368" id="r4c1-t3" headers="r1c1-t3">
+<p><code dir="ltr"><span class="codeinlineitalic">pirow</span></code></p>
+</td>
+<td class="cellalignment4368" headers="r4c1-t3 r1c2-t3">
+<p><code dir="ltr">SQLROWSETSIZE</code></p>
+</td>
+<td class="cellalignment4368" headers="r4c1-t3 r1c3-t3">
+<p>Pointer to storage for the current row number</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblhruleformal" -->
+<p>Assuming the <code dir="ltr"><span class="codeinlineitalic">crow</span></code> value is greater than 1, the <code dir="ltr"><span class="codeinlineitalic">rgbValue</span></code> argument of <code dir="ltr">SQLBindParameter</code> points to an array of parameter values and the <code dir="ltr"><span class="codeinlineitalic">pcbValue</span></code> argument points to an array of lengths. (Also see <a href="writing_app.htm#BABHBIAB">&#34;SQLBindParameter function&#34;</a>.)</p>
+<p>Refer to the TimesTen Quick Start demo source file <code dir="ltr">bulkinsert.c</code> for a complete working example of batching. (Also, for programming in C++ with TTClasses, see <code dir="ltr">bulktest.cpp</code>.)</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+When using <code dir="ltr">SQLParamOptions</code> with the TimesTen Client/Server driver, data-at-execution parameters are not supported. (An application can pass the value for a parameter either in the <code dir="ltr">SQLBindParameter</code> <code dir="ltr"><span class="codeinlineitalic">rgbValue</span></code> buffer or with one or more calls to <code dir="ltr">SQLPutData</code>. Parameters whose data is passed with <code dir="ltr">SQLPutData</code> are known as <span class="italic">data-at-execution</span> parameters. These are commonly used to send data for <code dir="ltr">SQL_LONGVARBINARY</code> and <code dir="ltr">SQL_LONGVARCHAR</code> parameters and can be mixed with other parameters.)</div>
+</div>
+<!-- class="sect1" -->
+<a id="CHDCEHII"></a>
+<div id="TTCDV367" class="sect1">
+<h2 class="sect1">Avoid excessive bi<a id="sthref471"></a><a id="sthref472"></a><a id="sthref473"></a><a id="sthref474"></a>nds</h2>
+<p>The purpose of a <code dir="ltr">SQLBindCol</code> or <code dir="ltr">SQLBindParameter</code> call is to associate a type conversion and program buffer with a data column or parameter. For a given SQL statement, if the type conversion or memory buffer for a given data column or parameter is not going to change over repeated executions of the statement, it is better not to make repeated calls to <code dir="ltr">SQLBindCol</code> or <code dir="ltr">SQLBindParameter</code>. Simply prepare once and bind once to execute many times.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+A call to <code dir="ltr">SQLFreeStmt</code> with the <code dir="ltr">SQL_UNBIND</code> option unbinds all columns.</div>
+</div>
+<!-- class="sect1" -->
+<a id="CHDIDJIJ"></a>
+<div id="TTCDV368" class="sect1">
+<h2 class="sect1">Avoid <a id="sthref475"></a><a id="sthref476"></a>SQLGetData</h2>
+<p><code dir="ltr">SQLGetData</code> can be used for fetching data without binding columns. This can sometimes have a negative impact on performance because applications have to issue a <code dir="ltr">SQLGetData</code> ODBC call for every column of every row that is fetched. In contrast, using bound columns requires only one ODBC call for each fetched column. Further, the TimesTen ODBC driver is more highly optimized for the bound columns method of fetching data.</p>
+<p><code dir="ltr">SQLGetData</code> can be very useful, though, for doing piecewise fetches of data from long character or binary columns. (This is discussed with respect to LOBs in <a href="writing_app.htm#BABJBHAA">&#34;Using the LOB piecewise data interface in ODBC&#34;</a>.)</p>
+</div>
+<!-- class="sect1" -->
+<a id="CHDEFGFI"></a>
+<div id="TTCDV369" class="sect1">
+<h2 class="sect1">Avoid data type <a id="sthref477"></a><a id="sthref478"></a>conversions</h2>
+<p>TimesTen instruction paths are so short that even small delays due to data conversion can cause a relatively large percentage increase in transaction time. To avoid data type conversions:</p>
+<ul>
+<li>
+<p>Match input argument types to expression types.</p>
+</li>
+<li>
+<p>Match the types of output buffers to the types of the fetched values.</p>
+</li>
+<li>
+<p>Match the connection character set to the database character set.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect1" -->
+<a id="CHDJHJHD"></a>
+<div id="TTCDV370" class="sect1">
+<h2 class="sect1">Bulk fetch r<a id="sthref479"></a><a id="sthref480"></a><a id="sthref481"></a><a id="sthref482"></a><a id="sthref483"></a>ows of TimesTen data</h2>
+<p>TimesTen provides the <code dir="ltr">TT_PREFETCH_COUNT</code> option, which can be set through <code dir="ltr">SQLSetStmtOption</code> and enables an application to fetch multiple rows of data. This feature is available for applications that use the Read Committed isolation level. For applications that retrieve large amounts of TimesTen data, fetching multiple rows can increase performance greatly. However, locks are held on all rows being retrieved until the application has received all the data, decreasing concurrency. For more information on how to use <code dir="ltr">TT_PREFETCH_COUNT</code>, see <a href="writing_app.htm#CEGGBDBH">&#34;Prefetching multiple rows of data&#34;</a>.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4359">
+<tr>
+<td class="cellalignment4368">
+<table class="cellalignment4364">
+<tr>
+<td class="cellalignment4363"><a href="xa_dtp.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4363"><a href="c_ref.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4370">
+<table class="cellalignment4362">
+<tr>
+<td class="cellalignment4363"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4363"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4363"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4363"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4363"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4363"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

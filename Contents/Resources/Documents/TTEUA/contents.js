@@ -1,0 +1,18 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Installing the Enterprise Manager Plug-in for TimesTen", anchor: "TTEUA114", file: "install.htm" },
+  { topic: "chapter", section: "2", title: "Working with the TimesTen Target Page", anchor: "TTEUA115", file: "custom.htm" },
+  { topic: "chapter", section: "3", title: "Working with Access Control", anchor: "TTEUA671", file: "access_control.htm" },
+  { topic: "chapter", section: "4", title: "Working with the TimesTen Instance Home Page", anchor: "TTEUA709", file: "home_instance.htm" },
+  { topic: "chapter", section: "5", title: "Working with the TimesTen Database Home Page", anchor: "TTEUA118", file: "home.htm" },
+  { topic: "chapter", section: "6", title: "Working with the Performance Summary Page", anchor: "TTEUA119", file: "perform.htm" },
+  { topic: "chapter", section: "7", title: "Working with the Transaction Monitor", anchor: "TTEUA733", file: "trans_monitor.htm" },
+  { topic: "chapter", section: "8", title: "Working with the Client/Server Page", anchor: "TTEUA749", file: "client_server.htm" },
+  { topic: "chapter", section: "9", title: "Working with the Instance Control Menu", anchor: "TTEUA771", file: "inst_control.htm" },
+  { topic: "chapter", section: "10", title: "Working with the Database Control Menu", anchor: "TTEUA785", file: "db_control.htm" },
+  { topic: "chapter", section: "11", title: "Working with the Backup and Restore Page", anchor: "TTEUA802", file: "availability.htm" },
+  { topic: "chapter", section: "12", title: "Working with the Cache Synchronization Metrics Page", anchor: "TTEUA376", file: "cache.htm" },
+  { topic: "chapter", section: "13", title: "Working with the Replication Monitor", anchor: "TTEUA397", file: "replication.htm" },
+  { topic: "chapter", section: "14", title: "Viewing Metrics", anchor: "TTEUA123", file: "metrics.htm" },
+  { topic: "chapter", section: "15", title: "Viewing Target Topology", anchor: "TTEUA895", file: "topology.htm" },
+  { topic: "chapter", section: "16", title: "Viewing Reports", anchor: "TTEUA136", file: "reports.htm" },
+  { } ];

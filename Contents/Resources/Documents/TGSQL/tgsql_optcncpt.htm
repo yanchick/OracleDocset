@@ -1,0 +1,1090 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106789"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Query%20Optimizer%20Concepts"></a><title>Query Optimizer Concepts</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="A solid understanding of the optimizer is essential for SQL tuning."/>
+<meta name="keywords" content="optimizer, definition, purpose of, statistics, optimizer, SQL, optimization, optimization, SQL, cardinality, columns, estimator, Automatic Tuning Optimizer, adaptive query, automatic reoptimization, adaptive query optimization, adaptive plans, execution plans, adaptive, cardinality misestimates, subplans, optimizer statistics collectors, optimizer statistics collector, adaptive query plans, join methods, parallel distribution methods, indexes, bitmap, bitmap index pruning, bitmap indexes, pruning, adaptive statistics, optimizer statistics, dynamic statistics, reoptimization, automatic, statistics feedback, performance feedback, SQL plan directives"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_sqlproc.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_transform.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-06129ACE-36B2-4534-AE68-EDFCAEBB3B5D"></a> <span id="PAGE" style="display:none;">10/40</span> <!-- End Header -->
+<a id="TGSQL192"></a>
+<h1 id="TGSQL-GUID-06129ACE-36B2-4534-AE68-EDFCAEBB3B5D" class="sect1"><span class="enumeration_chapter">4</span> Query Optimizer Concepts</h1>
+<div>
+<p>A solid understanding of the optimizer is essential for SQL tuning.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-6213C0FF-CE34-44AB-97A1-D567820F9419" title="The query optimizer (called simply the optimizer) is built-in database software that determines the most efficient method for a SQL statement to access requested data.">Introduction to the Query Optimizer</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-12C47112-B713-4658-89C2-DA756E4D29D3" title="The optimizer contains three components: the transformer, estimator, and plan generator.">About Optimizer Components</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-7D015E05-A08D-478B-81AC-AB04ECEED8FA" title="The optimizer performs different operations depending on how it is invoked.">About Automatic Tuning Optimizer</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-F368C89A-5CAE-432C-845C-CC38C7F93A03" title="In Oracle Database, adaptive query optimization enables the optimizer to make run-time adjustments to execution plans and discover additional information that can lead to better statistics.">About Adaptive Query Optimization</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-CC06CD2F-2B18-40CB-B182-FE5AE6A4E21D" title="SQL plan management is a mechanism that enables the optimizer to automatically manage execution plans, ensuring that the database uses only known or verified plans.">About Optimizer Management of SQL Plan Baselines</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL193"></a>
+<div class="props_rev_3"><a id="GUID-6213C0FF-CE34-44AB-97A1-D567820F9419"></a>
+<h2 id="TGSQL-GUID-6213C0FF-CE34-44AB-97A1-D567820F9419" class="sect2">Introduction to the Query Optimizer</h2>
+<div>
+<p>The <span class="bold">query optimizer</span> (called simply the <span class="bold">optimizer</span>) is built-in database software that determines the most efficient method for a SQL statement to access requested data.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-65F99893-DBA9-4955-B133-DBFFA2F43145" title="The optimizer attempts to generate the most optimal execution plan for a SQL statement.">Purpose of the Query Optimizer</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-B743F9BE-9971-4CD1-8C0C-0EAF7C80E5F2" title="Query optimization is the overall process of choosing the most efficient means of executing a SQL statement. SQL is a nonprocedural language, so the optimizer is free to merge, reorganize, and process in any order.">Cost-Based Optimization</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-5D925135-6CF3-40B8-8AEF-12159055DE1F" title="An execution plan describes a recommended method of execution for a SQL statement.">Execution Plans</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL194"></a>
+<div class="props_rev_3"><a id="GUID-65F99893-DBA9-4955-B133-DBFFA2F43145"></a>
+<h3 id="TGSQL-GUID-65F99893-DBA9-4955-B133-DBFFA2F43145" class="sect3">Purpose of the Query Optimizer</h3>
+<div>
+<p>The optimizer attempts to generate the most optimal execution plan for a SQL statement.</p>
+<p>The optimizer choose the plan with the lowest cost among all considered candidate plans. The optimizer uses available statistics to calculate cost. For a specific query in a given environment, the cost computation accounts for factors of query execution such as I/O, CPU, and communication.</p>
+<p>For example, a query might request information about employees who are managers. If the optimizer statistics indicate that 80% of employees are managers, then the optimizer may decide that a full table scan is most efficient. However, if statistics indicate that very few employees are managers, then reading an index followed by a table access by rowid may be more efficient than a full table scan.</p>
+<p>Because the database has many internal statistics and tools at its disposal, the optimizer is usually in a better position than the user to determine the optimal method of statement execution. For this reason, all SQL statements use the optimizer.</p>
+</div>
+</div>
+<a id="TGSQL195"></a>
+<div class="props_rev_3"><a id="GUID-B743F9BE-9971-4CD1-8C0C-0EAF7C80E5F2"></a>
+<h3 id="TGSQL-GUID-B743F9BE-9971-4CD1-8C0C-0EAF7C80E5F2" class="sect3">Cost-Based Optimization</h3>
+<div>
+<p><span class="bold">Query optimization</span> is the overall process of choosing the most efficient means of executing a SQL statement. SQL is a nonprocedural language, so the optimizer is free to merge, reorganize, and process in any order.</p>
+<p>The database optimizes each SQL statement based on statistics collected about the accessed data. The optimizer determines the optimal plan for a SQL statement by examining multiple access methods, such as full table scan or index scans, different join methods such as nested loops and hash joins, different join orders, and possible transformations.</p>
+<p>For a given query and environment, the optimizer assigns a relative numerical cost to each step of a possible plan, and then factors these values together to generate an overall cost estimate for the plan. After calculating the costs of alternative plans, the optimizer chooses the plan with the lowest cost estimate. For this reason, the optimizer is sometimes called the <a href="glossary.htm#GUID-D7916C1E-4AE1-4065-BB33-4CD86842FC6A"><span class="xrefglossterm">cost-based optimizer (CBO)</span></a> to contrast it with the legacy rule-based optimizer (RBO).</p>
+<div class="infobox-note" id="GUID-B743F9BE-9971-4CD1-8C0C-0EAF7C80E5F2__GUID-52548C07-3FB8-4EE3-89CF-FF9A6C285268">
+<p class="notep1">Note:</p>
+<p>The optimizer may not make the same decisions from one version of Oracle Database to the next. In recent versions, the optimizer might make different decision because better information is available and more optimizer transformations are possible.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-B743F9BE-9971-4CD1-8C0C-0EAF7C80E5F2__GUID-28E73D07-6129-4ECB-9FCD-8B41BDA01472">
+<p class="notep1">See Also:</p>
+<span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-9D0BF31B-7215-4BD8-B45D-A8BF2B4DB7E5" title="The optimizer cost model accounts for the machine resources that a query is predicted to use.">Cost</a>&#34;</span></div>
+</div>
+</div>
+<a id="TGSQL197"></a><a id="TGSQL196"></a>
+<div class="props_rev_3"><a id="GUID-5D925135-6CF3-40B8-8AEF-12159055DE1F"></a>
+<h3 id="TGSQL-GUID-5D925135-6CF3-40B8-8AEF-12159055DE1F" class="sect3">Execution Plans</h3>
+<div>
+<p>An <span class="bold">execution plan</span> describes a recommended method of execution for a SQL statement.</p>
+<p>The plan shows the combination of the steps Oracle Database uses to execute a SQL statement. Each step either retrieves rows of data physically from the database or prepares them for the user issuing the statement.</p>
+<p>An execution plan displays the cost of the entire plan, indicated on line 0, and each separate operation. The cost is an internal unit that the execution plan only displays to allow for plan comparisons. Thus, you cannot tune or change the cost value.</p>
+<p>In the following graphic, the optimizer generates two possible execution plans for an input SQL statement, uses statistics to estimate their costs, compares their costs, and then chooses the plan with the lowest cost.</p>
+<div class="figure" id="GUID-5D925135-6CF3-40B8-8AEF-12159055DE1F__BABHFBIJ">
+<p class="titleinfigure">Figure 4-1 Execution Plans</p>
+<img width="450" height="356" src="img/GUID-D0B38295-1289-42A5-94CC-4F1857D00835-default.png" alt="Description of Figure 4-1 follows" title="Description of Figure 4-1 follows"/><br/>
+<a href="img_text/GUID-D0B38295-1289-42A5-94CC-4F1857D00835-print.htm">Description of &#34;Figure 4-1 Execution Plans&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="TGSQL199"></a><a id="TGSQL198"></a>
+<div class="props_rev_3"><a id="GUID-7A266A25-90F9-443A-83C5-C2BF1DC3F588"></a>
+<h4 id="TGSQL-GUID-7A266A25-90F9-443A-83C5-C2BF1DC3F588" class="sect4">Query Blocks</h4>
+<div>
+<p>The input to the optimizer is a parsed representation of a SQL statement.</p>
+<p>Each <code class="codeph">SELECT</code> block in the original SQL statement is represented internally by a <a href="glossary.htm#GUID-F2D03097-5F4B-4A2A-9DAE-6EC76F7BED61"><span class="xrefglossterm">query block</span></a>. A query block can be a top-level statement, subquery, or unmerged view.</p>
+<div class="example" id="GUID-7A266A25-90F9-443A-83C5-C2BF1DC3F588__BABDBJJJ">
+<p class="titleinexample">Example 4-1 Query Blocks</p>
+<p>The following SQL statement consists of two query blocks. The subquery in parentheses is the inner query block. The outer query block, which is the rest of the SQL statement, retrieves names of employees in the departments whose IDs were supplied by the subquery. The query form determines how query blocks are interrelated.</p>
+<pre dir="ltr">SELECT first_name, last_name
+FROM   hr.employees
+WHERE  department_id 
+IN     (SELECT department_id 
+        FROM   hr.departments 
+        WHERE  location_id = 1800);
+</pre>
+<div class="infoboxnotealso" id="GUID-7A266A25-90F9-443A-83C5-C2BF1DC3F588__GUID-0FDE4814-39FC-4C08-9E93-58880DBE3B03">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_transform.htm#GUID-6045D0F4-79A9-4688-A844-85F225DFA7DD">View Merging</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink CNCPT015" target="_blank" href="../CNCPT/sqllangu.htm#CNCPT015"><span><cite>Oracle Database Concepts</cite></span></a> for an overview of SQL processing</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL200"></a>
+<div class="props_rev_3"><a id="GUID-CBA60A24-7C4F-4F1F-876E-8D8FDCEA26ED"></a>
+<h4 id="TGSQL-GUID-CBA60A24-7C4F-4F1F-876E-8D8FDCEA26ED" class="sect4">Query Subplans</h4>
+<div>
+<p>For each query block, the optimizer generates a query subplan.</p>
+<p>The database optimizes query blocks separately from the bottom up. Thus, the database optimizes the innermost query block first and generates a subplan for it, and then generates the outer query block representing the entire query.</p>
+<p>The number of possible plans for a query block is proportional to the number of objects in the <code class="codeph">FROM</code> clause. This number rises exponentially with the number of objects. For example, the possible plans for a join of five tables are significantly higher than the possible plans for a join of two tables.</p>
+</div>
+</div>
+<a id="TGSQL201"></a>
+<div class="props_rev_3"><a id="GUID-9FCB33CB-C71C-43C2-A2BD-C8E49EF4D5D5"></a>
+<h4 id="TGSQL-GUID-9FCB33CB-C71C-43C2-A2BD-C8E49EF4D5D5" class="sect4">Analogy for the Optimizer</h4>
+<div>
+<p>One analogy for the optimizer is an online trip advisor.</p>
+<p>A cyclist wants to know the most efficient bicycle route from point A to point B. A query is like the directive &#34;I need the most efficient route from point A to point B&#34; or &#34;I need the most efficient route from point A to point B by way of point C.&#34; The trip advisor uses an internal algorithm, which relies on factors such as speed and difficulty, to determine the most efficient route. The cyclist can influence the trip advisor&#39;s decision by using directives such as &#34;I want to arrive as fast as possible&#34; or &#34;I want the easiest ride possible.&#34;</p>
+<p>In this analogy, an execution plan is a possible route generated by the trip advisor. Internally, the advisor may divide the overall route into several subroutes (subplans), and calculate the efficiency for each subroute separately. For example, the trip advisor may estimate one subroute at 15 minutes with medium difficulty, an alternative subroute at 22 minutes with minimal difficulty, and so on.</p>
+<p>The advisor picks the most efficient (lowest cost) overall route based on user-specified goals and the available statistics about roads and traffic conditions. The more accurate the statistics, the better the advice. For example, if the advisor is not frequently notified of traffic jams, road closures, and poor road conditions, then the recommended route may turn out to be inefficient (high cost).</p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL203"></a><a id="TGSQL202"></a>
+<div class="props_rev_3"><a id="GUID-12C47112-B713-4658-89C2-DA756E4D29D3"></a>
+<h2 id="TGSQL-GUID-12C47112-B713-4658-89C2-DA756E4D29D3" class="sect2">About Optimizer Components</h2>
+<div>
+<p>The optimizer contains three components: the transformer, estimator, and plan generator.</p>
+<p>The following graphic illustrates the components..</p>
+<div class="figure" id="GUID-12C47112-B713-4658-89C2-DA756E4D29D3__BABIECCA">
+<p class="titleinfigure">Figure 4-2 Optimizer Components</p>
+<img width="452" height="354" src="img/GUID-22630970-B584-41C9-B104-200CEA2F4707-default.gif" alt="Description of Figure 4-2 follows" title="Description of Figure 4-2 follows"/><br/>
+<a href="img_text/GUID-22630970-B584-41C9-B104-200CEA2F4707-print.htm">Description of &#34;Figure 4-2 Optimizer Components&#34;</a></div>
+<!-- class="figure" -->
+<p>A set of query blocks represents a parsed query, which is the input to the optimizer. The following table describes the optimizer operations.</p>
+<div class="tblformal" id="GUID-12C47112-B713-4658-89C2-DA756E4D29D3__GUID-BADE6536-FE40-46EC-B6C5-628001ABA3E6">
+<p class="titleintable">Table 4-1 Optimizer Operations</p>
+<table class="cellalignment4890" title="Optimizer Operations" summary="This table describes the query transformer, estimator, and plan generator.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d10704e922">Phase</th>
+<th class="cellalignment4870" id="d10704e924">Operation</th>
+<th class="cellalignment4870" id="d10704e926">Description</th>
+<th class="cellalignment4870" id="d10704e928">To Learn More</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d10704e932" headers="d10704e922">1</td>
+<td class="cellalignment4871" headers="d10704e932 d10704e924">
+<p>Query Transformer</p>
+</td>
+<td class="cellalignment4871" headers="d10704e932 d10704e926">
+<p>The optimizer determines whether it is helpful to change the form of the query so that the optimizer can generate a better execution plan.</p>
+</td>
+<td class="cellalignment4871" headers="d10704e932 d10704e928"><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-25332969-244D-4C30-BEFF-35315C3138F9" title="For some statements, the query transformer determines whether it is advantageous to rewrite the original SQL statement into a semantically equivalent SQL statement with a lower cost.">Query Transformer</a>&#34;</span></td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d10704e948" headers="d10704e922">2</td>
+<td class="cellalignment4871" headers="d10704e948 d10704e924">
+<p>Estimator</p>
+</td>
+<td class="cellalignment4871" headers="d10704e948 d10704e926">
+<p>The optimizer estimates the cost of each plan based on statistics in the data dictionary.</p>
+</td>
+<td class="cellalignment4871" headers="d10704e948 d10704e928"><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-2AB938B9-E1A8-4344-924B-8EFBB6134AFE" title="The estimator is the component of the optimizer that determines the overall cost of a given execution plan.">Estimator</a>&#34;</span></td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d10704e967" headers="d10704e922">3</td>
+<td class="cellalignment4871" headers="d10704e967 d10704e924">
+<p>Plan Generator</p>
+</td>
+<td class="cellalignment4871" headers="d10704e967 d10704e926">
+<p>The optimizer compares the costs of plans and chooses the lowest-cost plan, known as the execution plan, to pass to the row source generator.</p>
+</td>
+<td class="cellalignment4871" headers="d10704e967 d10704e928"><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-CB5FAF86-7DAF-446B-98A9-CB8DF3B2C68F" title="The plan generator explores various plans for a query block by trying out different access paths, join methods, and join orders.">Plan Generator</a>&#34;</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<a id="TGSQL205"></a><a id="TGSQL204"></a>
+<div class="props_rev_3"><a id="GUID-25332969-244D-4C30-BEFF-35315C3138F9"></a>
+<h3 id="TGSQL-GUID-25332969-244D-4C30-BEFF-35315C3138F9" class="sect3">Query Transformer</h3>
+<div>
+<p>For some statements, the query transformer determines whether it is advantageous to rewrite the original SQL statement into a semantically equivalent SQL statement with a lower cost.</p>
+<p>When a viable alternative exists, the database calculates the cost of the alternatives separately and chooses the lowest-cost alternative. The following graphic shows the query transformer rewriting an input query that uses <code class="codeph">OR</code> into an output query that uses <code class="codeph">UNION ALL</code>.</p>
+<div class="figure" id="GUID-25332969-244D-4C30-BEFF-35315C3138F9__BABCEIGC">
+<p class="titleinfigure">Figure 4-3 Query Transformer</p>
+<img width="243" height="347" src="img/GUID-49504C34-8770-45FD-BDD1-99A55D49A7B5-default.png" alt="Description of Figure 4-3 follows" title="Description of Figure 4-3 follows"/><br/>
+<a href="img_text/GUID-49504C34-8770-45FD-BDD1-99A55D49A7B5-print.htm">Description of &#34;Figure 4-3 Query Transformer&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TGSQL214"></a><a id="TGSQL213"></a>
+<div class="props_rev_3"><a id="GUID-2AB938B9-E1A8-4344-924B-8EFBB6134AFE"></a>
+<h3 id="TGSQL-GUID-2AB938B9-E1A8-4344-924B-8EFBB6134AFE" class="sect3">Estimator</h3>
+<div>
+<p>The <span class="bold">estimator</span> is the component of the optimizer that determines the overall cost of a given execution plan.</p>
+<p>The estimator uses three different measures to determine cost:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-60B12417-9E06-4F3F-B796-DF86549A5B21" title="The selectivity represents a fraction of rows from a row set.">Selectivity</a></p>
+<p>The percentage of rows in the row set that the query selects, with <code class="codeph">0</code> meaning no rows and <code class="codeph">1</code> meaning all rows. Selectivity is tied to a query predicate, such as <code class="codeph">WHERE last_name LIKE &#39;A%&#39;</code>, or a combination of predicates. A predicate becomes more selective as the selectivity value approaches <code class="codeph">0</code> and less selective (or more unselective) as the value approaches <code class="codeph">1</code>.</p>
+<div class="infobox-note" id="GUID-2AB938B9-E1A8-4344-924B-8EFBB6134AFE__GUID-B816C421-979B-4283-AF77-BA3E0BD7D10A">
+<p class="notep1">Note:</p>
+<p>Selectivity is an internal calculation that is not visible in the execution plans.</p>
+</div>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-58CF21C3-3233-415C-BBE6-61AAA976EAD7" title="The cardinality is the number of rows returned by each operation in an execution plan.">Cardinality</a></p>
+<p>The cardinality is the number of rows returned by each operation in an execution plan. This input, which is crucial to obtaining an optimal plan, is common to all cost functions. The estimator can derive cardinality from the table statistics collected by <code class="codeph">DBMS_STATS</code>, or derive it after accounting for effects from predicates (filter, join, and so on), <code class="codeph">DISTINCT</code> or <code class="codeph">GROUP BY</code> operations, and so on. The <code class="codeph">Rows</code> column in an execution plan shows the estimated cardinality.</p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-9D0BF31B-7215-4BD8-B45D-A8BF2B4DB7E5" title="The optimizer cost model accounts for the machine resources that a query is predicted to use.">Cost</a></p>
+<p>This measure represents units of work or resource used. The query optimizer uses disk I/O, CPU usage, and memory usage as units of work.</p>
+</li>
+</ul>
+<p>As shown in the following graphic, if statistics are available, then the estimator uses them to compute the measures. The statistics improve the degree of accuracy of the measures.</p>
+<div class="figure" id="GUID-2AB938B9-E1A8-4344-924B-8EFBB6134AFE__BABHBJFA">
+<p class="titleinfigure">Figure 4-4 Estimator</p>
+<img width="404" height="207" src="img/GUID-E5E09C0A-502F-44A8-87BA-D9EDFD1C1090-default.png" alt="Description of Figure 4-4 follows" title="Description of Figure 4-4 follows"/><br/>
+<a href="img_text/GUID-E5E09C0A-502F-44A8-87BA-D9EDFD1C1090-print.htm">Description of &#34;Figure 4-4 Estimator&#34;</a></div>
+<!-- class="figure" -->
+<p>For the query shown in <a href="tgsql_optcncpt.htm#GUID-7A266A25-90F9-443A-83C5-C2BF1DC3F588__BABDBJJJ">Example 4-1</a>, the estimator uses selectivity, estimated cardinality (a total return of 10 rows), and cost measures to produce its total cost estimate of 3:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation                    |Name             |Rows|Bytes|Cost %CPU|Time|
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT             |                 | 10| 250| <span class="bold">3</span> (0)| 00:00:01|
+| 1 |  NESTED LOOPS                |                 |   |    |      |         |
+| 2 |   NESTED LOOPS               |                 | 10| 250| 3 (0)| 00:00:01|
+|*3 |    TABLE ACCESS FULL         |DEPARTMENTS      |  1|   7| 2 (0)| 00:00:01|
+|*4 |    INDEX RANGE SCAN          |EMP_DEPARTMENT_IX| 10|    | 0 (0)| 00:00:01|
+| 5 |   TABLE ACCESS BY INDEX ROWID|EMPLOYEES        | 10| 180| 1 (0)| 00:00:01|
+--------------------------------------------------------------------------------
+</pre></div>
+<a id="TGSQL215"></a>
+<div class="props_rev_3"><a id="GUID-60B12417-9E06-4F3F-B796-DF86549A5B21"></a>
+<h4 id="TGSQL-GUID-60B12417-9E06-4F3F-B796-DF86549A5B21" class="sect4">Selectivity</h4>
+<div>
+<p>The <span class="bold">selectivity</span> represents a fraction of rows from a row set.</p>
+<p>The row set can be a base table, a view, or the result of a join. The selectivity is tied to a query predicate, such as <code class="codeph">last_name</code> = <code class="codeph">&#39;Smith&#39;</code>, or a combination of predicates, such as <code class="codeph">last_name = &#39;Smith&#39; AND job_id = &#39;SH_CLERK&#39;</code>.</p>
+<div class="infobox-note" id="GUID-60B12417-9E06-4F3F-B796-DF86549A5B21__GUID-21F1013F-E2DE-4485-B441-B416B1403990">
+<p class="notep1">Note:</p>
+<p>Selectivity is an internal calculation that is not visible in execution plans.</p>
+</div>
+<p>A predicate filters a specific number of rows from a row set. Thus, the selectivity of a predicate indicates how many rows pass the predicate test. Selectivity ranges from 0.0 to 1.0. A selectivity of 0.0 means that no rows are selected from a row set, whereas a selectivity of 1.0 means that all rows are selected. A predicate becomes more selective as the value approaches 0.0 and less selective (or more unselective) as the value approaches 1.0.</p>
+<p>The optimizer estimates selectivity depending on whether statistics are available:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Statistics not available</p>
+<p>Depending on the value of the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter, the optimizer either uses <a href="glossary.htm#GUID-453737A7-931A-49D1-AA5C-AFB14D9837FB"><span class="xrefglossterm">dynamic statistics</span></a> or an internal default value. The database uses different internal defaults depending on the predicate type. For example, the internal default for an equality predicate (<code class="codeph">last_name = &#39;Smith&#39;</code>) is lower than for a range predicate (<code class="codeph">last_name &gt; &#39;Smith&#39;</code>) because an equality predicate is expected to return a smaller fraction of rows.</p>
+</li>
+<li>
+<p>Statistics available</p>
+<p>When statistics are available, the estimator uses them to estimate selectivity. Assume there are 150 distinct employee last names. For an equality predicate <code class="codeph">last_name = &#39;Smith&#39;</code>, selectivity is the reciprocal of the number <span class="italic"><code class="codeph">n</code></span> of distinct values of <code class="codeph">last_name</code>, which in this example is .006 because the query selects rows that contain 1 out of 150 distinct values.</p>
+<p>If a histogram exists on the <code class="codeph">last_name</code> column, then the estimator uses the histogram instead of the number of distinct values. The histogram captures the distribution of different values in a column, so it yields better selectivity estimates, especially for columns that have <a href="glossary.htm#GUID-D20523EE-FDDA-4C69-95CB-52EFC512616B"><span class="xrefglossterm">data skew</span></a>.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-60B12417-9E06-4F3F-B796-DF86549A5B21__GUID-B57621DB-7C01-4836-882A-C1180D1CDCA9">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_histo.htm#GUID-BE10EBFC-FEFC-4530-90DF-1443D9AD9B64" title="A histogram is a special type of column statistic that provides more detailed information about the data distribution in a table column. A histogram sorts values into &#34;buckets,&#34; as you might sort coins into buckets.">Histograms</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="TGSQL216"></a>
+<div class="props_rev_3"><a id="GUID-58CF21C3-3233-415C-BBE6-61AAA976EAD7"></a>
+<h4 id="TGSQL-GUID-58CF21C3-3233-415C-BBE6-61AAA976EAD7" class="sect4">Cardinality</h4>
+<div>
+<p>The <span class="bold">cardinality</span> is the number of rows returned by each operation in an execution plan.</p>
+<p>For example, if the optimizer estimate for the number of rows returned by a full table scan is 100, then the cardinality estimate for this operation is 100. The cardinality estimate appears in the <code class="codeph">Rows</code> column of the execution plan.</p>
+<p>The optimizer determines the cardinality for each operation based on a complex set of formulas that use both table and column level statistics, or dynamic statistics, as input. The optimizer uses one of the simplest formulas when a single equality predicate appears in a single-table query, with no histogram. In this case, the optimizer assumes a uniform distribution and calculates the cardinality for the query by dividing the total number of rows in the table by the number of distinct values in the column used in the <code class="codeph">WHERE</code> clause predicate.</p>
+<p>For example, user <code class="codeph">hr</code> queries the <code class="codeph">employees</code> table as follows:</p>
+<pre dir="ltr">SELECT first_name, last_name
+FROM   employees
+WHERE  salary=&#39;10200&#39;;
+</pre>
+<p>The <code class="codeph">employees</code> table contains 107 rows. The current database statistics indicate that the number of distinct values in the <code class="codeph">salary</code> column is <code class="codeph">58</code>. Therefore, the optimizer estimates the cardinality of the result set as <code class="codeph">2</code>, using the formula <code class="codeph">107/58=1.84</code>.</p>
+<p>Cardinality estimates must be as accurate as possible because they influence all aspects of the execution plan. Cardinality is important when the optimizer determines the cost of a join. For example, in a nested loops join of the <code class="codeph">employees</code> and <code class="codeph">departments</code> tables, the number of rows in <code class="codeph">employees</code> determines how often the database must probe the <code class="codeph">departments</code> table. Cardinality is also important for determining the cost of sorts.</p>
+</div>
+</div>
+<a id="TGSQL217"></a>
+<div class="props_rev_3"><a id="GUID-9D0BF31B-7215-4BD8-B45D-A8BF2B4DB7E5"></a>
+<h4 id="TGSQL-GUID-9D0BF31B-7215-4BD8-B45D-A8BF2B4DB7E5" class="sect4">Cost</h4>
+<div>
+<p>The <span class="bold">optimizer cost model</span> accounts for the machine resources that a query is predicted to use.</p>
+<p>The <a href="glossary.htm#GUID-7FCF0F80-65B5-4F76-A521-91ABD109DA17"><span class="xrefglossterm">cost</span></a> is an internal numeric measure that represents the estimated resource usage for a plan. The cost is <span class="italic">specific</span> to a query in an optimizer environment. To estimate cost, the optimizer considers factors such as the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>System resources, which includes estimated I/O, CPU, and memory</p>
+</li>
+<li>
+<p>Estimated number of rows returned (cardinality)</p>
+</li>
+<li>
+<p>Size of the initial data sets</p>
+</li>
+<li>
+<p>Distribution of the data</p>
+</li>
+<li>
+<p>Access structures</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-9D0BF31B-7215-4BD8-B45D-A8BF2B4DB7E5__GUID-28BE350F-0BAE-4482-BA17-F86879F58046">
+<p class="notep1">Note:</p>
+<p>The cost is an <span class="italic">internal</span> measure that the optimizer uses to compare different plans for the same query. You cannot tune or change cost.</p>
+</div>
+<p>The execution time is a function of the cost, but cost does not equate directly to time. For example, if the plan for query <span class="italic">A</span> has a lower cost than the plan for query <span class="italic">B</span>, then the following outcomes are possible:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="italic">A</span> executes faster than <span class="italic">B</span>.</p>
+</li>
+<li>
+<p><span class="italic">A</span> executes slower than <span class="italic">B</span>.</p>
+</li>
+<li>
+<p><span class="italic">A</span> executes in the same amount of time as <span class="italic">B</span>.</p>
+</li>
+</ul>
+<p>Therefore, you cannot compare the costs of different queries with one another. Also, you cannot compare the costs of semantically equivalent queries that use different optimizer modes.</p>
+<div class="example" id="GUID-9D0BF31B-7215-4BD8-B45D-A8BF2B4DB7E5__GUID-5B6D62C4-F02D-4F09-B15B-6397FBC3029A">
+<p class="titleinexample">Example 4-2 Cost in a Sample Execution Plan</p>
+<p>The execution plan displays the cost of the entire plan, which is indicated on line <code class="codeph">0</code>, and each individual operation. For example, the following plan shows an overall cost of <code class="codeph">14</code>.</p>
+<pre dir="ltr">EXPLAINED SQL STATEMENT:
+------------------------
+SELECT prod_category, AVG(amount_sold) FROM   sales s, products p WHERE
+ p.prod_id = s.prod_id GROUP BY prod_category
+ 
+Plan hash value: 4073170114
+ 
+----------------------------------------------------------------------
+| Id  | Operation                | Name                 | Cost (%CPU)|
+----------------------------------------------------------------------
+|   0 | SELECT STATEMENT         |                      |    <span class="bold">14</span> (100)|
+|   1 |  HASH GROUP BY           |                      |    14  (22)|
+|   2 |   HASH JOIN              |                      |    13  (16)|
+|   3 |    VIEW                  | index$_join$_002     |     7  (15)|
+|   4 |     HASH JOIN            |                      |            |
+|   5 |      INDEX FAST FULL SCAN| PRODUCTS_PK          |     4   (0)|
+|   6 |      INDEX FAST FULL SCAN| PRODUCTS_PROD_CAT_IX |     4   (0)|
+|   7 |    PARTITION RANGE ALL   |                      |     5   (0)|
+|   8 |     TABLE ACCESS FULL    | SALES                |     5   (0)|
+----------------------------------------------------------------------
+</pre>
+<p>The access path determines the number of units of work required to get data from a base table. To determine the overall plan cost, the optimizer assigns a cost to each access path:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Table scan or fast full index scan</p>
+<p>During a table scan or fast full index scan, the database reads multiple blocks from disk in a single I/O. The cost of the scan depends on the number of blocks to be scanned and the multiblock read count value.</p>
+</li>
+<li>
+<p>Index scan</p>
+<p>The cost of an index scan depends on the levels in the B-tree, the number of index leaf blocks to be scanned, and the number of rows to be fetched using the rowid in the index keys. The cost of fetching rows using rowids depends on the <a href="glossary.htm#GUID-42782A2D-85E7-4DEA-93FA-584F3D0A1935"><span class="xrefglossterm">index clustering factor</span></a>.</p>
+</li>
+</ul>
+<p>The <span class="bold">join cost</span> represents the combination of the individual access costs of the two row sets being joined, plus the cost of the join operation.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL219"></a><a id="TGSQL218"></a>
+<div class="props_rev_3"><a id="GUID-CB5FAF86-7DAF-446B-98A9-CB8DF3B2C68F"></a>
+<h3 id="TGSQL-GUID-CB5FAF86-7DAF-446B-98A9-CB8DF3B2C68F" class="sect3">Plan Generator</h3>
+<div>
+<p>The <span class="bold">plan generator</span> explores various plans for a query block by trying out different access paths, join methods, and join orders.</p>
+<p>Many plans are possible because of the various combinations that the database can use to produce the same result. The optimizer picks the plan with the lowest cost.</p>
+<p>The following graphic shows the optimizer testing different plans for an input query.</p>
+<div class="figure" id="GUID-CB5FAF86-7DAF-446B-98A9-CB8DF3B2C68F__BABJDBIH">
+<p class="titleinfigure">Figure 4-5 Plan Generator</p>
+<img width="422" height="422" src="img/GUID-E6CB113A-3F66-49CA-AD0B-77C338425DCA-default.png" alt="Description of Figure 4-5 follows" title="Description of Figure 4-5 follows"/><br/>
+<a href="img_text/GUID-E6CB113A-3F66-49CA-AD0B-77C338425DCA-print.htm">Description of &#34;Figure 4-5 Plan Generator&#34;</a></div>
+<!-- class="figure" -->
+<p>The following snippet from an optimizer trace file shows some computations that the optimizer performs:</p>
+<pre dir="ltr">GENERAL PLANS
+***************************************
+Considering cardinality-based initial join order.
+Permutations for Starting Table :0
+<span class="bold">Join order[1]:  DEPARTMENTS[D]#0  EMPLOYEES[E]#1</span>
+ 
+***************
+Now joining: EMPLOYEES[E]#1
+***************
+NL Join
+  Outer table: Card: 27.00  Cost: 2.01  Resp: 2.01  Degree: 1  Bytes: 16
+Access path analysis for EMPLOYEES
+. . .
+  <span class="bold">Best NL cost: 13.17</span>
+. . .
+SM Join
+  <span class="bold">SM cost: 6.08</span>
+     resc: 6.08 resc_io: 4.00 resc_cpu: 2501688
+     resp: 6.08 resp_io: 4.00 resp_cpu: 2501688
+. . .
+SM Join (with index on outer)
+  Access Path: index (FullScan)
+. . .
+HA Join
+  <span class="bold">HA cost: 4.57</span>
+     resc: 4.57 resc_io: 4.00 resc_cpu: 678154
+     resp: 4.57 resp_io: 4.00 resp_cpu: 678154
+<span class="bold">Best:: JoinMethod: Hash</span>
+       Cost: 4.57  Degree: 1  Resp: 4.57  Card: 106.00 Bytes: 27
+. . .
+
+***********************
+<span class="bold">Join order[2]:  EMPLOYEES[E]#1  DEPARTMENTS[D]#0</span>
+. . .
+ 
+***************
+Now joining: DEPARTMENTS[D]#0
+***************
+. . .
+HA Join
+  HA cost: 4.58
+     resc: 4.58 resc_io: 4.00 resc_cpu: 690054
+     resp: 4.58 resp_io: 4.00 resp_cpu: 690054
+<span class="bold">Join order aborted: cost &gt; best plan cost</span>
+***********************
+</pre>
+<p>The trace file shows the optimizer first trying the <code class="codeph">departments</code> table as the outer table in the join. The optimizer calculates the cost for three different join methods: nested loops join (NL), sort merge (SM), and hash join (HA). The optimizer picks the hash join as the most efficient method:</p>
+<pre dir="ltr"><span class="bold">Best:: JoinMethod: Hash</span>
+       Cost: 4.57  Degree: 1  Resp: 4.57  Card: 106.00 Bytes: 27
+</pre>
+<p>The optimizer then tries a different join order, using <code class="codeph">employees</code> as the outer table. This join order costs more than the previous join order, so it is abandoned.</p>
+<p>The optimizer uses an internal cutoff to reduce the number of plans it tries when finding the lowest-cost plan. The cutoff is based on the cost of the current best plan. If the current best cost is large, then the optimizer explores alternative plans to find a lower cost plan. If the current best cost is small, then the optimizer ends the search swiftly because further cost improvement is not significant.</p>
+</div>
+</div>
+</div>
+<a id="TGSQL220"></a>
+<div class="props_rev_3"><a id="GUID-7D015E05-A08D-478B-81AC-AB04ECEED8FA"></a>
+<h2 id="TGSQL-GUID-7D015E05-A08D-478B-81AC-AB04ECEED8FA" class="sect2">About Automatic Tuning Optimizer</h2>
+<div>
+<p>The optimizer performs different operations depending on how it is invoked.</p>
+<p>The database provides the following types of optimization:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Normal optimization</p>
+<p>The optimizer compiles the SQL and generates an execution plan. The normal mode generates a reasonable plan for most SQL statements. Under normal mode, the optimizer operates with strict time constraints, usually a fraction of a second, during which it must find an optimal plan.</p>
+</li>
+<li>
+<p>SQL Tuning Advisor optimization</p>
+<p>When SQL Tuning Advisor invokes the optimizer, the optimizer is known as <a href="glossary.htm#GUID-6FD1585E-9283-4881-A5BF-86165B4F8C23"><span class="xrefglossterm">Automatic Tuning Optimizer</span></a>. In this case, the optimizer performs additional analysis to further improve the plan produced in normal mode. The optimizer output is not an execution plan, but a series of actions, along with their rationale and expected benefit for producing a significantly better plan.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-7D015E05-A08D-478B-81AC-AB04ECEED8FA__GUID-AFE9B45A-19F2-4AA3-BF39-B6F6B75734B7">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_sqltune.htm#GUID-8E1A39CB-A491-4254-8B31-9B1DF7B52AA1" title="SQL Tuning Advisor is SQL diagnostic software in the Oracle Database Tuning Pack. You can submit one or more SQL statements as input to the advisor and receive advice or recommendations for how to tune the statements, along with a rationale and expected benefit.SQL Tuning Advisor is a mechanism for resolving problems related to suboptimally performing SQL statements. Automatic Tuning Optimizer is the central tool used by SQL Tuning Advisor. The advisor can receive SQL statements as input from multiple sources, analyze these statements using the optimizer, and then make recommendations.Configure SQL Tuning Advisor to run automatically using DBMS_AUTO_SQLTUNE, or on demand using DBMS_SQLTUNE.Input for SQL Tuning Advisor can come from several sources, including ADDM, AWR, the shared SQL area, and SQL tuning sets.After analyzing the SQL statements, SQL Tuning Advisor publishes recommendations.In tuning mode, the optimizer has more time to consider options and gather statistics.The optimizer relies on object statistics to generate execution plans. If these statistics are stale or missing, then the optimizer can generate suboptimal plans. Automatic Tuning Optimizer checks each query object for missing or stale statistics, and recommends gathering fresh statistics if needed.SQL profiling is the verification by the Automatic Tuning Optimizer of its own estimates.The database can profile some DML and DDL statements.If the optimizer generates auxiliary information during statistical analysis or SQL profiling, then the optimizer recommends implementing a SQL profile. An access path is the means by which the database retrieves data.During structural analysis, Automatic Tuning Optimizer tries to identify syntactic, semantic, or design problems that can lead to suboptimal performance. The goal is to identify poorly written SQL statements and to advise you how to restructure them.While tuning a SQL statement, SQL Tuning Advisor searches real-time and historical performance data for alternative execution plans for the statement.By default, the Automatic SQL Tuning task runs for in a nightly maintenance window.Configuring automatic SQL tuning instead of tuning manually decreases cost and increases manageabilityOracle Scheduler uses the automated maintenance tasks infrastructure (known as AutoTask) to schedules tasks to run automatically.This section explains the basic tasks in running SQL Tuning Advisor as an automatic task. You can enable and disable all automatic maintenance tasks, including the Automatic SQL Tuning task, using Cloud Control.If you do not use Cloud Control to enable and disable the Automatic SQL Tuning task, then you must use the command line.You can enable and disable all automatic maintenance tasks, including the Automatic SQL Tuning task, using Cloud Control. You must perform the operation as SYS or have the EXECUTE privilege on the PL/SQL package DBMS_AUTO_SQLTUNE.Automatic Database Diagnostic Monitor (ADDM) automatically identifies high-load SQL statements. If ADDM identifies such statements, then click Schedule/Run SQL Tuning Advisor on the Recommendation Detail page to run SQL Tuning Advisor.This section explains the basic tasks in running SQL Tuning Advisor using the DBMS_SQLTUNE package. To change the parameters of a tuning task after it has been created, execute the DBMS_SQLTUNE.SET_TUNING_TASK_PARAMETER function.">Analyzing SQL with SQL Tuning Advisor</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink TDPPT-GUID-6B386EC1-A58F-4CFC-AEFB-9F787A112396" target="_blank" href="../TDPPT/tdppt_sqltune.htm#TDPPT-GUID-6B386EC1-A58F-4CFC-AEFB-9F787A112396"><span><cite>Oracle Database 2 Day + Performance Tuning Guide</cite></span></a> to learn more about SQL Tuning Advisor</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL94982"></a>
+<div class="props_rev_3"><a id="GUID-F368C89A-5CAE-432C-845C-CC38C7F93A03"></a>
+<h2 id="TGSQL-GUID-F368C89A-5CAE-432C-845C-CC38C7F93A03" class="sect2">About Adaptive Query Optimization</h2>
+<div>
+<p>In Oracle Database, <span class="bold">adaptive query optimization</span> enables the optimizer to make run-time adjustments to execution plans and discover additional information that can lead to better statistics.</p>
+<p>Adaptive optimization is helpful when existing statistics are not sufficient to generate an optimal plan. The following graphic shows the feature set for adaptive query optimization.</p>
+<div class="figure" id="GUID-F368C89A-5CAE-432C-845C-CC38C7F93A03__GUID-D43FBDC9-4348-474B-945E-3FE107468170">
+<p class="titleinfigure">Figure 4-6 Adaptive Query Optimization</p>
+<img width="656" height="263" src="img/GUID-49D9ED5D-AF45-4A67-86D9-1E05A68A2063-default.png" alt="Description of Figure 4-6 follows" title="Description of Figure 4-6 follows"/><br/>
+<a href="img_text/GUID-49D9ED5D-AF45-4A67-86D9-1E05A68A2063-print.htm">Description of &#34;Figure 4-6 Adaptive Query Optimization&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="TGSQL221"></a>
+<div class="props_rev_3"><a id="GUID-5A1EB094-1A9E-4B69-9BE5-39BDA2B3253C"></a>
+<h3 id="TGSQL-GUID-5A1EB094-1A9E-4B69-9BE5-39BDA2B3253C" class="sect3">Adaptive Query Plans</h3>
+<div>
+<p>An <span class="bold">adaptive plan</span> enables the optimizer to defer the final plan decision for a statement until execution time.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-3E7CB836-AEA5-4446-BA80-F322258CFCFA" title="The ability of the optimizer to adapt a plan, based on information learned during execution, can greatly improve query performance.">Purpose of Adaptive Query Plans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-A42B8874-95AF-4D5B-B5D9-F0376F91D15E" title="An adaptive plan contains multiple predetermined subplans, and an optimizer statistics collector.">How Adaptive Query Plans Work</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-FA5123F0-85A8-47A6-9706-E3FE67B54A50" title="This example shows how the optimizer can choose a different plan based on information collected at runtime.">Adaptive Query Plans: Join Method Example</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-B82D2668-CC83-483B-8DC9-404B9CAAD648" title="Typically, parallel execution requires data redistribution to perform operations such as parallel sorts, aggregations, and joins.">Adaptive Query Plans: Parallel Distribution Methods</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-5A1EB094-1A9E-4B69-9BE5-39BDA2B3253C__GUID-757CF6A6-27BC-4792-B387-37E86E5E4E59">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E" title="The optimizer cost model relies on statistics collected about the objects involved in a query, and the database and host where the query runs.">Introduction to Optimizer Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_sqltune.htm#GUID-EF47CEF3-E31A-4A2A-8BCE-19DC5F06F458" title="SQL Tuning Advisor is SQL diagnostic software in the Oracle Database Tuning Pack. You can submit one or more SQL statements as input to the advisor and receive advice or recommendations for how to tune the statements, along with a rationale and expected benefit.">About SQL Tuning Advisor</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-F1C45056-F998-43E5-B362-83F88DA49E58" title="SQL plan management is a preventative mechanism that enables the optimizer to automatically manage execution plans, ensuring that the database uses only known or verified plans.">About SQL Plan Management</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="props_rev_3"><a id="GUID-3E7CB836-AEA5-4446-BA80-F322258CFCFA"></a>
+<h4 id="TGSQL-GUID-3E7CB836-AEA5-4446-BA80-F322258CFCFA" class="sect4">Purpose of Adaptive Query Plans</h4>
+<div>
+<p>The ability of the optimizer to adapt a plan, based on information learned during execution, can greatly improve query performance.</p>
+<p>Adaptive plans are useful because the optimizer occasionally picks a suboptimal <a href="glossary.htm#GUID-AA88D177-24AC-450D-8C6D-9E4EEE2DEF19"><span class="xrefglossterm">default plan</span></a> because of a cardinality misestimate. The ability to adapt the plan at run time based on actual execution statistics results in a more optimal <a href="glossary.htm#GUID-584E030C-0C65-4F35-AD63-C30121C0C9D8"><span class="xrefglossterm">final plan</span></a>. After choosing the final plan, the optimizer uses it for subsequent executions, thus ensuring that the suboptimal plan is not reused.</p>
+</div>
+</div>
+<a id="TGSQL224"></a>
+<div class="props_rev_3"><a id="GUID-A42B8874-95AF-4D5B-B5D9-F0376F91D15E"></a>
+<h4 id="TGSQL-GUID-A42B8874-95AF-4D5B-B5D9-F0376F91D15E" class="sect4">How Adaptive Query Plans Work</h4>
+<div>
+<p>An adaptive plan contains multiple predetermined subplans, and an optimizer statistics collector.</p>
+<p>A <a href="glossary.htm#GUID-430086FC-D715-4EE2-AA30-3643828597FA"><span class="xrefglossterm">subplan</span></a> is a portion of a plan that the optimizer can switch to as an alternative at run time. For example, a nested loops join could be switched to a hash join during execution. An <a href="glossary.htm#GUID-D20217BA-B1E4-49B4-9630-97513DF1BFB2"><span class="xrefglossterm">optimizer statistics collector</span></a> is a row source inserted into a plan at key points to collect run-time statistics. These statistics help the optimizer make a final decision between multiple subplans.</p>
+<p>During statement execution, the statistics collector gathers information about the execution, and buffers some rows received by the subplan. Based on the information observed by the collector, the optimizer chooses a subplan. At this point, the collector stops collecting statistics and buffering rows, and permits rows to pass through instead. On subsequent executions of the child cursor, the optimizer continues to use the same plan unless the plan ages out of the cache, or a different optimizer feature (for example, adaptive cursor sharing or statistics feedback) invalidates the plan.</p>
+<p>The database uses adaptive plans when <code class="codeph">OPTIMIZER_FEATURES_ENABLE</code> is <code class="codeph">12.1.0.1</code> or later, and the <code class="codeph">OPTIMIZER_ADAPTIVE_REPORTING_ONLY</code> initialization parameter is set to the default of <code class="codeph">false</code>.</p>
+<div class="infoboxnotealso" id="GUID-A42B8874-95AF-4D5B-B5D9-F0376F91D15E__GUID-763895D5-1084-40AE-ACA9-8F650F452438">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-DAFB7D07-E8B3-4219-A09D-214BD943AFF9" title="In Oracle Database, adaptive query optimization is the process by which the optimizer adapts an execution plan based on statistics collected at run time.">Controlling Adaptive Optimization</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="TGSQL225"></a><a id="TGSQL95000"></a>
+<div class="props_rev_3"><a id="GUID-FA5123F0-85A8-47A6-9706-E3FE67B54A50"></a>
+<h4 id="TGSQL-GUID-FA5123F0-85A8-47A6-9706-E3FE67B54A50" class="sect4">Adaptive Query Plans: Join Method Example</h4>
+<div>
+<p>This example shows how the optimizer can choose a different plan based on information collected at runtime.</p>
+<p>The following query shows a join of the <code class="codeph">order_items</code> and <code class="codeph">prod_info</code> tables.</p>
+<pre dir="ltr">SELECT product_name  
+FROM   order_items o, prod_info p  
+WHERE  o.unit_price = 15 
+AND    quantity &gt; 1  
+AND    p.product_id = o.product_id
+</pre>
+<p>An adaptive query plan for this statement shows two possible plans, one with a nested loops join and the other with a hash join:</p>
+<pre dir="ltr">SELECT * FROM TABLE(DBMS_XPLAN.display_cursor(FORMAT =&gt; &#39;ADAPTIVE&#39;));
+
+SQL_ID  7hj8dwwy6gm7p, child number 0
+-------------------------------------
+SELECT product_name FROM   order_items o, prod_info p WHERE
+o.unit_price = 15 AND    quantity &gt; 1 AND    p.product_id = o.product_id
+
+Plan hash value: 1553478007
+
+-----------------------------------------------------------------------------
+| Id | Operation                     | Name     |Rows|Bytes|Cost (%CPU)|Time|
+-----------------------------------------------------------------------------
+|   0| SELECT STATEMENT              |              | |     |7(100)|        |
+| * 1|  HASH JOIN                    |              |4| 128 | 7 (0)|00:00:01|
+|-  2|   NESTED LOOPS                |              |4| 128 | 7 (0)|00:00:01|
+|-  3|    NESTED LOOPS               |              |4| 128 | 7 (0)|00:00:01|
+|-  4|     STATISTICS COLLECTOR      |              | |     |      |        |
+| * 5|      TABLE ACCESS FULL        | ORDER_ITEMS  |4|  48 | 3 (0)|00:00:01|
+|-* 6|     INDEX UNIQUE SCAN         | PROD_INFO_PK |1|     | 0 (0)|        |
+|-  7|    TABLE ACCESS BY INDEX ROWID| PROD_INFO    |1|  20 | 1 (0)|00:00:01|
+|   8|   TABLE ACCESS FULL           | PROD_INFO    |1|  20 | 1 (0)|00:00:01|
+-----------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - access(&#34;P&#34;.&#34;PRODUCT_ID&#34;=&#34;O&#34;.&#34;PRODUCT_ID&#34;)
+   5 - filter((&#34;O&#34;.&#34;UNIT_PRICE&#34;=15 AND &#34;QUANTITY&#34;&gt;1))
+   6 - access(&#34;P&#34;.&#34;PRODUCT_ID&#34;=&#34;O&#34;.&#34;PRODUCT_ID&#34;)
+
+Note
+-----
+   - this is an adaptive plan (rows marked &#39;-&#39; are inactive)
+</pre>
+<p>A nested loops join is preferable if the database can avoid scanning a significant portion of <code class="codeph">prod_info</code> because its rows are filtered by the join predicate. If few rows are filtered, however, then scanning the right table in a hash join is preferable.</p>
+<p>The following graphic shows the adaptive process. For the query in the preceding example, the adaptive portion of the default plan contains two subplans, each of which uses a different join method. The optimizer automatically determines when each join method is optimal, depending on the cardinality of the left side of the join.</p>
+<p>The statistics collector buffers enough rows coming from the <code class="codeph">order_items</code> table to determine which join method to use. If the row count is below the threshold determined by the optimizer, then the optimizer chooses the nested loops join; otherwise, the optimizer chooses the hash join. In this case, the row count coming from the <code class="codeph">order_items</code> table is above the threshold, so the optimizer chooses a hash join for the final plan, and disables buffering.</p>
+<div class="figure" id="GUID-FA5123F0-85A8-47A6-9706-E3FE67B54A50__GUID-D211C556-0892-48C8-99C7-E93A70CE01D8">
+<p class="titleinfigure">Figure 4-7 Adaptive Join Methods</p>
+<img width="491" height="660" src="img/GUID-9AD2736A-D446-4005-8BAC-C52AA3603669-default.bmp" alt="Description of Figure 4-7 follows" title="Description of Figure 4-7 follows"/><br/>
+<a href="img_text/GUID-9AD2736A-D446-4005-8BAC-C52AA3603669-default.htm">Description of &#34;Figure 4-7 Adaptive Join Methods&#34;</a></div>
+<!-- class="figure" -->
+<p>The <code class="codeph">Note</code> section of the execution plan indicates whether the plan is adaptive, and which rows in the plan are inactive.</p>
+<div class="infoboxnotealso" id="GUID-FA5123F0-85A8-47A6-9706-E3FE67B54A50__GUID-EA8D3843-A0C8-4DB1-94C9-F7F76351492A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-DAFB7D07-E8B3-4219-A09D-214BD943AFF9" title="In Oracle Database, adaptive query optimization is the process by which the optimizer adapts an execution plan based on statistics collected at run time.">Controlling Adaptive Optimization</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_interp.htm#GUID-4B80D575-3DBC-49CD-932E-5DD95F80201B">Reading Execution Plans: Advanced</a>&#34;</span> for an extended example showing an adaptive query plan</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95360"></a><a id="TGSQL95022"></a>
+<div class="props_rev_3"><a id="GUID-B82D2668-CC83-483B-8DC9-404B9CAAD648"></a>
+<h4 id="TGSQL-GUID-B82D2668-CC83-483B-8DC9-404B9CAAD648" class="sect4">Adaptive Query Plans: Parallel Distribution Methods</h4>
+<div>
+<p>Typically, parallel execution requires data redistribution to perform operations such as parallel sorts, aggregations, and joins.</p>
+<p>Oracle Database can use many different data distributions methods. The database chooses the method based on the number of rows to be distributed and the number of parallel server processes in the operation.</p>
+<p>For example, consider the following alternative cases:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Many parallel server processes distribute few rows.</p>
+<p>The database may choose the broadcast distribution method. In this case, each parallel server process receives each row in the result set.</p>
+</li>
+<li>
+<p>Few parallel server processes distribute many rows.</p>
+<p>If a data skew is encountered during the data redistribution, then it could adversely affect the performance of the statement. The database is more likely to pick a hash distribution to ensure that each parallel server process receives an equal number of rows.</p>
+</li>
+</ul>
+<p>The <a href="glossary.htm#GUID-23185865-0232-4D40-8FAC-191B79DAF9FF"><span class="xrefglossterm">hybrid hash distribution technique</span></a> is an adaptive parallel data distribution that does not decide the final data distribution method until execution time. The optimizer inserts statistic collectors in front of the parallel server processes on the producer side of the operation. If the number of rows is less than a threshold, defined as twice the <a href="glossary.htm#GUID-B23E1555-67E3-47DE-99B2-B39608F84DA9"><span class="xrefglossterm">degree of parallelism (DOP)</span></a>, then the data distribution method switches from hash to broadcast. Otherwise, the distribution method is a hash.</p>
+<div class="section">
+<p class="subhead3">Broadcast Distribution</p>
+<p>The following graphic depicts a hybrid hash join between the <code class="codeph">departments</code> and <code class="codeph">employees</code> tables, with a query coordinator directing 8 parallel server processes: P5-P8 are producers, whereas P1-P4 are consumers. Each producer has its own consumer.</p>
+<div class="figure" id="GUID-B82D2668-CC83-483B-8DC9-404B9CAAD648__BABDJAGI">
+<p class="titleinfigure">Figure 4-8 Adaptive Query with DOP of 4</p>
+<img width="621" height="437" src="img/GUID-EA92BF95-844E-4C69-A21F-9B804A011420-default.png" alt="Description of Figure 4-8 follows" title="Description of Figure 4-8 follows"/><br/>
+<a href="img_text/GUID-EA92BF95-844E-4C69-A21F-9B804A011420-print.htm">Description of &#34;Figure 4-8 Adaptive Query with DOP of 4&#34;</a></div>
+<!-- class="figure" -->
+<p>The database inserts a statistics collector in front of each producer process scanning the <code class="codeph">departments</code> table. The query coordinator aggregates the collected statistics. The distribution method is based on the run-time statistics. In <a href="tgsql_optcncpt.htm#GUID-B82D2668-CC83-483B-8DC9-404B9CAAD648__BABDJAGI">Figure 4-8</a>, the number of rows is <span class="italic">below</span> the threshold (8), which is twice the DOP (4), so the optimizer chooses a broadcast technique for the <code class="codeph">departments</code> table.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Hybrid Hash Distribution</p>
+<p>Consider an example that returns a greater number of rows. In the following plan, the threshold is 8, or twice the specified DOP of 4. However, because the statistics collector (Step 10) discovers that the number of rows (27) is greater than the threshold (8), the optimizer chooses a hybrid hash distribution rather than a broadcast distribution. (The time column should show <code class="codeph">00:00:01</code>, but shows <code class="codeph">0:01</code> so the plan can fit the page.)</p>
+<pre dir="ltr">EXPLAIN PLAN FOR 
+  SELECT /*+ parallel(4) full(e) full(d) */ department_name, sum(salary)
+  FROM   employees e, departments d
+  WHERE  d.department_id=e.department_id
+  GROUP BY department_name;
+
+Plan hash value: 2940813933
+-----------------------------------------------------------------------------------------------
+|Id|Operation                          | Name    |Rows|Bytes|Cost |Time| TQ |IN-OUT|PQ Distrib|
+-----------------------------------------------------------------------------------------------
+| 0|SELECT STATEMENT                   |DEPARTMENTS| 27|621 |6(34)|0:01|     |    |           |
+| 1| PX COORDINATOR                    |           |   |    |     |    |     |    |           |
+| 2|  PX SEND QC (RANDOM)              | :TQ10003  | 27|621 |6(34)|0:01|Q1,03|P-&gt;S| QC (RAND) |
+| 3|   HASH GROUP BY                   |           | 27|621 |6(34)|0:01|Q1,03|PCWP|           |
+| 4|    PX RECEIVE                     |           | 27|621 |6(34)|0:01|Q1,03|PCWP|           |
+| 5|     PX SEND HASH                  | :TQ10002  | 27|621 |6(34)|0:01|Q1,02|P-&gt;P| HASH      |
+| 6|      HASH GROUP BY                |           | 27|621 |6(34)|0:01|Q1,02|PCWP|           |
+|*7|       HASH JOIN                   |           |106|2438|5(20)|0:01|Q1,02|PCWP|           |
+| 8|        PX RECEIVE                 |           | 27|432 |2 (0)|0:01|Q1,02|PCWP|           |
+| 9|         <span class="bold">PX SEND HYBRID HASH</span>       | :TQ10000  | 27|432 |2 (0)|0:01|Q1,00|P-&gt;P|HYBRID HASH|
+|10|          <span class="bold">STATISTICS COLLECTOR</span>     |           |   |    |     |    |Q1,00|PCWC|           |
+|11|           PX BLOCK ITERATOR       |           | 27|432 |2 (0)|0:01|Q1,00|PCWC|           |
+|12|            TABLE ACCESS FULL      |DEPARTMENTS| 27|432 |2 (0)|0:01|Q1,00|PCWP|           |
+|13|        PX RECEIVE                 |           |107|749 |2 (0)|0:01|Q1,02|PCWP|           |
+|14|         <span class="bold">PX SEND HYBRID HASH (SKEW)</span>| :TQ10001  |107|749 |2 (0)|0:01|Q1,01|P-&gt;P|HYBRID HASH|
+|15|          PX BLOCK ITERATOR        |           |107|749 |2 (0)|0:01|Q1,01|PCWC|           |
+|16|           TABLE ACCESS FULL       | EMPLOYEES |107|749 |2 (0)|0:01|Q1,01|PCWP|           |
+-----------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   7 - access(&#34;D&#34;.&#34;DEPARTMENT_ID&#34;=&#34;E&#34;.&#34;DEPARTMENT_ID&#34;)
+
+Note
+-----
+   - Degree of Parallelism is 4 because of hint
+
+32 rows selected.
+</pre>
+<div class="infoboxnotealso" id="GUID-B82D2668-CC83-483B-8DC9-404B9CAAD648__GUID-1D83F7AC-67D9-4604-B25F-94F9BE4E8A44">
+<p class="notep1">See Also:</p>
+<p><a class="olink VLDBG1382" target="_blank" href="../VLDBG/GUID-98409B8F-5D16-421C-A30F-B1C08E4CA9E1.htm#VLDBG1382"><span><cite>Oracle Database VLDB and Partitioning Guide</cite></span></a> to learn more about parallel data redistribution techniques</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<div class="sect4"><a id="GUID-54A0766C-C81C-4633-A63A-F4A948BA0B94"></a>
+<h4 id="TGSQL-GUID-54A0766C-C81C-4633-A63A-F4A948BA0B94" class="sect4">Adaptive Query Plans: Bitmap Index Pruning</h4>
+<div>
+<p>Adaptive plans prune indexes that do not significantly reduce the number of matched rows.</p>
+<p>When the optimizer generates a star transformation plan, it must choose the right combination of bitmap indexes to reduce the relevant set of rowids as efficiently as possible. If many indexes exist, some indexes might not reduce the rowid set substantially, but nevertheless introduce significant processing cost during query execution. Adaptive plans can solve this problem by not using indexes that degrade performance.</p>
+<div class="example" id="GUID-54A0766C-C81C-4633-A63A-F4A948BA0B94__GUID-FDBF23B9-3197-480A-BEBE-E151F50902C3">
+<p class="titleinexample">Example 4-3 Bitmap Index Pruning</p>
+<p>In this example, you issue the following star query, which joins the <code class="codeph">cars</code> fact table with multiple dimension tables (sample output included):</p>
+<pre dir="ltr">SELECT /*+ star_transformation(r) */ l.color_name, k.make_name, 
+       h.filter_col, count(*)
+FROM   cars r, colors l, makes k, models d, hcc_tab h
+WHERE  r.make_id = k.make_id
+AND    r.color_id = l.color_id
+AND    r.model_id = d.model_id
+AND    r.high_card_col = h.high_card_col
+AND    d.model_name = &#39;RAV4&#39;
+AND    k.make_name = &#39;Toyota&#39;
+AND    l.color_name = &#39;Burgundy&#39;
+AND    h.filter_col = 100
+GROUP BY l.color_name, k.make_name, h.filter_col;
+
+
+COLOR_NA MAKE_N FILTER_COL   COUNT(*)
+-------- ------ ---------- ----------
+Burgundy Toyota        100      15000
+</pre>
+<p>The following sample execution plan shows that the query generated no rows for the bitmap node in Step 12 and Step 17. The adaptive optimizer determined that filtering rows by using the <code class="codeph">CAR_MODEL_IDX</code> and <code class="codeph">CAR_MAKE_IDX</code> indexes was inefficient. The query did not use the steps in the plan that begin with a dash (<code class="codeph">-</code>).</p>
+<pre dir="ltr">-----------------------------------------------------------
+| Id  | Operation                         | Name           |
+-----------------------------------------------------------
+|   0 | SELECT STATEMENT                  |                |
+|   1 |  SORT GROUP BY NOSORT             |                |
+|   2 |   HASH JOIN                       |                |
+|   3 |    VIEW                           | VW_ST_5497B905 |
+|   4 |     NESTED LOOPS                  |                |
+|   5 |      BITMAP CONVERSION TO ROWIDS  |                |
+|   6 |       BITMAP AND                  |                |
+|   7 |        BITMAP MERGE               |                |
+|   8 |         BITMAP KEY ITERATION      |                |
+|   9 |          TABLE ACCESS FULL        | COLORS         |
+|  10 |          BITMAP INDEX RANGE SCAN  | CAR_COLOR_IDX  |
+|- 11 |        STATISTICS COLLECTOR       |                |
+|- 12 |         BITMAP MERGE              |                |
+|- 13 |          BITMAP KEY ITERATION     |                |
+|- 14 |           TABLE ACCESS FULL       | MODELS         |
+|- 15 |           BITMAP INDEX RANGE SCAN | CAR_MODEL_IDX  |
+|- 16 |        STATISTICS COLLECTOR       |                |
+|- 17 |         BITMAP MERGE              |                |
+|- 18 |          BITMAP KEY ITERATION     |                |
+|- 19 |           TABLE ACCESS FULL       | MAKES          |
+|- 20 |           BITMAP INDEX RANGE SCAN | CAR_MAKE_IDX   |
+|  21 |      TABLE ACCESS BY USER ROWID   | CARS           |
+|  22 |    MERGE JOIN CARTESIAN           |                |
+|  23 |     MERGE JOIN CARTESIAN          |                |
+|  24 |      MERGE JOIN CARTESIAN         |                |
+|  25 |       TABLE ACCESS FULL           | MAKES          |
+|  26 |       BUFFER SORT                 |                |
+|  27 |        TABLE ACCESS FULL          | MODELS         |
+|  28 |      BUFFER SORT                  |                |
+|  29 |       TABLE ACCESS FULL           | COLORS         |
+|  30 |     BUFFER SORT                   |                |
+|  31 |      TABLE ACCESS FULL            | HCC_TAB        |
+-----------------------------------------------------------
+
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+   - star transformation used for this statement
+   - this is an adaptive plan (rows marked &#39;-&#39; are inactive)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL94983"></a>
+<div class="props_rev_3"><a id="GUID-298EDC61-405A-4E25-AEF6-C795E32AAC93"></a>
+<h3 id="TGSQL-GUID-298EDC61-405A-4E25-AEF6-C795E32AAC93" class="sect3">Adaptive Statistics</h3>
+<div>
+<p>The optimizer can use <span class="bold">adaptive statistics</span> when query predicates are too complex to rely on base table statistics alone.</p>
+<p>The following topics describe types of adaptive statistics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-2D218B35-A443-41CB-855C-CF41ADB802EE" title="During the compilation of a SQL statement, the optimizer decides whether to use dynamic statistics by considering whether the available statistics are sufficient to generate an optimal execution plan.">Dynamic Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-D23F8328-A4CF-4211-8C9B-79B826F34A32" title="In automatic reoptimization, the optimizer changes a plan on subsequent executions after the initial execution.">Automatic Reoptimization</a></p>
+</li>
+<li>
+<p><a href="tgsql_optcncpt.htm#GUID-FD0EC783-E77C-4F8C-A26D-C2BFDD0F4CB9" title="A SQL plan directive is additional information that the optimizer uses to generate a more optimal plan.">SQL Plan Directives</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94984"></a>
+<div class="props_rev_3"><a id="GUID-2D218B35-A443-41CB-855C-CF41ADB802EE"></a>
+<h4 id="TGSQL-GUID-2D218B35-A443-41CB-855C-CF41ADB802EE" class="sect4">Dynamic Statistics</h4>
+<div>
+<p>During the compilation of a SQL statement, the optimizer decides whether to use dynamic statistics by considering whether the available statistics are sufficient to generate an optimal execution plan.</p>
+<p>If the available statistics are insufficient, then the optimizer uses <a href="glossary.htm#GUID-453737A7-931A-49D1-AA5C-AFB14D9837FB"><span class="xrefglossterm">dynamic statistics</span></a> to augment the statistics. One type of dynamic statistics is the information gathered by dynamic sampling. The optimizer can use dynamic statistics for table scans, index access, joins, and <code class="codeph">GROUP BY</code> operations, thus improving the quality of optimizer decisions.</p>
+<div class="infoboxnotealso" id="GUID-2D218B35-A443-41CB-855C-CF41ADB802EE__GUID-8C162EEE-F409-4019-AE54-F964E58DA194">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-620CB826-10A2-4937-8DAD-2B41475AE47F" title="By default, when optimizer statistics are missing, stale, or insufficient, the database automatically gathers dynamic statistics during a parse. The database uses recursive SQL to scan a small random sample of table blocks.">Supplemental Dynamic Statistics</a>&#34;</span> to learn more about dynamic statistics and optimizer statistics in general</p>
+</div>
+</div>
+</div>
+<a id="TGSQL226"></a>
+<div class="props_rev_3"><a id="GUID-D23F8328-A4CF-4211-8C9B-79B826F34A32"></a>
+<h4 id="TGSQL-GUID-D23F8328-A4CF-4211-8C9B-79B826F34A32" class="sect4">Automatic Reoptimization</h4>
+<div>
+<p>In <span class="bold">automatic reoptimization</span>, the optimizer changes a plan on subsequent executions <span class="italic">after</span> the initial execution.</p>
+<p>Adaptive query plans are not feasible for all kinds of plan changes. For example, a query with an inefficient join order might perform suboptimally, but adaptive query plans do not support adapting the join order <span class="italic">during</span> execution. At the end of the first execution of a SQL statement, the optimizer uses the information gathered during execution to determine whether automatic reoptimization has a cost benefit. If execution information differs significantly from optimizer estimates, then the optimizer looks for a replacement plan on the next execution.</p>
+<p>The optimizer uses the information gathered during the previous execution to help determine an alternative plan. The optimizer can reoptimize a query several times, each time gathering additional data and further improving the plan.</p>
+<p>Automatic reoptimization takes two forms: statistics feedback and performance feedback.</p>
+<div class="infoboxnotealso" id="GUID-D23F8328-A4CF-4211-8C9B-79B826F34A32__GUID-13B118FD-8A8E-40A2-9578-1C15DFF6447C">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-DAFB7D07-E8B3-4219-A09D-214BD943AFF9" title="In Oracle Database, adaptive query optimization is the process by which the optimizer adapts an execution plan based on statistics collected at run time.">Controlling Adaptive Optimization</a>&#34;</span></p>
+</div>
+</div>
+<a id="TGSQL94853"></a><a id="TGSQL94850"></a>
+<div class="props_rev_3"><a id="GUID-739F1F0B-ABE2-44C9-9783-8FA54F4ADB12"></a>
+<h5 id="TGSQL-GUID-739F1F0B-ABE2-44C9-9783-8FA54F4ADB12" class="sect5">Reoptimization: Statistics Feedback</h5>
+<div>
+<p>A form of reoptimization known as <span class="bold">statistics feedback</span> (formerly known as <span class="italic">cardinality feedback</span>) automatically improves plans for repeated queries that have cardinality misestimates.</p>
+<p>The optimizer can estimate cardinalities incorrectly for many reasons, such as missing statistics, inaccurate statistics, or complex predicates. The basic process of reoptimization using statistics feedback is as follows:</p>
+<ol>
+<li>
+<p>During the first execution of a SQL statement, the optimizer generates an execution plan.</p>
+<p>The optimizer may enable monitoring for statistics feedback for the shared SQL area in the following cases:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Tables with no statistics</p>
+</li>
+<li>
+<p>Multiple conjunctive or disjunctive filter predicates on a table</p>
+</li>
+<li>
+<p>Predicates containing complex operators for which the optimizer cannot accurately compute selectivity estimates</p>
+</li>
+</ul>
+<p>At the end of execution, the optimizer compares its initial cardinality estimates to the actual number of rows returned by each operation in the plan during execution. If estimates differ significantly from actual cardinalities, then the optimizer stores the correct estimates for subsequent use. The optimizer also creates a SQL plan directive so that other SQL statements can benefit from the information obtained during this initial execution.</p>
+</li>
+<li>
+<p>After the first execution, the optimizer disables monitoring for statistics feedback.</p>
+</li>
+<li>
+<p>If the query executes again, then the optimizer uses the corrected cardinality estimates instead of its usual estimates.</p>
+</li>
+</ol>
+<div class="example" id="GUID-739F1F0B-ABE2-44C9-9783-8FA54F4ADB12__GUID-C3AB2DB6-B1B8-4D6A-B06E-C8F1763FD712">
+<p class="titleinexample">Example 4-4 Statistics Feedback</p>
+<p>This example shows how the database uses statistics feedback to adjust incorrect estimates.</p>
+<ol>
+<li>
+<p>The user <code class="codeph">oe</code> runs the following query of the <code class="codeph">orders</code>, <code class="codeph">order_items</code>, and <code class="codeph">product_information</code> tables:</p>
+<pre dir="ltr">SELECT o.order_id, v.product_name
+FROM   orders o,
+       ( SELECT order_id, product_name
+         FROM   order_items o, product_information p
+         WHERE  p.product_id = o.product_id
+         AND    list_price &lt; 50
+         AND    min_price &lt; 40 ) v
+WHERE  o.order_id = v.order_id
+</pre></li>
+<li>
+<p>Querying the plan in the cursor shows that the estimated rows (<code class="codeph">E-Rows</code>) is far fewer than the actual rows (<code class="codeph">A-Rows</code>).</p>
+<pre dir="ltr">--------------------------------------------------------------------------------------------------
+| Id | Operation             | Name          |Starts|E-Rows|A-Rows|A-Time|Buffers|OMem|1Mem|O/1/M|
+--------------------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT      |                   |   1|     | 269 |00:00:00.14|1338|    |    |     |
+| 1|  NESTED LOOPS         |                   |   1|   1 | 269 |00:00:00.14|1338|    |    |     |
+| 2|   MERGE JOIN CARTESIAN|                   |   1|   4 |9135 |00:00:00.05|  33|    |    |     |
+|*3|    TABLE ACCESS FULL  |PRODUCT_INFORMATION|   1|   1 |  87 |00:00:00.01|  32|    |    |     |
+| 4|    BUFFER SORT        |                   |  87| 105 |9135 |00:00:00.02|   1|4096|4096|1/0/0|
+| 5|     INDEX FULL SCAN   |ORDER_PK           |   1| 105 | 105 |00:00:00.01|   1|    |    |     |
+|*6|   INDEX UNIQUE SCAN   |ORDER_ITEMS_UK     |9135|   1 | 269 |00:00:00.04|1305|    |    |     |
+--------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - filter((&#34;MIN_PRICE&#34;&lt;40 AND &#34;LIST_PRICE&#34;&lt;50))
+   6 - access(&#34;O&#34;.&#34;ORDER_ID&#34;=&#34;ORDER_ID&#34; AND &#34;P&#34;.&#34;PRODUCT_ID&#34;=&#34;O&#34;.&#34;PRODUCT_ID&#34;)
+</pre></li>
+<li>
+<p>The user <code class="codeph">oe</code> reruns the query in Step 1.</p>
+</li>
+<li>
+<p>Querying the plan in the cursor shows that the optimizer used statistics feedback (shown in the <code class="codeph">Note</code>) for the second execution, and also chose a different plan.</p>
+<pre dir="ltr">--------------------------------------------------------------------------------------------------
+|Id | Operation             | Name   | Starts |E-Rows|A-Rows|A-Time|Buffers|Reads|OMem|1Mem|O/1/M|
+--------------------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT       |                   |  1|   | 269 |00:00:00.05|60|1|     |     |     |
+| 1|  NESTED LOOPS          |                   |  1|269| 269 |00:00:00.05|60|1|     |     |     |
+|*2|   HASH JOIN            |                   |  1|313| 269 |00:00:00.05|39|1|1398K|1398K|1/0/0|
+|*3|    TABLE ACCESS FULL   |PRODUCT_INFORMATION|  1| 87|  87 |00:00:00.01|15|0|     |     |     |
+| 4|    INDEX FAST FULL SCAN|ORDER_ITEMS_UK     |  1|665| 665 |00:00:00.01|24|1|     |     |     |
+|*5|   INDEX UNIQUE SCAN    |ORDER_PK           |269|  1| 269 |00:00:00.01|21|0|     |     |     |
+--------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - access(&#34;P&#34;.&#34;PRODUCT_ID&#34;=&#34;O&#34;.&#34;PRODUCT_ID&#34;)
+   3 - filter((&#34;MIN_PRICE&#34;&lt;40 AND &#34;LIST_PRICE&#34;&lt;50))
+   5 - access(&#34;O&#34;.&#34;ORDER_ID&#34;=&#34;ORDER_ID&#34;)
+
+Note
+-----
+   - statistics feedback used for this statement
+</pre>
+<p>In the preceding output, the estimated number of rows (<code class="codeph">269</code>) in Step 1 matches the actual number of rows.</p>
+</li>
+</ol>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL95025"></a>
+<div class="props_rev_3"><a id="GUID-6D6340AC-3565-471B-B6D7-2402E2C14299"></a>
+<h5 id="TGSQL-GUID-6D6340AC-3565-471B-B6D7-2402E2C14299" class="sect5">Reoptimization: Performance Feedback</h5>
+<div>
+<p>Another form of reoptimization is performance feedback. This reoptimization helps improve the degree of parallelism automatically chosen for repeated SQL statements when <code class="codeph">PARALLEL_DEGREE_POLICY</code> is set to <code class="codeph">ADAPTIVE</code>.</p>
+<p>The basic process of reoptimization using performance feedback is as follows:</p>
+<ol>
+<li>
+<p>During the first execution of a SQL statement, when <code class="codeph">PARALLEL_DEGREE_POLICY</code> is set to <code class="codeph">ADAPTIVE</code>, the optimizer determines whether to execute the statement in parallel, and if so, which degree of parallelism to use.</p>
+<p>The optimizer chooses the degree of parallelism based on the estimated performance of the statement. Additional performance monitoring is enabled for all statements.</p>
+</li>
+<li>
+<p>At the end of the initial execution, the optimizer compares the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The degree of parallelism chosen by the optimizer</p>
+</li>
+<li>
+<p>The degree of parallelism computed based on the performance statistics (for example, the CPU time) gathered during the actual execution of the statement</p>
+</li>
+</ul>
+<p>If the two values vary significantly, then the database marks the statement for reparsing, and stores the initial execution statistics as feedback. This feedback helps better compute the degree of parallelism for subsequent executions.</p>
+</li>
+<li>
+<p>If the query executes again, then the optimizer uses the performance statistics gathered during the initial execution to better determine a degree of parallelism for the statement.</p>
+</li>
+</ol>
+<div class="infobox-note" id="GUID-6D6340AC-3565-471B-B6D7-2402E2C14299__GUID-23B9C039-F6B9-44DB-97E2-458195139C65">
+<p class="notep1">Note:</p>
+<p>Even if <code class="codeph">PARALLEL_DEGREE_POLICY</code> is not set to <code class="codeph">ADAPTIVE</code>, statistics feedback may influence the degree of parallelism chosen for a statement.</p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL94985"></a>
+<div class="props_rev_3"><a id="GUID-FD0EC783-E77C-4F8C-A26D-C2BFDD0F4CB9"></a>
+<h4 id="TGSQL-GUID-FD0EC783-E77C-4F8C-A26D-C2BFDD0F4CB9" class="sect4">SQL Plan Directives</h4>
+<div>
+<p>A <span class="bold">SQL plan directive</span> is additional information that the optimizer uses to generate a more optimal plan.</p>
+<p>For example, during query optimization, when deciding whether the table is a candidate for dynamic statistics, the database queries the statistics repository for directives on a table. If the query joins two tables that have a data skew in their join columns, a SQL plan directive can direct the optimizer to use dynamic statistics to obtain an accurate cardinality estimate.</p>
+<p>The optimizer collects SQL plan directives on query expressions rather than at the statement level. In this way, the optimizer can apply directives to multiple SQL statements. The database automatically maintains directives, and stores them in the <code class="codeph">SYSAUX</code> tablespace. You can manage directives using the package <code class="codeph">DBMS_SPD</code>.</p>
+<div class="infoboxnotealso" id="GUID-FD0EC783-E77C-4F8C-A26D-C2BFDD0F4CB9__GUID-71C5539F-9685-4DE4-B3B2-69FA015FC07D">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-F8F25E31-7113-4B91-BD81-BE6082983192" title="A SQL plan baseline is additional information and instructions that the optimizer can use to generate a more optimal plan. For example, a SQL plan directive can instruct the optimizer to record a missing extension.">SQL Plan Directives</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E" title="The database automatically manages SQL plan directives. If the directives are not used in 53 weeks, then the database automatically purges them.">Managing SQL Plan Directives</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ARPLS73856" target="_blank" href="../ARPLS/d_spd.htm#ARPLS73856"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_SPD</code> package</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL227"></a>
+<div class="props_rev_3"><a id="GUID-CC06CD2F-2B18-40CB-B182-FE5AE6A4E21D"></a>
+<h2 id="TGSQL-GUID-CC06CD2F-2B18-40CB-B182-FE5AE6A4E21D" class="sect2">About Optimizer Management of SQL Plan Baselines</h2>
+<div>
+<p><span class="bold">SQL plan management</span> is a mechanism that enables the optimizer to automatically manage execution plans, ensuring that the database uses only known or verified plans.</p>
+<p>This mechanism can build a <a href="glossary.htm#GUID-A9B279E2-7088-4029-8C94-4E8DD00B7E21"><span class="xrefglossterm">SQL plan baseline</span></a>, which contains one or more accepted plans for each SQL statement.</p>
+<p>The optimizer can access and manage the plan history and SQL plan baselines of SQL statements. This capability is central to the SQL plan management architecture. In SQL plan management, the optimizer has the following main objectives:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Identify repeatable SQL statements</p>
+</li>
+<li>
+<p>Maintain plan history, and possibly SQL plan baselines, for a set of SQL statements</p>
+</li>
+<li>
+<p>Detect plans that are not in the plan history</p>
+</li>
+<li>
+<p>Detect potentially better plans that are not in the SQL plan baseline</p>
+</li>
+</ul>
+<p>The optimizer uses the normal cost-based search method.</p>
+<div class="infoboxnotealso" id="GUID-CC06CD2F-2B18-40CB-B182-FE5AE6A4E21D__GUID-83E4F0ED-CE0F-472A-9CBA-0B1F045E2A59">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-7024369A-F98D-48E4-921C-C899485C954F" title="You can manage SQL plan baselines using the DBMS_SPM package.">Managing SQL Plan Baselines</a>&#34;</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_sqlproc.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_transform.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

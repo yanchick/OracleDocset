@@ -1,0 +1,568 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-2335"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/DBMS_RESUMABLE"></a><title>DBMS_RESUMABLE</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1086"/>
+<meta name="dcterms.created" content="2016-09-02T5:36:29Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database PL/SQL Packages and Types Reference"/>
+<meta name="dcterms.identifier" content="E41829-07"/>
+<meta name="dcterms.isVersionOf" content="ARPLS"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2016,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="d_result_cache.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="d_rls.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41829-07.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">138/290</span> <!-- End Header -->
+<div id="ARPLS143" class="chapter"><a id="i998442"></a>
+<h1 class="chapter"><span class="secnum">134</span> DBMS_RESUMABLE</h1>
+<p>With the <a id="sthref7813"></a><code dir="ltr">DBMS_RESUMABLE</code> package, you can suspend large operations that run out of space or reach space limits after executing for a long time, fix the problem, and make the statement resume execution. In this way you can write applications without worrying about running into space-related errors.</p>
+<p>This chapter contains the following topics:</p>
+<ul>
+<li>
+<p><a href="#CBBHJFHF">Using DBMS_RESUMABLE</a></p>
+<ul>
+<li>
+<p>Operational Notes</p>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="#i996743">Summary of DBMS_RESUMABLE Subprograms</a></p>
+</li>
+</ul>
+<div class="refentry"><a id="CBBHJFHF"></a>
+<div id="ARPLS67667" class="refsect1">
+<h2 class="refsect1">Using DBMS_RESUMABLE</h2>
+<ul>
+<li>
+<p><a href="#i998547">Operational Notes</a></p>
+</li>
+</ul>
+<div id="ARPLS67668" class="refsect2"><a id="i998547"></a>
+<h3 class="refsect2">Operational Notes</h3>
+<p>When you suspend a statement, you should log the suspension in the alert log. You should also register a procedure to be executed when the statement is suspended. Using a view, you can monitor the progress of the statement and indicate whether the statement is currently executing or suspended.</p>
+<p>Suspending a statement automatically results in suspending the transaction. Thus all transactional resources are held during a statement suspend and resume. When the error condition disappears, the suspended statement automatically resumes execution. A resumable space allocation can be suspended and resumed multiple times during execution.</p>
+<p>A suspension timeout interval is associated with resumable space allocations. A resumable space allocation that is suspended for the timeout interval (the default is two hours) wakes up and returns an exception to the user. A suspended statement may be forced to throw an exception using the <code dir="ltr">DBMS_RESUMABLE.ABORT()</code> procedure.</p>
+</div>
+<!-- class="refsect2" --></div>
+<!-- class="refsect1" -->
+<a id="i996743"></a>
+<div id="ARPLS67669" class="refsect1">
+<h2 class="refsect1">Summary of DBMS_RESUMABLE Subprograms</h2>
+<div id="ARPLS67670" class="tblformal">
+<p class="titleintable"><a id="sthref7814"></a><a id="sthref7815"></a>Table 134-1 <span class="bolditalic">DBMS_RESUMABLE Package Subprograms</span></p>
+<table class="cellalignment4330" title="DBMS_RESUMABLE Package Subprograms" summary="This table lists the DBMS_RESUMABLE subprograms in alphabetical order and briefly describes them." dir="ltr">
+<thead>
+<tr class="cellalignment4321">
+<th class="cellalignment4328" id="r1c1-t2">Subprogram</th>
+<th class="cellalignment4328" id="r1c2-t2">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r2c1-t2" headers="r1c1-t2">
+<p><a href="#i996815">ABORT Procedure</a></p>
+</td>
+<td class="cellalignment4329" headers="r2c1-t2 r1c2-t2">
+<p>Aborts a suspended resumable space allocation</p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r3c1-t2" headers="r1c1-t2">
+<p><a href="#i996838">GET_SESSION_TIMEOUT Function</a></p>
+</td>
+<td class="cellalignment4329" headers="r3c1-t2 r1c2-t2">
+<p>Returns the current timeout value of the resumable space allocations for a session with <code dir="ltr">session_id</code></p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r4c1-t2" headers="r1c1-t2">
+<p><a href="#i998183">GET_TIMEOUT Function</a></p>
+</td>
+<td class="cellalignment4329" headers="r4c1-t2 r1c2-t2">
+<p>Returns the current timeout value of resumable space allocations for the current session</p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r5c1-t2" headers="r1c1-t2">
+<p><a href="#i996860">SET_SESSION_TIMEOUT Procedure</a></p>
+</td>
+<td class="cellalignment4329" headers="r5c1-t2 r1c2-t2">
+<p>Sets the timeout of resumable space allocations for a session with <code dir="ltr">session_id</code></p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r6c1-t2" headers="r1c1-t2">
+<p><a href="#i996892">SET_TIMEOUT Procedure</a></p>
+</td>
+<td class="cellalignment4329" headers="r6c1-t2 r1c2-t2">
+<p>Sets the timeout of resumable space allocations for the current session</p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r7c1-t2" headers="r1c1-t2">
+<p><a href="#CBBFDDJH">SPACE_ERROR_INFO Function</a></p>
+</td>
+<td class="cellalignment4329" headers="r7c1-t2 r1c2-t2">
+<p>Looks for space-related errors in the error stack, otherwise returning <code dir="ltr">FALSE</code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" -->
+<div id="ARPLS67671" class="refsect2"><a id="i996815"></a>
+<h3 class="refsect2"><a id="sthref7816"></a>ABORT Procedure</h3>
+<p>This procedure aborts a suspended resumable space allocation. The parameter <code dir="ltr">session_id</code> is the session ID in which the statement is executed. For a parallel DML/DDL, <code dir="ltr">session_id</code> is any session ID that participates in the parallel DML/DDL. This operation is guaranteed to succeed. The procedure can be called either inside or outside of the <code dir="ltr">AFTER SUSPEND</code> trigger.</p>
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7817"></a>Syntax</p>
+<pre dir="ltr">DBMS_RESUMABLE.ABORT (
+   session_id  IN NUMBER);
+</pre></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7818"></a>Parameters</p>
+<div id="ARPLS67672" class="tblformal">
+<p class="titleintable"><a id="sthref7819"></a><a id="sthref7820"></a>Table 134-2 ABORT Procedure Parameters</p>
+<table class="cellalignment4330" title="ABORT Procedure Parameters" summary="This table describes Parameters used by the DBMS_RESUMABLE.ABORT subprogram." dir="ltr">
+<thead>
+<tr class="cellalignment4321">
+<th class="cellalignment4328" id="r1c1-t3">Parameter</th>
+<th class="cellalignment4328" id="r1c2-t3">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r2c1-t3" headers="r1c1-t3">
+<p><code dir="ltr">session_id</code></p>
+</td>
+<td class="cellalignment4329" headers="r2c1-t3 r1c2-t3">
+<p>The session identifier of the resumable space allocation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7821"></a>Usage Notes</p>
+<p>To call an <code dir="ltr">ABORT</code> procedure, you must be the owner of the session with <code dir="ltr">session_id,</code> have <code dir="ltr">ALTER SYSTEM</code> privileges, or be a DBA.</p>
+</div>
+<!-- class="refsubsect" --></div>
+<!-- class="refsect2" -->
+<div id="ARPLS67673" class="refsect2"><a id="i996838"></a>
+<h3 class="refsect2"><a id="sthref7822"></a>GET_SESSION_TIMEOUT Function</h3>
+<p>This function returns the current timeout value of resumable space allocations for a session with <code dir="ltr">session_id.</code></p>
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7823"></a>Syntax</p>
+<pre dir="ltr">DBMS_RESUMABLE.GET_SESSION_TIMEOUT (
+   session_id  IN NUMBER)
+RETURN NUMBER;
+</pre></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7824"></a>Parameters</p>
+<div id="ARPLS67674" class="tblformal">
+<p class="titleintable"><a id="sthref7825"></a><a id="sthref7826"></a>Table 134-3 GET_SESSION_TIMEOUT Function Parameters</p>
+<table class="cellalignment4330" title="GET_SESSION_TIMEOUT Function Parameters" summary="This table describes Parameters used by the DBMS_RESUMABLE.GET_SESSION_TIMEOUT subprogram." dir="ltr">
+<thead>
+<tr class="cellalignment4321">
+<th class="cellalignment4328" id="r1c1-t4">Parameter</th>
+<th class="cellalignment4328" id="r1c2-t4">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r2c1-t4" headers="r1c1-t4">
+<p><code dir="ltr">session_id</code></p>
+</td>
+<td class="cellalignment4329" headers="r2c1-t4 r1c2-t4">
+<p>The session identifier of the resumable space allocation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7827"></a>Return Values</p>
+<div id="ARPLS67675" class="tblformal">
+<p class="titleintable"><a id="sthref7828"></a><a id="sthref7829"></a>Table 134-4 GET_SESSION_TIMEOUT Function Return Values</p>
+<table class="cellalignment4330" title="GET_SESSION_TIMEOUT Function Return Values " summary="This table decribes Values Returned by the GET_SESSION_TIMEOUT subprogram." dir="ltr">
+<thead>
+<tr class="cellalignment4321">
+<th class="cellalignment4328" id="r1c1-t5">Return Value</th>
+<th class="cellalignment4328" id="r1c2-t5">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r2c1-t5" headers="r1c1-t5">
+<p><code dir="ltr">NUMBER</code></p>
+</td>
+<td class="cellalignment4329" headers="r2c1-t5 r1c2-t5">
+<p>The current timeout value of resumable space allocations for a session with <code dir="ltr">session_id.</code>The timeout is returned in seconds.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7830"></a>Usage Notes</p>
+<p>If <code dir="ltr">session_id</code> does not exist, the <code dir="ltr">GET_SESSION_TIMEOUT</code> function returns -1.</p>
+</div>
+<!-- class="refsubsect" --></div>
+<!-- class="refsect2" -->
+<div id="ARPLS67676" class="refsect2"><a id="i998183"></a>
+<h3 class="refsect2"><a id="sthref7831"></a>GET_TIMEOUT Function</h3>
+<p>This function returns the current timeout value of resumable space allocations for the current session.</p>
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7832"></a>Syntax</p>
+<pre dir="ltr">DBMS_RESUMABLE.GET_TIMEOUT
+ RETURN NUMBER;
+</pre></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7833"></a>Return Values</p>
+<div id="ARPLS67677" class="tblformal">
+<p class="titleintable"><a id="sthref7834"></a><a id="sthref7835"></a>Table 134-5 GET_TIMEOUT Function Return Values</p>
+<table class="cellalignment4330" title="GET_TIMEOUT Function Return Values " summary="This table decribes Values Returned by the GET_TIMEOUT subprogram." dir="ltr">
+<thead>
+<tr class="cellalignment4321">
+<th class="cellalignment4328" id="r1c1-t6">Return Value</th>
+<th class="cellalignment4328" id="r1c2-t6">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r2c1-t6" headers="r1c1-t6">
+<p><code dir="ltr">NUMBER</code></p>
+</td>
+<td class="cellalignment4329" headers="r2c1-t6 r1c2-t6">
+<p>The current timeout value of resumable space allocations for the current session. The returned value is in seconds.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7836"></a>Usage Notes</p>
+<p>If the current session is not resumable enabled, the <code dir="ltr">GET_TIMEOUT</code> function returns -1.</p>
+</div>
+<!-- class="refsubsect" --></div>
+<!-- class="refsect2" -->
+<div id="ARPLS67678" class="refsect2"><a id="i996860"></a>
+<h3 class="refsect2"><a id="sthref7837"></a>SET_SESSION_TIMEOUT Procedure</h3>
+<p>This procedure sets the timeout of resumable space allocations for a session with <code dir="ltr">session_id.</code> The new timeout setting applies to the session immediately. If <code dir="ltr">session_id</code> does not exist, no operation occurs.</p>
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7838"></a>Syntax</p>
+<pre dir="ltr">DBMS_RESUMABLE.SET_SESSION_TIMEOUT (
+   session_id  IN NUMBER,
+   timeout     IN NUMBER);
+</pre></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7839"></a>Parameters</p>
+<div id="ARPLS67679" class="tblformal">
+<p class="titleintable"><a id="sthref7840"></a><a id="sthref7841"></a>Table 134-6 SET_SESSION_TIMEOUT Procedure Parameters</p>
+<table class="cellalignment4330" title="SET_SESSION_TIMEOUT Procedure Parameters" summary="This table describes Parameters used by the DBMS_RESUMABLE.SET_SESSION_TIMEOUT subprogram." dir="ltr">
+<thead>
+<tr class="cellalignment4321">
+<th class="cellalignment4328" id="r1c1-t7">Parameter</th>
+<th class="cellalignment4328" id="r1c2-t7">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r2c1-t7" headers="r1c1-t7">
+<p><code dir="ltr">session_id</code></p>
+</td>
+<td class="cellalignment4329" headers="r2c1-t7 r1c2-t7">
+<p>The session identifier of the resumable space allocation.</p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r3c1-t7" headers="r1c1-t7">
+<p><code dir="ltr">timeout</code></p>
+</td>
+<td class="cellalignment4329" headers="r3c1-t7 r1c2-t7">
+<p>The timeout of the resumable space allocation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="refsubsect" --></div>
+<!-- class="refsect2" -->
+<div id="ARPLS67680" class="refsect2"><a id="i996892"></a>
+<h3 class="refsect2"><a id="sthref7842"></a>SET_TIMEOUT Procedure</h3>
+<p>This procedure sets the timeout of resumable space allocations for the current session. The new timeout setting applies to the session immediately.</p>
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7843"></a>Syntax</p>
+<pre dir="ltr">DBMS_RESUMABLE.SET_TIMEOUT (
+   timeout  IN NUMBER);
+</pre></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7844"></a>Parameters</p>
+<div id="ARPLS67681" class="tblformal">
+<p class="titleintable"><a id="sthref7845"></a><a id="sthref7846"></a>Table 134-7 SET_TIMEOUT Procedure Parameters</p>
+<table class="cellalignment4330" title="SET_TIMEOUT Procedure Parameters" summary="This table describes Parameters used by the DBMS_RESUMABLE.SET_TIMEOUT subprogram." dir="ltr">
+<thead>
+<tr class="cellalignment4321">
+<th class="cellalignment4328" id="r1c1-t8">Parameter</th>
+<th class="cellalignment4328" id="r1c2-t8">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r2c1-t8" headers="r1c1-t8">
+<p><code dir="ltr">timeout</code></p>
+</td>
+<td class="cellalignment4329" headers="r2c1-t8 r1c2-t8">
+<p>The timeout of the resumable space allocation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="refsubsect" --></div>
+<!-- class="refsect2" -->
+<div id="ARPLS67682" class="refsect2"><a id="CBBFDDJH"></a>
+<h3 class="refsect2"><a id="sthref7847"></a>SPACE_ERROR_INFO Function</h3>
+<p>This function looks for space-related errors in the error stack. If it cannot find a space related error, it will return <code dir="ltr">FALSE.</code> Otherwise, <code dir="ltr">TRUE</code> is returned and information about the particular object that causes the space error is returned.</p>
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7848"></a>Syntax</p>
+<pre dir="ltr">DBMS_RESUMABLE.SPACE_ERROR_INFO
+   error_type        OUT VARCHAR2, 
+   object_type       OUT VARCHAR2, 
+   object_owner      OUT VARCHAR2, 
+   table_space_name  OUT VARCHAR2, 
+   object_name       OUT VARCHAR2, 
+   sub_object_name   OUT VARCHAR2) 
+RETURN BOOLEAN;
+</pre></div>
+<!-- class="refsubsect" -->
+<div class="refsubsect">
+<p class="titleinrefsubsect"><a id="sthref7849"></a>Parameters</p>
+<div id="ARPLS67683" class="tblformal">
+<p class="titleintable"><a id="sthref7850"></a><a id="sthref7851"></a>Table 134-8 SPACE_ERROR_INFO Function Parameters</p>
+<table class="cellalignment4330" title="SPACE_ERROR_INFO Function Parameters" summary="This table describes Parameters used by the DBMS_RESUMABLE.SPACE_ERROR_INFO subprogram." dir="ltr">
+<thead>
+<tr class="cellalignment4321">
+<th class="cellalignment4328" id="r1c1-t9">Parameter</th>
+<th class="cellalignment4328" id="r1c2-t9">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r2c1-t9" headers="r1c1-t9">
+<p><code dir="ltr">error_type</code></p>
+</td>
+<td class="cellalignment4329" headers="r2c1-t9 r1c2-t9">
+<p>The space error type. It will be one of the following:</p>
+<ul>
+<li>
+<p><code dir="ltr">NO MORE SPACE</code></p>
+</li>
+<li>
+<p><code dir="ltr">MAX EXTENTS REACHED</code></p>
+</li>
+<li>
+<p><code dir="ltr">SPACE QUOTA EXCEEDED</code></p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r3c1-t9" headers="r1c1-t9">
+<p><code dir="ltr">object_type</code></p>
+</td>
+<td class="cellalignment4329" headers="r3c1-t9 r1c2-t9">
+<p>The object type. It will be one of the following:</p>
+<ul>
+<li>
+<p>TABLE</p>
+</li>
+<li>
+<p>INDEX</p>
+</li>
+<li>
+<p>CLUSTER</p>
+</li>
+<li>
+<p>TABLE SPACE</p>
+</li>
+<li>
+<p>ROLLBACK SEGMENT</p>
+</li>
+<li>
+<p>UNDO SEGMENT</p>
+</li>
+<li>
+<p>LOB SEGMENT</p>
+</li>
+<li>
+<p>TEMP SEGMENT</p>
+</li>
+<li>
+<p>INDEX PARTITION</p>
+</li>
+<li>
+<p>TABLE PARTITION</p>
+</li>
+<li>
+<p>LOB PARTITION</p>
+</li>
+<li>
+<p>TABLE SUBPARTITION</p>
+</li>
+<li>
+<p>INDEX SUBPARTITION</p>
+</li>
+<li>
+<p>LOB SUBPARTITION</p>
+</li>
+</ul>
+<p>The type can also be <code dir="ltr">NULL</code> if it does not apply.</p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r4c1-t9" headers="r1c1-t9">
+<p><code dir="ltr">object_owner</code></p>
+</td>
+<td class="cellalignment4329" headers="r4c1-t9 r1c2-t9">
+<p>The owner of the object. <code dir="ltr">NULL</code> if it cannot be determined.</p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r5c1-t9" headers="r1c1-t9">
+<p><code dir="ltr">table_space_name</code></p>
+</td>
+<td class="cellalignment4329" headers="r5c1-t9 r1c2-t9">
+<p>The table space where the object resides. <code dir="ltr">NULL</code> if it cannot be determined.</p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r6c1-t9" headers="r1c1-t9">
+<p><code dir="ltr">object_name</code></p>
+</td>
+<td class="cellalignment4329" headers="r6c1-t9 r1c2-t9">
+<p>The name of rollback segment, temp segment, table, index, or cluster.</p>
+</td>
+</tr>
+<tr class="cellalignment4321">
+<td class="cellalignment4329" id="r7c1-t9" headers="r1c1-t9">
+<p><code dir="ltr">sub_object_name</code></p>
+</td>
+<td class="cellalignment4329" headers="r7c1-t9 r1c2-t9">
+<p>The partition name or sub-partition name of <code dir="ltr">LOB, TABLE,</code> or <code dir="ltr">INDEX. NULL</code> if it cannot be determined.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="refsubsect" --></div>
+<!-- class="refsect2" --></div>
+<!-- class="refsect1" --></div>
+<!-- class="refentry" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4320">
+<tr>
+<td class="cellalignment4329">
+<table class="cellalignment4325">
+<tr>
+<td class="cellalignment4324"><a href="d_result_cache.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4324"><a href="d_rls.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2016,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4332">
+<table class="cellalignment4323">
+<tr>
+<td class="cellalignment4324"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4324"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4324"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4324"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4324"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4324"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

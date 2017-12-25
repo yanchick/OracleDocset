@@ -1,0 +1,17 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Introduction to Oracle Database Gateway for APPC", anchor: "APPCW101", file: "ch1.htm" },
+  { topic: "chapter", section: "2", title: "Release Information", anchor: "APPCW115", file: "ch2.htm" },
+  { topic: "chapter", section: "3", title: "System Requirements", anchor: "APPCW119", file: "ch3.htm" },
+  { topic: "chapter", section: "4", title: "Installing the Gateway", anchor: "APPCW132", file: "ch4.htm" },
+  { topic: "chapter", section: "5", title: "Configuring Your Oracle Network", anchor: "APPCW150", file: "ch5.htm" },
+  { topic: "chapter", section: "6", title: "	Configuring the SNA Communication Package on Windows", anchor: "APPCW152", file: "ch6.htm" },
+  { topic: "chapter", section: "7", title: "Configuring the OLTP", anchor: "APPCW189", file: "ch8.htm" },
+  { topic: "chapter", section: "8", title: "Gateway Configuration Using SNA Communication Protocol", anchor: "APPCW192", file: "ch9.htm" },
+  { topic: "chapter", section: "9", title: "Gateway Configuration Using TCP/IP Communication Protocol", anchor: "APPCW215", file: "ch10.htm" },
+  { topic: "chapter", section: "10", title: "Security Requirements", anchor: "APPCW232", file: "ch11.htm" },
+  { topic: "chapter", section: "11", title: "Migration from Existing Gateways", anchor: "APPCW247", file: "ch12.htm" },
+  { topic: "appendix", section: "A", title: "Gateway Initialization Parameters for SNA Protocol", anchor: "APPCW258", file: "apa.htm" },
+  { topic: "appendix", section: "B", title: "Gateway Initialization Parameters for TCP/IP Communication Protocol", anchor: "APPCW265", file: "apb.htm" },
+  { topic: "appendix", section: "C", title: "Gateway Terminology", anchor: "APPCW271", file: "apc.htm" },
+  { topic: "appendix", section: "D", title: "Configuration Worksheet", anchor: "APPCW273", file: "ape.htm" },
+  { } ];

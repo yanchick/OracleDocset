@@ -1,0 +1,2928 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106810"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Query%20Transformations"></a><title>Query Transformations</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="The optimizer employs several query transformation techniques. This chapter describes the most important."/>
+<meta name="keywords" content=", materialized views, query rewrite, query transformations, query rewrite with materialized views, star transformations, in-memory aggregation, purpose, data flow operator (DFO), how it works, dense keys, dense grouping keys, dense join keys, key vectors, In-Memory Aggregation, phases, controls, scenario, star queries, transformations, query, table expansion, about, purpose of table expansions"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_optcncpt.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_pt_plan.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-B2914447-CD6D-411C-8467-6E10E78F3DE0"></a> <span id="PAGE" style="display:none;">11/40</span> <!-- End Header -->
+<a id="TGSQL94896"></a>
+<h1 id="TGSQL-GUID-B2914447-CD6D-411C-8467-6E10E78F3DE0" class="sect1"><span class="enumeration_chapter">5</span> Query Transformations</h1>
+<div>
+<p>The optimizer employs several query transformation techniques. This chapter describes the most important.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_transform.htm#GUID-0D5B9093-CDEA-45AC-A607-1F0D8F2615DD" title="In OR expansion, the optimizer transforms a query with a WHERE clause containing OR operators into a query that uses the UNION ALL operator.">OR Expansion</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-6045D0F4-79A9-4688-A844-85F225DFA7DD">View Merging</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-D2E2DE0D-A013-41C2-8527-A797B1F35709">Predicate Pushing</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-EBE60A08-5660-44BF-BC89-AD36E941B066">Subquery Unnesting</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-C736EE4D-336F-44A4-98CC-CC826103CBCB" title="A materialized view is a query result that the database materializes and stores in a table.">Query Rewrite with Materialized Views</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-EA178F1F-7564-4621-B884-19A202943421" title="Star transformation is an optimizer transformation that avoids full table scans of fact tables in a star schema.">Star Transformation</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-2C4FA6C6-3DA8-4CEA-9EF0-294396D15077" title="The basic approach of in-memory aggregation is to aggregate while scanning.">In-Memory Aggregation</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-6A6748FA-5803-4837-9A9F-525ED09BE481" title="In table expansion, the optimizer generates a plan that uses indexes on the read-mostly portion of a partitioned table, but not on the active portion of the table.">Table Expansion</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-B47BEFB3-D72D-462A-9B96-C3B1F8F48C06" title="Join factorization can create more possibilities for join orders">Join Factorization</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-B2914447-CD6D-411C-8467-6E10E78F3DE0__GUID-B5303D1B-6233-4B85-B9FF-DCD13C6FF4A9">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-25332969-244D-4C30-BEFF-35315C3138F9" title="For some statements, the query transformer determines whether it is advantageous to rewrite the original SQL statement into a semantically equivalent SQL statement with a lower cost.">Query Transformer</a>&#34;</span></p>
+</div>
+</div>
+<a id="TGSQL207"></a><a id="TGSQL208"></a><a id="TGSQL94842"></a><a id="TGSQL206"></a>
+<div class="props_rev_3"><a id="GUID-0D5B9093-CDEA-45AC-A607-1F0D8F2615DD"></a>
+<h2 id="TGSQL-GUID-0D5B9093-CDEA-45AC-A607-1F0D8F2615DD" class="sect2">OR Expansion</h2>
+<div>
+<p>In <code class="codeph">OR</code> expansion, the optimizer transforms a query with a <code class="codeph">WHERE</code> clause containing <code class="codeph">OR</code> operators into a query that uses the <code class="codeph">UNION ALL</code> operator.</p>
+<p>The database can perform <code class="codeph">OR</code> expansion for various reasons. For example, it may enable more efficient access paths or alternative join methods that avoid Cartesian products. As always, the optimizer performs the expansion only if the cost of the transformed statement is lower than the cost of the original statement.</p>
+<p>In the following example, user <code class="codeph">sh</code> creates a concatenated index on the <code class="codeph">sales.prod_id</code> and <code class="codeph">sales.promo_id</code>columns, and then queries the <code class="codeph">sales</code> table using an <code class="codeph">OR</code> condition:</p>
+<pre dir="ltr">CREATE INDEX sales_prod_promo_ind
+  ON sales(prod_id, promo_id);
+
+SELECT *
+FROM   sales
+WHERE  promo_id=33 
+OR     prod_id=136;
+</pre>
+<p>In the preceding query, because the <code class="codeph">promo_id=33</code> and <code class="codeph">prod_id=136</code> conditions could each take advantage of an index access path, the optimizer transforms the statement into the query shown in <a href="tgsql_transform.htm#GUID-0D5B9093-CDEA-45AC-A607-1F0D8F2615DD__BABJJCIC">Example 5-1</a>.</p>
+<div class="example" id="GUID-0D5B9093-CDEA-45AC-A607-1F0D8F2615DD__BABJJCIC">
+<p class="titleinexample">Example 5-1 Transformed Query: UNION ALL Condition</p>
+<p>For the query transformation in this example, the optimizer selects an execution plan that accesses the <code class="codeph">sales</code> table using the index, and then assembles the result. The plan is shown in <a href="tgsql_transform.htm#GUID-0D5B9093-CDEA-45AC-A607-1F0D8F2615DD__BABJEIFA">Example 5-2</a>.</p>
+<pre dir="ltr">SELECT *
+FROM   sales
+WHERE  prod_id=136
+UNION ALL
+SELECT *
+FROM   sales
+WHERE  promo_id=33
+AND    LNNVL(prod_id=136);
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-0D5B9093-CDEA-45AC-A607-1F0D8F2615DD__BABJEIFA">
+<p class="titleinexample">Example 5-2 Execution Plan for Query of sales</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation                                   | Name                 | Rows|
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT                            |                      |     |
+| 1 |  CONCATENATION                              |                      |     |
+| 2 |   TABLE ACCESS BY GLOBAL INDEX ROWID BATCHED| SALES                | 710 |
+| 3 |    INDEX RANGE SCAN                         | SALES_PROD_PROMO_IND | 710 |
+| 4 |   PARTITION RANGE ALL                       |                      | 229K|
+| 5 |    TABLE ACCESS FULL                        | SALES                | 229K|
+--------------------------------------------------------------------------------
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL209"></a>
+<div class="props_rev_3"><a id="GUID-6045D0F4-79A9-4688-A844-85F225DFA7DD"></a>
+<h2 id="TGSQL-GUID-6045D0F4-79A9-4688-A844-85F225DFA7DD" class="sect2">View Merging</h2>
+<div>
+<p>In <span class="bold"><span class="bold"><a href="glossary.htm#GUID-F4A61987-3A7A-4214-A993-2CBADF65FF31"><span class="xrefglossterm">view merging</span></a></span></span>, the optimizer merges the <span class="bold"><a href="glossary.htm#GUID-F2D03097-5F4B-4A2A-9DAE-6EC76F7BED61"><span class="xrefglossterm">query block</span></a></span> representing a view into the query block that contains it. View merging can improve plans by enabling the optimizer to consider additional join orders, access methods, and other transformations.</p>
+<p>For example, after a view has been merged and several tables reside in one query block, a table inside a view may permit the optimizer to use <span class="bold"><a href="glossary.htm#GUID-420638C3-79BE-4ED0-955F-B7EF70685DBC"><span class="xrefglossterm">join elimination</span></a></span> to remove a table outside the view. For certain simple views in which merging always leads to a better plan, the optimizer automatically merges the view without considering cost. Otherwise, the optimizer uses cost to make the determination. The optimizer may choose not to merge a view for many reasons, including cost or validity restrictions.</p>
+<p>If <code class="codeph">OPTIMIZER_SECURE_VIEW_MERGING</code> is <code class="codeph">true</code> (default), then Oracle Database performs checks to ensure that view merging and predicate pushing do not violate the security intentions of the view creator. To disable these additional security checks for a specific view, you can grant the <code class="codeph">MERGE VIEW</code> privilege to a user for this view. To disable additional security checks for all views for a specific user, you can grant the <code class="codeph">MERGE</code> <code class="codeph">ANY</code> <code class="codeph">VIEW</code> privilege to that user.</p>
+<div class="infobox-note" id="GUID-6045D0F4-79A9-4688-A844-85F225DFA7DD__GUID-FFE63A81-9918-4A8E-A0CC-7499D026B110">
+<p class="notep1">Note:</p>
+<p>You can use hints to override view merging rejected because of cost or heuristics, but not validity.</p>
+</div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_transform.htm#GUID-38C9EAE6-4E31-4C11-B090-583DD32CE2ED">Query Blocks in View Merging</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-FE039264-7B1A-42DA-A0E7-7374A510FA9B">Simple View Merging</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-D6EEB613-F820-4E27-8FEF-CB0A653F703D">Complex View Merging</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-6045D0F4-79A9-4688-A844-85F225DFA7DD__GUID-EF1046B0-7581-4A82-8DE0-E169FF0A75AD">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF01603" target="_blank" href="../SQLRF/statements_9014.htm#SQLRF01603"><span class="italic">Oracle Database SQL Language Reference</span></a> for more information about the <code class="codeph">MERGE</code> <code class="codeph">ANY</code> <code class="codeph">VIEW</code> and <code class="codeph">MERGE</code> <code class="codeph">VIEW</code> privileges</p>
+</li>
+<li>
+<p><a class="olink REFRN10262" target="_blank" href="../REFRN/GUID-08F07A0F-44C0-4DA6-B5F3-790F8C05980A.htm#REFRN10262"><span class="italic">Oracle Database Reference</span></a> for more information about the <code class="codeph">OPTIMIZER_SECURE_VIEW_MERGING</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL94843"></a>
+<div class="props_rev_3"><a id="GUID-38C9EAE6-4E31-4C11-B090-583DD32CE2ED"></a>
+<h3 id="TGSQL-GUID-38C9EAE6-4E31-4C11-B090-583DD32CE2ED" class="sect3">Query Blocks in View Merging</h3>
+<div>
+<p>The optimizer represents each nested <span class="bold"><a href="glossary.htm#GUID-2FDBC001-FC8C-4A33-8B4F-5C64E69016D1"><span class="xrefglossterm">subquery</span></a></span> or unmerged view by a separate query block. The database optimizes query blocks separately from the bottom up. Thus, the database optimizes the innermost query block first, generates the part of the plan for it, and then generates the plan for the outer query block, representing the entire query.</p>
+<p>The parser expands each view referenced in a query into a separate query block. The block essentially represents the view definition, and thus the result of a view. One option for the optimizer is to analyze the view query block separately, generate a view subplan, and then process the rest of the query by using the view subplan to generate an overall execution plan. However, this technique may lead to a suboptimal execution plan because the view is optimized separately.</p>
+<p>View merging can sometimes improve performance. As shown in <a href="tgsql_transform.htm#GUID-FE039264-7B1A-42DA-A0E7-7374A510FA9B__BABIIIJD">Example 5-3</a>, view merging merges the tables from the view into the outer query block, removing the inner query block. Thus, separate optimization of the view is not necessary.</p>
+</div>
+</div>
+<a id="TGSQL94845"></a><a id="TGSQL94844"></a>
+<div class="props_rev_3"><a id="GUID-FE039264-7B1A-42DA-A0E7-7374A510FA9B"></a>
+<h3 id="TGSQL-GUID-FE039264-7B1A-42DA-A0E7-7374A510FA9B" class="sect3">Simple View Merging</h3>
+<div>
+<p>In <span class="bold"><a href="glossary.htm#GUID-04FFFBB6-FEA7-465D-BAEA-A5BF6F403180"><span class="xrefglossterm">simple view merging</span></a></span>, the optimizer merges select-project-join views. For example, a query of the <code class="codeph">employees</code> table contains a subquery that joins the <code class="codeph">departments</code> and <code class="codeph">locations</code> tables.</p>
+<p>Simple view merging frequently results in a more optimal plan because of the additional join orders and access paths available after the merge. A view may not be valid for simple view merging because:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The view contains constructs not included in select-project-join views, including:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">GROUP BY</code></p>
+</li>
+<li>
+<p><code class="codeph">DISTINCT</code></p>
+</li>
+<li>
+<p>Outer join</p>
+</li>
+<li>
+<p><code class="codeph">MODEL</code></p>
+</li>
+<li>
+<p><code class="codeph">CONNECT BY</code></p>
+</li>
+<li>
+<p>Set operators</p>
+</li>
+<li>
+<p>Aggregation</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The view appears on the right side of a <span class="bold"><a href="glossary.htm#GUID-EA539BF9-F0F2-479B-90B5-1855CD8E34B9"><span class="xrefglossterm">semijoin</span></a></span> or <span class="bold"><a href="glossary.htm#GUID-4EF44AED-32FD-4FF4-9ECB-24F0011A667E"><span class="xrefglossterm">antijoin</span></a></span>.</p>
+</li>
+<li>
+<p>The view contains subqueries in the <code class="codeph">SELECT</code> list.</p>
+</li>
+<li>
+<p>The outer query block contains PL/SQL functions.</p>
+</li>
+<li>
+<p>The view participates in an outer join, and does not meet one of the several additional validity requirements that determine whether the view can be merged.</p>
+</li>
+</ul>
+<div class="example" id="GUID-FE039264-7B1A-42DA-A0E7-7374A510FA9B__BABIIIJD">
+<p class="titleinexample">Example 5-3 Simple View Merging</p>
+<p>The following query joins the <code class="codeph">hr.employees</code> table with the <code class="codeph">dept_locs_v</code> view, which returns the street address for each department. <code class="codeph">dept_locs_v</code> is a join of the <code class="codeph">departments</code> and <code class="codeph">locations</code> tables.</p>
+<pre dir="ltr">SELECT e.first_name, e.last_name, dept_locs_v.street_address,
+       dept_locs_v.postal_code
+FROM   employees e,
+      ( SELECT d.department_id, d.department_name, 
+               l.street_address, l.postal_code
+        FROM   departments d, locations l
+        WHERE  d.location_id = l.location_id ) dept_locs_v
+WHERE  dept_locs_v.department_id = e.department_id
+AND    e.last_name = &#39;Smith&#39;;
+</pre>
+<p>The database can execute the preceding query by joining <code class="codeph">departments</code> and <code class="codeph">locations</code> to generate the rows of the view, and then joining this result to <code class="codeph">employees</code>. Because the query contains the view <code class="codeph">dept_locs_v</code>, and this view contains two tables, the optimizer must use one of the following join orders:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">employees</code>, <code class="codeph">dept_locs_v</code> (<code class="codeph">departments</code>, <code class="codeph">locations</code>)</p>
+</li>
+<li>
+<p><code class="codeph">employees</code>, <code class="codeph">dept_locs_v</code> (<code class="codeph">locations</code>, <code class="codeph">departments</code>)</p>
+</li>
+<li>
+<p><code class="codeph">dept_locs_v</code> (<code class="codeph">departments</code>, <code class="codeph">locations</code>), <code class="codeph">employees</code></p>
+</li>
+<li>
+<p><code class="codeph">dept_locs_v</code> (<code class="codeph">locations</code>, <code class="codeph">departments</code>), <code class="codeph">employees</code></p>
+</li>
+</ul>
+<p>Join methods are also constrained. The index-based nested loops join is not feasible for join orders that begin with <code class="codeph">employees</code> because no index exists on the column from this view. Without view merging, the optimizer generates the following execution plan:</p>
+<pre dir="ltr">-----------------------------------------------------------------
+| Id  | Operation                    | Name        | Cost (%CPU)|
+-----------------------------------------------------------------
+|   0 | SELECT STATEMENT             |             |     7  (15)|
+|*  1 |  HASH JOIN                   |             |     7  (15)|
+|   2 |   TABLE ACCESS BY INDEX ROWID| EMPLOYEES   |     2   (0)|
+|*  3 |    INDEX RANGE SCAN          | EMP_NAME_IX |     1   (0)|
+|   4 |   VIEW                       |             |     5  (20)|
+|*  5 |    HASH JOIN                 |             |     5  (20)|
+|   6 |     TABLE ACCESS FULL        | LOCATIONS   |     2   (0)|
+|   7 |     TABLE ACCESS FULL        | DEPARTMENTS |     2   (0)|
+-----------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+1 - access(&#34;DEPT_LOCS_V&#34;.&#34;DEPARTMENT_ID&#34;=&#34;E&#34;.&#34;DEPARTMENT_ID&#34;)
+3 - access(&#34;E&#34;.&#34;LAST_NAME&#34;=&#39;Smith&#39;)
+5 - access(&#34;D&#34;.&#34;LOCATION_ID&#34;=&#34;L&#34;.&#34;LOCATION_ID&#34;)
+</pre>
+<p>View merging merges the tables from the view into the outer query block, removing the inner query block. After view merging, the query is as follows:</p>
+<pre dir="ltr">SELECT e.first_name, e.last_name, l.street_address, l.postal_code
+FROM   employees e, departments d, locations l
+WHERE  d.location_id = l.location_id
+AND    d.department_id = e.department_id
+AND    e.last_name = &#39;Smith&#39;;
+</pre>
+<p>Because all three tables appear in one query block, the optimizer can choose from the following six join orders:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">employees</code>, <code class="codeph">departments</code>, <code class="codeph">locations</code></p>
+</li>
+<li>
+<p><code class="codeph">employees</code>, <code class="codeph">locations</code>, <code class="codeph">departments</code></p>
+</li>
+<li>
+<p><code class="codeph">departments</code>, <code class="codeph">employees</code>, <code class="codeph">locations</code></p>
+</li>
+<li>
+<p><code class="codeph">departments</code>, <code class="codeph">locations</code>, <code class="codeph">employees</code></p>
+</li>
+<li>
+<p><code class="codeph">locations</code>, <code class="codeph">employees</code>, <code class="codeph">departments</code></p>
+</li>
+<li>
+<p><code class="codeph">locations</code>, <code class="codeph">departments</code>, <code class="codeph">employees</code></p>
+</li>
+</ul>
+<p>The joins to <code class="codeph">employees</code> and <code class="codeph">departments</code> can now be index-based. After view merging, the optimizer chooses the following more efficient plan, which uses nested loops:</p>
+<pre dir="ltr">-------------------------------------------------------------------
+| Id  | Operation                      | Name        | Cost (%CPU)|
+-------------------------------------------------------------------
+|   0 | SELECT STATEMENT               |             |     4   (0)|
+|   1 |  NESTED LOOPS                  |             |            |
+|   2 |   NESTED LOOPS                 |             |     4   (0)|
+|   3 |    NESTED LOOPS                |             |     3   (0)|
+|   4 |     TABLE ACCESS BY INDEX ROWID| EMPLOYEES   |     2   (0)|
+|*  5 |      INDEX RANGE SCAN          | EMP_NAME_IX |     1   (0)|
+|   6 |     TABLE ACCESS BY INDEX ROWID| DEPARTMENTS |     1   (0)|
+|*  7 |      INDEX UNIQUE SCAN         | DEPT_ID_PK  |     0   (0)|
+|*  8 |    INDEX UNIQUE SCAN           | LOC_ID_PK   |     0   (0)|
+|   9 |   TABLE ACCESS BY INDEX ROWID  | LOCATIONS   |     1   (0)|
+-------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 5 - access(&#34;E&#34;.&#34;LAST_NAME&#34;=&#39;Smith&#39;)
+ 7 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+ 8 - access(&#34;D&#34;.&#34;LOCATION_ID&#34;=&#34;L&#34;.&#34;LOCATION_ID&#34;)
+</pre>
+<div class="infoboxnotealso" id="GUID-FE039264-7B1A-42DA-A0E7-7374A510FA9B__GUID-5319C04F-6E6E-445C-B8DD-8A8BB70EE44D">
+<p class="notep1">See Also:</p>
+<p>The Oracle Optimizer blog at <a href="https://blogs.oracle.com/optimizer/" target="_blank"><code class="codeph">https://blogs.oracle.com/optimizer/</code></a> to learn about outer join view merging, which is a special case of simple view merging</p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94847"></a><a id="TGSQL94848"></a><a id="TGSQL94846"></a>
+<div class="props_rev_3"><a id="GUID-D6EEB613-F820-4E27-8FEF-CB0A653F703D"></a>
+<h3 id="TGSQL-GUID-D6EEB613-F820-4E27-8FEF-CB0A653F703D" class="sect3">Complex View Merging</h3>
+<div>
+<p>In <span class="bold"><span class="bold"><a href="glossary.htm#GUID-301D0C59-1A05-4954-B0E1-B03B1AD9388F"><span class="xrefglossterm">complex view merging</span></a></span></span>, the optimizer merges views containing <code class="codeph">GROUP BY</code> and <code class="codeph">DISTINCT</code> views. Like simple view merging, complex merging enables the optimizer to consider additional join orders and access paths.</p>
+<p>The optimizer can delay evaluation of <code class="codeph">GROUP BY</code> or <code class="codeph">DISTINCT</code> operations until after it has evaluated the joins. Delaying these operations can improve or worsen performance depending on the data characteristics. If the joins use filters, then delaying the operation until after joins can reduce the data set on which the operation is to be performed. Evaluating the operation early can reduce the amount of data to be processed by subsequent joins, or the joins could increase the amount of data to be processed by the operation. The optimizer uses cost to evaluate view merging and merges the view only when it is the lower cost option.</p>
+<p>Aside from cost, the optimizer may be unable to perform complex view merging for the following reasons:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The outer query tables do not have a rowid or unique column.</p>
+</li>
+<li>
+<p>The view appears in a <code class="codeph">CONNECT BY</code> query block.</p>
+</li>
+<li>
+<p>The view contains <code class="codeph">GROUPING SETS</code>, <code class="codeph">ROLLUP</code>, or <code class="codeph">PIVOT</code> clauses.</p>
+</li>
+<li>
+<p>The view or outer query block contains the <code class="codeph">MODEL</code> clause.</p>
+</li>
+</ul>
+<div class="example" id="GUID-D6EEB613-F820-4E27-8FEF-CB0A653F703D__GUID-A04538AB-A8AE-4ADB-8AB2-A7F9AD56720D">
+<p class="titleinexample">Example 5-4 Complex View Joins with GROUP BY</p>
+<p>The following view uses a <code class="codeph">GROUP BY</code> clause:</p>
+<pre dir="ltr">CREATE VIEW cust_prod_totals_v AS
+SELECT SUM(s.quantity_sold) total, s.cust_id, s.prod_id
+FROM   sales s
+GROUP BY s.cust_id, s.prod_id;
+</pre>
+<p>The following query finds all of the customers from the United States who have bought at least 100 fur-trimmed sweaters:</p>
+<pre dir="ltr">SELECT c.cust_id, c.cust_first_name, c.cust_last_name, c.cust_email
+FROM   customers c, products p, cust_prod_totals_v
+WHERE  c.country_id = 52790
+AND    c.cust_id = cust_prod_totals_v.cust_id
+AND    cust_prod_totals_v.total &gt; 100
+AND    cust_prod_totals_v.prod_id = p.prod_id
+AND    p.prod_name = &#39;T3 Faux Fur-Trimmed Sweater&#39;;
+</pre>
+<p>The <code class="codeph">cust_prod_totals_v</code> view is eligible for complex view merging. After merging, the query is as follows:</p>
+<pre dir="ltr">SELECT c.cust_id, cust_first_name, cust_last_name, cust_email
+FROM   customers c, products p, sales s
+WHERE  c.country_id = 52790
+AND    c.cust_id = s.cust_id
+AND    s.prod_id = p.prod_id
+AND    p.prod_name = &#39;T3 Faux Fur-Trimmed Sweater&#39;
+GROUP BY s.cust_id, s.prod_id, p.rowid, c.rowid, c.cust_email, c.cust_last_name, 
+         c.cust_first_name, c.cust_id
+HAVING SUM(s.quantity_sold) &gt; 100;
+</pre>
+<p>The transformed query is cheaper than the untransformed query, so the optimizer chooses to merge the view. In the untransformed query, the <code class="codeph">GROUP BY</code> operator applies to the entire <code class="codeph">sales</code> table in the view. In the transformed query, the joins to <code class="codeph">products</code> and <code class="codeph">customers</code> filter out a large portion of the rows from the <code class="codeph">sales</code> table, so the <code class="codeph">GROUP BY</code> operation is lower cost. The join is more expensive because the <code class="codeph">sales</code> table has not been reduced, but it is not much more expensive because the <code class="codeph">GROUP BY</code> operation does not reduce the size of the row set very much in the original query. If any of the preceding characteristics were to change, merging the view might no longer be lower cost. The final plan, which does not include a view, is as follows:</p>
+<pre dir="ltr">--------------------------------------------------------
+| Id  | Operation             | Name      | Cost (%CPU)|
+--------------------------------------------------------
+|   0 | SELECT STATEMENT      |           |  2101  (18)|
+|*  1 |  FILTER               |           |            |
+|   2 |   HASH GROUP BY       |           |  2101  (18)|
+|*  3 |    HASH JOIN          |           |  2099  (18)|
+|*  4 |     HASH JOIN         |           |  1801  (19)|
+|*  5 |      TABLE ACCESS FULL| PRODUCTS  |    96   (5)|
+|   6 |      TABLE ACCESS FULL| SALES     |  1620  (15)|
+|*  7 |     TABLE ACCESS FULL | CUSTOMERS |   296  (11)|
+--------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+1 - filter(SUM(&#34;QUANTITY_SOLD&#34;)&gt;100)
+3 - access(&#34;C&#34;.&#34;CUST_ID&#34;=&#34;CUST_ID&#34;)
+4 - access(&#34;PROD_ID&#34;=&#34;P&#34;.&#34;PROD_ID&#34;)
+5 - filter(&#34;P&#34;.&#34;PROD_NAME&#34;=&#39;T3 Faux Fur-Trimmed Sweater&#39;)
+7 - filter(&#34;C&#34;.&#34;COUNTRY_ID&#34;=&#39;US&#39;)
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-D6EEB613-F820-4E27-8FEF-CB0A653F703D__GUID-0E0A4E8B-9D0A-4C83-97DA-FF16AFF543A6">
+<p class="titleinexample">Example 5-5 Complex View Joins with DISTINCT</p>
+<p>The following query of the <code class="codeph">cust_prod_v</code> view uses a <code class="codeph">DISTINCT</code> operator:</p>
+<pre dir="ltr">SELECT c.cust_id, c.cust_first_name, c.cust_last_name, c.cust_email
+FROM   customers c, products p,
+       ( SELECT DISTINCT s.cust_id, s.prod_id
+         FROM   sales s) cust_prod_v
+WHERE  c.country_id = 52790
+AND    c.cust_id = cust_prod_v.cust_id
+AND    cust_prod_v.prod_id = p.prod_id
+AND    p.prod_name = &#39;T3 Faux Fur-Trimmed Sweater&#39;;
+</pre>
+<p>After determining that view merging produces a lower-cost plan, the optimizer rewrites the query into this equivalent query:</p>
+<pre dir="ltr">SELECT nwvw.cust_id, nwvw.cust_first_name, nwvw.cust_last_name, nwvw.cust_email
+FROM   ( SELECT DISTINCT(c.rowid), p.rowid, s.prod_id, s.cust_id,
+                c.cust_first_name, c.cust_last_name, c.cust_email
+         FROM   customers c, products p, sales s
+         WHERE  c.country_id = 52790
+         AND    c.cust_id = s.cust_id
+         AND    s.prod_id = p.prod_id
+         AND    p.prod_name = &#39;T3 Faux Fur-Trimmed Sweater&#39; ) nwvw;
+</pre>
+<p>The plan for the preceding query is as follows:</p>
+<pre dir="ltr">-------------------------------------------
+| Id  | Operation             | Name      |
+-------------------------------------------
+|   0 | SELECT STATEMENT      |           |
+|   1 |  VIEW                 | VM_NWVW_1 |
+|   2 |   HASH UNIQUE         |           |
+|*  3 |    HASH JOIN          |           |
+|*  4 |     HASH JOIN         |           |
+|*  5 |      TABLE ACCESS FULL| PRODUCTS  |
+|   6 |      TABLE ACCESS FULL| SALES     |
+|*  7 |     TABLE ACCESS FULL | CUSTOMERS |
+-------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+  3 - access(&#34;C&#34;.&#34;CUST_ID&#34;=&#34;S&#34;.&#34;CUST_ID&#34;)
+  4 - access(&#34;S&#34;.&#34;PROD_ID&#34;=&#34;P&#34;.&#34;PROD_ID&#34;)
+  5 - filter(&#34;P&#34;.&#34;PROD_NAME&#34;=&#39;T3 Faux Fur-Trimmed Sweater&#39;)
+  7 - filter(&#34;C&#34;.&#34;COUNTRY_ID&#34;=&#39;US&#39;)
+</pre>
+<p>The preceding plan contains a view named <code class="codeph">vm_nwvw_1</code>, known as a <span class="bold"><span class="bold"><a href="glossary.htm#GUID-D55A3D23-BD08-4112-AF78-98347EF1F0C3"><span class="xrefglossterm">projection view</span></a></span></span>, even after view merging has occurred. Projection views appear in queries in which a <code class="codeph">DISTINCT</code> view has been merged, or a <code class="codeph">GROUP BY</code> view is merged into an outer query block that also contains <code class="codeph">GROUP BY</code>, <code class="codeph">HAVING</code>, or aggregates. In the latter case, the projection view contains the <code class="codeph">GROUP BY</code>, <code class="codeph">HAVING</code>, and aggregates from the original outer query block.</p>
+<p>In the preceding example of a projection view, when the optimizer merges the view, it moves the <code class="codeph">DISTINCT</code> operator to the outer query block, and then adds several additional columns to maintain semantic equivalence with the original query. Afterward, the query can select only the desired columns in the <code class="codeph">SELECT</code> list of the outer query block. The optimization retains all of the benefits of view merging: all tables are in one query block, the optimizer can permute them as needed in the final join order, and the <code class="codeph">DISTINCT</code> operation has been delayed until after all of the joins complete.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL210"></a>
+<div class="props_rev_3"><a id="GUID-D2E2DE0D-A013-41C2-8527-A797B1F35709"></a>
+<h2 id="TGSQL-GUID-D2E2DE0D-A013-41C2-8527-A797B1F35709" class="sect2">Predicate Pushing</h2>
+<div>
+<p>In <span class="bold"><span class="bold"><a href="glossary.htm#GUID-4C90FC60-C5D4-418F-B703-FA5425768C8E"><span class="xrefglossterm">predicate pushing</span></a></span></span>, the optimizer &#34;pushes&#34; the relevant predicates from the containing query block into the view query block. For views that are not merged, this technique improves the subplan of the unmerged view because the database can use the pushed-in predicates to access indexes or to use as filters.</p>
+<p>For example, suppose you create a table <code class="codeph">hr.contract_workers</code> as follows:</p>
+<pre dir="ltr">DROP TABLE contract_workers;
+CREATE TABLE contract_workers AS (SELECT * FROM employees where 1=2);
+INSERT INTO contract_workers VALUES (306, &#39;Bill&#39;, &#39;Jones&#39;, &#39;BJONES&#39;,
+  &#39;555.555.2000&#39;, &#39;07-JUN-02&#39;, &#39;AC_ACCOUNT&#39;, 8300, 0,205, 110);
+INSERT INTO contract_workers VALUES (406, &#39;Jill&#39;, &#39;Ashworth&#39;, &#39;JASHWORTH&#39;, 
+  &#39;555.999.8181&#39;, &#39;09-JUN-05&#39;, &#39;AC_ACCOUNT&#39;, 8300, 0,205, 50);
+INSERT INTO contract_workers VALUES (506, &#39;Marcie&#39;, &#39;Lunsford&#39;, &#39;MLUNSFORD&#39;, 
+  &#39;555.888.2233&#39;, &#39;22-JUL-01&#39;, &#39;AC_ACCOUNT&#39;, 8300, 0,205, 110);
+COMMIT;
+CREATE INDEX contract_workers_index ON contract_workers(department_id);
+</pre>
+<p>You create a view that references <code class="codeph">employees</code> and <code class="codeph">contract_workers</code>. The view is defined with a query that uses the <code class="codeph">UNION</code> set operator, as follows:</p>
+<pre dir="ltr">CREATE VIEW all_employees_vw AS
+  ( SELECT employee_id, last_name, job_id, commission_pct, department_id
+    FROM   employees )
+  UNION
+  ( SELECT employee_id, last_name, job_id, commission_pct, department_id
+    FROM   contract_workers );
+</pre>
+<p>You then query the view as follows:</p>
+<pre dir="ltr">SELECT last_name
+FROM   all_employees_vw
+WHERE  <span class="bold">department_id = 50</span>;
+</pre>
+<p>Because the view is a <code class="codeph">UNION</code> set query, the optimizer cannot merge the view&#39;s query into the accessing query block. Instead, the optimizer can transform the accessing statement by pushing its predicate, the <code class="codeph">WHERE</code> clause condition <code class="codeph">department_id=50</code>, into the view&#39;s <code class="codeph">UNION</code> set query. The equivalent transformed query is as follows:</p>
+<pre dir="ltr">SELECT last_name
+FROM   ( SELECT employee_id, last_name, job_id, commission_pct, department_id
+         FROM   employees
+         WHERE  <span class="bold">department_id=50</span>
+         UNION
+         SELECT employee_id, last_name, job_id, commission_pct, department_id
+         FROM   contract_workers
+         WHERE  <span class="bold">department_id=50</span> );
+</pre>
+<p>The transformed query can now consider index access in each of the query blocks.</p>
+</div>
+</div>
+<a id="TGSQL211"></a>
+<div class="props_rev_3"><a id="GUID-EBE60A08-5660-44BF-BC89-AD36E941B066"></a>
+<h2 id="TGSQL-GUID-EBE60A08-5660-44BF-BC89-AD36E941B066" class="sect2">Subquery Unnesting</h2>
+<div>
+<p>In <span class="bold"><a href="glossary.htm#GUID-25ECA776-F687-4C3F-81F5-C9FEF5116A46"><span class="xrefglossterm">subquery unnesting</span></a></span>, the optimizer transforms a nested query into an equivalent join statement, and then optimizes the join. This transformation enables the optimizer to consider the subquery tables during access path, join method, and join order selection. The optimizer can perform this transformation only if the resulting join statement is guaranteed to return the same rows as the original statement, and if subqueries do not contain aggregate functions such as <code class="codeph">AVG</code>.</p>
+<p>For example, suppose you connect as user <code class="codeph">sh</code> and execute the following query:</p>
+<pre dir="ltr">SELECT * 
+FROM   sales
+WHERE  cust_id IN ( SELECT cust_id 
+                    FROM   customers );
+</pre>
+<p>Because the <code class="codeph">customers.cust_id</code> column is a primary key, the optimizer can transform the complex query into the following join statement that is guaranteed to return the same data:</p>
+<pre dir="ltr">SELECT sales.* 
+FROM   sales, customers
+WHERE  sales.cust_id = customers.cust_id;
+</pre>
+<p>If the optimizer cannot transform a complex statement into a join statement, it selects execution plans for the parent statement and the subquery as though they were separate statements. The optimizer then executes the subquery and uses the rows returned to execute the parent query. To improve execution speed of the overall execution plan, the optimizer orders the subplans efficiently.</p>
+</div>
+</div>
+<a id="TGSQL212"></a>
+<div class="props_rev_3"><a id="GUID-C736EE4D-336F-44A4-98CC-CC826103CBCB"></a>
+<h2 id="TGSQL-GUID-C736EE4D-336F-44A4-98CC-CC826103CBCB" class="sect2">Query Rewrite with Materialized Views</h2>
+<div>
+<p>A <span class="bold">materialized view</span> is a query result that the database materializes and stores in a table.</p>
+<p>When the optimizer finds a user query compatible with the query associated with a materialized view, then the database can rewrite the query in terms of the materialized view. This technique improves query execution because the database has precomputed most of the query result.</p>
+<p>The optimizer looks for any materialized views that are compatible with the user query, and then selects one or more materialized views to rewrite the user query. The use of materialized views to rewrite a query is cost-based. Thus, the optimizer does not rewrite the query when the plan generated unless the materialized views has a lower cost than the plan generated with the materialized views.</p>
+<p>Consider the following materialized view, <code class="codeph">cal_month_sales_mv</code>, which aggregates the dollar amount sold each month:</p>
+<pre dir="ltr">CREATE MATERIALIZED VIEW cal_month_sales_mv
+  ENABLE QUERY REWRITE 
+AS
+  SELECT t.calendar_month_desc, SUM(s.amount_sold) AS dollars
+  FROM   sales s, times t 
+  WHERE  s.time_id = t.time_id
+  GROUP BY t.calendar_month_desc;
+</pre>
+<p>Assume that sales number is around one million in a typical month. The view has the precomputed aggregates for the dollar amount sold for each month. Consider the following query, which asks for the sum of the amount sold for each month:</p>
+<pre dir="ltr">SELECT t.calendar_month_desc, SUM(s.amount_sold)
+FROM   sales s, times t
+WHERE  s.time_id = t.time_id
+GROUP BY t.calendar_month_desc;
+</pre>
+<p>Without query rewrite, the database must access <code class="codeph">sales</code> directly and compute the sum of the amount sold. This method involves reading many million rows from <code class="codeph">sales</code>, which invariably increases query response time. The join also further slows query response because the database must compute the join on several million rows. With query rewrite, the optimizer transparently rewrites the query as follows:</p>
+<pre dir="ltr">SELECT calendar_month, dollars
+FROM   cal_month_sales_mv;
+</pre>
+<div class="infoboxnotealso" id="GUID-C736EE4D-336F-44A4-98CC-CC826103CBCB__GUID-D965CAB2-A6F5-40C6-BE2A-1DF5991C4371">
+<p class="notep1">See Also:</p>
+<p><a class="olink DWHSG018" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=DWHSG018"><span><cite>Oracle Database Data Warehousing Guide</cite></span></a> to learn more about query rewrite</p>
+</div>
+</div>
+</div>
+<a id="TGSQL94897"></a>
+<div class="props_rev_3"><a id="GUID-EA178F1F-7564-4621-B884-19A202943421"></a>
+<h2 id="TGSQL-GUID-EA178F1F-7564-4621-B884-19A202943421" class="sect2">Star Transformation</h2>
+<div>
+<p>Star transformation is an optimizer transformation that avoids full table scans of fact tables in a star schema.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_transform.htm#GUID-76B6B58B-24B0-4DFE-AC1B-CFAC4D93C55A" title="A star schema divides data into facts and dimensions.">About Star Schemas</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-2F24744C-EA75-4BC5-B065-B7181CB9299B" title="In joins of fact and dimension tables, a star transformation can avoid a full scan of a fact table.">Purpose of Star Transformations</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-959DE4A3-3536-470C-90D2-855E62EB85CB" title="Star transformation adds subquery predicates, called bitmap semijoin predicates, corresponding to the constraint dimensions.">How Star Transformation Works</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-E4A7FDE1-9C5C-4E37-8C62-738F725E0E8F">Controls for Star Transformation</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D">Star Transformation: Scenario</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-BAE74D96-194A-4168-9490-33523BB10C1C">Temporary Table Transformation: Scenario</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94899"></a><a id="TGSQL94898"></a>
+<div class="props_rev_3"><a id="GUID-76B6B58B-24B0-4DFE-AC1B-CFAC4D93C55A"></a>
+<h3 id="TGSQL-GUID-76B6B58B-24B0-4DFE-AC1B-CFAC4D93C55A" class="sect3">About Star Schemas</h3>
+<div>
+<p>A <span class="bold">star schema</span> divides data into facts and dimensions.</p>
+<p>Facts are the measurements of an event such as a sale and are typically numbers. Dimensions are the categories that identify facts, such as date, location, and product.</p>
+<p>A fact table has a composite key made up of the primary keys of the dimension tables of the schema. Dimension tables act as lookup or reference tables that enable you to choose values that constrain your queries.</p>
+<p>Diagrams typically show a central fact table with lines joining it to the dimension tables, giving the appearance of a star. The following graphic shows <code class="codeph">sales</code> as the fact table and <code class="codeph">products</code>, <code class="codeph">times</code>, <code class="codeph">customers</code>, and <code class="codeph">channels</code> as the dimension tables.</p>
+<div class="figure" id="GUID-76B6B58B-24B0-4DFE-AC1B-CFAC4D93C55A__BABIFIGF">
+<p class="titleinfigure">Figure 5-1 Star Schema</p>
+<img width="377" height="178" src="img/GUID-0F4C5D9D-3FE2-4195-BFC6-3E952E473FB3-default.gif" alt="Description of Figure 5-1 follows" title="Description of Figure 5-1 follows"/><br/>
+<a href="img_text/GUID-0F4C5D9D-3FE2-4195-BFC6-3E952E473FB3-print.htm">Description of &#34;Figure 5-1 Star Schema&#34;</a></div>
+<!-- class="figure" -->
+<p>A <a href="glossary.htm#GUID-67C99435-C3A9-4314-8533-D95973B6F12F"><span class="xrefglossterm">snowflake schema</span></a> is a star schema in which the dimension tables reference other tables. A <a href="glossary.htm#GUID-C78984EF-7A22-4DDC-A3F8-DBF9FB904BDF"><span class="xrefglossterm">snowstorm schema</span></a> is a combination of snowflake schemas.</p>
+<div class="infoboxnotealso" id="GUID-76B6B58B-24B0-4DFE-AC1B-CFAC4D93C55A__GUID-E202C3B2-8E47-4722-B553-4253838BE67E">
+<p class="notep1">See Also:</p>
+<p><a class="olink DWHSG9069" target="_blank" href="../DWHSG/schemas.htm#DWHSG9069"><span class="italic">Oracle Database Data Warehousing Guide</span></a> to learn more about star schemas</p>
+</div>
+</div>
+</div>
+<a id="TGSQL94900"></a>
+<div class="props_rev_3"><a id="GUID-2F24744C-EA75-4BC5-B065-B7181CB9299B"></a>
+<h3 id="TGSQL-GUID-2F24744C-EA75-4BC5-B065-B7181CB9299B" class="sect3">Purpose of Star Transformations</h3>
+<div>
+<p>In joins of fact and dimension tables, a star transformation can avoid a full scan of a fact table.</p>
+<p>The star transformation improves performance by fetching only relevant fact rows that join to the constraint dimension rows. In some cases, queries have restrictive filters on other columns of the dimension tables. The combination of filters can dramatically reduce the data set that the database processes from the fact table.</p>
+</div>
+</div>
+<a id="TGSQL94901"></a>
+<div class="props_rev_3"><a id="GUID-959DE4A3-3536-470C-90D2-855E62EB85CB"></a>
+<h3 id="TGSQL-GUID-959DE4A3-3536-470C-90D2-855E62EB85CB" class="sect3">How Star Transformation Works</h3>
+<div>
+<p>Star transformation adds subquery predicates, called <span class="bold">bitmap semijoin predicates</span>, corresponding to the constraint dimensions.</p>
+<p>The optimizer performs the transformation when indexes exist on the fact join columns. By driving bitmap <code class="codeph">AND</code> and <code class="codeph">OR</code> operations of key values supplied by the subqueries, the database only needs to retrieve relevant rows from the fact table. If the predicates on the dimension tables filter out significant data, then the transformation can be more efficient than a full scan on the fact table.</p>
+<p>After the database has retrieved the relevant rows from the fact table, the database may need to join these rows back to the dimension tables using the original predicates. The database can eliminate the join back of the dimension table when the following conditions are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>All the predicates on dimension tables are part of the semijoin subquery predicate.</p>
+</li>
+<li>
+<p>The columns selected from the subquery are unique.</p>
+</li>
+<li>
+<p>The dimension columns are not in the <code class="codeph">SELECT</code> list, <code class="codeph">GROUP BY</code> clause, and so on.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL94902"></a>
+<div class="props_rev_3"><a id="GUID-E4A7FDE1-9C5C-4E37-8C62-738F725E0E8F"></a>
+<h3 id="TGSQL-GUID-E4A7FDE1-9C5C-4E37-8C62-738F725E0E8F" class="sect3">Controls for Star Transformation</h3>
+<div>
+<p>The <code class="codeph">STAR_TRANSFORMATION_ENABLED</code> initialization parameter controls star transformations. This parameter takes the following values:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">true</code></p>
+<p>The optimizer performs the star transformation by identifying the fact and constraint dimension tables automatically. The optimizer performs the star transformation only if the cost of the transformed plan is lower than the alternatives. Also, the optimizer attempts temporary table transformation automatically whenever materialization improves performance (see <span class="q">&#34;<a href="tgsql_transform.htm#GUID-BAE74D96-194A-4168-9490-33523BB10C1C">Temporary Table Transformation: Scenario</a>&#34;</span>).</p>
+</li>
+<li>
+<p><code class="codeph">false</code> (default)</p>
+<p>The optimizer does not perform star transformations.</p>
+</li>
+<li>
+<p><code class="codeph">TEMP_DISABLE</code></p>
+<p>This value is identical to <code class="codeph">true</code> except that the optimizer does not attempt temporary table transformation.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-E4A7FDE1-9C5C-4E37-8C62-738F725E0E8F__GUID-6AA338AA-9AED-4622-B90B-A7870A3D1416">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN10213" target="_blank" href="../REFRN/GUID-B2E6145D-164A-4453-9839-0F6E6442A922.htm#REFRN10213"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">STAR_TRANSFORMATION_ENABLED</code> initialization parameter</p>
+</div>
+</div>
+</div>
+<a id="TGSQL94904"></a><a id="TGSQL94905"></a><a id="TGSQL94906"></a><a id="TGSQL94903"></a>
+<div class="props_rev_3"><a id="GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D"></a>
+<h3 id="TGSQL-GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D" class="sect3">Star Transformation: Scenario</h3>
+<div>
+<p>This scenario demonstrates a star transformation of a star query.</p>
+<div class="example" id="GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D__BABFHIIH">
+<p class="titleinexample">Example 5-6 Star Query</p>
+<p>The following query finds the total Internet sales amount in all cities in California for quarters Q1 and Q2 of year 1999:</p>
+<pre dir="ltr">SELECT c.cust_city, 
+       t.calendar_quarter_desc, 
+       SUM(s.amount_sold) sales_amount
+FROM   sales s, 
+       times t, 
+       customers c, 
+       channels ch
+WHERE  s.time_id = t.time_id
+AND    s.cust_id = c.cust_id
+AND    s.channel_id = ch.channel_id
+AND    c.cust_state_province = &#39;CA&#39;
+AND    ch.channel_desc = &#39;Internet&#39;
+AND    t.calendar_quarter_desc IN (&#39;1999-01&#39;,&#39;1999-02&#39;)
+GROUP BY c.cust_city, t.calendar_quarter_desc;
+</pre>
+<p>Sample output is as follows:</p>
+<pre dir="ltr">CUST_CITY                      CALENDA SALES_AMOUNT
+------------------------------ ------- ------------
+Montara                        1999-02      1618.01
+Pala                           1999-01      3263.93
+Cloverdale                     1999-01        52.64
+Cloverdale                     1999-02       266.28
+. . .
+</pre>
+<p>In this example, <code class="codeph">sales</code> is the fact table, and the other tables are dimension tables. The <code class="codeph">sales</code> table contains one row for every sale of a product, so it could conceivably contain billions of sales records. However, only a few products are sold to customers in California through the Internet for the specified quarters.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D__BABDEJJD">
+<p class="titleinexample">Example 5-7 Star Transformation</p>
+<p>This example shows a star transformation of the query in <a href="tgsql_transform.htm#GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D__BABFHIIH">Example 5-6</a>. The transformation avoids a full table scan of <code class="codeph">sales</code>.</p>
+<pre dir="ltr">SELECT c.cust_city, t.calendar_quarter_desc, SUM(s.amount_sold) sales_amount
+FROM   sales s, times t, customers c
+WHERE  s.time_id = t.time_id
+AND    s.cust_id = c.cust_id
+AND    c.cust_state_province = &#39;CA&#39;
+AND    t.calendar_quarter_desc IN (&#39;1999-01&#39;,&#39;1999-02&#39;)
+AND    s.time_id IN ( SELECT time_id
+                      FROM   times 
+                      WHERE  calendar_quarter_desc IN(&#39;1999-01&#39;,&#39;1999-02&#39;) )
+AND    s.cust_id IN ( SELECT cust_id
+                      FROM   customers
+                      WHERE  cust_state_province=&#39;CA&#39; )
+AND    s.channel_id IN ( SELECT channel_id  
+                         FROM   channels 
+                         WHERE  channel_desc = &#39;Internet&#39; )
+GROUP BY c.cust_city, t.calendar_quarter_desc;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D__BABJECFB">
+<p class="titleinexample">Example 5-8 Partial Execution Plan for Star Transformation</p>
+<p>This example shows an edited version of the execution plan for the star transformation in <a href="tgsql_transform.htm#GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D__BABDEJJD">Example 5-7</a>.</p>
+<p>Line 26 shows that the <code class="codeph">sales</code> table has an index access path instead of a full table scan. For each key value that results from the subqueries of <code class="codeph">channels</code> (line 14), <code class="codeph">times</code> (line 19), and <code class="codeph">customers</code> (line 24), the database retrieves a bitmap from the indexes on the <code class="codeph">sales</code> fact table (lines 15, 20, 25).</p>
+<p>Each bit in the bitmap corresponds to a row in the fact table. The bit is set when the key value from the subquery is same as the value in the row of the fact table. For example, in the bitmap <code class="codeph">101000...</code> (the ellipses indicates that the values for the remaining rows are <code class="codeph">0</code>), rows 1 and 3 of the fact table have matching key values from the subquery.</p>
+<p>The operations in lines 12, 17, and 22 iterate over the keys from the subqueries and retrieve the corresponding bitmaps. In <a href="tgsql_transform.htm#GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D__BABDEJJD">Example 5-7</a>, the <code class="codeph">customers</code> subquery seeks the IDs of customers whose state or province is <code class="codeph">CA</code>. Assume that the bitmap <code class="codeph">101000...</code> corresponds to the customer ID key value <code class="codeph">103515</code> from the <code class="codeph">customers</code> table subquery. Also assume that the <code class="codeph">customers</code> subquery produces the key value <code class="codeph">103516</code> with the bitmap <code class="codeph">010000...</code>, which means that only row 2 in <code class="codeph">sales</code> has a matching key value from the subquery.</p>
+<p>The database merges (using the <code class="codeph">OR</code> operator) the bitmaps for each subquery (lines 11, 16, 21). In our <code class="codeph">customers</code> example, the database produces a single bitmap <code class="codeph">111000...</code> for the <code class="codeph">customers</code> subquery after merging the two bitmaps:</p>
+<pre dir="ltr">101000...   # bitmap corresponding to key 103515
+010000...   # bitmap corresponding to key 103516
+---------
+111000...   # result of OR operation
+</pre>
+<p>In line 10, the database applies the <code class="codeph">AND</code> operator to the merged bitmaps. Assume that after the database has performed all <code class="codeph">OR</code> operations, the resulting bitmap for <code class="codeph">channels</code> is <code class="codeph">100000...</code> If the database performs an <code class="codeph">AND</code> operation on this bitmap and the bitmap from <code class="codeph">customers</code> subquery, then the result is as follows:</p>
+<pre dir="ltr">100000...   # channels bitmap after all OR operations performed
+111000...   # customers bitmap after all OR operations performed
+---------
+100000...   # bitmap result of AND operation for channels and customers
+</pre>
+<p>In line 9, the database generates the corresponding rowids of the final bitmap. The database retrieves rows from the <code class="codeph">sales</code> fact table using the rowids (line 26). In our example, the database generate only one rowid, which corresponds to the first row, and thus fetches only a single row instead of scanning the entire <code class="codeph">sales</code> table.</p>
+<pre dir="ltr">-------------------------------------------------------------------------------
+| Id  | Operation                         | Name
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                  |    
+|   1 |  HASH GROUP BY                    | 
+|*  2 |   HASH JOIN                       |
+|*  3 |    TABLE ACCESS FULL              | CUSTOMERS
+|*  4 |    HASH JOIN                      | 
+|*  5 |     TABLE ACCESS FULL             | TIMES 
+|   6 |     VIEW                          | VW_ST_B1772830 
+|   7 |      NESTED LOOPS                 | 
+|   8 |       PARTITION RANGE SUBQUERY    |  
+|   9 |        BITMAP CONVERSION TO ROWIDS|  
+|  10 |         BITMAP AND                |
+|  11 |          BITMAP MERGE             | 
+|  12 |           BITMAP KEY ITERATION    | 
+|  13 |            BUFFER SORT            |
+|* 14 |             TABLE ACCESS FULL     | CHANNELS 
+|* 15 |            BITMAP INDEX RANGE SCAN| SALES_CHANNEL_BIX 
+|  16 |          BITMAP MERGE             | 
+|  17 |           BITMAP KEY ITERATION    |
+|  18 |            BUFFER SORT            |
+|* 19 |             TABLE ACCESS FULL     | TIMES 
+|* 20 |            BITMAP INDEX RANGE SCAN| SALES_TIME_BIX
+|  21 |          BITMAP MERGE             |
+|  22 |           BITMAP KEY ITERATION    | 
+|  23 |            BUFFER SORT            | 
+|* 24 |             TABLE ACCESS FULL     | CUSTOMERS 
+|* 25 |            BITMAP INDEX RANGE SCAN| SALES_CUST_BIX 
+|  26 |       TABLE ACCESS BY USER ROWID  | SALES
+-------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - access(&#34;ITEM_1&#34;=&#34;C&#34;.&#34;CUST_ID&#34;)
+   3 - filter(&#34;C&#34;.&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39;)
+   4 - access(&#34;ITEM_2&#34;=&#34;T&#34;.&#34;TIME_ID&#34;)
+   5 - filter((&#34;T&#34;.&#34;CALENDAR_QUARTER_DESC&#34;=&#39;1999-01&#39; 
+               OR &#34;T&#34;.&#34;CALENDAR_QUARTER_DESC&#34;=&#39;1999-02&#39;))
+  14 - filter(&#34;CH&#34;.&#34;CHANNEL_DESC&#34;=&#39;Internet&#39;)
+  15 - access(&#34;S&#34;.&#34;CHANNEL_ID&#34;=&#34;CH&#34;.&#34;CHANNEL_ID&#34;)
+  19 - filter((&#34;T&#34;.&#34;CALENDAR_QUARTER_DESC&#34;=&#39;1999-01&#39; 
+               OR &#34;T&#34;.&#34;CALENDAR_QUARTER_DESC&#34;=&#39;1999-02&#39;))
+  20 - access(&#34;S&#34;.&#34;TIME_ID&#34;=&#34;T&#34;.&#34;TIME_ID&#34;)
+  24 - filter(&#34;C&#34;.&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39;)
+  25 - access(&#34;S&#34;.&#34;CUST_ID&#34;=&#34;C&#34;.&#34;CUST_ID&#34;)
+
+Note
+-----
+   - star transformation used for this statement
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94908"></a><a id="TGSQL94909"></a><a id="TGSQL94907"></a>
+<div class="props_rev_3"><a id="GUID-BAE74D96-194A-4168-9490-33523BB10C1C"></a>
+<h3 id="TGSQL-GUID-BAE74D96-194A-4168-9490-33523BB10C1C" class="sect3">Temporary Table Transformation: Scenario</h3>
+<div>
+<p>In <a href="tgsql_transform.htm#GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D__BABJECFB">Example 5-8</a>, the optimizer does not join back the table <code class="codeph">channels</code> to the <code class="codeph">sales</code> table because it is not referenced outside and the <code class="codeph">channel_id</code> is unique. If the optimizer cannot eliminate the join back, however, then the database stores the subquery results in a temporary table to avoid rescanning the dimension table for bitmap key generation and join back. Also, if the query runs in parallel, then the database materializes the results so that each parallel execution server can select the results from the temporary table instead of executing the subquery again.</p>
+<div class="example" id="GUID-BAE74D96-194A-4168-9490-33523BB10C1C__BABFJIEJ">
+<p class="titleinexample">Example 5-9 Star Transformation Using Temporary Table</p>
+<p>In this example, the database materializes the results of the subquery on <code class="codeph">customers</code> into a temporary table:</p>
+<pre dir="ltr">SELECT t1.c1 cust_city, t.calendar_quarter_desc calendar_quarter_desc, 
+       SUM(s.amount_sold) sales_amount
+FROM   sales s, sh.times t, sys_temp_0fd9d6621_e7e24 t1 
+WHERE  s.time_id=t.time_id
+AND    s.cust_id=t1.c0
+AND    (t.calendar_quarter_desc=&#39;1999-q1&#39; OR t.calendar_quarter_desc=&#39;1999-q2&#39;)
+AND    s.cust_id IN    ( SELECT t1.c0 
+                         FROM   sys_temp_0fd9d6621_e7e24 t1 )
+AND    s.channel_id IN ( SELECT ch.channel_id 
+                         FROM   channels ch
+                         WHERE  ch.channel_desc=&#39;internet&#39; )
+AND    s.time_id IN    ( SELECT t.time_id
+                         FROM   times t
+                         WHERE  t.calendar_quarter_desc=&#39;1999-q1&#39;
+                         OR     t.calendar_quarter_desc=&#39;1999-q2&#39; )
+GROUP BY t1.c1, t.calendar_quarter_desc
+</pre>
+<div class="p">The optimizer replaces <code class="codeph">customers</code> with the temporary table <code class="codeph">sys_temp_0fd9d6621_e7e24</code>, and replaces references to columns <code class="codeph">cust_id</code> and <code class="codeph">cust_city</code> with the corresponding columns of the temporary table. The database creates the temporary table with two columns: <code class="codeph">(c0 NUMBER, c1 VARCHAR2(30))</code>. These columns correspond to <code class="codeph">cust_id</code> and <code class="codeph">cust_city</code> of the <code class="codeph">customers</code> table. The database populates the temporary table by executing the following query at the beginning of the execution of the previous query:
+<pre dir="ltr">SELECT c.cust_id, c.cust_city FROM customers WHERE c.cust_state_province = &#39;CA&#39;
+</pre></div>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-BAE74D96-194A-4168-9490-33523BB10C1C__BABFJJCH">
+<p class="titleinexample">Example 5-10 Partial Execution Plan for Star Transformation Using Temporary Table</p>
+<p>The following example shows an edited version of the execution plan for the query in <a href="tgsql_transform.htm#GUID-BAE74D96-194A-4168-9490-33523BB10C1C__BABFJIEJ">Example 5-9</a>:</p>
+<pre dir="ltr">-------------------------------------------------------------------------------
+| Id  | Operation                          | Name
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                   |
+|   1 |  TEMP TABLE TRANSFORMATION         |
+|   2 |   LOAD AS SELECT                   |
+|*  3 |    TABLE ACCESS FULL               | CUSTOMERS
+|   4 |   HASH GROUP BY                    | 
+|*  5 |    HASH JOIN                       | 
+|   6 |     TABLE ACCESS FULL              | SYS_TEMP_0FD9D6613_C716F 
+|*  7 |     HASH JOIN                      | 
+|*  8 |      TABLE ACCESS FULL             | TIMES 
+|   9 |      VIEW                          | VW_ST_A3F94988 
+|  10 |       NESTED LOOPS                 | 
+|  11 |        PARTITION RANGE SUBQUERY    | 
+|  12 |         BITMAP CONVERSION TO ROWIDS| 
+|  13 |          BITMAP AND                | 
+|  14 |           BITMAP MERGE             | 
+|  15 |            BITMAP KEY ITERATION    |  
+|  16 |             BUFFER SORT            |  
+|* 17 |              TABLE ACCESS FULL     | CHANNELS 
+|* 18 |             BITMAP INDEX RANGE SCAN| SALES_CHANNEL_BIX 
+|  19 |           BITMAP MERGE             |  
+|  20 |            BITMAP KEY ITERATION    | 
+|  21 |             BUFFER SORT            |  
+|* 22 |              TABLE ACCESS FULL     | TIMES 
+|* 23 |             BITMAP INDEX RANGE SCAN| SALES_TIME_BIX 
+|  24 |           BITMAP MERGE             |  
+|  25 |            BITMAP KEY ITERATION    |  
+|  26 |             BUFFER SORT            | 
+|  27 |              TABLE ACCESS FULL     | SYS_TEMP_0FD9D6613_C716F 
+|* 28 |             BITMAP INDEX RANGE SCAN| SALES_CUST_BIX 
+|  29 |        TABLE ACCESS BY USER ROWID  | SALES 
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - filter(&#34;C&#34;.&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39;)
+   5 - access(&#34;ITEM_1&#34;=&#34;C0&#34;)
+   7 - access(&#34;ITEM_2&#34;=&#34;T&#34;.&#34;TIME_ID&#34;)
+   8 - filter((&#34;T&#34;.&#34;CALENDAR_QUARTER_DESC&#34;=&#39;1999-01&#39; OR 
+               &#34;T&#34;.&#34;CALENDAR_QUARTER_DESC&#34;=&#39;1999-02&#39;))
+  17 - filter(&#34;CH&#34;.&#34;CHANNEL_DESC&#34;=&#39;Internet&#39;)
+  18 - access(&#34;S&#34;.&#34;CHANNEL_ID&#34;=&#34;CH&#34;.&#34;CHANNEL_ID&#34;)
+  22 - filter((&#34;T&#34;.&#34;CALENDAR_QUARTER_DESC&#34;=&#39;1999-01&#39; OR 
+               &#34;T&#34;.&#34;CALENDAR_QUARTER_DESC&#34;=&#39;1999-02&#39;))
+  23 - access(&#34;S&#34;.&#34;TIME_ID&#34;=&#34;T&#34;.&#34;TIME_ID&#34;)
+  28 - access(&#34;S&#34;.&#34;CUST_ID&#34;=&#34;C0&#34;)
+</pre>
+<p>Lines 1, 2, and 3 of the plan materialize the <code class="codeph">customers</code> subquery into the temporary table. In line 6, the database scans the temporary table (instead of the subquery) to build the bitmap from the fact table. Line 27 scans the temporary table for joining back instead of scanning <code class="codeph">customers</code>. The database does not need to apply the filter on <code class="codeph">customers</code> on the temporary table because the filter is applied while materializing the temporary table.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL95255"></a>
+<div class="props_rev_3"><a id="GUID-2C4FA6C6-3DA8-4CEA-9EF0-294396D15077"></a>
+<h2 id="TGSQL-GUID-2C4FA6C6-3DA8-4CEA-9EF0-294396D15077" class="sect2">In-Memory Aggregation</h2>
+<div>
+<p>The basic approach of in-memory aggregation is to aggregate while scanning.</p>
+<p>To optimize query blocks involving aggregation and joins from a single large table to multiple small tables, such as in a typical star query, the transformation uses <code class="codeph">KEY VECTOR</code> and <code class="codeph">VECTOR GROUP BY</code> operations. These operations use efficient in-memory arrays for joins and aggregation, and are especially effective when the underlying tables are in-memory columnar tables.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_transform.htm#GUID-378D5929-2D9E-4211-B9E6-4EFA9CC42B7F" title="To improve performance of queries that aggregate the results of joins between small tables and a large table, VECTOR GROUP BY transformation optimizes CPU usage, especially the CPU cache.">Purpose of In-Memory Aggregation</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-59C1A480-4977-4635-9C5F-FEDD195F44ED" title="A typical analytic query aggregates from a fact table, and joins the fact table to one or more dimensions.">How In-Memory Aggregation Works</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-FA953802-7768-49D5-B70C-C057076F1F4A" title="VECTOR GROUP BY aggregation does not involve any new SQL or public initialization parameters.">Controls for In-Memory Aggregation</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-C425C017-8505-4924-A7AE-308C9BAF2454" title="This section gives a conceptual example of how VECTOR GROUP BY aggregation works.">IM Aggregation: Scenario</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-5AB9792F-8030-4D13-BC12-8DB598A15459" title="In this example, the business question is &#34;How many products were sold in each category in each calendar year?&#34;">In-Memory Aggregation: Example</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95256"></a>
+<div class="props_rev_3"><a id="GUID-378D5929-2D9E-4211-B9E6-4EFA9CC42B7F"></a>
+<h3 id="TGSQL-GUID-378D5929-2D9E-4211-B9E6-4EFA9CC42B7F" class="sect3">Purpose of In-Memory Aggregation</h3>
+<div>
+<p>To improve performance of queries that aggregate the results of joins between small tables and a large table, <code class="codeph">VECTOR GROUP BY</code> transformation optimizes CPU usage, especially the CPU cache.</p>
+<p>The database accelerates the work up to and including the first aggregation, which is where the SQL engine must process the largest volume of rows. Vector joins and group-by operations (or aggregation) can occur simultaneously with the scan of the large table rather than waiting for the table scans and join operations to complete.</p>
+</div>
+</div>
+<a id="TGSQL95257"></a>
+<div class="props_rev_3"><a id="GUID-59C1A480-4977-4635-9C5F-FEDD195F44ED"></a>
+<h3 id="TGSQL-GUID-59C1A480-4977-4635-9C5F-FEDD195F44ED" class="sect3">How In-Memory Aggregation Works</h3>
+<div>
+<p>A typical analytic query aggregates from a fact table, and joins the fact table to one or more dimensions.</p>
+<p>This type of query scans a large volume of data, with optional filtering, and performs a <code class="codeph">GROUP BY</code> of between 1 and 40 columns. The optimizer decides whether to use the vector transformation based on considerations such as the size of the key vector (that is, the distinct join keys) and the number of distinct grouping keys. The optimizer tends to choose this transformation when dimension join keys have low cardinality.</p>
+<p><code class="codeph">VECTOR</code> <code class="codeph">GROUP BY</code> aggregation spends extra time processing the small tables up front to accelerate the per-row work performed on the large table. This optimization is possible because a typical analytic query distributes rows among processing stages:</p>
+<ol>
+<li>
+<p>Filtering tables and producing row sets</p>
+</li>
+<li>
+<p>Joining row sets</p>
+</li>
+<li>
+<p>Aggregating rows</p>
+</li>
+</ol>
+<p>The unit of work between stages is called a <a href="glossary.htm#GUID-0BD22576-DD42-44E5-B1AD-CFF3B9D74E42"><span class="xrefglossterm">data flow operator (DFO)</span></a>. <code class="codeph">VECTOR GROUP BY</code> aggregation uses a DFO for each dimension to create a key vector structure and temporary table. When aggregating measure columns from the fact table, the database uses this key vector to translate a fact join key to its dense grouping key. The late materialization step joins on the dense grouping keys to the temporary tables.</p>
+</div>
+<a id="TGSQL95275"></a><a id="TGSQL95258"></a>
+<div class="props_rev_3"><a id="GUID-7A06072C-CC6A-4E47-B122-B9D74B3F2C68"></a>
+<h4 id="TGSQL-GUID-7A06072C-CC6A-4E47-B122-B9D74B3F2C68" class="sect4">Key Vector</h4>
+<div>
+<p>A <span class="bold">key vector</span> is a data structure that maps between dense join keys and dense grouping keys.</p>
+<p>A <a href="glossary.htm#GUID-E610A374-ADFA-4BD2-ACD2-A5DBAE073DF1"><span class="xrefglossterm">dense key</span></a> is a numeric key that is stored as a native integer and has a range of values. A <a href="glossary.htm#GUID-ED23F776-3D5C-430B-9677-3F575BCE2BA3"><span class="xrefglossterm">dense join key</span></a> represents all join keys whose join columns come from a particular fact table or dimension. A <a href="glossary.htm#GUID-23ED77DA-9711-400E-A789-13B5B3FA7C78"><span class="xrefglossterm">dense grouping key</span></a> represents all grouping keys whose grouping columns come from a particular fact table or dimension. A key vector enables fast lookups.</p>
+<div class="example" id="GUID-7A06072C-CC6A-4E47-B122-B9D74B3F2C68__GUID-11AAE4FC-D3EA-4423-BD62-FA8EA689E325">
+<p class="titleinexample">Example 5-11 Key Vector</p>
+<p>Assume that the <code class="codeph">hr.locations</code> tables has values for <code class="codeph">country_id</code> as shown (only the first few results are shown):</p>
+<pre dir="ltr">SQL&gt; SELECT country_id FROM locations;
+ 
+CO
+--
+IT
+IT
+JP
+JP
+US
+US
+US
+US
+CA
+CA
+CN
+</pre>
+<p>A complex analytic query applies the filter <code class="codeph">WHERE country_id=&#39;US&#39;</code> to the <code class="codeph">locations</code> table. A key vector for this filter might look like the following one-dimensional array:</p>
+<pre dir="ltr">0
+0
+0
+0
+1
+1
+1
+1
+0
+0
+0
+</pre>
+<p>In the preceding array, <code class="codeph">1</code> is the dense grouping key for <code class="codeph">country_id=&#39;US&#39;</code>. The <code class="codeph">0</code> values indicate rows in <code class="codeph">locations</code> that do not match this filter. If a query uses the filter <code class="codeph">WHERE country_id IN (&#39;US&#39;,&#39;JP&#39;)</code>, then the array might look as follows, where <code class="codeph">2</code> is the dense grouping key for <code class="codeph">JP</code> and <code class="codeph">1</code> is the dense grouping key for <code class="codeph">US</code>:</p>
+<pre dir="ltr">0
+0
+2
+2
+1
+1
+1
+1
+0
+0
+0
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL95261"></a><a id="TGSQL95262"></a><a id="TGSQL95260"></a>
+<div class="props_rev_3"><a id="GUID-5FE79500-B8C5-4DD7-A2DD-BDA83340B5FF"></a>
+<h4 id="TGSQL-GUID-5FE79500-B8C5-4DD7-A2DD-BDA83340B5FF" class="sect4">Two Phases of IM Aggregation</h4>
+<div>
+<p>Typically, <code class="codeph">VECTOR GROUP BY</code> aggregation processes each dimension in sequence, and then processes the fact table.</p>
+<p>When performing IM aggregation, the database proceeds as follows:</p>
+<ol>
+<li>
+<p>Process each dimension sequentially as follows:</p>
+<ol>
+<li>
+<p>Find the unique dense grouping keys.</p>
+</li>
+<li>
+<p>Create a key vector.</p>
+</li>
+<li>
+<p>Create a temporary table (<code class="codeph">CURSOR DURATION MEMORY</code>).</p>
+</li>
+</ol>
+<p>The following figure illustrates the steps in this phase, beginning with the scan of the dimension table in DFO 0, and ending with the creation of a temporary table. In the simplest form of parallel <code class="codeph">GROUP BY</code> or join processing, the database processes each join or <code class="codeph">GROUP BY</code> in its own DFO.</p>
+<div class="figure" id="GUID-5FE79500-B8C5-4DD7-A2DD-BDA83340B5FF__BABICEAH">
+<p class="titleinfigure">Figure 5-2 Phase 1 of In-Memory Aggregation</p>
+<img width="149" height="231" src="img/GUID-44CE51AE-B357-4FD3-ACEA-D874EA1E53AF-default.png" alt="Description of Figure 5-2 follows" title="Description of Figure 5-2 follows"/><br/>
+<a href="img_text/GUID-44CE51AE-B357-4FD3-ACEA-D874EA1E53AF-print.htm">Description of &#34;Figure 5-2 Phase 1 of In-Memory Aggregation&#34;</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Process the fact table.</p>
+<ol>
+<li>
+<p>Process all the joins and aggregations using the key vectors created in the preceding phase.</p>
+</li>
+<li>
+<p>Join back the results to each temporary table.</p>
+</li>
+</ol>
+<p><a href="tgsql_transform.htm#GUID-5FE79500-B8C5-4DD7-A2DD-BDA83340B5FF__BABEIJEA">Figure 5-3</a> illustrates phase 2 in a join of the fact table with two dimensions. In DFO 0, the database performs a full scan of the fact table, and then uses the key vectors for each dimension to filter out nonmatching rows. DFO 2 joins the results of DFO 0 with DFO 1. DFO 4 joins the result of DFO 2 with DFO 3.</p>
+<div class="figure" id="GUID-5FE79500-B8C5-4DD7-A2DD-BDA83340B5FF__BABEIJEA">
+<p class="titleinfigure">Figure 5-3 Phase 2 of In-Memory Aggregation</p>
+<img width="408" height="386" src="img/GUID-6A7B84AB-0B48-41EF-8362-99A8BB49C020-default.png" alt="Description of Figure 5-3 follows" title="Description of Figure 5-3 follows"/><br/>
+<a href="img_text/GUID-6A7B84AB-0B48-41EF-8362-99A8BB49C020-print.htm">Description of &#34;Figure 5-3 Phase 2 of In-Memory Aggregation&#34;</a></div>
+<!-- class="figure" --></li>
+</ol>
+</div>
+</div>
+</div>
+<a id="TGSQL95263"></a>
+<div class="props_rev_3"><a id="GUID-FA953802-7768-49D5-B70C-C057076F1F4A"></a>
+<h3 id="TGSQL-GUID-FA953802-7768-49D5-B70C-C057076F1F4A" class="sect3">Controls for In-Memory Aggregation</h3>
+<div>
+<p><code class="codeph">VECTOR GROUP BY</code> aggregation does not involve any new SQL or public initialization parameters.</p>
+<p>You can use the following pairs of hints:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Query block hints</p>
+<p><code class="codeph">VECTOR_TRANSFORM</code> enables the vector transformation on the specified query block, regardless of costing. <code class="codeph">NO_VECTOR_TRANSFORM</code> disables the vector transformation from engaging on the specified query block.</p>
+</li>
+<li>
+<p>Table hints</p>
+<p>You can use the following pairs of hints:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">VECTOR_TRANSFORM_FACT</code> includes the specified <code class="codeph">FROM</code> expressions in the fact table generated by the vector transformation. <code class="codeph">NO_VECTOR_TRANSFORM_FACT</code> excludes the specified <code class="codeph">FROM</code> expressions from the fact table generated by the vector transformation.</p>
+</li>
+<li>
+<p><code class="codeph">VECTOR_TRANSFORM_DIMS</code> includes the specified <code class="codeph">FROM</code> expressions in enabled dimensions generated by the vector transformation. <code class="codeph">NO_VECTOR_TRANSFORM_DIMS</code> excludes the specified from expressions from enabled dimensions generated by the vector transformation.</p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-FA953802-7768-49D5-B70C-C057076F1F4A__GUID-8C17C610-DCF3-4C3F-A54F-0A3842FB08C6">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF00219" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF00219"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn more about the <code class="codeph">VECTOR_TRANSFORM_FACT</code> and <code class="codeph">VECTOR_TRANSFORM_DIMS</code> hints</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95264"></a>
+<div class="props_rev_3"><a id="GUID-C425C017-8505-4924-A7AE-308C9BAF2454"></a>
+<h3 id="TGSQL-GUID-C425C017-8505-4924-A7AE-308C9BAF2454" class="sect3">IM Aggregation: Scenario</h3>
+<div>
+<p>This section gives a conceptual example of how <code class="codeph">VECTOR</code> <code class="codeph">GROUP BY</code> aggregation works.</p>
+<div class="infobox-note" id="GUID-C425C017-8505-4924-A7AE-308C9BAF2454__GUID-2E7C6D38-81E5-4A68-B3EF-6FB8B276CCF3">
+<p class="notep1">Note:</p>
+<p>The scenario does not use the sample schema tables or show an actual execution plan.</p>
+</div>
+<p>This section contains the following topics:</p>
+</div>
+<a id="TGSQL95277"></a><a id="TGSQL95278"></a><a id="TGSQL95279"></a><a id="TGSQL95276"></a>
+<div class="props_rev_3"><a id="GUID-DDD8CDE8-85B4-4644-83FC-0E339CBEE8AE"></a>
+<h4 id="TGSQL-GUID-DDD8CDE8-85B4-4644-83FC-0E339CBEE8AE" class="sect4">Sample Analytic Query of a Star Schema</h4>
+<div>
+<p>This sample star schema in this scenario contains the <code class="codeph">sales_online</code> fact table and two dimension tables: <code class="codeph">geography</code> and <code class="codeph">products</code>.</p>
+<p>Each row in <code class="codeph">geography</code> is uniquely identified by the <code class="codeph">geog_id</code> column. Each row in <code class="codeph">products</code> is uniquely identified by the <code class="codeph">prod_id</code> column. Each row in <code class="codeph">sales_online</code> is uniquely identified by the <code class="codeph">geog_id</code>, <code class="codeph">prod_id</code>, and amount sold.</p>
+<div class="tblformal" id="GUID-DDD8CDE8-85B4-4644-83FC-0E339CBEE8AE__GUID-157E6B61-DDCA-405A-B870-34346844295F">
+<p class="titleintable">Table 5-1 Sample Rows in geography Table</p>
+<table class="cellalignment4808" title="Sample Rows in geography Table" summary="Sample rows in geography table">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4909" id="d13578e3470">country</th>
+<th class="cellalignment4873" id="d13578e3473">state</th>
+<th class="cellalignment4873" id="d13578e3476">city</th>
+<th class="cellalignment4886" id="d13578e3479">geog_id</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d13578e3484" headers="d13578e3470">
+<p>USA</p>
+</td>
+<td class="cellalignment4877" headers="d13578e3484 d13578e3473">
+<p>WA</p>
+</td>
+<td class="cellalignment4877" headers="d13578e3484 d13578e3476">
+<p>seattle</p>
+</td>
+<td class="cellalignment4888" headers="d13578e3484 d13578e3479">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d13578e3497" headers="d13578e3470">
+<p>USA</p>
+</td>
+<td class="cellalignment4877" headers="d13578e3497 d13578e3473">
+<p>WA</p>
+</td>
+<td class="cellalignment4877" headers="d13578e3497 d13578e3476">
+<p>spokane</p>
+</td>
+<td class="cellalignment4888" headers="d13578e3497 d13578e3479">
+<p>3</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d13578e3510" headers="d13578e3470">
+<p>USA</p>
+</td>
+<td class="cellalignment4877" headers="d13578e3510 d13578e3473">
+<p>CA</p>
+</td>
+<td class="cellalignment4877" headers="d13578e3510 d13578e3476">
+<p>SF</p>
+</td>
+<td class="cellalignment4888" headers="d13578e3510 d13578e3479">
+<p>7</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d13578e3523" headers="d13578e3470">
+<p>USA</p>
+</td>
+<td class="cellalignment4877" headers="d13578e3523 d13578e3473">
+<p>CA</p>
+</td>
+<td class="cellalignment4877" headers="d13578e3523 d13578e3476">
+<p>LA</p>
+</td>
+<td class="cellalignment4888" headers="d13578e3523 d13578e3479">
+<p>8</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="tblformal" id="GUID-DDD8CDE8-85B4-4644-83FC-0E339CBEE8AE__GUID-B70191EF-AA11-498B-BC66-4F97C46F7228">
+<p class="titleintable">Table 5-2 Sample Rows in products Table</p>
+<table class="cellalignment4808" title="Sample Rows in products Table" summary="Sample rows in products table">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4909" id="d13578e3547">manuf</th>
+<th class="cellalignment4874" id="d13578e3550">category</th>
+<th class="cellalignment4874" id="d13578e3553">subcategory</th>
+<th class="cellalignment4874" id="d13578e3556">prod_id</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d13578e3561" headers="d13578e3547">
+<p>Acme</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3561 d13578e3550">
+<p>sport</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3561 d13578e3553">
+<p>bike</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3561 d13578e3556">
+<p>4</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d13578e3574" headers="d13578e3547">
+<p>Acme</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3574 d13578e3550">
+<p>sport</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3574 d13578e3553">
+<p>ball</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3574 d13578e3556">
+<p>3</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d13578e3587" headers="d13578e3547">
+<p>Acme</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3587 d13578e3550">
+<p>electric</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3587 d13578e3553">
+<p>bulb</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3587 d13578e3556">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d13578e3600" headers="d13578e3547">
+<p>Acme</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3600 d13578e3550">
+<p>electric</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3600 d13578e3553">
+<p>switch</p>
+</td>
+<td class="cellalignment4878" headers="d13578e3600 d13578e3556">
+<p>8</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="tblformal" id="GUID-DDD8CDE8-85B4-4644-83FC-0E339CBEE8AE__GUID-3176F3DD-6D28-43E4-BA5D-9FCF9BADF8F9">
+<p class="titleintable">Table 5-3 Sample Rows in sales_online Table</p>
+<table class="cellalignment4808" title="Sample Rows in sales_online Table" summary="Sample rows in sales_online table">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4923" id="d13578e3623">prod_id</th>
+<th class="cellalignment4854" id="d13578e3626">geog_id</th>
+<th class="cellalignment4923" id="d13578e3629">amount</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3634" headers="d13578e3623">
+<p>8</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3634 d13578e3626">
+<p>1</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3634 d13578e3629">
+<p>100</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3644" headers="d13578e3623">
+<p>9</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3644 d13578e3626">
+<p>1</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3644 d13578e3629">
+<p>150</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3654" headers="d13578e3623">
+<p>8</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3654 d13578e3626">
+<p>2</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3654 d13578e3629">
+<p>100</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3664" headers="d13578e3623">
+<p>4</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3664 d13578e3626">
+<p>3</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3664 d13578e3629">
+<p>110</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3674" headers="d13578e3623">
+<p>2</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3674 d13578e3626">
+<p>30</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3674 d13578e3629">
+<p>130</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3684" headers="d13578e3623">
+<p>6</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3684 d13578e3626">
+<p>20</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3684 d13578e3629">
+<p>400</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3694" headers="d13578e3623">
+<p>3</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3694 d13578e3626">
+<p>1</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3694 d13578e3629">
+<p>100</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3704" headers="d13578e3623">
+<p>1</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3704 d13578e3626">
+<p>7</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3704 d13578e3629">
+<p>120</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3714" headers="d13578e3623">
+<p>3</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3714 d13578e3626">
+<p>8</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3714 d13578e3629">
+<p>130</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e3724" headers="d13578e3623">
+<p>4</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3724 d13578e3626">
+<p>3</p>
+</td>
+<td class="cellalignment4924" headers="d13578e3724 d13578e3629">
+<p>200</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>A manager asks the business question, &#34;How many Acme products in each subcategory were sold online in Washington, and how many were sold in California?&#34; To answer this question, an analytic query of the <code class="codeph">sales_online</code> fact table joins the <code class="codeph">products</code> and <code class="codeph">geography</code> dimension tables as follows:</p>
+<pre dir="ltr">SELECT p.category, p.subcategory, g.country, g.state, SUM(s.amount)
+FROM   sales_online s, products p, geography g
+WHERE  s.geog_id = g.geog_id 
+AND    s.prod_id = p.prod_id
+AND    g.state IN (&#39;WA&#39;,&#39;CA&#39;)
+AND    p.manuf = &#39;ACME&#39;
+GROUP BY category, subcategory, country, state
+</pre></div>
+</div>
+<a id="TGSQL95282"></a><a id="TGSQL95283"></a><a id="TGSQL95259"></a><a id="TGSQL95281"></a>
+<div class="props_rev_3"><a id="GUID-C739095A-8522-4748-8988-CE7E594E2B39"></a>
+<h4 id="TGSQL-GUID-C739095A-8522-4748-8988-CE7E594E2B39" class="sect4">Step 1: Key Vector and Temporary Table Creation for geography Dimension</h4>
+<div>
+<p>In the first phase of <code class="codeph">VECTOR GROUP BY</code> aggregation for this query, the database creates a dense grouping key for each city/state combination for cities in the states of Washington or California.</p>
+<p>In <a href="tgsql_transform.htm#GUID-C739095A-8522-4748-8988-CE7E594E2B39__BABIFBJI" title="Temporary table for geography">Table 5-6</a>, the <code class="codeph">1</code> is the <code class="codeph">USA,WA</code> grouping key, and the <code class="codeph">2</code> is the <code class="codeph">USA,CA</code> grouping key.</p>
+<div class="tblformal" id="GUID-C739095A-8522-4748-8988-CE7E594E2B39__GUID-599445B0-236C-463C-BCFB-FF5FB67B7C7C">
+<p class="titleintable">Table 5-4 Dense Grouping Key for geography</p>
+<table class="cellalignment4808" title="Dense Grouping Key for geography" summary="Dense grouping key for geography table">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4899" id="d13578e3864">country</th>
+<th class="cellalignment4875" id="d13578e3867">state</th>
+<th class="cellalignment4820" id="d13578e3870">city</th>
+<th class="cellalignment4820" id="d13578e3873">geog_id</th>
+<th class="cellalignment4854" id="d13578e3876">dense_gr_key_geog</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d13578e3881" headers="d13578e3864">
+<p>USA</p>
+</td>
+<td class="cellalignment4879" headers="d13578e3881 d13578e3867">
+<p>WA</p>
+</td>
+<td class="cellalignment4823" headers="d13578e3881 d13578e3870">
+<p>seattle</p>
+</td>
+<td class="cellalignment4823" headers="d13578e3881 d13578e3873">
+<p>2</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3881 d13578e3876">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d13578e3897" headers="d13578e3864">
+<p>USA</p>
+</td>
+<td class="cellalignment4879" headers="d13578e3897 d13578e3867">
+<p>WA</p>
+</td>
+<td class="cellalignment4823" headers="d13578e3897 d13578e3870">
+<p>spokane</p>
+</td>
+<td class="cellalignment4823" headers="d13578e3897 d13578e3873">
+<p>3</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3897 d13578e3876">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d13578e3913" headers="d13578e3864">
+<p>USA</p>
+</td>
+<td class="cellalignment4879" headers="d13578e3913 d13578e3867">
+<p>CA</p>
+</td>
+<td class="cellalignment4823" headers="d13578e3913 d13578e3870">
+<p>SF</p>
+</td>
+<td class="cellalignment4823" headers="d13578e3913 d13578e3873">
+<p>7</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3913 d13578e3876">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d13578e3929" headers="d13578e3864">
+<p>USA</p>
+</td>
+<td class="cellalignment4879" headers="d13578e3929 d13578e3867">
+<p>CA</p>
+</td>
+<td class="cellalignment4823" headers="d13578e3929 d13578e3870">
+<p>LA</p>
+</td>
+<td class="cellalignment4823" headers="d13578e3929 d13578e3873">
+<p>8</p>
+</td>
+<td class="cellalignment4856" headers="d13578e3929 d13578e3876">
+<p>2</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>A key vector for the <code class="codeph">geography</code> table looks like the array represented by the final column in <a href="tgsql_transform.htm#GUID-C739095A-8522-4748-8988-CE7E594E2B39__BABDBJAA" title="XLATE for geography table">Table 5-5</a>. The values are the <code class="codeph">geography</code> dense grouping keys. Thus, the key vector indicates which rows in <code class="codeph">sales_online</code> meet the <code class="codeph">geography.state</code> filter criteria (a sale made in the state of <code class="codeph">CA</code> or <code class="codeph">WA</code>) and which country/state group each row belongs to (either the <code class="codeph">USA,WA</code> group or <code class="codeph">USA,CA</code> group).</p>
+<div class="tblformal" id="GUID-C739095A-8522-4748-8988-CE7E594E2B39__BABDBJAA">
+<p class="titleintable">Table 5-5 Online Sales</p>
+<table class="cellalignment4808" title="Online Sales" summary="XLATE for geography table">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d13578e3988">prod_id</th>
+<th class="cellalignment4921" id="d13578e3991">geog_id</th>
+<th class="cellalignment4921" id="d13578e3994">amount</th>
+<th class="cellalignment4814" id="d13578e3997">key vector for geography</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4002" headers="d13578e3988">
+<p>8</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4002 d13578e3991">
+<p>1</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4002 d13578e3994">
+<p>100</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4002 d13578e3997">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4015" headers="d13578e3988">
+<p>9</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4015 d13578e3991">
+<p>1</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4015 d13578e3994">
+<p>150</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4015 d13578e3997">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4028" headers="d13578e3988">
+<p>8</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4028 d13578e3991">
+<p>2</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4028 d13578e3994">
+<p>100</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4028 d13578e3997">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4041" headers="d13578e3988">
+<p>4</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4041 d13578e3991">
+<p>3</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4041 d13578e3994">
+<p>110</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4041 d13578e3997">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4054" headers="d13578e3988">
+<p>2</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4054 d13578e3991">
+<p>30</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4054 d13578e3994">
+<p>130</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4054 d13578e3997">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4067" headers="d13578e3988">
+<p>6</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4067 d13578e3991">
+<p>20</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4067 d13578e3994">
+<p>400</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4067 d13578e3997">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4080" headers="d13578e3988">
+<p>3</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4080 d13578e3991">
+<p>1</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4080 d13578e3994">
+<p>100</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4080 d13578e3997">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4093" headers="d13578e3988">
+<p>1</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4093 d13578e3991">
+<p>7</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4093 d13578e3994">
+<p>120</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4093 d13578e3997">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4106" headers="d13578e3988">
+<p>3</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4106 d13578e3991">
+<p>8</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4106 d13578e3994">
+<p>130</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4106 d13578e3997">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4119" headers="d13578e3988">
+<p>4</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4119 d13578e3991">
+<p>3</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4119 d13578e3994">
+<p>200</p>
+</td>
+<td class="cellalignment4816" headers="d13578e4119 d13578e3997">
+<p>1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Internally, the database creates a temporary table similar to the following:</p>
+<pre dir="ltr">CREATE TEMPORARY TABLE tt_geography AS
+SELECT MAX(country), MAX(state), KEY_VECTOR_CREATE(...) dense_gr_key_geog
+FROM   geography
+WHERE  state IN (&#39;WA&#39;,&#39;CA&#39;)
+GROUP BY country, state
+</pre>
+<p><a href="tgsql_transform.htm#GUID-C739095A-8522-4748-8988-CE7E594E2B39__BABIFBJI" title="Temporary table for geography">Table 5-6</a> shows rows in the <code class="codeph">tt_geography</code> temporary table. The dense grouping key for the <code class="codeph">USA,WA</code> combination is <code class="codeph">1</code>, and the dense grouping key for the <code class="codeph">USA,CA</code> combination is <code class="codeph">2</code>.</p>
+<div class="tblformal" id="GUID-C739095A-8522-4748-8988-CE7E594E2B39__BABIFBJI">
+<p class="titleintable">Table 5-6 tt_geography</p>
+<table class="cellalignment4808" title="tt_geography" summary="Temporary table for geography">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d13578e4167">country</th>
+<th class="cellalignment4870" id="d13578e4170">state</th>
+<th class="cellalignment4837" id="d13578e4173">dense_gr_key_geog</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4178" headers="d13578e4167">
+<p>USA</p>
+</td>
+<td class="cellalignment4871" headers="d13578e4178 d13578e4170">
+<p>WA</p>
+</td>
+<td class="cellalignment4838" headers="d13578e4178 d13578e4173">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d13578e4188" headers="d13578e4167">
+<p>USA</p>
+</td>
+<td class="cellalignment4871" headers="d13578e4188 d13578e4170">
+<p>CA</p>
+</td>
+<td class="cellalignment4838" headers="d13578e4188 d13578e4173">
+<p>2</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="TGSQL95285"></a><a id="TGSQL95286"></a><a id="TGSQL95287"></a><a id="TGSQL95284"></a>
+<div class="props_rev_3"><a id="GUID-E22A075D-D027-4EEE-B670-B2D2DF50ED94"></a>
+<h4 id="TGSQL-GUID-E22A075D-D027-4EEE-B670-B2D2DF50ED94" class="sect4">Step 2: Key Vector and Temporary Table Creation for products Dimension</h4>
+<div>
+<p>The database creates a dense grouping key for each distinct category/subcategory combination of an Acme product.</p>
+<p>For example, in <a href="tgsql_transform.htm#GUID-E22A075D-D027-4EEE-B670-B2D2DF50ED94__BABHFGEJ" title="Sample rows in products table">Table 5-7</a>, the <code class="codeph">4</code> is the dense grouping key for an Acme electric switch.</p>
+<div class="tblformal" id="GUID-E22A075D-D027-4EEE-B670-B2D2DF50ED94__BABHFGEJ">
+<p class="titleintable">Table 5-7 Sample Rows in products Table</p>
+<table class="cellalignment4808" title="Sample Rows in products Table" summary="Sample rows in products table">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4897" id="d13578e4302">manuf</th>
+<th class="cellalignment4887" id="d13578e4305">category</th>
+<th class="cellalignment4887" id="d13578e4308">subcategory</th>
+<th class="cellalignment4872" id="d13578e4311">prod_id</th>
+<th class="cellalignment4830" id="d13578e4314">dense_gr_key_prod</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4319" headers="d13578e4302">
+<p>Acme</p>
+</td>
+<td class="cellalignment4889" headers="d13578e4319 d13578e4305">
+<p>sport</p>
+</td>
+<td class="cellalignment4889" headers="d13578e4319 d13578e4308">
+<p>bike</p>
+</td>
+<td class="cellalignment4876" headers="d13578e4319 d13578e4311">
+<p>4</p>
+</td>
+<td class="cellalignment4832" headers="d13578e4319 d13578e4314">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4335" headers="d13578e4302">
+<p>Acme</p>
+</td>
+<td class="cellalignment4889" headers="d13578e4335 d13578e4305">
+<p>sport</p>
+</td>
+<td class="cellalignment4889" headers="d13578e4335 d13578e4308">
+<p>ball</p>
+</td>
+<td class="cellalignment4876" headers="d13578e4335 d13578e4311">
+<p>3</p>
+</td>
+<td class="cellalignment4832" headers="d13578e4335 d13578e4314">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4351" headers="d13578e4302">
+<p>Acme</p>
+</td>
+<td class="cellalignment4889" headers="d13578e4351 d13578e4305">
+<p>electric</p>
+</td>
+<td class="cellalignment4889" headers="d13578e4351 d13578e4308">
+<p>bulb</p>
+</td>
+<td class="cellalignment4876" headers="d13578e4351 d13578e4311">
+<p>1</p>
+</td>
+<td class="cellalignment4832" headers="d13578e4351 d13578e4314">
+<p>3</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4367" headers="d13578e4302">
+<p>Acme</p>
+</td>
+<td class="cellalignment4889" headers="d13578e4367 d13578e4305">
+<p>electric</p>
+</td>
+<td class="cellalignment4889" headers="d13578e4367 d13578e4308">
+<p>switch</p>
+</td>
+<td class="cellalignment4876" headers="d13578e4367 d13578e4311">
+<p>8</p>
+</td>
+<td class="cellalignment4832" headers="d13578e4367 d13578e4314">
+<p>4</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>A key vector for the <code class="codeph">products</code> table might look like the array represented by the final column in <a href="tgsql_transform.htm#GUID-E22A075D-D027-4EEE-B670-B2D2DF50ED94__BABEBAFF" title="XLATE for products">Table 5-8</a>. The values represent the <code class="codeph">products</code> dense grouping key. For example, the <code class="codeph">4</code> represents the online sale of an Acme electric switch. Thus, the key vector indicates which rows in <code class="codeph">sales_online</code> meet the <code class="codeph">products</code> filter criteria (a sale of an Acme product).</p>
+<div class="tblformal" id="GUID-E22A075D-D027-4EEE-B670-B2D2DF50ED94__BABEBAFF">
+<p class="titleintable">Table 5-8 Key Vector</p>
+<table class="cellalignment4808" title="Key Vector" summary="XLATE for products">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4921" id="d13578e4417">prod_id</th>
+<th class="cellalignment4921" id="d13578e4420">geog_id</th>
+<th class="cellalignment4825" id="d13578e4423">amount</th>
+<th class="cellalignment4825" id="d13578e4426">key vector for products</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4431" headers="d13578e4417">
+<p>8</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4431 d13578e4420">
+<p>1</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4431 d13578e4423">
+<p>100</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4431 d13578e4426">
+<p>4</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4444" headers="d13578e4417">
+<p>9</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4444 d13578e4420">
+<p>1</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4444 d13578e4423">
+<p>150</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4444 d13578e4426">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4457" headers="d13578e4417">
+<p>8</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4457 d13578e4420">
+<p>2</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4457 d13578e4423">
+<p>100</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4457 d13578e4426">
+<p>4</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4470" headers="d13578e4417">
+<p>4</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4470 d13578e4420">
+<p>3</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4470 d13578e4423">
+<p>110</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4470 d13578e4426">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4483" headers="d13578e4417">
+<p>2</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4483 d13578e4420">
+<p>30</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4483 d13578e4423">
+<p>130</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4483 d13578e4426">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4496" headers="d13578e4417">
+<p>6</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4496 d13578e4420">
+<p>20</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4496 d13578e4423">
+<p>400</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4496 d13578e4426">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4509" headers="d13578e4417">
+<p>3</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4509 d13578e4420">
+<p>1</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4509 d13578e4423">
+<p>100</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4509 d13578e4426">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4522" headers="d13578e4417">
+<p>1</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4522 d13578e4420">
+<p>7</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4522 d13578e4423">
+<p>120</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4522 d13578e4426">
+<p>3</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4535" headers="d13578e4417">
+<p>3</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4535 d13578e4420">
+<p>8</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4535 d13578e4423">
+<p>130</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4535 d13578e4426">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4922" id="d13578e4548" headers="d13578e4417">
+<p>4</p>
+</td>
+<td class="cellalignment4922" headers="d13578e4548 d13578e4420">
+<p>3</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4548 d13578e4423">
+<p>200</p>
+</td>
+<td class="cellalignment4828" headers="d13578e4548 d13578e4426">
+<p>1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Internally, the database creates a temporary table similar to the following:</p>
+<pre dir="ltr">CREATE TEMPORTARY TABLE tt_products AS
+SELECT MAX(category), MAX(subcategory), KEY_VECTOR_CREATE(...) dense_gr_key_prod
+FROM   products
+WHERE  manuf = &#39;ACME&#39;
+GROUP BY category, subcategory
+</pre>
+<p><a href="tgsql_transform.htm#GUID-E22A075D-D027-4EEE-B670-B2D2DF50ED94__BABCAGGI" title="Temporary table for products">Table 5-9</a> shows rows in this temporary table.</p>
+<div class="tblformal" id="GUID-E22A075D-D027-4EEE-B670-B2D2DF50ED94__BABCAGGI">
+<p class="titleintable">Table 5-9 tt_products</p>
+<table class="cellalignment4808" title="tt_products" summary="Temporary table for products">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4923" id="d13578e4581">category</th>
+<th class="cellalignment4923" id="d13578e4584">subcategory</th>
+<th class="cellalignment4923" id="d13578e4587">dense_gr_key_prod</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e4592" headers="d13578e4581">
+<p>sport</p>
+</td>
+<td class="cellalignment4924" headers="d13578e4592 d13578e4584">
+<p>bike</p>
+</td>
+<td class="cellalignment4924" headers="d13578e4592 d13578e4587">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e4602" headers="d13578e4581">
+<p>sport</p>
+</td>
+<td class="cellalignment4924" headers="d13578e4602 d13578e4584">
+<p>ball</p>
+</td>
+<td class="cellalignment4924" headers="d13578e4602 d13578e4587">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e4612" headers="d13578e4581">
+<p>electric</p>
+</td>
+<td class="cellalignment4924" headers="d13578e4612 d13578e4584">
+<p>bulb</p>
+</td>
+<td class="cellalignment4924" headers="d13578e4612 d13578e4587">
+<p>3</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4924" id="d13578e4622" headers="d13578e4581">
+<p>electric</p>
+</td>
+<td class="cellalignment4924" headers="d13578e4622 d13578e4584">
+<p>switch</p>
+</td>
+<td class="cellalignment4924" headers="d13578e4622 d13578e4587">
+<p>4</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="TGSQL95288"></a>
+<div class="props_rev_3"><a id="GUID-1FC11741-E3D2-458F-9442-96E9247954CC"></a>
+<h4 id="TGSQL-GUID-1FC11741-E3D2-458F-9442-96E9247954CC" class="sect4">Step 3: Key Vector Query Transformation</h4>
+<div>
+<p>In this phase, the database processes the fact table.</p>
+<p>The optimizer transforms the original query into the following equivalent query, which accesses the key vectors:</p>
+<pre dir="ltr">SELECT KEY_VECTOR_PROD(prod_id),
+       KEY_VECTOR_GEOG(geog_id),
+       SUM(amount)
+FROM   sales_online
+WHERE  KEY_VECTOR_PROD_FILTER(prod_id) IS NOT NULL 
+AND    KEY_VECTOR_GEOG_FILTER(geog_id) IS NOT NULL 
+GROUP BY KEY_VECTOR_PROD(prod_id), KEY_VECTOR_GEOG(geog_id)
+</pre>
+<p>The preceding transformation is not an exact rendition of the internal SQL, which is much more complicated, but a conceptual representation designed to illustrate the basic concept.</p>
+</div>
+</div>
+<a id="TGSQL95290"></a><a id="TGSQL95291"></a><a id="TGSQL95289"></a>
+<div class="props_rev_3"><a id="GUID-F41F2AD3-3AA9-4702-8E90-3EAB8E3453E5"></a>
+<h4 id="TGSQL-GUID-F41F2AD3-3AA9-4702-8E90-3EAB8E3453E5" class="sect4">Step 4: Row Filtering from Fact Table</h4>
+<div>
+<p>This phase obtains the amount sold for each combination of grouping keys.</p>
+<p>The database uses the key vectors to filter out unwanted rows from the fact table. In <a href="tgsql_transform.htm#GUID-F41F2AD3-3AA9-4702-8E90-3EAB8E3453E5__BABBFFGG" title="Dense grouping keys for sales_online">Table 5-10</a>, the first three columns represent the <code class="codeph">sales_online</code> table. The last two columns provide the dense grouping keys for the <code class="codeph">geography</code> and <code class="codeph">products</code> tables.</p>
+<div class="tblformal" id="GUID-F41F2AD3-3AA9-4702-8E90-3EAB8E3453E5__BABBFFGG">
+<p class="titleintable">Table 5-10 Dense Grouping Keys for the sales_online Table</p>
+<table class="cellalignment4808" title="Dense Grouping Keys for the sales_online Table" summary="Dense grouping keys for sales_online">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4897" id="d13578e4825">prod_id</th>
+<th class="cellalignment4897" id="d13578e4828">geog_id</th>
+<th class="cellalignment4897" id="d13578e4831">amount</th>
+<th class="cellalignment4874" id="d13578e4834">dense_gr_key_prod</th>
+<th class="cellalignment4874" id="d13578e4837">dense_gr_key_geog</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4842" headers="d13578e4825">
+<p>7</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4842 d13578e4828">
+<p>1</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4842 d13578e4831">
+<p>100</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4842 d13578e4834">
+<p>4</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4842 d13578e4837">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4857" headers="d13578e4825">
+<p>9</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4857 d13578e4828">
+<p>1</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4857 d13578e4831">
+<p>150</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4857 d13578e4834">&nbsp;</td>
+<td class="cellalignment4878" headers="d13578e4857 d13578e4837">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4871" headers="d13578e4825">
+<p>8</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4871 d13578e4828">
+<p>2</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4871 d13578e4831">
+<p>100</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4871 d13578e4834">
+<p>4</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4871 d13578e4837">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4887" headers="d13578e4825">
+<p>4</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4887 d13578e4828">
+<p>3</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4887 d13578e4831">
+<p>110</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4887 d13578e4834">
+<p>1</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4887 d13578e4837">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4903" headers="d13578e4825">
+<p>2</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4903 d13578e4828">
+<p>30</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4903 d13578e4831">
+<p>130</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4903 d13578e4834">&nbsp;</td>
+<td class="cellalignment4878" headers="d13578e4903 d13578e4837">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4917" headers="d13578e4825">
+<p>6</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4917 d13578e4828">
+<p>20</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4917 d13578e4831">
+<p>400</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4917 d13578e4834">&nbsp;</td>
+<td class="cellalignment4878" headers="d13578e4917 d13578e4837">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4931" headers="d13578e4825">
+<p>3</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4931 d13578e4828">
+<p>1</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4931 d13578e4831">
+<p>100</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4931 d13578e4834">
+<p>2</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4931 d13578e4837">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4946" headers="d13578e4825">
+<p>1</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4946 d13578e4828">
+<p>7</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4946 d13578e4831">
+<p>120</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4946 d13578e4834">
+<p>3</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4946 d13578e4837">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4962" headers="d13578e4825">
+<p>3</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4962 d13578e4828">
+<p>8</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4962 d13578e4831">
+<p>130</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4962 d13578e4834">
+<p>2</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4962 d13578e4837">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d13578e4978" headers="d13578e4825">
+<p>4</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4978 d13578e4828">
+<p>3</p>
+</td>
+<td class="cellalignment4898" headers="d13578e4978 d13578e4831">
+<p>200</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4978 d13578e4834">
+<p>1</p>
+</td>
+<td class="cellalignment4878" headers="d13578e4978 d13578e4837">
+<p>1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>As shown in <a href="tgsql_transform.htm#GUID-F41F2AD3-3AA9-4702-8E90-3EAB8E3453E5__BABEHIAG" title="Filtered rows from sales_online table">Table 5-11</a>, the database retrieves only those rows from <code class="codeph">sales_online</code> with non-null values for both dense grouping keys, indicating rows that satisfy all the filtering criteria.</p>
+<div class="tblformal" id="GUID-F41F2AD3-3AA9-4702-8E90-3EAB8E3453E5__BABEHIAG">
+<p class="titleintable">Table 5-11 Filtered Rows from sales_online Table</p>
+<table class="cellalignment4808" title="Filtered Rows from sales_online Table" summary="Filtered rows from sales_online table">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4872" id="d13578e5016">geog_id</th>
+<th class="cellalignment4925" id="d13578e5019">prod_id</th>
+<th class="cellalignment4897" id="d13578e5022">amount</th>
+<th class="cellalignment4886" id="d13578e5025">dense_gr_key_prod</th>
+<th class="cellalignment4873" id="d13578e5028">dense_gr_key_geog</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4876" id="d13578e5033" headers="d13578e5016">
+<p>2</p>
+</td>
+<td class="cellalignment4926" headers="d13578e5033 d13578e5019">
+<p>8</p>
+</td>
+<td class="cellalignment4898" headers="d13578e5033 d13578e5022">
+<p>100</p>
+</td>
+<td class="cellalignment4888" headers="d13578e5033 d13578e5025">
+<p>4</p>
+</td>
+<td class="cellalignment4877" headers="d13578e5033 d13578e5028">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4876" id="d13578e5049" headers="d13578e5016">
+<p>3</p>
+</td>
+<td class="cellalignment4926" headers="d13578e5049 d13578e5019">
+<p>4</p>
+</td>
+<td class="cellalignment4898" headers="d13578e5049 d13578e5022">
+<p>110</p>
+</td>
+<td class="cellalignment4888" headers="d13578e5049 d13578e5025">
+<p>1</p>
+</td>
+<td class="cellalignment4877" headers="d13578e5049 d13578e5028">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4876" id="d13578e5065" headers="d13578e5016">
+<p>3</p>
+</td>
+<td class="cellalignment4926" headers="d13578e5065 d13578e5019">
+<p>4</p>
+</td>
+<td class="cellalignment4898" headers="d13578e5065 d13578e5022">
+<p>200</p>
+</td>
+<td class="cellalignment4888" headers="d13578e5065 d13578e5025">
+<p>1</p>
+</td>
+<td class="cellalignment4877" headers="d13578e5065 d13578e5028">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4876" id="d13578e5081" headers="d13578e5016">
+<p>7</p>
+</td>
+<td class="cellalignment4926" headers="d13578e5081 d13578e5019">
+<p>1</p>
+</td>
+<td class="cellalignment4898" headers="d13578e5081 d13578e5022">
+<p>120</p>
+</td>
+<td class="cellalignment4888" headers="d13578e5081 d13578e5025">
+<p>3</p>
+</td>
+<td class="cellalignment4877" headers="d13578e5081 d13578e5028">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4876" id="d13578e5097" headers="d13578e5016">
+<p>8</p>
+</td>
+<td class="cellalignment4926" headers="d13578e5097 d13578e5019">
+<p>3</p>
+</td>
+<td class="cellalignment4898" headers="d13578e5097 d13578e5022">
+<p>130</p>
+</td>
+<td class="cellalignment4888" headers="d13578e5097 d13578e5025">
+<p>2</p>
+</td>
+<td class="cellalignment4877" headers="d13578e5097 d13578e5028">
+<p>2</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="TGSQL95293"></a><a id="TGSQL95292"></a>
+<div class="props_rev_3"><a id="GUID-6A98F912-9D04-4570-99D9-A3D50E171186"></a>
+<h4 id="TGSQL-GUID-6A98F912-9D04-4570-99D9-A3D50E171186" class="sect4">Step 5: Aggregation Using an Array</h4>
+<div>
+<p>The database uses a multidimensional array to perform the aggregation.</p>
+<p>In <a href="tgsql_transform.htm#GUID-6A98F912-9D04-4570-99D9-A3D50E171186__BABHIGIA" title="Shows an aggregation array. The first column heading is &ldquo;dgkp/dgkg.&rdquo; The second column heading is &ldquo;1,&rdquo; and the second column heading is &ldquo;2.&rdquo;">Table 5-12</a>, the <code class="codeph">geography</code> grouping keys are horizontal, and the <code class="codeph">products</code> grouping keys are vertical. The database adds the values in the intersection of each dense grouping key combination. For example, for the intersection of the <code class="codeph">geography</code> grouping key <code class="codeph">1</code> and the <code class="codeph">products</code> grouping key <code class="codeph">1</code>, the sum of <code class="codeph">110</code> and <code class="codeph">200</code> is <code class="codeph">310</code>.</p>
+<div class="tblformal" id="GUID-6A98F912-9D04-4570-99D9-A3D50E171186__BABHIGIA">
+<p class="titleintable">Table 5-12 Aggregation Array</p>
+<table class="cellalignment4808" title="Aggregation Array" summary="Shows an aggregation array. The first column heading is &ldquo;dgkp/dgkg.&rdquo; The second column heading is &ldquo;1,&rdquo; and the second column heading is &ldquo;2.&rdquo;">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4824" id="d13578e5237">dgkp/dgkg</th>
+<th class="cellalignment4927" id="d13578e5240">1</th>
+<th class="cellalignment4927" id="d13578e5243">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4827" id="d13578e5248" headers="d13578e5237">
+<p><span class="bold">1</span></p>
+</td>
+<td class="cellalignment4928" headers="d13578e5248 d13578e5240">
+<p><code class="codeph">110,200</code></p>
+</td>
+<td class="cellalignment4928" headers="d13578e5248 d13578e5243">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4827" id="d13578e5260" headers="d13578e5237">
+<p><span class="bold">2</span></p>
+</td>
+<td class="cellalignment4928" headers="d13578e5260 d13578e5240">&nbsp;</td>
+<td class="cellalignment4928" headers="d13578e5260 d13578e5243">
+<p><code class="codeph">130</code></p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4827" id="d13578e5272" headers="d13578e5237">
+<p><span class="bold">3</span></p>
+</td>
+<td class="cellalignment4928" headers="d13578e5272 d13578e5240">&nbsp;</td>
+<td class="cellalignment4928" headers="d13578e5272 d13578e5243">
+<p><code class="codeph">120</code></p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4827" id="d13578e5284" headers="d13578e5237">
+<p><span class="bold">4</span></p>
+</td>
+<td class="cellalignment4928" headers="d13578e5284 d13578e5240">
+<p><code class="codeph">100</code></p>
+</td>
+<td class="cellalignment4928" headers="d13578e5284 d13578e5243">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="TGSQL95294"></a>
+<div class="props_rev_3"><a id="GUID-699A1CCA-8324-4049-AFD3-457ADBF1D81A"></a>
+<h4 id="TGSQL-GUID-699A1CCA-8324-4049-AFD3-457ADBF1D81A" class="sect4">Step 6: Join Back to Temporary Tables</h4>
+<div>
+<p>In the final stage of processing, the database uses the dense grouping keys to join back the rows to the temporary tables to obtain the names of the regions and categories.</p>
+<p>The results look as follows:</p>
+<pre dir="ltr">CATEGORY SUBCATEGORY COUNTRY STATE AMOUNT
+-------- ----------- ------- ----- ------
+electric bulb        USA     CA    120
+electric switch      USA     WA    100
+sport    ball        USA     CA    130
+sport    bike        USA     WA    310 
+</pre></div>
+</div>
+</div>
+<a id="TGSQL95353"></a><a id="TGSQL95352"></a>
+<div class="props_rev_3"><a id="GUID-5AB9792F-8030-4D13-BC12-8DB598A15459"></a>
+<h3 id="TGSQL-GUID-5AB9792F-8030-4D13-BC12-8DB598A15459" class="sect3">In-Memory Aggregation: Example</h3>
+<div>
+<p>In this example, the business question is &#34;How many products were sold in each category in each calendar year?&#34;</p>
+<div class="section">
+<p>You write the following query, which joins the <code class="codeph">times</code>, <code class="codeph">products</code>, and <code class="codeph">sales</code> tables:</p>
+<pre dir="ltr">SELECT t.calendar_year, p.prod_category, SUM(quantity_sold)
+FROM   times t, products p, sales s
+WHERE  t.time_id = s.time_id
+AND    p.prod_id = s.prod_id
+GROUP BY t.calendar_year, p.prod_category;
+</pre></div>
+<!-- class="section" -->
+<div class="example" id="GUID-5AB9792F-8030-4D13-BC12-8DB598A15459__BABEDJED">
+<p class="titleinexample">Example 5-12 VECTOR GROUP BY Execution Plan</p>
+<p>The following example shows the execution plan contained in the current cursor. Steps 4 and 8 show the creation of the key vectors for the dimension tables <code class="codeph">times</code> and <code class="codeph">products</code>. Steps 17 and 18 show the use of the previously created key vectors. Steps 3, 7, and 15 show the <code class="codeph">VECTOR GROUP BY</code> operations.</p>
+<pre dir="ltr">SQL_ID  0yxqj2nq8p9kt, child number 0
+-------------------------------------
+SELECT t.calendar_year, p.prod_category, SUM(quantity_sold) FROM
+times t, products p, sales f WHERE  t.time_id = f.time_id AND
+p.prod_id   = f.prod_id GROUP BY t.calendar_year, p.prod_category
+
+Plan hash value: 2377225738
+------------------------------------------------------------------------------------------------------
+|Id| Operation                           | Name              |Rows|Bytes|Cost(%CPU)|Time|Pstart|Pstop|
+------------------------------------------------------------------------------------------------------
+| 0|SELECT STATEMENT                     |                         |    |     |285(100)|        | |  |
+| 1| TEMP TABLE TRANSFORMATION           |                         |    |     |        |        | |  |
+| 2|  LOAD AS SELECT                     |SYS_TEMP_0FD9D6644_11CBE8|    |     |        |        | |  |
+| 3|   <span class="bold">VECTOR GROUP BY</span>                   |                         |   5|  80 |  3(100)|00:00:01| |  |
+| 4|    KEY VECTOR CREATE BUFFERED       | :KV0000                 |1826|29216|  3(100)|00:00:01| |  |
+| 5|     TABLE ACCESS INMEMORY FULL      | TIMES                   |1826|21912|  1(100)|00:00:01| |  |
+| 6|  LOAD AS SELECT                     |SYS_TEMP_0FD9D6645_11CBE8|    |     |        |        | |  |
+| 7|   <span class="bold">VECTOR GROUP BY</span>                   |                         |   5| 125 |  1(100)|00:00:01| |  |
+| 8|    KEY VECTOR CREATE BUFFERED       | :KV0001                 |  72| 1800|  1(100)|00:00:01| |  |
+| 9|     TABLE ACCESS INMEMORY FULL      | PRODUCTS                |  72| 1512|  0  (0)|        | |  |
+|10|  HASH GROUP BY                      |                         |  18| 1440|282 (99)|00:00:01| |  |
+|11|   HASH JOIN                         |                         |  18| 1440|281 (99)|00:00:01| |  |
+|12|    HASH JOIN                        |                         |  18| 990 |278(100)|00:00:01| |  |
+|13|     TABLE ACCESS FULL               |SYS_TEMP_0FD9D6644_11CBE8|   5|  80 |  2  (0)|00:00:01| |  |
+|14|     VIEW                            | VW_VT_AF278325          |  18| 702 |276(100)|00:00:01| |  |
+|15|      <span class="bold">VECTOR GROUP BY</span>                |                         |  18| 414 |276(100)|00:00:01| |  |
+|16|       HASH GROUP BY                 |                         |  18| 414 |276(100)|00:00:01| |  |
+|17|        KEY VECTOR USE               | :KV0000                 |918K|  20M|276(100)|00:00:01| |  |
+|18|         KEY VECTOR USE              | :KV0001                 |918K|  16M|272(100)|00:00:01| |  |
+|19|          PARTITION RANGE ALL        |                         |918K|  13M|257(100)|00:00:01|1|28|
+|20|           TABLE ACCESS INMEMORY FULL| SALES                   |918K|  13M|257(100)|00:00:01|1|28|
+|21|    TABLE ACCESS FULL                |SYS_TEMP_0FD9D6645_11CBE8|  5 |  125|  2  (0)|00:00:01| |  |
+------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+  11 - access(&#34;ITEM_10&#34;=INTERNAL_FUNCTION(&#34;C0&#34;) AND &#34;ITEM_11&#34;=&#34;C2&#34;)
+  12 - access(&#34;ITEM_8&#34;=INTERNAL_FUNCTION(&#34;C0&#34;) AND &#34;ITEM_9&#34;=&#34;C2&#34;)
+
+Note
+-----
+   - vector transformation used for this statement
+
+45 rows selected.
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL94910"></a>
+<div class="props_rev_3"><a id="GUID-6A6748FA-5803-4837-9A9F-525ED09BE481"></a>
+<h2 id="TGSQL-GUID-6A6748FA-5803-4837-9A9F-525ED09BE481" class="sect2">Table Expansion</h2>
+<div>
+<p>In <span class="bold">table expansion</span>, the optimizer generates a plan that uses indexes on the read-mostly portion of a partitioned table, but not on the active portion of the table.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_transform.htm#GUID-685FF0DE-A670-40BF-BC6F-0292A0CCCA21" title="Index-based plans can improve performance, but index maintenance creates overhead. In many databases, DML affects only a small portion of the data.">Purpose of Table Expansion</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-1AD0BA3C-668E-482F-9EA6-F085BF3E68E0" title="Table partitioning makes table expansion possible.">How Table Expansion Works</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-74BE3861-35D4-453C-A983-F3317CDA8338" title="The optimizer keeps track of which partitions must be accessed from each table, based on predicates that appear in the query. Partition pruning enables the optimizer to use table expansion to generate more optimal plans.">Table Expansion: Scenario</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-C4E94706-3312-4BD6-B6C7-2F4264BB35E9">Table Expansion and Star Transformation: Scenario</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94911"></a>
+<div class="props_rev_3"><a id="GUID-685FF0DE-A670-40BF-BC6F-0292A0CCCA21"></a>
+<h3 id="TGSQL-GUID-685FF0DE-A670-40BF-BC6F-0292A0CCCA21" class="sect3">Purpose of Table Expansion</h3>
+<div>
+<p>Index-based plans can improve performance, but index maintenance creates overhead. In many databases, DML affects only a small portion of the data.</p>
+<p>Table expansion uses index-based plans for high-update tables. You can create an index only on the read-mostly data, eliminating index overhead on the active data. In this way, table expansion improves performance while avoiding index maintenance.</p>
+</div>
+</div>
+<a id="TGSQL94912"></a>
+<div class="props_rev_3"><a id="GUID-1AD0BA3C-668E-482F-9EA6-F085BF3E68E0"></a>
+<h3 id="TGSQL-GUID-1AD0BA3C-668E-482F-9EA6-F085BF3E68E0" class="sect3">How Table Expansion Works</h3>
+<div>
+<p>Table partitioning makes table expansion possible.</p>
+<p>If a local index exists on a partitioned table, then the optimizer can mark the index as unusable for specific partitions. In effect, some partitions are not indexed.</p>
+<p>In table expansion, the optimizer transforms the query into a <code class="codeph">UNION ALL</code> statement, with some subqueries accessing indexed partitions and other subqueries accessing unindexed partitions. The optimizer can choose the most efficient access method available for a partition, regardless of whether it exists for all of the partitions accessed in the query.</p>
+<p>The optimizer does not always choose table expansion:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Table expansion is cost-based.</p>
+<p>While the database accesses each partition of the expanded table only once across all branches of the <code class="codeph">UNION ALL</code>, any tables that the database joins to it are accessed in each branch.</p>
+</li>
+<li>
+<p>Semantic issues may render expansion invalid.</p>
+<p>For example, a table appearing on the right side of an outer join is not valid for table expansion.</p>
+</li>
+</ul>
+<p>You can control table expansion with the hint <code class="codeph">EXPAND_TABLE</code> hint. The hint overrides the cost-based decision, but not the semantic checks.</p>
+<div class="infoboxnotealso" id="GUID-1AD0BA3C-668E-482F-9EA6-F085BF3E68E0__GUID-A49F5B51-DA14-4F51-8FA0-5AC8CFFD0C1C">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-C558F7CF-446E-4078-B045-0B3BB026CB3C">Influencing the Optimizer with Hints</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink SQLRF00219" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF00219"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn more about SQL hints</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL94914"></a><a id="TGSQL94913"></a>
+<div class="props_rev_3"><a id="GUID-74BE3861-35D4-453C-A983-F3317CDA8338"></a>
+<h3 id="TGSQL-GUID-74BE3861-35D4-453C-A983-F3317CDA8338" class="sect3">Table Expansion: Scenario</h3>
+<div>
+<p>The optimizer keeps track of which partitions must be accessed from each table, based on predicates that appear in the query. Partition pruning enables the optimizer to use table expansion to generate more optimal plans.</p>
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This scenario assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to run a star query against the <code class="codeph">sh.sales</code> table, which is range-partitioned on the <code class="codeph">time_id</code> column.</p>
+</li>
+<li>
+<p>You want to disable indexes on specific partitions to see the benefits of table expansion.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To use table expansion:</p>
+<ol>
+<li>
+<p>Log in to the database as the <code class="codeph">sh</code> user.</p>
+</li>
+<li>
+<p>Run the following query:</p>
+<pre dir="ltr">SELECT * 
+FROM   sales 
+WHERE  time_id &gt;= TO_DATE(&#39;2000-01-01 00:00:00&#39;, &#39;SYYYY-MM-DD HH24:MI:SS&#39;) 
+AND    prod_id = 38;
+</pre></li>
+<li>
+<p>Explain the plan by querying <code class="codeph">DBMS_XPLAN</code>:</p>
+<pre dir="ltr">SET LINESIZE 150
+SET PAGESIZE 0
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(format =&gt; &#39;BASIC,PARTITION&#39;));
+</pre>
+<p>As shown in the <code class="codeph">Pstart</code> and <code class="codeph">Pstop</code> columns in the following plan, the optimizer determines from the filter that only 16 of the 28 partitions in the table must be accessed:</p>
+<pre dir="ltr">Plan hash value: 3087065703
+ 
+--------------------------------------------------------------------------
+|Id| Operation                                  | Name      |Pstart|Pstop|
+--------------------------------------------------------------------------
+| 0| SELECT STATEMENT                           |              |    |    |
+| 1|  PARTITION RANGE ITERATOR                  |              | 13 | 28 |
+| 2|   TABLE ACCESS BY LOCAL INDEX ROWID BATCHED| SALES        | 13 | 28 |
+| 3|    BITMAP CONVERSION TO ROWIDS             |              |    |    |
+|*4|     BITMAP INDEX SINGLE VALUE              |SALES_PROD_BIX| 13 | 28 |
+--------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   4 - access(&#34;PROD_ID&#34;=38)
+</pre>
+<p>After the optimizer has determined the partitions to be accessed, it considers any index that is usable on all of those partitions. In the preceding plan, the optimizer chose to use the <code class="codeph">sales_prod_bix</code> bitmap index.</p>
+</li>
+<li>
+<p>Disable the index on the <code class="codeph">SALES_1995</code> partition of the <code class="codeph">sales</code> table:</p>
+<pre dir="ltr">ALTER INDEX sales_prod_bix MODIFY PARTITION sales_1995 UNUSABLE;
+</pre>
+<p>The preceding DDL disables the index on partition 1, which contains all sales from before 1996.</p>
+<div class="infobox-note" id="GUID-74BE3861-35D4-453C-A983-F3317CDA8338__GUID-29D9127A-F87D-49B3-AEC0-85DBFFA916B8">
+<p class="notep1">Note:</p>
+<p>You can obtain the partition information by querying the <code class="codeph">USER_IND_PARTITIONS</code> view.</p>
+</div>
+</li>
+<li>
+<p>Execute the query of sales again, and then query <code class="codeph">DBMS_XPLAN</code> to obtain the plan.</p>
+<p>The output shows that the plan did not change:</p>
+<pre dir="ltr">Plan hash value: 3087065703
+ 
+---------------------------------------------------------------------------
+|Id| Operation                                  | Name        |Pstart|Pstop
+---------------------------------------------------------------------------
+| 0| SELECT STATEMENT                           |               |    |    |
+| 1|  PARTITION RANGE ITERATOR                  |               | 13 | 28 |
+| 2|   TABLE ACCESS BY LOCAL INDEX ROWID BATCHED| SALES         | 13 | 28 |
+| 3|    BITMAP CONVERSION TO ROWIDS             |               |    |    |
+|*4|     BITMAP INDEX SINGLE VALUE              | SALES_PROD_BIX| 13 | 28 |
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   4 - access(&#34;PROD_ID&#34;=38)
+</pre>
+<p>The plan is the same because the disabled index partition is not relevant to the query. If all partitions that the query accesses are indexed, then the database can answer the query using the index. Because the query only accesses partitions 16 through 28, disabling the index on partition 1 does not affect the plan.</p>
+</li>
+<li>
+<p>Disable the indexes for partition 28 (<code class="codeph">SALES_Q4_2003</code>), which is a partition that the query needs to access:</p>
+<pre dir="ltr">ALTER INDEX sales_prod_bix MODIFY PARTITION sales_q4_2003 UNUSABLE;
+ALTER INDEX sales_time_bix MODIFY PARTITION sales_q4_2003 UNUSABLE;
+</pre>
+<p>By disabling the indexes on a partition that the query does need to access, the query can no longer use this index (without table expansion).</p>
+</li>
+<li>
+<p>Query the plan using <code class="codeph">DBMS_XPLAN</code>.</p>
+<p>As shown in the following plan, the optimizer does not use the index:</p>
+<pre dir="ltr">Plan hash value: 3087065703
+ 
+---------------------------------------------------------------------------
+| Id| Operation                              | Name           |Pstart|Pstop
+---------------------------------------------------------------------------
+| 0 | SELECT STATEMENT                       |                |      |    |
+| 1 |  PARTITION RANGE ITERATOR              |                |  13  | 28 |
+|*2 |   TABLE ACCESS FULL                    | SALES          |  13  | 28 |
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   2 - access(&#34;PROD_ID&#34;=38)
+</pre>
+<p>In the preceding example, the query accesses 16 partitions. On 15 of these partitions, an index is available, but no index is available for the final partition. Because the optimizer has to choose one access path or the other, the optimizer cannot use the index on any of the partitions.</p>
+</li>
+<li>
+<p>With table expansion, the optimizer rewrites the original query as follows:</p>
+<pre dir="ltr">SELECT * 
+FROM   sales 
+WHERE  time_id &gt;= TO_DATE(&#39;2000-01-01 00:00:00&#39;, &#39;SYYYY-MM-DD HH24:MI:SS&#39;) 
+AND    time_id <span class="bold">&lt;</span>  TO_DATE(&#39;2003-10-01 00:00:00&#39;, &#39;SYYYY-MM-DD HH24:MI:SS&#39;)
+AND    prod_id = 38
+UNION ALL
+SELECT * 
+FROM   sales 
+WHERE  time_id &gt;= TO_DATE(&#39;2003-10-01 00:00:00&#39;, &#39;SYYYY-MM-DD HH24:MI:SS&#39;) 
+AND    time_id <span class="bold">&lt;</span> TO_DATE(&#39;2004-01-01 00:00:00&#39;, &#39;SYYYY-MM-DD HH24:MI:SS&#39;)
+AND    prod_id = 38;
+</pre>
+<p>In the preceding query, the first query block in the <code class="codeph">UNION ALL</code> accesses the partitions that are indexed, while the second query block accesses the partition that is not. The two subqueries enable the optimizer to choose to use the index in the first query block, if it is more optimal than using a table scan of all of the partitions that are accessed.</p>
+</li>
+<li>
+<p>Query the plan using <code class="codeph">DBMS_XPLAN</code>.</p>
+<p>The plan appears as follows:</p>
+<pre dir="ltr">Plan hash value: 2120767686
+ 
+---------------------------------------------------------------------------
+|Id| Operation                                    | Name     |Pstart|Pstop|
+---------------------------------------------------------------------------
+| 0| SELECT STATEMENT                             |               |   |   |
+| 1|  VIEW                                        | VW_TE_2       |   |   |
+| 2|   UNION-ALL                                  |               |   |   |
+| 3|    PARTITION RANGE ITERATOR                  |               | 13| 27|
+| 4|     TABLE ACCESS BY LOCAL INDEX ROWID BATCHED| SALES         | 13| 27|
+| 5|      BITMAP CONVERSION TO ROWIDS             |               |   |   |
+|*6|       BITMAP INDEX SINGLE VALUE              | SALES_PROD_BIX| 13| 27|
+| 7|    PARTITION RANGE SINGLE                    |               | 28| 28|
+|*8|     TABLE ACCESS FULL                        | SALES         | 28| 28|
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   6 - access(&#34;PROD_ID&#34;=38)
+   8 - filter(&#34;PROD_ID&#34;=38)
+</pre>
+<p>As shown in the preceding plan, the optimizer uses a <code class="codeph">UNION ALL</code> for two query blocks (Step 2). The optimizer chooses an index to access partitions 13 to 27 in the first query block (Step 6). Because no index is available for partition 28, the optimizer chooses a full table scan in the second query block (Step 8).</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94916"></a><a id="TGSQL94915"></a>
+<div class="props_rev_3"><a id="GUID-C4E94706-3312-4BD6-B6C7-2F4264BB35E9"></a>
+<h3 id="TGSQL-GUID-C4E94706-3312-4BD6-B6C7-2F4264BB35E9" class="sect3">Table Expansion and Star Transformation: Scenario</h3>
+<div>
+<div class="section">
+<p>Star transformation enables specific types of queries to avoid accessing large portions of big fact tables (see <span class="q">&#34;<a href="tgsql_transform.htm#GUID-EA178F1F-7564-4621-B884-19A202943421" title="Star transformation is an optimizer transformation that avoids full table scans of fact tables in a star schema.">Star Transformation</a>&#34;</span>). Star transformation requires defining several indexes, which in an actively updated table can have overhead. With table expansion, you can define indexes on only the inactive partitions so that the optimizer can consider star transformation on only the indexed portions of the table.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This scenario assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You query the same schema used in <span class="q">&#34;<a href="tgsql_transform.htm#GUID-0694077E-BF83-4D52-99E7-A436C29A6F6D">Star Transformation: Scenario</a>&#34;</span>.</p>
+</li>
+<li>
+<p>The last partition of <code class="codeph">sales</code> is actively being updated, as is often the case with time-partitioned tables.</p>
+</li>
+<li>
+<p>You want the optimizer to take advantage of table expansion.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To take advantage of table expansion in a star query:</p>
+<ol>
+<li>
+<p>Disable the indexes on the last partition as follows:</p>
+<pre dir="ltr">ALTER INDEX sales_channel_bix MODIFY PARTITION sales_q4_2003 UNUSABLE;
+ALTER INDEX sales_cust_bix MODIFY PARTITION sales_q4_2003 UNUSABLE;
+</pre></li>
+<li>
+<p>Execute the following star query:</p>
+<pre dir="ltr">SELECT t.calendar_quarter_desc, SUM(s.amount_sold) sales_amount 
+FROM   sales s, times t, customers c, channels ch
+WHERE  s.time_id = t.time_id 
+AND    s.cust_id = c.cust_id 
+AND    s.channel_id = ch.channel_id 
+AND    c.cust_state_province = &#39;CA&#39; 
+AND    ch.channel_desc = &#39;Internet&#39;
+AND    t.calendar_quarter_desc IN (&#39;1999-01&#39;,&#39;1999-02&#39;) 
+GROUP BY t.calendar_quarter_desc;
+</pre></li>
+<li>
+<p>Query the cursor using <code class="codeph">DBMS_XPLAN</code>, which shows the following plan:</p>
+<pre dir="ltr">---------------------------------------------------------------------------
+|Id| Operation                          | Name            | Pstart| Pstop |
+---------------------------------------------------------------------------
+| 0| SELECT STATEMENT                   |                 |       |       |
+| 1|  HASH GROUP BY                     |                 |       |       |
+| 2|   VIEW                             |VW_TE_14         |       |       |
+| 3|    UNION-ALL                       |                 |       |       |
+| 4|     HASH JOIN                      |                 |       |       |
+| 5|      TABLE ACCESS FULL             |TIMES            |       |       |
+| 6|      VIEW                          |VW_ST_1319B6D8   |       |       |
+| 7|       NESTED LOOPS                 |                 |       |       |
+| 8|        PARTITION RANGE SUBQUERY    |                 |KEY(SQ)|KEY(SQ)|
+| 9|         BITMAP CONVERSION TO ROWIDS|                 |       |       |
+|10|          BITMAP AND                |                 |       |       |
+|11|           BITMAP MERGE             |                 |       |       |
+|12|            BITMAP KEY ITERATION    |                 |       |       |
+|13|             BUFFER SORT            |                 |       |       |
+|14|              TABLE ACCESS FULL     |CHANNELS         |       |       |
+|15|             BITMAP INDEX RANGE SCAN|SALES_CHANNEL_BIX|KEY(SQ)|KEY(SQ)|
+|16|           BITMAP MERGE             |                 |       |       |
+|17|            BITMAP KEY ITERATION    |                 |       |       |
+|18|             BUFFER SORT            |                 |       |       |
+|19|              TABLE ACCESS FULL     |TIMES            |       |       |
+|20|             BITMAP INDEX RANGE SCAN|SALES_TIME_BIX   |KEY(SQ)|KEY(SQ)|
+|21|           BITMAP MERGE             |                 |       |       |
+|22|            BITMAP KEY ITERATION    |                 |       |       |
+|23|             BUFFER SORT            |                 |       |       |
+|24|              TABLE ACCESS FULL     |CUSTOMERS        |       |       |
+|25|             BITMAP INDEX RANGE SCAN|SALES_CUST_BIX   |KEY(SQ)|KEY(SQ)|
+|26|        TABLE ACCESS BY USER ROWID  |SALES            | ROWID | ROWID |
+|27|     NESTED LOOPS                   |                 |       |       |
+|28|      NESTED LOOPS                  |                 |       |       |
+|29|       NESTED LOOPS                 |                 |       |       |
+|30|        NESTED LOOPS                |                 |       |       |
+|31|         PARTITION RANGE SINGLE     |                 |    28 |    28 |
+|32|          <span class="bold">TABLE ACCESS FULL</span>         |<span class="bold">SALES</span>            |    <span class="bold">28</span> |    <span class="bold">28</span> |
+|33|         TABLE ACCESS BY INDEX ROWID|CHANNELS         |       |       |
+|34|          INDEX UNIQUE SCAN         |CHANNELS_PK      |       |       |
+|35|        TABLE ACCESS BY INDEX ROWID |CUSTOMERS        |       |       |
+|36|         INDEX UNIQUE SCAN          |CUSTOMERS_PK     |       |       |
+|37|       INDEX UNIQUE SCAN            |TIMES_PK         |       |       |
+|38|      TABLE ACCESS BY INDEX ROWID   |TIMES            |       |       |
+---------------------------------------------------------------------------
+</pre>
+<p>The preceding plan uses table expansion. The <code class="codeph">UNION ALL</code> branch that is accessing every partition except the last partition uses star transformation. Because the indexes on partition 28 are disabled, the database accesses the final partition using a full table scan.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL94931"></a>
+<div class="props_rev_3"><a id="GUID-B47BEFB3-D72D-462A-9B96-C3B1F8F48C06"></a>
+<h2 id="TGSQL-GUID-B47BEFB3-D72D-462A-9B96-C3B1F8F48C06" class="sect2">Join Factorization</h2>
+<div>
+<p>In the cost-based transformation known as <span class="bold"><a href="glossary.htm#GUID-C35508EC-6259-4DB4-9576-844DFCC3F3D1"><span class="xrefglossterm">join factorization</span></a></span>, the optimizer can factorize common computations from branches of a <code class="codeph">UNION ALL</code> query.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_transform.htm#GUID-41FA8384-23FF-4683-B1FC-61853209565C">Purpose of Join Factorization</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-253951D9-63D9-4989-86F6-FA4AC6AFF0BD">How Join Factorization Works</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-E3AA79CC-74CA-44C0-A15B-1827FE27609D" title="Join factorization can create more possibilities for join orders">Factorization and Join Orders: Scenario</a></p>
+</li>
+<li>
+<p><a href="tgsql_transform.htm#GUID-FA012F21-6BEF-444A-89E4-4DCDBC9F0225">Factorization of Outer Joins: Scenario</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94932"></a>
+<div class="props_rev_3"><a id="GUID-41FA8384-23FF-4683-B1FC-61853209565C"></a>
+<h3 id="TGSQL-GUID-41FA8384-23FF-4683-B1FC-61853209565C" class="sect3">Purpose of Join Factorization</h3>
+<div>
+<p><code class="codeph">UNION ALL</code> queries are common in database applications, especially in data integration applications. Often, branches in a <code class="codeph">UNION ALL</code> query refer to the same base tables. Without join factorization, the optimizer evaluates each branch of a <code class="codeph">UNION ALL</code> query independently, which leads to repetitive processing, including data access and joins. Join factorization transformation can share common computations across the <code class="codeph">UNION ALL</code> branches. Avoiding an extra scan of a large base table can lead to a huge performance improvement.</p>
+</div>
+</div>
+<a id="TGSQL94934"></a><a id="TGSQL94935"></a><a id="TGSQL94933"></a>
+<div class="props_rev_3"><a id="GUID-253951D9-63D9-4989-86F6-FA4AC6AFF0BD"></a>
+<h3 id="TGSQL-GUID-253951D9-63D9-4989-86F6-FA4AC6AFF0BD" class="sect3">How Join Factorization Works</h3>
+<div>
+<p>Join factorization can factorize multiple tables and from more than two <code class="codeph">UNION ALL</code> branches. Join factorization is best explained through examples.</p>
+<div class="example" id="GUID-253951D9-63D9-4989-86F6-FA4AC6AFF0BD__BABCAIGD">
+<p class="titleinexample">Example 5-13 UNION ALL Query</p>
+<p>The following query shows a query of four tables (<code class="codeph">t1</code>, <code class="codeph">t2</code>, <code class="codeph">t3</code>, and <code class="codeph">t4</code>) and two <code class="codeph">UNION ALL</code> branches:</p>
+<pre dir="ltr">SELECT t1.c1, t2.c2
+FROM   <span class="bold">t1</span>, t2, t3
+WHERE  <span class="bold">t1.c1 = t2.c1</span> 
+AND    <span class="bold">t1.c1 &gt; 1</span>
+AND    t2.c2 = 2
+AND    t2.c2 = t3.c2 
+UNION ALL
+SELECT t1.c1, t2.c2
+FROM   <span class="bold">t1</span>, t2, t4
+WHERE  <span class="bold">t1.c1 = t2.c1</span> 
+AND    <span class="bold">t1.c1 &gt; 1</span>
+AND    t2.c3 = t4.c3
+</pre>
+<p>In the preceding query, table <code class="codeph">t1</code> appears in both <code class="codeph">UNION ALL</code> branches, as does the filter predicate <code class="codeph">t1.c1 &gt; 1</code> and the join predicate <code class="codeph">t1.c1 = t2.c1</code>. Without any transformation, the database must perform the scan and the filtering on table <code class="codeph">t1</code> twice, one time for each branch.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-253951D9-63D9-4989-86F6-FA4AC6AFF0BD__BABFAEBB">
+<p class="titleinexample">Example 5-14 Factorized Query</p>
+The following query uses join factorization to transform the query in <a href="tgsql_transform.htm#GUID-253951D9-63D9-4989-86F6-FA4AC6AFF0BD__BABCAIGD">Example 5-13</a>.
+<pre dir="ltr">SELECT t1.c1, VW_JF_1.item_2
+FROM   <span class="bold">t1</span>, (SELECT t2.c1 item_1, t2.c2 item_2
+            FROM   t2, t3
+            WHERE  t2.c2 = t3.c2 
+            AND    t2.c2 = 2                 
+            UNION ALL
+            SELECT t2.c1 item_1, t2.c2 item_2
+            FROM   t2, t4 
+            WHERE  t2.c3 = t4.c3) VW_JF_1
+WHERE  <span class="bold">t1.c1 = VW_JF_1.item_1</span> 
+AND    <span class="bold">t1.c1 &gt; 1</span>
+</pre>
+<p>In this case, because table <code class="codeph">t1</code> is factorized, the database performs the table scan and the filtering on <code class="codeph">t1</code> only one time. If <code class="codeph">t1</code> is large, then this factorization avoids the huge performance cost of scanning and filtering <code class="codeph">t1</code> twice.</p>
+<div class="infobox-note" id="GUID-253951D9-63D9-4989-86F6-FA4AC6AFF0BD__GUID-0A2942E9-58DE-454D-8690-1662E9A9027A">
+<p class="notep1">Note:</p>
+<p>If the branches in a <code class="codeph">UNION ALL</code> query have clauses that use the <code class="codeph">DISTINCT</code> function, then join factorization is not valid.</p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94937"></a><a id="TGSQL94938"></a><a id="TGSQL94939"></a><a id="TGSQL94936"></a>
+<div class="props_rev_3"><a id="GUID-E3AA79CC-74CA-44C0-A15B-1827FE27609D"></a>
+<h3 id="TGSQL-GUID-E3AA79CC-74CA-44C0-A15B-1827FE27609D" class="sect3">Factorization and Join Orders: Scenario</h3>
+<div>
+<p>Join factorization can create more possibilities for join orders</p>
+<div class="example" id="GUID-E3AA79CC-74CA-44C0-A15B-1827FE27609D__BABFEJHJ">
+<p class="titleinexample">Example 5-15 Query Involving Five Tables</p>
+<p>In the following query, view <code class="codeph">V</code> is same as the query as in <a href="tgsql_transform.htm#GUID-253951D9-63D9-4989-86F6-FA4AC6AFF0BD__BABCAIGD">Example 5-13</a>:</p>
+<pre dir="ltr">SELECT *
+FROM   t5, (SELECT t1.c1, t2.c2
+            FROM   t1, t2, t3
+            WHERE  t1.c1 = t2.c1 
+            AND    t1.c1 &gt; 1 
+            AND    t2.c2 = 2 
+            AND    t2.c2 = t3.c2 
+            UNION ALL
+            SELECT t1.c1, t2.c2
+            FROM   t1, t2, t4
+            WHERE  t1.c1 = t2.c1 
+            AND    t1.c1 &gt; 1 
+            AND    t2.c3 = t4.c3) V
+WHERE  t5.c1 = V.c1
+</pre>
+Before join factorization, the database must join <code class="codeph">t1</code>, <code class="codeph">t2</code>, and <code class="codeph">t3</code> before joining them with <code class="codeph">t5</code>.</div>
+<!-- class="example" -->
+<div class="example" id="GUID-E3AA79CC-74CA-44C0-A15B-1827FE27609D__BABIGECD">
+<p class="titleinexample">Example 5-16 Factorization of t1 from View V</p>
+<p>If join factorization factorizes <code class="codeph">t1</code> from view <code class="codeph">V</code>, as shown in the following query, then the database can join <code class="codeph">t1</code> with <code class="codeph">t5</code>.:</p>
+<pre dir="ltr">SELECT *
+FROM   <span class="bold">t5</span>, ( SELECT t1.c1, VW_JF_1.item_2
+             FROM   <span class="bold">t1</span>, (SELECT t2.c1 item_1, t2.c2 item_2
+                         FROM   t2, t3
+                         WHERE  t2.c2 = t3.c2
+                         AND    t2.c2 = 2
+                         UNION ALL
+                         SELECT t2.c1 item_1, t2.c2 item_2
+                         FROM   t2, t4
+                         WHERE  t2.c3 = t4.c3) VW_JF_1 
+             WHERE  t1.c1 = VW_JF_1.item_1 
+             AND    t1.c1 &gt; 1 )
+WHERE  t5.c1 = V.c1
+</pre>
+<p>The preceding query transformation opens up new join orders. However, join factorization imposes specific join orders. For example, in the preceding query, tables <code class="codeph">t2</code> and <code class="codeph">t3</code> appear in the first branch of the <code class="codeph">UNION ALL</code> query in view <code class="codeph">VW_JF_1</code>. The database must join <code class="codeph">t2</code> with <code class="codeph">t3</code> before it can join with <code class="codeph">t1</code>, which is not defined within the <code class="codeph">VW_JF_1</code> view. The imposed join order may not necessarily be the best join order. For this reason, the optimizer performs join factorization using the cost-based transformation framework. The optimizer calculates the cost of the plans with and without join factorization, and then chooses the cheapest plan.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-E3AA79CC-74CA-44C0-A15B-1827FE27609D__BABFAEGB">
+<p class="titleinexample">Example 5-17 Factorization of t1 from View V with View Definition Removed</p>
+<p>The following query is the same query in <a href="tgsql_transform.htm#GUID-E3AA79CC-74CA-44C0-A15B-1827FE27609D__BABIGECD">Example 5-16</a>, but with the view definition removed so that the factorization is easier to see:</p>
+<pre dir="ltr">SELECT *
+FROM   <span class="bold">t5</span>, (SELECT t1.c1, VW_JF_1.item_2
+            FROM   <span class="bold">t1</span>, VW_JF_1
+            WHERE  t1.c1 = VW_JF_1.item_1
+            AND    t1.c1 &gt; 1)
+WHERE  t5.c1 = V.c1
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94941"></a><a id="TGSQL94942"></a><a id="TGSQL94940"></a>
+<div class="props_rev_3"><a id="GUID-FA012F21-6BEF-444A-89E4-4DCDBC9F0225"></a>
+<h3 id="TGSQL-GUID-FA012F21-6BEF-444A-89E4-4DCDBC9F0225" class="sect3">Factorization of Outer Joins: Scenario</h3>
+<div>
+<p>The database supports join factorization of outer joins, antijoins, and semijoins, but only for the right tables in such joins. For example, join factorization can transform the following <code class="codeph">UNION ALL</code> query by factorizing <code class="codeph">t2</code>:</p>
+<pre dir="ltr">SELECT t1.c2, t2.c2
+FROM   t1, t2
+WHERE  t1.c1 = t2.c1(+) 
+AND    t1.c1 = 1
+UNION ALL
+SELECT t1.c2, t2.c2
+FROM   t1, t2
+WHERE  t1.c1 = t2.c1(+) 
+AND    t1.c1 = 2
+</pre>
+<p>The following example shows the transformation. Table <code class="codeph">t2</code> now no longer appears in the <code class="codeph">UNION ALL</code> branches of the subquery.</p>
+<pre dir="ltr">SELECT VW_JF_1.item_2, t2.c2
+FROM   t2, (SELECT t1.c1 item_1, t1.c2 item_2
+            FROM   t1
+            WHERE  t1.c1 = 1
+            UNION ALL
+            SELECT t1.c1 item_1, t1.c2 item_2
+            FROM   t1
+            WHERE  t1.c1 = 2) VW_JF_1
+WHERE  VW_JF_1.item_1 = t2.c1(+)
+</pre></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_optcncpt.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_pt_plan.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

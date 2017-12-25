@@ -1,0 +1,2693 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106637"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Instance%20Tuning%20Using%20Performance%20Views"></a><title>Instance Tuning Using Performance Views</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="Oracle CPU statistics, CPUs, statistics, segment-level statistics, segment-level, buffer busy wait events, actions, network communication wait events, db file sequential read wait events, db file scattered read wait events, wait events, resource wait events, resources, direct path, read events actions, locks and lock holders, finding, enqueue wait events, contention, wait events, latch, latch wait events, latch free wait events, shared pool contention, library cache, latch contention, library cache latch, shared pool, latches, tuning, log file, parallel write wait events, log file parallel write, pin, lock, log buffer, space wait events, log buffer space, switch wait events, log file switch, sync wait events, log file sync, rdbms ipc reply wait events, rdbms ipc reply, idle wait events, SQL*Net message from client, SQL*Net, message from client idle events, SQL*Net more data to client, more data to client wait events"/>
+<meta name="dcterms.created" content="2017-01-18T01:24:57Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Performance Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49058-08"/>
+<meta name="dcterms.isVersionOf" content="TGDBA"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="sampling.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="part3.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49058-08.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-07982549-507F-4465-8843-7F753BCF8F99"></a> <span id="PAGE" style="display:none;">16/27</span> <!-- End Header -->
+<a id="TGDBA024"></a>
+<h1 id="TGDBA-GUID-07982549-507F-4465-8843-7F753BCF8F99" class="sect1"><span class="enumeration_chapter">10</span> Instance Tuning Using Performance Views</h1>
+<div>
+<p><a id="d20882e33" class="indexterm-anchor"></a><a id="d20882e37" class="indexterm-anchor"></a><a id="d20882e41" class="indexterm-anchor"></a>After the initial configuration of a database, monitoring and tuning an instance regularly is important to eliminate any potential performance bottlenecks. This chapter discusses the tuning process using Oracle <code>V$</code> performance views.</p>
+<p>This chapter contains the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-18A2E92F-0F24-4F47-9C6E-6806E942A76A">Instance Tuning Steps</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-1335E243-77FE-4411-92CB-74F93DD23609">Interpreting Oracle Database Statistics</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-386931AB-A199-41E8-A20C-7317A4FDCACC">Wait Events Statistics</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-E281EB31-5762-4945-9497-BBB923A6FF50">Tuning Instance Recovery Performance: Fast-Start Fault Recovery</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA02401"></a>
+<div class="props_rev_3"><a id="GUID-18A2E92F-0F24-4F47-9C6E-6806E942A76A"></a>
+<h2 id="TGDBA-GUID-18A2E92F-0F24-4F47-9C6E-6806E942A76A" class="sect2">Instance Tuning Steps</h2>
+<div>
+<div class="section">
+<p>These are the main steps in the Oracle performance method for instance tuning:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span><a href="pfgrf_instance_tune.htm#GUID-03BEA921-4BB8-4E55-95D1-7C4C6B7131CF">Define the Problem</a></span>
+<div>
+<p>Get candid feedback from users about the scope of the performance problem.</p>
+</div>
+</li>
+<li class="stepexpand"><span><a href="pfgrf_instance_tune.htm#GUID-26F451C1-3A30-4E9D-AD41-F1C02446E5A7">Examine the Host System</a> and <a href="pfgrf_instance_tune.htm#GUID-C0DE00D7-C69F-4938-9FE3-78A070524817">Examine the Oracle Database Statistics</a></span>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>After obtaining a full set of operating system, database, and application statistics, examine the data for any evidence of performance problems.</p>
+</li>
+<li>
+<p>Consider the list of common performance errors to see whether the data gathered suggests that they are contributing to the problem.</p>
+</li>
+<li>
+<p>Build a conceptual model of what is happening on the system using the performance data gathered.</p>
+</li>
+</ul>
+</div>
+</li>
+<li class="stepexpand"><span><a href="pfgrf_instance_tune.htm#GUID-AA7607E6-8A86-4A54-88B7-161CA970D052">Implement and Measure Change</a></span>
+<div>
+<p>Propose changes to be made and the expected result of implementing the changes. Then, implement the changes and measure application performance.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Determine whether the performance objective defined in step 1 has been met. If not, then repeat steps 2 and 3 until the performance goals are met.</span></li>
+</ol>
+<div class="section">
+<p>The remainder of this chapter discusses instance tuning using the Oracle Database dynamic performance views. However, Oracle recommends using Automatic Workload Repository (AWR) and Automatic Database Diagnostic Monitor (ADDM) for statistics gathering, monitoring, and tuning due to the extended feature list.</p>
+<div class="infobox-note" id="GUID-18A2E92F-0F24-4F47-9C6E-6806E942A76A__GUID-8049D2F9-B6E9-497D-9CE6-49CAA5B2BDEF">
+<p class="notep1">Note:</p>
+<p>If your site does not have AWR and ADDM features, then you can use Statspack to gather Oracle database instance statistics.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+<a id="TGDBA94436"></a>
+<div class="props_rev_3"><a id="GUID-03BEA921-4BB8-4E55-95D1-7C4C6B7131CF"></a>
+<h3 id="TGDBA-GUID-03BEA921-4BB8-4E55-95D1-7C4C6B7131CF" class="sect3">Define the Problem</h3>
+<div>
+<div class="section">
+<p>It is vital to develop a good understanding of the purpose of the tuning exercise and the nature of the problem before attempting to implement a solution. Without this understanding, it is virtually impossible to implement effective changes. The data gathered during this stage helps determine the next step to take and what evidence to examine.</p>
+<p>Gather the following data:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Identify the performance objective.</span>
+<div>
+<p>What is the measure of acceptable performance? How many transactions an hour, or seconds, response time will meet the required performance level?</p>
+</div>
+</li>
+<li class="stepexpand"><span>Identify the scope of the problem.</span>
+<div>
+<p>What is affected by the slowdown? For example, is the whole instance slow? Is it a particular application, program, specific operation, or a single user?</p>
+</div>
+</li>
+<li class="stepexpand"><span>Identify the time frame when the problem occurs.</span>
+<div>
+<p>Is the problem only evident during peak hours? Does performance deteriorate over the course of the day? Was the slowdown gradual (over the space of months or weeks) or sudden?</p>
+</div>
+</li>
+<li class="stepexpand"><span>Quantify the slowdown.</span>
+<div>
+<p>This helps identify the extent of the problem and also acts as a measure for comparison when deciding whether changes implemented to fix the problem have actually made an improvement. Find a consistently reproducible measure of the response time or job run time. How much worse are the timings than when the program was running well?</p>
+</div>
+</li>
+<li class="stepexpand"><span>Identify any changes.</span>
+<div>
+<p>Identify what has changed since performance was acceptable. This may narrow the potential cause quickly. For example, has the operating system software, hardware, application software, or Oracle Database release been upgraded? Has more data been loaded into the system, or has the data volume or user population grown?</p>
+</div>
+</li>
+</ol>
+<div class="section">
+<p>At the end of this phase, you should have a good understanding of the symptoms. If the symptoms can be identified as local to a program or set of programs, then the problem is handled in a different manner from instance-wide performance issues.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94437"></a>
+<div class="props_rev_3"><a id="GUID-26F451C1-3A30-4E9D-AD41-F1C02446E5A7"></a>
+<h3 id="TGDBA-GUID-26F451C1-3A30-4E9D-AD41-F1C02446E5A7" class="sect3">Examine the Host System</h3>
+<div>
+<p>Look at the load on the database server and the database instance. Consider the operating system, the I/O subsystem, and network statistics, because examining these areas helps determine what might be worth further investigation. In multitier systems, also examine the application server middle-tier hosts.</p>
+<p>Examining the host hardware often gives a strong indication of the bottleneck in the system. This determines which Oracle Database performance data could be useful for cross-reference and further diagnosis.</p>
+<p>Data to examine includes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-AF97FAB4-36DB-464B-AB7F-1087F367E22D">CPU Usage</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-6A042D12-3E50-470C-B41F-D20A67C97B1B">Identifying I/O Problems</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-ED2F69C0-1197-4639-BEFF-6DB0BDBAB683">Identifying Network Issues</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA94438"></a>
+<div class="props_rev_3"><a id="GUID-AF97FAB4-36DB-464B-AB7F-1087F367E22D"></a>
+<h4 id="TGDBA-GUID-AF97FAB4-36DB-464B-AB7F-1087F367E22D" class="sect4">CPU Usage</h4>
+<div>
+<p>If there is a significant amount of idle CPU, then there could be an I/O, application, or database bottleneck. Note that wait I/O should be considered as idle CPU.</p>
+<p>If there is high CPU usage, then determine whether the CPU is being used effectively. Is the majority of CPU usage attributable to a small number of high-CPU using programs, or is the CPU consumed by an evenly distributed workload?</p>
+<p>If a small number of high-usage programs use the CPU, then look at the programs to determine the cause. Check whether some processes alone consume the full power of one CPU. Depending on the process, this could indicate a CPU or process-bound workload that can be tackled by dividing or parallelizing process activity.</p>
+</div>
+<a id="TGDBA94439"></a>
+<div class="props_rev_3"><a id="GUID-59B45479-273A-4451-B948-037694AD75A4"></a>
+<h5 id="TGDBA-GUID-59B45479-273A-4451-B948-037694AD75A4" class="sect5">Non-Oracle Processes</h5>
+<div>
+<p>If the programs are not Oracle programs, then identify whether they are legitimately requiring that amount of CPU. If so, determine whether their execution be delayed to off-peak hours. Identifying these CPU intensive processes can also help narrowing what specific activity, such as I/O, network, and paging, is consuming resources and how can it be related to the database workload.</p>
+</div>
+</div>
+<a id="TGDBA94440"></a>
+<div class="props_rev_3"><a id="GUID-E646D37F-AD4C-4819-89E6-6915AACC8099"></a>
+<h5 id="TGDBA-GUID-E646D37F-AD4C-4819-89E6-6915AACC8099" class="sect5">Oracle Processes</h5>
+<div>
+<p>If a small number of Oracle processes consumes most of the CPU resources, then use <code>SQL_TRACE</code> and <code>TKPROF</code> to identify the SQL or PL/SQL statements to see if a particular query or PL/SQL program unit can be tuned. For example, a SELECT statement could be CPU-intensive if its execution involves many reads of data in cache (logical reads) that could be avoided with better SQL optimization.</p>
+</div>
+</div>
+<a id="TGDBA94441"></a>
+<div class="props_rev_3"><a id="GUID-64630CAA-9FF7-4621-9D04-767B45407447"></a>
+<h5 id="TGDBA-GUID-64630CAA-9FF7-4621-9D04-767B45407447" class="sect5">Oracle Database CPU Statistics</h5>
+<div>
+<p>Oracle Database CPU statistics are available in several <code>V$</code> views:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>V$SYSSTAT</code> shows Oracle Database CPU usage for all sessions. The <code>CPU</code> <code>used</code> <code>by</code> <code>this</code> <code>session</code> statistic shows the aggregate CPU used by all sessions. The <code>parse</code> <code>time</code> <code>cpu</code> statistic shows the total CPU time used for parsing.</p>
+</li>
+<li>
+<p><code>V$SESSTAT</code> shows Oracle Database CPU usage for each session. Use this view to determine which particular session is using the most CPU.</p>
+</li>
+<li>
+<p><code>V$RSRC_CONSUMER_GROUP</code> shows CPU utilization statistics for each consumer group when the Oracle Database Resource <a id="d20882e492" class="indexterm-anchor"></a>Manager is running.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGDBA94442"></a>
+<div class="props_rev_3"><a id="GUID-9CE157DC-EDE2-49F4-961F-3296334FC771"></a>
+<h5 id="TGDBA-GUID-9CE157DC-EDE2-49F4-961F-3296334FC771" class="sect5">Interpreting CPU Statistics</h5>
+<div>
+<p>It is important to recognize that CPU time and real time are distinct. With eight CPUs, for any given minute in real time, there are eight minutes of CPU time available. On Windows and UNIX, this can be either user time or system time (privileged mode on Windows). Thus, average CPU time utilized by all processes (threads) on the system could be greater than one minute for every one minute real time interval.</p>
+<p>At any given moment, you know how much time Oracle Database has used on the system. So, if eight minutes are available and Oracle Database uses four minutes of that time, then you know that 50% of all CPU time is used by Oracle. If your process is not consuming that time, then some other process is. Identify the processes that are using CPU time, figure out why, and then attempt to tune them.</p>
+<p>If the CPU usage is evenly distributed over many Oracle server processes, examine the <code>V$SYS_TIME_MODEL</code> view to help get a precise understanding of where most time is spent. See <a href="pfgrf_instance_tune.htm#GUID-BB5A0533-F6F2-413C-A56D-A8BDB870536B__g44034" title="This table links wait events to potential causes and gives an overview of the Oracle data that could be most useful to review next.">Table 10-1</a>.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA94443"></a>
+<div class="props_rev_3"><a id="GUID-6A042D12-3E50-470C-B41F-D20A67C97B1B"></a>
+<h4 id="TGDBA-GUID-6A042D12-3E50-470C-B41F-D20A67C97B1B" class="sect4">Identifying I/O Problems</h4>
+<div>
+<p><a id="d20882e578" class="indexterm-anchor"></a><a id="d20882e582" class="indexterm-anchor"></a><a id="d20882e586" class="indexterm-anchor"></a>An overly active I/O system can be evidenced by disk queue lengths greater than two, or disk service times that are over 20-30ms. If the I/O system is overly active, then check for potential hot spots that could benefit from distributing the I/O across more disks. Also identify whether the load can be reduced by lowering the resource requirements of the programs using those resources. If the I/O problems are caused by Oracle Database, then I/O tuning can begin. If Oracle Database is not consuming the available I/O resources, then identify the process that is using up the I/O. Determine why the process is using up the I/O, and then tune this process.</p>
+<p>I/O problems can be identified using <code>V$</code> views in Oracle Database and monitoring tools in the operating system, as described in the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-62BED48B-EE25-4B99-9E5C-F7768281C60A">Identifying I/O Problems Using V$ Views</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-256449BA-E834-4C9C-B8BF-61E858F75219">Identifying I/O Problems Using Operating System Monitoring Tools</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA94444"></a>
+<div class="props_rev_3"><a id="GUID-62BED48B-EE25-4B99-9E5C-F7768281C60A"></a>
+<h5 id="TGDBA-GUID-62BED48B-EE25-4B99-9E5C-F7768281C60A" class="sect5">Identifying I/O Problems Using V$ Views</h5>
+<div>
+<div class="section">
+<p>Check the Oracle wait event data in <code>V$SYSTEM_EVENT</code> to see whether the top wait events are I/O related. I/O related events include <code>db</code> <code>file</code> <code>sequential</code> <code>read</code>, <code>db</code> <code>file</code> <code>scattered</code> <code>read</code>, <code>db</code> <code>file</code> <code>single</code> <code>write</code>, <code>db</code> <code>file</code> <code>parallel</code> <code>write</code>, and <code>log</code> <code>file</code> <code>parallel</code> <code>write</code>. These are all events corresponding to I/Os performed against data files and log files. If any of these wait events correspond to high average time, then investigate the <a id="d20882e710" class="indexterm-anchor"></a>I/O contention.</p>
+<p>Cross reference the host I/O system data with the I/O sections in the Automatic Repository report to identify hot data files and tablespaces. Also compare the I/O times reported by the operating system with the times reported by Oracle Database to see if they are consistent.</p>
+<p>An I/O problem can also manifest itself with non-I/O related wait events. For example, the difficulty in finding a free buffer in the buffer cache or high wait times for logs to be flushed to disk can also be symptoms of an I/O problem. Before investigating whether the I/O system should be reconfigured, determine if the load on the I/O system can be reduced.</p>
+<p>To reduce I/O load caused by Oracle Database, examine the I/O statistics collected for all I/O calls made by the database using the following views:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><code>V$IOSTAT_CONSUMER_GROUP</code></p>
+<p>The <code>V$IOSTAT_CONSUMER_GROUP</code> view captures I/O statistics for consumer groups. If Oracle Database Resource Manager is enabled, I/O statistics for all consumer groups that are part of the currently enabled resource plan are captured.</p>
+</li>
+<li>
+<p><code>V$IOSTAT_FILE</code></p>
+<p>The <code>V$IOSTAT_FILE</code> view captures I/O statistics of database files that are or have been accessed. The <code>SMALL_SYNC_READ_LATENCY</code> column displays the latency for single block synchronous reads (in milliseconds), which translates directly to the amount of time that clients need to wait before moving onto the next operation. This defines the responsiveness of the storage subsystem based on the current load. If there is a high latency for critical data files, you may want to consider relocating these files to improve their service time. To calculate latency statistics, <code>timed_statistics</code> must be set to <code>TRUE</code>.</p>
+</li>
+<li>
+<p><code>V$IOSTAT_FUNCTION</code></p>
+<p>The <code>V$IOSTAT_FUNCTION</code> view captures I/O statistics for database functions (such as the LGWR and DBWR).</p>
+<p>An I/O can be issued by various Oracle processes with different functionalities. The top database functions are classified in the <code>V$IOSTAT_FUNCTION</code> view. In cases when there is a conflict of I/O functions, the I/O is placed in the bucket with the lower <code>FUNCTION_ID</code>. For example, if XDB issues an I/O from the buffer cache, the I/O would be classified as an XDB I/O because it has a lower <code>FUNCTION_ID</code> value. Any unclassified function is placed in the Others bucket. You can display the <code>FUNCTION_ID</code> hierarchy by querying the <code>V$IOSTAT_FUNCTION</code> view:</p>
+<pre dir="ltr">select FUNCTION_ID, FUNCTION_NAME
+from v$iostat_function
+order by FUNCTION_ID;
+
+FUNCTION_ID FUNCTION_NAME
+----------- ------------------
+           0 RMAN
+           1 DBWR
+           2 LGWR
+           3 ARCH
+           4 XDB
+           5 Streams AQ
+           6 Data Pump
+           7 Recovery
+           8 Buffer Cache Reads
+           9 Direct Reads
+          10 Direct Writes
+          11 Others
+</pre></li>
+</ul>
+<p>These <code>V$IOSTAT</code> views contains I/O statistics for both single and multi block read and write operations. Single block operations are small I/Os that are less than or equal to 128 kilobytes. Multi block operations are large I/Os that are greater than 128 kilobytes. For each of these operations, the following statistics are collected:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Identifier</p>
+</li>
+<li>
+<p>Total wait time (in milliseconds)</p>
+</li>
+<li>
+<p>Number of waits executed (for consumer groups and functions)</p>
+</li>
+<li>
+<p>Number of requests for each operation</p>
+</li>
+<li>
+<p>Number of single and multi block bytes read</p>
+</li>
+<li>
+<p>Number of single and multi block bytes written</p>
+</li>
+</ul>
+<p>You should also look at SQL statements that perform many physical reads by querying the <code>V$SQLAREA</code> view, or by reviewing the &#34;SQL ordered by Reads&#34; section of the Automatic Workload Repository report. Examine these statements to see how they can be tuned to reduce the number of I/Os.</p>
+<div class="infoboxnotealso" id="GUID-62BED48B-EE25-4B99-9E5C-F7768281C60A__GUID-D8926588-334E-4DA9-81D4-A75C6B90808D">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for information about the <code>V$IOSTAT_CONSUMER_GROUP</code>, <code>V$IOSTAT_FUNCTION</code>, <code>V$IOSTAT_FILE</code>, and <code>V$SQLAREA</code> views</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94445"></a>
+<div class="props_rev_3"><a id="GUID-256449BA-E834-4C9C-B8BF-61E858F75219"></a>
+<h5 id="TGDBA-GUID-256449BA-E834-4C9C-B8BF-61E858F75219" class="sect5">Identifying I/O Problems Using Operating System Monitoring Tools</h5>
+<div>
+<div class="section">
+<p>Use operating system monitoring tools to determine what processes are running on the system as a whole and to monitor disk access to all files. Remember that disks holding data files and redo log files can also hold files that are not related to Oracle Database. Reduce any heavy access to disks that contain database files. You can monitor access to non-database files only through operating system facilities, rather than through the <code>V$</code> views.</p>
+<p>Utilities, such as <code>sar</code> <code>-d</code> (or <code>iostat</code>) on many UNIX systems and the administrative performance monitoring tool on Windows systems, examine I/O statistics for the entire system.</p>
+<div class="infoboxnotealso" id="GUID-256449BA-E834-4C9C-B8BF-61E858F75219__GUID-FF3E1157-A6BD-4E49-BEA5-FAD47C2566BC">
+<p class="notep1">See Also:</p>
+<p>Your operating system documentation for the tools available on your platform</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA94446"></a>
+<div class="props_rev_3"><a id="GUID-ED2F69C0-1197-4639-BEFF-6DB0BDBAB683"></a>
+<h4 id="TGDBA-GUID-ED2F69C0-1197-4639-BEFF-6DB0BDBAB683" class="sect4">Identifying Network Issues</h4>
+<div>
+<div class="section">
+<p>Using operating system utilities, look at the network round-trip ping time and the number of collisions. If the network is causing large delays in response time, then investigate possible causes.</p>
+<p>To identify network I/O caused by remote access of database files, examine the <code>V$IOSTAT_NETWORK</code> view. This view contains network I/O statistics caused by accessing files on a remote database instance, including:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Database client initiating the network I/O (such as RMAN and PLSQL)</p>
+</li>
+<li>
+<p>Number of read and write operations issued</p>
+</li>
+<li>
+<p>Number of kilobytes read and written</p>
+</li>
+<li>
+<p>Total wait time in milliseconds for read operations</p>
+</li>
+<li>
+<p>Total wait in milliseconds for write operations</p>
+</li>
+</ul>
+<p>After the cause of the network issue is identified, network load can be reduced by scheduling large data transfers to off-peak times, or by coding applications to batch requests to remote hosts, rather than accessing remote hosts once (or more) for one request.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA94447"></a>
+<div class="props_rev_3"><a id="GUID-C0DE00D7-C69F-4938-9FE3-78A070524817"></a>
+<h3 id="TGDBA-GUID-C0DE00D7-C69F-4938-9FE3-78A070524817" class="sect3">Examine the Oracle Database Statistics</h3>
+<div>
+<p>Examine Oracle Database statistics and cross-reference them with operating system statistics to ensure a consistent diagnosis of the problem. Operating system statistics can indicate a good place to begin tuning. However, if the goal is to tune the Oracle database instance, then look at the Oracle Database statistics to identify the resource bottleneck from a database perspective before implementing corrective action. See <span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-1335E243-77FE-4411-92CB-74F93DD23609">Interpreting Oracle Database Statistics</a>&#34;</span>.</p>
+<p>The following topics discuss the common Oracle data sources used while tuning.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Setting the Level of Statistics Collection</p>
+</li>
+<li>
+<p>V$STATISTICS_LEVEL</p>
+</li>
+<li>
+<p>Wait Events</p>
+</li>
+<li>
+<p>Dynamic Performance Views Containing Wait Event Statistics</p>
+</li>
+<li>
+<p>System Statistics</p>
+</li>
+</ul>
+</div>
+<a id="TGDBA94448"></a>
+<div class="props_rev_3"><a id="GUID-2CC2320F-4CAA-4ECD-82C4-0A5FC4C9EF64"></a>
+<h4 id="TGDBA-GUID-2CC2320F-4CAA-4ECD-82C4-0A5FC4C9EF64" class="sect4">Setting the Level of Statistics Collection</h4>
+<div>
+<div class="section">
+<p>Oracle Database provides the initialization parameter <code>STATISTICS_LEVEL</code>, which controls all major statistics collections or advisories in the database. This parameter sets the statistics collection level for the database.</p>
+<p>Depending on the setting of <code>STATISTICS_LEVEL</code>, certain advisories or statistics are collected, as follows:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><code>BASIC</code>: No advisories or statistics are collected. Monitoring and many automatic features are disabled. Oracle does not recommend this setting because it disables important Oracle Database features.</p>
+</li>
+<li>
+<p><code>TYPICAL</code>: This is the default value and ensures collection for all major statistics while providing best overall database performance. This setting should be adequate for most environments.</p>
+</li>
+<li>
+<p><code>ALL</code>: All of the advisories or statistics that are collected with the <code>TYPICAL</code> setting are included, plus timed operating system statistics and row source execution statistics.</p>
+<div class="infoboxnotealso" id="GUID-2CC2320F-4CAA-4ECD-82C4-0A5FC4C9EF64__GUID-138DDF6F-06A4-440C-ACDD-FF138F66EBA2">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink REFRN10214" target="_blank" href="../REFRN/GUID-16B23F95-8644-407A-A6C8-E85CADFA61FF.htm#REFRN10214"><span class="italic">Oracle Database Reference</span></a> for more information on the <code>STATISTICS_LEVEL</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-2CC2320F-4CAA-4ECD-82C4-0A5FC4C9EF64__GUID-7F6CA743-3370-4930-BAD9-33B7242E2B57">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN30264" target="_blank" href="../REFRN/GUID-8A215D2B-4A6A-455F-81A9-66D6350A867A.htm#REFRN30264"><span class="italic">Oracle Database Reference</span></a> for information about the dynamic performance <code>V$STATISTICS_LEVEL</code> view. This view lists the status of the statistics or advisories controlled by <code>STATISTICS_LEVEL</code>.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94450"></a>
+<div class="props_rev_3"><a id="GUID-83A6CEC9-B4B5-4335-ACAF-D39C8649664B"></a>
+<h4 id="TGDBA-GUID-83A6CEC9-B4B5-4335-ACAF-D39C8649664B" class="sect4">Wait Events</h4>
+<div>
+<p>Wait events are statistics that are incremented by a server process or thread to indicate that it had to wait for an event to complete before being able to continue processing. Wait event data reveals various symptoms of problems that might be impacting performance, such as latch contention, buffer contention, and <a id="d20882e1134" class="indexterm-anchor"></a>I/O contention. Remember that these are only symptoms of problems, not the actual causes.</p>
+<p>Wait events are grouped into classes. The wait event <a id="d20882e1141" class="indexterm-anchor"></a><a id="d20882e1145" class="indexterm-anchor"></a>classes include: Administrative, Application, Cluster, Commit, Concurrency, Configuration, Idle, Network, Other, Scheduler, System I/O, and User I/O.</p>
+<p>A server process can wait for the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A resource to become available, such as a buffer or a latch.</p>
+</li>
+<li>
+<p>An action to complete, such as an I/O.</p>
+</li>
+<li>
+<p>More work to do, such as waiting for the client to provide the next SQL statement to execute. Events that identify that a server process is waiting for more work are known as idle events.</p>
+<div class="infoboxnotealso" id="GUID-83A6CEC9-B4B5-4335-ACAF-D39C8649664B__GUID-BF0DCF9B-1F6A-4080-9581-CCDDEA04931D">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN101" target="_blank" href="../REFRN/GUID-03BFEEFB-1020-4F3F-8CF8-A23E7026684B.htm#REFRN101"><span class="italic">Oracle Database Reference</span></a> for more information about Oracle wait events</p>
+</div>
+</li>
+</ul>
+<p>Wait event statistics include the number of times an event was waited for and the time waited for the event to complete. If the initialization parameter <code>TIMED_STATISTICS</code> is set to <code>true</code>, then you can also see how long each resource was waited for.</p>
+<p>To minimize user response time, reduce the time spent by server processes waiting for event completion. Not all wait events have the same wait time. Therefore, it is more important to examine events with the most total time waited rather than wait events with a high number of occurrences. Usually, it is best to set the dynamic parameter <code>TIMED_STATISTICS</code> to <code>true</code> at least while monitoring performance. See <span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-2CC2320F-4CAA-4ECD-82C4-0A5FC4C9EF64">Setting the Level of Statistics Collection</a>&#34;</span> for information about <code>STATISTICS_LEVEL</code> settings.</p>
+</div>
+</div>
+<a id="TGDBA94451"></a>
+<div class="props_rev_3"><a id="GUID-C04DE613-6AF1-4A92-8E54-134F5E0BA904"></a>
+<h4 id="TGDBA-GUID-C04DE613-6AF1-4A92-8E54-134F5E0BA904" class="sect4">Dynamic Performance Views Containing Wait Event Statistics</h4>
+<div>
+<div class="section">
+<p>These dynamic performance views can be queried for wait event statistics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a id="d20882e1234" class="indexterm-anchor"></a><code>V$ACTIVE_SESSION_HISTORY</code></p>
+<p>The <code>V$ACTIVE_SESSION_HISTORY</code> view displays active database session activity, sampled once every second.</p>
+</li>
+<li>
+<p><code>V$SESS_TIME_MODEL</code> and <code>V$SYS_TIME_MODEL</code></p>
+<p>The <code>V$SESS_TIME_MODEL</code> and <code>V$SYS_TIME_MODEL</code> views contain time model statistics, including <code>DB</code> <code>time</code> which is the total time spent in database calls.</p>
+</li>
+<li>
+<p><a id="d20882e1268" class="indexterm-anchor"></a><code>V$SESSION_WAIT</code></p>
+<p>The <code>V$SESSION_WAIT</code> view displays information about the current or last wait for each session (such as wait ID, class, and time).</p>
+</li>
+<li>
+<p><a id="d20882e1279" class="indexterm-anchor"></a><code>V$SESSION</code></p>
+<p>The <code>V$SESSION</code> view displays information about each current session and contains the same wait statistics as those found in the <code>V$SESSION_WAIT</code> view. If applicable, this view also contains detailed information about the object that the session is currently waiting for (such as object number, block number, file number, and row number), the blocking session responsible for the current wait (such as the blocking session ID, status, and type), and the amount of time waited.</p>
+</li>
+<li>
+<p><a id="d20882e1294" class="indexterm-anchor"></a><code>V$SESSION_EVENT</code></p>
+<p>The <code>V$SESSION_EVENT</code> view provides summary of all the events the session has waited for since it started.</p>
+</li>
+<li>
+<p><a id="d20882e1305" class="indexterm-anchor"></a><code>V$SESSION_WAIT_CLASS</code></p>
+<p>The <code>V$SESSION_WAIT_CLASS</code> view provides the number of waits and the time spent in each class of wait events for each session.</p>
+</li>
+<li>
+<p><a id="d20882e1316" class="indexterm-anchor"></a><code>V$SESSION_WAIT_HISTORY</code></p>
+<p>The <a id="d20882e1322" class="indexterm-anchor"></a><code>V$SESSION_WAIT_HISTORY</code> view displays information about the last ten wait events for each active session (such as event type and wait time).</p>
+</li>
+<li>
+<p><a id="d20882e1329" class="indexterm-anchor"></a><code>V$SYSTEM_EVENT</code></p>
+<p>The <code>V$SYSTEM_EVENT</code> view provides a summary of all the event waits on the instance since it started.</p>
+</li>
+<li>
+<p><a id="d20882e1340" class="indexterm-anchor"></a><code>V$EVENT_HISTOGRAM</code></p>
+<p>The <code>V$EVENT_HISTOGRAM</code> view displays a histogram of the number of waits, the maximum wait, and total wait time on an event basis.</p>
+</li>
+<li>
+<p><a id="d20882e1351" class="indexterm-anchor"></a><code>V$FILE_HISTOGRAM</code></p>
+<p>The <code>V$FILE_HISTOGRAM</code> view displays a histogram of times waited during single block reads for each file.</p>
+</li>
+<li>
+<p><a id="d20882e1362" class="indexterm-anchor"></a><code>V$SYSTEM_WAIT_CLASS</code></p>
+<p>The <code>V$SYSTEM_WAIT_CLASS</code> view provides the instance wide time totals for the number of waits and the time spent in each class of wait events.</p>
+</li>
+<li>
+<p><a id="d20882e1374" class="indexterm-anchor"></a><code>V$TEMP_HISTOGRAM</code></p>
+<p>The <code>V$TEMP_HISTOGRAM</code> view displays a histogram of times waited during single block reads for each temporary file.</p>
+<div class="infoboxnotealso" id="GUID-C04DE613-6AF1-4A92-8E54-134F5E0BA904__GUID-E6845C98-4DF4-4EFA-8649-72E8B7627878">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN003" target="_blank" href="../REFRN/GUID-8C5690B0-DE10-4460-86DF-80111869CF4C.htm#REFRN003"><span class="italic">Oracle Database Reference</span></a> for information about the dynamic performance views</p>
+</div>
+</li>
+</ul>
+<p>Investigate wait events and related timing data when performing reactive performance tuning. The events with the most time listed against them are often strong indications of the performance bottleneck. For example, by looking at <code>V$SYSTEM_EVENT</code>, you might notice lots of <code>buffer</code> <code>busy</code> <code>waits</code>. It might be that many processes are inserting into the same block and must wait for each other before they can insert. The solution could be to use automatic segment space management or partitioning for the object in question. See <span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-386931AB-A199-41E8-A20C-7317A4FDCACC">Wait Events Statistics</a>&#34;</span> for a description of the differences between the views <code>V$SESSION_WAIT</code>, <code>V$SESSION_EVENT</code>, and <code>V$SYSTEM_EVENT</code>.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94452"></a>
+<div class="props_rev_3"><a id="GUID-259D65EE-5F1B-4C2A-83BE-A6D03B232CDB"></a>
+<h4 id="TGDBA-GUID-259D65EE-5F1B-4C2A-83BE-A6D03B232CDB" class="sect4">System Statistics</h4>
+<div>
+<p>System statistics are typically used in conjunction with wait event data to find further evidence of the cause of a performance problem.</p>
+<p>For example, if <code>V$SYSTEM_EVENT</code> indicates that the largest wait event (in terms of wait time) is the event <code>buffer</code> <code>busy</code> <code>waits</code>, then look at the specific buffer wait statistics available in the view <a id="d20882e1471" class="indexterm-anchor"></a><code>V$WAITSTAT</code> to see which block type has the highest wait count and the highest wait time.</p>
+<p>After the block type has been identified, also look at <a id="d20882e1478" class="indexterm-anchor"></a><code>V$SESSION</code> real-time while the problem is occurring or <code>V$ACTIVE_SESSION_HISTORY</code> and <code>DBA_HIST_ACTIVE_SESS_HISTORY</code> views after the problem has been experienced to identify the contended-for objects using the object number indicated. The combination of this data indicates the appropriate corrective action.</p>
+<p>Statistics are available in many <code>V$</code> views. The following are some of the <code>V$</code> views that contain system statistics.</p>
+<div class="section">
+<p class="subhead3">V$ACTIVE_SESSION_HISTORY</p>
+<p>This view displays active database session activity, sampled once every second.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">V$SYSSTAT</p>
+<p>This contains overall statistics for many different parts of Oracle Database, including rollback, logical and physical I/O, and parse data. Data from <code>V$SYSSTAT</code> is used to compute ratios, such as the buffer cache hit ratio.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">V$FILESTAT</p>
+<p>This contains detailed file I/O statistics for each file, including the number of I/Os for each file and the average read time.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">V$ROLLSTAT</p>
+<p>This contains detailed rollback and undo segment statistics for each segment.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">V$ENQUEUE_STAT</p>
+<p>This contains detailed <a id="d20882e1525" class="indexterm-anchor"></a>enqueue statistics for each enqueue, including the number of times an enqueue was requested and the number of times an enqueue was waited for, and the wait time.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">V$LATCH</p>
+<p>This contains detailed latch usage statistics for each latch, including the number of times each latch was requested and the number of times the latch was waited for.</p>
+<div class="infoboxnotealso" id="GUID-259D65EE-5F1B-4C2A-83BE-A6D03B232CDB__GUID-A36FE694-79C7-4B9C-8832-2F3FF5B8F2A6">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN003" target="_blank" href="../REFRN/GUID-8C5690B0-DE10-4460-86DF-80111869CF4C.htm#REFRN003"><span class="italic">Oracle Database Reference</span></a> for information about dynamic performance views</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94459"></a>
+<div class="props_rev_3"><a id="GUID-6FC05277-C094-4DEE-8D0E-FA91D9DE1E23"></a>
+<h4 id="TGDBA-GUID-6FC05277-C094-4DEE-8D0E-FA91D9DE1E23" class="sect4">Segment-Level Statistics</h4>
+<div>
+<p>You can gather segment-level statistics to help you spot performance problems associated with individual segments. Collecting and viewing segment-level statistics is a good way to effectively identify hot tables or indexes in an instance.</p>
+<p>After viewing wait events and system statistics to identify the performance problem, you can use segment-level statistics to find specific tables or indexes that are causing the problem. Consider, for example, that <code>V$SYSTEM_EVENT</code> indicates that buffer busy waits cause a fair amount of wait time. You can select from <code>V$SEGMENT_STATISTICS</code> the top segments that cause the buffer busy waits. Then you can focus your effort on eliminating the problem in those segments.</p>
+<p>You can query segment-level statistics through the following dynamic performance views:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>V$SEGSTAT_NAME:</code> This view lists the segment statistics being collected and the properties of each statistic (for instance, if it is a sampled statistic).</p>
+</li>
+<li>
+<p><code>V$SEGSTAT:</code> This is a highly efficient, real-time monitoring view that shows the statistic value, statistic name, and other basic information.</p>
+</li>
+<li>
+<p><code>V$SEGMENT_STATISTICS:</code> This is a user-friendly view of statistic values. In addition to all the columns of <code>V$SEGSTAT</code>, it has information about such things as the segment owner and table space name. It makes the statistics easy to understand, but it is more costly.</p>
+<div class="infoboxnotealso" id="GUID-6FC05277-C094-4DEE-8D0E-FA91D9DE1E23__GUID-4C748205-9996-430A-9774-055F70D20FB4">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN003" target="_blank" href="../REFRN/GUID-8C5690B0-DE10-4460-86DF-80111869CF4C.htm#REFRN003"><span class="italic">Oracle Database Reference</span></a> for information about dynamic performance views</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGDBA94460"></a>
+<div class="props_rev_3"><a id="GUID-AA7607E6-8A86-4A54-88B7-161CA970D052"></a>
+<h3 id="TGDBA-GUID-AA7607E6-8A86-4A54-88B7-161CA970D052" class="sect3">Implement and Measure Change</h3>
+<div>
+<p>Often at the end of a tuning exercise, it is possible to identify two or three changes that could potentially alleviate the problem. To identify which change provides the most benefit, it is recommended that only one change be implemented at a time. The effect of the change should be measured against the baseline data measurements found in the problem definition phase.</p>
+<p>Typically, most sites with dire performance problems implement several overlapping changes at once, and thus cannot identify which changes provided any benefit. Although this is not immediately an issue, this becomes a significant hindrance if similar problems subsequently appear, because it is not possible to know which of the changes provided the most benefit and which efforts to prioritize.</p>
+<p>If it is not possible to implement changes separately, then try to measure the effects of dissimilar changes. For example, measure the effect of making an initialization change to optimize redo generation separately from the effect of creating a new index to improve the performance of a modified query. It is impossible to measure the benefit of performing an operating system upgrade if SQL is tuned, the operating system disk layout is changed, and the initialization parameters are also changed at the same time.</p>
+<p>Performance tuning is an iterative process. It is unlikely to find a &#39;silver bullet&#39; that solves an instance-wide performance problem. In most cases, excellent performance requires iteration through the performance tuning phases, because solving one bottleneck often uncovers another (sometimes worse) problem.</p>
+<p>Knowing when to stop tuning is also important. The best measure of performance is user perception, rather than how close the statistic is to an ideal value.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA02405"></a>
+<div class="props_rev_3"><a id="GUID-1335E243-77FE-4411-92CB-74F93DD23609"></a>
+<h2 id="TGDBA-GUID-1335E243-77FE-4411-92CB-74F93DD23609" class="sect2">Interpreting Oracle Database Statistics</h2>
+<div>
+<p>Gather statistics that cover the time when the instance had the performance problem. If you previously captured baseline data for comparison, then you can compare the current data to the data from the baseline that most represents the problem workload.</p>
+<p>When comparing two reports, ensure that the two reports are from times where the system was running comparable workloads.</p>
+</div>
+<a id="TGDBA94461"></a>
+<div class="props_rev_3"><a id="GUID-8428E4EC-A0F7-4BFA-AC3D-67F4E508A486"></a>
+<h3 id="TGDBA-GUID-8428E4EC-A0F7-4BFA-AC3D-67F4E508A486" class="sect3">Examine Load</h3>
+<div>
+<p>Usually, wait events are the first data examined. However, if you have a baseline report, then check to see if the load has changed. Regardless of whether you have a baseline, it is useful to see whether the resource usage rates are high.</p>
+<p>Load-related statistics to examine include <code>redo</code> <code>size</code>, <code>session</code> <code>logical</code> <code>reads</code>, <code>db</code> <code>block</code> <code>changes</code>, <code>physical</code> <code>reads</code>, <code>physical read total bytes, physical</code> <code>writes</code>, <code>physical write total bytes, parse</code> <code>count</code> (<code>total</code>), <code>parse</code> <code>count</code> (<code>hard</code>), and <code>user</code> <code>calls</code>. This data is queried from <code>V$SYSSTAT</code>. It is best to normalize this data over seconds and over transactions. It is also useful to examine the total I/O load in MB per second by using the sum of physical read total bytes and physical write total bytes. The combined value includes the I/O&#39;s used to buffer cache, redo logs, archive logs, by Recovery Manager (RMAN) backup and recovery and any Oracle Database background process.</p>
+<p>In the AWR report, look at the Load Profile section. The data has been normalized over transactions and over seconds.</p>
+<div class="section">
+<p class="subhead3">Changing Load</p>
+<p>The load profile statistics over seconds show the changes in throughput (that is, whether the instance is performing more work each second). The statistics over transactions identify changes in the application characteristics by comparing these to the corresponding statistics from the baseline report.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">High Rates of Activity</p>
+<p>Examine the statistics normalized over seconds to identify whether the rates of activity are very high. It is difficult to make blanket recommendations on high values, because the thresholds are different on each site and are contingent on the application characteristics, the number and speed of CPUs, the operating system, the I/O system, and the Oracle Database release.</p>
+<p>The following are some generalized examples (acceptable values vary at each site):</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A hard parse rate of more than 100 a second indicates that there is a very high amount of hard parsing on the system. High hard parse rates cause serious performance issues and must be investigated. Usually, a high hard parse rate is accompanied by <a id="d20882e1828" class="indexterm-anchor"></a><a id="d20882e1832" class="indexterm-anchor"></a>latch contention on the shared pool and library cache latches.</p>
+</li>
+<li>
+<p>Check whether the sum of the wait times for library cache and shared pool latch events (latch: library cache, latch: library cache pin, latch: library cache lock and latch: shared pool) is significant compared to statistic <code>DB</code> <code>time</code> found in <code>V$SYSSTAT</code>. If so, examine the <code>SQL</code> <code>ordered</code> <code>by</code> <code>Parse</code> <code>Calls</code> section of the AWR report.</p>
+</li>
+<li>
+<p>A high soft parse rate could be in the rate of 300 a second or more. Unnecessary soft parses also limit application scalability. Optimally, a SQL statement should be soft parsed once in each session and executed many times.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94464"></a>
+<div class="props_rev_3"><a id="GUID-03F070F3-81DF-4649-820C-DAD28AEF0871"></a>
+<h3 id="TGDBA-GUID-03F070F3-81DF-4649-820C-DAD28AEF0871" class="sect3">Using Wait Event Statistics to Drill Down to Bottlenecks</h3>
+<div>
+<div class="section">
+<p>Whenever an Oracle process waits for something, it records the wait using one of a set of predefined wait events. These wait events are grouped in wait classes. The Idle wait class groups all events that a process waits for when it does not have work to do and is waiting for more work to perform. Non-idle events indicate nonproductive time spent waiting for a resource or action to complete.</p>
+<div class="infobox-note" id="GUID-03F070F3-81DF-4649-820C-DAD28AEF0871__GUID-0A48D124-CAEA-407E-96CD-1AC9587492BD">
+<p class="notep1">Note:</p>
+<p>Not all symptoms can be evidenced by wait events. See <span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-07836086-3C62-4A4A-8392-25A8C34C4A66">Additional Statistics</a>&#34;</span> for the statistics that can be checked.</p>
+</div>
+<p>The most effective way to use wait event data is to order the events by the wait time. This is only possible if <code>TIMED_STATISTICS</code> is set to <code>true</code>. Otherwise, the wait events can only be ranked by the number of times waited, which is often not the ordering that best represents the problem.</p>
+<div class="infoboxnotealso" id="GUID-03F070F3-81DF-4649-820C-DAD28AEF0871__GUID-76354CB8-F3AD-40EE-8D77-56B8C95C9FD5">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-2CC2320F-4CAA-4ECD-82C4-0A5FC4C9EF64">Setting the Level of Statistics Collection</a>&#34;</span> for information about <code>STATISTICS_LEVEL</code> settings</p>
+</li>
+<li>
+<p><a class="olink REFRN10214" target="_blank" href="../REFRN/GUID-16B23F95-8644-407A-A6C8-E85CADFA61FF.htm#REFRN10214"><span class="italic">Oracle Database Reference</span></a> for information about the <code>STATISTICS_LEVEL</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+<p>To get an indication of where time is spent, follow these steps:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ol>
+<li>
+<p>Examine the data collection for <code>V$SYSTEM_EVENT</code>. The events of interest should be ranked by wait time.</p>
+<p>Identify the wait events that have the most significant percentage of wait time. To determine the percentage of wait time, add the total wait time for all wait events, excluding idle events, such as <code>Null</code> <code>event</code>, <code>SQL*Net</code> <code>message</code> <code>from</code> <code>client</code>, <code>SQL*Net</code> <code>message</code> <code>to</code> <code>client</code>, and <code>SQL*Net</code> <code>more</code> <code>data</code> <code>to</code> <code>client</code>. Calculate the relative percentage of the five most prominent events by dividing each event&#39;s wait time by the total time waited for all events.</p>
+<div class="infoboxnotealso" id="GUID-03F070F3-81DF-4649-820C-DAD28AEF0871__GUID-0A109C41-666F-45BF-8D13-1A7B6B229648">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-34B5BAAB-02ED-402E-877F-AFF7945C2A8F">Idle Wait Events</a>&#34;</span> for the list of idle wait events</p>
+</li>
+<li>
+<p>Description of the <code>V$EVENT_NAME</code> view in <a class="olink REFRN30079" target="_blank" href="../REFRN/GUID-5C6F3606-5C6F-4E57-A149-DF3385092B54.htm#REFRN30079"><span class="italic">Oracle Database Reference</span></a></p>
+</li>
+<li>
+<p>Detailed wait event information in <a class="olink REFRN101" target="_blank" href="../REFRN/GUID-03BFEEFB-1020-4F3F-8CF8-A23E7026684B.htm#REFRN101"><span class="italic">Oracle Database Reference</span></a></p>
+</li>
+</ul>
+</div>
+<p>Alternatively, look at the Top 5 Timed Events section at the beginning of the Automatic Workload Repository report. This section automatically orders the wait events (omitting idle events), and calculates the relative percentage:</p>
+<pre dir="ltr">Top 5 Timed Events
+~~~~~~~~~~~~~~~~~~                                                % Total
+Event                                         Waits    Time (s) Call Time
+-------------------------------------- ------------ ----------- ---------
+CPU time                                                    559     88.80
+log file parallel write                       2,181          28      4.42
+SQL*Net more data from client               516,611          27      4.24
+db file parallel write                       13,383          13      2.04
+db file sequential read                         563           2       .27
+</pre>
+<p>In some situations, there might be a few events with similar percentages. This can provide extra evidence if all the events are related to the same type of resource request (for example, all I/O related events).</p>
+</li>
+<li>
+<p>Look at the number of waits for these events, and the average wait time. For example, for I/O related events, the average time might help identify whether the I/O system is slow. The following example of this data is taken from the Wait Event section of the AWR report:</p>
+<pre dir="ltr">                                                             Avg
+                                                Total Wait   wait     Waits
+Event                           Waits  Timeouts   Time (s)   (ms)      /txn
+--------------------------- --------- --------- ---------- ------ ---------
+log file parallel write         2,181         0         28     13      41.2
+SQL*Net more data from clie   516,611         0         27      0   9,747.4
+db file parallel write         13,383         0         13      1     252.5
+</pre></li>
+<li>
+<p>The top wait events identify the next places to investigate. A table of common wait events is listed in <a href="pfgrf_instance_tune.htm#GUID-BB5A0533-F6F2-413C-A56D-A8BDB870536B__g44034" title="This table links wait events to potential causes and gives an overview of the Oracle data that could be most useful to review next.">Table 10-1</a>. It is usually a good idea to also have quick look at high-load SQL.</p>
+</li>
+<li>
+<p>Examine the related data indicated by the wait events to see what other information this data provides. Determine whether this information is consistent with the wait event data. In most situations, there is enough data to begin developing a theory about the potential causes of the performance bottleneck.</p>
+</li>
+<li>
+<p>To determine whether this theory is valid, cross-check data you have examined with other statistics available for consistency. The appropriate statistics vary depending on the problem, but usually include load profile-related data in <code>V$SYSSTAT</code>, operating system statistics, and so on. Perform cross-checks with other data to confirm or refute the developing theory.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94466"></a><a id="TGDBA94465"></a>
+<div class="props_rev_3"><a id="GUID-BB5A0533-F6F2-413C-A56D-A8BDB870536B"></a>
+<h3 id="TGDBA-GUID-BB5A0533-F6F2-413C-A56D-A8BDB870536B" class="sect3">Table of Wait Events and Potential Causes</h3>
+<div>
+<p><a href="pfgrf_instance_tune.htm#GUID-BB5A0533-F6F2-413C-A56D-A8BDB870536B__g44034" title="This table links wait events to potential causes and gives an overview of the Oracle data that could be most useful to review next.">Table 10-1</a> links wait events to possible causes and gives an overview of the Oracle data that could be most useful to review next.</p>
+<div class="tblformal" id="GUID-BB5A0533-F6F2-413C-A56D-A8BDB870536B__g44034">
+<p class="titleintable">Table 10-1 Wait Events and Potential Causes</p>
+<table class="cellalignment11" title="Wait Events and Potential Causes" summary="This table links wait events to potential causes and gives an overview of the Oracle data that could be most useful to review next.">
+<thead>
+<tr class="cellalignment2">
+<th class="cellalignment77" id="d20882e2113">Wait Event</th>
+<th class="cellalignment77" id="d20882e2116">General Area</th>
+<th class="cellalignment78" id="d20882e2119">Possible Causes</th>
+<th class="cellalignment79" id="d20882e2122">Look for / Examine</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e2127" headers="d20882e2113">
+<p><code>buffer busy waits</code></p>
+</td>
+<td class="cellalignment80" headers="d20882e2127 d20882e2116">
+<p>Buffer cache, DBWR</p>
+</td>
+<td class="cellalignment81" headers="d20882e2127 d20882e2119">
+<p>Depends on buffer type. For example, waits for an index block may be caused by a primary key that is based on an ascending sequence.</p>
+</td>
+<td class="cellalignment82" headers="d20882e2127 d20882e2122">
+<p>Examine <code>V$SESSION</code> while the problem is occurring to determine the type of block in contention.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e2145" headers="d20882e2113">
+<p><code>free buffer waits</code></p>
+</td>
+<td class="cellalignment80" headers="d20882e2145 d20882e2116">
+<p>Buffer cache, DBWR, I/O</p>
+</td>
+<td class="cellalignment81" headers="d20882e2145 d20882e2119">
+<p>Slow DBWR (possibly due to I/O?)</p>
+<p>Cache too small</p>
+</td>
+<td class="cellalignment82" headers="d20882e2145 d20882e2122">
+<p>Examine write time using operating system statistics. Check buffer cache statistics for evidence of too small cache.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e2162" headers="d20882e2113">
+<p><code>db file scattered read</code></p>
+</td>
+<td class="cellalignment80" headers="d20882e2162 d20882e2116">
+<p>I/O, SQL statement tuning</p>
+</td>
+<td class="cellalignment81" headers="d20882e2162 d20882e2119">
+<p>Poorly tuned SQL</p>
+<p>Slow I/O system</p>
+</td>
+<td class="cellalignment82" headers="d20882e2162 d20882e2122">
+<p>Investigate <code>V$SQLAREA</code> to see whether there are SQL statements performing many disk reads. Cross-check I/O system and <code>V$FILESTAT</code> for poor read time.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e2185" headers="d20882e2113">
+<p><code>db file sequential read</code></p>
+</td>
+<td class="cellalignment80" headers="d20882e2185 d20882e2116">
+<p>I/O, SQL statement tuning</p>
+</td>
+<td class="cellalignment81" headers="d20882e2185 d20882e2119">
+<p>Poorly tuned SQL</p>
+<p>Slow I/O system</p>
+</td>
+<td class="cellalignment82" headers="d20882e2185 d20882e2122">
+<p>Investigate <code>V$SQLAREA</code> to see whether there are SQL statements performing many disk reads. Cross-check I/O system and <code>V$FILESTAT</code> for poor read time.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e2208" headers="d20882e2113">
+<p><code>enqueue</code> waits (waits starting with <code>enq:</code>)</p>
+</td>
+<td class="cellalignment80" headers="d20882e2208 d20882e2116">
+<p>Locks</p>
+</td>
+<td class="cellalignment81" headers="d20882e2208 d20882e2119">
+<p>Depends on type of enqueue</p>
+</td>
+<td class="cellalignment82" headers="d20882e2208 d20882e2122">
+<p>Look at <code>V$ENQUEUE_STAT</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e2229" headers="d20882e2113">
+<p>library cache latch waits: <code>library</code> <code>cache</code>, <code>library</code> <code>cache</code> <code>pin</code>, and <code>library</code> <code>cache</code> <code>lock</code></p>
+</td>
+<td class="cellalignment80" headers="d20882e2229 d20882e2116">
+<p>Latch contention</p>
+</td>
+<td class="cellalignment81" headers="d20882e2229 d20882e2119">
+<p>SQL parsing or sharing</p>
+</td>
+<td class="cellalignment82" headers="d20882e2229 d20882e2122">
+<p>Check <code>V$SQLAREA</code> to see whether there are SQL statements with a relatively high number of parse calls or a high number of child cursors (column <code>VERSION_COUNT</code>). Check parse statistics in <code>V$SYSSTAT</code> and their corresponding rate for each second.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e2277" headers="d20882e2113">
+<p><code>log buffer space</code></p>
+</td>
+<td class="cellalignment80" headers="d20882e2277 d20882e2116">
+<p>Log buffer, I/O</p>
+</td>
+<td class="cellalignment81" headers="d20882e2277 d20882e2119">
+<p>Log buffer small</p>
+<p>Slow I/O system</p>
+</td>
+<td class="cellalignment82" headers="d20882e2277 d20882e2122">
+<p>Check the statistic <code>redo</code> <code>buffer</code> <code>allocation</code> <code>retries</code> in <code>V$SYSSTAT</code>. Check configuring log buffer section in configuring memory chapter. Check the disks that house the online redo logs for resource contention.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e2309" headers="d20882e2113">
+<p><code>log file sync</code></p>
+</td>
+<td class="cellalignment80" headers="d20882e2309 d20882e2116">
+<p>I/O, over- committing</p>
+</td>
+<td class="cellalignment81" headers="d20882e2309 d20882e2119">
+<p>Slow disks that store the online logs</p>
+<p>Un-batched commits</p>
+</td>
+<td class="cellalignment82" headers="d20882e2309 d20882e2122">
+<p>Check the disks that house the online redo logs for resource contention. Check the number of transactions (<code>commits</code> + <code>rollbacks</code>) each second, from <code>V$SYSSTAT</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<p>You may also want to review the My Oracle Support notices on <code>buffer</code> <code>busy</code> <code>waits</code> (34405.1) and <code>free</code> <code>buffer</code> <code>waits</code> (62172.1). You can also access these notices and related notices by searching for &#34;busy buffer waits&#34; and &#34;free buffer waits&#34; at:</p>
+<pre dir="ltr">http://support.oracle.com/
+</pre>
+<div class="infoboxnotealso" id="GUID-BB5A0533-F6F2-413C-A56D-A8BDB870536B__GUID-9D5D710F-A0C4-4DD6-B44F-6ACD55DC9B00">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-386931AB-A199-41E8-A20C-7317A4FDCACC">Wait Events Statistics</a>&#34;</span> for detailed information on each event listed in <a href="pfgrf_instance_tune.htm#GUID-BB5A0533-F6F2-413C-A56D-A8BDB870536B__g44034" title="This table links wait events to potential causes and gives an overview of the Oracle data that could be most useful to review next.">Table 10-1</a> and for other information to cross-check</p>
+</li>
+<li>
+<p><a class="olink REFRN003" target="_blank" href="../REFRN/GUID-8C5690B0-DE10-4460-86DF-80111869CF4C.htm#REFRN003"><span class="italic">Oracle Database Reference</span></a> for information about dynamic performance views</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94467"></a>
+<div class="props_rev_3"><a id="GUID-07836086-3C62-4A4A-8392-25A8C34C4A66"></a>
+<h3 id="TGDBA-GUID-07836086-3C62-4A4A-8392-25A8C34C4A66" class="sect3">Additional Statistics</h3>
+<div>
+<p>There are several statistics that can indicate performance problems that do not have corresponding wait events.</p>
+<div class="section">
+<p class="subhead3">Redo Log Space Requests Statistic</p>
+<p>The <code>V$SYSSTAT</code> statistic <code>redo</code> <code>log</code> <code>space</code> <code>requests</code> indicates how many times a server process had to wait for space in the online redo log, not for space in the redo log buffer. Use this statistic and the wait events as an indication that you must tune checkpoints, DBWR, or archiver activity, not LGWR. Increasing the size of the log buffer does not help.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Read Consistency</p>
+<p><a id="d20882e2440" class="indexterm-anchor"></a><a id="d20882e2442" class="indexterm-anchor"></a>Your system might spend excessive time rolling back changes to blocks in order to maintain a consistent view. Consider the following scenarios:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If there are many small transactions and an active long-running query is running in the background on the same table where the changes are happening, then the query might need to roll back those changes often, in order to obtain a read-consistent image of the table. Compare the following <code>V$SYSSTAT</code> statistics to determine whether this is happening:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>consistent</code>: <code>changes</code> statistic indicates the number of times a database block has rollback entries applied to perform a consistent read on the block. Workloads that produce a great deal of <code>consistent</code> <code>changes</code> can consume a great deal of resources.</p>
+</li>
+<li>
+<p><code>consistent gets</code>: statistic counts the number of logical reads in consistent mode.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>If there are few very, large rollback segments, then your system could be spending a lot of time rolling back the transaction table during delayed block cleanout in order to find out exactly which system change number (SCN) a transaction was committed. When Oracle Database commits a transaction, all modified blocks are not necessarily updated with the commit SCN immediately. In this case, it is done later on demand when the block is read or updated. This is called delayed<a id="d20882e2477" class="indexterm-anchor"></a> block cleanout.</p>
+<p>The ratio of the following <code>V$SYSSTAT</code> statistics should be close to one:</p>
+<pre dir="ltr">ratio = transaction tables consistent reads - undo records applied /
+        transaction tables consistent read rollbacks
+</pre>
+<p>The recommended solution is to use automatic undo management.</p>
+</li>
+<li>
+<p>If there are insufficient rollback segments, then there is rollback segment (header or block) contention. Evidence of this problem is available by the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Comparing the number of <code>WAITS</code> to the number of <code>GETS</code> in <code>V$ROLLSTAT</code>; the proportion of <code>WAITS</code> to <code>GETS</code> should be small.</p>
+</li>
+<li>
+<p>Examining <code>V$WAITSTAT</code> to see whether there are many <code>WAITS</code> for buffers of <code>CLASS</code> &#39;<code>undo</code> <code>header</code>&#39;.</p>
+</li>
+</ul>
+<p>The recommended solution is to use automatic undo management.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Table Fetch by Continued Row</p>
+<p>You can detect migrated or chained rows by checking the number of <code>table</code> <code>fetch</code> <code>continued</code> <code>row</code> statistic in <code>V$SYSSTAT</code>. A small number of chained rows (less than 1%) is unlikely to impact system performance. However, a large percentage of chained rows can affect performance.</p>
+<p>Chaining on rows larger than the block size is inevitable. Consider using a tablespace with a larger block size for such data.</p>
+<p>However, for smaller rows, you can avoid chaining by using sensible space parameters and good application design. For example, do <span class="italic">not</span> insert a row with key values filled in and nulls in most other columns, then update that row with the real data, causing the row to grow in size. Rather, insert rows filled with data from the start.</p>
+<p><a id="d20882e2559" class="indexterm-anchor"></a><a id="d20882e2561" class="indexterm-anchor"></a>If an <code>UPDATE</code> statement increases the amount of data in a row so that the row no longer fits in its data block, then Oracle Database tries to find another block with enough free space to hold the entire row. If such a block is available, then Oracle Database moves the entire row to the new block. This operation is called <span class="bold">row migration</span>. If the row is too large to fit into any available block, then the database splits the row into multiple pieces and stores each piece in a separate block. This operation is called <span class="bold">row chaining</span>. The database can also chain rows when they are inserted.</p>
+<p>Migration and chaining are especially detrimental to performance with the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>UPDATE</code> statements that cause migration and chaining to perform poorly</p>
+</li>
+<li>
+<p>Queries that select migrated or chained rows because these must perform additional input and output</p>
+</li>
+</ul>
+<p>The definition of a sample output table named <code>CHAINED_ROWS</code> appears in a SQL script available on your distribution medium. The common name of this script is <code>UTLCHN1</code>.<code>SQL</code>, although its exact name and location varies depending on your platform. Your output table must have the same column names, data types, and sizes as the <code>CHAINED_ROWS</code> table.</p>
+<p>Increasing <code>PCTFREE</code> can help to avoid migrated rows. If you leave more free space available in the block, then the row has room to grow. You can also reorganize or re-create tables and indexes that have high deletion rates. If tables frequently have rows deleted, then data blocks can have partially free space in them. If rows are inserted and later expanded, then the inserted rows might land in blocks with deleted rows but still not have enough room to expand. Reorganizing the table ensures that the main free space is totally empty blocks.</p>
+<div class="infobox-note" id="GUID-07836086-3C62-4A4A-8392-25A8C34C4A66__GUID-F57C6C5C-C312-4393-B383-912BA3EF5BA3">
+<p class="notep1">Note:</p>
+<p><code>PCTUSED</code> is not the opposite of <code>PCTFREE</code>.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-07836086-3C62-4A4A-8392-25A8C34C4A66__GUID-97402459-3DB2-41FF-9AE9-87AD4EC22C08">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT" target="_blank" href="../CNCPT/toc.htm"><span class="italic">Oracle Database Concepts</span></a> for more information on <code>PCTUSED</code></p>
+</li>
+<li>
+<p><a class="olink ADMIN" target="_blank" href="../ADMIN/toc.htm"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to learn how to reorganize tables</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Parse-Related Statistics</p>
+<p>The more your application parses, the more potential for contention exists, and the more time your system spends waiting. If <code>parse</code> <code>time</code> <code>CPU</code> represents a large percentage of the CPU time, then time is being spent parsing instead of executing statements. If this is the case, then it is likely that the application is using literal SQL and so SQL cannot be shared, or the shared pool is poorly configured.</p>
+<p>There are several statistics available to identify the extent of time spent parsing by Oracle. Query the parse related statistics from <code>V$SYSSTAT</code>. For example:</p>
+<pre dir="ltr">SELECT NAME, VALUE
+  FROM V$SYSSTAT
+ WHERE NAME IN (  &#39;parse time cpu&#39;, &#39;parse time elapsed&#39;,
+                  &#39;parse count (hard)&#39;, &#39;CPU used by this session&#39; );
+</pre>
+<p>There are various ratios that can be computed to assist in determining whether parsing may be a problem:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>parse time CPU / parse time elapsed</p>
+<p>This ratio indicates how much of the time spent parsing was due to the parse operation itself, rather than waiting for resources, such as latches. A ratio of one is good, indicating that the elapsed time was not spent waiting for highly contended resources.</p>
+</li>
+<li>
+<p>parse time CPU / CPU used by this session</p>
+<p>This ratio indicates how much of the total CPU used by Oracle server processes was spent on parse-related operations. A ratio closer to zero is good, indicating that the majority of CPU is not spent on parsing.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA02410"></a>
+<div class="props_rev_3"><a id="GUID-386931AB-A199-41E8-A20C-7317A4FDCACC"></a>
+<h2 id="TGDBA-GUID-386931AB-A199-41E8-A20C-7317A4FDCACC" class="sect2">Wait Events Statistics</h2>
+<div>
+<p>The <code>V$SESSION</code>, <code>V$SESSION_WAIT</code>, <code>V$SESSION_HISTORY</code>, <code>V$SESSION_EVENT</code>, and <code>V$SYSTEM_EVENT</code> views provide information on what resources were waited for, and, if the configuration parameter <code>TIMED_STATISTICS</code> is set to <code>true</code>, how long each resource was waited for.</p>
+<div class="infoboxnotealso" id="GUID-386931AB-A199-41E8-A20C-7317A4FDCACC__GUID-0723389C-EDF4-41D7-85B6-C08FDBBFE280">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-2CC2320F-4CAA-4ECD-82C4-0A5FC4C9EF64">Setting the Level of Statistics Collection</a>&#34;</span> for information about <code>STATISTICS_LEVEL</code> settings</p>
+</li>
+<li>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for a description of the <code>V$</code> views and the Oracle wait events</p>
+</li>
+</ul>
+</div>
+<p>Investigate wait events and related timing data when performing reactive performance tuning. The events with the most time listed against them are often strong indications of the performance bottleneck.</p>
+<p>The following views contain related, but different, views of the same data:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>V$SESSION</code> lists session information for each current session. It lists either the event currently being waited for, or the event last waited for on each session. This view also contains information about blocking sessions, the wait state, and the wait time.</p>
+</li>
+<li>
+<p><code>V$SESSION_WAIT</code> is a current state view. It lists either the event currently being waited for, or the event last waited for on each session, the wait state, and the wait time.</p>
+</li>
+<li>
+<p><code>V$SESSION_WAIT_HISTORY</code> lists the last 10 wait events for each current session and the associated wait time.</p>
+</li>
+<li>
+<p><code>V$SESSION_EVENT</code> lists the cumulative history of events waited for on each session. After a session exits, the wait event statistics for that session are removed from this view.</p>
+</li>
+<li>
+<p><code>V$SYSTEM_EVENT</code> lists the events and times waited for by the whole instance (that is, all session wait events data rolled up) since instance startup.</p>
+</li>
+</ul>
+<p>Because <code>V$SESSION_WAIT</code> is a current state view, it also contains a finer-granularity of information than <code>V$SESSION_EVENT</code> or <code>V$SYSTEM_EVENT</code>. It includes additional identifying data for the current event in three parameter columns: <code>P1</code>, <code>P2</code>, and <code>P3</code>.</p>
+<p>For example, <code>V$SESSION_EVENT</code> can show that session 124 (SID=124) had many waits on the <code>db</code> <code>file</code> <code>scattered</code> <code>read</code>, but it does not show which file and block number. However, <code>V$SESSION_WAIT</code> shows the file number in <code>P1</code>, the block number read in <code>P2</code>, and the number of blocks read in <code>P3</code> (<code>P1</code> and <code>P2</code> let you determine for which segments the wait event is occurring).</p>
+<p>This section concentrates on examples using <code>V$SESSION_WAIT</code>. However, Oracle recommends capturing performance data over an interval and keeping this data for performance and capacity analysis. This form of rollup data is queried from the <code>V$SYSTEM_EVENT</code> view by AWR.</p>
+<p>Most commonly encountered events are described in this chapter, listed in case-sensitive alphabetical order. Other event-related data to examine is also included. The case used for each event name is that which appears in the <code>V$SYSTEM_EVENT</code> view.</p>
+</div>
+<a id="TGDBA95374"></a>
+<div class="props_rev_3"><a id="GUID-B1B8C07C-7255-40DD-B75D-386BCA50B4D5"></a>
+<h3 id="TGDBA-GUID-B1B8C07C-7255-40DD-B75D-386BCA50B4D5" class="sect3">Changes to Wait Event Statistics from Past Releases</h3>
+<div>
+<p>Starting with Oracle Database 11<span class="italic">g</span>, Oracle Database accumulates wait counts and time outs for wait events (such as in the <code>V$SYSTEM_EVENT</code> view) differently than in past releases. Continuous waits for certain types of resources (such as enqueues) are internally divided into a set of shorter wait calls. In releases prior to Oracle Database 11<span class="italic">g</span>, each individual internal wait call was counted as a separate wait. Starting with Oracle Database 11<span class="italic">g</span>, a single resource wait is recorded as a single wait, irrespective of the number of internal time outs experienced by the session during the wait.</p>
+<p>This change allows Oracle Database to display a more representative wait count, and an accurate total time spent waiting for the resource. Time outs now refer to the resource wait, instead of the individual internal wait calls. This change also affects the average wait time and the maximum wait time. For example, if a user session must wait for an enqueue in order for a transaction row lock to update a single row in a table, and it takes 10 seconds to acquire the enqueue, Oracle Database breaks down the enqueue wait into 3-second wait calls. In this example, there will be three 3-second wait calls, followed by a 1-second wait call. From the session&#39;s perspective, however, there is only one wait on an enqueue.</p>
+<p>In releases prior to Oracle Database 11<span class="italic">g</span>, the <code>V$SYSTEM_EVENT</code> view would represent this wait scenario as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>TOTAL_WAITS</code>: 4 waits (three 3-second waits, one 1-second wait)</p>
+</li>
+<li>
+<p><code>TOTAL_TIMEOUTS</code>: 3 time outs (the first three waits time out and the enqueue is acquired during the final wait)</p>
+</li>
+<li>
+<p><code>TIME_WAITED</code>: 10 seconds (sum of the times from the 4 waits)</p>
+</li>
+<li>
+<p><code>AVERAGE_WAIT</code>: 2.5 seconds</p>
+</li>
+<li>
+<p><code>MAX_WAIT</code>: 3 seconds</p>
+</li>
+</ul>
+<p>Starting with Oracle Database 11<span class="italic">g</span>, this wait scenario is represented as:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>TOTAL_WAITS</code>: 1 wait (one 10-second wait)</p>
+</li>
+<li>
+<p><code>TOTAL_TIMEOUTS</code>: 0 time outs (the enqueue is acquired during the resource wait)</p>
+</li>
+<li>
+<p>TIME_WAITED: 10 seconds (time for the resource wait)</p>
+</li>
+<li>
+<p><code>AVERAGE_WAIT</code>: 10 seconds</p>
+</li>
+<li>
+<p><code>MAX_WAIT</code>: 10 seconds</p>
+</li>
+</ul>
+<p>The following common wait events are affected by this change:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enqueue waits (such as <code>enq: name - reason</code> waits)</p>
+</li>
+<li>
+<p>Library cache lock waits</p>
+</li>
+<li>
+<p>Library cache pin waits</p>
+</li>
+<li>
+<p>Row cache lock waits</p>
+</li>
+</ul>
+<p>The following statistics are affected by this change:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Wait counts</p>
+</li>
+<li>
+<p>Wait time outs</p>
+</li>
+<li>
+<p>Average wait time</p>
+</li>
+<li>
+<p>Maximum wait time</p>
+</li>
+</ul>
+<p>The following views are affected by this change:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>V$EVENT_HISTOGRAM</code></p>
+</li>
+<li>
+<p><code>V$EVENTMETRIC</code></p>
+</li>
+<li>
+<p><code>V$SERVICE_EVENT</code></p>
+</li>
+<li>
+<p><code>V$SERVICE_WAIT_CLASS</code></p>
+</li>
+<li>
+<p><code>V$SESSION_EVENT</code></p>
+</li>
+<li>
+<p><code>V$SESSION_WAIT</code></p>
+</li>
+<li>
+<p><code>V$SESSION_WAIT_CLASS</code></p>
+</li>
+<li>
+<p><code>V$SESSION_WAIT_HISTORY</code></p>
+</li>
+<li>
+<p><code>V$SYSTEM_EVENT</code></p>
+</li>
+<li>
+<p><code>V$SYSTEM_WAIT_CLASS</code></p>
+</li>
+<li>
+<p><code>V$WAITCLASSMETRIC</code></p>
+</li>
+<li>
+<p><code>V$WAITCLASSMETRIC_HISTORY</code></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-B1B8C07C-7255-40DD-B75D-386BCA50B4D5__GUID-C6EF4E14-9EB9-4D0E-B0E5-96AD6906D826">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for a description of the <code>V$SYSTEM_EVENT</code> view</p>
+</div>
+</div>
+</div>
+<a id="TGDBA94472"></a>
+<div class="props_rev_3"><a id="GUID-03401D0F-DB3E-49E5-89E0-2F2A6164A5C0"></a>
+<h3 id="TGDBA-GUID-03401D0F-DB3E-49E5-89E0-2F2A6164A5C0" class="sect3">buffer busy waits</h3>
+<div>
+<p><a id="d20882e3098" class="indexterm-anchor"></a><a id="d20882e3100" class="indexterm-anchor"></a>This wait indicates that there are some buffers in the buffer cache that multiple processes are attempting to access concurrently. Query <code>V$WAITSTAT</code> for the wait statistics for each class of buffer. Common buffer classes that have buffer busy waits include <code>data</code> <code>block</code>, <code>segment</code> <code>header</code>, <code>undo</code> <code>header</code>, and <code>undo</code> <code>block</code>.</p>
+<p>Check the following <code>V$SESSION_WAIT</code> parameter columns:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>P1</code>: File ID</p>
+</li>
+<li>
+<p><code>P2</code>: Block ID</p>
+</li>
+<li>
+<p><code>P3</code>: Class ID</p>
+</li>
+</ul>
+<div class="section">
+<p class="subhead3">Causes</p>
+<p>To determine the possible causes, first query <code>V$SESSION</code> to identify the value of <code>ROW_WAIT_OBJ#</code> when the session waits for <code>buffer</code> <code>busy</code> <code>waits</code>. For example:</p>
+<pre dir="ltr">SELECT row_wait_obj# 
+  FROM V$SESSION 
+ WHERE EVENT = &#39;buffer busy waits&#39;;
+</pre>
+<p>To identify the object and object type contended for, query <code>DBA_OBJECTS</code> using the value for <code>ROW_WAIT_OBJ#</code> that is returned from <code>V$SESSION</code>. For example:</p>
+<pre dir="ltr">SELECT owner, object_name, subobject_name, object_type
+  FROM DBA_OBJECTS
+ WHERE data_object_id = <span class="italic">&amp;row_wait_obj</span>;
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Actions</p>
+<p>The action required depends on the class of block contended for and the actual segment.</p>
+<p><span class="bold">Segment Header</span></p>
+<p>If the contention is on the segment header, then this is most likely free list contention.</p>
+<p><a id="d20882e3205" class="indexterm-anchor"></a>Automatic segment-space management in locally managed tablespaces eliminates the need to specify the <code>PCTUSED</code>, <code>FREELISTS</code>, and <code>FREELIST</code> <code>GROUPS</code> parameters. If possible, switch from manual space management to automatic segment-space management (ASSM).</p>
+<p>The following information is relevant if you are unable to use ASSM (for example, because the tablespace uses dictionary space management).</p>
+<p>A <a id="d20882e3224" class="indexterm-anchor"></a>free list is a list of free data blocks that usually includes blocks existing in several different extents within the segment. Free lists are composed of blocks in which free space has not yet reached PCTFREE or used space has shrunk below PCTUSED. Specify the number of process free lists with the <code>FREELISTS</code> parameter. The default value of <code>FREELISTS</code> is one. The maximum value depends on the data block size.</p>
+<p>To find the current setting for free lists for that segment, run the following:</p>
+<pre dir="ltr">SELECT SEGMENT_NAME, FREELISTS
+  FROM DBA_SEGMENTS
+ WHERE SEGMENT_NAME = <span class="italic">segment name</span>
+   AND SEGMENT_TYPE = <span class="italic">segment type</span>;
+</pre>
+<p>Set free lists, or increase the number of free lists. If adding more free lists does not alleviate the problem, then use free list groups (even in single instance this can make a difference). If using Oracle RAC, then ensure that each instance has its own free list group(s).</p>
+<div class="infoboxnotealso" id="GUID-03401D0F-DB3E-49E5-89E0-2F2A6164A5C0__GUID-919A6FB2-4AB2-414D-87F9-09B0EE2AABB1">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT" target="_blank" href="../CNCPT/toc.htm"><span class="italic">Oracle Database Concepts</span></a> for information about automatic segment-space management, free lists, <code>PCTFREE</code>, and <code>PCTUSED</code></p>
+</div>
+<p><span class="bold">Data Block</span></p>
+<p>If the contention is on tables or indexes (not the segment header):</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Check for right-hand indexes. These are indexes that are inserted into at the same point by many processes. For example, those that use sequence number generators for the key values.</p>
+</li>
+<li>
+<p>Consider using ASSM, global hash partitioned indexes, or increasing free lists to avoid multiple processes attempting to insert into the same block.</p>
+</li>
+</ul>
+<p><span class="bold">Undo Header</span></p>
+<p>For contention on rollback segment header:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If you are not using automatic undo management, then add more rollback segments.</p>
+</li>
+</ul>
+<p><span class="bold">Undo Block</span></p>
+<p>For contention on rollback segment block:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If you are not using automatic undo management, then consider making rollback segment sizes larger.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94479"></a>
+<div class="props_rev_3"><a id="GUID-E8F12EF9-B4A8-441F-9814-763BB793FAF9"></a>
+<h3 id="TGDBA-GUID-E8F12EF9-B4A8-441F-9814-763BB793FAF9" class="sect3">db file scattered read</h3>
+<div>
+<p>This event signifies that the user process is reading buffers into the SGA buffer cache and is waiting for a physical I/O call to return. A <code>db file scattered read</code> issues a scattered read to read the data into multiple discontinuous memory locations. A scattered read is usually a multiblock read. It can occur for a fast full scan (of an index) in addition to a full table scan.</p>
+<p><a id="d20882e3353" class="indexterm-anchor"></a><a id="d20882e3355" class="indexterm-anchor"></a><a id="d20882e3357" class="indexterm-anchor"></a>The <code>db</code> <code>file</code> <code>scattered</code> <code>read</code> wait event identifies that a full scan is occurring. When performing a full scan into the <a id="d20882e3375" class="indexterm-anchor"></a>buffer cache, the blocks read are read into memory locations that are not physically adjacent to each other. Such reads are called scattered read calls, because the blocks are scattered throughout memory. This is why the corresponding wait event is called &#39;db file scattered read&#39;. multiblock (up to <code>DB_FILE_MULTIBLOCK_READ_COUNT</code> blocks) reads due to full scans into the buffer cache show up as waits for &#39;db file scattered read&#39;.</p>
+<p>Check the following <code>V$SESSION_WAIT</code> parameter columns:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>P1</code>: The absolute file number</p>
+</li>
+<li>
+<p><code>P2</code>: The block being read</p>
+</li>
+<li>
+<p><code>P3</code>: The number of blocks (should be greater than 1)</p>
+</li>
+</ul>
+<div class="section">
+<p class="subhead3">Actions</p>
+<p><a id="d20882e3408" class="indexterm-anchor"></a><a id="d20882e3412" class="indexterm-anchor"></a>On a healthy system, physical read waits should be the biggest waits after the idle waits. However, also consider whether there are direct read waits (signifying full table scans with parallel query) or <code>db</code> <code>file</code> <code>scattered</code> <code>read</code> waits on an operational (OLTP) system that should be doing small indexed accesses.</p>
+<p>Other things that could indicate excessive I/O load on the system include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Poor buffer cache hit ratio</p>
+</li>
+<li>
+<p>These wait events accruing most of the wait time for a user experiencing poor response time</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section" id="GUID-E8F12EF9-B4A8-441F-9814-763BB793FAF9__ManagingExcessiveIO-F950BAC4">
+<p class="subhead3">Managing Excessive I/O</p>
+<p><a id="d20882e3442" class="indexterm-anchor"></a><a id="d20882e3446" class="indexterm-anchor"></a>There are several ways to handle excessive I/O waits. In the order of effectiveness, these are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Reduce the I/O activity by SQL tuning.</p>
+</li>
+<li>
+<p>Reduce the need to do I/O by managing the workload.</p>
+</li>
+<li>
+<p>Gather system statistics with <code>DBMS_STATS</code> package, allowing the query optimizer to accurately cost possible access paths that use full scans.</p>
+</li>
+<li>
+<p>Use Automatic Storage Management.</p>
+</li>
+<li>
+<p>Add more disks to reduce the number of I/Os for each disk.</p>
+</li>
+<li>
+<p>Alleviate I/O hot spots by redistributing I/O across existing disks.</p>
+</li>
+</ul>
+<p>The first course of action should be to find opportunities to reduce I/O. Examine the SQL statements being run by sessions waiting for these events and statements causing high physical I/Os from <code>V$SQLAREA</code>. Factors that can adversely affect the execution plans causing excessive I/O include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Improperly optimized SQL</p>
+</li>
+<li>
+<p>Missing indexes</p>
+</li>
+<li>
+<p>High degree of parallelism for the table (skewing the optimizer toward scans)</p>
+</li>
+<li>
+<p>Lack of accurate statistics for the optimizer</p>
+</li>
+<li>
+<p>Setting the value for <code>DB_FILE_MULTIBLOCK_READ_COUNT</code> initialization parameter too high which favors full scans</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Inadequate I/O Distribution</p>
+<p>Besides reducing I/O, also examine the I/O distribution of files across the disks. Is I/O distributed uniformly across the disks, or are there hot spots on some disks? Are the number of disks sufficient to meet the I/O needs of the database?</p>
+<p>See the total I/O operations (reads and writes) by the database, and compare those with the number of disks used. Remember to include the I/O activity of LGWR and ARCH processes.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Finding the SQL Statement executed by Sessions Waiting for I/O</p>
+<p><a id="d20882e3508" class="indexterm-anchor"></a><a id="d20882e3512" class="indexterm-anchor"></a>Use the following query to determine, at a point in time, which sessions are waiting for I/O:</p>
+<pre dir="ltr">SELECT SQL_ADDRESS, SQL_HASH_VALUE
+  FROM V$SESSION 
+ WHERE EVENT LIKE &#39;db file%read&#39;;  
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Finding the Object Requiring I/O</p>
+<p><a id="d20882e3523" class="indexterm-anchor"></a>To determine the possible causes, first query <code>V$SESSION</code> to identify the value of <code>ROW_WAIT_OBJ#</code> when the session waits for <code>db</code> <code>file</code> <code>scattered</code> <code>read</code>. For example:</p>
+<pre dir="ltr">SELECT row_wait_obj# 
+  FROM V$SESSION 
+ WHERE EVENT = &#39;db file scattered read&#39;;
+</pre>
+<p>To identify the object and object type contended for, query <code>DBA_OBJECTS</code> using the value for <code>ROW_WAIT_OBJ#</code> that is returned from <code>V$SESSION</code>. For example:</p>
+<pre dir="ltr">SELECT owner, object_name, subobject_name, object_type
+  FROM DBA_OBJECTS
+ WHERE data_object_id = <span class="italic">&amp;row_wait_obj</span>;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94487"></a><a id="TGDBA94485"></a>
+<div class="props_rev_3"><a id="GUID-798559B6-D708-419C-BF02-83530522E591"></a>
+<h3 id="TGDBA-GUID-798559B6-D708-419C-BF02-83530522E591" class="sect3">db file sequential read</h3>
+<div>
+<p><a id="d20882e3612" class="indexterm-anchor"></a><a id="d20882e3616" class="indexterm-anchor"></a>This event signifies that the user process is reading a buffer into the SGA <a id="d20882e3619" class="indexterm-anchor"></a>buffer cache and is waiting for a physical I/O call to return. A sequential read is a single-block read.</p>
+<p>Single block I/Os are usually the result of using indexes. Rarely, full table scan calls could get truncated to a single block call because of extent boundaries, or buffers present in the buffer cache. These waits would also show up as <code>db file sequential read</code>.</p>
+<p>Check the following <code>V$SESSION_WAIT</code> parameter columns:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>P1</code>: The absolute file number</p>
+</li>
+<li>
+<p><code>P2</code>: The block being read</p>
+</li>
+<li>
+<p><code>P3</code>: The number of blocks (should be 1)</p>
+<div class="infoboxnotealso" id="GUID-798559B6-D708-419C-BF02-83530522E591__GUID-3AF230F6-A5A6-4855-8AC9-CAF574397AC3">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;db file scattered read&#34;</span> for information about managing excessive I/O, inadequate I/O distribution, and finding the SQL causing the I/O and the segment the I/O is performed on</p>
+</div>
+</li>
+</ul>
+<div class="section">
+<p class="subhead3">Actions</p>
+<p><a id="d20882e3659" class="indexterm-anchor"></a><a id="d20882e3663" class="indexterm-anchor"></a><a id="d20882e3667" class="indexterm-anchor"></a>On a healthy system, physical read waits should be the biggest waits after the idle waits. However, also consider whether there are <code>db</code> <code>file</code> <code>sequential</code> <code>reads</code> on a large data warehouse that should be seeing mostly full table scans with parallel query.</p>
+<p><a href="pfgrf_instance_tune.htm#GUID-798559B6-D708-419C-BF02-83530522E591__i23087">Figure 10-1</a> depicts the differences between the following wait events:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>db</code> <code>file</code> <code>sequential</code> <code>read</code> (single block read into one SGA buffer)</p>
+</li>
+<li>
+<p><code>db</code> <code>file</code> <code>scattered</code> <code>read</code> (multiblock read into many discontinuous SGA buffers)</p>
+</li>
+<li>
+<p><code>direct</code> <code>read</code> (single or multiblock read into the PGA, bypassing the SGA)</p>
+</li>
+</ul>
+<div class="figure" id="GUID-798559B6-D708-419C-BF02-83530522E591__i23087">
+<p class="titleinfigure">Figure 10-1 Scattered Read, Sequential Read, and Direct Path Read</p>
+<img width="638" height="410" src="img/GUID-1D08136C-F403-4E6F-A915-0993C2CD2E5C-default.png" alt="Description of Figure 10-1 follows" title="Description of Figure 10-1 follows"/><br/>
+<a href="img_text/GUID-1D08136C-F403-4E6F-A915-0993C2CD2E5C-print.htm">Description of &#34;Figure 10-1 Scattered Read, Sequential Read, and Direct Path Read&#34;</a></div>
+<!-- class="figure" --></div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94488"></a>
+<div class="props_rev_3"><a id="GUID-2833BD11-FDF6-4134-A0DD-62E8CB32AE2C"></a>
+<h3 id="TGDBA-GUID-2833BD11-FDF6-4134-A0DD-62E8CB32AE2C" class="sect3">direct path read and direct path read temp</h3>
+<div>
+<p><a id="d20882e3771" class="indexterm-anchor"></a><a id="d20882e3775" class="indexterm-anchor"></a>When a session is reading buffers from disk directly into the P<a id="d20882e3780" class="indexterm-anchor"></a>GA (opposed to the buffer cache in SGA), it waits on this event. If the I/O subsystem does not support asynchronous I/Os, then each wait corresponds to a physical read request.</p>
+<p>If the I/O subsystem supports asynchronous I/O, then the process is able to overlap issuing read requests with processing the blocks existing in the PGA. When the process attempts to access a block in the PGA that has not yet been read from disk, it then issues a wait call and updates the statistics for this event. Hence, the number of waits is not necessarily the same as the number of read requests (unlike <code>db</code> <code>file</code> <code>scattered</code> <code>read</code> and <code>db</code> <code>file</code> <code>sequential</code> <code>read</code>).</p>
+<p>Check the following <code>V$SESSION_WAIT</code> parameter columns:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>P1</code>: File_id for the read call</p>
+</li>
+<li>
+<p><code>P2</code>: Start block_id for the read call</p>
+</li>
+<li>
+<p><code>P3</code>: Number of blocks in the read call</p>
+</li>
+</ul>
+<div class="section">
+<p class="subhead3">Causes</p>
+<p><a id="d20882e3837" class="indexterm-anchor"></a>This situation occurs in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The sorts are too large to fit in memory and some of the sort data is written out directly to disk. This data is later read back in, using direct reads.</p>
+</li>
+<li>
+<p>Parallel execution servers are used for scanning data.</p>
+</li>
+<li>
+<p>The server process is processing buffers faster than the I/O system can return the buffers. This can indicate an overloaded I/O system.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Actions</p>
+<p>The <code>file_id</code> shows if the reads are for an object in <code>TEMP</code> tablespace (sorts to disk) or full table scans by parallel execution servers. This wait is the largest wait for large data warehouse sites. However, if the workload is not a Decision Support Systems (DSS) workload, then examine why this situation is happening.</p>
+<p><span class="bold">Sorts to Disk</span></p>
+<p>Examine the SQL statement currently being run by the session experiencing waits to see what is causing the sorts. Query <code>V$TEMPSEG_USAGE</code> to find the SQL statement that is generating the sort. Also query the statistics from <code>V$SESSTAT</code> for the session to determine the size of the sort. See if it is possible to reduce the sorting by tuning the SQL statement. If <code>WORKAREA_SIZE_POLICY</code> is <code>MANUAL</code>, then consider increasing the <code>SORT_AREA_SIZE</code> for the system (if the sorts are not too big) or for individual processes. If <code>WORKAREA_SIZE_POLICY</code> is <code>AUTO</code>, then investigate whether to increase <code>PGA_AGGREGATE_TARGET</code>.</p>
+<p><span class="bold">Full Table Scans</span></p>
+<p>If tables are defined with a high degree of parallelism, then this setting could skew the optimizer to use full table scans with parallel execution servers. Check the object being read into using the direct path reads. If the full table scans are a valid part of the workload, then ensure that the I/O subsystem is adequate for the degree of parallelism. Consider using disk striping if you are not already using it or Oracle Automatic Storage Management (Oracle ASM).</p>
+<p><span class="bold">Hash Area Size</span></p>
+<p>For query plans that call for a hash join, excessive I/O could result from having <code>HASH_AREA_SIZE</code> too small. If <code>WORKAREA_SIZE_POLICY</code> is <code>MANUAL</code>, then consider increasing the <code>HASH_AREA_SIZE</code> for the system or for individual processes. If <code>WORKAREA_SIZE_POLICY</code> is <code>AUTO</code>, then investigate whether to increase <code>PGA_AGGREGATE_TARGET</code>.</p>
+<div class="infoboxnotealso" id="GUID-2833BD11-FDF6-4134-A0DD-62E8CB32AE2C__GUID-AB02D51A-E19C-47FF-9322-245834D4B3F2">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;Managing Excessive I/O&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94494"></a>
+<div class="props_rev_3"><a id="GUID-EF32702E-D74B-49CB-B05F-CEC7A9613EF1"></a>
+<h3 id="TGDBA-GUID-EF32702E-D74B-49CB-B05F-CEC7A9613EF1" class="sect3">direct path write and direct path write temp</h3>
+<div>
+<p><a id="d20882e3974" class="indexterm-anchor"></a><a id="d20882e3978" class="indexterm-anchor"></a>When a process is writing buffers directly from <a id="d20882e3983" class="indexterm-anchor"></a>PGA (as opposed to the DBWR writing them from the buffer cache), the process waits on this event for the write call to complete. Operations that could perform direct path writes include sorts on disk, parallel DML operations, direct-path <code>INSERT</code>s, parallel create table as select, and some LOB operations.</p>
+<p>Like direct path reads, the number of waits is not the same as number of write calls issued if the I/O subsystem supports asynchronous writes. The session waits if it has processed all buffers in the PGA and cannot continue work until an I/O request completes.</p>
+<div class="infoboxnotealso" id="GUID-EF32702E-D74B-49CB-B05F-CEC7A9613EF1__GUID-A435A36E-412D-4A9C-9F4F-963D364284E1">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADMIN01509" target="_blank" href="../ADMIN/tables.htm#ADMIN01509"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for information about direct-path inserts</p>
+</div>
+<p>Check the following <code>V$SESSION_WAIT</code> parameter columns:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>P1</code>: File_id for the write call</p>
+</li>
+<li>
+<p><code>P2</code>: Start block_id for the write call</p>
+</li>
+<li>
+<p><code>P3</code>: Number of blocks in the write call</p>
+</li>
+</ul>
+<div class="section">
+<p class="subhead3">Causes</p>
+<p><a id="d20882e4025" class="indexterm-anchor"></a>This happens in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Sorts are too large to fit in memory and are written to disk</p>
+</li>
+<li>
+<p>Parallel DML are issued to create/populate objects</p>
+</li>
+<li>
+<p>Direct path loads</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Actions</p>
+<p><a id="d20882e4044" class="indexterm-anchor"></a>For large sorts see <span class="q">&#34;Sorts To Disk&#34;</span>.</p>
+<p>For parallel DML, check the I/O distribution across disks and ensure that the I/O subsystem is adequately configured for the degree of parallelism.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94497"></a>
+<div class="props_rev_3"><a id="GUID-95757696-4B7B-4D3F-A527-57BF0CCCC029"></a>
+<h3 id="TGDBA-GUID-95757696-4B7B-4D3F-A527-57BF0CCCC029" class="sect3">enqueue (enq:) waits</h3>
+<div>
+<p><a id="d20882e4100" class="indexterm-anchor"></a><a id="d20882e4102" class="indexterm-anchor"></a>Enqueues are locks that coordinate access to database resources. This event indicates that the session is waiting for a lock that is held by another session.</p>
+<p>The name of the enqueue is included as part of the wait event name, in the form <code>enq:</code> <code>enqueue</code>_<code>type</code> <code>-</code> <code>related</code>_<code>details</code>. In some cases, the same enqueue type can be held for different purposes, such as the following related <code>TX</code> types:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>enq:</code> <code>TX</code> <code>-</code> <code>allocate</code> <code>ITL</code> <code>entry</code></p>
+</li>
+<li>
+<p><code>enq:</code> <code>TX</code> <code>-</code> <code>contention</code></p>
+</li>
+<li>
+<p><code>enq:</code> <code>TX</code> <code>-</code> <code>index</code> <code>contention</code></p>
+</li>
+<li>
+<p><code>enq:</code> <code>TX</code> <code>-</code> <code>row</code> <code>lock</code> <code>contention</code></p>
+</li>
+</ul>
+<p>The <code>V$EVENT_NAME</code> view provides a complete list of all the <code>enq:</code> wait events.</p>
+<p>You can check the following <code>V$SESSION_WAIT</code> parameter columns for additional information:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>P1</code>: Lock <code>TYPE</code> (or name) and <code>MODE</code></p>
+</li>
+<li>
+<p><code>P2</code>: Resource identifier ID1 for the lock</p>
+</li>
+<li>
+<p><code>P3</code>: Resource identifier ID2 for the lock</p>
+<div class="infoboxnotealso" id="GUID-95757696-4B7B-4D3F-A527-57BF0CCCC029__GUID-D6AB37E8-2F26-4C71-B08D-D46734D3BCB7">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN102" target="_blank" href="../REFRN/GUID-94B7C247-F152-43EB-9482-35B35EDBA934.htm#REFRN102"><span class="italic">Oracle Database Reference</span></a> for information about Oracle Database enqueues</p>
+</div>
+</li>
+</ul>
+<div class="section">
+<p class="subhead3">Finding Locks and Lock Holders</p>
+<p>Query <code>V$LOCK</code> to find the sessions holding the lock. For every session waiting for the event enqueue, there is a row in <code>V$LOCK</code> with <code>REQUEST</code> &lt;&gt; <code>0</code>. Use one of the following two queries to find the sessions holding the locks and waiting for the locks.</p>
+<p>If there are enqueue waits, you can see these using the following statement:</p>
+<pre dir="ltr">SELECT * FROM V$LOCK WHERE request &gt; 0;
+</pre>
+<p>To show only holders and waiters for locks being waited on, use the following:</p>
+<pre dir="ltr">SELECT DECODE(request,0,&#39;Holder: &#39;,&#39;Waiter: &#39;) || 
+          sid sess, id1, id2, lmode, request, type
+   FROM V$LOCK
+ WHERE (id1, id2, type) IN (SELECT id1, id2, type FROM V$LOCK WHERE request &gt; 0)
+   ORDER BY id1, request;
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Actions</p>
+<p>The appropriate action depends on the type of enqueue.</p>
+<p>If the contended-for enqueue is the ST enqueue, then the problem is most likely to be dynamic space allocation. Oracle Database dynamically allocates an extent to a segment when there is no more free space available in the segment. This enqueue is only used for dictionary managed tablespaces.</p>
+<p>To solve contention on this resource:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Check to see whether the temporary (that is, sort) tablespace uses <code>TEMPFILES</code>. If not, then switch to using <code>TEMPFILES</code>.</p>
+</li>
+<li>
+<p>Switch to using locally managed tablespaces if the tablespace that contains segments that are growing dynamically is dictionary managed.</p>
+<div class="infoboxnotealso" id="GUID-95757696-4B7B-4D3F-A527-57BF0CCCC029__GUID-CFCE4334-9299-46AD-96F8-5E68183DB889">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT" target="_blank" href="../CNCPT/toc.htm"><span class="italic">Oracle Database Concepts</span></a> for detailed information on <code>TEMPFILE</code>s and locally managed tablespaces</p>
+</div>
+</li>
+<li>
+<p>If it is not possible to switch to locally managed tablespaces, then ST enqueue resource usage can be decreased by changing the next extent sizes of the growing objects to be large enough to avoid constant space allocation. To determine which segments are growing constantly, monitor the <code>EXTENTS</code> column of the <code>DBA_SEGMENTS</code> view for all <code>SEGMENT_NAMEs</code>. See <a class="olink ADMIN014" target="_blank" href="../ADMIN/schema.htm#ADMIN014"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for information about displaying information about space usage.</p>
+</li>
+<li>
+<p>Preallocate space in the segment, for example, by allocating extents using the <code>ALTER</code> <code>TABLE</code> <code>ALLOCATE</code> <code>EXTENT</code> SQL statement.</p>
+</li>
+</ul>
+<p>The HW enqueue is used to serialize the allocation of space beyond the high water mark of a segment.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>V$SESSION_WAIT.P2</code> / <code>V$LOCK.ID1</code> is the tablespace number.</p>
+</li>
+<li>
+<p><code>V$SESSION_WAIT.P3</code> / <code>V$LOCK.ID2</code> is the relative data block address (dba) of segment header of the object for which space is being allocated.</p>
+</li>
+</ul>
+<p>If this is a point of contention for an object, then manual allocation of extents solves the problem.</p>
+<p>The most common reason for waits on TM locks tend to involve foreign key constraints where the constrained columns are not indexed. Index the foreign key columns to avoid this problem.</p>
+<p>These are acquired exclusive when a transaction initiates its first change and held until the transaction does a <code>COMMIT</code> or <code>ROLLBACK</code>.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Waits for TX in mode 6: occurs when a session is waiting for a row level lock that is held by another session. This occurs when one user is updating or deleting a row, which another session wants to update or delete. This type of TX enqueue wait corresponds to the wait event <code>enq:</code> <code>TX</code> <code>-</code> <code>row</code> <code>lock</code> <code>contention</code>.</p>
+<p>The solution is to have the first session holding the lock perform a <code>COMMIT</code> or <code>ROLLBACK</code>.</p>
+</li>
+<li>
+<p>Waits for TX in mode 4 can occur if the session is waiting for an ITL (interested transaction list) slot in a block. This happens when the session wants to lock a row in the block but one or more other sessions have rows locked in the same block, and there is no free ITL slot in the block. Usually, Oracle Database dynamically adds another ITL slot. This may not be possible if there is insufficient free space in the block to add an ITL. If so, the session waits for a slot with a TX enqueue in mode 4. This type of TX enqueue wait corresponds to the wait event <code>enq:</code> <code>TX</code> <code>-</code> <code>allocate</code> <code>ITL</code> <code>entry</code>.</p>
+<p>The solution is to increase the number of ITLs available, either by changing the <code>INITRANS</code> or <code>MAXTRANS</code> for the table (either by using an <code>ALTER</code> statement, or by re-creating the table with the higher values).</p>
+</li>
+<li>
+<p>Waits for TX in mode 4 can also occur if a session is waiting due to potential duplicates in <code>UNIQUE</code> index. If two sessions try to insert the same key value the second session has to wait to see if an <code>ORA-0001</code> should be raised or not. This type of TX enqueue wait corresponds to the wait event <code>enq:</code> <code>TX</code> <code>-</code> <code>row</code> <code>lock</code> <code>contention</code>.</p>
+<p>The solution is to have the first session holding the lock perform a <code>COMMIT</code> or <code>ROLLBACK</code>.</p>
+</li>
+<li>
+<p>Waits for TX in mode 4 can also occur if the session is waiting due to shared bitmap index fragment. Bitmap indexes index key values and a range of rowids. Each entry in a bitmap index can cover many rows in the actual table. If two sessions want to update rows covered by the same bitmap index fragment, then the second session waits for the first transaction to either <code>COMMIT</code> or <code>ROLLBACK</code> by waiting for the TX lock in mode 4. This type of TX enqueue wait corresponds to the wait event <code>enq:</code> <code>TX</code> <code>-</code> <code>row</code> <code>lock</code> <code>contention</code>.</p>
+</li>
+<li>
+<p>Waits for TX in Mode 4 can also occur waiting for a <code>PREPARED</code> transaction.</p>
+</li>
+<li>
+<p>Waits for TX in mode 4 also occur when a transaction inserting a row in an index has to wait for the end of an index block split being done by another transaction. This type of TX enqueue wait corresponds to the wait event <code>enq:</code> <code>TX</code> <code>-</code> <code>index</code> <code>contention</code>.</p>
+<div class="infoboxnotealso" id="GUID-95757696-4B7B-4D3F-A527-57BF0CCCC029__GUID-C5288296-1FA6-454F-923A-06BCE40B28F5">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADFNS007" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS007"><span class="italic">Oracle Database Development Guide</span></a> for more information about referential integrity and locking data explicitly</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94504"></a>
+<div class="props_rev_3"><a id="GUID-B970776F-B94B-4610-93FE-9161ACB40D98"></a>
+<h3 id="TGDBA-GUID-B970776F-B94B-4610-93FE-9161ACB40D98" class="sect3">events in wait class other</h3>
+<div>
+<p>This event belong to Other wait class and typically should not occur on a system. This event is an aggregate of all other events in the Other wait class, such as <code>latch free</code>, and is used in the <code>V$SESSION_EVENT</code> and <code>V$SERVICE_EVENT</code> views only. In these views, the events in the Other wait class will not be maintained individually in every session. Instead, these events will be rolled up into this single event to reduce the memory used for maintaining statistics on events in the Other wait class.</p>
+</div>
+</div>
+<a id="TGDBA94505"></a>
+<div class="props_rev_3"><a id="GUID-01C9C892-4C0B-4524-82B3-146D1C191BDD"></a>
+<h3 id="TGDBA-GUID-01C9C892-4C0B-4524-82B3-146D1C191BDD" class="sect3">free buffer waits</h3>
+<div>
+<p><a id="d20882e4605" class="indexterm-anchor"></a><a id="d20882e4607" class="indexterm-anchor"></a>This wait event indicates that a server process was unable to find a free buffer and has posted the database writer to make free buffers by writing out dirty buffers. A dirty buffer is a buffer whose contents have been modified. Dirty buffers are freed for reuse when DBWR has written the blocks to disk.</p>
+<div class="section">
+<p class="subhead3">Causes</p>
+<p>DBWR may not be keeping up with writing dirty buffers in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The I/O system is slow.</p>
+</li>
+<li>
+<p>There are resources it is waiting for, such as latches.</p>
+</li>
+<li>
+<p>The buffer cache is so small that DBWR spends most of its time cleaning out buffers for server processes.</p>
+</li>
+<li>
+<p>The buffer cache is so big that one DBWR process is not enough to free enough buffers in the cache to satisfy requests.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Actions</p>
+<p>If this event occurs frequently, then examine the session waits for DBWR to see whether there is anything delaying DBWR.</p>
+<p>If it is waiting for writes, then determine what is delaying the writes and fix it. Check the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Examine <code>V$FILESTAT</code> to see where most of the writes are happening.</p>
+</li>
+<li>
+<p>Examine the host operating system statistics for the I/O system. Are the write times acceptable?</p>
+</li>
+</ul>
+<p>If I/O is slow:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Consider using faster I/O alternatives to speed up write times.</p>
+</li>
+<li>
+<p>Spread the I/O activity across large number of spindles (disks) and controllers.</p>
+</li>
+</ul>
+<p>It is possible DBWR is very active because the cache is too small. Investigate whether this is a probable cause by looking to see if the buffer cache hit ratio is low. Also use the <code>V$DB_CACHE_ADVICE</code> view to determine whether a larger cache size would be advantageous.</p>
+<p>If the cache size is adequate and the I/O is evenly spread, then you can potentially modify the behavior of DBWR by using asynchronous I/O or by using multiple database writers.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Consider Multiple Database Writer (DBWR) Processes or I/O Slaves</p>
+<p>Configuring multiple database writer processes, or using I/O slaves, is useful when the transaction rates are high or when the buffer cache size is so large that a single DBW<span class="italic">n</span> process cannot keep up with the load.</p>
+<p>The <code>DB_WRITER_PROCESSES</code> initialization parameter lets you configure multiple database writer processes (from DBW0 to DBW9 and from DBWa to DBWj). Configuring multiple DBWR processes distributes the work required to identify buffers to be written, and it also distributes the I/O load over these processes. Multiple db writer processes are highly recommended for systems with multiple CPUs (at least one db writer for every 8 CPUs) or multiple processor groups (at least as many db writers as processor groups).</p>
+<p>Based upon the number of CPUs and the number of processor groups, Oracle Database either selects an appropriate default setting for <code>DB_WRITER_PROCESSES</code> or adjusts a user-specified setting.</p>
+<p>If it is not practical to use multiple DBWR processes, then Oracle Database provides a facility whereby the I/O load can be distributed over multiple slave processes. The DBWR process is the only process that scans the buffer cache LRU list for blocks to be written out. However, the I/O for those blocks is performed by the I/O slaves. The number of I/O slaves is determined by the parameter <code>DBWR_IO_SLAVES</code>.</p>
+<p><code>DBWR_IO_SLAVES</code> is intended for scenarios where you cannot use multiple <code>DB_WRITER_PROCESSES</code> (for example, where you have a single CPU). I/O slaves are also useful when asynchronous I/O is not available, because the multiple I/O slaves simulate nonblocking, asynchronous requests by freeing DBWR to continue identifying blocks in the cache to be written. Asynchronous I/O at the operating system level, if you have it, is generally preferred.</p>
+<p>DBWR I/O slaves are allocated immediately following database open when the first I/O request is made. The DBWR continues to perform all of the DBWR-related work, apart from performing I/O. I/O slaves simply perform the I/O on behalf of DBWR. The writing of the batch is parallelized between the I/O slaves.</p>
+<div class="infobox-note" id="GUID-01C9C892-4C0B-4524-82B3-146D1C191BDD__GUID-91F2B2EE-C604-44E3-96FE-4684F614C220">
+<p class="notep1">Note:</p>
+<p>Implementing <code>DBWR_IO_SLAVES</code> requires that extra shared memory be allocated for I/O buffers and request queues. Multiple DBWR processes cannot be used with I/O slaves. Configuring I/O slaves forces only one DBWR process to start.</p>
+</div>
+<p>Configuring multiple DBWR processes benefits performance when a single DBWR process cannot keep up with the required workload. However, before configuring multiple DBWR processes, check whether asynchronous I/O is available and configured on the system. If the system supports asynchronous I/O but it is not currently used, then enable asynchronous I/O to see if this alleviates the problem. If the system does not support asynchronous I/O, or if asynchronous I/O is configured and there is still a DBWR bottleneck, then configure multiple DBWR processes.</p>
+<div class="infobox-note" id="GUID-01C9C892-4C0B-4524-82B3-146D1C191BDD__GUID-24125C74-66A9-4610-BE72-A743790C6E55">
+<p class="notep1">Note:</p>
+<p>If asynchronous I/O is not available on your platform, then asynchronous I/O can be disabled by setting the <code>DISK_ASYNCH_IO</code> initialization parameter to <code>FALSE</code>.</p>
+</div>
+<p>Using multiple DBWRs parallelizes the gathering and writing of buffers. Therefore, multiple DBW<span class="italic">n</span> processes should deliver more throughput than one DBWR process with the same number of I/O slaves. For this reason, the use of I/O slaves has been deprecated in favor of multiple DBWR processes. I/O slaves should only be used if multiple DBWR processes cannot be configured.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94515"></a><a id="TGDBA02415"></a>
+<div class="props_rev_3"><a id="GUID-34B5BAAB-02ED-402E-877F-AFF7945C2A8F"></a>
+<h3 id="TGDBA-GUID-34B5BAAB-02ED-402E-877F-AFF7945C2A8F" class="sect3">Idle Wait Events</h3>
+<div>
+<p><a id="d20882e4754" class="indexterm-anchor"></a><a id="d20882e4758" class="indexterm-anchor"></a>These events belong to Idle wait class and indicate that the server process is waiting because it has no work. This usually implies that if there is a bottleneck, then the bottleneck is not for database resources. The majority of the idle events should be ignored when tuning, because they do not indicate the nature of the performance bottleneck. Some idle events can be useful in indicating what the bottleneck is not. An example of this type of event is the most commonly encountered idle wait-event <code>SQL Net message from client</code>. This and other idle events (and their categories) are listed in <a href="pfgrf_instance_tune.htm#GUID-34B5BAAB-02ED-402E-877F-AFF7945C2A8F__g43952" title="This table lists the idle wait events and their categories.">Table 10-2</a>.</p>
+<div class="tblformal" id="GUID-34B5BAAB-02ED-402E-877F-AFF7945C2A8F__g43952">
+<p class="titleintable">Table 10-2 Idle Wait Events</p>
+<table class="cellalignment11" title="Idle Wait Events" summary="This table lists the idle wait events and their categories.">
+<thead>
+<tr class="cellalignment2">
+<th class="cellalignment83" id="d20882e4783">Wait Name</th>
+<th class="cellalignment84" id="d20882e4786">Background Process Idle Event</th>
+<th class="cellalignment84" id="d20882e4789">User Process Idle Event</th>
+<th class="cellalignment84" id="d20882e4792">Parallel Query Idle Event</th>
+<th class="cellalignment84" id="d20882e4795">Shared Server Idle Event</th>
+<th class="cellalignment84" id="d20882e4798">Oracle Real Application Clusters Idle Event</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4803" headers="d20882e4783">
+<p><code>dispatcher timer</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4803 d20882e4786">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4803 d20882e4789">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4803 d20882e4792">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4803 d20882e4795">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4803 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4823" headers="d20882e4783">
+<p><code>pipe get</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4823 d20882e4786">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4823 d20882e4789">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4823 d20882e4792">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4823 d20882e4795">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4823 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4843" headers="d20882e4783">
+<p><code>pmon timer</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4843 d20882e4786">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4843 d20882e4789">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4843 d20882e4792">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4843 d20882e4795">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4843 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4863" headers="d20882e4783">
+<p><code>PX Idle Wait</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4863 d20882e4786">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4863 d20882e4789">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4863 d20882e4792">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4863 d20882e4795">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4863 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4883" headers="d20882e4783">
+<p><code>PX Deq Credit: need buffer</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4883 d20882e4786">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4883 d20882e4789">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4883 d20882e4792">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4883 d20882e4795">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4883 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4903" headers="d20882e4783">
+<p><code>rdbms ipc message</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4903 d20882e4786">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4903 d20882e4789">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4903 d20882e4792">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4903 d20882e4795">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4903 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4923" headers="d20882e4783">
+<p><code>shared server idle wait</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4923 d20882e4786">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4923 d20882e4789">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4923 d20882e4792">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4923 d20882e4795">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4923 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4943" headers="d20882e4783">
+<p><code>smon timer</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4943 d20882e4786">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4943 d20882e4789">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4943 d20882e4792">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4943 d20882e4795">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4943 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment85" id="d20882e4963" headers="d20882e4783">
+<p><code>SQL*Net message from client</code></p>
+</td>
+<td class="cellalignment86" headers="d20882e4963 d20882e4786">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4963 d20882e4789">
+<p>X</p>
+</td>
+<td class="cellalignment86" headers="d20882e4963 d20882e4792">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4963 d20882e4795">
+<p>.</p>
+</td>
+<td class="cellalignment86" headers="d20882e4963 d20882e4798">
+<p>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-34B5BAAB-02ED-402E-877F-AFF7945C2A8F__GUID-0825CBB6-A718-4E44-B865-1699DE702314">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for explanations of each idle wait event</p>
+</div>
+</div>
+</div>
+<a id="TGDBA94519"></a><a id="TGDBA94516"></a>
+<div class="props_rev_3"><a id="GUID-64F78817-8B4C-4392-B518-CA31CF728B69"></a>
+<h3 id="TGDBA-GUID-64F78817-8B4C-4392-B518-CA31CF728B69" class="sect3">latch events</h3>
+<div>
+<p>A latch is a low-level internal lock used by Oracle Database to protect memory structures. The latch free event is updated when a server process attempts to get a latch, and the latch is unavailable on the first attempt.</p>
+<p>There is a dedicated latch-related wait event for the more popular latches that often generate significant contention. For those events, the name of the latch appears in the name of the wait event, such as <code>latch:</code> <code>library</code> <code>cache</code> or <code>latch:</code> <code>cache</code> <code>buffers</code> <code>chains</code>. This enables you to quickly figure out if a particular type of latch is responsible for most of the latch-related contention. Waits for all other latches are grouped in the generic <code>latch</code> <code>free</code> wait event.</p>
+<div class="infoboxnotealso" id="GUID-64F78817-8B4C-4392-B518-CA31CF728B69__GUID-4D74F9B8-0177-4459-8184-BF7E4CFED397">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT" target="_blank" href="../CNCPT/toc.htm"><span class="italic">Oracle Database Concepts</span></a> for more information on latches and internal locks</p>
+</div>
+<div class="section">
+<p class="subhead3">Actions</p>
+<p>This event should only be a concern if latch waits are a significant portion of the wait time on the system as a whole, or for individual users experiencing problems.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Examine the resource usage for related resources. For example, if the <a id="d20882e5111" class="indexterm-anchor"></a><a id="d20882e5115" class="indexterm-anchor"></a>library cache latch is heavily contended for, then examine the hard and soft parse rates.</p>
+</li>
+<li>
+<p>Examine the SQL statements for the sessions experiencing latch contention to see if there is any commonality.</p>
+</li>
+</ul>
+<p>Check the following <code>V$SESSION_WAIT</code> parameter columns:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>P1</code>: Address of the latch</p>
+</li>
+<li>
+<p><code>P2</code>: Latch number</p>
+</li>
+<li>
+<p><code>P3</code>: Number of times process has slept, waiting for the latch</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Example: Find Latches Currently Waited For</p>
+<pre dir="ltr">SELECT EVENT, SUM(P3) SLEEPS, SUM(SECONDS_IN_WAIT) SECONDS_IN_WAIT
+  FROM V$SESSION_WAIT
+ WHERE EVENT LIKE &#39;latch%&#39;
+  GROUP BY EVENT;
+</pre>
+<p>A problem with the previous query is that it tells more about session tuning or instant instance tuning than instance or long-duration instance tuning.</p>
+<p>The following query provides more information about long duration instance tuning, showing whether the latch waits are significant in the overall database time.</p>
+<pre dir="ltr">SELECT EVENT, TIME_WAITED_MICRO, 
+       ROUND(TIME_WAITED_MICRO*100/S.DBTIME,1) PCT_DB_TIME 
+  FROM V$SYSTEM_EVENT, 
+   (SELECT VALUE DBTIME FROM V$SYS_TIME_MODEL WHERE STAT_NAME = &#39;DB time&#39;) S
+ WHERE EVENT LIKE &#39;latch%&#39;
+ ORDER BY PCT_DB_TIME ASC;
+</pre>
+<p>A more general query that is not specific to latch waits is the following:</p>
+<pre dir="ltr">SELECT EVENT, WAIT_CLASS, 
+      TIME_WAITED_MICRO,ROUND(TIME_WAITED_MICRO*100/S.DBTIME,1) PCT_DB_TIME
+  FROM V$SYSTEM_EVENT E, V$EVENT_NAME N,
+    (SELECT VALUE DBTIME FROM V$SYS_TIME_MODEL WHERE STAT_NAME = &#39;DB time&#39;) S
+   WHERE E.EVENT_ID = N.EVENT_ID
+    AND N.WAIT_CLASS NOT IN (&#39;Idle&#39;, &#39;System I/O&#39;)
+  ORDER BY PCT_DB_TIME ASC;
+</pre>
+<div class="tblformal" id="GUID-64F78817-8B4C-4392-B518-CA31CF728B69__GUID-263F4596-E79D-4A75-8CF4-9831AB0C6941">
+<p class="titleintable">Table 10-3 Latch Wait Event</p>
+<table class="cellalignment11" title="Latch Wait Event" summary="This table describes wait latch events. It names the latch and the SGA area it affects, and provides causes and symptoms of the event.">
+<thead>
+<tr class="cellalignment2">
+<th class="cellalignment77" id="d20882e5171">Latch</th>
+<th class="cellalignment77" id="d20882e5174">SGA Area</th>
+<th class="cellalignment87" id="d20882e5177">Possible Causes</th>
+<th class="cellalignment87" id="d20882e5180">Look For:</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e5185" headers="d20882e5171">
+<p>Shared pool, library cache</p>
+</td>
+<td class="cellalignment80" headers="d20882e5185 d20882e5174">
+<p>Shared pool</p>
+</td>
+<td class="cellalignment88" headers="d20882e5185 d20882e5177">
+<p>Lack of statement reuse</p>
+<p>Statements not using bind variables</p>
+<p>Insufficient size of application cursor cache</p>
+<p>Cursors closed explicitly after each execution</p>
+<p>Frequent logins and logoffs</p>
+<p>Underlying object structure being modified (for example truncate)</p>
+<p>Shared pool too small</p>
+</td>
+<td class="cellalignment88" headers="d20882e5185 d20882e5180">
+<p>Sessions (in <code>V$SESSTAT</code>) with high:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>parse time CPU</code></p>
+</li>
+<li>
+<p><code>parse</code> <code>time</code> <code>elapse</code>d</p>
+</li>
+<li>
+<p>Ratio of <code>parse count (hard)</code> / <code>execute</code> <code>coun</code>t</p>
+</li>
+<li>
+<p>Ratio of <code>parse count (total)</code> / <code>execute</code> <code>count</code></p>
+</li>
+</ul>
+<p>Cursors (in <code>V$SQLAREA</code>/<code>V$SQLSTATS</code>) with:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>High ratio of <code>PARSE_CALLS</code> / <code>EXECUTIONS</code></p>
+</li>
+<li>
+<p><code>EXECUTIONS</code> = 1 differing only in literals in the <code>WHERE</code> clause (that is, no bind variables used)</p>
+</li>
+<li>
+<p>High <code>RELOADS</code></p>
+</li>
+<li>
+<p>High <code>INVALIDATIONS</code></p>
+</li>
+<li>
+<p>Large (&gt; 1mb) <code>SHARABLE_MEM</code></p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e5292" headers="d20882e5171">
+<p>cache buffers lru chain</p>
+</td>
+<td class="cellalignment80" headers="d20882e5292 d20882e5174">
+<p>Buffer cache LRU lists</p>
+</td>
+<td class="cellalignment88" headers="d20882e5292 d20882e5177">
+<p>Excessive <a id="d20882e5301" class="indexterm-anchor"></a>buffer cache throughput. For example, inefficient SQL that accesses incorrect indexes iteratively (large index range scans) or many full table scans</p>
+<p>DBWR not keeping up with the dirty workload; hence, foreground process spends longer holding the latch looking for a free buffer</p>
+<p>Cache may be too small</p>
+</td>
+<td class="cellalignment88" headers="d20882e5292 d20882e5180">
+<p>Statements with very high logical I/O or physical I/O, using unselective indexes</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e5314" headers="d20882e5171">
+<p>cache buffers chains</p>
+</td>
+<td class="cellalignment80" headers="d20882e5314 d20882e5174">
+<p>Buffer cache buffers</p>
+</td>
+<td class="cellalignment88" headers="d20882e5314 d20882e5177">
+<p>Repeated access to a block (or small number of blocks), known as a hot block</p>
+</td>
+<td class="cellalignment88" headers="d20882e5314 d20882e5180">
+<p>Sequence number generation code that updates a row in a table to generate the number, rather than using a sequence number generator</p>
+<p>Index leaf chasing from very many processes scanning the same unselective index with very similar predicate</p>
+<p>Identify the segment the hot block belongs to</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment80" id="d20882e5331" headers="d20882e5171">
+<p>row cache objects</p>
+</td>
+<td class="cellalignment80" headers="d20882e5331 d20882e5174">&nbsp;</td>
+<td class="cellalignment88" headers="d20882e5331 d20882e5177">&nbsp;</td>
+<td class="cellalignment88" headers="d20882e5331 d20882e5180">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Shared Pool and Library Cache Latch Contention</p>
+<p>A main cause of shared pool or library cache latch contention is parsing. There are several techniques that you can use to identify unnecessary parsing and several types of unnecessary parsing:</p>
+<p>This method identifies similar SQL statements that could be shared if literals were replaced with bind variables. The idea is to either:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Manually inspect SQL statements that have only one execution to see whether they are similar:</p>
+<pre dir="ltr">SELECT SQL_TEXT
+  FROM V$SQLSTATS
+ WHERE EXECUTIONS &lt; 4
+ ORDER BY SQL_TEXT;
+</pre></li>
+<li>
+<p>Or, automate this process by grouping what may be similar statements. Estimate the number of bytes of a SQL statement that are likely the same, and group the SQL statements by this number of bytes. For example, the following example groups statements that differ only after the first 60 bytes.</p>
+<pre dir="ltr">SELECT SUBSTR(SQL_TEXT, 1, 60), COUNT(*)
+  FROM V$SQLSTATS
+ WHERE EXECUTIONS &lt; 4 
+ GROUP BY SUBSTR(SQL_TEXT, 1, 60)
+ HAVING COUNT(*) &gt; 1;
+</pre></li>
+<li>
+<p>Or report distinct SQL statements that have the same execution plan. The following query selects distinct SQL statements that share the same execution plan at least four times. These SQL statements are likely to be using literals instead of bind variables.</p>
+<pre dir="ltr">SELECT SQL_TEXT FROM V$SQLSTATS WHERE PLAN_HASH_VALUE IN
+  (SELECT PLAN_HASH_VALUE 
+     FROM V$SQLSTATS 
+    GROUP BY PLAN_HASH_VALUE HAVING COUNT(*) &gt; 4)
+  ORDER BY PLAN_HASH_VALUE;
+</pre></li>
+</ul>
+<p>Check the <code>V$SQLSTATS</code> view. Enter the following query:</p>
+<pre dir="ltr">SELECT SQL_TEXT, PARSE_CALLS, EXECUTIONS 
+  FROM V$SQLSTATS
+ORDER BY PARSE_CALLS;
+</pre>
+<p>When the <code>PARSE_CALLS</code> value is close to the <code>EXECUTIONS</code> value for a given statement, you might be continually reparsing that statement. Tune the statements with the higher numbers of parse calls.</p>
+<p>Identify unnecessary parse calls by identifying the session in which they occur. It might be that particular batch programs or certain types of applications do most of the reparsing. To achieve this goal, run the following query:</p>
+<pre dir="ltr">SELECT pa.SID, pa.VALUE &#34;Hard Parses&#34;, ex.VALUE &#34;Execute Count&#34; 
+  FROM V$SESSTAT pa, V$SESSTAT ex 
+ WHERE pa.SID = ex.SID 
+   AND pa.STATISTIC#=(SELECT STATISTIC# 
+       FROM V$STATNAME WHERE NAME = &#39;parse count (hard)&#39;) 
+   AND ex.STATISTIC#=(SELECT STATISTIC# 
+       FROM V$STATNAME WHERE NAME = &#39;execute count&#39;) 
+   AND pa.VALUE &gt; 0; 
+</pre>
+<p>The result is a list of all sessions and the amount of reparsing they do. For each session identifier (SID), go to <code>V$SESSION</code> to find the name of the program that causes the reparsing.</p>
+<div class="infobox-note" id="GUID-64F78817-8B4C-4392-B518-CA31CF728B69__GUID-B4AB2DD4-3E7D-425A-B666-79273F3BC168">
+<p class="notep1">Note:</p>
+<p>Because this query counts all parse calls since instance startup, it is best to look for sessions with high <span class="italic">rates</span> of parse. For example, a connection which has been up for 50 days might show a high parse figure, but a second connection might have been up for 10 minutes and be parsing at a much faster rate.</p>
+</div>
+<p>The output is similar to the following:</p>
+<pre dir="ltr">   SID  Hard Parses  Execute Count
+------  -----------  -------------
+     7            1             20
+     8            3          12690
+     6           26            325
+    11           84           1619
+</pre>
+<p>The <code>cache</code> <code>buffers</code> <code>lru</code> <code>chain</code> latches protect the lists of buffers in the cache. When adding, moving, or removing a buffer from a list, a latch must be obtained.</p>
+<p>For symmetric multiprocessor (SMP) systems, Oracle Database automatically sets the number of LRU latches to a value equal to one half the number of CPUs on the system. For non-SMP systems, one LRU latch is sufficient.</p>
+<p>Contention for the <a id="d20882e5413" class="indexterm-anchor"></a>LRU latch can impede performance on SMP computers with a large number of CPUs. LRU latch contention is detected by querying <code>V$LATCH</code>, <code>V$SESSION_EVENT</code>, and <code>V$SYSTEM_EVENT</code>. To avoid contention, consider tuning the application, bypassing the buffer cache for DSS jobs, or redesigning the application.</p>
+<p>The <code>cache</code> <code>buffers</code> <code>chains</code> latches are used to protect a buffer list in the buffer cache. These latches are used when searching for, adding, or removing a buffer from the buffer cache. Contention on this latch usually means that there is a block that is greatly contended for (known as a hot block).</p>
+<p>To identify the heavily accessed buffer chain, and hence the contended for block, look at latch statistics for the <code>cache</code> <code>buffers</code> <code>chains</code> latches using the view <code>V$LATCH_CHILDREN</code>. If there is a specific <code>cache</code> <code>buffers</code> <code>chains</code> child latch that has many more <code>GETS</code>, <code>MISSES</code>, and <code>SLEEPS</code> when compared with the other child latches, then this is the contended for child latch.</p>
+<p>This latch has a memory address, identified by the <code>ADDR</code> column. Use the value in the <code>ADDR</code> column joined with the <code>X$BH</code> table to identify the blocks protected by this latch. For example, given the address (<code>V$LATCH_CHILDREN.ADDR</code>) of a heavily contended latch, this queries the file and block numbers:</p>
+<pre dir="ltr">SELECT OBJ data_object_id, FILE#, DBABLK,CLASS, STATE, TCH
+  FROM X$BH
+ WHERE HLADDR = &#39;address of latch&#39;
+  ORDER BY TCH;
+</pre>
+<p><code>X$BH.TCH</code> is a touch count for the buffer. A high value for <code>X$BH.TCH</code> indicates a hot block.</p>
+<p>Many blocks are protected by each latch. One of these buffers will probably be the hot block. Any block with a high <code>TCH</code> value is a potential hot block. Perform this query several times, and identify the block that consistently appears in the output. After you have identified the hot block, query <code>DBA_EXTENTS</code> using the file number and block number, to identify the segment.</p>
+<p>After you have identified the hot block, you can identify the segment it belongs to with the following query:</p>
+<pre dir="ltr">SELECT OBJECT_NAME, SUBOBJECT_NAME
+  FROM DBA_OBJECTS
+ WHERE DATA_OBJECT_ID = &amp;obj;
+</pre>
+<p>In the query, <code>&amp;obj</code> is the value of the <code>OBJ</code> column in the previous query on <code>X$BH</code>.</p>
+<p>The <code>row</code> <code>cache</code> <code>objects</code> latches protect the data dictionary.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94527"></a>
+<div class="props_rev_3"><a id="GUID-F09EF4C8-7128-4B1B-ADD6-C3D4BC547325"></a>
+<h3 id="TGDBA-GUID-F09EF4C8-7128-4B1B-ADD6-C3D4BC547325" class="sect3">log file parallel write</h3>
+<div>
+<p>This event involves writing redo records to the redo log files from the log buffer.</p>
+</div>
+</div>
+<a id="TGDBA94528"></a>
+<div class="props_rev_3"><a id="GUID-FE902A76-E4D8-4A74-9CDF-E15A01D568F0"></a>
+<h3 id="TGDBA-GUID-FE902A76-E4D8-4A74-9CDF-E15A01D568F0" class="sect3">library cache pin</h3>
+<div>
+<p>This event manages library cache concurrency. Pinning an object causes the heaps to be loaded into memory. If a client wants to modify or examine the object, the client must acquire a pin after the lock.</p>
+</div>
+</div>
+<a id="TGDBA94529"></a>
+<div class="props_rev_3"><a id="GUID-1A8EE470-1630-458F-9065-91E671318393"></a>
+<h3 id="TGDBA-GUID-1A8EE470-1630-458F-9065-91E671318393" class="sect3">library cache lock</h3>
+<div>
+<p>This event controls the concurrency between clients of the library cache. It acquires a lock on the object handle so that either:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>One client can prevent other clients from accessing the same object</p>
+</li>
+<li>
+<p>The client can maintain a dependency for a long time which does not allow another client to change the object</p>
+</li>
+</ul>
+<p>This lock is also obtained to locate an object in the library cache.</p>
+</div>
+</div>
+<a id="TGDBA94531"></a><a id="TGDBA94530"></a>
+<div class="props_rev_3"><a id="GUID-F5DD71ED-8BB0-43B5-9EBC-D9B1A040254D"></a>
+<h3 id="TGDBA-GUID-F5DD71ED-8BB0-43B5-9EBC-D9B1A040254D" class="sect3">log buffer space</h3>
+<div>
+<p>This event occurs when server processes are waiting for free space in the log buffer, because all the redo is generated faster than LGWR can write it out.</p>
+<div class="section">
+<p class="subhead3">Actions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Modify the <a id="d20882e5727" class="indexterm-anchor"></a>redo log buffer size. If the size of the log buffer is reasonable, then ensure that the disks on which the online redo logs reside do not suffer from <a id="d20882e5732" class="indexterm-anchor"></a>I/O contention. The <code>log</code> <code>buffer</code> <code>space</code> wait event could be indicative of either disk I/O contention on the disks where the redo logs reside, or of a too-small log buffer. Check the I/O profile of the disks containing the redo logs to investigate whether the I/O system is the bottleneck. If the I/O system is not a problem, then the redo log buffer could be too small. Increase the size of the redo log buffer until this event is no longer significant.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94532"></a>
+<div class="props_rev_3"><a id="GUID-9963829C-6A58-44D3-BB3D-630DFEBC7FBF"></a>
+<h3 id="TGDBA-GUID-9963829C-6A58-44D3-BB3D-630DFEBC7FBF" class="sect3">log file switch</h3>
+<div>
+<p>There are two wait events commonly encountered:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>log file switch (archiving needed)</p>
+</li>
+<li>
+<p>log file switch (checkpoint incomplete)</p>
+</li>
+</ul>
+<p>In both of the events, the LGWR cannot switch into the next online redo log file. All the commit requests wait for this event.</p>
+<div class="section">
+<p class="subhead3">Actions</p>
+<p>For the <code>log</code> <code>file</code> <code>switch</code> (<code>archiving</code> <code>needed</code>) event, examine why the archiver cannot archive the logs in a timely fashion. It could be due to the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Archive destination is running out of free space.</p>
+</li>
+<li>
+<p>Archiver is not able to read redo logs fast enough (contention with the LGWR).</p>
+</li>
+<li>
+<p>Archiver is not able to write fast enough (contention on the archive destination, or not enough ARCH processes). If you have ruled out other possibilities (such as slow disks or a full archive destination) consider increasing the number of ARCn processes. The default is 2.</p>
+</li>
+<li>
+<p>If you have mandatory remote shipped archive logs, check whether this process is slowing down because of network delays or the write is not completing because of errors.</p>
+</li>
+</ul>
+<p>Depending on the nature of bottleneck, you might need to redistribute I/O or add more space to the archive destination to alleviate the problem. For the <code>log</code> <code>file</code> <code>switch</code> (<code>checkpoint</code> <code>incomplete</code>) event:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Check if DBWR is slow, possibly due to an overloaded or slow I/O system. Check the DBWR write times, check the I/O system, and distribute I/O if necessary.</p>
+</li>
+<li>
+<p>Check if there are too few, or too small redo logs. If you have a few redo logs or small redo logs (for example, 2 x 100k logs), and your system produces enough redo to cycle through all of the logs before DBWR has been able to complete the checkpoint, then increase the size or number of redo logs.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94535"></a><a id="TGDBA94534"></a>
+<div class="props_rev_3"><a id="GUID-38040CE0-704E-433B-8E08-29EB16C109F0"></a>
+<h3 id="TGDBA-GUID-38040CE0-704E-433B-8E08-29EB16C109F0" class="sect3">log file sync</h3>
+<div>
+<p>When a user session commits (or rolls back), the session&#39;s redo information must be flushed to the redo logfile by LGWR. The server process performing the <code>COMMIT</code> or <code>ROLLBACK</code> waits under this event for the write to the redo log to complete.</p>
+<div class="section">
+<p class="subhead3">Actions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>If this event&#39;s waits constitute a significant wait on the system or a significant amount of time waited by a user experiencing response time issues or on a system, then examine the average time waited.</p>
+<p>If the average time waited is low, but the number of waits are high, then the application might be committing after every <code>INSERT</code>, rather than batching <code>COMMIT</code>s. Applications can reduce the wait by committing after 50 rows, rather than every row.</p>
+<p>If the average time waited is high, then examine the session waits for the log writer and see what it is spending most of its time doing and waiting for. If the waits are because of slow I/O, then try the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Reduce other I/O activity on the disks containing the redo logs, or use dedicated disks.</p>
+</li>
+<li>
+<p>Alternate redo logs on different disks to minimize the effect of the archiver on the log writer.</p>
+</li>
+<li>
+<p>Move the redo logs to faster disks or a faster I/O subsystem (for example, switch from RAID 5 to RAID 1).</p>
+</li>
+<li>
+<p>Consider using raw devices (or simulated raw devices provided by disk vendors) to speed up the writes.</p>
+</li>
+<li>
+<p>Depending on the type of application, it might be possible to batch <code>COMMIT</code>s by committing every <span class="italic">N</span> rows, rather than every row, so that fewer log file syncs are needed.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94536"></a>
+<div class="props_rev_3"><a id="GUID-B085C235-45A2-49A8-97B8-A7FD433DC0C5"></a>
+<h3 id="TGDBA-GUID-B085C235-45A2-49A8-97B8-A7FD433DC0C5" class="sect3">rdbms ipc reply</h3>
+<div>
+<p>This event is used to wait for a reply from one of the background processes.</p>
+</div>
+</div>
+<a id="TGDBA94537"></a>
+<div class="props_rev_3"><a id="GUID-2EAAF006-0954-4E83-871F-D9E67D7CC4AD"></a>
+<h3 id="TGDBA-GUID-2EAAF006-0954-4E83-871F-D9E67D7CC4AD" class="sect3">SQL*Net Events</h3>
+<div>
+<p><a id="d20882e6051" class="indexterm-anchor"></a><a id="d20882e6053" class="indexterm-anchor"></a>The following events signify that the database process is waiting for acknowledgment from a database link or a client process:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>SQL*Net break/reset to client</code></p>
+</li>
+<li>
+<p><code>SQL*Net break/reset to dblink</code></p>
+</li>
+<li>
+<p><code>SQL*Net message from client</code></p>
+</li>
+<li>
+<p><code>SQL*Net message from dblink</code></p>
+</li>
+<li>
+<p><code>SQL*Net message to client</code></p>
+</li>
+<li>
+<p><code>SQL*Net message to dblink</code></p>
+</li>
+<li>
+<p><code>SQL*Net more data from client</code></p>
+</li>
+<li>
+<p><code>SQL*Net more data from dblink</code></p>
+</li>
+<li>
+<p><code>SQL*Net more data to client</code></p>
+</li>
+<li>
+<p><code>SQL*Net more data to dblink</code></p>
+</li>
+</ul>
+<p>If these waits constitute a significant portion of the wait time on the system or for a user experiencing response time issues, then the network or the middle-tier could be a bottleneck.</p>
+<p>Events that are client-related should be diagnosed as described for the event <code>SQL*Net</code> <code>message</code> <code>from</code> <code>client</code>. Events that are dblink-related should be diagnosed as described for the event <code>SQL*Net</code> <code>message</code> <code>from</code> <code>dblink</code>.</p>
+<div class="section" id="GUID-2EAAF006-0954-4E83-871F-D9E67D7CC4AD__SQLNetMessageFromClientidleWaitEven-F951261D">
+<p class="subhead3">SQL*Net message from client</p>
+<p>Although this is an idle event, it is important to explain when this event can be used to diagnose what is not the problem. This event indicates that a server process is waiting for work from the client process. However, there are several situations where this event could accrue most of the wait time for a user experiencing poor response time. The cause could be either a network bottleneck or a resource bottleneck on the client process.</p>
+<p>A network bottleneck can occur if the application causes a lot of traffic between server and client and the network latency (time for a round-trip) is high. Symptoms include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Large number of waits for this event</p>
+</li>
+<li>
+<p>Both the database and client process are idle (waiting for network traffic) most of the time</p>
+</li>
+</ul>
+<p>To alleviate network bottlenecks, try the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Tune the application to reduce round trips.</p>
+</li>
+<li>
+<p>Explore options to reduce latency (for example, terrestrial lines opposed to <code>VSAT</code> links).</p>
+</li>
+<li>
+<p>Change system configuration to move higher traffic components to lower latency links.</p>
+</li>
+</ul>
+<p><a id="d20882e6159" class="indexterm-anchor"></a><a id="d20882e6163" class="indexterm-anchor"></a>If the client process is using most of the resources, then there is nothing that can be done in the database. Symptoms include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Number of waits might not be large, but the time waited might be significant</p>
+</li>
+<li>
+<p>Client process has a high resource usage</p>
+</li>
+</ul>
+<p>In some cases, you can see the wait time for a waiting user tracking closely with the amount of CPU used by the client process. The term client here refers to any process other than the database process (middle-tier, desktop client) in the n-tier architecture.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">SQL*Net message from dblink</p>
+<p><a id="d20882e6181" class="indexterm-anchor"></a><a id="d20882e6185" class="indexterm-anchor"></a>This event signifies that the session has sent a message to the remote node and is waiting for a response from the database link. This time could go up because of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Network bottleneck</p>
+<p>For information, see <span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-2EAAF006-0954-4E83-871F-D9E67D7CC4AD__SQLNetMessageFromClientidleWaitEven-F951261D">SQL*Net message from client</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Time taken to execute the SQL on the remote node</p>
+<p>It is useful to see the SQL being run on the remote node. Login to the remote database, find the session created by the database link, and examine the SQL statement being run by it.</p>
+</li>
+<li>
+<p>Number of round trip messages</p>
+<p>Each message between the session and the remote node adds latency time and processing overhead. To reduce the number of messages exchanged, use array fetches and array inserts.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">SQL*Net more data to client</p>
+<p>The server process is sending more data or messages to the client. The previous operation to the client was also a send.</p>
+<div class="infoboxnotealso" id="GUID-2EAAF006-0954-4E83-871F-D9E67D7CC4AD__GUID-EFEAC887-57BE-4CDB-B8F3-4F2376F44187">
+<p class="notep1">See Also:</p>
+<p><a class="olink NETAG" target="_blank" href="../NETAG/toc.htm"><span class="italic">Oracle Database Net Services Administrator&#39;s Guide</span></a> for a detailed discussion on network optimization</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA13009"></a>
+<div class="props_rev_3"><a id="GUID-E281EB31-5762-4945-9497-BBB923A6FF50"></a>
+<h2 id="TGDBA-GUID-E281EB31-5762-4945-9497-BBB923A6FF50" class="sect2">Tuning Instance Recovery Performance: Fast-Start Fault Recovery</h2>
+<div>
+<p><a id="d20882e6257" class="indexterm-anchor"></a><a id="d20882e6261" class="indexterm-anchor"></a><a id="d20882e6265" class="indexterm-anchor"></a><a id="d20882e6267" class="indexterm-anchor"></a>This section describes instance recovery, and how Oracle&#39;s Fast-Start Fault Recovery improves availability in the event of a crash or instance failure. It also offers guidelines for tuning the time required to perform crash and instance recovery.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-33C9C465-95E6-42C6-BE92-B587A5EAF5B6">About Instance Recovery</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-75455F43-DE5E-456C-BBC7-A28A782EE9D9">Configuring the Duration of Cache Recovery: FAST_START_MTTR_TARGET</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-2ACBA638-B8C4-428E-B23C-D2131BC6E993">Tuning FAST_START_MTTR_TARGET and Using MTTR Advisor</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA13010"></a>
+<div class="props_rev_3"><a id="GUID-33C9C465-95E6-42C6-BE92-B587A5EAF5B6"></a>
+<h3 id="TGDBA-GUID-33C9C465-95E6-42C6-BE92-B587A5EAF5B6" class="sect3">About Instance Recovery</h3>
+<div>
+<p>Instance and crash recovery are the automatic application of redo log records to Oracle data blocks after a crash or system failure. During normal operation, if an instance is shut down cleanly (as when using a <code>SHUTDOWN IMMEDIATE</code> statement), rather than terminated abnormally, then the in-memory changes that have not been written to the data files on disk are written to disk as part of the checkpoint performed during shutdown.</p>
+<p>However, if a single instance database crashes or if all instances of an Oracle RAC configuration crash, then Oracle Database performs crash recovery at the next startup. If one or more instances of an Oracle RAC configuration crash, then a surviving instance performs instance recovery automatically. Instance and crash recovery occur in two steps: cache recovery followed by transaction recovery.</p>
+<p>The database can be opened as soon as cache recovery completes, so improving the performance of cache recovery is important for increasing availability.</p>
+</div>
+<a id="TGDBA13011"></a>
+<div class="props_rev_3"><a id="GUID-AB7657AA-9D5A-4DA9-97BD-01F50C4C98C8"></a>
+<h4 id="TGDBA-GUID-AB7657AA-9D5A-4DA9-97BD-01F50C4C98C8" class="sect4">Cache Recovery (Rolling Forward)</h4>
+<div>
+<p>During the cache recovery step, Oracle Database applies all committed and uncommitted changes in the redo log files to the affected data blocks. The work required for cache recovery processing is proportional to the rate of change to the database (update transactions each second) and the time between checkpoints.</p>
+</div>
+</div>
+<a id="TGDBA13012"></a>
+<div class="props_rev_3"><a id="GUID-068D326D-5CFC-4C30-9B8A-D2535A6EA170"></a>
+<h4 id="TGDBA-GUID-068D326D-5CFC-4C30-9B8A-D2535A6EA170" class="sect4">Transaction Recovery (Rolling Back)</h4>
+<div>
+<p>To make the database consistent, the changes that were not committed at the time of the crash must be undone (in other words, rolled back). During the transaction recovery step, Oracle Database applies the rollback segments to undo the uncommitted changes.</p>
+</div>
+</div>
+<a id="TGDBA94549"></a><a id="TGDBA94550"></a><a id="TGDBA13013"></a>
+<div class="props_rev_3"><a id="GUID-FFF3AFCE-2A3F-4F7B-A22E-67260849D237"></a>
+<h4 id="TGDBA-GUID-FFF3AFCE-2A3F-4F7B-A22E-67260849D237" class="sect4">Checkpoints and Cache Recovery</h4>
+<div>
+<p>Periodically, Oracle Database records a checkpoint. A <span class="bold">checkpoint</span> is the highest system change number (SCN) such that all data blocks less than or equal to that SCN are known to be written out to the data files. If a failure occurs, then only the redo records containing changes at SCNs higher than the checkpoint need to be applied during recovery. The duration of cache recovery processing is determined by two factors: the number of data blocks that have changes at SCNs higher than the SCN of the checkpoint, and the number of log blocks that need to be read to find those changes.</p>
+<div class="section">
+<p class="subhead3">How Checkpoints Affect Performance</p>
+<p>Frequent checkpointing writes dirty buffers to the data files more often than otherwise, and so reduces cache recovery time in the event of an instance failure. If checkpointing is frequent, then applying the redo records in the redo log between the current checkpoint position and the end of the log involves processing relatively few data blocks. This means that the cache recovery phase of recovery is fairly short.</p>
+<p>However, in a high-update system, frequent checkpointing can reduce run-time performance, because checkpointing causes DBW<span class="italic">n</span> processes to perform writes.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Fast Cache Recovery Tradeoffs</p>
+<p>To minimize the duration of cache recovery, you must force Oracle Database to checkpoint often, thus keeping the number of redo log records to be applied during recovery to a minimum. However, in a high-update system, frequent checkpointing increases the overhead for normal database operations.</p>
+<p>If daily operational efficiency is more important than minimizing recovery time, then decrease the frequency of writes to data files due to checkpoints. This should improve operational efficiency, but also increase cache recovery time.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA13014"></a>
+<div class="props_rev_3"><a id="GUID-75455F43-DE5E-456C-BBC7-A28A782EE9D9"></a>
+<h3 id="TGDBA-GUID-75455F43-DE5E-456C-BBC7-A28A782EE9D9" class="sect3">Configuring the Duration of Cache Recovery: FAST_START_MTTR_TARGET</h3>
+<div>
+<p><a id="d20882e6500" class="indexterm-anchor"></a><a id="d20882e6502" class="indexterm-anchor"></a><a id="d20882e6506" class="indexterm-anchor"></a><a id="d20882e6512" class="indexterm-anchor"></a>The Fast-Start Fault Recovery feature reduces the time required for cache recovery, and makes the recovery bounded and predictable by limiting the number of dirty buffers and the number of redo records generated between the most recent redo record and the last checkpoint.</p>
+<p>The foundation of Fast-Start Fault Recovery is the Fast-Start checkpointing architecture. Instead of conventional event-driven (that is, log switching) checkpointing, which does bulk writes, fast-start checkpointing occurs incrementally. Each DBW<span class="italic">n</span> process periodically writes buffers to disk to advance the checkpoint position. The oldest modified blocks are written first to ensure that every write lets the checkpoint advance. Fast-Start checkpointing eliminates bulk writes and the resultant I/O spikes that occur with conventional checkpointing.</p>
+<p>With the Fast-Start Fault Recovery feature, the <code>FAST_START_MTTR_TARGET</code> initialization parameter simplifies the configuration of recovery time from instance or system failure. <code>FAST_START_MTTR_TARGET</code> specifies a target for the expected mean time to recover (MTTR), that is, the time (in seconds) that it should take to start up the instance and perform cache recovery. After <code>FAST_START_MTTR_TARGET</code> is set, the database manages incremental checkpoint writes in an attempt to meet that target. If you have chosen a practical value for <code>FAST_START_MTTR_TARGET</code>, you can expect your database to recover, on average, in approximately the number of seconds you have chosen.</p>
+<div class="infobox-note" id="GUID-75455F43-DE5E-456C-BBC7-A28A782EE9D9__GUID-0BDC8893-241D-425F-A252-7C784D0318A0">
+<p class="notep1">Note:</p>
+<p>You must disable or remove the <code>FAST_START_IO_TARGET</code>, <code>LOG_CHECKPOINT_INTERVAL</code>, and <code>LOG_CHECKPOINT_TIMEOUT</code> initialization parameters when using <code>FAST_START_MTTR_TARGET</code>. Setting these parameters interferes with the mechanisms used to manage cache recovery time to meet <code>FAST_START_MTTR_TARGET.</code></p>
+</div>
+</div>
+<a id="TGDBA94551"></a>
+<div class="props_rev_3"><a id="GUID-DE2F016F-9344-44E1-856F-7F09D55595F5"></a>
+<h4 id="TGDBA-GUID-DE2F016F-9344-44E1-856F-7F09D55595F5" class="sect4">Practical Values for FAST_START_MTTR_TARGET</h4>
+<div>
+<p>The maximum value for <code>FAST_START_MTTR_TARGET</code> is 3600 seconds (one hour). If you set the value to more than 3600, then Oracle Database rounds it to 3600.</p>
+<p>The following example shows how to set the value of <code>FAST_START_MTTR_TARGET</code>:</p>
+<pre dir="ltr">SQL&gt; ALTER SYSTEM SET FAST_START_MTTR_TARGET=30;
+</pre>
+<p>In principle, the minimum value for <code>FAST_START_MTTR_TARGET</code> is one second. However, the fact that you can set <code>FAST_START_MTTR_TARGET</code> this low does not mean that this target can be achieved. There are practical limits to the minimum achievable MTTR target, due to such factors as database startup time.</p>
+<p>The MTTR target that your database can achieve given the current value of <code>FAST_START_MTTR_TARGET</code> is called the <span class="bold">effective MTTR target</span>. You can view your current effective MTTR by viewing the <code>TARGET_MTTR</code> column of the <code>V$INSTANCE_RECOVERY</code> view.</p>
+<p>The practical range of MTTR target values for your database is defined to be the range between the lowest achievable effective MTTR target for your database and the longest that startup and cache recovery will take in the worst-case scenario (that is, when the whole buffer cache is dirty). <span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-63DE4C5C-6FDF-4FBB-A8D4-CD5DB54E15D5">Determine the Practical Range for FAST_START_MTTR_TARGET</a>&#34;</span> describes the procedure for determining the range of achievable MTTR target values, one step in the process of tuning your <code>FAST_START_MTTR_TARGET</code> value.</p>
+<div class="infobox-note" id="GUID-DE2F016F-9344-44E1-856F-7F09D55595F5__GUID-56FB69F6-D003-4E46-A8E5-32DC5A30EBBF">
+<p class="notep1">Note:</p>
+<p>It is usually not useful to set your <code>FAST_START_MTTR_TARGET</code> to a value outside the practical range. If your <code>FAST_START_MTTR_TARGET</code> value is shorter than the lower limit of the practical range, the effect is as if you set it to the lower limit of the practical range. In such a case, the effective MTTR target will be the best MTTR target the system can achieve, but checkpointing will be at a maximum, which can affect normal database performance. If you set <code>FAST_START_MTTR_TARGET</code> to a time longer than the practical range, the MTTR target will be no better than the worst-case situation.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA94552"></a>
+<div class="props_rev_3"><a id="GUID-B4882C55-DA46-46E6-9885-06AC0BDA5D4A"></a>
+<h4 id="TGDBA-GUID-B4882C55-DA46-46E6-9885-06AC0BDA5D4A" class="sect4">Reducing Checkpoint Frequency to Optimize Run-Time Performance</h4>
+<div>
+<div class="section">
+<p>To reduce the checkpoint frequency and optimize run-time performance, you can do the following:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Set the value of <code>FAST_START_MTTR_TARGET</code> to 3600. This enables Fast-Start checkpointing and the Fast-Start Fault Recovery feature, but minimizes its effect on run-time performance while avoiding the need for performance tuning of <code>FAST_START_MTTR_TARGET</code>.</p>
+</li>
+<li>
+<p>Size your online redo log files according to the amount of redo your system generates. Try to switch logs at most every twenty minutes. Having your log files too small can increase checkpoint activity and reduce performance. Also note that all redo log files should be the same size.</p>
+<div class="infoboxnotealso" id="GUID-B4882C55-DA46-46E6-9885-06AC0BDA5D4A__GUID-234B027A-B857-4AC1-9DC9-FBD154BA5E46">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT" target="_blank" href="../CNCPT/toc.htm"><span class="italic">Oracle Database Concepts</span></a> for a complete discussion of checkpoints</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94554"></a><a id="TGDBA94553"></a>
+<div class="props_rev_3"><a id="GUID-C2F859B9-FB79-4786-B725-EBDAAE435393"></a>
+<h4 id="TGDBA-GUID-C2F859B9-FB79-4786-B725-EBDAAE435393" class="sect4">Monitoring Cache Recovery with V$INSTANCE_RECOVERY</h4>
+<div>
+<p><a id="d20882e6738" class="indexterm-anchor"></a>The <code>V$INSTANCE_RECOVERY</code> view displays the current recovery parameter settings. You can also use statistics from this view to determine which factor has the greatest influence on checkpointing.</p>
+<p>The following table lists those columns most useful in monitoring predicted cache recovery performance:</p>
+<div class="tblformal" id="GUID-C2F859B9-FB79-4786-B725-EBDAAE435393__GUID-7E6C5FC6-E570-4052-8A72-D031B93F0F70">
+<p class="titleintable">Table 10-4 V$INSTANCE_RECOVERY Columns</p>
+<table class="cellalignment11" title="V$INSTANCE_RECOVERY Columns" summary="This table describes columns of the V$INSTANCE_RECOVERY view.">
+<thead>
+<tr class="cellalignment2">
+<th class="cellalignment89" id="d20882e6760">Column</th>
+<th class="cellalignment89" id="d20882e6763">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2">
+<td class="cellalignment90" id="d20882e6768" headers="d20882e6760">
+<p><code>TARGET_MTTR</code></p>
+</td>
+<td class="cellalignment90" headers="d20882e6768 d20882e6763">
+<p>Effective MTTR target in seconds. This field is 0 if <code>FAST_START_MTTR_TARGET</code> is not specified.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment90" id="d20882e6779" headers="d20882e6760">
+<p><code>ESTIMATED_MTTR</code></p>
+</td>
+<td class="cellalignment90" headers="d20882e6779 d20882e6763">
+<p>The current estimated MTTR in seconds, based on the current number of dirty buffers and log blocks. This field is always calculated, whether <code>FAST_START_MTTR_TARGET</code> is specified.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>For more details on the columns in <code>V$INSTANCE_RECOVERY</code>, see <a class="olink REFRN30106" target="_blank" href="../REFRN/GUID-EF931A39-F812-4542-AE9E-29899DC7E325.htm#REFRN30106"><span class="italic">Oracle Database Reference</span></a>.</p>
+<p>As part of the ongoing monitoring of your database, you can periodically compare <code>V$INSTANCE_RECOVERY.TARGET_MTTR</code> to your <code>FAST_START_MTTR_TARGET</code>. The two values should generally be the same if the <code>FAST_START_MTTR_TARGET</code> value is in the practical range. If <code>TARGET_MTTR</code> is consistently longer than <code>FAST_START_MTTR_TARGET</code>, then set <code>FAST_START_MTTR_TARGET</code> to a value no less than <code>TARGET_MTTR</code>. If <code>TARGET_MTTR</code> is consistently shorter, then set <code>FAST_START_MTTR_TARGET</code> to a value no greater than <code>TARGET_MTTR</code>.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA13015"></a>
+<div class="props_rev_3"><a id="GUID-2ACBA638-B8C4-428E-B23C-D2131BC6E993"></a>
+<h3 id="TGDBA-GUID-2ACBA638-B8C4-428E-B23C-D2131BC6E993" class="sect3">Tuning FAST_START_MTTR_TARGET and Using MTTR Advisor</h3>
+<div>
+<p><a id="d20882e6868" class="indexterm-anchor"></a><a id="d20882e6874" class="indexterm-anchor"></a>To determine the appropriate value for <code>FAST_START_MTTR_TARGET</code> for your database, use the following four step process:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-57FFF0C9-E7C5-4ED4-9127-8C13D13D0B1F">Calibrate the FAST_START_MTTR_TARGET</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-63DE4C5C-6FDF-4FBB-A8D4-CD5DB54E15D5">Determine the Practical Range for FAST_START_MTTR_TARGET</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-676A7E78-C073-40DA-A6A7-10E6E85FF1D5">Evaluate Different Target Values with MTTR Advisor</a></p>
+</li>
+<li>
+<p><a href="pfgrf_instance_tune.htm#GUID-A3E90981-6726-4E95-8245-C209D6AB0A59">Determine the Optimal Size for Redo Logs</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA94555"></a>
+<div class="props_rev_3"><a id="GUID-57FFF0C9-E7C5-4ED4-9127-8C13D13D0B1F"></a>
+<h4 id="TGDBA-GUID-57FFF0C9-E7C5-4ED4-9127-8C13D13D0B1F" class="sect4">Calibrate the FAST_START_MTTR_TARGET</h4>
+<div>
+<p>The <code>FAST_START_MTTR_TARGET</code> initialization parameter causes the database to calculate internal system trigger values, in order to limit the length of the redo log and the number of dirty data buffers in the data cache. This calculation uses estimated time to read a redo block, estimates of the time to read and write a data block and characteristics of typical workload of the system, such as how many dirty buffers corresponds to how many change vectors, and so on.</p>
+<p>Initially, internal defaults are used in the calculation. These defaults are replaced over time by data gathered on I/O performance during system operation and actual cache recoveries.</p>
+<p>You will have to perform several instance recoveries in order to calibrate your <code>FAST_START_MTTR_TARGET</code> value properly. Before starting calibration, you must decide whether <code>FAST_START_MTTR_TARGET</code> is being calibrated for a database crash or a hardware crash. This is a consideration if your database files are stored in a file system or if your I/O subsystem has a memory cache, because there is a considerable difference in the read and write time to disk depending on whether the files are cached. The appropriate value for <code>FAST_START_MTTR_TARGET</code> will depend upon which type of crash is more important to recover from quickly.</p>
+<p>To effectively calibrate <code>FAST_START_MTTR_TARGET</code>, ensure that you run the typical workload of the system for long enough, and perform several instance recoveries to ensure that the time to read a redo block and the time to read or write a data block during recovery are recorded accurately.</p>
+</div>
+</div>
+<a id="TGDBA94556"></a>
+<div class="props_rev_3"><a id="GUID-63DE4C5C-6FDF-4FBB-A8D4-CD5DB54E15D5"></a>
+<h4 id="TGDBA-GUID-63DE4C5C-6FDF-4FBB-A8D4-CD5DB54E15D5" class="sect4">Determine the Practical Range for FAST_START_MTTR_TARGET</h4>
+<div>
+<p>After calibration, you can perform tests to determine the practical range for <code>FAST_START_MTTR_TARGET</code> for your database.</p>
+</div>
+<a id="TGDBA94557"></a>
+<div class="props_rev_3"><a id="GUID-7F16E87A-82AE-43DF-9301-7D24CBF8A4F8"></a>
+<h5 id="TGDBA-GUID-7F16E87A-82AE-43DF-9301-7D24CBF8A4F8" class="sect5">Determining Lower Bound for FAST_START_MTTR_TARGET: Scenario</h5>
+<div>
+<div class="section">
+<p>To determine the lower bound of the practical range, set <code>FAST_START_MTTR_TARGET</code> to 1, and start up your database. Then check the value of <code>V$INSTANCE_RECOVERY.TARGET_MTTR</code>, and use this value as a good lower bound for <code>FAST_START_MTTR_TARGET</code>. Database startup time, rather than cache recovery time, is usually the dominant factor in determining this limit.</p>
+<p>For example, set the <code>FAST_START_MTTR_TARGET</code> to 1:</p>
+<pre dir="ltr">SQL&gt; ALTER SYSTEM SET FAST_START_MTTR_TARGET=1;
+</pre>
+<p>Then, execute the following query immediately after opening the database:</p>
+<pre dir="ltr">SQL&gt; SELECT TARGET_MTTR, ESTIMATED_MTTR 
+    FROM V$INSTANCE_RECOVERY;
+</pre>
+<p>Oracle Database responds with the following:</p>
+<pre dir="ltr">TARGET_MTTR ESTIMATED_MTTR 
+18          15             
+</pre>
+<p>The <code>TARGET_MTTR</code> value of 18 seconds is the minimum MTTR target that the system can achieve, that is, the lowest practical value for <code>FAST_START_MTTR_TARGET</code>. This minimum is calculated based on the average database startup time.</p>
+<p>The <code>ESTIMATED_MTTR</code> field contains the estimated mean time to recovery based on the current state of the running database. Because the database has just opened, the system contains few dirty buffers, so not much cache recovery would be required if the instance failed at this moment. That is why <code>ESTIMATED_MTTR</code> can, for the moment, be lower than the minimum possible <code>TARGET_MTTR</code>.</p>
+<p><code>ESTIMATED_MTTR</code> can be affected in the short term by recent database activity. Assume that you query <code>V$INSTANCE_RECOVERY</code> immediately after a period of heavy update activity in the database. Oracle Database responds with the following:</p>
+<pre dir="ltr">TARGET_MTTR ESTIMATED_MTTR 
+18          30             
+</pre>
+<p>Now the effective MTTR target is still 18 seconds, and the estimated MTTR (if a crash happened at that moment) is 30 seconds. This is an acceptable result. This means that some checkpoints writes might not have finished yet, so the buffer cache contains more dirty buffers than targeted.</p>
+<p>Now wait for sixty seconds and reissue the query to <code>V$INSTANCE_RECOVERY</code>. Oracle Database responds with the following:</p>
+<pre dir="ltr">TARGET_MTTR ESTIMATED_MTTR 
+18          25             
+</pre>
+<p>The estimated MTTR at this time has dropped to 25 seconds, because some of the dirty buffers have been written out during this period</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94558"></a>
+<div class="props_rev_3"><a id="GUID-B17A039E-2107-451A-9E56-648F056A228A"></a>
+<h5 id="TGDBA-GUID-B17A039E-2107-451A-9E56-648F056A228A" class="sect5">Determining Upper Bound for FAST_START_MTTR_TARGET</h5>
+<div>
+<div class="section">
+<p>To determine the upper bound of the practical range, set <code>FAST_START_MTTR_TARGET</code> to 3600, and operate your database under a typical workload for a while. Then check the value of <code>V$INSTANCE_RECOVERY.TARGET_MTTR</code>. This value is a good upper bound for <code>FAST_START_MTTR_TARGET</code>.</p>
+<p>The procedure is substantially similar to that in <span class="q">&#34;<a href="pfgrf_instance_tune.htm#GUID-7F16E87A-82AE-43DF-9301-7D24CBF8A4F8">Determining Lower Bound for FAST_START_MTTR_TARGET: Scenario</a>&#34;</span>.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94559"></a>
+<div class="props_rev_3"><a id="GUID-CE2960DC-1DCF-441D-947F-7F0831467B6C"></a>
+<h5 id="TGDBA-GUID-CE2960DC-1DCF-441D-947F-7F0831467B6C" class="sect5">Selecting Preliminary Value for FAST_START_MTTR_TARGET</h5>
+<div>
+<div class="section">
+<p>After you have determined the practical bounds for the <code>FAST_START_MTTR_TARGET</code> parameter, select a preliminary value for the parameter. Choose a higher value within the practical range if your concern is with database performance, and a lower value within the practical range if your priority is shorter recovery times. The narrower the practical range, of course, the easier the choice becomes.</p>
+<p>For example, if you discovered that the practical range was between 17 and 19 seconds, it would be quite simple to choose 19, because it makes relatively little difference in recovery time and at the same time minimizes the effect of checkpointing on system performance. However, if you found that the practical range was between 18 and 40 seconds, you might choose a compromise value of 30, and set the parameter accordingly:</p>
+<pre dir="ltr">SQL&gt; ALTER SYSTEM SET FAST_START_MTTR_TARGET=30;
+</pre>
+<p>You might then go on to use the MTTR Advisor to determine an optimal value.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA94065"></a>
+<div class="props_rev_3"><a id="GUID-676A7E78-C073-40DA-A6A7-10E6E85FF1D5"></a>
+<h4 id="TGDBA-GUID-676A7E78-C073-40DA-A6A7-10E6E85FF1D5" class="sect4">Evaluate Different Target Values with MTTR Advisor</h4>
+<div>
+<p>After you have selected a preliminary value for <code>FAST_START_MTTR_TARGET</code>, you can use MTTR Advisor to evaluate the effect of different <code>FAST_START_MTTR_TARGET</code> settings on system performance, compared to your chosen setting.</p>
+</div>
+<a id="TGDBA94560"></a>
+<div class="props_rev_3"><a id="GUID-0751FA3F-B03A-495F-B053-3AE08FBC2895"></a>
+<h5 id="TGDBA-GUID-0751FA3F-B03A-495F-B053-3AE08FBC2895" class="sect5">Enabling MTTR Advisor</h5>
+<div>
+<div class="section">
+<p>To enable MTTR Advisor, set the two initialization parameters <code>STATISTICS_LEVEL</code> and <code>FAST_START_MTTR_TARGET</code>.</p>
+<p><code>STATISTICS_LEVEL</code> governs whether all advisors are enabled and is not specific to MTTR Advisor. Ensure that it is set to <code>TYPICAL</code> or <code>ALL</code>. Then, when <code>FAST_START_MTTR_TARGET</code> is set to a nonzero value, the MTTR Advisor is enabled.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94561"></a>
+<div class="props_rev_3"><a id="GUID-643ACE7E-E821-4CCC-94A6-9280EF44F234"></a>
+<h5 id="TGDBA-GUID-643ACE7E-E821-4CCC-94A6-9280EF44F234" class="sect5">Using MTTR Advisor</h5>
+<div>
+<div class="section">
+<p>After enabling MTTR Advisor, run a typical database workload for a while. When MTTR Advisor is ON, the database simulates checkpoint queue behavior under the current value of <code>FAST_START_MTTR_TARGET</code>, and up to four other different MTTR settings within the range of valid <code>FAST_START_MTTR_TARGET</code> values. (The database will in this case determine the valid range for <code>FAST_START_MTTR_TARGET</code> itself before testing different values in the range.)</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA94562"></a>
+<div class="props_rev_3"><a id="GUID-E6F9223F-92F0-4F20-A846-B61C3CB39470"></a>
+<h5 id="TGDBA-GUID-E6F9223F-92F0-4F20-A846-B61C3CB39470" class="sect5">Viewing MTTR Advisor Results: V$MTTR_TARGET_ADVICE</h5>
+<div>
+<div class="section">
+<p>The dynamic performance view <code>V$MTTR_TARGET_ADVICE</code> lets you view statistics or advisories collected by MTTR Advisor.</p>
+<p>The database populates <code>V$MTTR_TARGET_ADVICE</code> with advice about the effects of each of the <code>FAST_START_MTTR_TARGET</code> settings for your database. For each possible value of <code>FAST_START_MTTR_TARGET</code>, the row contains details about how many cache writes would be performed under the workload tested for that value of FAST_START_MTTR_TARGET.</p>
+<p>Specifically, each row contains information about cache writes, total physical writes (including direct writes), and total I/O (including reads) for that value of <code>FAST_START_MTTR_TARGET</code>, expressed both as a total number of operations and a ratio compared to the operations under your chosen <code>FAST_START_MTTR_TARGET</code> value. For instance, a ratio of 1.2 indicates 20% more cache writes.</p>
+<p>Knowing the effect of different <code>FAST_START_MTTR_TARGET</code> settings on cache write activity and other I/O enables you to decide better which <code>FAST_START_MTTR_TARGET</code> value best fits your recovery and performance needs.</p>
+<p>If MTTR Advisor is currently on, then <code>V$MTTR_TARGET_ADVICE</code> shows the Advisor information collected. If MTTR Advisor is currently <code>OFF</code>, then the view shows information collected the last time MTTR Advisor was <code>ON</code> since database startup, if any. If the database has been restarted since the last time the MTTR Advisor was used, or if it has never been used, the view will not show any rows.</p>
+<div class="infoboxnotealso" id="GUID-E6F9223F-92F0-4F20-A846-B61C3CB39470__GUID-E0E6D9EB-F83C-4820-AE8A-300608421E3F">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for column details of the <code>V$MTTR_TARGET_ADVICE</code> view</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA94563"></a>
+<div class="props_rev_3"><a id="GUID-A3E90981-6726-4E95-8245-C209D6AB0A59"></a>
+<h4 id="TGDBA-GUID-A3E90981-6726-4E95-8245-C209D6AB0A59" class="sect4">Determine the Optimal Size for Redo Logs</h4>
+<div>
+<div class="section">
+<p>You can use the <code>V$INSTANCE_RECOVERY</code> view column <code>OPTIMAL_LOGFILE_SIZE</code> to determine the size of your online redo logs. This field shows the redo log file size in megabytes that is considered optimal based on the current setting of <code>FAST_START_MTTR_TARGET</code>. If this field consistently shows a value greater than the size of your smallest online log, then you should configure all your online logs to be at least this size.</p>
+<p>Note, however, that the redo log file size affects the MTTR. In some cases, you may be able to refine your choice of the optimal <code>FAST_START_MTTR_TARGET</code> value by re-running the MTTR Advisor with your suggested optimal log file size.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1">
+<tr>
+<td class="cellalignment8">
+<table class="cellalignment6">
+<tr>
+<td class="cellalignment5"><a href="sampling.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5"><a href="part3.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment10">
+<table class="cellalignment4">
+<tr>
+<td class="cellalignment5"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

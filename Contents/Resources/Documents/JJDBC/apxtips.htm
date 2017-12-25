@@ -1,0 +1,327 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-70978"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/JDBC%20Coding%20Tips"></a><title>JDBC Coding Tips</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="This book describes how to use Oracle JDBC drivers to develop powerful Java database applications."/>
+<meta name="dcterms.created" content="2014-06-30T1:22:37Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database JDBC Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49300-05"/>
+<meta name="dcterms.isVersionOf" content="JJDBC"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="apxracfan.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="apxermsg.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49300-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">52/55</span> <!-- End Header -->
+<div id="JJDBC28948" class="appendix"><a id="CHDJBDHH"></a>
+<h1 class="appendix"><span class="secnum">C</span> JDBC Coding Tips</h1>
+<p>This appendix describes methods to optimize a Java Database Connectivity (JDBC) application or applet. It includes the following topics:</p>
+<ul>
+<li>
+<p><a href="#i1005436">JDBC and Multithreading</a></p>
+</li>
+<li>
+<p><a href="#i1002721">Performance Optimization of JDBC Programs</a></p>
+</li>
+<li>
+<p><a href="#i1007231">Transaction Isolation Levels and Access Modes in JDBC</a></p>
+</li>
+</ul>
+<a id="i1005436"></a>
+<div id="JJDBC28949" class="sect1">
+<h2 class="sect1">JDBC and Multithreading</h2>
+<p>Oracle JDBC drivers provide full support for, and are highly optimized for, applications that use Java multithreading. Controlled serial access to a connection, such as that provided by connection caching, is both necessary and encouraged. However, Oracle strongly discourages sharing a database connection among multiple threads. Avoid allowing multiple threads to access a connection simultaneously. If multiple threads must share a connection, use a disciplined begin-using/end-using protocol.</p>
+<p>Keep the following points in mind while working on multithreaded applications:</p>
+<ul>
+<li>
+<p>Use the <code>Connection</code> object as a local variable.</p>
+</li>
+<li>
+<p>Close the connection in the <code>finally</code> block before exiting the method. For example:</p>
+<pre>Connection conn = null;
+try
+{ 
+    ... 
+}
+finally 
+{ 
+   if(conn != null) conn.close();
+}
+</pre></li>
+<li>
+<p>Do not share <code>Connection</code> objects between threads.</p>
+</li>
+<li>
+<p>Never synchronize on JDBC objects because it is done internally by the driver.</p>
+</li>
+<li>
+<p>Use the <code>Statement.setQueryTimeout</code> method to set the time to execute a query instead of cancelling the long-running query from a different thread.</p>
+</li>
+<li>
+<p>Use the <code>Statement.cancel</code> method for SQL operations like <code>SELECT</code>, <code>UPDATE</code>, or <code>DELETE</code>.</p>
+</li>
+<li>
+<p>Use the <code>Connection.cancel</code> method for SQL operations like <code>COMMIT</code>, <code>ROLLBACK</code>, and so on.</p>
+</li>
+<li>
+<p>Do not use the <code>Thread.interrupt</code> method.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect1" -->
+<a id="i1002721"></a>
+<div id="JJDBC28950" class="sect1">
+<h2 class="sect1">Performance Optimization of JDBC Programs</h2>
+<p>You can <a id="sthref1040"></a><a id="sthref1041"></a>significantly enhance the performance of your JDBC programs by using any of these features:</p>
+<ul>
+<li>
+<p><a href="#i1001932">Disabling Auto-Commit Mode</a></p>
+</li>
+<li>
+<p><a href="#i1006815">Standard Fetch Size and Oracle Row Prefetching</a></p>
+</li>
+<li>
+<p><a href="#BABCFHDD">Setting the Session Data Unit Size</a></p>
+</li>
+<li>
+<p><a href="#i1001940">JDBC Update Batching</a></p>
+</li>
+<li>
+<p><a href="#BABHFEHC">Statement Caching</a></p>
+</li>
+<li>
+<p><a href="#BABGHDIE">Mapping Between Built-in SQL and Java Types</a></p>
+</li>
+</ul>
+<a id="i1001932"></a>
+<div id="JJDBC28951" class="sect2">
+<h3 class="sect2">Disabling Auto-Commit Mode</h3>
+<p>Auto-commit mode <a id="sthref1042"></a>indicates to the database whether to issue an automatic <code>COMMIT</code> operation after every SQL operation. Being in auto-commit mode can be expensive in terms of time and processing effort if, for example, you are repeating the same statement with different bind variables.</p>
+<p>By default, new connection objects are in auto-commit mode. However, you can disable auto-commit mode with the <code><a id="sthref1043"></a>setAutoCommit</code> method of the connection object, either <code>java.sql.Conection</code> or <code>oracle.jdbc.OracleConnection</code>.</p>
+<p>In auto-commit mode, the <code>COMMIT</code> operation occurs either when the statement completes or the next execute occurs, whichever comes first. In the case of statements returning a <a id="sthref1044"></a><a id="sthref1045"></a><code>ResultSet</code> object, the statement completes when the last row of the Result Set has been retrieved or when the Result Set has been closed. In more complex cases, a single statement can return multiple results as well as output parameter values. Here, the <code>COMMIT</code> occurs when all results and output parameter values have been retrieved.</p>
+<p>If you disable auto-commit mode with a <code>setAutoCommit(false)</code> call, then you must manually commit or roll back groups of operations using the <code>commit</code> or <code>rollback</code> method of the connection object.</p>
+<p class="subhead2"><a id="JJDBC28952"></a>Example</p>
+<p>The following example illustrates loading the driver and connecting to the database. Because new connections are in auto-commit mode by default, this example shows how to disable auto-commit. In the example, <code>conn</code> represents the <code>Connection</code> object, and <code>stmt</code> represents the <code>Statement</code> object.</p>
+<pre>// Connect to the database 
+// You can put a database host name after the @ sign in the connection URL.
+   OracleDataSource ods = new OracleDataSource();
+   ods.setURL(&#34;jdbc:oracle:oci:@&#34;);
+   ods.setUser(&#34;HR&#34;);
+   ods.setPassword(&#34;hr&#34;);
+   Connection conn = ods.getConnection();
+    
+// It&#39;s faster when auto commit is off 
+conn.setAutoCommit (false);
+
+// Create a Statement 
+Statement stmt = conn.createStatement (); 
+...
+</pre></div>
+<!-- class="sect2" -->
+<a id="i1006815"></a>
+<div id="JJDBC28953" class="sect2">
+<h3 class="sect2">Standard Fetch Size and Oracle Row Prefetching</h3>
+<p>Oracle JDBC connection and statement objects allow you to specify the number of rows to prefetch into the client with each trip to the database while a result set is being populated during a query. You can set a value in a connection object that affects each statement produced through that connection, and you can override that value in any particular statement object. The default value in a connection object is 10. Prefetching data into the client reduces the number of round-trips to the server.</p>
+<p>Similarly, and with more flexibility, JDBC 2.0 enables you to specify the number of rows to fetch with each trip, both for statement objects (affecting subsequent queries) and for result set objects (affecting row refetches). By default, a result set uses the value for the statement object that produced it. If you do not set the JDBC 2.0 fetch size, then the Oracle connection row-prefetch value is used by default.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="resltset.htm#i1023619">&#34;Fetch Size&#34;</a></div>
+</div>
+<!-- class="sect2" -->
+<a id="BABCFHDD"></a>
+<div id="JJDBC29168" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Setting the Session Data Unit Size</h3>
+<p>Session data unit (SDU) is a buffer that Oracle Net uses to place data before transmitting it across the network. Oracle Net sends the data in the buffer either when the request is completed or when it is full.</p>
+<p>You can configure the SDU and obtain the following benefits, among others:</p>
+<ul>
+<li>
+<p>Reduction in the time required to transmit a SQL query and result across the network</p>
+</li>
+<li>
+<p>Transmission of larger chunks of data</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The footprint of the client and the server process increase if you set a bigger SDU size.</div>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink NETAG014" href="../NETAG/performance.htm#NETAG014"><span class="italic">Oracle Database Net Services Administrator&#39;s Guide</span></a></div>
+<p>This section describes the following:</p>
+<ul>
+<li>
+<p><a href="#BABJADHG">Setting the SDU Size for the Database Server</a></p>
+</li>
+<li>
+<p><a href="#BABFCGHG">Setting the SDU Size for JDBC Thin Client</a></p>
+</li>
+</ul>
+<a id="BABJADHG"></a>
+<div id="JJDBC29169" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Setting the SDU Size for the Database Server</h4>
+<p>To set the SDU size for the database server, configure the <code>DEFAULT_SDU_SIZE</code> parameter in the <code>sqlnet.ora</code> file.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink NETAG1476" href="../NETAG/performance.htm#NETAG1476"><span class="italic">Oracle Database Net Services Administrator&#39;s Guide</span></a> for more information about setting the SDU size for the database server</div>
+</div>
+<!-- class="sect3" -->
+<div id="JJDBC29171" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref1046"></a>
+<h4 class="sect3">Setting the SDU Size for JDBC OCI Client</h4>
+<p>The JDBC OCI client uses Oracle Net layer. So, you can set the SDU size for the JDBC OCI client by configuring the <code>DEFAULT_SDU_SIZE</code> parameter in the <code>sqlnet.ora</code> file.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink NETAG1475" href="../NETAG/performance.htm#NETAG1475"><span class="italic">Oracle Database Net Services Administrator&#39;s Guide</span></a> for more information about setting the SDU size for the database server</div>
+</div>
+<!-- class="sect3" -->
+<a id="BABFCGHG"></a>
+<div id="JJDBC29170" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Setting the SDU Size for JDBC Thin Client</h4>
+<p>You can set the SDU size for JDBC thin client by specifying it in the <code>DESCRIPTION</code> parameter for a particular connection descriptor.</p>
+<pre>sales.example.com=
+(DESCRIPTION= 
+    (SDU=11280) 
+      (ADDRESS=(PROTOCOL=tcp)(HOST=sales-server)(PORT=5221))
+    (CONNECT_DATA=
+     (SERVICE_NAME=sales.example.com))
+) 
+</pre></div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="i1001940"></a>
+<div id="JJDBC28954" class="sect2">
+<h3 class="sect2">JDBC Update Batching</h3>
+<p>Oracle JDBC drivers enable you to accumulate <code>INSERT</code>, <code>DELETE</code>, and <code>UPDATE</code> operations of prepared statements at the client and send them to the server in batches. This feature reduces round-trips to the server.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Oracle recommends to keep the batch sizes in the range of 100 or less. Larger batches provide little or no performance improvement and may actually reduce performance due to the client resources required to handle the large batch.</div>
+</div>
+<!-- class="sect2" -->
+<a id="BABHFEHC"></a>
+<div id="JJDBC28955" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Statement Caching</h3>
+<p>Statement caching improves performance by caching executable statements that are used repeatedly, such as in a loop or in a method that is called repeatedly. Applications use the statement cache to cache statements associated with a particular physical connection. When you enable Statement caching, a Statement object is cached when you call the <code>close</code> method. Because each physical connection has its own cache, multiple caches can exist if you enable Statement caching for multiple physical connections.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The Oracle JDBC drivers are optimized for use with the Oracle Statement cache. Oracle strongly recommends that you use the Oracle Statement cache (implicit or explicit).</div>
+<p>When you enable Statement caching on a connection cache, the logical connections benefit from the Statement caching that is enabled on the underlying physical connection. If you try to enable Statement caching on a logical connection held by a connection cache, then this will throw an exception.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="stmtcach.htm#g1079466">Chapter 20, &#34;Statement and Result Set Caching&#34;</a></div>
+</div>
+<!-- class="sect2" -->
+<a id="BABGHDIE"></a>
+<div id="JJDBC28956" class="sect2">
+<h3 class="sect2">Mapping Between Built-in SQL and Java Types</h3>
+<p>The SQL built-in types are those types with system-defined names, such as <code>NUMBER</code>, and <code>CHAR</code>, as opposed to the Oracle objects, varray, and nested table types, which have user-defined names. In JDBC programs that access data of built-in SQL types, all type conversions are unambiguous, because the program context determines the Java type to which a SQL datum will be converted.</p>
+<p>The most efficient way to access numeric data is to use primitive Java types like <code>int</code>, <code>float</code>, <code>long</code>, and <code>double</code>. However, the range of values of these types do not exactly match the range of values of the SQL <code>NUMBER</code> data type. As a result, there may be some loss of information. If absolute precision is required across the entire value range, then use the <code>BigDecimal</code> type.</p>
+<p>All character data is converted to the UCS2 character set of Java. The most efficient way to access character data is as <code>java.lang.String</code>. In worst case, this can cause a loss of information when two or more characters in the database character set map to a single UCS2 character. Since Oracle Database 11<span class="italic">g</span>, all characters in the character set map to the characters in the UCS2 character set. However, some characters do map to surrogate pairs.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="i1007231"></a>
+<div id="JJDBC28958" class="sect1">
+<h2 class="sect1">Transaction Isolation Levels and Access Modes in JDBC</h2>
+<p><a id="sthref1047"></a><a id="sthref1048"></a>Read-only connections are supported by Oracle JDBC drivers, but not by the Oracle server.</p>
+<p>For transactions, the Oracle server supports only the <code>TRANSACTION_READ_COMMITTED</code> and <code>TRANSACTION_SERIALIZABLE</code> transaction isolation levels. The default is <code>TRANSACTION_READ_COMMITTED</code>. Use the following methods of the <code>oracle.jdbc.OracleConnection</code> interface to get and set the level:</p>
+<ul>
+<li>
+<p><code><a id="sthref1049"></a><a id="sthref1050"></a>getTransactionIsolation</code>: Gets this connection&#39;s current transaction isolation level.</p>
+</li>
+<li>
+<p><code><a id="sthref1051"></a><a id="sthref1052"></a>setTransactionIsolation</code>: Changes the transaction isolation level, using one of the <code>TRANSACTION_*</code> values.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="appendix" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2237">
+<tr>
+<td class="cellalignment2246">
+<table class="cellalignment2242">
+<tr>
+<td class="cellalignment2241"><a href="apxracfan.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2241"><a href="apxermsg.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2249">
+<table class="cellalignment2240">
+<tr>
+<td class="cellalignment2241"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2241"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2241"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2241"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2241"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2241"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

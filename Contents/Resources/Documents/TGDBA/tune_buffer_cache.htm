@@ -1,0 +1,995 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106647"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Tuning%20the%20Database%20Buffer%20Cache"></a><title>Tuning the Database Buffer Cache</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-01-18T01:24:57Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Performance Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49058-08"/>
+<meta name="dcterms.isVersionOf" content="TGDBA"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="tune_sga.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tune_shared_pool.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49058-08.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-F2D11BC8-986F-4A8B-A37F-530BE9EB2DA8"></a> <span id="PAGE" style="display:none;">20/27</span> <!-- End Header -->
+<a id="TGDBA294"></a>
+<h1 id="TGDBA-GUID-F2D11BC8-986F-4A8B-A37F-530BE9EB2DA8" class="sect1"><span class="enumeration_chapter">13</span> Tuning the Database Buffer Cache</h1>
+<div>
+<p>This chapter describes how to tune the database buffer cache. If you are using automatic memory management to manage the database memory on your system, there is no need to manually tune the memory caches described in this chapter.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-E5111374-CBFD-481E-B201-A54C1FFC3FC0">About the Database Buffer Cache</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-76C5DB98-5140-469E-B23D-777EAA8564C1">Configuring the Database Buffer Cache</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-31549A91-EF90-4FD5-AC5E-3F80FD3AE175">Configuring Multiple Buffer Pools</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-1724C3C8-190E-4DBA-90FC-12B1B40158B1">Configuring the Redo Log Buffer</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-37246D78-7499-491B-B891-D625628677E7">Configuring the Database Caching Mode</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA295"></a>
+<div class="props_rev_3"><a id="GUID-E5111374-CBFD-481E-B201-A54C1FFC3FC0"></a>
+<h2 id="TGDBA-GUID-E5111374-CBFD-481E-B201-A54C1FFC3FC0" class="sect2">About the Database Buffer Cache</h2>
+<div>
+<p>For many types of operations, Oracle Database uses the buffer cache to store data blocks read from disk. Oracle Database bypasses the buffer cache for particular operations, such as sorting and parallel reads.</p>
+<p>To use the database buffer cache effectively, tune SQL statements for the application to avoid unnecessary resource consumption. To meet this goal, verify that frequently executed SQL statements and SQL statements that perform many buffer gets are well-tuned.</p>
+<p>When using parallel query, consider configuring the database to use the database buffer cache instead of performing direct reads into the Program Global Area (PGA). This configuration may be appropriate when the system has a large amount of memory.</p>
+<div class="infoboxnotealso" id="GUID-E5111374-CBFD-481E-B201-A54C1FFC3FC0__GUID-02F21174-E00E-4924-9F53-018DB19A6FF7">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink TGDBA" target="_blank" href="toc.htm"><span class="italic">Oracle Database SQL Tuning Guide</span></a> for information about tuning SQL statements</p>
+</li>
+<li>
+<p><a class="olink VLDBG010" target="_blank" href="../VLDBG/GUID-3E2AE088-2505-465E-A8B2-AC38813EA355.htm#VLDBG010"><span class="italic">Oracle Database VLDB and Partitioning Guide</span></a> for information about parallel execution</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGDBA310"></a>
+<div class="props_rev_3"><a id="GUID-76C5DB98-5140-469E-B23D-777EAA8564C1"></a>
+<h2 id="TGDBA-GUID-76C5DB98-5140-469E-B23D-777EAA8564C1" class="sect2">Configuring the Database Buffer Cache</h2>
+<div>
+<p>When configuring a new database instance, it is impossible to know the correct size for the buffer cache. Typically, a database administrator makes a first estimate for the cache size, then runs a representative workload on the instance and examines the relevant statistics to see whether the cache is under-configured or over-configured.</p>
+<p>This section describes how to configure the database buffer cache. If you are using automatic shared memory management to configure the Shared Global Area (SGA), there is no need to manually tune the database buffer cache as described in this section.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-83733109-5119-4DDB-8A81-5302CE956BE2">Using the V$DB_CACHE_ADVICE View</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC">Calculating the Buffer Cache Hit Ratio</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-E4018F9E-5A4B-41D0-8BCA-16191FC783BE">Interpreting the Buffer Cache Hit Ratio</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-874BE709-8385-43AE-B3AB-BB3F6A0D1971">Increasing Memory Allocated to the Database Buffer Cache</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-74EF352E-2C42-4C39-9F82-00BC7DC616AD">Reducing Memory Allocated to the Database Buffer Cache</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA531"></a><a id="TGDBA532"></a><a id="TGDBA530"></a>
+<div class="props_rev_3"><a id="GUID-83733109-5119-4DDB-8A81-5302CE956BE2"></a>
+<h3 id="TGDBA-GUID-83733109-5119-4DDB-8A81-5302CE956BE2" class="sect3">Using the V$DB_CACHE_ADVICE View</h3>
+<div>
+<p>The <a id="d33148e223" class="indexterm-anchor"></a><code>V$DB_CACHE_ADVICE</code> view shows the simulated miss rates for a range of potential buffer cache sizes. This view assists in cache sizing by providing information that predicts the number of physical reads for each potential cache size. The data also includes a physical read factor, which is a factor by which the current number of physical reads is estimated to change if the buffer cache is resized to a given value.</p>
+<p>However, physical reads do not necessarily indicate disk reads in Oracle Database, because physical reads may be accomplished by reading from the file system cache. Hence, the relationship between successfully finding a block in the cache and the size of the cache is not always a smooth distribution. When sizing the buffer pool, avoid using additional buffers that do not contribute (or contribute very little) to the cache hit ratio.</p>
+<p>The following figure illustrates the relationship between physical I/O ratio and buffer cache size.</p>
+<div class="figure" id="GUID-83733109-5119-4DDB-8A81-5302CE956BE2__CHDBJBFI">
+<p class="titleinfigure">Figure 13-1 Physical I/O Ratio and Buffer Cache Size</p>
+<img width="489" height="338" src="img/GUID-13E6FFDE-CE7F-4E9E-BE83-148C8F141C7D-default.png" alt="Description of Figure 13-1 follows" title="Description of Figure 13-1 follows"/><br/>
+<a href="img_text/GUID-13E6FFDE-CE7F-4E9E-BE83-148C8F141C7D-print.htm">Description of &#34;Figure 13-1 Physical I/O Ratio and Buffer Cache Size&#34;</a></div>
+<!-- class="figure" -->
+<p>Examining the example illustrated in the above figure leads to the following observations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>As the number of buffers increases, the physical I/O ratio decreases.</p>
+</li>
+<li>
+<p>The decrease in the physical I/O between points A and B and points B and C is not smooth, as indicated by the dotted line in the graph.</p>
+</li>
+<li>
+<p>The benefit from increasing buffers from point A to point B is considerably higher than from point B to point C.</p>
+</li>
+<li>
+<p>The benefit from increasing buffers decreases as the number of buffers increases.</p>
+</li>
+</ul>
+<p>There is some overhead associated with using this advisory view. When the advisory is enabled, there is a small increase in CPU usage, because additional bookkeeping is required. To reduce both the CPU and memory overhead associated with bookkeeping, Oracle Database uses sampling to gather cache advisory statistics. Sampling is not used if the number of buffers in a buffer pool is small to begin with.</p>
+<div class="section">
+<p class="subhead3">To use the V$DB_CACHE_ADVICE view:</p>
+<ol>
+<li>
+<p>Set the value of the <code>DB_CACHE_ADVICE</code> initialization parameter to <code>ON</code>.</p>
+<p>This enables the advisory view. The <code>DB_CACHE_ADVICE</code> parameter is dynamic, so the advisory can be enabled and disabled dynamically to enable you to collect advisory data for a specific workload.</p>
+</li>
+<li>
+<p>Run a representative workload on the database instance.</p>
+<p>Allow the workload to stabilize before querying the <code>V$DB_CACHE_ADVICE</code> view.</p>
+</li>
+<li>
+<p>Query the <code>V$DB_CACHE_ADVICE</code> view.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The following example shows a query of this view that returns the predicted I/O requirement for the default buffer pool for various cache sizes.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-83733109-5119-4DDB-8A81-5302CE956BE2__CHDJFIBH">
+<p class="titleinexample">Example 13-1 Querying the V$DB_CACHE_ADVICE View</p>
+<pre dir="ltr">COLUMN size_for_estimate          FORMAT 999,999,999,999 heading &#39;Cache Size (MB)&#39;
+COLUMN buffers_for_estimate       FORMAT 999,999,999 heading &#39;Buffers&#39;
+COLUMN estd_physical_read_factor  FORMAT 999.90 heading &#39;Estd Phys|Read Factor&#39;
+COLUMN estd_physical_reads        FORMAT 999,999,999 heading &#39;Estd Phys| Reads&#39;
+
+SELECT size_for_estimate, buffers_for_estimate, estd_physical_read_factor,
+       estd_physical_reads
+  FROM V$DB_CACHE_ADVICE
+ WHERE name = &#39;DEFAULT&#39;
+   AND block_size = (SELECT value FROM V$PARAMETER WHERE name = &#39;db_block_size&#39;)
+   AND advice_status = &#39;ON&#39;;
+</pre>
+<p>The output of this query might look like the following:</p>
+<pre dir="ltr">                                Estd Phys    Estd Phys
+ Cache Size (MB)      Buffers Read Factor        Reads
+---------------- ------------ ----------- ------------
+              30        3,802       18.70  192,317,943      10% of Current Size 
+              60        7,604       12.83  131,949,536
+              91       11,406        7.38   75,865,861
+             121       15,208        4.97   51,111,658
+             152       19,010        3.64   37,460,786
+             182       22,812        2.50   25,668,196
+             212       26,614        1.74   17,850,847
+             243       30,416        1.33   13,720,149
+             273       34,218        1.13   11,583,180
+             304       38,020        1.00   10,282,475      Current Size 
+             334       41,822         .93    9,515,878
+             364       45,624         .87    8,909,026
+             395       49,426         .83    8,495,039
+             424       53,228         .79    8,116,496
+             456       57,030         .76    7,824,764
+             486       60,832         .74    7,563,180
+             517       64,634         .71    7,311,729
+             547       68,436         .69    7,104,280
+             577       72,238         .67    6,895,122
+             608       76,040         .66    6,739,731      200% of Current Size 
+</pre>
+<p>In this example, the output shows that if the cache was 212 MB&mdash;instead of the current size of 304 MB&mdash;the estimated number of physical reads would increase by a factor of 1.74, or 74%. Hence, it is not advisable to decrease the cache size to 212MB.</p>
+<p>However, increasing the cache size to 334MB may potentially decrease reads by a factor of .93, or 7%. If an additional 30MB memory is available on the system and the value of the <code>SGA_MAX_SIZE</code> parameter allows for the increment, it is advisable to increase the default buffer cache pool size to 334MB.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGDBA534"></a><a id="TGDBA535"></a><a id="TGDBA533"></a>
+<div class="props_rev_3"><a id="GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC"></a>
+<h3 id="TGDBA-GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC" class="sect3">Calculating the Buffer Cache Hit Ratio</h3>
+<div>
+<div class="section">
+<p>The buffer cache hit ratio calculates how often a requested block has been found in the buffer cache without requiring disk access. This ratio is computed using data selected from the <code>V$SYSSTAT</code><a id="d33148e347" class="indexterm-anchor"></a> performance view. Use the buffer cache hit ratio to verify the physical I/O as predicted by the <code>V$DB_CACHE_ADVICE</code> view.</p>
+<p><a href="tune_buffer_cache.htm#GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC__CHDECFBD" title="This table lists statistics that are used to calculate the buffer cache hit ratio.">Table 13-1</a> lists the statistics from the <code>V$SYSSTAT</code> view used to calculate the buffer cache hit ratio.</p>
+<div class="tblformal" id="GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC__CHDECFBD">
+<p class="titleintable">Table 13-1 Statistics for Calculating the Buffer Cache Hit Ratio</p>
+<table class="cellalignment11" title="Statistics for Calculating the Buffer Cache Hit Ratio" summary="This table lists statistics that are used to calculate the buffer cache hit ratio.">
+<thead>
+<tr class="cellalignment2">
+<th class="cellalignment12" id="d33148e374">Statistic</th>
+<th class="cellalignment13" id="d33148e377">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2">
+<td class="cellalignment14" id="d33148e382" headers="d33148e374">
+<p><code>consistent gets from cache</code><a id="d33148e386" class="indexterm-anchor"></a><a id="d33148e388" class="indexterm-anchor"></a></p>
+</td>
+<td class="cellalignment15" headers="d33148e382 d33148e377">
+<p>Number of times a consistent read was requested for a block from the buffer cache.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment14" id="d33148e396" headers="d33148e374">
+<p><code>db block gets from cache</code><a id="d33148e400" class="indexterm-anchor"></a><a id="d33148e404" class="indexterm-anchor"></a></p>
+</td>
+<td class="cellalignment15" headers="d33148e396 d33148e377">
+<p>Number of times a <code>CURRENT</code> block was requested from the buffer cache.</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment14" id="d33148e413" headers="d33148e374">
+<p><code>physical reads cache</code><a id="d33148e417" class="indexterm-anchor"></a><a id="d33148e419" class="indexterm-anchor"></a></p>
+</td>
+<td class="cellalignment15" headers="d33148e413 d33148e377">
+<p>Total number of data blocks read from disk into buffer cache.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p><a href="tune_buffer_cache.htm#GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC__CHDJJCIA">Example 13-2</a> shows a query of this view.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC__CHDJJCIA">
+<p class="titleinexample">Example 13-2 Querying the V$SYSSTAT View</p>
+<pre dir="ltr">SELECT name, value
+FROM V$SYSSTAT
+WHERE name IN (&#39;db block gets from cache&#39;, &#39;consistent gets from cache&#39;, 
+&#39;physical reads cache&#39;);
+</pre>
+<p>In this example, the query is simplified by using values selected directly from the <code>V$SYSSTAT</code> view, rather than over an interval. It is recommended to calculate the delta of these statistics over an interval while the application is running, then use these delta values to determine the buffer cache hit ratio. For information about collecting statistics over an interval, see <a href="pfgrf_diag.htm#GUID-843A596D-2D8B-422D-9C8D-73C0EF52739D">Automatic Performance Diagnostics</a> .</p>
+<p>Using the values from the output of this query, <a id="d33148e445" class="indexterm-anchor"></a>calculate the hit ratio for the buffer cache using the following formula:</p>
+<pre dir="ltr">1 - ((&#39;physical reads cache&#39;) / (&#39;consistent gets from cache&#39; + 
+&#39;db block gets from cache&#39;))
+</pre>
+<div class="infoboxnotealso" id="GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC__GUID-E04E7AE6-1E99-4AFB-B0D8-174402ADCE84">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for information about the <code>V$SYSSTAT</code> view</p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGDBA536"></a>
+<div class="props_rev_3"><a id="GUID-E4018F9E-5A4B-41D0-8BCA-16191FC783BE"></a>
+<h3 id="TGDBA-GUID-E4018F9E-5A4B-41D0-8BCA-16191FC783BE" class="sect3">Interpreting the Buffer Cache Hit Ratio</h3>
+<div>
+<p>Before deciding whether to increase or decrease the buffer cache size, you should first examine the buffer cache hit ratio.</p>
+<p>A low cache hit ratio does not necessarily imply that increasing the size of the buffer cache will benefit performance. Moreover, a high cache hit ratio may wrongly indicate that the buffer cache is adequately sized for the workload.</p>
+<p>To interpret the buffer cache hit ratio, consider the following factors:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Avoid repeated scanning of frequently accessed data by performing the processing in a single pass or by optimizing the SQL statement.</p>
+<p>Repeated scanning of the same large table or index can artificially inflate a low cache hit ratio. Examine frequently executed SQL statements with a large number of buffer gets, to ensure that the execution plans for these SQL statements are optimal.</p>
+</li>
+<li>
+<p>Avoid requerying the same data by caching frequently accessed data in the client program or middle tier.</p>
+</li>
+<li>
+<p>In large databases running OLTP applications, many rows are accessed only once (or never). Hence, there is no purpose in keeping the block in memory following its use.</p>
+</li>
+<li>
+<p>Do not continuously increase the buffer cache size.</p>
+<p>Continuous increases of the buffer cache size have no effect if the database is performing full table scans or operations that do not use the buffer cache.</p>
+</li>
+<li>
+<p>Consider poor hit ratios when large full table scans are occurring.</p>
+<p>Database blocks accessed during a long full table scan are placed on the tail end of the Least Recently Used (LRU) list and not on the head of the list. Therefore, the blocks age out faster than blocks read when performing indexed lookups or small table scans.</p>
+<div class="infobox-note" id="GUID-E4018F9E-5A4B-41D0-8BCA-16191FC783BE__GUID-A77B1D49-1154-4A7E-93C5-0013DA7798A4">
+<p class="notep1">Note:</p>
+<p>Short table scans are scans performed on tables under a certain size threshold. The definition of a small table is the maximum of 2% of the buffer cache or 20, whichever is bigger.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGDBA537"></a>
+<div class="props_rev_3"><a id="GUID-874BE709-8385-43AE-B3AB-BB3F6A0D1971"></a>
+<h3 id="TGDBA-GUID-874BE709-8385-43AE-B3AB-BB3F6A0D1971" class="sect3">Increasing Memory Allocated to the Database Buffer Cache</h3>
+<div>
+<div class="section">
+<p>If the cache hit ratio is low and your application is tuned to avoid performing full table scans, consider increasing the size of the buffer cache. If possible, resize the buffer pools dynamically, rather than shutting down the instance to perform this change.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To increase the size of the database buffer cache:</p>
+<ol>
+<li>
+<p>Set the value of the <code>DB_CACHE_ADVICE</code> initialization parameter to <code>ON</code>.</p>
+</li>
+<li>
+<p>Allow the buffer cache statistics to stabilize.</p>
+</li>
+<li>
+<p>Examine the advisory data in the <code>V$DB_CACHE_ADVICE</code> view to determine the next increment required to significantly decrease the amount of physical I/O performed, as described in <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-83733109-5119-4DDB-8A81-5302CE956BE2">Using the V$DB_CACHE_ADVICE View</a>&#34;</span>.</p>
+</li>
+<li>
+<p>If it is possible to allocate the extra memory required to the buffer cache without causing the system to page, then allocate this memory.</p>
+</li>
+<li>
+<p>To increase the amount of memory allocated to the buffer cache, increase the value of the <code>DB_CACHE_SIZE</code> initialization parameter.</p>
+<p>The <code>DB_CACHE_SIZE</code> parameter specifies the size of the default cache for the database&#39;s standard block size. To create and use tablespaces with block sizes other than the database&#39;s standard block sizes (such as for transportable tablespaces), configure a separate cache for each block size used. Use the <code>DB_</code><span class="italic"><code>n</code></span><code>K_CACHE_SIZE</code> parameter to configure the nonstandard block size needed (where <span class="italic"><code>n</code></span> is 2, 4, 8, 16 or 32 and not the standard block size).</p>
+<div class="infobox-note" id="GUID-874BE709-8385-43AE-B3AB-BB3F6A0D1971__GUID-E67B2C9F-C571-495F-8130-E63BCB40DFBD">
+<p class="notep1">Note:</p>
+<p>The process of choosing a cache size is the same, regardless of whether the cache is the default standard block size cache, the <code>KEEP</code> or <code>RECYCLE</code> cache, or a nonstandard block size cache.</p>
+</div>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infobox-note" id="GUID-874BE709-8385-43AE-B3AB-BB3F6A0D1971__GUID-66FA0E98-F428-461A-905A-C94C12F1A6E2">
+<p class="notep1">Note:</p>
+<p>When the cache is resized significantly (greater than 20%), the old cache advisory value is discarded and the cache advisory is set to the new size. Otherwise, the old cache advisory value is adjusted to the new size by the interpolation of existing values.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-874BE709-8385-43AE-B3AB-BB3F6A0D1971__GUID-1CD8B261-FA85-4C54-90FE-ED867D02745F">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> and <a class="olink ADMIN" target="_blank" href="../ADMIN/toc.htm"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for information about using the <code>DB_</code><span class="italic"><code>n</code></span><code>K_CACHE_SIZE</code> parameter</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA538"></a>
+<div class="props_rev_3"><a id="GUID-74EF352E-2C42-4C39-9F82-00BC7DC616AD"></a>
+<h3 id="TGDBA-GUID-74EF352E-2C42-4C39-9F82-00BC7DC616AD" class="sect3">Reducing Memory Allocated to the Database Buffer Cache</h3>
+<div>
+<div class="section">
+<p>If the cache hit ratio is high, then the buffer cache is likely large enough to store the most frequently accessed data. If this is the case and memory is required for another memory structure, consider reducing the size of the buffer cache.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To reduce the size of the database buffer cache:</p>
+<ol>
+<li>
+<p>Examine the advisory data in the <code>V$DB_CACHE_ADVICE</code> view to determine if decreasing the size of the buffer cache will significantly increase the number of physical I/Os, as described in <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-83733109-5119-4DDB-8A81-5302CE956BE2">Using the V$DB_CACHE_ADVICE View</a>&#34;</span>.</p>
+</li>
+<li>
+<p>To reduce the amount of memory allocated to the buffer cache, decrease the value of the <code>DB_CACHE_SIZE</code> initialization parameter.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA315"></a>
+<div class="props_rev_3"><a id="GUID-31549A91-EF90-4FD5-AC5E-3F80FD3AE175"></a>
+<h2 id="TGDBA-GUID-31549A91-EF90-4FD5-AC5E-3F80FD3AE175" class="sect2">Configuring Multiple Buffer Pools</h2>
+<div>
+<p>For most systems, a single default buffer pool is generally adequate. However, database administrators with detailed knowledge of an application&#39;s buffer pool may benefit from configuring multiple buffer pools.</p>
+<p>For segments that have atypical access patterns, consider storing blocks from these segments in two separate buffer pools: the <code>KEEP</code> pool and the <code>RECYCLE</code> pool. A segment&#39;s access pattern may be atypical if it is constantly accessed (sometimes referred to as hot) or infrequently accessed (such as a large segment that is accessed by a batch job only once a day).</p>
+<p>Using <a id="d33148e758" class="indexterm-anchor"></a><a id="d33148e760" class="indexterm-anchor"></a>multiple buffer pools enables you to address these irregularities. You can use the <code>KEEP</code> pool to maintain frequently accessed segments in the buffer cache, and the <code>RECYCLE</code> pool to prevent objects from consuming unnecessary space in the buffer cache. When an object is associated with a buffer cache, all blocks from that object are placed in that cache. Oracle Database maintains a <code>DEFAULT</code> buffer pool for objects that are not assigned to a specific buffer pool. The default buffer pool size is determined by the <code>DB_CACHE_SIZE</code> initialization parameter. Each buffer pool uses the same LRU replacement policy. For example, if the <code>KEEP</code> pool is not large enough to store all of the segments allocated to it, then the oldest blocks age out of the cache.<a id="d33148e781" class="indexterm-anchor"></a></p>
+<p>By allocating objects to appropriate buffer pools, you can:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Reduce or eliminate I/Os</p>
+</li>
+<li>
+<p>Isolate or limit an object to a separate cache</p>
+</li>
+</ul>
+<p>This section describes how to configure multiple buffer pools and contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-C896955E-01E4-4E93-9198-BA495E3C60E9">Considerations for Using Multiple Buffer Pools</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-30C8D6DD-C903-4484-B435-D51DF601D8B1">Using Multiple Buffer Pools</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-A77CE146-AA1F-4601-B002-B9261610AAB3">Using the V$DB_CACHE_ADVICE View for Individual Buffer Pools</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-C66B60D6-A759-47C0-AD53-B55DC3916002">Calculating the Buffer Pool Hit Ratio for Individual Buffer Pools</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-C07C5202-72F2-4A69-AAB6-B58BD3EA05B8">Examining the Buffer Cache Usage Pattern</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-DE6B6C6E-D947-45FF-B189-F0271B86DB10">Configuring the KEEP Pool</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-D777DE69-8CCD-49AB-8EC9-F5B7E84690FF">Configuring the RECYCLE Pool</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA539"></a>
+<div class="props_rev_3"><a id="GUID-C896955E-01E4-4E93-9198-BA495E3C60E9"></a>
+<h3 id="TGDBA-GUID-C896955E-01E4-4E93-9198-BA495E3C60E9" class="sect3">Considerations for Using Multiple Buffer Pools</h3>
+<div>
+<p>When using multiple buffer pools, take the following considerations into account:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-6DAE0BC7-CEDF-44AE-A4FB-EDED0B2AA57A">Random Access to Large Segments</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-609F72D6-46A1-4570-81F6-D0591548F109">Oracle Real Application Cluster Instances</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA540"></a>
+<div class="props_rev_3"><a id="GUID-6DAE0BC7-CEDF-44AE-A4FB-EDED0B2AA57A"></a>
+<h4 id="TGDBA-GUID-6DAE0BC7-CEDF-44AE-A4FB-EDED0B2AA57A" class="sect4">Random Access to Large Segments</h4>
+<div>
+<p>A problem may occur with an LRU aging method when a very large segment (compared to the size of the buffer cache) is accessed with a large or unbounded index range scan. Any single segment that accounts for a substantial portion (more than 10%) of nonsequential physical reads can be considered very large. Random reads to a large segment may cause buffers that contain data for other segments to be aged out of the cache. The large segment ends up consuming a large percentage of the buffer cache, but it does not benefit from the cache.</p>
+<p>Very frequently accessed segments are not affected by large segment reads because their buffers are warmed frequently enough that they do not age out of the buffer cache. However, the problem affects warm segments that are not accessed frequently enough to survive the buffer aging caused by the large segment reads. There are three options for solving this problem:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the object accessed is an index, determine whether the index is selective. If not, tune the SQL statement to use a more selective index.</p>
+</li>
+<li>
+<p>If the SQL statement is tuned, move the large segment into a separate <code>RECYCLE</code> cache so it does not affect the other segments. The <code>RECYCLE</code> cache should be smaller than the <code>DEFAULT</code> buffer pool, and it should reuse buffers more quickly.</p>
+</li>
+<li>
+<p>Alternatively, consider moving the small, warm segments into a separate <code>KEEP</code> cache that is not used for large segments. Size the <code>KEEP</code> cache to minimize misses in the cache. You can make the response times for specific queries more predictable by storing the segments accessed by the queries in the <code>KEEP</code> cache to ensure that they do not age out.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGDBA541"></a>
+<div class="props_rev_3"><a id="GUID-609F72D6-46A1-4570-81F6-D0591548F109"></a>
+<h4 id="TGDBA-GUID-609F72D6-46A1-4570-81F6-D0591548F109" class="sect4">Oracle Real Application Cluster Instances</h4>
+<div>
+<p>In an Oracle Real Application Cluster (Oracle RAC) environment, consider creating multiple buffer pools for each database instance. It is not necessary to define the same set of buffer pools for each instance of the database. Among instances, the buffer pools can be different sizes or undefined. Tune each instance according to the application requirements for that instance.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA542"></a>
+<div class="props_rev_3"><a id="GUID-30C8D6DD-C903-4484-B435-D51DF601D8B1"></a>
+<h3 id="TGDBA-GUID-30C8D6DD-C903-4484-B435-D51DF601D8B1" class="sect3">Using Multiple Buffer Pools</h3>
+<div>
+<p>To define a default buffer pool for an object, use the <code>BUFFER_POOL</code> keyword of the <code>STORAGE</code> clause. This clause is valid for the following SQL statements:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>CREATE TABLE</code></p>
+</li>
+<li>
+<p><code>CREATE CLUSTER</code></p>
+</li>
+<li>
+<p><code>CREATE INDEX</code></p>
+</li>
+<li>
+<p><code>ALTER TABLE</code></p>
+</li>
+<li>
+<p><code>ALTER CLUSTER</code></p>
+</li>
+<li>
+<p><code>ALTER INDEX</code></p>
+</li>
+</ul>
+<p>After a buffer pool is defined, all subsequent blocks read for the object are placed in that pool. If a buffer pool is defined for a partitioned table or index, then each partition of the object inherits the buffer pool from the table or index definition, unless if it is overridden by a specific buffer pool.</p>
+<p>When the buffer pool of an object is changed using the <code>ALTER</code> statement, all buffers currently containing blocks of the altered segment remain in the buffer pool they were in before the <code>ALTER</code> statement. Newly loaded blocks and any blocks that age out and are reloaded are placed into the new buffer pool.</p>
+<div class="infoboxnotealso" id="GUID-30C8D6DD-C903-4484-B435-D51DF601D8B1__GUID-83DDC62E-7114-4EB2-AC41-983C32A73A79">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF" target="_blank" href="../SQLRF/toc.htm"><span class="italic">Oracle Database SQL Language Reference</span></a> for information about specifying <code>BUFFER_POOL</code> in the <code>STORAGE</code> clause</p>
+</div>
+</div>
+</div>
+<a id="TGDBA544"></a><a id="TGDBA543"></a>
+<div class="props_rev_3"><a id="GUID-A77CE146-AA1F-4601-B002-B9261610AAB3"></a>
+<h3 id="TGDBA-GUID-A77CE146-AA1F-4601-B002-B9261610AAB3" class="sect3">Using the V$DB_CACHE_ADVICE View for Individual Buffer Pools</h3>
+<div>
+<div class="section">
+<p>As with the default buffer pool, you can use <code>V$DB_CACHE_ADVICE</code> view to assist in cache sizing of other pools. After estimating the initial cache size and running a representative workload, query the <code>V$DB_CACHE_ADVICE</code> view for the pool you want to use.</p>
+<p>For more information about using the <code>V$DB_CACHE_ADVICE</code> view, see <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-83733109-5119-4DDB-8A81-5302CE956BE2">Using the V$DB_CACHE_ADVICE View</a>&#34;</span>.</p>
+<p><a href="tune_buffer_cache.htm#GUID-A77CE146-AA1F-4601-B002-B9261610AAB3__CHDCDAAI">Example 13-3</a> shows a query of this view that queries data from the <code>KEEP</code> pool:</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-A77CE146-AA1F-4601-B002-B9261610AAB3__CHDCDAAI">
+<p class="titleinexample">Example 13-3 Querying the V$DB_CACHE_ADVICE View for the KEEP Pool</p>
+<pre dir="ltr">SELECT size_for_estimate, buffers_for_estimate, estd_physical_read_factor, 
+       estd_physical_reads
+  FROM V$DB_CACHE_ADVICE
+ WHERE name = &#39;KEEP&#39;
+   AND block_size = (SELECT value FROM V$PARAMETER WHERE name = &#39;db_block_size&#39;)
+   AND advice_status = &#39;ON&#39;;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGDBA546"></a><a id="TGDBA545"></a>
+<div class="props_rev_3"><a id="GUID-C66B60D6-A759-47C0-AD53-B55DC3916002"></a>
+<h3 id="TGDBA-GUID-C66B60D6-A759-47C0-AD53-B55DC3916002" class="sect3">Calculating the Buffer Pool Hit Ratio for Individual Buffer Pools</h3>
+<div>
+<div class="section">
+<p>The data in the <code>V$SYSSTAT</code> view reflects the logical and physical reads for all buffer pools within one set of statistics. To determine the hit ratio for the buffer pools individually, query the <a id="d33148e1180" class="indexterm-anchor"></a><code>V$BUFFER_POOL_STATISTICS</code> view. This view maintains statistics on the number of logical reads and writes for each pool.</p>
+<p>For more information about calculating hit ratios, see <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC">Calculating the Buffer Cache Hit Ratio</a>&#34;</span>.</p>
+<div class="infoboxnotealso" id="GUID-C66B60D6-A759-47C0-AD53-B55DC3916002__GUID-F42FE641-27DB-4756-890D-A3A6F87A13F9">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for information about the <code>V$BUFFER_POOL_STATISTICS</code> view</p>
+</div>
+<p><a href="tune_buffer_cache.htm#GUID-C66B60D6-A759-47C0-AD53-B55DC3916002__CHDJCBJE">Example 13-4</a> shows a query of this view to calculate the hit ratio.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-C66B60D6-A759-47C0-AD53-B55DC3916002__CHDJCBJE">
+<p class="titleinexample">Example 13-4 Querying the V$BUFFER_POOL_STATISTICS View</p>
+<pre dir="ltr">SELECT name, physical_reads, db_block_gets, consistent_gets,
+       1 - (physical_reads / (db_block_gets + consistent_gets)) &#34;Hit Ratio&#34;
+  FROM V$BUFFER_POOL_STATISTICS;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGDBA547"></a>
+<div class="props_rev_3"><a id="GUID-C07C5202-72F2-4A69-AAB6-B58BD3EA05B8"></a>
+<h3 id="TGDBA-GUID-C07C5202-72F2-4A69-AAB6-B58BD3EA05B8" class="sect3">Examining the Buffer Cache Usage Pattern</h3>
+<div>
+<p>The <code>V$BH</code> view shows the data object ID of all blocks that currently reside in the SGA. To determine which segments have many buffers in the pool, use this view to examine the buffer cache usage pattern. You can either examine the buffer cache usage pattern for all segments or a specific segment, as described in the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-B57D5C88-54F1-4643-B4E8-FA6F166DFC5B">Examining the Buffer Cache Usage Pattern for All Segments</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-DB866D78-6C70-4EEE-A544-C33ED64F2346">Examining the Buffer Cache Usage Pattern for a Specific Segment</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA549"></a><a id="TGDBA548"></a>
+<div class="props_rev_3"><a id="GUID-B57D5C88-54F1-4643-B4E8-FA6F166DFC5B"></a>
+<h4 id="TGDBA-GUID-B57D5C88-54F1-4643-B4E8-FA6F166DFC5B" class="sect4">Examining the Buffer Cache Usage Pattern for All Segments</h4>
+<div>
+<div class="section">
+<p>One method to determine which segments have many buffers in the pool is to query the number of blocks for all segments that reside in the buffer cache at a given time. Depending on buffer cache size, this might require a lot of sort space.</p>
+<p><a href="tune_buffer_cache.htm#GUID-B57D5C88-54F1-4643-B4E8-FA6F166DFC5B__CHDIJAJD">Example 13-5</a> shows a query that counts the number of blocks for all segments.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-B57D5C88-54F1-4643-B4E8-FA6F166DFC5B__CHDIJAJD">
+<p class="titleinexample">Example 13-5 Querying the Number of Blocks for All Segments</p>
+<pre dir="ltr">COLUMN object_name FORMAT A40
+COLUMN number_of_blocks FORMAT 999,999,999,999
+
+SELECT o.object_name, COUNT(*) number_of_blocks
+  FROM DBA_OBJECTS o, V$BH bh
+ WHERE o.data_object_id = bh.OBJD
+   AND o.owner != &#39;SYS&#39;
+ GROUP BY o.object_Name
+ ORDER BY COUNT(*);
+</pre>
+<p>The output of this query might look like the following:</p>
+<pre dir="ltr">OBJECT_NAME                              NUMBER_OF_BLOCKS
+---------------------------------------- ----------------
+OA_PREF_UNIQ_KEY                                        1
+SYS_C002651                                             1
+..
+DS_PERSON                                              78
+OM_EXT_HEADER                                         701
+OM_SHELL                                            1,765
+OM_HEADER                                           5,826
+OM_INSTANCE                                        12,644
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGDBA550"></a>
+<div class="props_rev_3"><a id="GUID-DB866D78-6C70-4EEE-A544-C33ED64F2346"></a>
+<h4 id="TGDBA-GUID-DB866D78-6C70-4EEE-A544-C33ED64F2346" class="sect4">Examining the Buffer Cache Usage Pattern for a Specific Segment</h4>
+<div>
+<div class="section">
+<p>Another method to determine which segments have many buffers in the pool is to calculate the percentage of the buffer cache used by an individual object at a given time.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To calculate the percentage of the buffer cache used by an individual object:</p>
+<ol>
+<li>
+<p>Find the Oracle Database internal object number of the segment by querying the <a id="d33148e1355" class="indexterm-anchor"></a><code>DBA_OBJECTS</code> view:</p>
+<pre dir="ltr">SELECT data_object_id, object_type
+FROM DBA_OBJECTS 
+WHERE object_name = UPPER(&#39;<span class="italic">segment_name</span>&#39;); 
+</pre>
+<p>Because two objects can have the same name (if they are different types of objects), use the <code>OBJECT_TYPE</code> column to identify the object of interest.</p>
+</li>
+<li>
+<p>Find the number of buffers in the buffer cache for <span class="italic"><code>SEGMENT_NAME</code></span>:</p>
+<pre dir="ltr">SELECT COUNT(*) buffers
+FROM V$BH
+WHERE objd = <span class="italic">data_object_id_value</span>;
+</pre>
+<p>For <span class="italic"><code>data_object_id_value</code></span>, use the value of <code>DATA_OBJECT_ID</code> from the previous step.</p>
+</li>
+<li>
+<p>Find the number of buffers in the database instance:</p>
+<pre dir="ltr">SELECT name, block_size, SUM(buffers)
+FROM V$BUFFER_POOL
+GROUP BY name, block_size
+HAVING SUM(buffers) &gt; 0;
+</pre></li>
+<li>
+<p>Calculate the ratio of buffers to total buffers to obtain the percentage of the cache currently used by <span class="italic"><code>SEGMENT_NAME</code></span>:</p>
+<pre dir="ltr">% cache used by <span class="italic">segment_name</span> = [buffers(Step2)/total buffers(Step3)]
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infobox-note" id="GUID-DB866D78-6C70-4EEE-A544-C33ED64F2346__GUID-AF6F1D8F-D322-464B-B890-DBC684FDDCDB">
+<p class="notep1">Note:</p>
+<p>This method works only for a single segment. For a partitioned object, run the query for each partition.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA551"></a>
+<div class="props_rev_3"><a id="GUID-DE6B6C6E-D947-45FF-B189-F0271B86DB10"></a>
+<h3 id="TGDBA-GUID-DE6B6C6E-D947-45FF-B189-F0271B86DB10" class="sect3">Configuring the KEEP Pool</h3>
+<div>
+<div class="section">
+<p>The purpose of the <code>KEEP</code> buffer pool is to retain objects in memory, thus avoiding I/O operations. Each object kept in memory results in a trade-off. It is more beneficial to keep frequently-accessed blocks in the cache. Avoid retaining infrequently-used blocks in the cache, as this results in less space for other, more active blocks</p>
+<p>If there are certain segments in your application that are referenced frequently, then consider storing the blocks from those segments in the <code>KEEP</code> buffer pool. Typical segments that are kept in the <code>KEEP</code> pool are small, frequently-used reference tables. To determine which tables are candidates, check the number of blocks from candidate tables by querying the <code>V$BH</code> view, as described in <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-C07C5202-72F2-4A69-AAB6-B58BD3EA05B8">Examining the Buffer Cache Usage Pattern</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To configure the KEEP pool:</p>
+<ol>
+<li>
+<p>Compute an approximate size for the <code>KEEP</code> buffer pool.</p>
+<p>The size of the <code>KEEP</code> buffer pool depends on the objects to be kept in the buffer cache. To estimate its size, add the blocks used by all objects assigned to this pool.</p>
+<p>If you gathered statistics on the segments, query <code>DBA_TABLES.BLOCKS</code> and <code>DBA_TABLES</code>.<code>EMPTY_BLOCKS</code> to determine the number of blocks used.</p>
+</li>
+<li>
+<p>Taking two snapshots of system performance at different times.</p>
+<p>Query data from the <code>KEEP</code> pool for each snapshot using the <code>V$DB_CACHE_ADVICE</code> view, as described in <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-A77CE146-AA1F-4601-B002-B9261610AAB3">Using the V$DB_CACHE_ADVICE View for Individual Buffer Pools</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Subtract the more recent values for <code>physical</code> <code>reads</code>, <code>block</code> <code>gets</code>, and <code>consistent</code> <code>gets</code> from the older values, and use the results to calculate the hit ratio.</p>
+<p>A buffer pool hit ratio of 100% may not be optimal. Oftentimes, you can decrease the size of the <code>KEEP</code> buffer pool and still maintain a sufficiently high hit ratio. Allocate blocks removed from the <code>KEEP</code> buffer pool to other buffer pools.</p>
+</li>
+<li>
+<p>Allocate memory to the <code>KEEP</code> buffer pool by setting the value of the <code>DB_KEEP_CACHE_SIZE</code> parameter to the required size.</p>
+<p>The memory for the <code>KEEP</code> pool is not a subset of the default pool.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infobox-note" id="GUID-DE6B6C6E-D947-45FF-B189-F0271B86DB10__GUID-F7C319F4-5A6B-4A5A-BD94-3AF8F2BBB595">
+<p class="notep1">Note:</p>
+<p>If an object grows in size, then it might no longer fit in the <code>KEEP</code> buffer pool. You will begin to lose blocks out of the cache.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA552"></a>
+<div class="props_rev_3"><a id="GUID-D777DE69-8CCD-49AB-8EC9-F5B7E84690FF"></a>
+<h3 id="TGDBA-GUID-D777DE69-8CCD-49AB-8EC9-F5B7E84690FF" class="sect3">Configuring the RECYCLE Pool</h3>
+<div>
+<div class="section">
+<p>You can configure a <code>RECYCLE</code> buffer pool for blocks belonging to those segments that you do not want to keep in memory. The purpose of the <code>RECYCLE</code> pool is to retain segments that are scanned rarely or are not referenced frequently. If an application randomly accesses the blocks of a very large object, then it is unlikely for a block stored in the buffer pool to be reused before it is aged out. This is true regardless of the size of the buffer pool (given the constraint of the amount of available physical memory). Consequently, the object&#39;s blocks do not need to be cached; the cache buffers can be allocated to other objects.</p>
+<p>Do not discard blocks from memory too quickly. If the buffer pool is too small, then blocks can age out of the cache before the transaction or SQL statement completes its execution. For example, an application might select a value from a table, use the value to process some data, and then update the record. If the block is removed from the cache after the <code>SELECT</code> statement, then it must be read from disk again to perform the update. The block should be retained for the duration of the user transaction.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To configure the RECYCLE POOL:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Allocate memory to the <code>RECYCLE</code> buffer pool by setting the value of the <code>DB_RECYCLE_CACHE_SIZE</code> parameter to the required size.</p>
+<p>The memory for the <code>RECYCLE</code> pool is not a subset of the default pool.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGDBA554"></a><a id="TGDBA553"></a>
+<div class="props_rev_3"><a id="GUID-1724C3C8-190E-4DBA-90FC-12B1B40158B1"></a>
+<h2 id="TGDBA-GUID-1724C3C8-190E-4DBA-90FC-12B1B40158B1" class="sect2">Configuring the Redo Log Buffer</h2>
+<div>
+<p>Server processes making changes to data blocks in the buffer cache generate redo data into the log buffer. The log writer process (LGWR) begins writing to copy entries from the redo log buffer to the online redo log if any of the following conditions are true:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The redo log buffer becomes at least one-third full</p>
+</li>
+<li>
+<p>LGWR is posted by a server process performing a <code>COMMIT</code> or <code>ROLLBACK</code></p>
+</li>
+<li>
+<p>A database writer process (DBWR) posts LGWR to do so</p>
+</li>
+</ul>
+<p>When LGWR writes redo entries from the redo log buffer to a redo log file or disk, user processes can copy new entries over the entries in memory that are written to disk, as illustrated in <a href="tune_buffer_cache.htm#GUID-1724C3C8-190E-4DBA-90FC-12B1B40158B1__CACBJEJE">Figure 13-2</a>.</p>
+<div class="figure" id="GUID-1724C3C8-190E-4DBA-90FC-12B1B40158B1__CACBJEJE">
+<p class="titleinfigure">Figure 13-2 Redo Log Buffer</p>
+<img width="363" height="225" src="img/GUID-3E5D073A-8A03-448E-8621-4E6A59D1E1ED-default.png" alt="Description of Figure 13-2 follows" title="Description of Figure 13-2 follows"/><br/>
+<a href="img_text/GUID-3E5D073A-8A03-448E-8621-4E6A59D1E1ED-print.htm">Description of &#34;Figure 13-2 Redo Log Buffer&#34;</a></div>
+<!-- class="figure" -->
+<p>LGWR attempts to write fast enough to ensure that space is available in the redo log buffer for new entries, even if it is frequently accessed. Having a larger redo log buffer makes it more likely that there is space for new entries, and also enables LGWR to efficiently process redo records. On a system with large updates, if the redo log buffer is too small, LGWR will continuously flush redo to disk so that it remains two-thirds empty.</p>
+<p>On systems with fast processors and relatively slow disks, the processors might be filling the rest of the redo log buffer in the time it takes the redo log writer to move a portion of the redo log buffer to disk. In this situation, a larger redo log buffer can temporarily mask the effects of slower disks. Alternatively, consider either improving:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The checkpointing or archiving process</p>
+</li>
+<li>
+<p>The performance of LGWR by moving all online logs to fast raw devices</p>
+</li>
+</ul>
+<p>To improve the performance of the redo log buffer, ensure that you are:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Batching commit operations for batch jobs, so that LGWR is able to write redo log entries efficiently</p>
+</li>
+<li>
+<p>Using <code>NOLOGGING</code> operations when loading large quantities of data</p>
+</li>
+</ul>
+<p>This section describes how to configure the redo log buffer and contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-EA91F2C3-A975-4AD9-B137-0C0C8025E64C">Sizing the Redo Log Buffer</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-772D48A0-FE2B-4A05-8826-3ADA25F4D7C5">Using Redo Log Buffer Statistics</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA555"></a>
+<div class="props_rev_3"><a id="GUID-EA91F2C3-A975-4AD9-B137-0C0C8025E64C"></a>
+<h3 id="TGDBA-GUID-EA91F2C3-A975-4AD9-B137-0C0C8025E64C" class="sect3">Sizing the Redo Log Buffer</h3>
+<div>
+<div class="section">
+<p>The default size of the redo log buffer is calculated as follows:</p>
+<pre dir="ltr">MAX(0.5M, (128K * number of cpus))
+</pre>
+<p>On most systems, sizing the log buffer larger than 1 MB does not provide any performance benefit. However, increasing the size of the redo log buffer does not have any negative implications on performance; it merely uses more memory. More importantly, a modestly-sized redo log buffer can significantly enhance throughput on systems that perform many updates. Applications that insert, modify, or delete large volumes of data may require a change to the default size of the redo log buffer.</p>
+<p>To determine if the size of the redo log buffer is too small, monitor the redo log buffer statistics, as described in <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-772D48A0-FE2B-4A05-8826-3ADA25F4D7C5">Using Redo Log Buffer Statistics</a>&#34;</span>. You can also check if the <code>log</code> <code>buffer</code> <code>space</code> wait event is a significant factor in the wait time for the database instance. If it is not, then the log buffer size is most likely adequately-sized.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To size the redo log buffer:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Set the size of the redo log buffer by setting the value of the <code>LOG_BUFFER</code> initialization parameter to the required size.</p>
+<p>The value of this parameter is expressed in bytes.</p>
+<div class="infobox-note" id="GUID-EA91F2C3-A975-4AD9-B137-0C0C8025E64C__GUID-8094F4DC-CF3D-4571-B3EC-7FECCD7511AF">
+<p class="notep1">Note:</p>
+<p>The size of the redo log buffer cannot be modified after instance startup.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA557"></a><a id="TGDBA556"></a>
+<div class="props_rev_3"><a id="GUID-772D48A0-FE2B-4A05-8826-3ADA25F4D7C5"></a>
+<h3 id="TGDBA-GUID-772D48A0-FE2B-4A05-8826-3ADA25F4D7C5" class="sect3">Using Redo Log Buffer Statistics</h3>
+<div>
+<div class="section">
+<p>The <code>REDO</code> <code>BUFFER</code> <code>ALLOCATION</code> <code>RETRIES</code> statistic reflects the number of times a user process waits for space in the redo log buffer. This statistic can be queried using the <code>V$SYSSTAT</code><a id="d33148e1851" class="indexterm-anchor"></a> performance view.</p>
+<p>You should monitor the <code>redo buffer allocation retries</code> statistic over a period while the application is running. The value of this statistic should be near zero over an interval. If this value increases consistently, then it means user processes had to wait for space in the redo log buffer to become available. The wait can be caused by the redo log buffer being too small or by checkpointing. In this case, consider one of the following options:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Increase the size of the redo log buffer, as described in <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-EA91F2C3-A975-4AD9-B137-0C0C8025E64C">Sizing the Redo Log Buffer</a>&#34;</span></p>
+</li>
+<li>
+<p>Improve the checkpointing or archiving process</p>
+</li>
+</ul>
+<p><a href="tune_buffer_cache.htm#GUID-772D48A0-FE2B-4A05-8826-3ADA25F4D7C5__CACHGGFI">Example 13-6</a> shows a query of the <code>V$SYSSTAT</code> view for this statistic.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-772D48A0-FE2B-4A05-8826-3ADA25F4D7C5__CACHGGFI">
+<p class="titleinexample">Example 13-6 Querying the V$SYSSTAT View</p>
+<pre dir="ltr">SELECT name, value
+  FROM V$SYSSTAT
+ WHERE name = &#39;redo buffer allocation retries&#39;;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGDBA95384"></a>
+<div class="props_rev_3"><a id="GUID-37246D78-7499-491B-B891-D625628677E7"></a>
+<h2 id="TGDBA-GUID-37246D78-7499-491B-B891-D625628677E7" class="sect2">Configuring the Database Caching Mode</h2>
+<div>
+<p>Starting with Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2), there are two <a id="d33148e1923" class="indexterm-anchor"></a>database caching modes: the default database caching mode used in previous versions of Oracle Database, and the force full database caching mode that is new to this release. In default caching mode, Oracle Database does not always cache the underlying data when a user queries a large table. In force full database caching mode, Oracle Database assumes that the buffer cache is large enough to cache the full database and tries to cache all the blocks that are accessed by queries.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-1830CEBC-58F7-4AEC-9D9C-BCDB89D8523F">Default Database Caching Mode</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-0A3960A4-A62C-46C2-A5FE-CD305F0A7DC5">Force Full Database Caching Mode</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-0E5D6B70-245B-4F24-9C7F-E14D98DD312D">Determining When to Use Force Full Database Caching Mode</a></p>
+</li>
+<li>
+<p><a href="tune_buffer_cache.htm#GUID-4D8C2837-54BC-4D78-AFF6-5445C450A64E">Verifying the Database Caching Mode</a></p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-37246D78-7499-491B-B891-D625628677E7__GUID-16ACE00B-6F4E-4CFA-897A-96C3F67A6E60">
+<p class="notep1">Note:</p>
+<p>Force full database caching mode is available starting with Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2).</p>
+</div>
+</div>
+<a id="TGDBA95403"></a>
+<div class="props_rev_3"><a id="GUID-1830CEBC-58F7-4AEC-9D9C-BCDB89D8523F"></a>
+<h3 id="TGDBA-GUID-1830CEBC-58F7-4AEC-9D9C-BCDB89D8523F" class="sect3">Default Database Caching Mode</h3>
+<div>
+<p>By default, Oracle Database uses the <a id="d33148e1993" class="indexterm-anchor"></a>default database caching mode when performing full table scans. In default caching mode, Oracle Database does not always cache the underlying data when a user queries a large table, because doing so might remove more useful data from the buffer cache.</p>
+<p>If the Oracle Database instance determines that there is enough space to cache the full database in the buffer cache and that it would be beneficial to do so, then the instance automatically caches the full database in the buffer cache.</p>
+<p>If the Oracle Database instance determines that there is not enough space to cache the full database in the buffer cache, then:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Smaller tables are loaded into memory only when the table size is less than 2 percent of the buffer cache size.</p>
+</li>
+<li>
+<p>For medium tables, Oracle Database analyzes the interval between the last table scan and the aging timestamp of the buffer cache. If the size of the table reused in the last table scan is greater than the remaining buffer cache size, then the table is cached.</p>
+</li>
+<li>
+<p>Large tables are typically not loaded into memory, unless if you explicitly declare the table for the KEEP buffer pool.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-1830CEBC-58F7-4AEC-9D9C-BCDB89D8523F__GUID-02C5315E-CF1F-495A-B503-D4B49F25B92E">
+<p class="notep1">Note:</p>
+<p>In default caching mode, Oracle Database instance does not cache <code>NOCACHE</code> LOBs in the buffer cache.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-1830CEBC-58F7-4AEC-9D9C-BCDB89D8523F__GUID-25EBC271-24B2-4E8D-8A03-A4C86018DBDE">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT94672" target="_blank" href="../CNCPT/memory.htm#CNCPT94672"><span class="italic">Oracle Database Concepts</span></a> for information about the default database caching mode</p>
+</div>
+</div>
+</div>
+<a id="TGDBA95404"></a>
+<div class="props_rev_3"><a id="GUID-0A3960A4-A62C-46C2-A5FE-CD305F0A7DC5"></a>
+<h3 id="TGDBA-GUID-0A3960A4-A62C-46C2-A5FE-CD305F0A7DC5" class="sect3">Force Full Database Caching Mode</h3>
+<div>
+<p>As more memory is added to a database, buffer cache sizes may continually grow. In some cases, the size of the buffer cache may become so large that the entire database can fit into memory. The ability to cache an entire database in memory can drastically improve database performance when performing full table scans or accessing LOBs.</p>
+<p>In <a id="d33148e2063" class="indexterm-anchor"></a>force full database caching mode, Oracle Database caches the entire database in memory when the size of the database is smaller than the database buffer cache size. All data files, including <code>NOCACHE</code> LOBs and LOBS that use SecureFiles, are loaded into the buffer cache as they are being accessed.</p>
+<div class="infoboxnotealso" id="GUID-0A3960A4-A62C-46C2-A5FE-CD305F0A7DC5__GUID-35080397-4120-4643-8485-B53D6D83F9A7">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT94675" target="_blank" href="../CNCPT/memory.htm#CNCPT94675"><span class="italic">Oracle Database Concepts</span></a></p>
+</li>
+<li>
+<p><a class="olink ADMIN14235" target="_blank" href="../ADMIN/memory.htm#ADMIN14235"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGDBA95405"></a>
+<div class="props_rev_3"><a id="GUID-0E5D6B70-245B-4F24-9C7F-E14D98DD312D"></a>
+<h3 id="TGDBA-GUID-0E5D6B70-245B-4F24-9C7F-E14D98DD312D" class="sect3">Determining When to Use Force Full Database Caching Mode</h3>
+<div>
+<p>To improve database performance for table scans and LOB data access, especially for workloads that are limited by I/O throughput or response time, consider using force full <a id="d33148e2124" class="indexterm-anchor"></a>database caching mode whenever the size of the database buffer cache is greater than the size of the database.</p>
+<p>Consider using force full database caching mode in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The logical database size (or actual used space) is smaller than the individual buffer cache of each database instance in an Oracle RAC environment. This is applicable for non-Oracle RAC database as well.</p>
+</li>
+<li>
+<p>The logical database size is smaller than 80% of the combined buffer cache sizes of all the database instances for well-partitioned workloads (by instance access) in an Oracle RAC environment.</p>
+</li>
+<li>
+<p>The database uses SGA_TARGET or MEMORY_TARGET.</p>
+</li>
+<li>
+<p>The <code>NOCACHE</code> LOBs need to be cached. The <code>NOCACHE</code> LOBs are never cached unless force full database caching is used.</p>
+</li>
+</ul>
+<p>For the first three situations, you should monitor the system performance periodically to verify that the performance figures are according to your expectations.</p>
+<p>When one Oracle RAC database instance uses force full database caching mode, then all the other database instances in the Oracle RAC environment will also use force full database caching mode.</p>
+<p>In a multitenant environment, force full database caching mode applies to the entire container database (CDB), including all of its pluggable databases (PDBs).</p>
+</div>
+</div>
+<a id="TGDBA95406"></a>
+<div class="props_rev_3"><a id="GUID-4D8C2837-54BC-4D78-AFF6-5445C450A64E"></a>
+<h3 id="TGDBA-GUID-4D8C2837-54BC-4D78-AFF6-5445C450A64E" class="sect3">Verifying the Database Caching Mode</h3>
+<div>
+<div class="section">
+<p>By default, Oracle Database runs in the default <a id="d33148e2193" class="indexterm-anchor"></a>database caching mode.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To verify if force full database caching mode is enabled:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Query the <code>V$DATABASE</code> view as shown:</p>
+<pre dir="ltr">SELECT FORCE_FULL_DB_CACHING
+  FROM V$DATABASE;
+</pre>
+<p>If the query returns a value of <code>YES</code>, then force full database caching mode is enabled on the database. If the query returns a value of <code>NO</code>, then force full database caching mode is disabled and the database is in default database caching mode.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-4D8C2837-54BC-4D78-AFF6-5445C450A64E__GUID-4E60638D-2460-4C89-A20B-FD3402A6BD51">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN30047" target="_blank" href="../REFRN/GUID-C62A7B96-2DD4-4E70-A0D9-26EE4BFBE256.htm#REFRN30047"><span class="italic">Oracle Database Reference</span></a> for information about the <code>V$DATABASE</code> view</p>
+</div>
+<div class="infobox-note" id="GUID-4D8C2837-54BC-4D78-AFF6-5445C450A64E__GUID-5518BB1A-0959-42D6-8DF1-6947FBC05DCA">
+<p class="notep1">Note:</p>
+<p>To enable force full database caching mode, use the following <code>ALTER DATABASE</code> command:</p>
+<pre dir="ltr">ALTER DATABASE FORCE FULL DATABASE CACHING
+</pre>
+<p>Refer to <a class="olink ADMIN14235" target="_blank" href="../ADMIN/memory.htm#ADMIN14235"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for more information about enabling and disabling force full database caching mode.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1">
+<tr>
+<td class="cellalignment8">
+<table class="cellalignment6">
+<tr>
+<td class="cellalignment5"><a href="tune_sga.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5"><a href="tune_shared_pool.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment10">
+<table class="cellalignment4">
+<tr>
+<td class="cellalignment5"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

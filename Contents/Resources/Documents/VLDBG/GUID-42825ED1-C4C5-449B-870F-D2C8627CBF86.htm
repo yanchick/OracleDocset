@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114264"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Best%20Practice%206%3A%20Plan%20for%20NOLOGGING%20Operations%20in%20Your%20Backup%2FRecovery%20Strategy"></a><title>Best Practice 6: Plan for NOLOGGING Operations in Your Backup/Recovery Strategy</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-70595966-7453-4EAD-AE6F-6CDEF4C7049F.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-12293CA0-65A8-469F-BEDE-4D502B250724.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-42825ED1-C4C5-449B-870F-D2C8627CBF86"></a> <span id="PAGE" style="display:none;">466/481</span> <!-- End Header --><a id="VLDBG1578"></a>
+<h1 id="VLDBG-GUID-42825ED1-C4C5-449B-870F-D2C8627CBF86" class="sect1">Best Practice 6: Plan for NOLOGGING Operations in Your Backup/Recovery Strategy</h1>
+<div>
+<p><a id="d75698e61" class="indexterm-anchor"></a>In general, a high priority for a data warehouse is performance. Not only must the data warehouse provide good query performance for online users, but the data warehouse must also be efficient during the extract, transform, and load (ETL) process so that large amounts of data can be loaded in the shortest amount of time.</p>
+<p>One common optimization used by data warehouses is to execute bulk-data operations using the <code>NOLOGGING</code> mode. The database operations that support <code>NOLOGGING</code> modes are direct-path load and insert operations, index creation, and table creation. When an operation runs in <code>NOLOGGING</code> mode, data is not written to the redo log (or more precisely, only a small set of metadata is written to the redo log). This mode is widely used within data warehouses and can improve the performance of bulk data operations by up to 50%.</p>
+<p>However, the tradeoff is that a <code>NOLOGGING</code> operation cannot be recovered using conventional recovery mechanisms, because the necessary data to support the recovery was never written to the log file. Moreover, subsequent operations to the data upon which a <code>NOLOGGING</code> operation has occurred also cannot be recovered even if those operations were not using <code>NOLOGGING</code> mode. Because of the performance gains provided by <code>NOLOGGING</code> operations, it is generally recommended that data warehouses use <code>NOLOGGING</code> mode in their ETL process.</p>
+<p>The presence of <code>NOLOGGING</code> operations must be taken into account when devising the backup and recovery strategy. When a database is relying on <code>NOLOGGING</code> operations, the conventional recovery strategy (of recovering from the latest tape backup and applying the archived log files) is no longer applicable because the log files are not able to recover the <code>NOLOGGING</code> operation.</p>
+<p>The first principle to remember is, do not make a backup when a <code>NOLOGGING</code> operation is occurring. Oracle Database does not currently enforce this rule, so DBAs must schedule the backup jobs and the ETL jobs such that the <code>NOLOGGING</code> operations do not overlap with backup operations.</p>
+<p>There are two approaches to backup and recovery in the presence of <code>NOLOGGING</code> operations: ETL or incremental backups. If you are not using <code>NOLOGGING</code> operations in your data warehouse, then you do not have to choose either option: you can recover your data warehouse using archived logs. However, the options may offer some performance benefits over an archive log-based approach for a recovery. You can also use flashback logs and guaranteed restore points to flashback your database to a previous point in time.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="GUID-42825ED1-C4C5-449B-870F-D2C8627CBF86.htm#GUID-D4A6BA18-4B9D-4C8A-9228-A7A347B6EB42">Extract_ Transform_ and Load</a></p>
+</li>
+<li>
+<p><a href="GUID-42825ED1-C4C5-449B-870F-D2C8627CBF86.htm#GUID-894D16AF-2719-4C42-95D0-9A8E0E156343">The Extract_ Transform_ and Load Strategy</a></p>
+</li>
+<li>
+<p><a href="GUID-42825ED1-C4C5-449B-870F-D2C8627CBF86.htm#GUID-8BB8C9D9-FF95-49B5-9E3B-F768459AB3EA">Incremental Backup</a></p>
+</li>
+<li>
+<p><a href="GUID-42825ED1-C4C5-449B-870F-D2C8627CBF86.htm#GUID-4FDB71A7-3761-4899-9BCA-1E97FB17BF9B">The Incremental Approach</a></p>
+</li>
+<li>
+<p><a href="GUID-42825ED1-C4C5-449B-870F-D2C8627CBF86.htm#GUID-F4F3145C-A462-4963-ACF6-BA66C5E9DD70">Flashback Database and Guaranteed Restore Points</a></p>
+</li>
+</ul>
+</div>
+<a id="VLDBG1579"></a>
+<div class="props_rev_3"><a id="GUID-D4A6BA18-4B9D-4C8A-9228-A7A347B6EB42"></a>
+<h2 id="VLDBG-GUID-D4A6BA18-4B9D-4C8A-9228-A7A347B6EB42" class="sect2">Extract, Transform, and Load</h2>
+<div>
+<p><a id="d75698e212" class="indexterm-anchor"></a><a id="d75698e216" class="indexterm-anchor"></a>The ETL process uses several Oracle features and a combination of methods to load (re-load) data into a data warehouse. These features consist of:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Transportable tablespaces</p>
+<p>Transportable tablespaces allow users to quickly move a tablespace across Oracle Databases. It is the most efficient way to move bulk data between databases. Oracle Database provides the ability to transport tablespaces across platforms. If the source platform and the target platform are of different endianness, then RMAN converts the tablespace being transported to the target format.</p>
+</li>
+<li>
+<p>SQL*Loader</p>
+<p>SQL*Loader loads data from external flat files into tables of Oracle Database. It has a powerful data parsing engine that puts little limitation on the format of the data in the data file.</p>
+</li>
+<li>
+<p>Data Pump (export/import)</p>
+<p>Oracle Data Pump enables high-speed movement of data and metadata from one database to another. This technology is the basis for the Oracle Data Pump Export and Data Pump Import utilities.</p>
+</li>
+<li>
+<p>External tables</p>
+<p>The external tables feature is a complement to existing SQL*Loader functionality. It enables you to access data in external sources as if it were in a table in the database. External tables can also be used with the Data Pump driver to export data from a database, using <code>CREATE</code> <code>TABLE</code> <code>AS</code> <code>SELECT</code> <code>*</code> <code>FROM</code>, and then import data into Oracle Database.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="VLDBG1580"></a>
+<div class="props_rev_3"><a id="GUID-894D16AF-2719-4C42-95D0-9A8E0E156343"></a>
+<h2 id="VLDBG-GUID-894D16AF-2719-4C42-95D0-9A8E0E156343" class="sect2">The Extract, Transform, and Load Strategy</h2>
+<div>
+<p><a id="d75698e324" class="indexterm-anchor"></a>One approach is to take regular database backups and also store the necessary data files to re-create the ETL process for that entire week. In the event where a recovery is necessary, the data warehouse could be recovered from the most recent backup. Then, instead of rolling forward by applying the archived redo logs (as would be done in a conventional recovery scenario), the data warehouse could be rolled forward by rerunning the ETL processes. This paradigm assumes that the ETL processes can be easily replayed, which would typically involve storing a set of extract files for each ETL process.</p>
+<p>A sample implementation of this approach is to make a backup of the data warehouse every weekend, and then store the necessary files to support the ETL process each night. At most, 7 days of ETL processing must be reapplied to recover a database. The data warehouse administrator can easily project the length of time to recover the data warehouse, based upon the recovery speeds from tape and performance data from previous ETL runs.</p>
+<p>Essentially, the data warehouse administrator is gaining better performance in the ETL process with <code>NOLOGGING</code> operations, at a price of slightly more complex and a less automated recovery process. Many data warehouse administrators have found that this is a desirable trade-off.</p>
+<p>One downside to this approach is that the burden is on the data warehouse administrator to track all of the relevant changes that have occurred in the data warehouse. This approach does not capture changes that fall outside of the ETL process. For example, in some data warehouses, users may create their own tables and data structures. Those changes are lost during a recovery.</p>
+<p>This restriction must be conveyed to the end-users. Alternatively, one could also mandate that end-users create all private database objects in a separate tablespace, and during recovery, the DBA could recover this tablespace using conventional recovery while recovering the rest of the database using the approach of rerunning the ETL process.</p>
+</div>
+</div>
+<a id="VLDBG1581"></a>
+<div class="props_rev_3"><a id="GUID-8BB8C9D9-FF95-49B5-9E3B-F768459AB3EA"></a>
+<h2 id="VLDBG-GUID-8BB8C9D9-FF95-49B5-9E3B-F768459AB3EA" class="sect2">Incremental Backup</h2>
+<div>
+<p><a id="d75698e404" class="indexterm-anchor"></a>A more automated backup and recovery strategy in the presence of <code>NOLOGGING</code> operations uses RMAN&#39;s incremental backup capability. Incremental backups provide the capability to back up only the changed blocks since the previous backup. Incremental backups of data files capture data changes on a block-by-block basis, rather than requiring the backup of all used blocks in a data file. The resulting backup sets are generally smaller and more efficient than full data file backups, unless every block in the data file is changed.</p>
+<p>When you enable block change tracking, Oracle Database tracks the physical location of all database changes. RMAN automatically uses the change tracking file to determine which blocks must be read during an incremental backup. The block change tracking file is approximately 1/30000 of the total size of the database.</p>
+<div class="infoboxnotealso" id="GUID-8BB8C9D9-FF95-49B5-9E3B-F768459AB3EA__GUID-15C766EE-97C7-456A-880F-59ADC195C6A1">
+<p class="notep1">See Also:</p>
+<p><a class="olink BRADV8001" target="_blank" href="../BRADV/rcmintro.htm#BRADV8001"><span class="italic">Oracle Database Backup and Recovery User&#39;s Guide</span></a> for more information about block change tracking and how to enable it</p>
+</div>
+</div>
+</div>
+<a id="VLDBG1582"></a>
+<div class="props_rev_3"><a id="GUID-4FDB71A7-3761-4899-9BCA-1E97FB17BF9B"></a>
+<h2 id="VLDBG-GUID-4FDB71A7-3761-4899-9BCA-1E97FB17BF9B" class="sect2">The Incremental Approach</h2>
+<div>
+<p><a id="d75698e484" class="indexterm-anchor"></a>A typical backup and recovery strategy using this approach is to back up the data warehouse every weekend, and then take incremental backups of the data warehouse every night following the completion of the ETL process. Incremental backups, like conventional backups, must not be run concurrently with <code>NOLOGGING</code> operations. To recover the data warehouse, the database backup would be restored, and then each night&#39;s incremental backups would be reapplied.</p>
+<p>Although the <code>NOLOGGING</code> operations were not captured in the archive logs, the data from the <code>NOLOGGING</code> operations is present in the incremental backups. Moreover, unlike the previous approach, this backup and recovery strategy can be managed using RMAN.</p>
+</div>
+</div>
+<a id="VLDBG1583"></a>
+<div class="props_rev_3"><a id="GUID-F4F3145C-A462-4963-ACF6-BA66C5E9DD70"></a>
+<h2 id="VLDBG-GUID-F4F3145C-A462-4963-ACF6-BA66C5E9DD70" class="sect2">Flashback Database and Guaranteed Restore Points</h2>
+<div>
+<p><a id="d75698e563" class="indexterm-anchor"></a>Flashback Database is a fast, continuous point-in-time recovery method to repair widespread logical errors. Flashback Database relies on additional logging, called flashback logs, which are created in the fast recovery area and retained for a user-defined time interval according to the recovery needs. These logs track the original block images when they are updated.</p>
+<p>When a Flashback Database operation is executed, just the block images corresponding to the changed data are restored and recovered, versus traditional data file restore where all blocks from the backup must be restored before recovery can start. Flashback logs are created proportionally to redo logs.</p>
+<p>For very large and active databases, it may not be feasible to keep all needed flashback logs for continuous point-in-time recovery. However, there may be a requirement to create a specific point-in-time snapshot (for example, right before a nightly batch job) for logical errors during the batch run. For this scenario, guaranteed restore points can be created without enabling flashback logging.</p>
+<p>When the guaranteed restore points are created, flashback logs are maintained just to satisfy Flashback Database to the guaranteed restore points and no other point in time, thus saving space. For example, guaranteed restore points can be created followed by a nologging batch job. As long as there are no previous nologging operations within the last hour of the creation time of the guaranteed restore points, Flashback Database to the guaranteed restore points undoes the nologging batch job. To flash back to a time after the nologging batch job finishes, then create the guaranteed restore points at least one hour away from the end of the batch job.</p>
+<p>Estimating flashback log space for guaranteed restore points in this scenario depends on how much of the database changes over the number of days you intend to keep guaranteed restore points. For example, to keep guaranteed restore points for 2 days and you expect 100 GB of the database to change, then plan for 100 GB for the flashback logs. The 100 GB refers to the subset of the database changed after the guaranteed restore points are created and not the frequency of changes.</p>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-70595966-7453-4EAD-AE6F-6CDEF4C7049F.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-12293CA0-65A8-469F-BEDE-4D502B250724.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

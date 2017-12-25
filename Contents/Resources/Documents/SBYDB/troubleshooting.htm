@@ -1,0 +1,1168 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-92015"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Troubleshooting%20Oracle%20Data%20Guard"></a><title>Troubleshooting Oracle Data Guard</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="LOCATION attribute, setting, LOG_ARCHIVE_DEST_n initialization parameter, troubleshooting, logical standby database failures, logical standby databases, failovers, handling failures, DBMS_LOGSTDBY package, SKIP_ERROR procedure, of the DBMS_LOGSTDBY package, switchovers, last redo data was not transmitted, archived redo log files, troubleshooting switchover problems, switchovers, seeing if the last archived redo log file was transmitted, ORA-01102 message, fails with ORA-01102, ORA-01102 message, causing switchover failures, roll back and start over, starting over, rollback, after switchover failures, SQL Apply, what to do if it stops, if SQL Apply stops, redo transport services, network, tuning, network I/O operations, recovering, from errors"/>
+<meta name="dcterms.created" content="2017-07-21T12:09:00Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Data Guard Concepts and Administration"/>
+<meta name="dcterms.identifier" content="E48552-08"/>
+<meta name="dcterms.isVersionOf" content="SBYDB"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="partpage3.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="upgrades.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E48552-08.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-1AF3825C-C58B-4362-ADD5-A21FEF75912F"></a> <span id="PAGE" style="display:none;">28/35</span> <!-- End Header -->
+<a id="SBYDB01400"></a>
+<h1 id="SBYDB-GUID-1AF3825C-C58B-4362-ADD5-A21FEF75912F" class="sect1"><span class="enumeration_chapter">A</span> Troubleshooting Oracle Data Guard</h1>
+<div>
+<p>See the following topics for information that can help you troubleshoot a standby database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="troubleshooting.htm#GUID-07FDFFCC-6FFB-458B-B7A3-F0833EE3BF8B">Common Problems</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-397ED7EA-1A1C-4224-82A3-746448BE6944">Log File Destination Failures</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-3BC98594-CFA0-4EDC-92B9-52F19088B224">Handling Logical Standby Database Failures</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-05C15D55-8CD8-4CB3-ADD3-642AED0FB3A3">Problems Switching Over to a Physical Standby Database</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-0D1E5C2A-A8E9-4866-89F4-47AA1D86BB7C">Problems Switching Over to a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-E2C9EEB9-CDCE-46B4-A7ED-D60B7FCD657A">What to Do If SQL Apply Stops</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-5B879B01-2433-4B08-8D58-E91DBA58FEF7">Network Tuning for Redo Data Transmission</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-5F933817-AD03-43D7-878D-E4B115448DAD">Slow Disk Performance on Standby Databases</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-82348347-C02B-4179-A325-3192E6F94737">Log Files Must Match to Avoid Primary Database Shutdown</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-B1551FC6-1B9F-49A5-A462-124697A449C3">Troubleshooting a Logical Standby Database</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB01405"></a>
+<div class="props_rev_3"><a id="GUID-07FDFFCC-6FFB-458B-B7A3-F0833EE3BF8B"></a>
+<h2 id="SBYDB-GUID-07FDFFCC-6FFB-458B-B7A3-F0833EE3BF8B" class="sect2"><span class="enumeration_section">A.1</span> Common Problems</h2>
+<div>
+<p>If you encounter a problem when using a standby database, it is probably because of one of the following reasons:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="troubleshooting.htm#GUID-AFDF503B-600D-4B7E-A476-2E7E0CB489C0">Renaming Data Files with the ALTER DATABASE Statement</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-E0F5B423-208F-4F7E-8CA4-0350D3A7CF0B">Standby Database Does Not Receive Redo Data from the Primary Database</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-A0AF4052-4B12-496A-AC20-820E184C5A05">You Cannot Mount the Physical Standby Database</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB4905"></a>
+<div class="props_rev_3"><a id="GUID-AFDF503B-600D-4B7E-A476-2E7E0CB489C0"></a>
+<h3 id="SBYDB-GUID-AFDF503B-600D-4B7E-A476-2E7E0CB489C0" class="sect3"><span class="enumeration_section">A.1.1</span> Renaming Data Files with the ALTER DATABASE Statement</h3>
+<div>
+<p>You cannot rename the data file on the standby site when the <code class="codeph">STANDBY_FILE_MANAGEMENT</code> initialization parameter is set to <code class="codeph">AUTO</code>. When you set the <code class="codeph">STANDBY_FILE_MANAGEMENT</code> initialization parameter to <code class="codeph">AUTO</code>, use of the following SQL statements is<a id="d54323e287" class="indexterm-anchor"></a> not allowed:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">ALTER DATABASE RENAME</code></p>
+</li>
+<li>
+<p><code class="codeph">ALTER DATABASE ADD/DROP LOGFILE</code></p>
+</li>
+<li>
+<p><code class="codeph">ALTER DATABASE ADD/DROP STANDBY LOGFILE MEMBER</code></p>
+</li>
+<li>
+<p><code class="codeph">ALTER DATABASE CREATE DATAFILE AS</code></p>
+</li>
+</ul>
+<p>If you attempt to use any of these statements on the standby database, an error is returned. For example:</p>
+<pre dir="ltr">SQL&gt; <a id="d54323e313" class="indexterm-anchor"></a><a id="d54323e317" class="indexterm-anchor"></a>ALTER DATABASE RENAME FILE &#39;/disk1/oracle/oradata/payroll/t_db2.log&#39; to &#39;dummy&#39;;
+
+alter database rename file &#39;/disk1/oracle/oradata/payroll/t_db2.log&#39; to &#39;dummy&#39; 
+* 
+ERROR at line 1: 
+ORA-01511: error in renaming log/datafiles 
+ORA-01270: RENAME operation is not allowed if STANDBY_FILE_MANAGEMENT is auto
+</pre>
+<p>See <a href="manage_ps.htm#GUID-C60E4DB4-F424-454D-B4DF-7A97B2F09540">Adding a Data File or Creating a Tablespace</a> to learn how to add data files to a physical standby database.</p>
+</div>
+</div>
+<a id="SBYDB4906"></a>
+<div class="props_rev_3"><a id="GUID-E0F5B423-208F-4F7E-8CA4-0350D3A7CF0B"></a>
+<h3 id="SBYDB-GUID-E0F5B423-208F-4F7E-8CA4-0350D3A7CF0B" class="sect3"><span class="enumeration_section">A.1.2</span> Standby Database Does Not Receive Redo Data from the Primary Database</h3>
+<div>
+<p><a id="d54323e397" class="indexterm-anchor"></a><a id="d54323e399" class="indexterm-anchor"></a>If the standby site is not receiving redo data, query the <code class="codeph">V$ARCHIVE_DEST</code> view and check for error messages. For example, enter the following query:</p>
+<pre dir="ltr">SQL&gt; SELECT DEST_ID &#34;ID&#34;, -
+&gt; STATUS &#34;DB_status&#34;, -
+&gt; DESTINATION &#34;Archive_dest&#34;, -
+&gt; ERROR &#34;Error&#34; -
+&gt; FROM V$ARCHIVE_DEST WHERE DEST_ID &lt;=5;
+
+ID DB_status Archive_dest                   Error   
+-- --------- ------------------------------ ------------------------------------
+ 1  VALID    /vobs/oracle/work/arc_dest/arc                          
+ 2  ERROR    standby1                       ORA-16012: Archivelog standby database identifier mismatch  
+ 3  INACTIVE                            
+ 4  INACTIVE                    
+ 5  INACTIVE                                           
+5 rows selected.
+</pre>
+<p>If the output of the query does not help you, then check the following list of possible issues. If any of the following conditions exist, then redo transport services fail to transmit redo data to the standby database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The service name for the standby instance is not configured correctly in the <a id="d54323e415" class="indexterm-anchor"></a><a id="d54323e419" class="indexterm-anchor"></a><a id="d54323e423" class="indexterm-anchor"></a><a id="d54323e427" class="indexterm-anchor"></a><code class="codeph">tnsnames.ora</code> file for the primary database.</p>
+</li>
+<li>
+<p>The Oracle Net service name specified by the <code class="codeph">LOG_ARCHIVE_DEST_</code><span class="italic"><code class="codeph">n</code></span> parameter for the primary database is incorrect.</p>
+</li>
+<li>
+<p>The <code class="codeph">LOG_ARCHIVE_DEST_STATE_</code><span class="italic"><code class="codeph">n</code></span> parameter for the standby database is not set to the value <code class="codeph">ENABLE.</code></p>
+</li>
+<li>
+<p>The <code class="codeph">listener.ora</code> file has not been configured correctly for the standby database.</p>
+</li>
+<li>
+<p>The listener is not started at the standby site.</p>
+</li>
+<li>
+<p>The standby instance is not started.</p>
+</li>
+<li>
+<p>You have added a standby archiving destination to the primary SPFILE or text initialization parameter file, but have not yet enabled the change.</p>
+</li>
+<li>
+<p>Redo transport authentication has not been configured properly. See section 3.1.2 for redo transport authentication configuration requirements.</p>
+</li>
+<li>
+<p>You used an invalid backup as the basis for the standby database (for example, you used a backup from the wrong database, or did not create the standby control file using the correct method).</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="SBYDB4907"></a>
+<div class="props_rev_3"><a id="GUID-A0AF4052-4B12-496A-AC20-820E184C5A05"></a>
+<h3 id="SBYDB-GUID-A0AF4052-4B12-496A-AC20-820E184C5A05" class="sect3"><span class="enumeration_section">A.1.3</span> You Cannot Mount the Physical Standby Database</h3>
+<div>
+<p>You cannot mount the standby database if the standby control file was not created with the <code class="codeph">ALTER DATABASE CREATE [LOGICAL] STANDBY CONTROLFILE ...</code> statement or RMAN command. You cannot use the following types of control file backups:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>An operating system-created backup</p>
+</li>
+<li>
+<p>A backup created using an <code class="codeph">ALTER DATABASE</code> statement <span class="italic">without</span> the <code class="codeph">PHYSICAL STANDBY</code> or <code class="codeph">LOGICAL STANDBY</code> option</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="SBYDB5084"></a><a id="SBYDB5085"></a><a id="SBYDB4908"></a>
+<div class="props_rev_3"><a id="GUID-397ED7EA-1A1C-4224-82A3-746448BE6944"></a>
+<h2 id="SBYDB-GUID-397ED7EA-1A1C-4224-82A3-746448BE6944" class="sect2"><span class="enumeration_section">A.2</span> Log File Destination Failures</h2>
+<div>
+<div class="section">
+<p>If you specify <code class="codeph">REOPEN</code> for a <code class="codeph">MANDATORY</code> destination, redo transport services stall the primary database when redo data cannot be successfully transmitted.</p>
+<p>The <code class="codeph">REOPEN</code> attribute is required when you use the <code class="codeph">MAX_FAILURE</code> attribute. <a href="troubleshooting.htm#GUID-397ED7EA-1A1C-4224-82A3-746448BE6944__I635145">Example A-1</a> shows how to set a retry time of 5 seconds and limit retries to 3 times.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-397ED7EA-1A1C-4224-82A3-746448BE6944__I635145">
+<p class="titleinexample">Example A-1 Setting a Retry Time and Limit</p>
+<pre dir="ltr">LOG_ARCHIVE_DEST_1=&#39;LOCATION=/arc_dest REOPEN=5 MAX_FAILURE=3&#39;
+</pre>
+<p><a id="d54323e675" class="indexterm-anchor"></a><a id="d54323e681" class="indexterm-anchor"></a><a id="d54323e685" class="indexterm-anchor"></a><a id="d54323e689" class="indexterm-anchor"></a>Use the <code class="codeph">ALTERNATE</code> attribute of the <code class="codeph">LOG_ARCHIVE_DEST_</code><span class="italic"><code class="codeph">n</code></span> parameter to specify alternate archive destinations. An alternate archiving destination can be used when the transmission of redo data to a standby database fails. If transmission fails and the <code class="codeph">REOPEN</code> attribute was not specified or the <code class="codeph">MAX_FAILURE</code> attribute threshold was exceeded, redo transport services attempts to transmit redo data to the alternate destination on the next archival operation.</p>
+<p><a id="d54323e711" class="indexterm-anchor"></a><a id="d54323e715" class="indexterm-anchor"></a>Use the <code class="codeph">NOALTERNATE</code> attribute to prevent the original archive destination from automatically changing to an alternate archive destination when the original archive destination fails.</p>
+<p><a href="troubleshooting.htm#GUID-397ED7EA-1A1C-4224-82A3-746448BE6944__I635159">Example A-2</a> shows how to set the <a id="d54323e726" class="indexterm-anchor"></a><a id="d54323e732" class="indexterm-anchor"></a>initialization parameters so that a single, mandatory, local destination automatically fails over to a different destination if any error occurs.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-397ED7EA-1A1C-4224-82A3-746448BE6944__I635159">
+<p class="titleinexample">Example A-2 Specifying an Alternate Destination</p>
+<pre dir="ltr">LOG_ARCHIVE_DEST_1=&#39;LOCATION=/disk1 MANDATORY ALTERNATE=LOG_ARCHIVE_DEST_2&#39;
+LOG_ARCHIVE_DEST_STATE_1=ENABLE
+LOG_ARCHIVE_DEST_2=&#39;LOCATION=/disk2 MANDATORY&#39;
+LOG_ARCHIVE_DEST_STATE_2=ALTERNATE
+</pre>
+<p>If the <code class="codeph">LOG_ARCHIVE_DEST_1</code> destination fails, the archiving process automatically switches to the <code class="codeph">LOG_ARCHIVE_DEST_2</code> destination at the next log file switch on the primary database.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="SBYDB4909"></a>
+<div class="props_rev_3"><a id="GUID-3BC98594-CFA0-4EDC-92B9-52F19088B224"></a>
+<h2 id="SBYDB-GUID-3BC98594-CFA0-4EDC-92B9-52F19088B224" class="sect2"><span class="enumeration_section">A.3</span> Handling Logical Standby Database Failures</h2>
+<div>
+<p>An important tool for handling logical standby database failures is the <code class="codeph">DBMS_LOGSTDBY.SKIP_ERROR</code> procedure. Depending on how important a table is, you might want to do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Ignore failures for a table or specific DDL</p>
+</li>
+<li>
+<p>Associate a stored procedure with a filter so at runtime a determination can be made about skipping the statement, executing this statement, or executing a replacement statement</p>
+</li>
+</ul>
+<p>Taking one of these actions prevents SQL Apply from stopping. Later, you can query the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view to find and correct any problems that exist. See <a class="olink ARPLS363" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS363"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for more information about using the <code class="codeph">DBMS_LOGSTDBY</code> package with PL/SQL callout procedures.</p>
+</div>
+</div>
+<a id="SBYDB01410"></a>
+<div class="props_rev_3"><a id="GUID-05C15D55-8CD8-4CB3-ADD3-642AED0FB3A3"></a>
+<h2 id="SBYDB-GUID-05C15D55-8CD8-4CB3-ADD3-642AED0FB3A3" class="sect2"><span class="enumeration_section">A.4</span> Problems Switching Over to a Physical Standby Database</h2>
+<div>
+<p>In most cases, following the steps described in <a href="role_management.htm#GUID-44F26D5F-E036-4ACD-B8F0-224F5498FBCE">Role Transitions</a> results in a successful switchover. However, if the switchover is unsuccessful, the following sections may help you to resolve the problem:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="troubleshooting.htm#GUID-616EF287-25CE-4F6D-A0C3-9A4DEDA3A97C">Switchover Fails Because Redo Data Was Not Transmitted</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-2BE05596-2E74-4FEE-84AB-81777B5B9E13">Switchover Fails with the ORA-01102 Error</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-ACDE1813-1DBD-48E1-8C42-0A2E4ED36631">Redo Data Is Not Applied After Switchover</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-97282862-4EA0-42D9-97EF-34E75A29F87F">Roll Back After Unsuccessful Switchover and Start Over</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB4910"></a>
+<div class="props_rev_3"><a id="GUID-616EF287-25CE-4F6D-A0C3-9A4DEDA3A97C"></a>
+<h3 id="SBYDB-GUID-616EF287-25CE-4F6D-A0C3-9A4DEDA3A97C" class="sect3"><span class="enumeration_section">A.4.1</span> Switchover Fails Because Redo Data Was Not Transmitted</h3>
+<div>
+<p>If the switchover does not complete successfully, you can query the <code class="codeph">SEQUENCE#</code> column in the <code class="codeph">V$ARCHIVED_LOG</code> view to see if the last redo data transmitted from the original primary database was applied on the standby database. If the last redo data was not transmitted to the standby database, you can manually copy the archived redo log file containing the redo data from the original primary database to the old standby database and register it with the S<a id="d54323e1055" class="indexterm-anchor"></a><a id="d54323e1059" class="indexterm-anchor"></a>QL <code class="codeph">ALTER DATABASE REGISTER LOGFILE</code> <span class="variable">file_specification</span> statement. If you then start apply services, the archived redo log file is applied automatically. Query the <code class="codeph">SWITCHOVER_STATUS</code> column in the <code class="codeph">V$DATABASE</code> view. A switchover to the primary role is now possible if the <code class="codeph">SWITCHOVER_STATUS</code> column returns <code class="codeph">TO PRIMARY</code> or <code class="codeph">SESSIONS ACTIVE</code>.</p>
+<pre dir="ltr">SQL&gt; SELECT SWITCHOVER_STATUS FROM V$DATABASE;
+
+SWITCHOVER_STATUS 
+----------------- 
+TO PRIMARY 
+1 row selected 
+</pre>
+<p>See <a href="views.htm#GUID-FF72163C-78B0-475F-B4CE-135EF288A32A">Views Relevant to Oracle Data Guard</a> for information about other valid values for the <code class="codeph">SWITCHO</code><a id="d54323e1096" class="indexterm-anchor"></a><a id="d54323e1100" class="indexterm-anchor"></a><code class="codeph">VER_STATUS</code> column of the <code class="codeph">V$DATABASE</code> view.</p>
+<p>To continue with the switchover, follow the instructions in <a href="role_management.htm#GUID-AAD70601-D248-4309-B8DD-F461EE31A5FF">Performing a Switchover to a Physical Standby Database</a> for physical standby databases or <a href="role_management.htm#GUID-42B8B448-90E0-4D7D-82A3-AAA273E6E49B">Performing a Switchover to a Logical Standby Database</a> for logical standby databases, and try again to switch the target standby database to the primary role.</p>
+</div>
+</div>
+<a id="SBYDB4913"></a>
+<div class="props_rev_3"><a id="GUID-2BE05596-2E74-4FEE-84AB-81777B5B9E13"></a>
+<h3 id="SBYDB-GUID-2BE05596-2E74-4FEE-84AB-81777B5B9E13" class="sect3"><span class="enumeration_section">A.4.2</span> Switchover Fails with the ORA-01102 Error</h3>
+<div>
+<p>Suppose the standby database and the primary database reside on the same site. After the <code class="codeph">ALTER DATABASE SWITCHOVER TO</code> <span class="italic"><code class="codeph">target_db_name</code></span> statement is successfully executed, shut down and restart the physical standby database and the primary database.</p>
+<div class="infobox-note" id="GUID-2BE05596-2E74-4FEE-84AB-81777B5B9E13__GUID-911F3AA6-A1EC-47FC-8C75-12411224C05C">
+<p class="notep1">Note:</p>
+<p>It is not necessary to shut down and restart the physical standby database if it has not been opened read-only since the instance was started.</p>
+</div>
+<p>However, the startup of the second database fails with <code class="codeph">ORA-01102</code> error &#34;cannot mount database in <code class="codeph">EXCLUSIVE</code> mode.&#34;</p>
+<p>This could happen during the switchover if you did not set the <code class="codeph">DB_UNIQUE_NAME</code> parameter in the initialization parameter file that is used by the standby database (the original primary database). If the <a id="d54323e1229" class="indexterm-anchor"></a><a id="d54323e1233" class="indexterm-anchor"></a><code class="codeph">DB_UNIQUE_NAME</code> parameter of the standby database is not set, the standby and the primary databases both use the same mount lock and cause the <code class="codeph">ORA-01102</code> error during the startup of the second database.</p>
+<p>Action: Add <code class="codeph">DB_UNIQUE_NAME=</code><span class="italic"><code class="codeph">unique_database_name</code></span> to the initialization parameter file used by the standby database, and shut down and restart the standby and primary databases.</p>
+</div>
+</div>
+<a id="SBYDB4914"></a>
+<div class="props_rev_3"><a id="GUID-ACDE1813-1DBD-48E1-8C42-0A2E4ED36631"></a>
+<h3 id="SBYDB-GUID-ACDE1813-1DBD-48E1-8C42-0A2E4ED36631" class="sect3"><span class="enumeration_section">A.4.3</span> Redo Data Is Not Applied After Switchover</h3>
+<div>
+<div class="section">
+<p>The archived redo log files are not applied to the new standby database after the switchover.</p>
+<p>This might happen because some environment or initialization parameters were not properly set after the switchover.</p>
+<p>Action:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Check the <a id="d54323e1330" class="indexterm-anchor"></a><a id="d54323e1334" class="indexterm-anchor"></a><code class="codeph">tnsnames.ora</code> file at the new primary site and the <code class="codeph">listener.ora</code> file at the new standby site. There should be entries for a listener at the standby site and a corresponding service name at the primary site.</p>
+</li>
+<li>
+<p>Start the listener at the standby site if it has not been started.</p>
+</li>
+<li>
+<p>Check if the <code class="codeph">LOG_ARCHIVE_DEST_</code><span class="italic"><code class="codeph">n</code></span> initialization parameter was set to properly transmit redo data from the primary site to the standby site. For example, query the <code class="codeph">V$ARCHIVE_DEST</code> fixed view at the primary site as follows:</p>
+<pre dir="ltr">SQL&gt; SELECT DEST_ID, STATUS, DESTINATION FROM V$ARCHIVE_DEST;
+</pre>
+<p>If you do not see an entry corresponding to the standby site, you need to set <code class="codeph">LOG_ARCHIVE_DEST_</code><span class="italic"><code class="codeph">n</code></span> and <code class="codeph">LOG_ARCHIVE_DEST_STATE_</code><span class="italic"><code class="codeph">n</code></span> initialization parameters.</p>
+</li>
+<li>
+<p>Set the <code class="codeph">STANDBY_ARCHIVE_DEST</code> and <code class="codeph">LOG_ARCHIVE_FORMAT</code> initialization parameters correctly at the standby site so that the archived redo log files are applied to the desired location. (Note that the <code class="codeph">STANDBY_ARCHIVE_DEST</code> parameter has been deprecated and is supported for backward compatibility only.)</p>
+</li>
+<li>
+<p>At the standby site, set the<a id="d54323e1390" class="indexterm-anchor"></a><a id="d54323e1394" class="indexterm-anchor"></a> <code class="codeph">DB_FILE_NAME_CONVERT</code> and<a id="d54323e1402" class="indexterm-anchor"></a><a id="d54323e1406" class="indexterm-anchor"></a> <code class="codeph">LOG_FILE_NAME_CONVERT</code> initialization parameters. Set the <code class="codeph">STANDBY_FILE_MANAGEMENT</code> initialization parameter to <code class="codeph">AUTO</code> to enable the standby site to automatically add new data files that are created at the primary site.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4915"></a>
+<div class="props_rev_3"><a id="GUID-97282862-4EA0-42D9-97EF-34E75A29F87F"></a>
+<h3 id="SBYDB-GUID-97282862-4EA0-42D9-97EF-34E75A29F87F" class="sect3"><span class="enumeration_section">A.4.4</span> Roll Back After Unsuccessful Switchover and Start Over</h3>
+<div>
+<div class="section">
+<p>For physical standby databases in situations where an error occurred and it is not possible to continue with the switchover, it might still be possible to revert the new physical standby database back to the primary role by using the following steps. (This functionality is available starting with Oracle Database 11<span class="italic">g</span> Release 2 (11.2.0.2).)</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Shut down and mount the new standby database (old primary).</span></li>
+<li class="stepexpand"><span>Start Redo Apply on the new standby database.</span></li>
+<li class="stepexpand"><span>Verify that the new standby database is ready to be switched back to the primary role. Query the <code class="codeph">SWITCHOVER_STATUS</code> column of the <code class="codeph">V$DATABASE</code> view on the new standby database. For example:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT SWITCHOVER_STATUS FROM V$DATABASE;
+ 
+SWITCHOVER_STATUS 
+----------------- 
+TO_PRIMARY 
+1 row selected
+</pre>
+<p>A value of <code class="codeph">TO PRIMARY</code> or <code class="codeph">SESSIONS ACTIVE</code> indicates that the new standby database is ready to be switched to the primary role. Continue to query this column until the value returned is either <code class="codeph">TO PRIMARY</code> or <code class="codeph">SESSIONS ACTIVE</code>.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Issue the following statement to convert the new standby database back to the primary role:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE SWITCHOVER TO <span class="italic">target_db_name</span> [FORCE];
+</pre>
+<p>If this statement is successful, then the database runs in the primary database role, and you do not need to perform any more steps.</p>
+<p>If this statement is unsuccessful, then continue with Step 5.</p>
+</div>
+</li>
+<li class="stepexpand"><span>When the switchover to change the role from primary to physical standby was initiated, a trace file was written in the log directory. This trace file contains the SQL statements required to re-create the original primary control file. Locate the trace file and extract the SQL statements into a temporary file. Execute the temporary file from SQL*Plus. This reverts the new standby database back to the primary role.</span></li>
+<li class="stepexpand"><span>Shut down the original physical standby database.</span></li>
+<li class="stepexpand"><span>Create a new standby control file. This is necessary to resynchronize the primary database and physical standby database. Copy the physical standby control file to the original physical standby system. <a href="create_ps.htm#GUID-B471D788-AFD3-48B3-9709-D63C34DBC269">Create a Control File for the Standby Database</a> describes how to create a physical standby control file.</span></li>
+<li class="stepexpand"><span>Restart the original physical standby instance.</span>
+<div>
+<p>If this procedure is successful and archive gap management is enabled, then the FAL processes start and re-archive any missing archived redo log files to the physical standby database. Force a log switch on the primary database and examine the alert logs on both the primary database and physical standby database to ensure the archived redo log file sequence numbers are correct.</p>
+<p>See <a href="log_transport.htm#GUID-97EB433B-4125-4082-9276-2454349BC4F8">Manual Gap Resolution</a> for information about archive gap management and <a href="trace.htm#GUID-515A27B2-5163-42E1-A78D-B6E979BA54EB">Setting Archive Tracing</a> for information about locating the trace files.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Try the switchover again.</span>
+<div>
+<p>At this point, the Oracle Data Guard configuration has been rolled back to its initial state, and you can try the switchover operation again (after correcting any problems that might have led to the initial unsuccessful switchover).</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="SBYDB4916"></a>
+<div class="props_rev_3"><a id="GUID-0D1E5C2A-A8E9-4866-89F4-47AA1D86BB7C"></a>
+<h2 id="SBYDB-GUID-0D1E5C2A-A8E9-4866-89F4-47AA1D86BB7C" class="sect2"><span class="enumeration_section">A.5</span> Problems Switching Over to a Logical Standby Database</h2>
+<div>
+<p>A switchover operation involving a logical standby database usually consists of two phases: preparing and committing. The exceptions to this are for rolling upgrades of Oracle software using a logical standby database or if you are using Oracle Data Guard broker. If you experience failures in the context of doing a rolling upgrade using a logical standby database or during a switchover operation initiated by Oracle Data Guard broker, then go directly to <a href="troubleshooting.htm#GUID-A97E4093-B9C0-48E7-BCBE-77DB570A16C2">Failures During the Commit Phase of a Switchover Operation</a>.</p>
+<div class="infobox-note" id="GUID-0D1E5C2A-A8E9-4866-89F4-47AA1D86BB7C__GUID-D8BAD7F7-74E4-4C53-B3C1-B197570B786E">
+<p class="notep1">Note:</p>
+<p>Oracle recommends that Flashback Database be enabled for all databases in an Oracle Data Guard configuration. The steps in this section assume that you have Flashback Database enabled on all databases in your Oracle Data Guard configuration.</p>
+</div>
+</div>
+<a id="SBYDB4917"></a>
+<div class="props_rev_3"><a id="GUID-7B380888-6FEF-4B79-93B9-0D25821E704E"></a>
+<h3 id="SBYDB-GUID-7B380888-6FEF-4B79-93B9-0D25821E704E" class="sect3"><span class="enumeration_section">A.5.1</span> Failures During the Prepare Phase of a Switchover Operation</h3>
+<div>
+<p>If a failure occurs during the preparation phase of a switchover operation, then cancel the switchover and retry the switchover operation from the very beginning.</p>
+</div>
+<a id="SBYDB4918"></a>
+<div class="props_rev_3"><a id="GUID-3A7971C1-3593-4F68-873C-26A2CCA33258"></a>
+<h4 id="SBYDB-GUID-3A7971C1-3593-4F68-873C-26A2CCA33258" class="sect4"><span class="enumeration_section">A.5.1.1</span> Failure While Preparing the Primary Database</h4>
+<div>
+<div class="section">
+<p>If you encounter failure while executing the <code class="codeph">ALTER DATABASE PREPARE TO SWITCHOVER TO LOGICAL STANDBY</code> statement, you can cancel the prepare phase of a switchover by issuing the following SQL statement at the primary database:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE PREPARE TO SWITCHOVER TO LOGICAL STANDBY CANCEL;
+</pre>
+<p>You can now retry the switchover operation from the beginning.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4919"></a>
+<div class="props_rev_3"><a id="GUID-7A07B541-BD0D-440D-92A3-EC305F3D9821"></a>
+<h4 id="SBYDB-GUID-7A07B541-BD0D-440D-92A3-EC305F3D9821" class="sect4"><span class="enumeration_section">A.5.1.2</span> Failure While Preparing the Logical Standby Database</h4>
+<div>
+<div class="section">
+<p>If you encounter failure while executing the <code class="codeph">ALTER DATABASE PREPARE TO SWITCHOVER TO PRIMARY</code> statement, you need to cancel the prepare operation at the primary database and at the target standby database. Take the following steps:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>At the primary database, cancel the statement you had issued to prepare for the switchover:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE PREPARE TO SWITCHOVER TO LOGICAL STANDBY CANCEL;
+</pre></div>
+</li>
+<li class="stepexpand"><span>At the logical standby database that was the target of the switchover, cancel the statement you had issued to prepare to switch over:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE PREPARE TO SWITCHOVER TO PRIMARY CANCEL;
+</pre>
+<p>You can now retry the switchover operation from the beginning.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="SBYDB4920"></a>
+<div class="props_rev_3"><a id="GUID-A97E4093-B9C0-48E7-BCBE-77DB570A16C2"></a>
+<h3 id="SBYDB-GUID-A97E4093-B9C0-48E7-BCBE-77DB570A16C2" class="sect3"><span class="enumeration_section">A.5.2</span> Failures During the Commit Phase of a Switchover Operation</h3>
+<div>
+<p>Although committing to a switchover involves a single SQL statement, internally a number of operations are performed. The corrective actions that you need to take depend on the state of the commit to switchover operation when the error was encountered.</p>
+</div>
+<a id="SBYDB01415"></a>
+<div class="props_rev_3"><a id="GUID-46D11649-5971-4A47-BA25-6FFAD2D4B83E"></a>
+<h4 id="SBYDB-GUID-46D11649-5971-4A47-BA25-6FFAD2D4B83E" class="sect4"><span class="enumeration_section">A.5.2.1</span> Failure to Convert the Original Primary Database</h4>
+<div>
+<div class="section">
+<p>If you encounter failures while executing the <code class="codeph">ALTER DATABASE COMMIT TO SWITCHOVER TO LOGICAL STANDBY</code> statement, you can take the following steps:</p>
+<ol>
+<li>
+<p>Check the <code class="codeph">DATABASE_ROLE</code> column of the <code class="codeph">V$DATABASE</code> fixed view on the original primary database:</p>
+<pre dir="ltr">SQL&gt; SELECT DATABASE_ROLE FROM V$DATABASE;
+</pre>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the column contains a value of <code class="codeph">LOGICAL STANDBY</code>, the switchover operation has completed, but has failed during a post-switchover task. In this situation, Oracle recommends that you shut down and reopen the database.</p>
+</li>
+<li>
+<p>If the column contains a value of <code class="codeph">PRIMARY</code>, proceed to Step 2.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Perform the following query on the original primary:</p>
+<pre dir="ltr">SQL&gt; SELECT COUNT(*) FROM SYSTEM.LOGSTDBY$PARAMETERS -
+&gt; WHERE NAME = &#39;END_PRIMARY&#39;;
+</pre>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the query returns a 0, the primary is in a state identical to that it was in before the commit to switchover command was issued. You do not need to take any corrective action. You can proceed with the commit to switchover operation or cancel the switchover operation as outlined in <a href="troubleshooting.htm#GUID-7A07B541-BD0D-440D-92A3-EC305F3D9821">Failure While Preparing the Logical Standby Database</a>.</p>
+</li>
+<li>
+<p>If the query returns a 1, the primary is in an inconsistent state, and you need to proceed to Step 3.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Take corrective action at the original primary database to maintain its ability to be protected by existing or newly instantiated logical standby databases.</p>
+<p>You can either fix the underlying cause of the error raised during the commit to switchover operation and reissue the SQL statement (<code class="codeph">ALTER DTABASE COMMIT TO SWITCHOVER TO LOGICAL STANDBY</code>) or you can take the following steps:</p>
+<ol>
+<li>
+<p>From the alert log of the instance where you initiated the commit to switchover command, determine the SCN needed to flash back to the original primary. This information is displayed after the <code class="codeph">ALTER DATABASE COMMIT TO SWITCHOVER TO LOGICAL STANDBY</code> SQL statement:</p>
+<pre dir="ltr">LOGSTDBY: Preparing the COMMIT TO SWITCHOVER TO LOGICAL STANDBY DDL at scn [flashback_scn].
+</pre></li>
+<li>
+<p>Shut down all instances of the primary database:</p>
+<pre dir="ltr">SQL&gt; SHUTDOWN IMMEDIATE;
+</pre></li>
+<li>
+<p>Mount the primary database in exclusive mode:</p>
+<pre dir="ltr">SQL&gt; STARTUP MOUNT;
+</pre></li>
+<li>
+<p>Flash back the database to the SCN taken from the alert log:</p>
+<pre dir="ltr">SQL&gt; FLASHBACK DATABASE TO BEFORE SCN &lt;flashback_scn&gt;;
+</pre></li>
+<li>
+<p>Open the primary database:</p>
+<pre dir="ltr">SQL&gt; STARTUP;
+</pre></li>
+<li>
+<p>Lower the database guard at the original primary database:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE GUARD NONE;
+</pre></li>
+</ol>
+<p>At this point the primary is in a state identical to that it was in before the commit switchover command was issued. You do not need to take any corrective action. you can proceed with the commit to switchover operation or cancel the switchover operation as outlined in <a href="troubleshooting.htm#GUID-3A7971C1-3593-4F68-873C-26A2CCA33258">Failure While Preparing the Primary Database</a> .</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB01420"></a>
+<div class="props_rev_3"><a id="GUID-8EF3068B-4A91-43A9-8004-5B6418CE9482"></a>
+<h4 id="SBYDB-GUID-8EF3068B-4A91-43A9-8004-5B6418CE9482" class="sect4"><span class="enumeration_section">A.5.2.2</span> Failure to Convert the Target Logical Standby Database</h4>
+<div>
+<div class="section">
+<p>If you encounter failures while executing the <code class="codeph">ALTER DATABASE COMMIT TO SWITCHOVER TO PRIMARY</code> statement, take the following steps:</p>
+<ol>
+<li>
+<p>Check the <code class="codeph">DATABASE_ROLE</code> column of the <code class="codeph">V$DATABASE</code> fixed view on the target standby database:</p>
+<pre dir="ltr">SQL&gt; SELECT DATABASE_ROLE FROM V$DATABASE;
+</pre>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the column contains a value <code class="codeph">PRIMARY</code>, the switchover operation has completed, but has failed during a post-switchover task. In this situation, you must perform the following steps:</p>
+<ol>
+<li>
+<p>Shut down and reopen the database.</p>
+</li>
+<li>
+<p>Issue an <code class="codeph">ALTER DATABASE GUARD NONE</code> command to remove write restrictions to the database.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>If the column contains a value of <code class="codeph">LOGICAL STANDBY</code>, proceed to Step 2.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Perform the following query on the target logical standby:</p>
+<pre dir="ltr">SQL&gt; SELECT COUNT(*) FROM SYSTEM.LOGSTDBY$PARAMETERS -
+&gt; WHERE NAME = &#39;BEGIN_PRIMARY&#39;;
+</pre>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the query returns a 0, the logical standby is in a state identical to that it was in before the commit to switchover command was issued. You do not need to take any corrective action. You can proceed with the commit to switchover operations or cancel the switchover operation as outlined in <a href="troubleshooting.htm#GUID-7A07B541-BD0D-440D-92A3-EC305F3D9821">Failure While Preparing the Logical Standby Database</a>.</p>
+</li>
+<li>
+<p>If the query returns a 1, then the logical standby is in an inconsistent state. Proceed to Step 3.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Take corrective action at the logical standby to maintain its ability to either become the new primary or become a bystander to a different new primary.</p>
+<p>You can either fix the underlying cause of the error raised during the commit to switchover operation and reissue the SQL statement (<code class="codeph">ALTER DATABASE COMMIT TO SWITCHOVER TO PRIMARY</code>) or you can take the following steps to flash back the logical standby database to a point of consistency just prior to the commit to switchover attempt:</p>
+<ol>
+<li>
+<p>From the alert log of the instance where you initiated the commit to switchover command, determine the SCN needed to flash back to the logical standby. This information is displayed after the <code class="codeph">ALTER DATABASE COMMIT TO SWITCHOVER TO PRIMARY</code> SQL statement:</p>
+<pre dir="ltr">LOGSTDBY: Preparing the COMMIT TO SWITCHOVER TO PRIMARY DDL at scn [flashback_scn].
+</pre></li>
+<li>
+<p>Shut down all instances of the target standby database:</p>
+<pre dir="ltr">SQL&gt; SHUTDOWN IMMEDIATE;
+</pre></li>
+<li>
+<p>Mount the target logical standby database:</p>
+<pre dir="ltr">SQL&gt; STARTUP MOUNT;
+</pre></li>
+<li>
+<p>Flash back the target logical standby to the desired SCN:</p>
+<pre dir="ltr">SQL&gt; FLASHBACK DATABASE TO BEFORE SCN &lt;flashback_scn&gt;;
+</pre></li>
+<li>
+<p>Open the database (in case of an Oracle RAC, open all instances);</p>
+<pre dir="ltr">SQL&gt; STARTUP OPEN;
+</pre></li>
+</ol>
+</li>
+</ol>
+<p>At this point the target standby is in a state identical to that it was in before the commit to switchover command was issued. You do not need to take any further corrective action. You can proceed with the commit to switchover operation.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="SBYDB5087"></a><a id="SBYDB4921"></a>
+<div class="props_rev_3"><a id="GUID-E2C9EEB9-CDCE-46B4-A7ED-D60B7FCD657A"></a>
+<h2 id="SBYDB-GUID-E2C9EEB9-CDCE-46B4-A7ED-D60B7FCD657A" class="sect2"><span class="enumeration_section">A.6</span> What to Do If SQL Apply Stops</h2>
+<div>
+<div class="section">
+<p><a id="d54323e2385" class="indexterm-anchor"></a>Apply services cannot apply unsupported DML statements, DDL statements, and Oracle supplied packages to a logical standby database running SQL Apply.</p>
+<p>When an unsupported statement or package is encountered, SQL Apply stops. You can take the actions described in <a href="troubleshooting.htm#GUID-E2C9EEB9-CDCE-46B4-A7ED-D60B7FCD657A__G640603" title="This 2 column table lists typical reasons why SQL Apply stops and describes possible solutions to correct each situation.">Table A-1</a> to correct the situation and start SQL Apply on the logical standby database again.</p>
+</div>
+<!-- class="section" -->
+<div class="tblformalwide" id="GUID-E2C9EEB9-CDCE-46B4-A7ED-D60B7FCD657A__G640603">
+<p class="titleintable">Table A-1 Fixing Typical SQL Apply Errors</p>
+<table class="cellalignment2262" title="Fixing Typical SQL Apply Errors" summary="This 2 column table lists typical reasons why SQL Apply stops and describes possible solutions to correct each situation.">
+<thead>
+<tr class="cellalignment2253">
+<th class="cellalignment2345" id="d54323e2407">If...</th>
+<th class="cellalignment2346" id="d54323e2410">Then...</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2253">
+<td class="cellalignment2347" id="d54323e2415" headers="d54323e2407">
+<p>You suspect an unsupported statement or Oracle supplied package was encountered</p>
+</td>
+<td class="cellalignment2348" headers="d54323e2415 d54323e2410">
+<p>Find the last statement in the <a id="d54323e2421" class="indexterm-anchor"></a><a id="d54323e2423" class="indexterm-anchor"></a><code class="codeph">DBA_LOGSTDBY_EVENTS</code> view. It shows the statement and error that caused SQL Apply to fail. If an incorrect SQL statement caused SQL Apply to fail, transaction information, as well as the statement and error information, can be viewed. The transaction information can be used with LogMiner tools to understand the cause of the problem.</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2347" id="d54323e2431" headers="d54323e2407">
+<p>An error requiring database management occurred, such as running out of space in a particular tablespace</p>
+</td>
+<td class="cellalignment2348" headers="d54323e2431 d54323e2410">
+<p>Fix the problem and resume SQL Apply using the <a id="d54323e2437" class="indexterm-anchor"></a><a id="d54323e2441" class="indexterm-anchor"></a><code class="codeph">ALTER DATABASE START LOGICAL STANDBY APPLY</code> statement.</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2347" id="d54323e2449" headers="d54323e2407">
+<p>An error occurred because a SQL statement was entered incorrectly, such as an incorrect standby database filename being entered in a tablespace statement</p>
+</td>
+<td class="cellalignment2348" headers="d54323e2449 d54323e2410">
+<p>Enter the correct SQL statement and use the <a id="d54323e2455" class="indexterm-anchor"></a><a id="d54323e2459" class="indexterm-anchor"></a><code class="codeph">DBMS_LOGSTDBY.SKIP_TRANSACTION</code> procedure to ensure the incorrect statement is ignored the next time SQL Apply is run. Then, restart SQL Apply using the <code class="codeph">ALTER DATABASE START LOGICAL STANDBY APPLY</code> statement.</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2347" id="d54323e2470" headers="d54323e2407">
+<p>An error occurred because skip parameters were incorrectly set up, such as specifying that all DML for a given table be skipped but <code class="codeph">CREATE</code>, <code class="codeph">ALTER</code>, and <code class="codeph">DROP TABLE</code> statements were not specified to be skipped</p>
+</td>
+<td class="cellalignment2348" headers="d54323e2470 d54323e2410">
+<p>Issue the <a id="d54323e2485" class="indexterm-anchor"></a><a id="d54323e2489" class="indexterm-anchor"></a><code class="codeph">DBMS_LOGSTDBY.SKIP(&#39;TABLE&#39;,&#39;schema_name&#39;,&#39;table_name&#39;,null)</code> procedure, then restart SQL Apply.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<p>See <a href="views.htm#GUID-FF72163C-78B0-475F-B4CE-135EF288A32A">Views Relevant to Oracle Data Guard</a> for information about querying the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view to determine the cause of failures.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB00440"></a>
+<div class="props_rev_3"><a id="GUID-5B879B01-2433-4B08-8D58-E91DBA58FEF7"></a>
+<h2 id="SBYDB-GUID-5B879B01-2433-4B08-8D58-E91DBA58FEF7" class="sect2"><span class="enumeration_section">A.7</span> Network Tuning for Redo Data Transmission</h2>
+<div>
+<p>For optimal performance, set the Oracle Net SDU parameter to its maximum value of 65535 bytes in each Oracle Net connect descriptor used by redo transport services.</p>
+<p>The following example shows a database initialization parameter file segment that defines a remote destination <code class="codeph">netserv</code>:</p>
+<pre dir="ltr">LOG_ARCHIVE_DEST_3=&#39;SERVICE=netserv&#39;
+</pre>
+<p>The f<a id="d54323e2599" class="indexterm-anchor"></a><a id="d54323e2603" class="indexterm-anchor"></a>ollowing example shows the definition of that service name in the <a id="d54323e2608" class="indexterm-anchor"></a><a id="d54323e2612" class="indexterm-anchor"></a><a id="d54323e2616" class="indexterm-anchor"></a><a id="d54323e2620" class="indexterm-anchor"></a><code class="codeph">tnsnames.ora</code> file:</p>
+<pre dir="ltr">netserv=(DESCRIPTION=(SDU=32768)(ADDRESS=(PROTOCOL=tcp)(HOST=host) (PORT=1521)) (CONNECT_DATA=(SERVICE_NAME=srvc)))
+</pre>
+<p>The following example shows the definition in the <code class="codeph">listener.ora</code> file:</p>
+<pre dir="ltr">LISTENER=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=tcp)
+(HOST=host)(PORT=1521))))
+
+SID_LIST_LISTENER=(SID_LIST=(SID_DESC=(SDU=32768)(SID_NAME=sid)
+(GLOBALDBNAME=srvc)(ORACLE_HOME=/oracle)))
+</pre>
+<p>If you archive to a remote site using a high-latency or high-bandwidth network link, you can improve performance by using the <code class="codeph">SQLNET.SEND_BUF_SIZE</code> and <code class="codeph">SQLNET.RECV_BUF_SIZE</code> Oracle Net profile parameters to increase the size of the network send and receive I/O buffers.</p>
+<p>See <a class="olink NETAG0141" target="_blank" href="../NETAG/performance.htm#NETAG0141"><span class="italic">Oracle Database Net Services Administrator&#39;s Guide</span></a> for information about other ways to change the Oracle NET SDU parameter.</p>
+</div>
+</div>
+<a id="SBYDB4922"></a>
+<div class="props_rev_3"><a id="GUID-5F933817-AD03-43D7-878D-E4B115448DAD"></a>
+<h2 id="SBYDB-GUID-5F933817-AD03-43D7-878D-E4B115448DAD" class="sect2"><span class="enumeration_section">A.8</span> Slow Disk Performance on Standby Databases</h2>
+<div>
+<p>If asynchronous I/O on the file system itself is showing performance problems, try mounting the file system using the Direct I/O option or setting the <code class="codeph">FILESYSTEMIO_OPTIONS=SETALL</code> initialization parameter. The maximum I/O size setting is 1 MB.</p>
+</div>
+</div>
+<a id="SBYDB4923"></a>
+<div class="props_rev_3"><a id="GUID-82348347-C02B-4179-A325-3192E6F94737"></a>
+<h2 id="SBYDB-GUID-82348347-C02B-4179-A325-3192E6F94737" class="sect2"><span class="enumeration_section">A.9</span> Log Files Must Match to Avoid Primary Database Shutdown</h2>
+<div>
+<p>If you have configured a standby redo log on one or more standby databases in the configuration, ensure the size of the standby redo log files on each standby database exactly matches the size of the online redo log files on the primary database.</p>
+<p>At log switch time, if there are no available standby redo log files that match the size of the new current online redo log file on the primary database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The primary database shuts down if it is operating in maximum protection mode,</p>
+<p><span class="italic"><span class="bold">or</span></span></p>
+</li>
+<li>
+<p>The RFS process on the standby database creates an archived redo log file on the standby database and writes the following message in the alert log:</p>
+<pre dir="ltr">No standby log files of size &lt;#&gt; blocks available.
+</pre></li>
+</ul>
+<p>For example, if the primary database uses two online redo log groups whose log files are 100K, then the standby database should have 3 standby redo log groups with log file sizes of 100K.</p>
+<p>Also, whenever you add a redo log group to the primary database, you must add a corresponding standby redo log group to the standby database. This reduces the probability of adverse effects on the primary database because a standby redo log file of the required size is not available at log switch time.</p>
+</div>
+</div>
+<a id="SBYDB4924"></a>
+<div class="props_rev_3"><a id="GUID-B1551FC6-1B9F-49A5-A462-124697A449C3"></a>
+<h2 id="SBYDB-GUID-B1551FC6-1B9F-49A5-A462-124697A449C3" class="sect2"><span class="enumeration_section">A.10</span> Troubleshooting a Logical Standby Database</h2>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="troubleshooting.htm#GUID-1D92D18C-488C-4896-9592-33FBB4BEEAB2">Recovering from Errors</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-0AB63229-F105-44EF-AB5E-29E19946DC2F">Troubleshooting SQL*Loader Sessions</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-0C23E281-5ED2-4411-851C-B609EA1C350E">Troubleshooting Long-Running Transactions</a></p>
+</li>
+<li>
+<p><a href="troubleshooting.htm#GUID-B25EE583-E622-4F0C-AA50-84582DFDD5DD">Troubleshooting ORA-1403 Errors with Flashback Transactions</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB4925"></a>
+<div class="props_rev_3"><a id="GUID-1D92D18C-488C-4896-9592-33FBB4BEEAB2"></a>
+<h3 id="SBYDB-GUID-1D92D18C-488C-4896-9592-33FBB4BEEAB2" class="sect3"><span class="enumeration_section">A.10.1</span> Recovering from Errors</h3>
+<div>
+<p>Logical standby databases maintain user tables, sequences, and jobs. To maintain other objects, you must reissue the DDL statements seen in the redo data stream.</p>
+<p>If SQL Apply fails, an error is recorded in the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> table. The following sections demonstrate how to recover from two such errors.</p>
+</div>
+<a id="SBYDB4926"></a>
+<div class="props_rev_3"><a id="GUID-16CE2533-7190-4717-88E0-BDC53DBD887B"></a>
+<h4 id="SBYDB-GUID-16CE2533-7190-4717-88E0-BDC53DBD887B" class="sect4"><span class="enumeration_section">A.10.1.1</span> DDL Transactions Containing File Specifications</h4>
+<div>
+<div class="section">
+<p>DDL statements are executed the same way on the primary database and the logical standby database. If the underlying file structure is the same on both databases, then the DDL executes on the standby database as expected.</p>
+<p>If an error was caused by a DDL transaction containing a file specification that did not match in the logical standby database environment, perform the following steps to fix the problem:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Use the <code class="codeph">ALTER SESSION DISABLE</code> <code class="codeph">GUARD</code> statement to bypass the database guard so you can make modifications to the logical standby database:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER SESSION DISABLE GUARD;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Execute the DDL statement, using the correct file specification, and then reenable the database guard. For example:</span>
+<div>
+<pre dir="ltr">SQL&gt; <a id="d54323e3079" class="indexterm-anchor"></a><a id="d54323e3083" class="indexterm-anchor"></a>ALTER TABLESPACE t_table ADD DATAFILE &#39;/dbs/t_db.f&#39; SIZE 100M REUSE;
+SQL&gt; ALTER SESSION ENABLE GUARD;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Start SQL Apply on the logical standby database and skip the failed transaction.</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE -
+&gt; SKIP FAILED TRANSACTION;
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<p>In some situations, the problem that caused the transaction to fail can be corrected and SQL Apply restarted without skipping the transaction. An example of this might be when available space is exhausted. (Do not let the primary and logical standby databases diverge when skipping DDL transactions. If possible, manually execute a compensating transaction in place of the skipped transaction.)</p>
+<p>The following example shows SQL Apply stopping, the error being corrected, and then restarting SQL Apply:</p>
+<pre dir="ltr">SQL&gt; SET LONG 1000
+SQL&gt; ALTER SESSION SET NLS_DATE_FORMAT  = &#39;DD-MON-YY HH24:MI:SS&#39;;
+
+Session altered.
+
+SQL&gt; SELECT EVENT_TIME, COMMIT_SCN, EVENT, STATUS FROM DBA_LOGSTDBY_EVENTS;
+
+EVENT_TIME              COMMIT_SCN
+------------------ ---------------
+EVENT
+-------------------------------------------------------------------------------
+STATUS
+-------------------------------------------------------------------------------
+22-OCT-03 15:47:58
+
+ORA-16111: log mining and apply setting up
+
+22-OCT-03 15:48:04          209627
+insert into &#34;SCOTT&#34;.&#34;EMP&#34;
+values
+   &#34;EMPNO&#34; = 7900,
+   &#34;ENAME&#34; = &#39;ADAMS&#39;,
+   &#34;JOB&#34; = &#39;CLERK&#39;,
+   &#34;MGR&#34; IS NULL,
+   &#34;HIREDATE&#34; = TO_DATE(&#39;22-OCT-03&#39;, &#39;DD-MON-RR&#39;),
+   &#34;SAL&#34; = 950,
+   &#34;COMM&#34; IS NULL,
+   &#34;DEPTNO&#34; IS NULL
+ORA-01653: unable to extend table SCOTT.EMP by %200 bytes in tablespace T_TABLE
+</pre>
+<p>In the example, the <code class="codeph">ORA-01653</code> message indicates that the tablespace was full and unable to extend itself. To correct the problem, add a new data file to the tablespace. For example:</p>
+<pre dir="ltr">SQL&gt; <a id="d54323e3110" class="indexterm-anchor"></a><a id="d54323e3112" class="indexterm-anchor"></a><a id="d54323e3116" class="indexterm-anchor"></a>ALTER TABLESPACE t_table ADD DATAFILE &#39;/dbs/t_db.f&#39; SIZE 60M;
+Tablespace altered.
+</pre>
+<p>Then, restart SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+Database altered.
+</pre>
+<p>When SQL Apply restarts, the transaction that failed is reexecuted and applied to the logical standby database.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4927"></a>
+<div class="props_rev_3"><a id="GUID-A146A62B-550F-4520-9001-C11C043E3A64"></a>
+<h4 id="SBYDB-GUID-A146A62B-550F-4520-9001-C11C043E3A64" class="sect4"><span class="enumeration_section">A.10.1.2</span> Recovering from DML Failures</h4>
+<div>
+<div class="section">
+<p>Do not use the <code class="codeph">SKIP_TRANSACTION</code> procedure to filter DML failures. Not only is the DML that is seen in the events table skipped, but so is all the DML associated with the transaction.</p>
+<p>DML failures usually indicate a problem with a specific table. For example, assume the failure is an out-of-storage error that you cannot resolve immediately. The following steps demonstrate one way to respond to this problem.</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Bypass the table, but not the transaction, by adding the table to the skip list:</span>
+<div>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.SKIP(&#39;DML&#39;,&#39;SCOTT&#39;,&#39;EMP&#39;);
+SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre>
+<p>From this point on, DML activity for the <code class="codeph">SCOTT.EMP</code> table is not applied. After you correct the storage problem, you can fix the table, provided you set up a database link to the primary database that has administrator privileges to run procedures in the <code class="codeph">DBMS_LOGSTDBY</code> package.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Using the database link to the primary database, drop the local <code class="codeph">SCOTT.EMP</code> table and then re-create it, and pull the data over to the standby database.</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+SQL&gt; EXECUTE DBMS_LOGSTDBY.INSTANTIATE_TABLE(&#39;SCOTT&#39;,&#39;EMP&#39;,&#39;PRIMARYDB&#39;);
+SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre></div>
+</li>
+<li class="stepexpand"><span>To ensure a consistent view across the newly instantiated table and the rest of the database, wait for SQL Apply to catch up with the primary database before querying this table. Refer to <a href="manage_ls.htm#GUID-DD88E3D6-D6DB-4175-BB59-F048B9A87BAA">Adding or Re-Creating Tables On a Logical Standby Database</a> for a detailed example.</span></li>
+</ol>
+</div>
+</div>
+</div>
+<a id="SBYDB4928"></a>
+<div class="props_rev_3"><a id="GUID-0AB63229-F105-44EF-AB5E-29E19946DC2F"></a>
+<h3 id="SBYDB-GUID-0AB63229-F105-44EF-AB5E-29E19946DC2F" class="sect3"><span class="enumeration_section">A.10.2</span> Troubleshooting SQL*Loader Sessions</h3>
+<div>
+<p>Oracle SQL*Loader provides a method of loading data from different sources into the Oracle Database. This section analyzes some of the features of the SQL*Loader utility as it pertains to SQL Apply.</p>
+<p>Regardless of the method of data load chosen, the SQL*Loader control files contain an instruction on what to do to the current contents of the Oracle table into which the new data is to be loaded, via the keywords of <code class="codeph">APPEND</code> and <code class="codeph">REPLACE</code>. The following examples show how to use these keywords on a table named <code class="codeph">LOAD_STOK</code>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>When using the <code class="codeph">APPEND keyword</code>, the new data to be loaded is appended to the contents of the <code class="codeph">LOAD_STOK</code> table:</p>
+<pre dir="ltr">LOAD DATA
+INTO TABLE LOAD_STOK APPEND
+</pre></li>
+<li>
+<p>When using the <code class="codeph">REPLACE</code> keyword, the contents of the <code class="codeph">LOAD_STOK</code> table are deleted prior to loading new data. Oracle SQL*Loader uses the <code class="codeph">DELETE</code> statement to purge the contents of the table, in a single transaction:</p>
+<pre dir="ltr">LOAD DATA
+INTO TABLE LOAD_STOK REPLACE
+</pre></li>
+</ul>
+<p>Rather than using the <code class="codeph">REPLACE</code> keyword in the SQL*Loader script, Oracle recommends that prior to loading the data, you issue the SQL*Plus <code class="codeph">TRUNCATE TABLE</code> command against the table on the primary database. This has the same effect of purging both the primary and standby databases copy of the table in a manner that is both fast and efficient because the <code class="codeph">TRUNCATE TABLE</code> command is recorded in the online redo log files and is issued by SQL Apply on the logical standby database.</p>
+<p>The SQL*Loader script may continue to contain the <code class="codeph">REPLACE</code> keyword, but it now attempts to <code class="codeph">DELETE</code> zero rows from the object on the primary database. Because no rows were deleted from the primary database, there is no redo recorded in the redo log files. Therefore, no <code class="codeph">DELETE</code> statement is issued against the logical standby database.</p>
+<p>Issuing the <code class="codeph">REPLACE</code> keyword without the SQL statement <code class="codeph">TRUNCATE TABLE</code> provides the following potential problems for SQL Apply when the transaction needs to be applied to the logical standby database.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the table currently contains a significant number of rows, then these rows need to be deleted from the standby database. Because SQL Apply is not able to determine the original syntax of the statement, SQL Apply must issue a <code class="codeph">DELETE</code> statement for each row purged from the primary database.</p>
+<p>For example, if the table on the primary database originally had 10,000 rows, then Oracle SQL*Loader issues a single <code class="codeph">DELETE</code> statement to purge the 10,000 rows. On the standby database, SQL Apply does not know that all rows are to be purged, and instead must issue 10,000 individual <code class="codeph">DELETE</code> statements, with each statement purging a single row.</p>
+</li>
+<li>
+<p>If the table on the standby database does not contain an index that can be used by SQL Apply, then the <code class="codeph">DELETE</code> statement issues a Full Table Scan to purge the information.</p>
+<p>Continuing with the previous example, because SQL Apply has issued 10,000 individual <code class="codeph">DELETE</code> statements, this could result in 10,000 Full Table Scans being issued against the standby database.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="SBYDB5088"></a><a id="SBYDB5089"></a><a id="SBYDB5091"></a><a id="SBYDB5092"></a><a id="SBYDB5093"></a><a id="SBYDB4929"></a>
+<div class="props_rev_3"><a id="GUID-0C23E281-5ED2-4411-851C-B609EA1C350E"></a>
+<h3 id="SBYDB-GUID-0C23E281-5ED2-4411-851C-B609EA1C350E" class="sect3"><span class="enumeration_section">A.10.3</span> Troubleshooting Long-Running Transactions</h3>
+<div>
+<p>One of the primary causes for long-running transactions in a SQL Apply environment is because of Full Table Scans. Additionally, long-running transactions could be the result of SQL statements being replicated to the standby database, such as when creating or rebuilding an index.</p>
+<div class="section">
+<p class="subhead3">Identifying Long-Running Transactions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>If SQL Apply is executing a single SQL statement for a long period of time, then a warning message similar to the following is reported in the alert log of the SQL Apply instance:</p>
+<pre dir="ltr">Mon Feb 17 14:40:15 2003
+WARNING: the following transaction makes no progress
+WARNING: in the last 30 seconds for the given message!
+WARNING: xid =
+0x0016.007.000017b6 cscn = 1550349, message# = 28, slavid = 1
+knacrb: no offending session found (not ITL pressure)
+</pre>
+<p>Note the following about the warning message:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>This warning is similar to the warning message returned for interested transaction list (ITL) pressure, with the exception being the last line that begins with <code class="codeph">knacrb</code>. The final line indicates:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A Full Table Scan may be occurring</p>
+</li>
+<li>
+<p>This issue has nothing to do with interested transaction list (ITL) pressure</p>
+</li>
+</ul>
+</li>
+<li>
+<p>This warning message is reported only if a single statement takes more than 30 seconds to execute.</p>
+</li>
+</ul>
+<p>It may not be possible to determine the SQL statement being executed by the long-running statement, but the following SQL statement may help in identifying the database objects on which SQL Apply is operating:</p>
+<pre dir="ltr">SQL&gt; SELECT SAS.SERVER_ID -
+&gt;  , SS.OWNER -
+&gt;  , SS.OBJECT_NAME -
+&gt;  , SS.STATISTIC_NAME -
+&gt;  , SS.VALUE -
+&gt;  FROM V$SEGMENT_STATISTICS SS -
+&gt;  , V$LOCK L -
+&gt;  , V$STREAMS_APPLY_SERVER SAS -
+&gt;  WHERE SAS.SERVER_ID = &amp;SLAVE_ID -
+&gt;  AND L.SID = SAS.SID -
+&gt;  AND L.TYPE = &#39;TM&#39; -
+&gt;  AND SS.OBJ# = L.ID1;
+</pre>
+<p>Additionally, you can issue the following SQL statement to identify the SQL statement that has resulted in a large number of disk reads being issued per execution:</p>
+<pre dir="ltr">SQL&gt; SELECT SUBSTR(SQL_TEXT,1,40) -
+&gt;  , DISK_READS -
+&gt;  , EXECUTIONS -
+&gt;  , DISK_READS/EXECUTIONS -
+&gt;  , HASH_VALUE -
+&gt;  , ADDRESS -
+&gt;  FROM V$SQLAREA -
+&gt;  WHERE DISK_READS/GREATEST(EXECUTIONS,1) &gt; 1 -
+&gt;  AND ROWNUM &lt; 10 -
+&gt;  ORDER BY DISK_READS/GREATEST(EXECUTIONS,1) DESC;
+</pre>
+<p>Oracle recommends that all tables have primary key constraints defined, which automatically means that the column is defined as <code class="codeph">NOT NULL</code>. For any table where a primary-key constraint cannot be defined, define an index on an appropriate column that is defined as <code class="codeph">NOT NULL</code>. If a suitable column does not exist on the table, then the table should be reviewed and, if possible, skipped by SQL Apply. The following steps describe how to skip all DML statements issued against the <code class="codeph">FTS</code> table on the <code class="codeph">SCOTT</code> schema:</p>
+<ol>
+<li>
+<p>Stop SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+Database altered
+</pre></li>
+<li>
+<p>Configure the skip procedure for the <code class="codeph">SCOTT.FTS</code> table for all DML transactions:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.SKIP(stmt =&gt; &#39;DML&#39; , -
+&gt;  schema_name =&gt; &#39;SCOTT&#39; , -
+&gt;  object_name =&gt; &#39;FTS&#39;);
+PL/SQL procedure successfully completed
+</pre></li>
+<li>
+<p>Start SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+Database altered
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Troubleshooting ITL Pressure</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Interested transaction list (ITL) pressure is reported in the alert log of the SQL Apply instance. The following shows an example of the warning messages.</p>
+<pre dir="ltr">Tue Apr 22 15:50:42 2003
+WARNING: the following transaction makes no progress
+WARNING: in the last 30 seconds for the given message!
+WARNING: xid =
+0x0006.005.000029fa cscn = 2152982, message# = 2, slavid = 17
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Real-Time Analysis</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The messages shown in the above output indicate that the SQL Apply process (<code class="codeph">slavid</code>) #17 has not made any progress in the last 30 seconds. To determine the SQL statement being issued by the Apply process, issue the following query:</p>
+<pre dir="ltr">SQL&gt; SELECT SA.SQL_TEXT -
+&gt;  FROM V$SQLAREA SA -
+  &gt;  , V$SESSION S -
+  &gt;  , V$STREAMS_APPLY_SERVER SAS -
+  &gt;  WHERE SAS.SERVER_ID = &amp;SLAVEID -
+  &gt;  AND S.SID = SAS.SID -
+  &gt;  AND SA.ADDRESS = S.SQL_ADDRESS
+
+SQL_TEXT
+------------------------------------------------------------
+insert into &#34;APP&#34;.&#34;LOAD_TAB_1&#34; p(&#34;PK&#34;,&#34;TEXT&#34;)values(:1,:2)
+</pre>
+<p>An alternative method to identifying ITL pressure is to query the <code class="codeph">V$LOCK</code> view, as shown in the following example. Any session that has a request value of 4 on a <code class="codeph">TX</code> lock, is waiting for an ITL to become available.</p>
+<pre dir="ltr">SQL&gt; SELECT SID,TYPE,ID1,ID2,LMODE,REQUEST -
+&gt; FROM V$LOCK -
+&gt; WHERE TYPE = &#39;TX&#39;
+
+SID        TY ID1        ID2        LMODE      REQUEST
+---------- -- ---------- ---------- ---------- ----------
+         8 TX     327688         48          6          0
+        10 TX     327688         48          0          4
+</pre>
+<p>In this example, <code class="codeph">SID 10</code> is waiting for the <code class="codeph">TX</code> lock held by <code class="codeph">SID 8</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Post-Incident Review</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Pressure for a segment&#39;s ITL is unlikely to last for an extended period of time. In addition, ITL pressure that lasts for less than 30 seconds is not reported in the standby databases alert log. Therefore, to determine which objects have been subjected to ITL pressure, issue the following statement:</p>
+<pre dir="ltr">SQL&gt; SELECT OWNER, OBJECT_NAME, OBJECT_TYPE -
+&gt;  FROM V$SEGMENT_STATISTICS -
+&gt;  WHERE STATISTIC_NAME = &#39;ITL waits&#39; -
+&gt;  AND VALUE &gt; 0 -
+&gt;  ORDER BY VALUE;
+</pre>
+<p>This statement reports all database segments that have had ITL pressure at some time since the instance was last started.</p>
+<div class="infobox-note" id="GUID-0C23E281-5ED2-4411-851C-B609EA1C350E__GUID-77DCB093-F8D8-42C6-AB03-3D8F7AACC1A8">
+<p class="notep1">Note:</p>
+<p>This SQL statement is not limited to a logical standby databases in the Oracle Data Guard environment. It is applicable to any Oracle database.</p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Resolving ITL Pressure</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>To increase the <code class="codeph">INITRANS</code> integer for a particular database object, it is necessary to first stop SQL Apply.</p>
+<div class="infoboxnotealso" id="GUID-0C23E281-5ED2-4411-851C-B609EA1C350E__GUID-8F389FAA-0AD0-442D-803C-697AAFB05332">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF52296" target="_blank" href="../SQLRF/clauses007.htm#SQLRF52296"><span class="italic">Oracle Database SQL Language Reference</span></a> for more information about specifying the <code class="codeph">INITRANS</code> integer, which is the initial number of concurrent transaction entries allocated within each data block allocated to the database object</p>
+</div>
+<p>The following example shows the necessary steps to increase the <code class="codeph">INITRANS</code> for table <code class="codeph">load_tab_1</code> in the schema <code class="codeph">app</code>.</p>
+<ol>
+<li>
+<p>Stop SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+Database altered.
+</pre></li>
+<li>
+<p>Temporarily bypass the database guard:</p>
+<pre dir="ltr">SQL&gt; ALTER SESSION DISABLE GUARD;
+Session altered.
+</pre></li>
+<li>
+<p>Increase the <code class="codeph">INITRANS</code> on the standby database. For example:</p>
+<pre dir="ltr">SQL&gt; ALTER TABLE APP.LOAD_TAB_1 INITRANS 30;
+Table altered
+</pre></li>
+<li>
+<p>Reenable the database guard:</p>
+<pre dir="ltr">SQL&gt; ALTER SESSION ENABLE GUARD;
+Session altered
+</pre></li>
+<li>
+<p>Start SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+Database altered.
+</pre></li>
+</ol>
+<p>Also, consider modifying the database object on the primary database, so that in the event of a switchover, the error does not occur on the new standby database.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB5094"></a><a id="SBYDB5095"></a><a id="SBYDB4930"></a>
+<div class="props_rev_3"><a id="GUID-B25EE583-E622-4F0C-AA50-84582DFDD5DD"></a>
+<h3 id="SBYDB-GUID-B25EE583-E622-4F0C-AA50-84582DFDD5DD" class="sect3"><span class="enumeration_section">A.10.4</span> Troubleshooting ORA-1403 Errors with Flashback Transactions</h3>
+<div>
+<p>If SQL Apply returns the <code class="codeph">ORA-1403: No Data Found</code> error, then it may be possible to use Flashback Transaction to reconstruct the missing data. This is reliant upon the <code class="codeph">UNDO_RETENTION</code> initialization parameter specified on the standby database instance.</p>
+<p>Under normal circumstances, the <code class="codeph">ORA-1403</code> error is not seen in a logical standby database environment. The error occurs when data in a table that is being managed by SQL Apply is modified directly on the standby database and then the same data is modified on the primary database. When the modified data is updated on the primary database and is subsequently received on the logical standby database, SQL Apply verifies the original version of the data is present on the standby database before updating the record. When this verification fails, the <code class="codeph">ORA-1403: No Data Found</code> error is returned.</p>
+<div class="section">
+<p class="subhead3">The Initial Error</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>When SQL Apply verification fails, the error message is reported in the alert log of the logical standby database and a record is inserted in the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view. The information in the alert log is truncated, while the error is reported in it&#39;s entirety in the database view. For example:</p>
+<pre dir="ltr">LOGSTDBY stmt: UPDATE &#34;SCOTT&#34;.&#34;MASTER&#34;
+  SET
+    &#34;NAME&#34; = &#39;john&#39;
+  WHERE 
+    &#34;PK&#34; = 1 and 
+    &#34;NAME&#34; = &#39;andrew&#39; and 
+    ROWID = &#39;AAAAAAAAEAAAAAPAAA&#39;
+LOGSTDBY status: ORA-01403: no data found
+LOGSTDBY PID 1006, oracle@staco03 (P004)
+LOGSTDBY XID 0x0006.00e.00000417, Thread 1, RBA 0x02dd.00002221.10
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">The Investigation</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The first step is to analyze the historical data of the table that caused the error. This can be achieved using the <code class="codeph">VERSIONS</code> clause of the <code class="codeph">SELECT</code> statement. For example, you can issue the following query on the primary database:</p>
+<pre dir="ltr">SELECT VERSIONS_XID
+      , VERSIONS_STARTSCN
+      , VERSIONS_ENDSCN
+      , VERSIONS_OPERATION
+      , PK
+      , NAME
+   FROM SCOTT.MASTER
+        VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE
+  WHERE PK = 1
+  ORDER BY NVL(VERSIONS_STARTSCN,0);
+
+VERSIONS_XID     VERSIONS_STARTSCN VERSIONS_ENDSCN V  PK NAME
+---------------- ----------------- --------------- - --- -------
+03001900EE070000           3492279         3492290 I   1 andrew
+02000D00E4070000           3492290                 D   1 andrew
+</pre>
+<p>Depending upon the amount of undo retention that the database is configured to retain (<code class="codeph">UNDO_RETENTION</code>) and the activity on the table, the information returned might be extensive and you may need to change the versions between syntax to restrict the amount of information returned. From the information returned, you can see that the record was first inserted at SCN 3492279 and then was deleted at SCN 3492290 as part of transaction ID 02000D00E4070000. Using the transaction ID, query the database to find the scope of the transaction. This is achieved by querying the <code class="codeph">FLASHBACK_TRANSACTION_QUERY</code> view.</p>
+<pre dir="ltr">SELECT OPERATION
+     , UNDO_SQL
+  FROM FLASHBACK_TRANSACTION_QUERY
+ WHERE XID = HEXTORAW(&#39;02000D00E4070000&#39;);
+
+OPERATION  UNDO_SQL
+---------- ------------------------------------------------
+DELETE     insert into &#34;SCOTT&#34;.&#34;MASTER&#34;(&#34;PK&#34;,&#34;NAME&#34;) values
+           (&#39;1&#39;,&#39;andrew&#39;);
+BEGIN
+</pre>
+<p>There is always one row returned representing the start of the transaction. In this transaction, only one row was deleted in the master table. The <code class="codeph">UNDO_SQL</code> column, when executed, restores the original data into the table.</p>
+<pre dir="ltr">SQL&gt; INSERT INTO &#34;SCOTT&#34;.&#34;MASTER&#34;(&#34;PK&#34;,&#34;NAME&#34;) VALUES (&#39;1&#39;,&#39;ANDREW&#39;);SQL&gt; COMMIT;
+</pre>
+<p>When you restart SQL Apply, the transaction is applied to the standby database:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2252">
+<tr>
+<td class="cellalignment2259">
+<table class="cellalignment2257">
+<tr>
+<td class="cellalignment2256"><a href="partpage3.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2256"><a href="upgrades.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2261">
+<table class="cellalignment2255">
+<tr>
+<td class="cellalignment2256"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2256"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2256"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2256"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2256"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2256"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

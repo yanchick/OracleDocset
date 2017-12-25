@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114378"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Optimizing%20Performance%20by%20Creating%20and%20Populating%20Tables%20in%20Parallel"></a><title>Optimizing Performance by Creating and Populating Tables in Parallel</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-4EE9408B-C03A-4842-9F24-C24EA2A3E704.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-F9F7C98A-9EA2-42D8-8AA5-46454C64E901.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-7A6185D1-AEF3-48C3-A704-8E3D7D3A4AFD"></a> <span id="PAGE" style="display:none;">440/481</span> <!-- End Header --><a id="VLDBG1526"></a>
+<h1 id="VLDBG-GUID-7A6185D1-AEF3-48C3-A704-8E3D7D3A4AFD" class="sect1">Optimizing Performance by Creating and Populating Tables in Parallel</h1>
+<div>
+<p><a id="d71798e61" class="indexterm-anchor"></a>Oracle Database cannot return results to a user process in parallel. If a query returns a large number of rows, execution of the query might indeed be faster. However, the user process can receive the rows only serially. To optimize parallel execution performance for queries that retrieve large result sets, use <a id="d71798e66" class="indexterm-anchor"></a><code>PARALLEL</code> <code>CREATE</code> <code>TABLE</code> <code>AS</code> <code>SELECT</code> or direct-path <code>INSERT</code> to store the result set in the database. At a later time, users can view the result set serially.</p>
+<p>Performing the <code>SELECT</code> in parallel does not influence the <code>CREATE</code> statement. If the <code>CREATE</code> statement is executed in parallel, however, the optimizer tries to make the <code>SELECT</code> run in parallel also.</p>
+<p>When combined with the <code>NOLOGGING</code> option, the parallel version of <code>CREATE</code> <code>TABLE</code> <code>AS</code> <code>SELECT</code> provides a very efficient intermediate table facility, for example:</p>
+<pre dir="ltr">CREATE TABLE summary PARALLEL NOLOGGING AS SELECT dim_1, dim_2 ..., 
+SUM (meas_1)
+FROM facts GROUP BY dim_1, dim_2;
+</pre>
+<p>These tables can also be incrementally loaded with parallel <code>INSERT</code>. You can take advantage of intermediate tables using the following techniques:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Common subqueries can be computed once and referenced many times. This can allow some queries against star schemas (in particular, queries without selective <code>WHERE</code>-clause predicates) to be better parallelized. Star queries with selective <code>WHERE</code>-clause predicates using the star-transformation technique can be effectively parallelized automatically without any modification to the SQL.</p>
+</li>
+<li>
+<p>Decompose complex queries into simpler steps to provide application-level checkpoint or restart. For example, a complex multitable join on a one terabyte database could run for dozens of hours. A failure during this query would mean starting over from the beginning. Using <code>CREATE</code> <code>TABLE</code> <code>AS</code> <code>SELECT</code> or <code>PARALLEL</code> <code>INSERT</code> <code>AS</code> <code>SELECT</code>, you can rewrite the query as a sequence of simpler queries that run for a few hours each. If a system failure occurs, the query can be restarted from the last completed step.</p>
+</li>
+<li>
+<p>Implement manual parallel delete operations efficiently by creating a new table that omits the unwanted rows from the original table, and then dropping the original table. Alternatively, you can use the convenient parallel delete feature, which directly deletes rows from the original table.</p>
+</li>
+<li>
+<p>Create summary tables for efficient multidimensional drill-down analysis. For example, a summary table might store the sum of revenue grouped by month, brand, region, and salesman.</p>
+</li>
+<li>
+<p>Reorganize tables, eliminating chained rows, compressing free space, and so on, by copying the old table to a new table. This is much faster than export/import and easier than reloading.</p>
+</li>
+</ul>
+<p>Be sure to use the <code>DBMS_STATS</code> package to gather optimizer statistics on newly created tables. To avoid I/O bottlenecks, specify a tablespace that is striped across at least as many physical disks as CPUs. To avoid fragmentation in allocating space, the number of files in a tablespace should be a multiple of the number of CPUs.</p>
+<div class="infoboxnotealso" id="GUID-7A6185D1-AEF3-48C3-A704-8E3D7D3A4AFD__GUID-6EB35B78-5A56-484A-AA1E-69F743C4A8B6">
+<p class="notep1">See Also:</p>
+<p><a class="olink DWHSG9062" target="_blank" href="../DWHSG/schemas.htm#DWHSG9062"><span class="italic">Oracle Database Data Warehousing Guide</span></a> for information about parallel execution in data warehouses</p>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-4EE9408B-C03A-4842-9F24-C24EA2A3E704.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-F9F7C98A-9EA2-42D8-8AA5-46454C64E901.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,15 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "System Hardware, Software and Configuration Checklists", anchor: "CWWIN-GUID-71A93E07-7E50-449C-B425-02F04A2EA8E6", file: "chklist.htm" },
+  { topic: "chapter", section: "2", title: "Configuring Servers for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWWIN-GUID-26F1F524-8F36-4FA6-B2B7-313C34F398A3", file: "servers.htm" },
+  { topic: "chapter", section: "3", title: "Configuring Operating Systems for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWWIN-GUID-42593F31-9E29-4660-8168-F0C2F0696FD6", file: "prewin.htm" },
+  { topic: "chapter", section: "4", title: "Configuring Networks for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWWIN-GUID-D2DBE962-555F-4577-BC16-CF15180E423C", file: "networks.htm" },
+  { topic: "chapter", section: "5", title: "Configuring Users, Groups and Environments for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWWIN-GUID-12EFCD5E-92A1-4869-BD31-386B46F4EB08", file: "usrgrps.htm" },
+  { topic: "chapter", section: "6", title: "Configuring Storage for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWWIN-GUID-88056EE7-08E7-4491-911E-B54112F81E37", file: "storage.htm" },
+  { topic: "chapter", section: "7", title: "Installing Oracle Grid Infrastructure for a Cluster", anchor: "CWWIN-GUID-95CEA882-7DC4-48CC-8CAE-876121B3FE58", file: "crswin.htm" },
+  { topic: "chapter", section: "8", title: "Oracle Grid Infrastructure Postinstallation Tasks", anchor: "CWWIN-GUID-ADEB2FEE-9150-4752-B5CC-E496591F6160", file: "postinst.htm" },
+  { topic: "chapter", section: "9", title: "Modifying or Deinstalling Oracle Grid Infrastructure", anchor: "CWWIN-GUID-17E0E260-1900-4113-A5C6-A3EB2DA690ED", file: "rem_orcl.htm" },
+  { topic: "appendix", section: "A", title: "Troubleshooting the Oracle Grid Infrastructure Installation Process", anchor: "CWWIN-GUID-F2D4F98C-8D3E-4B80-91EC-9D88FBF97A44", file: "trouble.htm" },
+  { topic: "appendix", section: "B", title: "Installing and Configuring Oracle Grid Infrastructure Using Response Files", anchor: "CWWIN-GUID-60BBED15-1004-4DA8-9F56-8D728606F2BC", file: "app_nonint.htm" },
+  { topic: "appendix", section: "C", title: "Oracle Grid Infrastructure for a Cluster Installation Concepts", anchor: "CWWIN-GUID-2D7D7C66-9681-4E71-AC25-0CDD96C54960", file: "concepts.htm" },
+  { topic: "appendix", section: "D", title: "How to Upgrade to Oracle Grid Infrastructure 12c Release 1", anchor: "CWWIN-GUID-2E704542-1B46-4002-B2F0-08358D62ED99", file: "upgrade.htm" },
+  { } ];

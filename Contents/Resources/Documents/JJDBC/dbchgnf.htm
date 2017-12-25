@@ -1,0 +1,512 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-70981"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Continuous%20Query%20Notification"></a><title>Continuous Query Notification</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="This book describes how to use Oracle JDBC drivers to develop powerful Java database applications."/>
+<meta name="dcterms.created" content="2014-06-30T1:22:37Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database JDBC Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49300-05"/>
+<meta name="dcterms.isVersionOf" content="JJDBC"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="streamsaq.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="part6.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49300-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">37/55</span> <!-- End Header -->
+<div id="JJDBC28815" class="chapter"><a id="CACHJFCC"></a>
+<h1 class="chapter"><span class="secnum">25</span> Continuous Query Notification</h1>
+<p>Generally, a middle-tier data cache duplicates some data from the back-end database server. Its goal is to avoid redundant queries to the database. However, this is efficient only when the data rarely changes in the database. The data cache has to be updated or invalidated when the data changes in the database. Starting from 11<span class="italic">g</span> Release 1, Oracle JDBC drivers provide support for the Continuous Query Notification feature of Oracle Database. Using this functionality, multitier systems can take advantage of the Continuous Query Notification feature to maintain a data cache as up-to-date as possible, by receiving invalidation events from the JDBC drivers.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Continuous Query Notification is a feature of the Oracle JDBC Thin driver and is not supported by JDBC OCI driver.</div>
+<p>The JDBC drivers can register SQL queries with the database and receive notifications in response to the following:</p>
+<ul>
+<li>
+<p>DML or DDL changes on the objects associated with the queries</p>
+</li>
+<li>
+<p>DML or DDL changes that affect the result set</p>
+</li>
+</ul>
+<p>The notifications are published when the DML or DDL transaction commits (changes made in a local transaction do not generate any event until they are committed).</p>
+<p>To use Oracle JDBC driver support for Continuous Query Notification, perform the following:</p>
+<ol>
+<li>
+<p>Registration: You first need to create a registration.</p>
+</li>
+<li>
+<p>Query association: After you have created a registration, you can associate SQL queries with it. These queries are part of the registration.</p>
+</li>
+<li>
+<p>Notification: Notifications are created in response to changes in tables or result set. Oracle database communicates these notifications to the JDBC drivers through a dedicated network connection and JDBC drivers convert these notifications to Java events.</p>
+</li>
+</ol>
+<p>Also, you need to grant the <code>CHANGE NOTIFICATION</code> privilege to the user. For example, if you connect to the database using the <code>HR</code> user name, then you need to run the following command in the database:</p>
+<pre>grant change notification to HR;
+</pre>
+<p>This section describes the following topics:</p>
+<ul>
+<li>
+<p><a href="#CACIFAFE">Creating a Registration</a></p>
+</li>
+<li>
+<p><a href="#CACFCFIH">Associating a Query with a Registration</a></p>
+</li>
+<li>
+<p><a href="#CACECCCI">Notifying Database Change Events</a></p>
+</li>
+<li>
+<p><a href="#CACFCBBA">Deleting a Registration</a></p>
+</li>
+</ul>
+<a id="CACIFAFE"></a>
+<div id="JJDBC28816" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Creating a Registration</h2>
+<p>Creating a registration is a one-time process and is done outside the currently used transaction. The API for creating a registration in the server is executed in its own transaction and is committed immediately. You need a JDBC connection to create a registration, however, the registration is not attached to the connection. You can close the connection after creating a registration, and the registration survives. In an Oracle RAC environment, a registration is a persistent entity that exists on all nodes. The registration exists in the Database. So, even if a node goes down, the registration continues to exist and is notified when the tables change.</p>
+<p>There are two ways to create a registration:</p>
+<ul>
+<li>
+<p>The JDBC-style of registration: Use the JDBC driver to create a registration on the server. The JDBC driver launches a new thread that listens to notifications from the server (through a dedicated channel) and converts these notification messages into Java events. The driver then notifies all the listeners registered with this registration.</p>
+</li>
+<li>
+<p>The PL/SQL-style of registration: If you want a PL/SQL stored procedure to handle the notifications, then create a PL/SQL-style registration. As in the JDBC-style of registration, the JDBC drivers enable you to attach statements (queries) to this registration. However the JDBC drivers do not get notifications from the server because the notifications are handled by the PL/SQL stored procedure.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+This approach is useful only for nonmultithreaded languages, such as PHP.</div>
+<p>There is no way to remove one particular object (table) from an existing registration. A workaround would be to either create a new registration without this object or ignore the events that are related to this object.</p>
+<p>You can use the <code>registerDatabaseChangeNotification</code> method of the <code>oracle.jdbc.OracleConnection</code> interface to create a JDBC-style of registration. You can set certain registration options through the <code>options</code> parameter of this method. <a href="#CHDBDJHC">Table 25-1</a> lists some of the registration options that can be set. To set these options, use the <code>java.util.Properties</code> object. These options are defined in the <code>oracle.jdbc.OracleConnection</code> interface. The registration options have a direct impact on the notification events that the JDBC drivers will create. <a href="#CHDCJFGJ">Example 25-1</a> illustrates how to use the Continuous Query Notification feature.</p>
+<p>The <code>registerDatabaseChangeNotification</code> method creates a new database change registration in the database server with the given options. It returns a <code>DatabaseChangeRegistration</code> object, which can then be used to associate a statement with this registration. It also opens a listener socket that will be used by the database to send notifications.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If a listener socket (created by a different registration) exists, then this socket will be used by the new database change registration as well.</div>
+<div id="JJDBC28817" class="tblhruleformalwide">
+<p class="titleintable"><a id="sthref853"></a><a id="CHDBDJHC"></a>Table 25-1 Continuous Query Notification Registration Options</p>
+<table class="cellalignment2247" title="Continuous Query Notification Registration Options" summary="table" dir="ltr">
+<thead>
+<tr class="cellalignment2238">
+<th class="cellalignment2245" id="r1c1-t5">Option</th>
+<th class="cellalignment2245" id="r1c2-t5">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r2c1-t5" headers="r1c1-t5">
+<p><code>DCN_IGNORE_DELETEOP</code></p>
+</td>
+<td class="cellalignment2246" headers="r2c1-t5 r1c2-t5">
+<p>If set to <code>true</code>, <code>DELETE</code> operations will not generate any database change event.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r3c1-t5" headers="r1c1-t5">
+<p><code>DCN_IGNORE_INSERTOP</code></p>
+</td>
+<td class="cellalignment2246" headers="r3c1-t5 r1c2-t5">
+<p>If set to <code>true</code>, <code>INSERT</code> operations will not generate any database change event.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r4c1-t5" headers="r1c1-t5">
+<p><code>DCN_IGNORE_UPDATEOP</code></p>
+</td>
+<td class="cellalignment2246" headers="r4c1-t5 r1c2-t5">
+<p>If set to <code>true</code>, <code>UPDATE</code> operations will not generate any database change event.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r5c1-t5" headers="r1c1-t5">
+<p><code>DCN_NOTIFY_CHANGELAG</code></p>
+</td>
+<td class="cellalignment2246" headers="r5c1-t5 r1c2-t5">
+<p>Specifies the number of transactions by which the client is willing to lag behind.</p>
+<p><span class="bold">Note:</span> If this option is set to any value other than <code>0</code>, then <code>ROWID</code> level granularity of information will not be available in the events, even if the <code>DCN_NOTIFY_ROWIDS</code> option is set to <code>true</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r6c1-t5" headers="r1c1-t5">
+<p><code>DCN_NOTIFY_ROWIDS</code></p>
+</td>
+<td class="cellalignment2246" headers="r6c1-t5 r1c2-t5">
+<p>Database change events will include row-level details, such as operation type and <code>ROWID</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r7c1-t5" headers="r1c1-t5">
+<p><code>DCN_QUERY_CHANGE_NOTIFICATION</code></p>
+</td>
+<td class="cellalignment2246" headers="r7c1-t5 r1c2-t5">
+<p>Activates query change notification instead of object change notification.</p>
+<p><span class="bold">Note:</span> This option is available only when running against an 11.0 database.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r8c1-t5" headers="r1c1-t5">
+<p><code>NTF_LOCAL_HOST</code></p>
+</td>
+<td class="cellalignment2246" headers="r8c1-t5 r1c2-t5">
+<p>Specifies the IP address of the computer that will receive the notifications from the server.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r9c1-t5" headers="r1c1-t5">
+<p><code>NTF_LOCAL_TCP_PORT</code></p>
+</td>
+<td class="cellalignment2246" headers="r9c1-t5 r1c2-t5">
+<p>Specifies the TCP port that the driver should use for the listener socket.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r10c1-t5" headers="r1c1-t5">
+<p><code>NTF_QOS_PURGE_ON_NTFN</code></p>
+</td>
+<td class="cellalignment2246" headers="r10c1-t5 r1c2-t5">
+<p>Specifies if the registration should be expunged on the first notification event.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r11c1-t5" headers="r1c1-t5">
+<p><code>NTF_QOS_RELIABLE</code></p>
+</td>
+<td class="cellalignment2246" headers="r11c1-t5 r1c2-t5">
+<p>Specifies whether or not to make the notifications persistent, which comes at a performance cost.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r12c1-t5" headers="r1c1-t5">
+<p><code>NTF_TIMEOUT</code></p>
+</td>
+<td class="cellalignment2246" headers="r12c1-t5 r1c2-t5">
+<p>Specifies the time in seconds after which the registration will be automatically expunged by the database.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblhruleformalwide" -->
+<p>If there exists a registration, then you can also use the <code>getDatabaseChangeRegistration</code> method to map the existing registration with a new <code>DatabaseChangeRegistration</code> object. This method is particularly useful if you have created a registration using PL/SQL and want to associate a statement with it.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See:</p>
+Refer to the Javadoc for more information about the APIs.</div>
+</div>
+<!-- class="sect1" -->
+<a id="CACFCFIH"></a>
+<div id="JJDBC28818" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Associating a Query with a Registration</h2>
+<p>After you have created a registration or mapped to an existing registration, you can associate a query with it. Like creating a registration, associating a query with a registration is a one-time process and is done outside of the currently used registration. The query will be associated even if the local transaction is rolled back.</p>
+<p>You can associate a query with registration using the <code>setDatabaseChangeRegistration</code> method defined in the <code>OracleStatement</code> class. This method takes a <code>DatabaseChangeRegistration</code> object as parameter. The following code snippet illustrates how to associate a query with a registration:</p>
+<pre>...
+// conn is an OracleConnection object.
+// prop is a Properties object containing the registration options.
+DatabaseChangeRegistration dcr = conn.registerDatabaseChangeNotifictaion(prop);
+...
+Statement stmt = conn.createStatement();
+// associating the query with the registration
+((OracleStatement)stmt).setDatabaseChangeRegistration(dcr);
+// any query that will be executed with the &#39;stmt&#39; object will be associated with
+// the registration &#39;dcr&#39; until &#39;stmt&#39; is closed or
+// &#39;((OracleStatement)stmt).setDatabaseChangeRegistration(null);&#39; is executed.
+...
+</pre></div>
+<!-- class="sect1" -->
+<a id="CACECCCI"></a>
+<div id="JJDBC28819" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Notifying Database Change Events</h2>
+<p>To receive Continuous Query Notifications, attach a listener to the registration. When a database change event occurs, the database server notifies the JDBC driver. The driver then constructs a new Java event, identifies the registration to be notified, and notifies the listeners attached to the registration. The event contains the object ID of the database object that has changed and the type of operation that caused the change. Depending on the registration options, the event may also contain row-level detail information. The listener code can then use the event to make decisions about the data cache.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The listener code must not slow down the JDBC notification mechanism. If the code is time-consuming, for example, if it refreshes the data cache by querying the database, then it needs to be executed within its own thread.</div>
+<p>You can attach a listener to a registration using the <code>addListener</code> method. The following code snippet illustrates how to attach a listener to a registration:</p>
+<pre>...
+// conn is an OracleConnection object.
+// prop is a Properties object containing the registration options.
+DatabaseChangeRegistration dcr = conn.registerDatabaseChangeNotifictaion(prop);
+...
+// Attach the listener to the registration.
+// Note: DCNListener is a custom listener and not a predefined or standard 
+// lsiener
+DCNListener list = new DCNListener();
+dcr.addListener(list);
+...
+</pre></div>
+<!-- class="sect1" -->
+<a id="CACFCBBA"></a>
+<div id="JJDBC28820" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Deleting a Registration</h2>
+<p>You need to explicitly unregister a registration to delete it from the server and release the resources in the driver. You can unregister a registration using a connection different from one that was used for creating it. To unregister a registration, you can use the <code>unregisterDatabaseChangeNotification</code> method defined in <code>oracle.jdbc.OracleConnection</code>.</p>
+<p>You must pass the <code>DatabaseChangeRegistration</code> object as a parameter to this method. This method deletes the registration from the server and the driver and closes the listener socket.</p>
+<p>If the registration was created outside of JDBC, say using PL/SQL, then you must pass the registration ID instead of the <code>DatabaseChangeRegistration</code> object. The method will delete the registration from the server, however, it does not free any resources in the driver.</p>
+<p class="subhead2"><a id="JJDBC28821"></a>Example</p>
+<p><a href="#CHDCJFGJ">Example 25-1</a> illustrates how to use the Continuous Query Notification feature. In this example, the <code>HR</code> user is connecting to the database. Therefore in the database you need to grant the following privilege to the user:</p>
+<pre>grant change notification to HR;
+</pre>
+<div id="JJDBC28822" class="example">
+<p class="titleinexample"><a id="CHDCJFGJ"></a>Example 25-1 Continuous Query Notification</p>
+<pre>import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
+import oracle.jdbc.OracleConnection;
+import oracle.jdbc.OracleDriver;
+import oracle.jdbc.OracleStatement;
+import oracle.jdbc.dcn.DatabaseChangeEvent;
+import oracle.jdbc.dcn.DatabaseChangeListener;
+import oracle.jdbc.dcn.DatabaseChangeRegistration;
+ 
+public class DBChangeNotification
+{
+  static final String USERNAME= &#34;HR&#34;;
+  static final String PASSWORD= &#34;hr&#34;;
+  static String URL;
+  
+  public static void main(String[] argv)
+  {
+    if(argv.length &lt; 1)
+    {
+      System.out.println(&#34;Error: You need to provide the URL in the first argument.&#34;);
+      System.out.println(&#34;  For example: &gt; java -classpath .:ojdbc6.jar DBChangeNotification \&#34;jdbc:oracle:thin:
+@(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=yourhost.yourdomain.com)(PORT=5221))(CONNECT_DATA=
+(SERVICE_NAME=orcl)))\&#34;&#34;);
+ 
+      System.exit(1);
+    }
+    URL = argv[0];
+    DBChangeNotification demo = new DBChangeNotification();
+    try
+    {
+      demo.run();
+    }
+    catch(SQLException mainSQLException )
+    {
+      mainSQLException.printStackTrace();
+    }
+  }
+ 
+  void run() throws SQLException
+  {
+    OracleConnection conn = connect();
+      
+    // first step: create a registration on the server:
+    Properties prop = new Properties();
+    
+    // if connected through the VPN, you need to provide the TCP address of the client.
+    // For example:
+    // prop.setProperty(OracleConnection.NTF_LOCAL_HOST,&#34;14.14.13.12&#34;);
+ 
+    // Ask the server to send the ROWIDs as part of the DCN events (small performance
+    // cost):
+    prop.setProperty(OracleConnection.DCN_NOTIFY_ROWIDS,&#34;true&#34;);
+// 
+//Set the DCN_QUERY_CHANGE_NOTIFICATION option for query registration with finer granularity.
+ prop.setProperty(OracleConnection.DCN_QUERY_CHANGE_NOTIFICATION,&#34;true&#34;);
+ 
+    // The following operation does a roundtrip to the database to create a new
+    // registration for DCN. It sends the client address (ip address and port) that
+    // the server will use to connect to the client and send the notification
+    // when necessary. Note that for now the registration is empty (we haven&#39;t registered
+    // any table). This also opens a new thread in the drivers. This thread will be
+    // dedicated to DCN (accept connection to the server and dispatch the events to 
+    // the listeners).
+    DatabaseChangeRegistration dcr = conn.registerDatabaseChangeNotification(prop);
+ 
+    try
+    {
+      // add the listenerr:
+      DCNDemoListener list = new DCNDemoListener(this);
+      dcr.addListener(list);
+       
+      // second step: add objects in the registration:
+      Statement stmt = conn.createStatement();
+      // associate the statement with the registration:
+      ((OracleStatement)stmt).setDatabaseChangeRegistration(dcr);
+      ResultSet rs = stmt.executeQuery(&#34;select * from dept where deptno=&#39;45&#39;&#34;);
+      while (rs.next())
+      {}
+      String[] tableNames = dcr.getTables();
+      for(int i=0;i&lt;tableNames.length;i++)
+        System.out.println(tableNames[i]+&#34; is part of the registration.&#34;);
+      rs.close();
+      stmt.close();
+    }
+    catch(SQLException ex)
+    {
+      // if an exception occurs, we need to close the registration in order
+      // to interrupt the thread otherwise it will be hanging around.
+      if(conn != null)
+        conn.unregisterDatabaseChangeNotification(dcr);
+      throw ex;
+    }
+    finally
+    {
+      try
+      {
+        // Note that we close the connection!
+        conn.close();
+      }
+      catch(Exception innerex){ innerex.printStackTrace(); }
+    }
+    
+    synchronized( this ) 
+    {
+      // The following code modifies the dept table and commits:
+      try
+      {
+        OracleConnection conn2 = connect();
+        conn2.setAutoCommit(false);
+        Statement stmt2 = conn2.createStatement();
+        stmt2.executeUpdate(&#34;insert into dept (deptno,dname) values (&#39;45&#39;,&#39;cool dept&#39;)&#34;,
+Statement.RETURN_GENERATED_KEYS);
+        ResultSet autoGeneratedKey = stmt2.getGeneratedKeys();
+        if(autoGeneratedKey.next())
+          System.out.println(&#34;inserted one row with ROWID=&#34;+autoGeneratedKey.getString(1));      
+        stmt2.executeUpdate(&#34;insert into dept (deptno,dname) values (&#39;50&#39;,&#39;fun dept&#39;)&#34;,
+Statement.RETURN_GENERATED_KEYS);
+        autoGeneratedKey = stmt2.getGeneratedKeys();
+        if(autoGeneratedKey.next())
+          System.out.println(&#34;inserted one row with ROWID=&#34;+autoGeneratedKey.getString(1));
+        stmt2.close();
+        conn2.commit();
+        conn2.close();
+      }
+      catch(SQLException ex) { ex.printStackTrace(); }
+ 
+      // wait until we get the event
+      try{ this.wait();} catch( InterruptedException ie ) {}
+    }
+    
+    // At the end: close the registration (comment out these 3 lines in order
+    // to leave the registration open).
+    OracleConnection conn3 = connect();
+    conn3.unregisterDatabaseChangeNotification(dcr);
+    conn3.close();
+  }
+  
+  /**
+   * Creates a connection the database.
+   */
+  OracleConnection connect() throws SQLException
+  {
+    OracleDriver dr = new OracleDriver();
+    Properties prop = new Properties();
+    prop.setProperty(&#34;user&#34;,DBChangeNotification.USERNAME);
+    prop.setProperty(&#34;password&#34;,DBChangeNotification.PASSWORD);
+    return (OracleConnection)dr.connect(DBChangeNotification.URL,prop);
+  }
+}
+/**
+ * DCN listener: it prints out the event details in stdout.
+ */
+class DCNDemoListener implements DatabaseChangeListener
+{
+  DBChangeNotification demo;
+  DCNDemoListener(DBChangeNotification dem)
+  {
+    demo = dem;
+  }
+  public void onDatabaseChangeNotification(DatabaseChangeEvent e)
+  {
+    Thread t = Thread.currentThread();
+    System.out.println(&#34;DCNDemoListener: got an event (&#34;+this+&#34; running on thread &#34;+t+&#34;)&#34;);
+    System.out.println(e.toString());
+    synchronized( demo ){ demo.notify();}
+  }
+}
+</pre></div>
+<!-- class="example" -->
+<p>This code will also work with Oracle Database 10<span class="italic">g</span> Release 2 (10.2). This code uses table registration. That is, when you register a <code>SELECT</code> query, what you register is the name of the tables involved and not the query itself. In other words, you might select one single row of a table and if another row is updated, you will be notified although the result of your query has not changed.</p>
+<p>In this example, if you leave the registration open instead of closing it, then the Continuous Query Notification thread continues to run. Now if you run a DML query that changes the <code>HR.DEPARTMENTS</code> table and commit it, say from SQL*Plus, then the Java program prints the notification.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2237">
+<tr>
+<td class="cellalignment2246">
+<table class="cellalignment2242">
+<tr>
+<td class="cellalignment2241"><a href="streamsaq.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2241"><a href="part6.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2249">
+<table class="cellalignment2240">
+<tr>
+<td class="cellalignment2241"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2241"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2241"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2241"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2241"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2241"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

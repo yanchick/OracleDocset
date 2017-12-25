@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114444"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Static%20Partition%20Pruning"></a><title>Static Partition Pruning</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-3F576B2F-FA87-472D-8B0F-27D88FD2B34F.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-DF8D6743-8786-4D7A-ACDF-0091F8E2FE3B.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-9BDD910C-CD99-4470-B269-59A8020C95E6"></a> <span id="PAGE" style="display:none;">57/481</span> <!-- End Header --><a id="VLDBG1231"></a>
+<h1 id="VLDBG-GUID-9BDD910C-CD99-4470-B269-59A8020C95E6" class="sect1">Static Partition Pruning</h1>
+<div>
+<p><a id="d13943e61" class="indexterm-anchor"></a>For many cases, Oracle determines the partitions to be accessed at compile time. Static partition pruning occurs if you use static predicates, except for the following cases:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Partition pruning occurs using the result of a subquery.</p>
+</li>
+<li>
+<p>The optimizer rewrites the query with a star transformation and pruning occurs after the star transformation.</p>
+</li>
+<li>
+<p>The most efficient execution plan is a nested loop.</p>
+</li>
+</ul>
+<p>These three cases result in the use of dynamic pruning.</p>
+<p>If at parse time Oracle can identify which contiguous set of partitions is accessed, then the <code>PSTART</code> and <code>PSTOP</code> columns in the execution plan show the begin and the end values of the partitions being accessed. Any other cases of partition pruning, including dynamic pruning, show the KEY value in <code>PSTART</code> and <code>PSTOP</code>, optionally with an additional attribute.</p>
+<p>The following is an example:</p>
+<pre dir="ltr">SQL&gt; explain plan for select * from sales where time_id = to_date(&#39;01-jan-2001&#39;, &#39;dd-mon-yyyy&#39;);
+Explained.
+
+SQL&gt; select * from table(dbms_xplan.display);
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------
+Plan hash value: 3971874201
+----------------------------------------------------------------------------------------------
+| Id | Operation              | Name  | Rows | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+----------------------------------------------------------------------------------------------
+|  0 | SELECT STATEMENT       |       | 673  | 19517 | 27      (8)| 00:00:01 |       |       |
+|  1 |  PARTITION RANGE SINGLE|       | 673  | 19517 | 27      (8)| 00:00:01 | 17    | 17    |
+|* 2 |   TABLE ACCESS FULL    | SALES | 673  | 19517 | 27      (8)| 00:00:01 | 17    | 17    |
+----------------------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+--------------------------------------------------- 
+   2 - filter(&#34;TIME_ID&#34;=TO_DATE(&#39;2001-01-01 00:00:00&#39;, &#39;yyyy-mm-dd hh24:mi:ss&#39;))
+</pre>
+<p>This plan shows that Oracle accesses partition number 17, as shown in the <code>PSTART</code> and <code>PSTOP</code> columns. The <code>OPERATION</code> column shows <code>PARTITION RANGE SINGLE</code>, indicating that only a single partition is being accessed. If <code>OPERATION</code> shows <code>PARTITION RANGE ALL</code>, then all partitions are being accessed and effectively no pruning takes place. <code>PSTART</code> then shows the very first partition of the table and <code>PSTOP</code> shows the very last partition.</p>
+<p>An execution plan with a full table scan on an interval-partitioned table shows 1 for <code>PSTART</code>, and 1048575 for <code>PSTOP</code>, regardless of how many interval partitions were created.</p>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-3F576B2F-FA87-472D-8B0F-27D88FD2B34F.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-DF8D6743-8786-4D7A-ACDF-0091F8E2FE3B.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114571"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Implementing%20an%20ILM%20System%20Manually%20Using%20Partitioning"></a><title>Implementing an ILM System Manually Using Partitioning</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-F6A81707-97CB-4661-A43F-E560F687F642.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-94F6D36D-DEA5-442B-919C-3690CB89A072.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-E342DA80-8699-43FB-85FB-7A68A862280A"></a> <span id="PAGE" style="display:none;">290/481</span> <!-- End Header --><a id="VLDBG14077"></a><a id="VLDBG1338"></a>
+<h1 id="VLDBG-GUID-E342DA80-8699-43FB-85FB-7A68A862280A" class="sect1">Implementing an ILM System Manually Using Partitioning</h1>
+<div>
+<div class="section">
+<p><a id="d50023e63" class="indexterm-anchor"></a><a id="d50023e67" class="indexterm-anchor"></a><a href="GUID-E342DA80-8699-43FB-85FB-7A68A862280A.htm#GUID-E342DA80-8699-43FB-85FB-7A68A862280A__CHDEIJFG">Example 5-11</a> illustrates how to manually create storage tiers and partition a table across those storage tiers and then setup a virtual private database (VPD) policy on that database to restrict access to the online archive tier data.</p>
+<div class="infoboxnotealso" id="GUID-E342DA80-8699-43FB-85FB-7A68A862280A__GUID-A850C854-1DD7-4C8A-A121-43DD6CA63C62">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF01402" target="_blank" href="../SQLRF/statements_7002.htm#SQLRF01402"><span class="italic">Oracle Database SQL Language Reference</span></a> for information about the <code>CREATE</code> <code>TABLE</code> SQL statement</p>
+</li>
+<li>
+<p><a class="olink ARPLS052" target="_blank" href="../ARPLS/d_rls.htm#ARPLS052"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for information about the <code>DBMS_RLS</code> package</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-E342DA80-8699-43FB-85FB-7A68A862280A__CHDEIJFG">
+<p class="titleinexample">Example 5-11 Manually implementing an ILM system</p>
+<pre dir="ltr">REM Setup the tablespaces for the data 
+
+REM These tablespaces would be placed on a High Performance Tier 
+CREATE SMALLFILE TABLESPACE q1_orders DATAFILE &#39;q1_orders&#39;
+  SIZE 2M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+CREATE SMALLFILE TABLESPACE q2_orders DATAFILE &#39;q2_orders&#39;
+  SIZE 2M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+CREATE SMALLFILE TABLESPACE q3_orders DATAFILE &#39;q3_orders&#39;
+  SIZE 2M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+CREATE SMALLFILE TABLESPACE q4_orders DATAFILE &#39;q4_orders&#39;
+  SIZE 2M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+REM These tablespaces would be placed on a Low Cost Tier 
+CREATE SMALLFILE TABLESPACE &#34;2006_ORDERS&#34; DATAFILE &#39;2006_orders&#39;
+  SIZE 5M AUTOEXTEND ON NEXT 10M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+CREATE SMALLFILE TABLESPACE &#34;2005_ORDERS&#34;  DATAFILE &#39;2005_orders&#39;
+  SIZE 5M AUTOEXTEND ON NEXT 10M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+REM These tablespaces would be placed on the Online Archive Tier 
+CREATE SMALLFILE TABLESPACE &#34;2004_ORDERS&#34; DATAFILE &#39;2004_orders&#39;
+  SIZE 5M AUTOEXTEND ON NEXT 10M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+CREATE SMALLFILE TABLESPACE old_orders DATAFILE &#39;old_orders&#39;
+  SIZE 15M AUTOEXTEND ON NEXT 10M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+REM Now create the Partitioned Table 
+CREATE TABLE allorders (
+    prod_id       NUMBER       NOT NULL,
+    cust_id       NUMBER       NOT NULL,
+    time_id       DATE         NOT NULL,
+    channel_id    NUMBER       NOT NULL,
+    promo_id      NUMBER       NOT NULL,
+    quantity_sold NUMBER(10,2) NOT NULL,
+    amount_sold   NUMBER(10,2) NOT NULL)
+ --
+ -- table wide physical specs
+ --
+  PCTFREE 5 NOLOGGING   
+ --
+ -- partitions
+ --  
+ PARTITION BY RANGE (time_id)
+  ( partition allorders_pre_2004 VALUES LESS THAN 
+     (TO_DATE(&#39;2004-01-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE old_orders,
+    partition allorders_2004 VALUES LESS THAN 
+     (TO_DATE(&#39;2005-01-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE &#34;2004_ORDERS&#34;,
+    partition allorders_2005 VALUES LESS THAN 
+     (TO_DATE(&#39;2006-01-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE &#34;2005_ORDERS&#34;,
+    partition allorders_2006 VALUES LESS THAN 
+     (TO_DATE(&#39;2007-01-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE &#34;2006_ORDERS&#34;,
+    partition allorders_q1_2007 VALUES LESS THAN 
+     (TO_DATE(&#39;2007-04-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE q1_orders,
+    partition allorders_q2_2007 VALUES LESS THAN 
+     (TO_DATE(&#39;2007-07-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE q2_orders,
+    partition allorders_q3_2007 VALUES LESS THAN 
+     (TO_DATE(&#39;2007-10-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE q3_orders,
+    partition allorders_q4_2007 VALUES LESS THAN 
+     (TO_DATE(&#39;2008-01-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE q4_orders);
+
+ALTER TABLE allorders ENABLE ROW MOVEMENT;
+
+REM Here is another example using INTERVAL partitioning 
+
+REM These tablespaces would be placed on a High Performance Tier 
+CREATE SMALLFILE TABLESPACE cc_this_month DATAFILE &#39;cc_this_month&#39;
+  SIZE 2M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+CREATE SMALLFILE TABLESPACE cc_prev_month DATAFILE &#39;cc_prev_month&#39;
+  SIZE 2M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+REM These tablespaces would be placed on a Low Cost Tier 
+CREATE SMALLFILE TABLESPACE cc_prev_12mth DATAFILE &#39;cc_prev_12&#39;
+  SIZE 2M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+REM These tablespaces would be placed on the Online Archive Tier
+CREATE SMALLFILE TABLESPACE cc_old_tran DATAFILE &#39;cc_old_tran&#39;
+  SIZE 2M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED LOGGING 
+  EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO ;
+
+REM Credit Card Transactions where new partitions 
+REM are automatically placed on the high performance tier 
+CREATE TABLE cc_tran (
+    cc_no       VARCHAR2(16) NOT NULL,
+    tran_dt     DATE         NOT NULL,
+    entry_dt    DATE         NOT NULL,
+    ref_no      NUMBER       NOT NULL,
+    description VARCHAR2(30) NOT NULL,
+    tran_amt    NUMBER(10,2) NOT NULL)
+ --
+ -- table wide physical specs
+ --
+ PCTFREE 5 NOLOGGING   
+ --
+ -- partitions
+ --  
+ PARTITION BY RANGE (tran_dt)
+ INTERVAL (NUMTOYMINTERVAL(1,&#39;month&#39;) ) STORE IN (cc_this_month )
+  ( partition very_old_cc_trans VALUES LESS THAN
+     (TO_DATE(&#39;1999-07-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE cc_old_tran ,
+    partition old_cc_trans VALUES LESS THAN
+     (TO_DATE(&#39;2006-07-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE cc_old_tran ,
+    partition last_12_mths VALUES LESS THAN
+     (TO_DATE(&#39;2007-06-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE cc_prev_12mth,
+    partition recent_cc_trans VALUES LESS THAN
+    (TO_DATE(&#39;2007-07-01 00:00:00&#39;
+            ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+            ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+            )) TABLESPACE cc_prev_month,
+    partition new_cc_tran VALUES LESS THAN
+     (TO_DATE(&#39;2007-08-01 00:00:00&#39;
+             ,&#39;SYYYY-MM-DD HH24:MI:SS&#39;
+             ,&#39;NLS_CALENDAR=GREGORIAN&#39;
+             )) TABLESPACE cc_this_month);
+
+REM Create a Security Policy to allow user SH to see all credit card data,
+REM PM only sees this years data,
+REM and all other uses cannot see the credit card data 
+
+CREATE OR REPLACE FUNCTION ilm_seehist
+  (oowner IN VARCHAR2, ojname IN VARCHAR2)
+   RETURN VARCHAR2 AS con VARCHAR2 (200);
+BEGIN
+  IF SYS_CONTEXT(&#39;USERENV&#39;,&#39;CLIENT_INFO&#39;) = &#39;SH&#39;
+  THEN -- sees all data
+    con:= &#39;1=1&#39;;
+  ELSIF SYS_CONTEXT(&#39;USERENV&#39;,&#39;CLIENT_INFO&#39;) = &#39;PM&#39;
+  THEN -- sees only data for 2007
+    con := &#39;time_id &gt; &#39;&#39;31-Dec-2006&#39;&#39;&#39;; 
+  ELSE
+    -- others nothing
+    con:= &#39;1=2&#39;;
+  END IF;
+  RETURN (con);
+END ilm_seehist;
+/
+</pre>
+<pre dir="ltr"></pre></div>
+<!-- class="example" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-F6A81707-97CB-4661-A43F-E560F687F642.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-94F6D36D-DEA5-442B-919C-3690CB89A072.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

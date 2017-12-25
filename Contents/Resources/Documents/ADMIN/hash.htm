@@ -1,0 +1,646 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-203"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Managing%20Hash%20Clusters"></a><title>Managing Hash Clusters</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="Hash clusters can improve the performance of data retrieval."/>
+<meta name="keywords" content="hash clusters, advantages and disadvantages, contrasted with index clusters, hash function, hash functions, for hash cluster, creating, CREATE CLUSTER statement, for hash clusters, HASHKEYS clause, HASH IS clause, HASH IS clause, sorted, clusters, single-table hash clusters, single-table, controlling space use of, choosing key, examples, estimating storage, altering, ALTER CLUSTER statement, using for hash clusters, dropping, DROP CLUSTER statement, dropping hash cluster, data dictionary views reference, views, data dictionary"/>
+<meta name="dcterms.created" content="2017-07-10T12:24:11Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Administrator&rsquo;s Guide"/>
+<meta name="dcterms.identifier" content="E41484-15"/>
+<meta name="dcterms.isVersionOf" content="ADMIN"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2001, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="clustrs.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="views.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41484-15.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-EC3F7A6F-3648-48AA-8737-FFCC6E4964CF"></a> <span id="PAGE" style="display:none;">30/59</span> <!-- End Header -->
+<a id="ADMIN019"></a>
+<h1 id="ADMIN-GUID-EC3F7A6F-3648-48AA-8737-FFCC6E4964CF" class="sect1"><span class="enumeration_chapter">23</span> Managing Hash Clusters</h1>
+<p>Hash clusters can improve the performance of data retrieval.</p>
+<a id="ADMIN11756"></a>
+<div class="props_rev_3"><a id="GUID-B8FF91C1-CE3A-4A97-9498-8CF977F6E32B"></a>
+<h2 id="ADMIN-GUID-B8FF91C1-CE3A-4A97-9498-8CF977F6E32B" class="sect2"><span class="enumeration_section">23.1</span> About Hash Clusters</h2>
+<div>
+<p>Storing a table in a hash cluster is an optional way to improve the performance of data retrieval. A hash cluster provides an alternative to a non-clustered table with an index or an index cluster.</p>
+<p>With an indexed table or index cluster, Oracle Database locates the rows in a table using key values that the database stores in a separate index. To use hashing, you create a hash cluster and load tables into it. The database physically stores the rows of a table in a hash cluster and retrieves them according to the results of a <span class="bold">hash function</span>.</p>
+<p>Oracle Database uses a hash function to generate a distribution of numeric values, called <span class="bold">hash values</span>, that are based on specific cluster key values. The key of a hash cluster, like the key of an index cluster, can be a single column or composite key (multiple column key). To find or store a row in a hash cluster, the database applies the hash function to the cluster key value of the row. The resulting hash value corresponds to a data block in the cluster, which the database then reads or writes on behalf of the issued statement.</p>
+<p>To find or store a row in an indexed table or cluster, a minimum of two (there are usually more) I/Os must be performed:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>One or more I/Os to find or store the key value in the index</p>
+</li>
+<li>
+<p>Another I/O to read or write the row in the table or cluster</p>
+</li>
+</ul>
+<p>In contrast, the database uses a hash function to locate a row in a hash cluster; no I/O is required. As a result, a minimum of one I/O operation is necessary to read or write a row in a hash cluster.</p>
+<div class="infoboxnotealso" id="GUID-B8FF91C1-CE3A-4A97-9498-8CF977F6E32B__GUID-65AC332D-F49A-402F-AC78-A1ADC18EC015">
+<p class="notep1">See Also:</p>
+<p><a href="schema.htm#GUID-1950156D-DECC-4E76-84D9-2C2A3D8D6565" title="Managing space for schema objects involves tasks such as managing tablespace alerts and space allocation, reclaiming unused space, dropping unused object storage, monitoring space usage, and capacity planning.">Managing Space for Schema Objects</a> is recommended reading before attempting tasks described in this chapter.</p>
+</div>
+</div>
+</div>
+<a id="ADMIN11757"></a>
+<div class="props_rev_3"><a id="GUID-EBACE54A-B7B2-4E87-9DC8-6CD99F056CBA"></a>
+<h2 id="ADMIN-GUID-EBACE54A-B7B2-4E87-9DC8-6CD99F056CBA" class="sect2"><span class="enumeration_section">23.2</span> When to Use Hash Clusters</h2>
+<div>
+<p>You can decide when to use hash clusters by contrasting situations where hashing is most useful against situations where there is no advantage. If you find your decision is to use indexing rather than hashing, then you should consider whether to store a table individually or as part of a cluster.</p>
+<div class="infobox-note" id="GUID-EBACE54A-B7B2-4E87-9DC8-6CD99F056CBA__GUID-56796186-5BB4-4191-B9CD-EE315F6D2831">
+<p class="notep1">Note:</p>
+<p>Even if you decide to use hashing, a table can still have separate indexes on any columns, including the cluster key.</p>
+</div>
+</div>
+<a id="ADMIN11758"></a>
+<div class="props_rev_3"><a id="GUID-5BB31441-AFA6-4136-8355-2471B9CD6D45"></a>
+<h3 id="ADMIN-GUID-5BB31441-AFA6-4136-8355-2471B9CD6D45" class="sect3"><span class="enumeration_section">23.2.1</span> Situations Where Hashing Is Useful</h3>
+<div>
+<p>Hashing is useful when most queries are equality queries on the cluster key and the tables in the hash cluster are primarily static in size.</p>
+<p>Hashing is useful when you have the following conditions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Most queries are equality queries on the cluster key:</p>
+<pre dir="ltr">SELECT ... WHERE cluster_key = ...;
+</pre>
+<p>In such cases, the cluster key in the equality condition is hashed, and the corresponding hash key is usually found with a single read. In comparison, for an indexed table the key value must first be found in the index (usually several reads), and then the row is read from the table (another read).</p>
+</li>
+<li>
+<p>The tables in the hash cluster are primarily static in size so that you can determine the number of rows and amount of space required for the tables in the cluster. If tables in a hash cluster require more space than the initial allocation for the cluster, performance degradation can be substantial because overflow blocks are required.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADMIN11759"></a>
+<div class="props_rev_3"><a id="GUID-43CFF0AF-2FF4-49FD-B2FF-C5B5199B314C"></a>
+<h3 id="ADMIN-GUID-43CFF0AF-2FF4-49FD-B2FF-C5B5199B314C" class="sect3"><span class="enumeration_section">23.2.2</span> Situations Where Hashing Is Not Advantageous</h3>
+<div>
+<p>Hashing is not advantageous in certain situations.</p>
+<p>Hashing is not advantageous in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Most queries on the table retrieve rows over a range of cluster key values. For example, in full table scans or queries such as the following, a hash function<a id="d179154e364" class="indexterm-anchor"></a> cannot be used to determine the location of specific hash keys. Instead, the equivalent of a full table scan must be done to fetch the rows for the query.</p>
+<pre dir="ltr">SELECT . . . WHERE cluster_key &lt; . . . ;
+</pre>
+<p>With an index, key values are ordered in the index, so cluster key values that satisfy the <code class="codeph">WHERE</code> clause of a query can be found with relatively few I/Os.</p>
+</li>
+<li>
+<p>The table is not static, but instead is continually growing. If a table grows without limit, the space required over the life of the table (its cluster) cannot be predetermined.</p>
+</li>
+<li>
+<p>Applications frequently perform full-table scans on the table and the table is sparsely populated. A full-table scan in this situation takes longer under hashing.</p>
+</li>
+<li>
+<p>You cannot afford to preallocate the space that the hash cluster will eventually need.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2"><a id="GUID-42A592DE-99BB-4200-A225-4042EA1C2EA8"></a>
+<h2 id="ADMIN-GUID-42A592DE-99BB-4200-A225-4042EA1C2EA8" class="sect2"><span class="enumeration_section">23.3</span> Creating Different Types of Hash Clusters</h2>
+<p>You can use the <code class="codeph">CREATE CLUSTER</code> statement with the <code class="codeph">HASHKEYS</code> clause to create different types of hash clusters.</p>
+<a id="ADMIN11760"></a>
+<div class="props_rev_3"><a id="GUID-F7888417-6AE4-4ABC-B345-3E02E7E109A6"></a>
+<h3 id="ADMIN-GUID-F7888417-6AE4-4ABC-B345-3E02E7E109A6" class="sect3"><span class="enumeration_section">23.3.1</span> Creating Hash Clusters</h3>
+<div>
+<p>You create a hash cluster using a <code class="codeph">CREATE CLUSTER</code> statement, but you specify a <code class="codeph">HASHKEYS</code> clause.</p>
+<div class="section">
+<p>The following statement creates a cluster named <code class="codeph">trial_cluster</code>, clustered by the <code class="codeph">trialno</code> column (the cluster key):</p>
+<pre dir="ltr">CREATE CLUSTER trial_cluster ( trialno NUMBER(5,0) )
+    TABLESPACE users
+    STORAGE ( INITIAL 250K     
+              NEXT 50K
+              MINEXTENTS 1     
+              MAXEXTENTS 3
+              PCTINCREASE 0 )
+    HASH IS trialno 
+    HASHKEYS 150;
+</pre>
+<p>The following statement creates the <code class="codeph">trial</code> table in the <code class="codeph">trial_cluster</code> hash cluster<a id="d179154e564" class="indexterm-anchor"></a>:</p>
+<pre dir="ltr">CREATE TABLE trial (
+    trialno NUMBER(5,0) PRIMARY KEY,
+    ... )
+    CLUSTER trial_cluster (trialno);
+</pre>
+<p>As with index clusters, the key of a hash cluster can be a single column or a composite key (multiple column key). In the preceding example, the key is the <code class="codeph">trialno</code> column.</p>
+<p>The <code class="codeph">HASHKEYS</code> value, in this case <code class="codeph">150</code>, specifies and limits the number of unique hash values that the hash function can generate. The database rounds the number specified to the nearest prime number.</p>
+<p>If no <code class="codeph">HASH IS</code> clause is specified, then the database uses an internal hash function. If the cluster key is already a unique identifier that is uniformly distributed over its range, then you can bypass the internal hash function and specify the cluster key as the hash value, as in the preceding example. You can also use the <code class="codeph">HASH IS</code> clause to specify a user-defined hash function.</p>
+<p>You cannot create a cluster index on a hash cluster, and you need not create an index on a hash cluster key.</p>
+<div class="infoboxnotealso" id="GUID-F7888417-6AE4-4ABC-B345-3E02E7E109A6__GUID-4F73549E-66B3-4C28-83FD-993A7CCEA972">
+<p class="notep1">See Also:</p>
+<p><a href="clustrs.htm#GUID-2EB6D65C-3DD8-4C92-A8B4-C05197B6CF2D" title="Using clusters can improve performance and reduce disk space requirements.">Managing Clusters</a> for additional information about creating tables in a cluster, guidelines for setting parameters of the <code class="codeph">CREATE CLUSTER</code> statement common to index and hash clusters, and the privileges required to create any cluster</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN13463"></a><a id="ADMIN13464"></a><a id="ADMIN01901"></a>
+<div class="props_rev_3"><a id="GUID-ADB821B7-70D2-4829-956A-F74436754BCF"></a>
+<h3 id="ADMIN-GUID-ADB821B7-70D2-4829-956A-F74436754BCF" class="sect3"><span class="enumeration_section">23.3.2</span> Creating a Sorted Hash Cluster</h3>
+<div>
+<p>A <span class="bold">sorted hash cluster</span> stores the rows corresponding to each value of the hash function in such a way that the database can efficiently return them in sorted order. For applications that always consume data in sorted order, sorted hash clusters can retrieve data faster by minimizing logical I/Os.</p>
+<div class="section">
+<p>Assume that a telecommunications company stores detailed call records for a fixed number of originating telephone numbers through a telecommunications switch. From each originating telephone number there can be an unlimited number of calls.</p>
+<p>The application stores calls records as calls are made. Each call has a detailed call record identified by a timestamp. For example, the application stores a call record with timestamp 0, then a call record with timestamp 1, and so on.</p>
+<p>When generating bills for each originating phone number, the application processes them in first-in, first-out (FIFO) order. The following table shows sample details for three originating phone numbers:</p>
+<div class="tblformal" id="GUID-ADB821B7-70D2-4829-956A-F74436754BCF__GUID-FA1312D8-375F-43C0-8DC0-9D90EA48EF14">
+<table class="cellalignment1849" summary="Column 1 lists some telephone numbers, column 2 list corresponding call records.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1883" id="d179154e694">telephone_number</th>
+<th class="cellalignment1883" id="d179154e697">call_timestamp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1886" id="d179154e702" headers="d179154e694">
+<p>6505551212</p>
+</td>
+<td class="cellalignment1886" headers="d179154e702 d179154e697">
+<p>0, 1, 2, 3, 4, ...</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1886" id="d179154e709" headers="d179154e694">
+<p>6505551213</p>
+</td>
+<td class="cellalignment1886" headers="d179154e709 d179154e697">
+<p>0, 1, 2, 3, 4, ...</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1886" id="d179154e716" headers="d179154e694">
+<p>6505551214</p>
+</td>
+<td class="cellalignment1886" headers="d179154e716 d179154e697">
+<p>0, 1, 2, 3, 4, ...</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>In the following SQL statements, the <code class="codeph">telephone_number</code> column is the hash key. The hash cluster is sorted on the <code class="codeph">call_timestamp</code> and <code class="codeph">call_duration</code> columns. The example uses the same names for the clustering and sorting columns in the table definition as in the cluster definition, but this is not required. The number of hash keys is based on 10-digit telephone numbers.</p>
+<pre dir="ltr">CREATE CLUSTER call_detail_cluster ( 
+   telephone_number NUMBER, 
+   call_timestamp   NUMBER SORT, 
+   call_duration    NUMBER SORT ) 
+  HASHKEYS 10000 
+  HASH IS telephone_number 
+  SIZE 256; 
+
+CREATE TABLE call_detail ( 
+   telephone_number     NUMBER, 
+   call_timestamp       NUMBER   SORT, 
+   call_duration        NUMBER   SORT, 
+   other_info           VARCHAR2(30) ) 
+  CLUSTER call_detail_cluster ( 
+   telephone_number, call_timestamp, call_duration );
+</pre></div>
+<!-- class="section" -->
+<div class="example" id="GUID-ADB821B7-70D2-4829-956A-F74436754BCF__CEGFGHHC">
+<p class="titleinexample">Example 23-1 Data Inserted in Sequential Order</p>
+<p>Suppose that you seed the <code class="codeph">call_detail</code> table with the rows in FIFO order as shown in this example.</p>
+<pre dir="ltr">INSERT INTO call_detail VALUES (6505551212, 0, 9, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551212, 1, 17, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551212, 2, 5, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551212, 3, 90, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551213, 0, 35, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551213, 1, 6, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551213, 2, 4, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551213, 3, 4, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551214, 0, 15, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551214, 1, 20, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551214, 2, 1, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551214, 3, 25, &#39;misc info&#39;);
+COMMIT;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-ADB821B7-70D2-4829-956A-F74436754BCF__CEGFDHEC">
+<p class="titleinexample">Example 23-2 Querying call_detail</p>
+<p>In this example, you <code class="codeph">SET AUTOTRACE ON</code>, and then query the <code class="codeph">call_detail</code> table for the call details for the phone number <code class="codeph">6505551212</code>.</p>
+<pre dir="ltr">SQL&gt; SET AUTOTRACE ON;
+SQL&gt; SELECT * FROM call_detail WHERE telephone_number = 6505551212;
+ 
+TELEPHONE_NUMBER CALL_TIMESTAMP CALL_DURATION OTHER_INFO
+---------------- -------------- ------------- ------------------------------
+      6505551212              0             9 misc info
+      6505551212              1            17 misc info
+      6505551212              2             5 misc info
+      6505551212              3            90 misc info
+ 
+Execution Plan
+----------------------------------------------------------
+Plan hash value: 2118876266
+ 
+----------------------------------------------------------------------
+| Id  | Operation         | Name        | Rows  | Bytes | Cost (%CPU)|
+----------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |             |     1 |    56 |     0   (0)|
+|*  1 |  TABLE ACCESS HASH| CALL_DETAIL |     1 |    56 |            |
+----------------------------------------------------------------------
+</pre>
+<p>The query retrieves the rows ordered by timestamp even though no sort appears in the query plan.</p>
+<p>Suppose you then delete the existing rows and insert the same rows out of sequence:</p>
+<pre dir="ltr">DELETE FROM call_detail;
+INSERT INTO call_detail VALUES (6505551213, 3, 4, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551214, 0, 15, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551212, 0, 9, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551214, 1, 20, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551214, 2, 1, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551213, 1, 6, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551213, 2, 4, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551214, 3, 25, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551212, 1, 17, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551212, 2, 5, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551212, 3, 90, &#39;misc info&#39;);
+INSERT INTO call_detail VALUES (6505551213, 0, 35, &#39;misc info&#39;);
+COMMIT;
+</pre>
+<p>If you rerun the same query of <code class="codeph">call_detail</code>, the database again retrieves the rows in sorted order even though no <code class="codeph">ORDER BY</code> clause is specified. No <code class="codeph">SORT ORDER BY</code> operation appears in the query plan because the database performs an internal sort.</p>
+<p>Now assume that you create a nonclustered table <code class="codeph">call_detail_nonclustered</code> and then load it with the same sample values in <a href="hash.htm#GUID-ADB821B7-70D2-4829-956A-F74436754BCF__CEGFGHHC">Example 23-1</a>. To retrieve the data in sorted order, you must use an <code class="codeph">ORDER BY</code> clause as follows:</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM call_detail_nonclustered WHERE telephone_number = 6505551212 
+  2  ORDER BY call_timestamp, call_duration;
+ 
+TELEPHONE_NUMBER CALL_TIMESTAMP CALL_DURATION OTHER_INFO
+---------------- -------------- ------------- ------------------------------
+      6505551212              0             9 misc info
+      6505551212              1            17 misc info
+      6505551212              2             5 misc info
+      6505551212              3            90 misc info
+ 
+Execution Plan
+----------------------------------------------------------
+Plan hash value: 2555750302
+ 
+----------------------------------------------------------------------------------
+|Id| Operation          | Name                     |Rows|Bytes|Cost (%CPU)|Time  |
+----------------------------------------------------------------------------------
+| 0| SELECT STATEMENT   |                          | 4  | 224 | 4 (25)| 00:00:01 |
+| 1|  SORT ORDER BY     |                          | 4  | 224 | 4 (25)| 00:00:01 |
+|*2|   TABLE ACCESS FULL| CALL_DETAIL_NONCLUSTERED | 4  | 224 | 3  (0)| 00:00:01 |
+----------------------------------------------------------------------------------
+</pre>
+<p>The preceding plan shows that in the nonclustered case the sort is more expensive than in the clustered case. The rows, bytes, cost, and time are all greater in the case of the table that is not stored in a sorted hash cluster.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="ADMIN11761"></a>
+<div class="props_rev_3"><a id="GUID-16DD280E-9CB0-4016-8492-87946A0B5CB9"></a>
+<h3 id="ADMIN-GUID-16DD280E-9CB0-4016-8492-87946A0B5CB9" class="sect3"><span class="enumeration_section">23.3.3</span> Creating Single-Table Hash Clusters</h3>
+<div>
+<p>You can create a <span class="bold">single-table hash cluster</span>, which provides fast access to rows in a table. However, this table must be the only table in the hash cluster.</p>
+<div class="section">
+<p>Essentially, there must be a one-to-one mapping between hash keys and data rows. The following statement creates a single-table hash cluster named <code class="codeph">peanut</code> with the cluster key <code class="codeph">variety</code>:</p>
+<pre dir="ltr">CREATE CLUSTER peanut (variety NUMBER)
+   SIZE 512 SINGLE TABLE HASHKEYS 500;
+</pre>
+<p>The database rounds the <code class="codeph">HASHKEYS</code> value up to the nearest prime number, so this cluster has a maximum of 503 hash key values, each of size 512 bytes. The <code class="codeph">SINGLE TABLE</code> clause is valid only for hash clusters. <code class="codeph">HASHKEYS</code> must also be specified.</p>
+<div class="infoboxnotealso" id="GUID-16DD280E-9CB0-4016-8492-87946A0B5CB9__GUID-9417EB45-209F-436E-94AD-8AC97AFC3C43">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF01201" target="_blank" href="../SQLRF/statements_5002.htm#SQLRF01201"><span class="italic">Oracle Database SQL Language Reference</span></a> for the syntax of the <code class="codeph">CREATE CLUSTER</code> statement</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11762"></a>
+<div class="props_rev_3"><a id="GUID-F0131DBF-8763-4D37-8579-1A6ACE5BA0D0"></a>
+<h3 id="ADMIN-GUID-F0131DBF-8763-4D37-8579-1A6ACE5BA0D0" class="sect3"><span class="enumeration_section">23.3.4</span> Controlling Space Use Within a Hash Cluster</h3>
+<p>When creating a hash cluster, it is important to choose the cluster key correctly and set the <code class="codeph">HASH IS</code>, <code class="codeph">SIZE</code>, and <code class="codeph">HASHKEYS</code> parameters so that performance and space use are optimal. The following guidelines describe how to set these parameters.</p>
+<a id="ADMIN11763"></a>
+<div class="props_rev_3"><a id="GUID-860E5BAC-70D4-4081-BE2E-0595F9992173"></a>
+<h4 id="ADMIN-GUID-860E5BAC-70D4-4081-BE2E-0595F9992173" class="sect4"><span class="enumeration_section">23.3.4.1</span> Choosing the Key</h4>
+<div>
+<p>Choosing the correct cluster key is dependent on the most common types of queries issued against the clustered tables.</p>
+<p>For example, consider the <code class="codeph">emp</code> table in a hash cluster. If queries often select rows by employee number, the <code class="codeph">empno</code> column should be the cluster key. If queries often select rows by department number, the <code class="codeph">deptno</code> column should be the cluster key. For hash clusters that contain a single table, the cluster key is typically the entire primary key of the contained table.</p>
+<p>The key of a hash cluster, like that of an index cluster, can be a single column or a composite key (multiple column key). A hash cluster with a composite key must use the internal hash function of the database.</p>
+</div>
+</div>
+<a id="ADMIN11764"></a>
+<div class="props_rev_3"><a id="GUID-C7DF959C-D473-45AD-9B0E-F472CDBE6722"></a>
+<h4 id="ADMIN-GUID-C7DF959C-D473-45AD-9B0E-F472CDBE6722" class="sect4"><span class="enumeration_section">23.3.4.2</span> Setting HASH IS</h4>
+<div>
+<p>Specify the <code class="codeph">HASH IS</code> parameter only if the cluster key is a single column of the <code class="codeph">NUMBER</code> data type, and contains uniformly distributed integers.</p>
+<p>If these conditions apply, you can distribute rows in the cluster so that each unique cluster key value hashes, with no collisions (two cluster key values having the same hash value), to a unique hash value. If these conditions do not apply, omit this clause so that you use the internal hash function.</p>
+</div>
+</div>
+<a id="ADMIN11765"></a>
+<div class="props_rev_3"><a id="GUID-902F3CF3-20A6-458D-A666-B11A2BC7C837"></a>
+<h4 id="ADMIN-GUID-902F3CF3-20A6-458D-A666-B11A2BC7C837" class="sect4"><span class="enumeration_section">23.3.4.3</span> Setting SIZE</h4>
+<div>
+<p><code class="codeph">SIZE</code> should be set to the average amount of space required to hold all rows for any given hash key.</p>
+<p>Therefore, to properly determine <code class="codeph">SIZE</code>, you must be aware of the characteristics of your data:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the hash cluster is to contain only a single table and the hash key values of the rows in that table are unique (one row for each value), <code class="codeph">SIZE</code> can be set to the average row size in the cluster.</p>
+</li>
+<li>
+<p>If the hash cluster is to contain multiple tables, <code class="codeph">SIZE</code> can be set to the average amount of space required to hold all rows associated with a representative hash value.</p>
+</li>
+</ul>
+<p>Further, once you have determined a (preliminary) value for <code class="codeph">SIZE</code>, consider the following. If the <code class="codeph">SIZE</code> value is small (more than four hash keys can be assigned for each data block) you can use this value for <code class="codeph">SIZE</code> in the <code class="codeph">CREATE CLUSTER</code> statement. However, if the value of <code class="codeph">SIZE</code> is large (four or fewer hash keys can be assigned for each data block), then you should also consider the expected frequency of collisions and whether performance of data retrieval or efficiency of space usage is more important to you.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the hash cluster does not use the internal hash function (if you specified <code class="codeph">HASH IS</code>) and you expect few or no collisions, you can use your preliminary value of <code class="codeph">SIZE</code>. No collisions occur and space is used as efficiently as possible.</p>
+</li>
+<li>
+<p>If you expect frequent collisions on inserts, the likelihood of overflow blocks being allocated to store rows is high. To reduce the possibility of overflow blocks and maximize performance when collisions are frequent, you should adjust <code class="codeph">SIZE</code> as shown in the following chart.</p>
+<div class="tblformal" id="GUID-902F3CF3-20A6-458D-A666-B11A2BC7C837__GUID-9B408034-B68B-49D8-8DC1-7AD9C9596F5C">
+<table class="cellalignment2005" summary="This table helps you calculate a value for the SIZE clause. Column 1 lists a value calculated by: available size for each block/calculated size. Column 2 lists the recommended setting for size.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1883" id="d179154e1267">Available Space for each Block / Calculated SIZE</th>
+<th class="cellalignment1883" id="d179154e1270">Setting for SIZE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1886" id="d179154e1275" headers="d179154e1267">
+<p>1</p>
+</td>
+<td class="cellalignment1886" headers="d179154e1275 d179154e1270">
+<p><code class="codeph">SIZE</code></p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1886" id="d179154e1284" headers="d179154e1267">
+<p>2</p>
+</td>
+<td class="cellalignment1886" headers="d179154e1284 d179154e1270">
+<p><code class="codeph">SIZE</code> + 15%</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1886" id="d179154e1293" headers="d179154e1267">
+<p>3</p>
+</td>
+<td class="cellalignment1886" headers="d179154e1293 d179154e1270">
+<p><code class="codeph">SIZE</code> + 12%</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1886" id="d179154e1302" headers="d179154e1267">
+<p>4</p>
+</td>
+<td class="cellalignment1886" headers="d179154e1302 d179154e1270">
+<p><code class="codeph">SIZE</code> + 8%</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1886" id="d179154e1311" headers="d179154e1267">
+<p>&gt;4</p>
+</td>
+<td class="cellalignment1886" headers="d179154e1311 d179154e1270">
+<p><code class="codeph">SIZE</code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Overestimating the value of <code class="codeph">SIZE</code> increases the amount of unused space in the cluster. If space efficiency is more important than the performance of data retrieval, disregard the adjustments shown in the preceding table and use the original value for <code class="codeph">SIZE</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADMIN11766"></a>
+<div class="props_rev_3"><a id="GUID-B70C0F2E-7093-49A3-B9AD-25B78D4321B5"></a>
+<h4 id="ADMIN-GUID-B70C0F2E-7093-49A3-B9AD-25B78D4321B5" class="sect4"><span class="enumeration_section">23.3.4.4</span> Setting HASHKEYS</h4>
+<div>
+<p>Specify the&nbsp;<code class="codeph">HASHKEYS</code>&nbsp;clause to create a&nbsp;hash cluster&nbsp;and specify the number of hash values for the hash cluster.</p>
+<p>For maximum distribution of rows in a hash cluster, the database rounds the <code class="codeph">HASHKEYS</code> value up to the nearest prime number.</p>
+</div>
+</div>
+<a id="ADMIN11767"></a>
+<div class="props_rev_3"><a id="GUID-30BDD6AA-C41C-44CC-BC20-932101F03F7D"></a>
+<h4 id="ADMIN-GUID-30BDD6AA-C41C-44CC-BC20-932101F03F7D" class="sect4"><span class="enumeration_section">23.3.4.5</span> Controlling Space in Hash Clusters</h4>
+<p>Examples illustrate how to correctly choose the cluster key and set the <code class="codeph">HASH IS</code>, <code class="codeph">SIZE</code>, and <code class="codeph">HASHKEYS</code> parameters. For all examples, assume that the data block size is 2K and that on average, 1950 bytes of each block is available data space (block size minus overhead).</p>
+<a id="ADMIN11768"></a>
+<div class="props_rev_3"><a id="GUID-43C0AB44-E263-4D8A-83C7-DA2C5E2816CC"></a>
+<h5 id="ADMIN-GUID-43C0AB44-E263-4D8A-83C7-DA2C5E2816CC" class="sect5"><span class="enumeration_section">23.3.4.5.1</span> Controlling Space in Hash Clusters: Example 1</h5>
+<div>
+<p>An example illustrates controlling space in hash clusters.</p>
+<div class="section">
+<p>You decide to load the <code class="codeph">emp</code> table into a hash cluster. Most queries retrieve employee records by their employee number. You estimate that the maximum number of rows in the <code class="codeph">emp</code> table at any given time is 10000 and that the average row size is 55 bytes.</p>
+<p>In this case, <code class="codeph">empno</code> should be the cluster key. Because this column contains integers that are unique, the internal hash function can be bypassed. <code class="codeph">SIZE</code> can be set to the average row size, 55 bytes. Note that 34 hash keys are assigned for each data block. <code class="codeph">HASHKEYS</code> can be set to the number of rows in the table, 10000. The database rounds this value up to the next highest prime number: 10007.</p>
+<pre dir="ltr">CREATE CLUSTER emp_cluster (empno 
+NUMBER)
+. . .
+SIZE 55
+HASH IS empno HASHKEYS 10000;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11769"></a>
+<div class="props_rev_3"><a id="GUID-9575192B-35B8-47FA-B025-6F2DBF658A8B"></a>
+<h5 id="ADMIN-GUID-9575192B-35B8-47FA-B025-6F2DBF658A8B" class="sect5"><span class="enumeration_section">23.3.4.5.2</span> Controlling Space in Hash Clusters: Example 2</h5>
+<div>
+<p>An example illustrates controlling space in hash clusters.</p>
+<div class="section">
+<p>In this example, conditions are similar to the example in <span class="q">&#34;<a href="hash.htm#GUID-43C0AB44-E263-4D8A-83C7-DA2C5E2816CC" title="An example illustrates controlling space in hash clusters.">Controlling Space in Hash Clusters: Example 1</a> &#34;</span>. In this case, however, rows are usually retrieved by department number. At most, there are 1000 departments with an average of 10 employees for each department. Department numbers increment by 10 (0, 10, 20, 30, . . .).</p>
+<p>In this case, <code class="codeph">deptno</code> should be the cluster key. Since this column contains integers that are uniformly distributed, the internal hash function can be bypassed. A preliminary value of <code class="codeph">SIZE</code> (the average amount of space required to hold all rows for each department) is 55 bytes * 10, or 550 bytes. Using this value for <code class="codeph">SIZE</code>, only three hash keys can be assigned for each data block. If you expect some collisions and want maximum performance of data retrieval, slightly alter your estimated <code class="codeph">SIZE</code> to prevent collisions from requiring overflow blocks. By adjusting <code class="codeph">SIZE</code> by 12%, to 620 bytes (see <span class="q">&#34;<a href="hash.htm#GUID-902F3CF3-20A6-458D-A666-B11A2BC7C837" title="SIZE should be set to the average amount of space required to hold all rows for any given hash key.">Setting SIZE</a>&#34;</span>), there is more space for rows from expected collisions.</p>
+<p><code class="codeph">HASHKEYS</code> can be set to the number of unique department numbers, 1000. The database rounds this value up to the next highest prime number: 1009.</p>
+<pre dir="ltr">CREATE CLUSTER emp_cluster (deptno NUMBER)
+. . .
+SIZE 620
+HASH IS deptno HASHKEYS 1000;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="ADMIN11770"></a>
+<div class="props_rev_3"><a id="GUID-97F5097B-366A-4168-B137-106F17ECC714"></a>
+<h3 id="ADMIN-GUID-97F5097B-366A-4168-B137-106F17ECC714" class="sect3"><span class="enumeration_section">23.3.5</span> Estimating Size Required by Hash Clusters</h3>
+<div>
+<p>As with index clusters, it is important to estimate the storage required for the data in a hash cluster.</p>
+<div class="section">
+<p>Oracle Database guarantees that the initial allocation of space is sufficient to store the hash table according to the settings <code class="codeph">SIZE</code> and <code class="codeph">HASHKEYS</code>. If settings for the storage parameters <code class="codeph">INITIAL</code>, <code class="codeph">NEXT</code>, and <code class="codeph">MINEXTENTS</code> do not account for the hash table size, incremental (additional) extents are allocated until at least <code class="codeph">SIZE*HASHKEYS</code> is reached. For example, assume that the data block size is 2K, the available data space for each block is approximately 1900 bytes (data block size minus overhead), and that the <code class="codeph">STORAGE</code> and <code class="codeph">HASH</code> parameters are specified in the <code class="codeph">CREATE CLUSTER</code> statement as follows:</p>
+<pre dir="ltr">STORAGE (INITIAL 100K
+    NEXT 150K
+    MINEXTENTS 1
+    PCTINCREASE 0)
+SIZE 1500
+HASHKEYS 100
+</pre>
+<p>In this example, only one hash key can be assigned for each data block. Therefore, the initial space required for the hash cluster is at least 100*2K or 200K. The settings for the storage parameters do not account for this requirement. Therefore, an initial extent of 100K and a second extent of 150K are allocated to the hash cluster.</p>
+<p>Alternatively, assume the <code class="codeph">HASH</code> parameters are specified as follows:</p>
+<pre dir="ltr">SIZE 500 HASHKEYS 100
+</pre>
+<p>In this case, three hash keys are assigned to each data block. Therefore, the initial space required for the hash cluster is at least 34*2K or 68K. The initial settings for the storage parameters are sufficient for this requirement (an initial extent of 100K is allocated to the hash cluster).</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN11771"></a>
+<div class="props_rev_3"><a id="GUID-80B46F3F-BBCE-4174-A5A8-F502CEE1DA89"></a>
+<h2 id="ADMIN-GUID-80B46F3F-BBCE-4174-A5A8-F502CEE1DA89" class="sect2"><span class="enumeration_section">23.4</span> Altering Hash Clusters</h2>
+<div>
+<p>You can alter a hash cluster with the <code class="codeph">ALTER CLUSTER</code> statement.</p>
+<div class="section">
+<p>For example, the following <code class="codeph">ALTER CLUSTER</code> statement alters the <code class="codeph">emp_dept</code> cluster:</p>
+<pre dir="ltr">ALTER CLUSTER emp_dept . . . ;
+</pre>
+<p>The implications for altering a hash cluster are identical to those for altering an index cluster, described in <span class="q">&#34;<a href="clustrs.htm#GUID-5EF6F303-F1AD-444F-9ADD-7436CB182AAB" title="You alter a cluster using the ALTER CLUSTER statement.">Altering Clusters</a>&#34;</span>. However, the <code class="codeph">SIZE</code>, <code class="codeph">HASHKEYS</code>, and <code class="codeph">HASH IS</code> parameters cannot be specified in an <code class="codeph">ALTER CLUSTER</code> statement. To change these parameters, you must re-create the cluster, then copy the data from the original cluster.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11772"></a>
+<div class="props_rev_3"><a id="GUID-CA07C2B5-9087-433A-8498-4E8CEE634FB7"></a>
+<h2 id="ADMIN-GUID-CA07C2B5-9087-433A-8498-4E8CEE634FB7" class="sect2"><span class="enumeration_section">23.5</span> Dropping Hash Clusters</h2>
+<div>
+<p>You can drop a hash cluster using the <code class="codeph">DROP CLUSTER</code> statement.</p>
+<div class="section">
+<p>For example, the following <code class="codeph">DROP CLUSTER</code> statement drops the <code class="codeph">emp_dept</code> cluster:</p>
+<pre dir="ltr">DROP CLUSTER emp_dept;
+</pre>
+<p>A table in a hash cluster is dropped using the <code class="codeph">DROP TABLE</code> statement. The implications of dropping hash clusters and tables in hash clusters are the same as those for dropping index clusters.</p>
+<div class="infoboxnotealso" id="GUID-CA07C2B5-9087-433A-8498-4E8CEE634FB7__GUID-369431CB-A278-49BF-905B-F1473D534732">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="clustrs.htm#GUID-3E027CE1-1056-4750-B4DC-29E4CB6D095D" title="You can drop a cluster using the DROP CLUSTER statement.">Dropping Clusters</a>&#34;</span></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11773"></a>
+<div class="props_rev_3"><a id="GUID-70D53BAD-35C5-431D-997D-19A3E10F826B"></a>
+<h2 id="ADMIN-GUID-70D53BAD-35C5-431D-997D-19A3E10F826B" class="sect2"><span class="enumeration_section">23.6</span> Hash Clusters Data Dictionary Views</h2>
+<div>
+<p>You can query a set of data dictionary views for information about hash clusters.</p>
+<div class="section">
+<p>The following views display information about hash clusters:</p>
+</div>
+<!-- class="section" -->
+<div class="tblformal" id="GUID-70D53BAD-35C5-431D-997D-19A3E10F826B__GUID-87D14440-8B3B-4C6E-9E04-6DCC83B5BD86">
+<table class="cellalignment1849" summary="Column 1 lists the views that display information about hash clusters, column 2 describes each view.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1995" id="d179154e2068">View</th>
+<th class="cellalignment1974" id="d179154e2071">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1996" id="d179154e2076" headers="d179154e2068">
+<p><code class="codeph"><a class="olink REFRN23039" target="_blank" href="../REFRN/GUID-9AE950FE-1E67-4BEA-BD07-B142AB749DDA.htm#REFRN23039">DBA_CLUSTERS</a></code></p>
+<p><code class="codeph"><a class="olink REFRN20039" target="_blank" href="../REFRN/GUID-A006481A-A195-48A1-A276-8AEE570FFDD8.htm#REFRN20039">ALL_CLUSTERS</a></code></p>
+<p><code class="codeph"><a class="olink REFRN26039" target="_blank" href="../REFRN/GUID-F1E8BF6E-99A4-4E0E-B425-C9C818CC8A72.htm#REFRN26039">USER_CLUSTERS</a></code></p>
+</td>
+<td class="cellalignment1975" headers="d179154e2076 d179154e2071">
+<p><code class="codeph">DBA</code> view describes all clusters (including hash clusters) in the database. <code class="codeph">ALL</code> view describes all clusters accessible to the user. <code class="codeph">USER</code> view is restricted to clusters owned by the user. Some columns in these views contain statistics that are generated by the <code class="codeph">DBMS_STATS</code> package or <code class="codeph">ANALYZE</code> statement.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1996" id="d179154e2112" headers="d179154e2068">
+<p><code class="codeph"><a class="olink REFRN23037" target="_blank" href="../REFRN/GUID-844ADF06-067C-47E4-AD9E-54A88FDC6FF2.htm#REFRN23037">DBA_CLU_COLUMNS</a></code></p>
+<p><code class="codeph"><a class="olink REFRN26037" target="_blank" href="../REFRN/GUID-7B23FF91-A1BF-477D-849C-A4639606980A.htm#REFRN26037">USER_CLU_COLUMNS</a></code></p>
+</td>
+<td class="cellalignment1975" headers="d179154e2112 d179154e2071">
+<p>These views map table columns to cluster columns.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1996" id="d179154e2129" headers="d179154e2068">
+<p><code class="codeph"><a class="olink REFRN23038" target="_blank" href="../REFRN/GUID-AFEB220E-0865-4842-A690-E2301DCB3E6A.htm#REFRN23038">DBA_CLUSTER_HASH_EXPRESSIONS</a></code></p>
+<p><code class="codeph"><a class="olink REFRN20038" target="_blank" href="../REFRN/GUID-CED13490-D1C9-42FD-99D2-B695BAFED0F6.htm#REFRN20038">ALL_CLUSTER_HASH_EXPRESSIONS</a></code></p>
+<p><code class="codeph"><a class="olink REFRN26038" target="_blank" href="../REFRN/GUID-97A41CD2-D325-4291-84C6-4C1934355E00.htm#REFRN26038">USER_CLUSTER_HASH_EXPRESSIONS</a></code></p>
+</td>
+<td class="cellalignment1975" headers="d179154e2129 d179154e2071">
+<p>These views list hash functions for hash clusters.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1842">
+<tr>
+<td class="cellalignment1854">
+<table class="cellalignment1847">
+<tr>
+<td class="cellalignment1846"><a href="clustrs.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1846"><a href="views.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2001, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1856">
+<table class="cellalignment1845">
+<tr>
+<td class="cellalignment1846"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1846"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1846"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1846"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1846"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1846"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

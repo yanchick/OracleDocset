@@ -1,0 +1,1012 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106780"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Histograms"></a><title>Histograms</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="A histogram is a special type of column statistic that provides more detailed information about the data distribution in a table column. A histogram sorts values into"/>
+<meta name="keywords" content="NDV, histograms, optimizer statistics, definition, full table scans, access paths, cardinality, statistics, optimizer, data skew, purpose, criteria for creation, frequency histograms, frequency, top frequency, top frequency histograms, height-balanced histograms, height-balanced, endpoint repeat counts, in histograms, endpoint repeat counts, hybrid, hybrid histograms"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_statscon.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_stats.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-BE10EBFC-FEFC-4530-90DF-1443D9AD9B64"></a> <span id="PAGE" style="display:none;">20/40</span> <!-- End Header -->
+<a id="TGSQL366"></a>
+<h1 id="TGSQL-GUID-BE10EBFC-FEFC-4530-90DF-1443D9AD9B64" class="sect1"><span class="enumeration_chapter">11</span> Histograms</h1>
+<div>
+<p>A <span class="bold">histogram</span> is a special type of column statistic that provides more detailed information about the data distribution in a table column. A histogram sorts values into &#34;buckets,&#34; as you might sort coins into buckets.</p>
+<p>Based on the <a href="glossary.htm#GUID-34DC46FD-32CE-4242-8ED9-945AE7A9F922"><span class="xrefglossterm">NDV</span></a> and the distribution of the data, the database chooses the type of histogram to create. (In some cases, when creating a histogram, the database samples an internally predetermined number of rows.) The types of histograms are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Frequency histograms and top frequency histograms</p>
+</li>
+<li>
+<p>Height-Balanced histograms (legacy)</p>
+</li>
+<li>
+<p>Hybrid histograms</p>
+</li>
+</ul>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_histo.htm#GUID-8C41E2C8-5097-4D1A-97B2-4338F1B168B7" title="By default the optimizer assumes a uniform distribution of rows across the distinct values in a column.">Purpose of Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-92C94E9C-AE31-4135-86A0-3BE1A541BB36">When Oracle Database Creates Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-FFA0C0AF-3761-4829-995E-9AFA524F96CE" title="Oracle Database uses several criteria to determine which histogram to create: frequency, top frequency, height-balanced, or hybrid.">How Oracle Database Chooses the Histogram Type</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-F02DAAC5-31F9-477B-9C25-AE33E21DB350">Cardinality Algorithms When Using Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-13686AA8-A6DA-43A9-A3C6-CB5A623F3E33" title="In a frequency histogram, each distinct column value corresponds to a single bucket of the histogram. Because each value has its own dedicated bucket, some buckets may have many values, whereas others have few.">Frequency Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-DA1B97DA-DFE5-47CA-B8A0-57AB248B10EF" title="A top frequency histogram is a variation on a frequency histogram that ignores nonpopular values that are statistically insignificant. For example, if a pile of 1000 coins contains only a single penny, then you can ignore the penny when sorting the coins into buckets. A top frequency histogram can produce a better histogram for highly popular values.">Top Frequency Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-7A54B5FC-DB26-46C7-AA92-F986279A4CFD" title="In a legacy height-balanced histogram, column values are divided into buckets so that each bucket contains approximately the same number of rows.">Height-Balanced Histograms (Legacy)</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-59C57EDF-E763-436A-9CB2-B59A536A10F7" title="A hybrid histogram combines characteristics of both height-based histograms and frequency histograms. This &#34;best of both worlds&#34; approach enables the optimizer to obtain better selectivity estimates in some situations.">Hybrid Histograms</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL367"></a>
+<div class="props_rev_3"><a id="GUID-8C41E2C8-5097-4D1A-97B2-4338F1B168B7"></a>
+<h2 id="TGSQL-GUID-8C41E2C8-5097-4D1A-97B2-4338F1B168B7" class="sect2">Purpose of Histograms</h2>
+<div>
+<p>By default the optimizer assumes a uniform distribution of rows across the distinct values in a column.</p>
+<p>For columns that contain <a href="glossary.htm#GUID-D20523EE-FDDA-4C69-95CB-52EFC512616B"><span class="xrefglossterm">data skew</span></a> (a nonuniform distribution of data within the column), a histogram enables the optimizer to generate accurate <a href="glossary.htm#GUID-FE541AF8-DCAB-4B00-8015-04BDCB295A85"><span class="xrefglossterm">cardinality</span></a> estimates for filter and join predicates that involve these columns.</p>
+<p>For example, a California-based book store ships 95% of the books to California, 4% to Oregon, and 1% to Nevada. The book orders table has 300,000 rows. A table column stores the state to which orders are shipped. A user queries the number of books shipped to Oregon. Without a histogram, the optimizer assumes an even distribution of 300000/3 (the NDV is 3), estimating cardinality at 100,000 rows. With this estimate, the optimizer chooses a <a href="glossary.htm#GUID-DCAD1CDB-8714-4900-9CB3-8C26802D3B63"><span class="xrefglossterm">full table scan</span></a>. With a histogram, the optimizer calculates that 4% of the books are shipped to Oregon, and chooses an index scan.</p>
+</div>
+</div>
+<a id="TGSQL95250"></a><a id="TGSQL95249"></a>
+<div class="props_rev_3"><a id="GUID-92C94E9C-AE31-4135-86A0-3BE1A541BB36"></a>
+<h2 id="TGSQL-GUID-92C94E9C-AE31-4135-86A0-3BE1A541BB36" class="sect2">When Oracle Database Creates Histograms</h2>
+<div>
+<p>If <code class="codeph">DBMS_STATS</code> gathers statistics for a table, and if queries have referenced the columns in this table, then Oracle Database creates histograms automatically as needed according to the previous query workload.</p>
+<p>The basic process is as follows:</p>
+<ol>
+<li>
+<p>You run <code class="codeph">DBMS_STATS</code> for a table with the <code class="codeph">METHOD_OPT</code> parameter set to the default <code class="codeph">SIZE AUTO</code>.</p>
+</li>
+<li>
+<p>A user queries the table.</p>
+</li>
+<li>
+<p>The database notes the predicates in the preceding query and updates the data dictionary table <code class="codeph">SYS.COL_USAGE$</code>.</p>
+</li>
+<li>
+<p>You run <code class="codeph">DBMS_STATS</code> again, causing <code class="codeph">DBMS_STATS</code> to query <code class="codeph">SYS.COL_USAGE$</code> to determine which columns require histograms based on the previous query workload.</p>
+</li>
+</ol>
+<p>Consequences of the <code class="codeph">AUTO</code> feature include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>As queries change over time, <code class="codeph">DBMS_STATS</code> may change which statistics it gathers. For example, even if the data in a table does not change, queries and <code class="codeph">DBMS_STATS</code> operations can cause the plans for queries that reference these tables to change.</p>
+</li>
+<li>
+<p>If you gather statistics for a table and do not query the table, then the database does not create histograms for columns in this table. For the database to create the histograms automatically, you must run one or more queries to populate the column usage information in <code class="codeph">SYS.COL_USAGE$</code>.</p>
+</li>
+</ul>
+<div class="example" id="GUID-92C94E9C-AE31-4135-86A0-3BE1A541BB36__GUID-FB35EECC-3F12-4488-A52A-E76654DC2609">
+<p class="titleinexample">Example 11-1 Automatic Histogram Creation</p>
+<p>Assume that <code class="codeph">sh.sh_ext</code> is an external table that contains the same rows as the <code class="codeph">sh.sales</code> table. You create new table <code class="codeph">sales2</code> and perform a bulk load using <code class="codeph">sh_ext</code> as a source, which automatically creates statistics for <code class="codeph">sales2</code> (see <span class="q">&#34;<a href="tgsql_statscon.htm#GUID-E920301F-FFC4-4AB7-8DEB-11BA56088E0B" title="Starting in Oracle Database 12c, the database can gather table statistics automatically during the following types of bulk loads: INSERT INTO ... SELECT into an empty table using a direct path insert, and CREATE TABLE AS SELECT .">Online Statistics Gathering for Bulk Loads</a>&#34;</span>). You also create indexes as follows:</p>
+<pre dir="ltr">SQL&gt; CREATE TABLE sales2 AS SELECT * FROM sh_ext;
+SQL&gt; CREATE INDEX sh_12c_idx1 ON sales2(prod_id);
+SQL&gt; CREATE INDEX sh_12c_idx2 ON sales2(cust_id,time_id);
+</pre>
+<p>You query the data dictionary to determine whether histograms exist for the <code class="codeph">sales2</code> columns. Because <code class="codeph">sales2</code> has not yet been queried, the database has not yet created histograms:</p>
+<pre dir="ltr">SQL&gt; SELECT COLUMN_NAME, NOTES, HISTOGRAM 
+  2  FROM   USER_TAB_COL_STATISTICS 
+  3  WHERE  TABLE_NAME = &#39;SALES2&#39;;
+
+COLUMN_NAME   NOTES          HISTOGRAM
+------------- -------------- ---------
+AMOUNT_SOLD   STATS_ON_LOAD  NONE
+QUANTITY_SOLD STATS_ON_LOAD  NONE
+PROMO_ID      STATS_ON_LOAD  NONE
+CHANNEL_ID    STATS_ON_LOAD  NONE
+TIME_ID       STATS_ON_LOAD  NONE
+CUST_ID       STATS_ON_LOAD  NONE
+PROD_ID       STATS_ON_LOAD  NONE
+</pre>
+<p>You query <code class="codeph">sales2</code> for the number of rows for product <code class="codeph">42</code>, and then gather table statistics using the <code class="codeph">GATHER AUTO</code> option:</p>
+<pre dir="ltr">SQL&gt; SELECT COUNT(*) FROM sales2 WHERE prod_id = 42;
+
+  COUNT(*)
+----------
+     12116
+
+SQL&gt; EXEC DBMS_STATS.GATHER_TABLE_STATS(USER,&#39;SALES2&#39;,OPTIONS=&gt;&#39;GATHER AUTO&#39;);
+</pre>
+<p>A query of the data dictionary now shows that the database created a histogram on the <code class="codeph">prod_id</code> column based on the information gather during the preceding query:</p>
+<pre dir="ltr">SQL&gt; SELECT COLUMN_NAME, NOTES, HISTOGRAM 
+  2  FROM   USER_TAB_COL_STATISTICS 
+  3  WHERE  TABLE_NAME = &#39;SALES2&#39;;
+
+COLUMN_NAME   NOTES          HISTOGRAM
+------------- -------------- ---------
+AMOUNT_SOLD   STATS_ON_LOAD  NONE
+QUANTITY_SOLD STATS_ON_LOAD  NONE
+PROMO_ID      STATS_ON_LOAD  NONE
+CHANNEL_ID    STATS_ON_LOAD  NONE
+TIME_ID       STATS_ON_LOAD  NONE
+CUST_ID       STATS_ON_LOAD  NONE
+<span class="bold">PROD_ID       HISTOGRAM_ONLY FREQUENCY</span>
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<div class="sect2"><a id="GUID-FFA0C0AF-3761-4829-995E-9AFA524F96CE"></a>
+<h2 id="TGSQL-GUID-FFA0C0AF-3761-4829-995E-9AFA524F96CE" class="sect2">How Oracle Database Chooses the Histogram Type</h2>
+<div>
+<p>Oracle Database uses several criteria to determine which histogram to create: frequency, top frequency, height-balanced, or hybrid.</p>
+<p>The histogram formula uses the following variables:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>NDV</p>
+<p>This represents the number of distinct values in a column. For example, if a column only contains the values <code class="codeph">100</code>, <code class="codeph">200</code>, and <code class="codeph">300</code>, then the NDV for this column is 3.</p>
+</li>
+<li>
+<p><span class="italic">n</span></p>
+<p>This variable represents the number of histogram buckets. The default is 254.</p>
+</li>
+<li>
+<p><span class="italic">p</span></p>
+<p>This variable represents an internal percentage threshold that is equal to (1&ndash;(1/<span class="italic">n</span>)) * 100. For example, if <span class="italic">n</span> = 254, then <span class="italic">p</span> is 99.6.</p>
+</li>
+</ul>
+<p>An additional criterion is whether the <code class="codeph">estimate_percent</code> parameter in the <code class="codeph">DBMS_STATS</code> statistics gathering procedure is set to <code class="codeph">AUTO_SAMPLE_SIZE</code> (default).</p>
+<p>The following diagram shows the decision tree for histogram creation.</p>
+<div class="figure" id="GUID-FFA0C0AF-3761-4829-995E-9AFA524F96CE__GUID-F0C8F6A0-FD2C-4CEC-A8CF-025C9AFFDBDA">
+<p class="titleinfigure">Figure 11-1 Decision Tree for Histogram Creation</p>
+<img width="663" height="275" src="img/GUID-39BD8CCC-EFB1-43BD-8169-00E3933FAE86-default.png" alt="Description of Figure 11-1 follows" title="Description of Figure 11-1 follows"/><br/>
+<a href="img_text/GUID-39BD8CCC-EFB1-43BD-8169-00E3933FAE86-print.htm">Description of &#34;Figure 11-1 Decision Tree for Histogram Creation&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TGSQL380"></a>
+<div class="props_rev_3"><a id="GUID-F02DAAC5-31F9-477B-9C25-AE33E21DB350"></a>
+<h2 id="TGSQL-GUID-F02DAAC5-31F9-477B-9C25-AE33E21DB350" class="sect2">Cardinality Algorithms When Using Histograms</h2>
+<div>
+<p><a id="d71804e723" class="indexterm-anchor"></a><a id="d71804e727" class="indexterm-anchor"></a>For histograms, the algorithm for cardinality depends on factors such as the endpoint numbers and values, and whether column values are popular or nonpopular.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_histo.htm#GUID-EED37588-DEB3-4426-92D1-76A1B73888B4">Endpoint Numbers and Values</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-894C65FC-17A7-4893-8F09-A04B54E41EDE">Popular and Nonpopular Values</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-75F48CB8-BD9C-4BAC-BD55-E137945B8112">Bucket Compression</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95026"></a>
+<div class="props_rev_3"><a id="GUID-EED37588-DEB3-4426-92D1-76A1B73888B4"></a>
+<h3 id="TGSQL-GUID-EED37588-DEB3-4426-92D1-76A1B73888B4" class="sect3">Endpoint Numbers and Values</h3>
+<div>
+<p><a id="d71804e825" class="indexterm-anchor"></a><a id="d71804e829" class="indexterm-anchor"></a>An <a href="glossary.htm#GUID-7146EF84-8E64-4B16-B936-BD75D6F98CD6"><span class="xrefglossterm">endpoint number</span></a> is a number that uniquely identifies a bucket. In frequency and hybrid histograms, the endpoint number is the cumulative frequency of all values included in the current and previous buckets. For example, a bucket with endpoint number <code class="codeph">100</code> means the total frequency of values in the current and all previous buckets is 100. In height-balanced histograms, the optimizer numbers buckets sequentially, starting at <code class="codeph">0</code> or <code class="codeph">1</code>. In all cases, the endpoint number is the bucket number.</p>
+<p>An <span class="bold"><a href="glossary.htm#GUID-ED2009D8-C205-4CBA-85A7-BAC6595F65BF"><span class="xrefglossterm">endpoint value</span></a></span> is the highest value in the range of values in a bucket. For example, if a bucket contains only the values <code class="codeph">52794</code> and <code class="codeph">52795</code>, then the endpoint value is <code class="codeph">52795</code>.</p>
+</div>
+</div>
+<a id="TGSQL95027"></a>
+<div class="props_rev_3"><a id="GUID-894C65FC-17A7-4893-8F09-A04B54E41EDE"></a>
+<h3 id="TGSQL-GUID-894C65FC-17A7-4893-8F09-A04B54E41EDE" class="sect3">Popular and Nonpopular Values</h3>
+<div>
+<p>The popularity of a value in a histogram affects the cardinality estimate algorithm as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Popular values</p>
+<p><a id="d71804e946" class="indexterm-anchor"></a><a id="d71804e950" class="indexterm-anchor"></a><a id="d71804e954" class="indexterm-anchor"></a><a id="d71804e956" class="indexterm-anchor"></a>A <a href="glossary.htm#GUID-8D40A1EF-8A7C-4BB6-A3C9-5E170F5C7B94"><span class="xrefglossterm">popular value</span></a> occurs as an endpoint value of multiple buckets. The optimizer determines whether a value is popular by first checking whether it is the endpoint value for a bucket. If so, then for frequency histograms, the optimizer subtracts the endpoint number of the previous bucket from the endpoint number of the current bucket. Hybrid histograms already store this information for each endpoint individually. If this value is greater than 1, then the value is popular.</p>
+<p>The optimizer calculates its cardinality estimate for popular values using the following formula:</p>
+<pre dir="ltr">cardinality of popular value = 
+  (num of rows in table) * 
+  (num of endpoints spanned by this value / total num of endpoints)
+</pre></li>
+<li>
+<p>Nonpopular values</p>
+<p>Any value that is not popular is a <a href="glossary.htm#GUID-DB4CA979-5A26-44B9-A0C4-70CC5C0DE8D9"><span class="xrefglossterm">nonpopular value</span></a>. The optimizer calculates the cardinality estimates for nonpopular values using the following formula:</p>
+<pre dir="ltr">cardinality of nonpopular value = 
+  (num of rows in table) * density
+</pre>
+<p>The optimizer calculates <a id="d71804e980" class="indexterm-anchor"></a><a id="d71804e984" class="indexterm-anchor"></a><a href="glossary.htm#GUID-34816C85-C13E-486E-B555-A85A30629089"><span class="xrefglossterm">density</span></a> using an internal algorithm based on factors such as the number of buckets and the NDV. Density is expressed as a decimal number between <code class="codeph">0</code> and <code class="codeph">1</code>. Values close to <code class="codeph">1</code> indicate that the optimizer expects many rows to be returned by a query referencing this column in its predicate list. Values close to <code class="codeph">0</code> indicate that the optimizer expects few rows to be returned.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-894C65FC-17A7-4893-8F09-A04B54E41EDE__GUID-C8F50DF6-8AAE-45B1-B0B5-EE365F833B5C">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN23275" target="_blank" href="../REFRN/GUID-9B4567C1-24C9-4C45-A443-80D1D0327831.htm#REFRN23275"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">DBA_TAB_COL_STATISTICS.DENSITY</code> column</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95028"></a>
+<div class="props_rev_3"><a id="GUID-75F48CB8-BD9C-4BAC-BD55-E137945B8112"></a>
+<h3 id="TGSQL-GUID-75F48CB8-BD9C-4BAC-BD55-E137945B8112" class="sect3">Bucket Compression</h3>
+<div>
+<p>In some cases, to reduce the total number of buckets, the optimizer compresses multiple buckets into a single bucket. For example, the following frequency histogram indicates that the first bucket number is <code class="codeph">1</code> and the last bucket number is <code class="codeph">23</code>:</p>
+<pre dir="ltr">ENDPOINT_NUMBER ENDPOINT_VALUE
+--------------- --------------
+              1          52792
+              6          52793
+              8          52794 
+              9          52795
+             10          52796
+             12          52797
+             14          52798
+             23          52799
+</pre>
+<p>Several buckets are &#34;missing.&#34; Originally, buckets <code class="codeph">2</code> through <code class="codeph">6</code> each contained a single instance of value <code class="codeph">52793</code>. The optimizer compressed all of these buckets into the bucket with the highest endpoint number (bucket <code class="codeph">6</code>), which now contains 5 instances of value <code class="codeph">52793</code>. This value is popular because the difference between the endpoint number of the current bucket (<code class="codeph">6</code>) and the previous bucket (<code class="codeph">1</code>) is 5. Thus, before compression the value <code class="codeph">52793</code> was the endpoint for 5 buckets.</p>
+<p>The following annotations show which buckets are compressed, and which values are popular:</p>
+<pre dir="ltr">ENDPOINT_NUMBER ENDPOINT_VALUE
+--------------- --------------
+              1          52792 -&gt; nonpopular
+              6          52793 -&gt; buckets 2-6 compressed into 6; popular
+              8          52794 -&gt; buckets 7-8 compressed into 8; popular
+              9          52795 -&gt; nonpopular
+             10          52796 -&gt; nonpopular
+             12          52797 -&gt; buckets 11-12 compressed into 12; popular
+             14          52798 -&gt; buckets 13-14 compressed into 14; popular
+             23          52799 -&gt; buckets 15-23 compressed into 23; popular
+</pre></div>
+</div>
+</div>
+<a id="TGSQL368"></a>
+<div class="props_rev_3"><a id="GUID-13686AA8-A6DA-43A9-A3C6-CB5A623F3E33"></a>
+<h2 id="TGSQL-GUID-13686AA8-A6DA-43A9-A3C6-CB5A623F3E33" class="sect2">Frequency Histograms</h2>
+<div>
+<p>In a <span class="bold">frequency histogram</span>, each distinct column value corresponds to a single bucket of the histogram. Because each value has its own dedicated bucket, some buckets may have many values, whereas others have few.</p>
+<p>An analogy to a frequency histogram is sorting coins so that each individual coin initially gets its own bucket. For example, the first penny is in bucket 1, the second penny is in bucket 2, the first nickel is in bucket 3, and so on. You then consolidate all the pennies into a single penny bucket, all the nickels into a single nickel bucket, and so on with the remainder of the coins.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_histo.htm#GUID-2786B655-A6EA-4288-8544-BDA3025AAB2E" title="Frequency histograms depend on the number of requested histogram buckets.">Criteria For Frequency Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-C67F68B6-65AF-4ADC-9445-9420E60C28AC" title="This scenario shows how to generate a frequency histogram using the sample schemas.">Generating a Frequency Histogram</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95029"></a>
+<div class="props_rev_3"><a id="GUID-2786B655-A6EA-4288-8544-BDA3025AAB2E"></a>
+<h3 id="TGSQL-GUID-2786B655-A6EA-4288-8544-BDA3025AAB2E" class="sect3">Criteria For Frequency Histograms</h3>
+<div>
+<p>Frequency histograms depend on the number of requested histogram buckets.</p>
+<p>As shown in the logic diagram in <span class="q">&#34;<a href="tgsql_histo.htm#GUID-FFA0C0AF-3761-4829-995E-9AFA524F96CE" title="Oracle Database uses several criteria to determine which histogram to create: frequency, top frequency, height-balanced, or hybrid.">How Oracle Database Chooses the Histogram Type</a>&#34;</span>, the database creates a frequency histogram when the following criteria are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>NDV is less than or equal to <span class="italic">n</span>, where <span class="italic">n</span> is the number of histogram buckets (default <code class="codeph">254</code>).</p>
+<p>For example, the <code class="codeph">sh.countries.country_subregion_id</code> column has 8 distinct values, ranging sequentially from <code class="codeph">52792</code> to <code class="codeph">52799</code>. If <span class="italic">n</span> is the default of <code class="codeph">254</code>, then the optimizer creates a frequency histogram because <code class="codeph">8 &lt;= 254</code>.</p>
+</li>
+<li>
+<p>The <code class="codeph">estimate_percent</code> parameter in the <code class="codeph">DBMS_STATS</code> statistics gathering procedure is set to either a user-specified value or to <code class="codeph">AUTO_SAMPLE_SIZE</code>.</p>
+</li>
+</ul>
+<p>Starting in Oracle Database 12<span class="italic">c</span>, if the sampling size is the default of <code class="codeph">AUTO_SAMPLE_SIZE</code>, then the database creates frequency histograms from a full table scan. For all other sampling percentage specifications, the database derives frequency histograms from a sample. In releases earlier than Oracle Database 12<span class="italic">c</span>, the database gathered histograms based on a small sample, which meant that low-frequency values often did not appear in the sample. Using density in this case sometimes led the optimizer to overestimate selectivity.</p>
+<div class="infoboxnotealso" id="GUID-2786B655-A6EA-4288-8544-BDA3025AAB2E__GUID-05A102B1-8BC4-4198-8F9E-4E582B2DCFBF">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68490" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68490"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about <code class="codeph">AUTO_SAMPLE_SIZE</code></p>
+</div>
+</div>
+</div>
+<a id="TGSQL95031"></a><a id="TGSQL95032"></a><a id="TGSQL95030"></a>
+<div class="props_rev_3"><a id="GUID-C67F68B6-65AF-4ADC-9445-9420E60C28AC"></a>
+<h3 id="TGSQL-GUID-C67F68B6-65AF-4ADC-9445-9420E60C28AC" class="sect3">Generating a Frequency Histogram</h3>
+<div>
+<p>This scenario shows how to generate a frequency histogram using the sample schemas.</p>
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This scenario assumes that you want to generate a frequency histogram on the <code class="codeph">sh.countries.country_subregion_id</code> column. This table has 23 rows.</p>
+<p>The following query shows that the <code class="codeph">country_subregion_id</code> column contains 8 distinct values (sample output included) that are unevenly distributed:</p>
+<pre dir="ltr">SELECT country_subregion_id, count(*)
+FROM   sh.countries
+GROUP BY country_subregion_id
+ORDER BY 1;
+ 
+COUNTRY_SUBREGION_ID   COUNT(*)
+-------------------- ----------
+               52792          1
+               52793          5
+               52794          2
+               52795          1
+               52796          1
+               52797          2
+               52798          2
+               52799          9
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To generate a frequency histogram:</p>
+<ol>
+<li>
+<p>Gather statistics for <code class="codeph">sh.countries</code> and the <code class="codeph">country_subregion_id</code> column, letting the number of buckets default to 254.</p>
+<p>For example, execute the following PL/SQL anonymous block:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.GATHER_TABLE_STATS ( 
+    ownname    =&gt; &#39;SH&#39;
+,   tabname    =&gt; &#39;COUNTRIES&#39;
+,   method_opt =&gt; &#39;FOR COLUMNS COUNTRY_SUBREGION_ID&#39;
+);
+END;
+</pre></li>
+<li>
+<p>Query the histogram information for the <code class="codeph">country_subregion_id</code> column.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT TABLE_NAME, COLUMN_NAME, NUM_DISTINCT, HISTOGRAM
+FROM   USER_TAB_COL_STATISTICS
+WHERE  TABLE_NAME=&#39;COUNTRIES&#39;
+AND    COLUMN_NAME=&#39;COUNTRY_SUBREGION_ID&#39;;
+ 
+TABLE_NAME COLUMN_NAME          NUM_DISTINCT HISTOGRAM
+---------- -------------------- ------------ ---------------
+COUNTRIES  COUNTRY_SUBREGION_ID            8 FREQUENCY
+</pre>
+<p>The optimizer chooses a frequency histogram because <span class="italic">n</span> or fewer distinct values exist in the column, where <span class="italic">n</span> defaults to <code class="codeph">254</code>.</p>
+</li>
+<li>
+<p>Query the endpoint number and endpoint value for the <code class="codeph">country_subregion_id</code> column.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT ENDPOINT_NUMBER, ENDPOINT_VALUE
+FROM   USER_HISTOGRAMS
+WHERE  TABLE_NAME=&#39;COUNTRIES&#39;
+AND    COLUMN_NAME=&#39;COUNTRY_SUBREGION_ID&#39;;
+ 
+ENDPOINT_NUMBER ENDPOINT_VALUE
+--------------- --------------
+              1          52792
+              6          52793
+              8          52794
+              9          52795
+             10          52796
+             12          52797
+             14          52798
+             23          52799
+</pre>
+<p><a href="tgsql_histo.htm#GUID-C67F68B6-65AF-4ADC-9445-9420E60C28AC__BABDFIHE">Figure 11-2</a> is a graphical illustration of the 8 buckets in the histogram. Each value is represented as a coin that is dropped into a bucket.</p>
+<div class="figure" id="GUID-C67F68B6-65AF-4ADC-9445-9420E60C28AC__BABDFIHE">
+<p class="titleinfigure">Figure 11-2 Frequency Histogram</p>
+<img width="485" height="771" src="img/GUID-385205A6-6198-4143-9D10-106AC730C9AE-default.png" alt="Description of Figure 11-2 follows" title="Description of Figure 11-2 follows"/><br/>
+<a href="img_text/GUID-385205A6-6198-4143-9D10-106AC730C9AE-print.htm">Description of &#34;Figure 11-2 Frequency Histogram&#34;</a></div>
+<!-- class="figure" -->
+<p>As shown in <a href="tgsql_histo.htm#GUID-C67F68B6-65AF-4ADC-9445-9420E60C28AC__BABDFIHE">Figure 11-2</a>, each distinct value has its own bucket. Because this is a frequency histogram, the endpoint number is the cumulative frequency of endpoints. For <code class="codeph">52793</code>, the endpoint number <code class="codeph">6</code> indicates that the value appears 5 times (6 - 1). For <code class="codeph">52794</code>, the endpoint number <code class="codeph">8</code> indicates that the value appears 2 times (8 - 6).</p>
+<p>Every bucket whose endpoint is at least 2 greater than the previous endpoint contains a popular value. Thus, buckets <code class="codeph">6</code>, <code class="codeph">8</code>, <code class="codeph">12</code>, <code class="codeph">14</code>, and <code class="codeph">23</code> contain popular values. The optimizer calculates their cardinality based on endpoint numbers. For example, the optimizer calculates the cardinality (<code class="codeph">C</code>) of value <code class="codeph">52799</code> using the following formula, where the number of rows in the table is 23:</p>
+<pre dir="ltr">C = 23 * ( 9 / 23 )
+</pre>
+<p>Buckets <code class="codeph">1</code>, <code class="codeph">9</code>, and <code class="codeph">10</code> contain nonpopular values. The optimizer estimates their cardinality based on density.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-C67F68B6-65AF-4ADC-9445-9420E60C28AC__GUID-41AC48E4-D354-49E4-B00A-71A598F625B0">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS68582" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68582"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> procedure</p>
+</li>
+<li>
+<p><a class="olink REFRN26275" target="_blank" href="../REFRN/GUID-4FF4364B-29D0-4365-AA0F-ABD17CE298EC.htm#REFRN26275"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">USER_TAB_COL_STATISTICS</code> view</p>
+</li>
+<li>
+<p><a class="olink REFRN26079" target="_blank" href="../REFRN/GUID-582FAF05-FA3B-45D6-BDD3-B35C5E209368.htm#REFRN26079"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">USER_HISTOGRAMS</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<div class="props_rev_3"><a id="GUID-DA1B97DA-DFE5-47CA-B8A0-57AB248B10EF"></a>
+<h2 id="TGSQL-GUID-DA1B97DA-DFE5-47CA-B8A0-57AB248B10EF" class="sect2">Top Frequency Histograms</h2>
+<div>
+<p>A <span class="bold">top frequency histogram</span> is a variation on a frequency histogram that ignores nonpopular values that are statistically insignificant. For example, if a pile of 1000 coins contains only a single penny, then you can ignore the penny when sorting the coins into buckets. A top frequency histogram can produce a better histogram for highly popular values.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_histo.htm#GUID-A97DF0B5-ADDE-45D8-B6B9-1128F61F24E3" title="If a small number of values occupies most of the rows, then creating a frequency histogram on this small set of values is useful even when the NDV is greater than the number of requested histogram buckets. To create a better quality histogram for popular values, the optimizer ignores the nonpopular values and creates a top frequency histogram.">Criteria For Top Frequency Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-E0193C9B-84F0-4293-B1FE-32AC19FE484F">Generating a Top Frequency Histogram</a></p>
+</li>
+</ul>
+</div>
+<div class="props_rev_3"><a id="GUID-A97DF0B5-ADDE-45D8-B6B9-1128F61F24E3"></a>
+<h3 id="TGSQL-GUID-A97DF0B5-ADDE-45D8-B6B9-1128F61F24E3" class="sect3">Criteria For Top Frequency Histograms</h3>
+<div>
+<p>If a small number of values occupies most of the rows, then creating a frequency histogram on this small set of values is useful even when the NDV is greater than the number of requested histogram buckets. To create a better quality histogram for popular values, the optimizer ignores the nonpopular values and creates a top frequency histogram.</p>
+<p>As shown in the logic diagram in <span class="q">&#34;<a href="tgsql_histo.htm#GUID-FFA0C0AF-3761-4829-995E-9AFA524F96CE" title="Oracle Database uses several criteria to determine which histogram to create: frequency, top frequency, height-balanced, or hybrid.">How Oracle Database Chooses the Histogram Type</a>&#34;</span>, the database creates a top frequency histogram when the following criteria are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>NDV is greater than <span class="italic">n</span>, where <span class="italic">n</span> is the number of histogram buckets (default <code class="codeph">254</code>).</p>
+</li>
+<li>
+<p>The percentage of rows occupied by the top <span class="italic">n</span> frequent values is equal to or greater than threshold <span class="italic">p</span>, where <span class="italic">p</span> is <code class="codeph">(1-(1/</code><span class="italic"><code class="codeph">n</code></span><code class="codeph">))*100</code>.</p>
+</li>
+<li>
+<p>The <code class="codeph">estimate_percent</code> parameter in the <code class="codeph">DBMS_STATS</code> statistics gathering procedure is set to <code class="codeph">AUTO_SAMPLE_SIZE</code>.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-A97DF0B5-ADDE-45D8-B6B9-1128F61F24E3__GUID-05A102B1-8BC4-4198-8F9E-4E582B2DCFBF">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68490" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68490"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about <code class="codeph">AUTO_SAMPLE_SIZE</code></p>
+</div>
+</div>
+</div>
+<a id="TGSQL95034"></a><a id="TGSQL95035"></a><a id="TGSQL95033"></a>
+<div class="props_rev_3"><a id="GUID-E0193C9B-84F0-4293-B1FE-32AC19FE484F"></a>
+<h3 id="TGSQL-GUID-E0193C9B-84F0-4293-B1FE-32AC19FE484F" class="sect3">Generating a Top Frequency Histogram</h3>
+<div>
+<div class="section">
+<p>This scenario shows how to generate a top frequency histogram using the sample schemas.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This scenario assumes that you want to generate a top frequency histogram on the <code class="codeph">sh.countries.country_subregion_id</code> column. This table has 23 rows.</p>
+<p>The following query shows that the <code class="codeph">country_subregion_id</code> column contains 8 distinct values (sample output included) that are unevenly distributed:</p>
+<pre dir="ltr">SELECT country_subregion_id, count(*)
+FROM   sh.countries
+GROUP BY country_subregion_id
+ORDER BY 1;
+ 
+COUNTRY_SUBREGION_ID   COUNT(*)
+-------------------- ----------
+               52792          1
+               52793          5
+               52794          2
+               52795          1
+               52796          1
+               52797          2
+               52798          2
+               52799          9
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To generate a top frequency histogram:</p>
+<ol>
+<li>
+<p>Gather statistics for <code class="codeph">sh.countries</code> and the <code class="codeph">country_subregion_id</code> column, specifying fewer buckets than distinct values.</p>
+<p>For example, enter the following command to specify 7 buckets:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.GATHER_TABLE_STATS (
+    ownname    =&gt; &#39;SH&#39;
+,   tabname    =&gt; &#39;COUNTRIES&#39;
+,   method_opt =&gt; &#39;FOR COLUMNS COUNTRY_SUBREGION_ID SIZE 7&#39;
+);
+END;
+</pre></li>
+<li>
+<p>Query the histogram information for the <code class="codeph">country_subregion_id</code> column.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT TABLE_NAME, COLUMN_NAME, NUM_DISTINCT, HISTOGRAM
+FROM   USER_TAB_COL_STATISTICS
+WHERE  TABLE_NAME=&#39;COUNTRIES&#39;
+AND    COLUMN_NAME=&#39;COUNTRY_SUBREGION_ID&#39;;
+ 
+TABLE_NAME COLUMN_NAME          NUM_DISTINCT HISTOGRAM
+---------- -------------------- ------------ ---------------
+COUNTRIES  COUNTRY_SUBREGION_ID            7 TOP-FREQUENCY
+</pre>
+<p>The <code class="codeph">sh.countries.country_subregion_id</code> column contains 8 distinct values, but the histogram only contains 7 buckets, making <span class="italic">n</span><code class="codeph">=7</code>. In this case, the database can only create a top frequency or hybrid histogram. In the <code class="codeph">country_subregion_id</code> column, the top 7 most frequent values occupy 95.6% of the rows, which exceeds the threshold of 85.7%, generating a top frequency histogram (see <span class="q">&#34;<a href="tgsql_histo.htm#GUID-2786B655-A6EA-4288-8544-BDA3025AAB2E" title="Frequency histograms depend on the number of requested histogram buckets.">Criteria For Frequency Histograms</a>&#34;</span>).</p>
+</li>
+<li>
+<p>Query the endpoint number and endpoint value for the column.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT ENDPOINT_NUMBER, ENDPOINT_VALUE
+FROM   USER_HISTOGRAMS
+WHERE  TABLE_NAME=&#39;COUNTRIES&#39;
+AND    COLUMN_NAME=&#39;COUNTRY_SUBREGION_ID&#39;;
+ 
+ENDPOINT_NUMBER ENDPOINT_VALUE
+--------------- --------------
+              1          52792
+              6          52793
+              8          52794
+              9          52796
+             11          52797
+             13          52798
+             22          52799
+</pre>
+<p><a href="tgsql_histo.htm#GUID-E0193C9B-84F0-4293-B1FE-32AC19FE484F__BABGFHDJ">Figure 11-3</a> is a graphical illustration of the 7 buckets in the top frequency histogram. The values are represented in the diagram as coins.</p>
+<div class="figure" id="GUID-E0193C9B-84F0-4293-B1FE-32AC19FE484F__BABGFHDJ">
+<p class="titleinfigure">Figure 11-3 Top Frequency Histogram</p>
+<img width="485" height="771" src="img/GUID-DB85F6DA-EC41-4C6C-93F4-7032047AD19E-default.png" alt="Description of Figure 11-3 follows" title="Description of Figure 11-3 follows"/><br/>
+<a href="img_text/GUID-DB85F6DA-EC41-4C6C-93F4-7032047AD19E-print.htm">Description of &#34;Figure 11-3 Top Frequency Histogram&#34;</a></div>
+<!-- class="figure" -->
+<p>As shown in <a href="tgsql_histo.htm#GUID-E0193C9B-84F0-4293-B1FE-32AC19FE484F__BABGFHDJ">Figure 11-3</a>, each distinct value has its own bucket except for <code class="codeph">52795</code>, which is excluded from the histogram because it is nonpopular and statistically insignificant. As in a standard frequency histogram, the endpoint number represents the cumulative frequency of values.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-E0193C9B-84F0-4293-B1FE-32AC19FE484F__GUID-C02CEA3D-FB12-427F-AE68-BA32E94F677B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS68582" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68582"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> procedure</p>
+</li>
+<li>
+<p><a class="olink REFRN26275" target="_blank" href="../REFRN/GUID-4FF4364B-29D0-4365-AA0F-ABD17CE298EC.htm#REFRN26275"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">USER_TAB_COL_STATISTICS</code> view</p>
+</li>
+<li>
+<p><a class="olink REFRN26079" target="_blank" href="../REFRN/GUID-582FAF05-FA3B-45D6-BDD3-B35C5E209368.htm#REFRN26079"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">USER_HISTOGRAMS</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL378"></a>
+<div class="props_rev_3"><a id="GUID-7A54B5FC-DB26-46C7-AA92-F986279A4CFD"></a>
+<h2 id="TGSQL-GUID-7A54B5FC-DB26-46C7-AA92-F986279A4CFD" class="sect2">Height-Balanced Histograms (Legacy)</h2>
+<div>
+<p>In a legacy height-balanced histogram, column values are divided into buckets so that each bucket contains approximately the same number of rows.</p>
+<p>For example, if you have 99 coins to distribute among 4 buckets, each bucket contains about 25 coins. The histogram shows where the endpoints fall in the range of values.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_histo.htm#GUID-7F75F5E9-7761-4564-A6CD-DC504B0FE56D" title="Before Oracle Database 12c, the database created a height-balanced histogram when the NDV was greater than n. This type of histogram was useful for range predicates, and equality predicates on values that appear as endpoints in at least two buckets.">Criteria for Height-Balanced Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-3632AF1E-3721-47DC-B4BC-06420E73E37D" title="This scenario shows how to generate a height-balanced histogram using the sample schemas.">Generating a Height-Balanced Histogram</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL379"></a>
+<div class="props_rev_3"><a id="GUID-7F75F5E9-7761-4564-A6CD-DC504B0FE56D"></a>
+<h3 id="TGSQL-GUID-7F75F5E9-7761-4564-A6CD-DC504B0FE56D" class="sect3">Criteria for Height-Balanced Histograms</h3>
+<div>
+<p>Before Oracle Database 12<span class="italic">c</span>, the database created a height-balanced histogram when the NDV was greater than <span class="italic">n</span>. This type of histogram was useful for range predicates, and equality predicates on values that appear as endpoints in at least two buckets.</p>
+<p>As shown in the logic diagram in <span class="q">&#34;<a href="tgsql_histo.htm#GUID-FFA0C0AF-3761-4829-995E-9AFA524F96CE" title="Oracle Database uses several criteria to determine which histogram to create: frequency, top frequency, height-balanced, or hybrid.">How Oracle Database Chooses the Histogram Type</a>&#34;</span>, the database creates a height-balanced histogram when the following criteria are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>NDV is greater than <span class="italic">n</span>, where <span class="italic">n</span> is the number of histogram buckets (default <code class="codeph">254</code>).</p>
+</li>
+<li>
+<p>The <code class="codeph">estimate_percent</code> parameter in the <code class="codeph">DBMS_STATS</code> statistics gathering procedure is <span class="italic">not</span> set to <code class="codeph">AUTO_SAMPLE_SIZE</code>.</p>
+</li>
+</ul>
+<p>It follows that if Oracle Database 12<span class="italic">c</span> creates new histograms, and if the sampling percentage is <code class="codeph">AUTO_SAMPLE_SIZE</code>, then the histograms are either top frequency or hybrid, but not height-balanced.</p>
+<p>If you upgrade Oracle Database 11<span class="italic">g</span> to Oracle Database 12<span class="italic">c</span>, then any height-based histograms created <span class="italic">before</span> the upgrade remain in use. However, if you refresh statistics on the table on which the histogram was created, then the database replaces existing height-balanced histograms on this table. The type of replacement histogram depends on both the NDV and the following criteria:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the sampling percentage is <code class="codeph">AUTO_SAMPLE_SIZE</code>, then the database creates either hybrid or frequency histograms.</p>
+</li>
+<li>
+<p>If the sampling percentage is not <code class="codeph">AUTO_SAMPLE_SIZE</code>, then the database creates either height-balanced or frequency histograms.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95036"></a><a id="TGSQL95037"></a><a id="TGSQL383"></a>
+<div class="props_rev_3"><a id="GUID-3632AF1E-3721-47DC-B4BC-06420E73E37D"></a>
+<h3 id="TGSQL-GUID-3632AF1E-3721-47DC-B4BC-06420E73E37D" class="sect3">Generating a Height-Balanced Histogram</h3>
+<div>
+<p>This scenario shows how to generate a height-balanced histogram using the sample schemas.</p>
+<div class="section">
+<p class="subhead3">Assumptions</p>
+<p>This scenario assumes that you want to generate a height-balanced histogram on the <code class="codeph">sh.countries.country_subregion_id</code> column. This table has 23 rows.</p>
+<p>The following query shows that the <code class="codeph">country_subregion_id</code> column contains 8 distinct values (sample output included) that are unevenly distributed:</p>
+<pre dir="ltr">SELECT country_subregion_id, count(*)
+FROM   sh.countries
+GROUP BY country_subregion_id
+ORDER BY 1;
+ 
+COUNTRY_SUBREGION_ID   COUNT(*)
+-------------------- ----------
+               52792          1
+               52793          5
+               52794          2
+               52795          1
+               52796          1
+               52797          2
+               52798          2
+               52799          9
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To generate a height-balanced histogram:</p>
+<ol>
+<li>
+<p>Gather statistics for <code class="codeph">sh.countries</code> and the <code class="codeph">country_subregion_id</code> column, specifying fewer buckets than distinct values.</p>
+<div class="infobox-note" id="GUID-3632AF1E-3721-47DC-B4BC-06420E73E37D__GUID-ABB9A0FB-D307-4EF8-8F86-E8C88AF62513">
+<p class="notep1">Note:</p>
+<p>To simulate Oracle Database 11<span class="italic">g</span> behavior, which is necessary to create a height-based histogram, set <code class="codeph">estimate_percent</code> to a nondefault value. If you specify a nondefault percentage, then the database creates frequency or height-balanced histograms.</p>
+</div>
+<p>For example, enter the following command:</p>
+<pre dir="ltr">BEGIN  DBMS_STATS.GATHER_TABLE_STATS ( 
+    ownname          =&gt; &#39;SH&#39;
+,   tabname          =&gt; &#39;COUNTRIES&#39;
+,   method_opt       =&gt; &#39;FOR COLUMNS COUNTRY_SUBREGION_ID SIZE 7&#39;
+,   estimate_percent =&gt; 100 
+);
+END;
+</pre></li>
+<li>
+<p>Query the histogram information for the <code class="codeph">country_subregion_id</code> column.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT TABLE_NAME, COLUMN_NAME, NUM_DISTINCT, HISTOGRAM
+FROM   USER_TAB_COL_STATISTICS
+WHERE  TABLE_NAME=&#39;COUNTRIES&#39;
+AND    COLUMN_NAME=&#39;COUNTRY_SUBREGION_ID&#39;;
+ 
+TABLE_NAME COLUMN_NAME          NUM_DISTINCT HISTOGRAM
+---------- -------------------- ------------ ---------------
+COUNTRIES  COUNTRY_SUBREGION_ID            8 HEIGHT BALANCED
+</pre>
+<p>The optimizer chooses a height-balanced histogram because the number of distinct values (8) is greater than the number of buckets (7), and the <code class="codeph">estimate_percent</code> value is nondefault.</p>
+</li>
+<li>
+<p>Query the number of rows occupied by each distinct value.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT COUNT(country_subregion_id) AS NUM_OF_ROWS, country_subregion_id 
+FROM   countries 
+GROUP BY country_subregion_id 
+ORDER BY 2;
+ 
+NUM_OF_ROWS COUNTRY_SUBREGION_ID
+----------- --------------------
+          1                52792
+          5                52793
+          2                52794
+          1                52795
+          1                52796
+          2                52797
+          2                52798
+          9                52799
+</pre></li>
+<li>
+<p>Query the endpoint number and endpoint value for the <code class="codeph">country_subregion_id</code> column.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT ENDPOINT_NUMBER, ENDPOINT_VALUE
+FROM   USER_HISTOGRAMS
+WHERE  TABLE_NAME=&#39;COUNTRIES&#39;
+AND    COLUMN_NAME=&#39;COUNTRY_SUBREGION_ID&#39;;
+ 
+ENDPOINT_NUMBER ENDPOINT_VALUE
+--------------- --------------
+              0          52792
+              2          52793
+              3          52795
+              4          52798
+              7          52799
+</pre>
+<p><a href="tgsql_histo.htm#GUID-3632AF1E-3721-47DC-B4BC-06420E73E37D__BABDFDAD">Figure 11-4</a> is a graphical illustration of the height-balanced histogram. The values are represented in the diagram as coins.</p>
+<div class="figure" id="GUID-3632AF1E-3721-47DC-B4BC-06420E73E37D__BABDFDAD">
+<p class="titleinfigure">Figure 11-4 Height-Balanced Histogram</p>
+<img width="485" height="549" src="img/GUID-96BEFED9-3A90-4E24-B475-6008AFCDE73F-default.png" alt="Description of Figure 11-4 follows" title="Description of Figure 11-4 follows"/><br/>
+<a href="img_text/GUID-96BEFED9-3A90-4E24-B475-6008AFCDE73F-print.htm">Description of &#34;Figure 11-4 Height-Balanced Histogram&#34;</a></div>
+<!-- class="figure" -->
+<p>The bucket number is identical to the endpoint number. The optimizer records the value of the last row in each bucket as the endpoint value, and then checks to ensure that the minimum value is the endpoint value of the first bucket, and the maximum value is the endpoint value of the last bucket. In this example, the optimizer adds bucket <code class="codeph">0</code> so that the minimum value <code class="codeph">52792</code> is the endpoint of a bucket.</p>
+<p>The optimizer must evenly distribute 23 rows into the 7 specified histogram buckets, so each bucket contains approximately 3 rows. However, the optimizer compresses buckets with the same endpoint. So, instead of bucket <code class="codeph">1</code> containing 2 instances of value <code class="codeph">52793</code>, and bucket <code class="codeph">2</code> containing 3 instances of value <code class="codeph">52793</code>, the optimizer puts all 5 instances of value <code class="codeph">52793</code> into bucket <code class="codeph">2</code>. Similarly, instead of having buckets <code class="codeph">5</code>, <code class="codeph">6</code>, and <code class="codeph">7</code> contain 3 values each, with the endpoint of each bucket as <code class="codeph">52799</code>, the optimizer puts all 9 instances of value <code class="codeph">52799</code> into bucket <code class="codeph">7</code>.</p>
+<p>In this example, buckets <code class="codeph">3</code> and <code class="codeph">4</code> contain nonpopular values because the difference between the current endpoint number and previous endpoint number is 1. The optimizer calculates cardinality for these values based on density. The remaining buckets contain popular values. The optimizer calculates cardinality for these values based on endpoint numbers.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-3632AF1E-3721-47DC-B4BC-06420E73E37D__GUID-605338B1-838E-4BA4-9EC0-8E1C727F8C8B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS68582" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68582"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> procedure</p>
+</li>
+<li>
+<p><a class="olink REFRN26275" target="_blank" href="../REFRN/GUID-4FF4364B-29D0-4365-AA0F-ABD17CE298EC.htm#REFRN26275"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">USER_TAB_COL_STATISTICS</code> view</p>
+</li>
+<li>
+<p><a class="olink REFRN26079" target="_blank" href="../REFRN/GUID-582FAF05-FA3B-45D6-BDD3-B35C5E209368.htm#REFRN26079"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">USER_HISTOGRAMS</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL371"></a>
+<div class="props_rev_3"><a id="GUID-59C57EDF-E763-436A-9CB2-B59A536A10F7"></a>
+<h2 id="TGSQL-GUID-59C57EDF-E763-436A-9CB2-B59A536A10F7" class="sect2">Hybrid Histograms</h2>
+<div>
+<p>A <span class="bold">hybrid histogram</span> combines characteristics of both height-based histograms and frequency histograms. This &#34;best of both worlds&#34; approach enables the optimizer to obtain better selectivity estimates in some situations.</p>
+<p>The height-based histogram sometimes produces inaccurate estimates for values that are <span class="italic">almost</span> popular. For example, a value that occurs as an endpoint value of only one bucket but almost occupies two buckets is not considered popular.</p>
+<p>To solve this problem, a hybrid histogram distributes values so that no value occupies more than one bucket, and then stores the <a href="glossary.htm#GUID-AE89C350-C30B-4A67-9EC3-E31ABD41A011"><span class="xrefglossterm">endpoint repeat count</span></a> value, which is the number of times the endpoint value is repeated, for each endpoint (bucket) in the histogram. By using the repeat count, the optimizer can obtain accurate estimates for almost popular values.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_histo.htm#GUID-D1E9A2D5-00D5-45A8-9B99-9A1077FAE206" title="The analogy of coins distributed among buckets illustrate show endpoint repeat counts work.">How Endpoint Repeat Counts Work</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-BDE60322-28F2-4F4B-824E-D18F3C919FA3" title="The only differentiating criterion for hybrid histograms as compared to top frequency histograms is that the top n frequent values is less than internal threshold p.">Criteria for Hybrid Histograms</a></p>
+</li>
+<li>
+<p><a href="tgsql_histo.htm#GUID-EF84AF34-01FC-40A6-9ABB-C54E4DAECB18" title="This scenario shows how to generate a hybrid histogram using the sample schemas.">Generating a Hybrid Histogram</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL372"></a>
+<div class="props_rev_3"><a id="GUID-D1E9A2D5-00D5-45A8-9B99-9A1077FAE206"></a>
+<h3 id="TGSQL-GUID-D1E9A2D5-00D5-45A8-9B99-9A1077FAE206" class="sect3">How Endpoint Repeat Counts Work</h3>
+<div>
+<p>The analogy of coins distributed among buckets illustrate show endpoint repeat counts work.</p>
+<p>The following figure illustrates a <code class="codeph">coins</code> column that sorts values from low to high.</p>
+<div class="figure" id="GUID-D1E9A2D5-00D5-45A8-9B99-9A1077FAE206__GUID-36C6CE07-CDFF-4FF1-97FB-2F488F46751A">
+<p class="titleinfigure">Figure 11-5 Coins</p>
+<img width="405" height="24" src="img/GUID-DA6EA695-A380-47C7-87A9-BAA0EE496F84-default.png" alt="Description of Figure 11-5 follows" title="Description of Figure 11-5 follows"/><br/>
+<a href="img_text/GUID-DA6EA695-A380-47C7-87A9-BAA0EE496F84-print.htm">Description of &#34;Figure 11-5 Coins&#34;</a></div>
+<!-- class="figure" -->
+<p>You gather statistics for this table, setting the <code class="codeph">method_opt</code> argument of <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> to <code class="codeph">FOR ALL COLUMNS SIZE 3</code>. In this case, the optimizer initially groups the values in the <code class="codeph">coins</code> column into three buckets, as shown in the following figure.</p>
+<div class="figure" id="GUID-D1E9A2D5-00D5-45A8-9B99-9A1077FAE206__GUID-EC8CF3BA-DDC2-4942-B92F-98788353F1FE">
+<p class="titleinfigure">Figure 11-6 Initial Distribution of Values</p>
+<img width="471" height="252" src="img/GUID-C9D37B2D-8021-4100-9639-2F625D7D81BD-default.png" alt="Description of Figure 11-6 follows" title="Description of Figure 11-6 follows"/><br/>
+<a href="img_text/GUID-C9D37B2D-8021-4100-9639-2F625D7D81BD-print.htm">Description of &#34;Figure 11-6 Initial Distribution of Values&#34;</a></div>
+<!-- class="figure" -->
+<p>If a bucket border splits a value so that some occurrences of the value are in one bucket and some in another, then the optimizer shifts the bucket border (and all other following bucket borders) forward to include all occurrences of the value. For example, the optimizer shifts value <code class="codeph">5</code> so that it is now wholly in the first bucket, and the value <code class="codeph">25</code> is now wholly in the second bucket.</p>
+<div class="figure" id="GUID-D1E9A2D5-00D5-45A8-9B99-9A1077FAE206__GUID-60E9E709-5C8F-4FE8-B315-C57B06C41572">
+<p class="titleinfigure">Figure 11-7 Redistribution of Values</p>
+<img width="471" height="278" src="img/GUID-275A7BFD-B6CB-45D5-A3AF-58686749A2B3-default.png" alt="Description of Figure 11-7 follows" title="Description of Figure 11-7 follows"/><br/>
+<a href="img_text/GUID-275A7BFD-B6CB-45D5-A3AF-58686749A2B3-print.htm">Description of &#34;Figure 11-7 Redistribution of Values&#34;</a></div>
+<!-- class="figure" -->
+<p>The endpoint repeat count measures the number of times that the corresponding bucket endpoint, which is the value at the right bucket border, repeats itself. For example, in the first bucket, the value <code class="codeph">5</code> is repeated 3 times, so the endpoint repeat count is <code class="codeph">3</code>.</p>
+<div class="figure" id="GUID-D1E9A2D5-00D5-45A8-9B99-9A1077FAE206__GUID-9D4E5C95-474C-49C7-97DB-D96EDC76FAE2">
+<p class="titleinfigure">Figure 11-8 Endpoint Repeat Count</p>
+<img width="471" height="278" src="img/GUID-A7EA028E-C734-48D2-9E70-C86BA7F7A35B-default.png" alt="Description of Figure 11-8 follows" title="Description of Figure 11-8 follows"/><br/>
+<a href="img_text/GUID-A7EA028E-C734-48D2-9E70-C86BA7F7A35B-print.htm">Description of &#34;Figure 11-8 Endpoint Repeat Count&#34;</a></div>
+<!-- class="figure" -->
+<p>Height-balanced histograms do not store as much information as hybrid histograms. By using repeat counts, the optimizer can determine exactly how many occurrences of an endpoint value exist. For example, the optimizer knows that the value <code class="codeph">5</code> appears 3 times, the value <code class="codeph">25</code> appears 4 times, and the value <code class="codeph">100</code> appears 2 times. This frequency information helps the optimizer to generate better cardinality estimates.</p>
+</div>
+</div>
+<a id="TGSQL95038"></a>
+<div class="props_rev_3"><a id="GUID-BDE60322-28F2-4F4B-824E-D18F3C919FA3"></a>
+<h3 id="TGSQL-GUID-BDE60322-28F2-4F4B-824E-D18F3C919FA3" class="sect3">Criteria for Hybrid Histograms</h3>
+<div>
+<p>The only differentiating criterion for hybrid histograms as compared to top frequency histograms is that the top <span class="italic">n</span> frequent values is less than internal threshold <span class="italic">p</span>.</p>
+<p>As shown in the logic diagram in <span class="q">&#34;<a href="tgsql_histo.htm#GUID-FFA0C0AF-3761-4829-995E-9AFA524F96CE" title="Oracle Database uses several criteria to determine which histogram to create: frequency, top frequency, height-balanced, or hybrid.">How Oracle Database Chooses the Histogram Type</a>&#34;</span>, the database creates a hybrid histogram when the following criteria are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>NDV is greater than <span class="italic">n</span>, where <span class="italic">n</span> is the number of histogram buckets (default is <code class="codeph">254</code>).</p>
+</li>
+<li>
+<p>The criteria for top frequency histograms do not apply.</p>
+<p>This is another way to stating that the percentage of rows occupied by the top <span class="italic">n</span> frequent values is less than threshold <span class="italic">p</span>, where <span class="italic">p</span> is <code class="codeph">(1-(1/</code><span class="italic"><code class="codeph">n</code></span><code class="codeph">))*100</code>. See <span class="q">&#34;<a href="tgsql_histo.htm#GUID-A97DF0B5-ADDE-45D8-B6B9-1128F61F24E3" title="If a small number of values occupies most of the rows, then creating a frequency histogram on this small set of values is useful even when the NDV is greater than the number of requested histogram buckets. To create a better quality histogram for popular values, the optimizer ignores the nonpopular values and creates a top frequency histogram.">Criteria For Top Frequency Histograms</a>.&#34;</span></p>
+</li>
+<li>
+<p>The <code class="codeph">estimate_percent</code> parameter in the <code class="codeph">DBMS_STATS</code> statistics gathering procedure is set to <code class="codeph">AUTO_SAMPLE_SIZE</code>.</p>
+<p>If users specify their own percentage, then the database creates frequency or height-balanced histograms.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-BDE60322-28F2-4F4B-824E-D18F3C919FA3__NOTE-143-9825E7A0">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_histo.htm#GUID-7A54B5FC-DB26-46C7-AA92-F986279A4CFD" title="In a legacy height-balanced histogram, column values are divided into buckets so that each bucket contains approximately the same number of rows.">Height-Balanced Histograms (Legacy)</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="TGSQL95040"></a><a id="TGSQL95039"></a>
+<div class="props_rev_3"><a id="GUID-EF84AF34-01FC-40A6-9ABB-C54E4DAECB18"></a>
+<h3 id="TGSQL-GUID-EF84AF34-01FC-40A6-9ABB-C54E4DAECB18" class="sect3">Generating a Hybrid Histogram</h3>
+<div>
+<p>This scenario shows how to generate a hybrid histogram using the sample schemas.</p>
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This scenario assumes that you want to generate a hybrid histogram on the <code class="codeph">sh.products.prod_subcategory_id</code> column. This table has 72 rows. The <code class="codeph">prod_subcategory_id</code> column contains 22 distinct values.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To generate a hybrid histogram:</p>
+<ol>
+<li>
+<p>Gather statistics for <code class="codeph">sh.products</code> and the <code class="codeph">prod_subcategory_id</code> column, specifying 10 buckets.</p>
+<p>For example, enter the following command:</p>
+<pre dir="ltr">BEGIN  DBMS_STATS.GATHER_TABLE_STATS ( 
+    ownname     =&gt; &#39;SH&#39;
+,   tabname     =&gt; &#39;PRODUCTS&#39;
+,   method_opt  =&gt; &#39;FOR COLUMNS PROD_SUBCATEGORY_ID SIZE 10&#39;
+);
+END;
+</pre></li>
+<li>
+<p>Query the number of rows occupied by each distinct value.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT COUNT(prod_subcategory_id) AS NUM_OF_ROWS, prod_subcategory_id
+FROM   products
+GROUP BY prod_subcategory_id
+ORDER BY 1 DESC;
+ 
+NUM_OF_ROWS PROD_SUBCATEGORY_ID
+----------- -------------------
+          8                2014
+          7                2055
+          6                2032
+          6                2054
+          5                2056
+          5                2031
+          5                2042
+          5                2051
+          4                2036
+          3                2043
+          2                2033
+          2                2034
+          2                2013
+          2                2012
+          2                2053
+          2                2035
+          1                2022
+          1                2041
+          1                2044
+          1                2011
+          1                2021
+          1                2052
+ 
+22 rows selected.
+</pre>
+<p>The column contains 22 distinct values. Because the number of buckets (10) is less than 22, the optimizer cannot create a frequency histogram. The optimizer considers both hybrid and top frequency histograms. To qualify for a top frequency histogram, the percentage of rows occupied by the top 10 most frequent values must be equal to or greater than threshold <span class="italic">p</span>, where <span class="italic">p</span> is (1-(1/10))*100, or 90%. However, in this case the top 10 most frequent values occupy 54 rows out of 72, which is only 75% of the total. Therefore, the optimizer chooses a hybrid histogram because the criteria for a top frequency histogram do not apply.</p>
+</li>
+<li>
+<p>Query the histogram information for the <code class="codeph">country_subregion_id</code> column.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT TABLE_NAME, COLUMN_NAME, NUM_DISTINCT, HISTOGRAM
+FROM   USER_TAB_COL_STATISTICS
+WHERE  TABLE_NAME=&#39;PRODUCTS&#39;
+AND    COLUMN_NAME=&#39;PROD_SUBCATEGORY_ID&#39;;
+
+TABLE_NAME COLUMN_NAME         NUM_DISTINCT HISTOGRAM
+---------- ------------------- ------------ ---------
+PRODUCTS   PROD_SUBCATEGORY_ID 22           HYBRID
+</pre></li>
+<li>
+<p>Query the endpoint number, endpoint value, and endpoint repeat count for the <code class="codeph">country_subregion_id</code> column.</p>
+<p>For example, use the following query (sample output included):</p>
+<pre dir="ltr">SELECT ENDPOINT_NUMBER, ENDPOINT_VALUE, ENDPOINT_REPEAT_COUNT
+FROM   USER_HISTOGRAMS
+WHERE  TABLE_NAME=&#39;PRODUCTS&#39;
+AND    COLUMN_NAME=&#39;PROD_SUBCATEGORY_ID&#39;
+ORDER BY 1;
+ 
+ENDPOINT_NUMBER ENDPOINT_VALUE ENDPOINT_REPEAT_COUNT
+--------------- -------------- ---------------------
+              1           2011                     1
+             13           2014                     8
+             26           2032                     6
+             36           2036                     4
+             45           2043                     3
+             51           2051                     5
+             52           2052                     1
+             54           2053                     2
+             60           2054                     6
+             72           2056                     5
+ 
+10 rows selected.
+</pre>
+<p>In a height-based histogram, the optimizer would evenly distribute 72 rows into the 10 specified histogram buckets, so that each bucket contains approximately 7 rows. Because this is a hybrid histogram, the optimizer distributes the values so that no value occupies more than one bucket. For example, the optimizer does not put some instances of value <code class="codeph">2036</code> into one bucket and some instances of this value into another bucket: all instances are in bucket <code class="codeph">36</code>.</p>
+<p>The endpoint repeat count shows the number of times the highest value in the bucket is repeated. By using the endpoint number and repeat count for these values, the optimizer can estimate cardinality. For example, bucket <code class="codeph">36</code> contains instances of values <code class="codeph">2033</code>, <code class="codeph">2034</code>, <code class="codeph">2035</code>, and <code class="codeph">2036</code>. The endpoint value <code class="codeph">2036</code> has an endpoint repeat count of <code class="codeph">4</code>, so the optimizer knows that 4 instances of this value exist. For values such as <code class="codeph">2033</code>, which are not endpoints, the optimizer estimates cardinality using density.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-EF84AF34-01FC-40A6-9ABB-C54E4DAECB18__GUID-16096DF5-A070-4CAB-81A4-D55180C6A531">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS68582" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68582"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> procedure</p>
+</li>
+<li>
+<p><a class="olink REFRN26275" target="_blank" href="../REFRN/GUID-4FF4364B-29D0-4365-AA0F-ABD17CE298EC.htm#REFRN26275"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">USER_TAB_COL_STATISTICS</code> view</p>
+</li>
+<li>
+<p><a class="olink REFRN26079" target="_blank" href="../REFRN/GUID-582FAF05-FA3B-45D6-BDD3-B35C5E209368.htm#REFRN26079"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">USER_HISTOGRAMS</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_statscon.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_stats.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

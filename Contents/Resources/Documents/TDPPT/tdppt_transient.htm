@@ -1,0 +1,567 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106513"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Resolving%20Transient%20Performance%20Problems"></a><title>Resolving Transient Performance Problems</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="Active Session History, report, running"/>
+<meta name="dcterms.created" content="2017-01-18T01:22:51Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database 2 Day + Performance Tuning Guide"/>
+<meta name="dcterms.identifier" content="E55047-05"/>
+<meta name="dcterms.isVersionOf" content="TDPPT"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2007, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="tdppt_manual.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tdppt_degrade.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E55047-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-2AE0B06D-65E5-45A2-AFCB-F027568BC601"></a> <span id="PAGE" style="display:none;">15/22</span> <!-- End Header -->
+<a id="TDPPT064"></a>
+<h1 id="TDPPT-GUID-2AE0B06D-65E5-45A2-AFCB-F027568BC601" class="sect1"><span class="enumeration_chapter">8</span> Resolving Transient Performance Problems</h1>
+<div>
+<p>Transient performance problems<a id="d14684e74" class="indexterm-anchor"></a><a id="d14684e78" class="indexterm-anchor"></a> are short-lived and typically do not appear in the Automatic Database Diagnostic Monitor (ADDM) analysis. ADDM tries to report the most significant performance problems during an analysis period in terms of their effect on database time (DB time). If a problem lasts for a brief time, then its severity might be averaged out or minimized by other performance problems in the entire analysis period. Therefore, the problem may not appear in the ADDM findings. Whether or not a performance problem is captured by ADDM depends on its duration compared to the interval between the Automatic Workload Repository (AWR) snapshots.</p>
+<p>If a performance problem lasts for a significant portion of the time between snapshots, then it is captured by ADDM. For example, if the snapshot interval is one hour, then a performance problem that lasts 30 minutes should not be considered a transient performance problem because its duration represents a significant portion of the snapshot interval and is likely to be captured by ADDM.</p>
+<p>On the other hand, a performance problem that lasts 2 minutes could be transient because its duration is a small portion of the snapshot interval and probably does not appear in the ADDM findings. For example, if the system was slow between 10:00 p.m. and 10:10 p.m., and if the ADDM analysis for the time period between 10:00 p.m. and 11:00 p.m. does not show a problem, then a transient problem may have occurred for only a few minutes of the 10-minute interval.</p>
+<p>This chapter contains the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_transient.htm#GUID-13E82054-6BFF-4FDB-8EB7-36252EC2A535">Overview of Active Session History</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-6EC682FF-82FC-4DE2-98E6-25140377B092">Running Active Session History Reports</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-7316A970-330C-4F1B-9F9A-7623EFE5B38C">Active Session History Reports</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-99105770-5F89-476A-BD94-BA442C2F52E8">Diagnosing Serious Performance Problems in Real Time</a></p>
+</li>
+</ul>
+</div>
+<a id="TDPPT065"></a>
+<div class="props_rev_3"><a id="GUID-13E82054-6BFF-4FDB-8EB7-36252EC2A535"></a>
+<h2 id="TDPPT-GUID-13E82054-6BFF-4FDB-8EB7-36252EC2A535" class="sect2">Overview of Active Session History</h2>
+<div>
+<p><a id="d14684e185" class="indexterm-anchor"></a><a id="d14684e189" class="indexterm-anchor"></a>To capture a detailed history of database activity, Oracle Database samples active sessions<a id="d14684e194" class="indexterm-anchor"></a><a id="d14684e198" class="indexterm-anchor"></a> each second with the Active Session History (ASH) sampler. AWR snapshot processing collects the sampled data into memory and writes it to persistent storage. ASH is an integral part of the Oracle Database self-management framework and is extremely useful for diagnosing performance problems.</p>
+<p>ASH gathers sampled data at the session level rather than at the instance level. By capturing statistics for only active sessions, ASH collects a manageable set of data. The size of this data is directly related to the work being performed, rather than to the size of the entire database instance.</p>
+<p>Sampled data captured by ASH can be aggregated based on the dimensions in the data, including the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>SQL identifier of a SQL statement</p>
+</li>
+<li>
+<p>Object number, file number, and block number</p>
+</li>
+<li>
+<p>Wait event identifier and parameters</p>
+</li>
+<li>
+<p>Session identifier and session serial number</p>
+</li>
+<li>
+<p>Module and action name</p>
+</li>
+<li>
+<p>Client identifier of the session</p>
+</li>
+<li>
+<p>Service hash identifier</p>
+</li>
+</ul>
+<p>You can run ASH reports<a id="d14684e231" class="indexterm-anchor"></a> to analyze transient performance problems with the database that only occur during specific times. This technique is especially useful when you are trying to do either of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Resolve transient performance problems that may last for only a short period of time, such as why a particular job or session is not responding when the rest of the instance is performing as usual</p>
+</li>
+<li>
+<p>Perform scoped or targeted performance analysis by various dimensions or their combinations, such as time, session, module, action, or SQL identifier</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-13E82054-6BFF-4FDB-8EB7-36252EC2A535__GUID-69640620-614B-4F89-A6CC-A1686563BCD5">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tdppt_method.htm#GUID-0591FD6F-7CB8-4522-80B2-62B88B442D38">Active Session History Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink TGDBA276" target="_blank" href="../TGDBA/sampling.htm#TGDBA276"><span class="italic">Oracle Database Performance Tuning Guide</span></a> for more detailed information about ASH reports</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TDPPT066"></a>
+<div class="props_rev_3"><a id="GUID-6EC682FF-82FC-4DE2-98E6-25140377B092"></a>
+<h2 id="TDPPT-GUID-6EC682FF-82FC-4DE2-98E6-25140377B092" class="sect2">Running Active Session History Reports</h2>
+<div>
+<div class="section">
+<p>This section describes how to generate ASH reports using Oracle Enterprise Manager Cloud Control (Cloud Control).</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To run ASH reports:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">Performance Home</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The Performance page appears.</p>
+</li>
+<li>
+<p>Under Average Active Sessions, click <span class="bold">Run ASH Report</span>.</p>
+<p>The Run ASH Report page appears.</p>
+</li>
+<li>
+<p>Enter the date and time for the start and end of the time period when the transient performance problem occurred.</p>
+<p>In this example, database activity increased between 9:15 p.m. and 9:20 p.m., so an ASH report should be created for that time period.</p>
+<div class="figure" id="GUID-6EC682FF-82FC-4DE2-98E6-25140377B092__GUID-316579C1-F6C3-4D4A-A669-3C2626BB3B8E"><img width="448" height="189" src="img/GUID-5494C3D0-1E8E-45E1-86FD-F7619A0767D8-default.gif" alt="Description of GUID-5494C3D0-1E8E-45E1-86FD-F7619A0767D8-default.gif follows" title="Description of GUID-5494C3D0-1E8E-45E1-86FD-F7619A0767D8-default.gif follows"/><br/>
+<a href="img_text/GUID-5494C3D0-1E8E-45E1-86FD-F7619A0767D8-default.htm">Description of the illustration GUID-5494C3D0-1E8E-45E1-86FD-F7619A0767D8-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Click <span class="bold">Generate Report</span>.</p>
+<p>The Processing: View Report page appears while the report is being generated.</p>
+<p>After the report is generated, the ASH report appears under Report Results on the Run ASH Report page.</p>
+<div class="figure" id="GUID-6EC682FF-82FC-4DE2-98E6-25140377B092__GUID-EE5434D1-DA01-4DD5-9E2A-40328D407778"><img width="525" height="590" src="img/GUID-E4AE57E6-403C-459D-B22F-36CFBDF8BA9A-default.gif" alt="Description of GUID-E4AE57E6-403C-459D-B22F-36CFBDF8BA9A-default.gif follows" title="Description of GUID-E4AE57E6-403C-459D-B22F-36CFBDF8BA9A-default.gif follows"/><br/>
+<a href="img_text/GUID-E4AE57E6-403C-459D-B22F-36CFBDF8BA9A-default.htm">Description of the illustration GUID-E4AE57E6-403C-459D-B22F-36CFBDF8BA9A-default.gif</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-6EC682FF-82FC-4DE2-98E6-25140377B092__GUID-97F8AE03-C8FD-4E90-AF2F-41CC467DF070">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tdppt_transient.htm#GUID-7316A970-330C-4F1B-9F9A-7623EFE5B38C">Active Session History Reports</a>&#34;</span> for descriptions of some of the reports.</p>
+</div>
+</li>
+<li>
+<p>Optionally, click <span class="bold">Save to File</span> to save the report in HTML format for future analysis.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT067"></a>
+<div class="props_rev_3"><a id="GUID-7316A970-330C-4F1B-9F9A-7623EFE5B38C"></a>
+<h2 id="TDPPT-GUID-7316A970-330C-4F1B-9F9A-7623EFE5B38C" class="sect2">Active Session History Reports</h2>
+<div>
+<p>You can use an ASH report<a id="d14684e489" class="indexterm-anchor"></a> to identify the source of transient performance problems. The report is divided into titled sections. The following sections of the ASH report are useful places to begin the investigation:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_transient.htm#GUID-A50024B9-C8F2-4480-83CC-06EAB75B07C8">Top Events</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-57432F9E-C5A8-46C7-9830-A083055F395E">Load Profile</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-1B1B9582-EDEF-45A3-A2D9-7D2B06F3C824">Top SQL</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-C6149B95-A2FB-41A2-956E-914011D06452">Top Sessions</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-70CA8596-D5FA-4157-9C1F-4BA8B996E95E">Top DB Objects/Files/Latches</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-BD581783-7C66-4750-94A5-77039FC0E1BD">Activity Over Time</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-7316A970-330C-4F1B-9F9A-7623EFE5B38C__GUID-9B82EE0B-E990-4900-9E30-27A74F9ADEF6">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink TGDBA276" target="_blank" href="../TGDBA/sampling.htm#TGDBA276"><span class="italic">Oracle Database Performance Tuning Guide</span></a> for more detailed information about ASH reports</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TDPPT068"></a>
+<div class="props_rev_3"><a id="GUID-A50024B9-C8F2-4480-83CC-06EAB75B07C8"></a>
+<h3 id="TDPPT-GUID-A50024B9-C8F2-4480-83CC-06EAB75B07C8" class="sect3">Top Events</h3>
+<div>
+<p>The Top Events section of the report<a id="d14684e612" class="indexterm-anchor"></a> describes the top wait events of the sampled session activity categorized by user, background, and priority. Use this information to identify the wait events that may be the cause of the transient performance problem.</p>
+<p>The Top Events section of the report contains the following subsections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_transient.htm#GUID-3DB9CBBA-6B5F-4BCF-88BC-1017F4D952EC">Top User Events</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-0F7AA1AE-1029-453F-870A-D9A9DB209C5F">Top Background Events</a></p>
+</li>
+</ul>
+</div>
+<a id="TDPPT411"></a><a id="TDPPT069"></a>
+<div class="props_rev_3"><a id="GUID-3DB9CBBA-6B5F-4BCF-88BC-1017F4D952EC"></a>
+<h4 id="TDPPT-GUID-3DB9CBBA-6B5F-4BCF-88BC-1017F4D952EC" class="sect4">Top User Events</h4>
+<div>
+<p>The Top User Events subsection of the report lists the top wait events from client processes that accounted for the highest percentages of sampled session activity.</p>
+<p><a href="tdppt_transient.htm#GUID-3DB9CBBA-6B5F-4BCF-88BC-1017F4D952EC__DAFIGADB">Figure 8-1</a> shows that most database activity is consumed by the <code>CPU + Wait for CPU</code> event. The Wait for CPU is the time the process spent in the operating system run queue. The <code>%Event</code> column shows the percentage of DB time consumed by this event. In this example, over 30 percent of DB time was spent either on the CPU or waiting to get on it. The Load Profile section should be examined next to determine the type of activity that is causing this CPU consumption.</p>
+<div class="figure" id="GUID-3DB9CBBA-6B5F-4BCF-88BC-1017F4D952EC__DAFIGADB">
+<p class="titleinfigure">Figure 8-1 Top User Events</p>
+<img width="409" height="149" src="img/GUID-C7E47FE4-160C-47F7-A8AC-0D60FE3FDCAA-default.gif" alt="Description of Figure 8-1 follows" title="Description of Figure 8-1 follows"/><br/>
+<a href="img_text/GUID-C7E47FE4-160C-47F7-A8AC-0D60FE3FDCAA-default.htm">Description of &#34;Figure 8-1 Top User Events&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TDPPT412"></a><a id="TDPPT070"></a>
+<div class="props_rev_3"><a id="GUID-0F7AA1AE-1029-453F-870A-D9A9DB209C5F"></a>
+<h4 id="TDPPT-GUID-0F7AA1AE-1029-453F-870A-D9A9DB209C5F" class="sect4">Top Background Events</h4>
+<div>
+<p>The Top Background Events subsection lists the top wait events from the background events that accounted for the highest percentages of sampled session activity.</p>
+<p>The example in <a href="tdppt_transient.htm#GUID-0F7AA1AE-1029-453F-870A-D9A9DB209C5F__DAFEDAJF">Figure 8-2</a> shows that 22.81 percent of sampled session activity is consumed by the <code>CPU + Wait for CPU</code> event.</p>
+<div class="figure" id="GUID-0F7AA1AE-1029-453F-870A-D9A9DB209C5F__DAFEDAJF">
+<p class="titleinfigure">Figure 8-2 Top Background Events</p>
+<img width="407" height="170" src="img/GUID-E7CB8852-DB78-4A6D-AFDF-7AEB73FF60F2-default.gif" alt="Description of Figure 8-2 follows" title="Description of Figure 8-2 follows"/><br/>
+<a href="img_text/GUID-E7CB8852-DB78-4A6D-AFDF-7AEB73FF60F2-default.htm">Description of &#34;Figure 8-2 Top Background Events&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+</div>
+<a id="TDPPT413"></a><a id="TDPPT072"></a>
+<div class="props_rev_3"><a id="GUID-57432F9E-C5A8-46C7-9830-A083055F395E"></a>
+<h3 id="TDPPT-GUID-57432F9E-C5A8-46C7-9830-A083055F395E" class="sect3">Load Profile</h3>
+<div>
+<p>The Load Profile section of the report<a id="d14684e889" class="indexterm-anchor"></a> describes the load analyzed in the sampled session activity. Use the information in this section to identify the service, client, or SQL command type that may be the cause of the transient performance problem.</p>
+<p>The Top Service/Module subsection lists the services and modules that accounted for the highest percentages of sampled session activity. A <span class="bold">service</span> is a group of related database tasks that share common functionality, quality expectations, and priority. Services are a convenient way to monitor multiple applications. The <code>SYS$USERS</code> and <code>SYS$BACKGROUND</code> services are always defined.</p>
+<p><a href="tdppt_transient.htm#GUID-57432F9E-C5A8-46C7-9830-A083055F395E__DAFIFDBF">Figure 8-3</a> shows that over half of the database activity is consumed by the <code>SYS$USERS</code> service running the SQL*Plus module. In this example, it appears that the user is running high-load SQL that is causing the performance problem indicated in <a href="tdppt_transient.htm#GUID-3DB9CBBA-6B5F-4BCF-88BC-1017F4D952EC__DAFIGADB">Figure 8-1</a>. The Top SQL section of the report should be analyzed next to determine whether a particular type of SQL statement makes up the load.</p>
+<div class="figure" id="GUID-57432F9E-C5A8-46C7-9830-A083055F395E__DAFIFDBF">
+<p class="titleinfigure">Figure 8-3 Top Service/Module</p>
+<img width="552" height="211" src="img/GUID-9EBBCA90-A2AD-4592-9578-CCC338F121D9-default.gif" alt="Description of Figure 8-3 follows" title="Description of Figure 8-3 follows"/><br/>
+<a href="img_text/GUID-9EBBCA90-A2AD-4592-9578-CCC338F121D9-default.htm">Description of &#34;Figure 8-3 Top Service/Module&#34;</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-57432F9E-C5A8-46C7-9830-A083055F395E__GUID-153CAA73-A35B-4572-8B4D-A096C8473484">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tdppt_realtime.htm#GUID-AA0DE09F-0871-4585-B3A1-8654F94A752E">Monitoring Top Services</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tdppt_realtime.htm#GUID-8EBB7BAE-9F77-45DB-8461-D68CE5B7CAFC">Monitoring Top Modules</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TDPPT414"></a><a id="TDPPT076"></a>
+<div class="props_rev_3"><a id="GUID-1B1B9582-EDEF-45A3-A2D9-7D2B06F3C824"></a>
+<h3 id="TDPPT-GUID-1B1B9582-EDEF-45A3-A2D9-7D2B06F3C824" class="sect3">Top SQL</h3>
+<div>
+<p>The Top SQL section<a id="d14684e1012" class="indexterm-anchor"></a><a id="d14684e1018" class="indexterm-anchor"></a> of the report describes the top SQL statements of the sampled session activity. Use this information to identify high-load SQL statements that may be the cause of the transient performance problem. The Top SQL with Top Events subsection lists the SQL statements that accounted for the highest percentages of sampled session activity. The Sampled # of Executions column shows how many distinct executions of a particular SQL statement were sampled. To view the text of the SQL statements, click the <span class="bold">SQL ID</span> link.</p>
+<p><a href="tdppt_transient.htm#GUID-1B1B9582-EDEF-45A3-A2D9-7D2B06F3C824__DAFEEEDJ">Figure 8-4</a> shows that over half of DB time is consumed by three DML statements. These statements were run in the SQL*Plus module shown in <a href="tdppt_transient.htm#GUID-57432F9E-C5A8-46C7-9830-A083055F395E__DAFIFDBF">Figure 8-3</a>. The Top Sessions section should be analyzed to identify the sessions running these statements.</p>
+<div class="figure" id="GUID-1B1B9582-EDEF-45A3-A2D9-7D2B06F3C824__DAFEEEDJ">
+<p class="titleinfigure">Figure 8-4 Top SQL with Top Events</p>
+<img width="732" height="284" src="img/GUID-ED3BEA7B-FD63-4A8B-9986-00F2A96E5F9E-default.gif" alt="Description of Figure 8-4 follows" title="Description of Figure 8-4 follows"/><br/>
+<a href="img_text/GUID-ED3BEA7B-FD63-4A8B-9986-00F2A96E5F9E-default.htm">Description of &#34;Figure 8-4 Top SQL with Top Events&#34;</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-1B1B9582-EDEF-45A3-A2D9-7D2B06F3C824__GUID-E1DACE24-76D7-4A37-A9BA-79B5F2784A60">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tdppt_realtime.htm#GUID-8C13045B-74F0-470E-997B-E14BF638D543">Monitoring Top SQL</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TDPPT415"></a><a id="TDPPT080"></a>
+<div class="props_rev_3"><a id="GUID-C6149B95-A2FB-41A2-956E-914011D06452"></a>
+<h3 id="TDPPT-GUID-C6149B95-A2FB-41A2-956E-914011D06452" class="sect3">Top Sessions</h3>
+<div>
+<p>The Top Sessions section lists the sessions that were waiting for the wait event that accounted for the highest percentages of sampled session activity. Use this information to identify the sessions that may be the cause of the performance problem.</p>
+<p>The <code># Samples Active</code> column shows the number of ASH samples in which the session was found waiting for that particular event. The percentage is calculated based on wall-clock time.</p>
+<p>In <a href="tdppt_transient.htm#GUID-C6149B95-A2FB-41A2-956E-914011D06452__DAFBHIHG">Figure 8-5</a>, the <code># Samples Active</code> column shows that of the 300 times that ASH sampled database activity, the <code>HR</code> session (SID 123) performed a sequential read 243 times and a flashback operation 36 times. So, <code>HR</code> was active at least 93% of the time. The session consumed 27% of the total activity (much less than 93%) because other sessions, including the <code>SH</code> session, were also active.</p>
+<p>It appears that the <code>HR</code> and <code>SH</code> sessions were running the high-load SQL statement in <a href="tdppt_transient.htm#GUID-1B1B9582-EDEF-45A3-A2D9-7D2B06F3C824__DAFEEEDJ">Figure 8-4</a>. You should investigate this session to determine whether it is performing a legitimate operation and tune the SQL statement if possible. If tuning the SQL is not possible, and if a session is causing an unacceptable performance impact on the system, then consider terminating the session.</p>
+<div class="figure" id="GUID-C6149B95-A2FB-41A2-956E-914011D06452__DAFBHIHG">
+<p class="titleinfigure">Figure 8-5 Top Sessions</p>
+<img width="690" height="172" src="img/GUID-4A73002C-92FB-404B-B920-D6AA0C1891A6-default.gif" alt="Description of Figure 8-5 follows" title="Description of Figure 8-5 follows"/><br/>
+<a href="img_text/GUID-4A73002C-92FB-404B-B920-D6AA0C1891A6-default.htm">Description of &#34;Figure 8-5 Top Sessions&#34;</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-C6149B95-A2FB-41A2-956E-914011D06452__GUID-0FDC4820-0A83-43F4-9F9A-A214D4EADD6E">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tdppt_realtime.htm#GUID-F89D9B48-A4CA-4AC6-80FB-81EF8BB78DFC">Monitoring Top Sessions</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-6B386EC1-A58F-4CFC-AEFB-9F787A112396">Tuning SQL Statements</a> &#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TDPPT085"></a>
+<div class="props_rev_3"><a id="GUID-70CA8596-D5FA-4157-9C1F-4BA8B996E95E"></a>
+<h3 id="TDPPT-GUID-70CA8596-D5FA-4157-9C1F-4BA8B996E95E" class="sect3">Top DB Objects/Files/Latches</h3>
+<div>
+<p>The Top Objects/Files/Latches section provides additional information about the most commonly-used database resources and contains the following subsections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_transient.htm#GUID-9161F83B-CEA1-404D-90B9-5ACAC9BD558E">Top DB Objects</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-5C076E7E-CD5E-46A4-B4F7-495FA94BA7EC">Top DB Files</a></p>
+</li>
+<li>
+<p><a href="tdppt_transient.htm#GUID-C197336F-80B6-4F05-8EAD-D3948D79ACF6">Top Latches</a></p>
+</li>
+</ul>
+</div>
+<a id="TDPPT416"></a><a id="TDPPT520"></a>
+<div class="props_rev_3"><a id="GUID-9161F83B-CEA1-404D-90B9-5ACAC9BD558E"></a>
+<h4 id="TDPPT-GUID-9161F83B-CEA1-404D-90B9-5ACAC9BD558E" class="sect4">Top DB Objects</h4>
+<div>
+<p>The Top DB Objects subsection lists the database objects (such as tables and indexes) that accounted for the highest percentages of sampled session activity.</p>
+<p>The example in <a href="tdppt_transient.htm#GUID-9161F83B-CEA1-404D-90B9-5ACAC9BD558E__DAFJIGHJ">Figure 8-6</a> shows that the <code>hr.departments</code> and <code>hr.employees</code> tables account for a high percentage of activity. Enqueue waits are waits for locks. In this example, the wait is for the TM (table) lock. Sometimes these waits indicate unindexed foreign key constraints. The <code>buffer busy waits</code> event records waits for a buffer to become available. These waits indicate that multiple processes are attempting to concurrently access the same buffers in the buffer cache.</p>
+<div class="figure" id="GUID-9161F83B-CEA1-404D-90B9-5ACAC9BD558E__DAFJIGHJ">
+<p class="titleinfigure">Figure 8-6 Top DB Objects</p>
+<img width="506" height="146" src="img/GUID-36B3FE03-F57B-4383-BA0A-888BF4B81B47-default.gif" alt="Description of Figure 8-6 follows" title="Description of Figure 8-6 follows"/><br/>
+<a href="img_text/GUID-36B3FE03-F57B-4383-BA0A-888BF4B81B47-default.htm">Description of &#34;Figure 8-6 Top DB Objects&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TDPPT417"></a><a id="TDPPT521"></a>
+<div class="props_rev_3"><a id="GUID-5C076E7E-CD5E-46A4-B4F7-495FA94BA7EC"></a>
+<h4 id="TDPPT-GUID-5C076E7E-CD5E-46A4-B4F7-495FA94BA7EC" class="sect4">Top DB Files</h4>
+<div>
+<p>The Top DB Files subsection lists the database files that accounted for the highest percentages of sampled session activity. Only cluster and I/O events are considered. The <code>% Event</code> column breaks down the activity by event, so if multiple rows exist in this table, then the sampled activity is divided among multiple events.</p>
+<p><a href="tdppt_transient.htm#GUID-5C076E7E-CD5E-46A4-B4F7-495FA94BA7EC__DAFGFHFC">Figure 8-7</a> shows that about 11 percent of DB time involves waits for the <code>UNDOTBS</code> tablespace. This information is consistent with <a href="tdppt_transient.htm#GUID-1B1B9582-EDEF-45A3-A2D9-7D2B06F3C824__DAFEEEDJ">Figure 8-4</a>, which shows significant DML activity from multiple sessions.</p>
+<div class="figure" id="GUID-5C076E7E-CD5E-46A4-B4F7-495FA94BA7EC__DAFGFHFC">
+<p class="titleinfigure">Figure 8-7 Top DB Files</p>
+<img width="615" height="128" src="img/GUID-7D65C5BE-CFC0-441B-BE93-B129C4A836A0-default.gif" alt="Description of Figure 8-7 follows" title="Description of Figure 8-7 follows"/><br/>
+<a href="img_text/GUID-7D65C5BE-CFC0-441B-BE93-B129C4A836A0-default.htm">Description of &#34;Figure 8-7 Top DB Files&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TDPPT522"></a>
+<div class="props_rev_3"><a id="GUID-C197336F-80B6-4F05-8EAD-D3948D79ACF6"></a>
+<h4 id="TDPPT-GUID-C197336F-80B6-4F05-8EAD-D3948D79ACF6" class="sect4">Top Latches</h4>
+<div>
+<p>The Top Latches subsection lists the latches that accounted for the highest percentages of sampled session activity. Latches are simple, low-level serialization mechanisms to protect shared data structures in the System Global Area (SGA).</p>
+</div>
+</div>
+</div>
+<a id="TDPPT418"></a><a id="TDPPT419"></a><a id="TDPPT088"></a>
+<div class="props_rev_3"><a id="GUID-BD581783-7C66-4750-94A5-77039FC0E1BD"></a>
+<h3 id="TDPPT-GUID-BD581783-7C66-4750-94A5-77039FC0E1BD" class="sect3">Activity Over Time</h3>
+<div>
+<p>The Activity Over Time section<a id="d14684e1607" class="indexterm-anchor"></a> of the ASH report is particularly useful for longer time periods because it provides in-depth details about activities and workload profiles during the analysis period. The Activity Over Time section is divided into <span class="bold">time slots</span>. The ASH report time span is divided into 10 time slots unless the time period is short or the data is sparse.</p>
+<p><a href="tdppt_transient.htm#GUID-BD581783-7C66-4750-94A5-77039FC0E1BD__DAFBCHBF">Figure 8-8</a> shows an activity report for the period between 2:10 p.m. and 2:40 p.m. The report indicates that the number of sampled sessions rose sharply in the sixth inner slot (2:24 p.m.) and stayed up. During this period CPU activity and lock enqueue waits increased dramatically.</p>
+<div class="figure" id="GUID-BD581783-7C66-4750-94A5-77039FC0E1BD__DAFBCHBF">
+<p class="titleinfigure">Figure 8-8 Activity Over Time</p>
+<img width="521" height="650" src="img/GUID-CF8EFDBA-A30F-4876-A304-9052EB3E0BEF-default.gif" alt="Description of Figure 8-8 follows" title="Description of Figure 8-8 follows"/><br/>
+<a href="img_text/GUID-CF8EFDBA-A30F-4876-A304-9052EB3E0BEF-default.htm">Description of &#34;Figure 8-8 Activity Over Time&#34;</a></div>
+<!-- class="figure" -->
+<p>Each time slot contains session and wait event activity, as described in <a href="tdppt_transient.htm#GUID-BD581783-7C66-4750-94A5-77039FC0E1BD__DAFECIIA" title="Describes the columns in the Activity Over Time section of the ASH report">Table 8-1</a>.</p>
+<div class="tblformal" id="GUID-BD581783-7C66-4750-94A5-77039FC0E1BD__DAFECIIA">
+<p class="titleintable">Table 8-1 Activity Over Time</p>
+<table class="cellalignment630" title="Activity Over Time" summary="Describes the columns in the Activity Over Time section of the ASH report">
+<thead>
+<tr class="cellalignment621">
+<th class="cellalignment639" id="d14684e1642">Column</th>
+<th class="cellalignment640" id="d14684e1645">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment621">
+<td class="cellalignment641" id="d14684e1650" headers="d14684e1642">
+<p><span>Slot Time (Duration)</span></p>
+</td>
+<td class="cellalignment642" headers="d14684e1650 d14684e1645">
+<p>Duration of the slot</p>
+</td>
+</tr>
+<tr class="cellalignment621">
+<td class="cellalignment641" id="d14684e1658" headers="d14684e1642">
+<p><span>Slot Count</span></p>
+</td>
+<td class="cellalignment642" headers="d14684e1658 d14684e1645">
+<p>Number of sampled sessions in the slot</p>
+</td>
+</tr>
+<tr class="cellalignment621">
+<td class="cellalignment641" id="d14684e1666" headers="d14684e1642">
+<p><span>Event</span></p>
+</td>
+<td class="cellalignment642" headers="d14684e1666 d14684e1645">
+<p>Top three wait events in the slot</p>
+</td>
+</tr>
+<tr class="cellalignment621">
+<td class="cellalignment641" id="d14684e1674" headers="d14684e1642">
+<p><span>Event Count</span></p>
+</td>
+<td class="cellalignment642" headers="d14684e1674 d14684e1645">
+<p>Number of ASH samples waiting for the wait event</p>
+</td>
+</tr>
+<tr class="cellalignment621">
+<td class="cellalignment641" id="d14684e1682" headers="d14684e1642">
+<p><span>% Event</span></p>
+</td>
+<td class="cellalignment642" headers="d14684e1682 d14684e1645">
+<p>Percentage of ASH samples waiting for wait events in the entire analysis period</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>All inner slots are the same number of minutes each for easy comparison. The first and last slots, called <span class="bold">outer slots</span>, are odd-sized because they do not have a fixed slot time.</p>
+<p>When comparing the inner slots, perform a skew analysis by identifying spikes. A spike in the <span>Slot Count</span> column indicates an increase in active sessions and a relative increase in database workload. A spike in the <span>Event Count</span> column indicates an increase in the number of sampled sessions waiting for an event. Typically, when the number of active session samples and the number of sessions associated with a wait event increase, the slot may be the cause of the transient performance problem.</p>
+</div>
+</div>
+</div>
+<a id="TDPPT524"></a><a id="TDPPT523"></a>
+<div class="props_rev_3"><a id="GUID-99105770-5F89-476A-BD94-BA442C2F52E8"></a>
+<h2 id="TDPPT-GUID-99105770-5F89-476A-BD94-BA442C2F52E8" class="sect2">Diagnosing Serious Performance Problems in Real Time</h2>
+<div>
+<div class="section"></div>
+<!-- class="section" -->
+<div class="section">
+<p><a id="d14684e1780" class="indexterm-anchor"></a><a id="d14684e1784" class="indexterm-anchor"></a>The following procedure is useful for diagnosing serious performance problems at the moment they are occurring. This may assist you in finding a remedy to resolve the problem other than rebooting the system.</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">Emergency Monitoring</span>.</p>
+<p><a id="d14684e1810" class="indexterm-anchor"></a>The Emergency Performance page appears and displays collected ASH data. The page also shows top blocking sessions in the Hang Analysis table.</p>
+<p>If the information displayed on this page does not help you resolve the problem, continue to the next step.</p>
+</li>
+<li>
+<p><a id="d14684e1817" class="indexterm-anchor"></a>From the <span class="bold">Performance</span> menu, select <span class="bold">Real-Time ADDM</span>.</p>
+<p><a id="d14684e1829" class="indexterm-anchor"></a>The Real-Time ADDM page appears.</p>
+</li>
+<li>
+<p>In the Real-Time ADDM Results section, click <span class="bold">Start</span>.</p>
+<p>The system responds by collecting performance data from the target database, analyzing data for problem diagnosis and resolutions, and showing you results of the analysis.</p>
+</li>
+<li>
+<p>Click the <span class="bold">Findings</span> tab for a clear and interactive summary of all of the findings the analysis has detected, and to view actionable recommendations.</p>
+</li>
+<li>
+<p>Optionally, click <span class="bold">Save</span> to save the current page view as an HTML file for offline reference. When you click Save, a Save As dialog box appears and you can specify where you want to save the report. This action creates an Enterprise Manager Active Report covering all data currently gathered as part of the analysis. You can use this later to conduct a more thorough post-mortem analysis. You can view the report without Cloud Control or database connectivity.</p>
+<p>You can also click <span class="bold">Mail</span> and specify an email address to send the report as an attachment.</p>
+</li>
+</ol>
+<div class="infobox-note" id="GUID-99105770-5F89-476A-BD94-BA442C2F52E8__GUID-4EE628F4-887B-4ECF-9B74-E5B1609906D5">
+<p class="notep1">Note:</p>
+<p>Certain database performance problems trigger a Real-Time ADDM analysis. You can view the results of the analysis by going to the Performance Home page and selecting the clipboard icon for the ADDM run under the Average Active Sessions chart.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-99105770-5F89-476A-BD94-BA442C2F52E8__GUID-89452B7D-6C75-428C-ABC5-A72170CD3241">
+<p class="notep1">See Also:</p>
+<p><a class="olink TGDBA95368" target="_blank" href="../TGDBA/pfgrf_diag.htm#TGDBA95368"><span class="italic">Oracle Database Performance Tuning Guide</span></a> for information on Real-Time ADDM analysis</p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Example of Diagnosing a Problem</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ol>
+<li>
+<p>A database is currently having severe performance problems, so the DBA goes to the Database Home page in Cloud Control. From the <span class="bold">Performance</span> menu, the DBA selects <span class="bold">Emergency Performance</span>.</p>
+</li>
+<li>
+<p>Neither ASH nor Hang Analysis indicate the root cause or offer quick solutions, so from the <span class="bold">Performance</span> menu the DBA selects <span class="bold">Real-Time ADDM</span>.</p>
+</li>
+<li>
+<p>The DBA views the active report generated by Real-Time ADDM, which shows that the system is paging due to excessive PGA consumption by session S1, possibly due to a memory leak. The report recommends terminating the session immediately.</p>
+</li>
+<li>
+<p>The DBA terminates session S1, then returns to the Emergency Performance page to see if normal system behavior is restored.</p>
+</li>
+<li>
+<p>The DBA notes that the system is making progress according to the activity charts on the page.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, the DBA selects <span class="bold">Performance Home</span> and observes that database performance has improved.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment620">
+<tr>
+<td class="cellalignment627">
+<table class="cellalignment625">
+<tr>
+<td class="cellalignment624"><a href="tdppt_manual.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment624"><a href="tdppt_degrade.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2007, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment629">
+<table class="cellalignment623">
+<tr>
+<td class="cellalignment624"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment624"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment624"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment624"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment624"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment624"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

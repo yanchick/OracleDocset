@@ -1,0 +1,142 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114160"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Splitting%20into%20Multiple%20Partitions"></a><title>Splitting into Multiple Partitions</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-B28D3E86-190D-44CC-A279-00D867A5B80B.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-5AEB1A3A-89F1-489B-824E-CCD955F94BD7.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-01C14320-0D7B-48BE-A5AD-003DDA761277"></a> <span id="PAGE" style="display:none;">245/481</span> <!-- End Header --><a id="VLDBG14114"></a>
+<h1 id="VLDBG-GUID-01C14320-0D7B-48BE-A5AD-003DDA761277" class="sect1">Splitting into Multiple Partitions</h1>
+<div>
+<div class="section">
+<p><a id="d42882e62" class="indexterm-anchor"></a><a id="d42882e66" class="indexterm-anchor"></a>You can redistribute the contents of one partition or subpartition into multiple partitions or subpartitions with the <code>SPLIT</code> <code>PARTITION</code> and <code>SPLIT</code> <code>SUBPARTITION</code> clauses of the <code>ALTER</code> <code>TABLE</code> statement. When splitting multiple partitions, the segment associated with the current partition is discarded. Each new partitions obtains a new segment and inherits all unspecified physical attributes from the current source partition.You can also use fast split when splitting into multiple partitions.</p>
+<p>You can use the extended split syntax to specify a list of new partition descriptions similar to the create partitioned table SQL statements, rather than specifying the <code>AT</code> or <code>VALUES</code> clause. Additionally, the range or list values clause for the last new partition description is derived based on the high bound of the source partition and the bound values specified for the first (N-1) new partitions resulting from the split.</p>
+<p>The following SQL statements are examples of splitting a partition into multiple partitions.</p>
+<pre dir="ltr">ALTER TABLE SPLIT PARTITION p0 INTO 
+  (PARTITION p01 VALUES LESS THAN (25),
+   PARTITION p02 VALUES LESS THAN (50), 
+   PARTITION p03 VALUES LESS THAN (75),
+   PARTITION p04);
+
+ALTER TABLE SPLIT PARTITION p0 INTO 
+  (PARTITION p01 VALUES LESS THAN (25),
+   PARTITION p02);
+</pre>
+<p>In the second SQL example, partition <code>p02</code> has the high bound of the original partition <code>p0</code>.</p>
+<p>To split a range partition into N partitions, (N-1) values of the partitioning key column must be specified within the range of the partition at which to split the partition. The new non-inclusive upper bound values specified must be in ascending order. The high bound of Nth new partition is assigned the value of the high bound of the partition being split. The names and physical attributes of the N new partitions resulting from the split can be optionally specified.</p>
+<p>To split a list partition into N partitions, (N-1) lists of literal values must be specified, each of which defines the first (N-1) partitions into which rows with corresponding partitioning key values are inserted. The remaining rows of the original partition are inserted into the Nth new partition whose value list contains the remaining literal values from the original partition. No two value lists can contain the same partition value. The (N-1) value lists that are specified cannot contain all of the partition values of the current partition because the Nth new partition would be empty. Also, the (N-1) value lists cannot contain any partition values that do not exist for the current partition.</p>
+<p>When splitting a <code>DEFAULT</code> list partition or a <code>MAXVALUE</code> range partition into multiple partitions, the first (N-1) new partitions are created using the literal value lists or high bound values specified, while the Nth new partition resulting from the split have the <code>DEFAULT</code> value or <code>MAXVALUE</code>. Splitting a partition of a composite partitioned table into multiple partitions assumes the existing behavior with respect to inheritance of the number, names, bounds and physical properties of the subpartitions of the new partitions resulting from the split. The <code>SPLIT_TABLE_SUBPARTITION</code> clause is extended similarly to allow split of a range or list subpartition into N new subpartitions.</p>
+<p>The behavior of the SQL statement with respect to local and global indexes remains unchanged. Corresponding local index partition are split into multiple partitions. If the partitioned table contains LOB columns, then existing semantics for the <code>SPLIT</code> <code>PARTITION</code> clause apply with the extended syntax; that is, LOB data and index segments is dropped for current partition and new segments are created for each LOB column for each new partition. Fast split optimization is applied to multipartition split operations when required conditions are met.</p>
+<p>For example, the following SQL statement splits the <code>sales_Q4_2007</code> partition of the partitioned by range table <code>sales</code> splits into five partitions corresponding to the quarters of the next year. In this example, the partition <code>sales_Q4_2008</code> implicitly becomes the high bound of the split partition.</p>
+<pre dir="ltr">ALTER TABLE sales SPLIT PARTITION sales_Q4_2007 INTO
+( PARTITION sales_Q4_2007 VALUES LESS THAN (TO_DATE(&#39;01-JAN-2008&#39;,&#39;dd-MON-yyyy&#39;)),
+  PARTITION sales_Q1_2008 VALUES LESS THAN (TO_DATE(&#39;01-APR-2008&#39;,&#39;dd-MON-yyyy&#39;)),
+  PARTITION sales_Q2_2008 VALUES LESS THAN (TO_DATE(&#39;01-JUL-2008&#39;,&#39;dd-MON-yyyy&#39;)),
+  PARTITION sales_Q3_2008 VALUES LESS THAN (TO_DATE(&#39;01-OCT-2008&#39;,&#39;dd-MON-yyyy&#39;)),
+  PARTITION sales_Q4_2008);
+</pre>
+<p>For the sample table <code>customers</code> partitioned by list, the following statement splits the partition <span class="bold">Europe</span> into three partitions.</p>
+<pre dir="ltr">ALTER TABLE list_customers SPLIT PARTITION Europe INTO
+  (PARTITION western-europe VALUES (&#39;GERMANY&#39;, &#39;FRANCE&#39;),
+   PARTITION southern-europe VALUES (&#39;ITALY&#39;), 
+   PARTITION rest-europe);
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-B28D3E86-190D-44CC-A279-00D867A5B80B.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-5AEB1A3A-89F1-489B-824E-CCD955F94BD7.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

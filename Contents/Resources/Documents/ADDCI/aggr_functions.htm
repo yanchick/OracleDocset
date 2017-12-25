@@ -1,0 +1,509 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-0"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20User-Defined%20Aggregate%20Functions"></a><title>Using User-Defined Aggregate Functions</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="ODCIAggregate interface, overview, aggregate function, user-defined, creating, implementing, defining, using, Parallel evaluation of user-defined aggregates, parallel evaluation, large aggregation contexts, parallel aggregation and external context, external context and parallel aggregation, analytic functions, reuse for analytic functions, external context, analytic functions and external context, using materialized views, example"/>
+<meta name="dcterms.created" content="2017-06-09T01:57:02Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Data Cartridge Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E15882-06"/>
+<meta name="dcterms.isVersionOf" content="ADDCI"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="ext_optimizer.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="pipe_paral_tbl.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E15882-06.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-D7E77319-DC23-4CF0-B746-27ED7BE9240D"></a> <span id="PAGE" style="display:none;">18/33</span> <!-- End Header -->
+<a id="ADDCI2120"></a>
+<h1 id="ADDCI-GUID-D7E77319-DC23-4CF0-B746-27ED7BE9240D" class="sect1"><span class="enumeration_chapter">12</span> Using User-Defined Aggregate Functions</h1>
+<div>
+<p>User-defined aggregate functions may be used both singly and in parallel; consider large aggregation contexts and materialized views.</p>
+<div class="infoboxnotealso" id="GUID-D7E77319-DC23-4CF0-B746-27ED7BE9240D__GUID-59233EFC-6A43-41ED-B508-EB097E974819">
+<p class="notep1">See Also:</p>
+<p><a href="ext_agg_ref.htm#GUID-76049AC3-03F2-461A-8E5F-EC364AF2169F">User-Defined Aggregate Functions Interface</a> for a detailed description of the <code class="codeph">ODCIAggregate</code> interface.</p>
+</div>
+</div>
+<a id="ADDCI4623"></a>
+<div class="props_rev_3"><a id="GUID-8FEEB2E9-F4F9-41CB-8CAC-C0F72D98938E"></a>
+<h2 id="ADDCI-GUID-8FEEB2E9-F4F9-41CB-8CAC-C0F72D98938E" class="sect2">Overview of User-Defined Aggregate Functions</h2>
+<div>
+<p>Oracle provides several pre-defined <a id="d36695e119" class="indexterm-anchor"></a>aggregate functions such as <code class="codeph">MAX</code>, <code class="codeph">MIN</code>, and <code class="codeph">SUM</code> for performing operations on a set of rows. These pre-defined aggregate functions can be used only with scalar data, not with complex data types such as multimedia data stored using object types, opaque types, and LOBs. You can, however, define custom implementations of these functions for complex data types. You can also define entirely new aggregate functions to use with complex data. User-defined aggregate functions can be used in SQL DML statements just like Oracle&#39;s built-in aggregates. When functions are registered with the server, Oracle simply invokes the user-defined aggregation routines supplied by you instead of the native routines. User-defined aggregates can also be used with scalar data, such as complex statistical data necessary for scientific applications.</p>
+<p>User-defined aggregates are a feature of the Extensibility Framework, and you can implement them using <code class="codeph">ODCIAggregate</code> interface routines.</p>
+<p><a id="d36695e137" class="indexterm-anchor"></a>You can create a user-defined <a id="d36695e142" class="indexterm-anchor"></a>aggregate function by implementing a set of routines collectively known as the <a id="d36695e145" class="indexterm-anchor"></a><a id="d36695e147" class="indexterm-anchor"></a><code class="codeph">ODCIAggregate</code> routines. You can implement these routines as methods within an object type, so the implementation can be in any language that Oracle supports, PL/SQL, C, C++ or Java. When the object type is defined and the routines are implemented in the type body, use the <code class="codeph">CREATE FUNCTION</code> statement to create the aggregate function.</p>
+<p><a id="d36695e156" class="indexterm-anchor"></a>Each user-defined aggregate function uses up to four <code class="codeph">ODCIAggregate</code> routines, or steps, to define internal operations that any aggregate function performs, namely: initialization, iteration, merging, and termination.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a id="d36695e167" class="indexterm-anchor"></a><a id="d36695e169" class="indexterm-anchor"></a>Initialization is accomplished by the <a id="d36695e174" class="indexterm-anchor"></a><a href="ext_agg_ref.htm#GUID-CECC6140-A457-46BF-AC78-D29243758111">ODCIAggregateInitialize()</a> routine, which is invoked by Oracle to initialize the computation of the user-defined aggregate. The initialized aggregation context is passed back to Oracle as an object type instance.</p>
+</li>
+<li>
+<p><a id="d36695e181" class="indexterm-anchor"></a><a id="d36695e185" class="indexterm-anchor"></a>Iteration is performed through the <a id="d36695e188" class="indexterm-anchor"></a><a href="ext_agg_ref.htm#GUID-6F703759-4FA6-4120-BEC3-F5BD2A576BF4">ODCIAggregateIterate()</a> routine, which is repeatedly invoked by Oracle. On each invocation, a new value or a set of new values and the current aggregation context are passed in. The routine processes the new values and returns the updated aggregation context. This routine is invoked for every non-<code class="codeph">NULL</code> value in the underlying group. <code class="codeph">NULL</code> values are ignored during aggregation and are not passed to the routine.</p>
+</li>
+<li>
+<p><a id="d36695e201" class="indexterm-anchor"></a><a id="d36695e203" class="indexterm-anchor"></a>Merging is performed by <a id="d36695e208" class="indexterm-anchor"></a><a href="ext_agg_ref.htm#GUID-12D1C061-ECF3-4133-AA24-2C7E2036DF94">ODCIAggregateMerge()</a>, a routine invoked by Oracle to combine two aggregation contexts. This routine takes the two contexts as inputs, combines them, and returns a single aggregation context.</p>
+</li>
+<li>
+<p><a id="d36695e215" class="indexterm-anchor"></a><a id="d36695e217" class="indexterm-anchor"></a>Termination takes place when the <a id="d36695e222" class="indexterm-anchor"></a><a href="ext_agg_ref.htm#GUID-881F8137-350A-4C42-994C-490D34C5ECE7">ODCIAggregateTerminate()</a> routine is invoked by Oracle as the final step of aggregation. The routine takes the aggregation context as input and returns the resulting aggregate value.</p>
+</li>
+</ul>
+<p>The process is illustrated in <a href="aggr_functions.htm#GUID-84F72C5F-8C9C-4CC9-A529-B62EE2DBBEA2">Using User-Defined Aggregate Functions</a>.</p>
+</div>
+<a id="ANCHOR-19124812-02397CDC"></a>
+<div class="props_rev_3"><a id="GUID-84F72C5F-8C9C-4CC9-A529-B62EE2DBBEA2"></a>
+<h3 id="ADDCI-GUID-84F72C5F-8C9C-4CC9-A529-B62EE2DBBEA2" class="sect3">Using User-Defined Aggregate Functions</h3>
+<div>
+<div class="section">
+<p>Consider the aggregate function <code class="codeph">AVG()</code> in the following statement:</p>
+<pre dir="ltr">SELECT AVG(T.Sales)
+FROM AnnualSales T
+GROUP BY T.State;
+</pre>
+<p>To perform this computation, the aggregate function <code class="codeph">AVG()</code> goes through these steps:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Initializes the computation by initializing the aggregation context, or the rows over which aggregation is performed:</span>
+<div>
+<pre dir="ltr">runningSum = 0; runningCount = 0;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Iteratively processes each successive input value and updates the context:</span>
+<div>
+<pre dir="ltr">runningSum += inputval; runningCount++;
+</pre></div>
+</li>
+<li class="stepexpand"><span>[Optional] Merge by combining the two aggregation contexts and return a single context. This operation combines the results of aggregation over subsets to obtain the aggregate over the entire set. This extra step can be required during either serial or parallel evaluation of an aggregate. If needed, it is performed before step <a href="aggr_functions.htm#GUID-84F72C5F-8C9C-4CC9-A529-B62EE2DBBEA2__CIHFDJJC">4</a>:</span>
+<div>
+<pre dir="ltr">runningSum = runningSum1 + runningSum2;
+runningCount = runningCount1 + runningCount2
+</pre>
+<p><a href="aggr_functions.htm#GUID-9136DBA6-D4D6-4E1F-8807-4642CCA93FAA">Evaluating User-Defined Aggregates in Parallel</a> describes this step in greater detail.</p>
+</div>
+</li>
+<li class="stepexpand" id="GUID-84F72C5F-8C9C-4CC9-A529-B62EE2DBBEA2__CIHFDJJC"><span>Terminates by computing the result; uses the context to return the resultant aggregate value:</span>
+<div>
+<pre dir="ltr">return (runningSum/runningCount);
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<p>If <code class="codeph">AVG()</code> were a user-defined function, the object type that embodies it would implement a method for a corresponding <code class="codeph">ODCIAggregate</code> routine for each of these steps. The variables <code class="codeph">runningSum</code> and <code class="codeph">runningCount</code>, which determine the state of the aggregation in the example, would be attributes of that object type.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADDCI4626"></a><a id="ADDCI4627"></a><a id="ADDCI4625"></a>
+<div class="props_rev_3"><a id="GUID-9D97A458-FB2F-4317-9BB2-9BAFD62C16EC"></a>
+<h2 id="ADDCI-GUID-9D97A458-FB2F-4317-9BB2-9BAFD62C16EC" class="sect2">Creating a User-Defined Aggregate</h2>
+<div>
+<div class="section">
+<p>The process of creating a user-defined aggregate function has two steps, illustrated in <a href="aggr_functions.htm#GUID-9D97A458-FB2F-4317-9BB2-9BAFD62C16EC__CECHAFJJ">Example 11-1</a> and <a href="aggr_functions.htm#GUID-9D97A458-FB2F-4317-9BB2-9BAFD62C16EC__CECHHIGE">Example 11-2</a>. Both examples use the <code class="codeph">SpatialUnion()</code> aggregate function defined by Oracle Spatial. The function computes the bounding geometry over a set of input geometries.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-9D97A458-FB2F-4317-9BB2-9BAFD62C16EC__CECHAFJJ">
+<p class="titleinexample">Example 11-1 Implementing the ODCIAggregate Interface</p>
+<p>The <code class="codeph">ODCIAggregate</code> routines are implemented as methods within an object type <code class="codeph">SpatialUnionRoutines</code>. The actual implementation could be in any Oracle-supported language for type methods, such as PL/SQL, C, C++ or Java.</p>
+<pre dir="ltr">CREATE TYPE SpatialUnionRoutines(
+   STATIC FUNCTION ODCIAggregateInitialize( ... ) ...,
+   MEMBER FUNCTION ODCIAggregateIterate(...) ... ,
+   MEMBER FUNCTION ODCIAggregateMerge(...) ...,
+   MEMBER FUNCTION ODCIAggregateTerminate(...)
+);
+
+CREATE TYPE BODY SpatialUnionRoutines IS 
+...
+END;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-9D97A458-FB2F-4317-9BB2-9BAFD62C16EC__CECHHIGE">
+<p class="titleinexample">Example 11-2 Defining a User-Defined Aggregate Function</p>
+<p>This function definition creates the <code class="codeph">SpatialUnion()</code> aggregate function by specifying its signature and the object type that implements the <code class="codeph">ODCIAggregate</code> interface:</p>
+<pre dir="ltr">CREATE FUNCTION SpatialUnion(x Geometry) RETURN Geometry 
+AGGREGATE USING SpatialUnionRoutines;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4628"></a>
+<div class="props_rev_3"><a id="GUID-8A3ADB96-3910-490D-A657-78E9BD29B3C5"></a>
+<h2 id="ADDCI-GUID-8A3ADB96-3910-490D-A657-78E9BD29B3C5" class="sect2">Using a User-Defined Aggregate</h2>
+<div>
+<p>User-defined aggregates can be used just like built-in aggregate functions in SQL DML and query statements. They can appear in the <code class="codeph">SELECT</code> list, <code class="codeph">ORDER BY</code> clause, or as part of the predicate in the <code class="codeph">HAVING</code> clause. The following <a href="aggr_functions.htm#GUID-5C6FF47A-C6BB-4980-8234-5CFA081274F2__CECEFHHG">Example 11-3</a>, <a href="aggr_functions.htm#GUID-E96E2A55-57BE-4C81-8D13-8E290D976616__CECGJAEB">Example 11-4</a> and <a href="aggr_functions.htm#GUID-F4526CA9-0E72-45FD-A83C-95C1226F72CE__CECFDFAD">Example 11-5</a> illustrate some options.</p>
+<div class="infoboxnotealso" id="GUID-8A3ADB96-3910-490D-A657-78E9BD29B3C5__GUID-562D6953-D168-412B-898E-429AA3E2CB07">
+<p class="notep1">See Also:</p>
+<p><a class="olink DWHSG" target="_blank" href="../DWHSG/toc.htm"><span class="italic">Oracle Database Data Warehousing Guide</span></a> for information about <code class="codeph">GROUP BY</code> extensions such as <code class="codeph">ROLLUP</code>, <code class="codeph">CUBE</code> and grouping sets</p>
+</div>
+</div>
+<a id="ADDCI4629"></a>
+<div class="props_rev_3"><a id="GUID-5C6FF47A-C6BB-4980-8234-5CFA081274F2"></a>
+<h3 id="ADDCI-GUID-5C6FF47A-C6BB-4980-8234-5CFA081274F2" class="sect3">Using the SELECT Statement with User-Defined Aggregate Functions</h3>
+<div>
+<div class="example" id="GUID-5C6FF47A-C6BB-4980-8234-5CFA081274F2__CECEFHHG">
+<p class="titleinexample">Example 11-3 Using the SELECT Statement with User-Defined Aggregate Functions</p>
+<p>The following query can be used to compute state boundaries by aggregating the geometries of all counties belonging to the same state:</p>
+<pre dir="ltr">SELECT SpatialUnion(geometry)
+FROM counties
+GROUP BY state
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4630"></a>
+<div class="props_rev_3"><a id="GUID-E96E2A55-57BE-4C81-8D13-8E290D976616"></a>
+<h3 id="ADDCI-GUID-E96E2A55-57BE-4C81-8D13-8E290D976616" class="sect3">Using the HAVING Clause with User-Defined Aggregate Functions</h3>
+<div>
+<div class="example" id="GUID-E96E2A55-57BE-4C81-8D13-8E290D976616__CECGJAEB">
+<p class="titleinexample">Example 11-4 Using the HAVING Clause with User-Defined Aggregate Functions</p>
+<p>User-defined aggregates can be used in the <code class="codeph">HAVING</code> clause to eliminate groups from the output based on the results of the aggregate function. Here, <code class="codeph">MyUDAG()</code> is a user-defined aggregate:</p>
+<pre dir="ltr">SELECT groupcol, MyUDAG(col)
+FROM tab
+GROUP BY groupcol
+HAVING MyUDAG(col) &gt; 100
+ORDER BY MyUDAG(col);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4631"></a>
+<div class="props_rev_3"><a id="GUID-F4526CA9-0E72-45FD-A83C-95C1226F72CE"></a>
+<h3 id="ADDCI-GUID-F4526CA9-0E72-45FD-A83C-95C1226F72CE" class="sect3">Using Query Options with User-Defined Aggregate Functions</h3>
+<div>
+<div class="example" id="GUID-F4526CA9-0E72-45FD-A83C-95C1226F72CE__CECFDFAD">
+<p class="titleinexample">Example 11-5 Using other Query Options with User-Defined Aggregate Functions</p>
+<p>User-defined aggregates can take <code class="codeph">DISTINCT</code> or <code class="codeph">ALL</code> (default) options on the input parameter. <code class="codeph">DISTINCT</code> causes duplicate values to be ignored while computing an aggregate. The <code class="codeph">SELECT</code> statement that contains a user-defined aggregate can also include <code class="codeph">GROUP BY</code> extensions such as <code class="codeph">ROLLUP</code>, <code class="codeph">CUBE</code> and grouping sets:</p>
+<pre dir="ltr">SELECT ..., MyUDAG(col)
+FROM tab
+GROUP BY ROLLUP(gcol1, gcol2);
+</pre>
+<p>The <a href="ext_agg_ref.htm#GUID-12D1C061-ECF3-4133-AA24-2C7E2036DF94">ODCIAggregateMerge()</a> interface is invoked to compute super aggregate values in such roll-up operations.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4633"></a><a id="ADDCI4634"></a><a id="ADDCI4632"></a>
+<div class="props_rev_3"><a id="GUID-9136DBA6-D4D6-4E1F-8807-4642CCA93FAA"></a>
+<h2 id="ADDCI-GUID-9136DBA6-D4D6-4E1F-8807-4642CCA93FAA" class="sect2">Evaluating User-Defined Aggregates in Parallel</h2>
+<div>
+<p>Like built-in aggregate functions, user-defined aggregates can be evaluated in parallel.</p>
+<p>The aggregation contexts generated by aggregating subsets of the rows within the parallel slaves are sent back to the next parallel step, either the query coordinator or the next slave set. It then merges the aggregation contexts, and then invokes the Terminate routine to obtain the aggregate value. This behavious is illustrated in <a href="aggr_functions.htm#GUID-9136DBA6-D4D6-4E1F-8807-4642CCA93FAA__CECCIIFH">Figure 11-1</a>.</p>
+<div class="figure" id="GUID-9136DBA6-D4D6-4E1F-8807-4642CCA93FAA__CECCIIFH">
+<p class="titleinfigure">Figure 11-1 Sequence of Calls for Parallel Evaluation of User-Defined Aggregates</p>
+<img width="180" height="102" src="img/ErrorImage.jpg.jpg" alt="Description of Figure 11-1 follows" title="Description of Figure 11-1 follows"/><br/>
+<a href="img_text/ErrorImage.jpg.htm">Description of &#34;Figure 11-1 Sequence of Calls for Parallel Evaluation of User-Defined Aggregates&#34;</a></div>
+<!-- class="figure" -->
+<p>You should note that the aggregate function must be declared to be parallel-enabled, as shown in <a href="aggr_functions.htm#GUID-9136DBA6-D4D6-4E1F-8807-4642CCA93FAA__CECCFBAI">Example 11-6</a>:</p>
+<div class="example" id="GUID-9136DBA6-D4D6-4E1F-8807-4642CCA93FAA__CECCFBAI">
+<p class="titleinexample">Example 11-6 Parallel-Enabling a User-Defined Aggregate Function</p>
+<pre dir="ltr">CREATE FUNCTION MyUDAG(...) RETURN ...
+PARALLEL_ENABLE AGGREGATE USING MyAggrRoutines;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4635"></a>
+<div class="props_rev_3"><a id="GUID-E6D8A0B9-540C-41A7-B031-09958739E940"></a>
+<h2 id="ADDCI-GUID-E6D8A0B9-540C-41A7-B031-09958739E940" class="sect2">Handling Large Aggregation Contexts</h2>
+<div>
+<p>When the implementation type methods are implemented in an external language, such as C++ or Java, the aggregation context must be passed back and forth between the Oracle server process and the external function&#39;s language environment each time an implementation type method is called. This can have an adverse effect on performance as the size of the aggregation context increases.</p>
+<p>To enhance performance, you can store the aggregation context in external memory, allocated in the external function&#39;s execution environment. You can then pass the reference or key between the Oracle server and the external function. The key itself should be stored in the implementation type instance, the <code class="codeph">self</code>. This approach keeps the implementation type instance small so that it can be transferred quickly. Another advantage of this strategy is that the memory used to hold the aggregation context is allocated in the function&#39;s execution environment, such as <code class="codeph">extproc</code>, and not in the Oracle server.</p>
+<p>Usually you should use <a href="ext_agg_ref.htm#GUID-CECC6140-A457-46BF-AC78-D29243758111">ODCIAggregateInitialize()</a> to allocate the memory to hold the aggregation context and store the reference to it in the implementation type instance. In subsequent calls, the external memory and the aggregation context that it contains can be accessed using the reference. The external memory should usually be freed in <a href="ext_agg_ref.htm#GUID-881F8137-350A-4C42-994C-490D34C5ECE7">ODCIAggregateTerminate()</a>. <a href="ext_agg_ref.htm#GUID-12D1C061-ECF3-4133-AA24-2C7E2036DF94">ODCIAggregateMerge()</a> should free the external memory used to store the merged context (the second argument of <a href="ext_agg_ref.htm#GUID-12D1C061-ECF3-4133-AA24-2C7E2036DF94">ODCIAggregateMerge()</a> after the merge is finished.</p>
+</div>
+<a id="ADDCI4636"></a>
+<div class="props_rev_3"><a id="GUID-B2245593-2E78-4CB1-8765-19060FECA017"></a>
+<h3 id="ADDCI-GUID-B2245593-2E78-4CB1-8765-19060FECA017" class="sect3">External Context and Parallel Aggregation</h3>
+<div>
+<p>With parallel execution of queries with user-defined aggregates, the entire aggregation context, which comprises all partial aggregates computed by slave processes, must sometimes be transmitted to another slave or to the master process. You can implement the optional routine <a id="d36695e985" class="indexterm-anchor"></a><a id="d36695e987" class="indexterm-anchor"></a><a href="ext_agg_ref.htm#GUID-424482C3-0051-4EE8-9E36-6AEE141F8370">ODCIAggregateWrapContext()</a> to collect all the partial aggregates. If a user-defined aggregate is being evaluated in parallel, and <a href="ext_agg_ref.htm#GUID-424482C3-0051-4EE8-9E36-6AEE141F8370">ODCIAggregateWrapContext()</a> is defined, Oracle invokes the routine to copy all external context references into the implementation type instance and then frees the external memory. To support <a href="ext_agg_ref.htm#GUID-424482C3-0051-4EE8-9E36-6AEE141F8370">ODCIAggregateWrapContext()</a>, the implementation type must contain attributes to hold the aggregation context and another attribute to hold the key that identifies the external memory.</p>
+<p>When the aggregation context is stored externally, the key attribute of the implementation type should contain the reference identifying the external memory, and the remaining attributes of the implementation type should be <code class="codeph">NULL</code>. After a <a href="ext_agg_ref.htm#GUID-424482C3-0051-4EE8-9E36-6AEE141F8370">ODCIAggregateWrapContext()</a> call runs successfully, the key attribute should be <code class="codeph">NULL</code>, and the other attributes should hold the actual aggregation context.</p>
+<p>Each of the implementation type&#39;s member methods should begin by checking whether the <a id="d36695e1017" class="indexterm-anchor"></a><a id="d36695e1021" class="indexterm-anchor"></a>context is <span class="bold">inline</span> (contained in the implementation type instance) or in external memory. If the context is inline, as it would be if it was sent from another parallel slave, it should be copied to external memory so that it can be passed by reference.</p>
+<p>Implementation of the <a href="ext_agg_ref.htm#GUID-424482C3-0051-4EE8-9E36-6AEE141F8370">ODCIAggregateWrapContext()</a> routine is optional. It is necessary only when external memory holds the aggregation context, and the user-defined aggregate is evaluated in parallel. If the user-defined aggregate is never evaluated in parallel, <a href="ext_agg_ref.htm#GUID-424482C3-0051-4EE8-9E36-6AEE141F8370">ODCIAggregateWrapContext()</a> is not needed. If the <a href="ext_agg_ref.htm#GUID-424482C3-0051-4EE8-9E36-6AEE141F8370">ODCIAggregateWrapContext()</a> method is not defined, Oracle assumes that the aggregation context is not stored externally and does not try to call the method.</p>
+</div>
+<a id="ADDCI4637"></a>
+<div class="props_rev_3"><a id="GUID-2BFDE5A6-F55E-4112-9544-D19758269150"></a>
+<h4 id="ADDCI-GUID-2BFDE5A6-F55E-4112-9544-D19758269150" class="sect4">Using External Memory to Store Aggregate Context</h4>
+<div>
+<div class="section">
+<p>This example shows how an aggregation context type that contains references to external memory can also store the entire context, when needed.</p>
+<p>The <code class="codeph">4</code> byte <code class="codeph">key</code> parameter is used to look up the external context. When <code class="codeph">NULL</code>, it implies that the entire context value is held by the rest of the attributes in the object. The other attributes, such as <code class="codeph">GeometrySet</code>, correspond to the actual aggregation context. If the <code class="codeph">key</code> value is not <code class="codeph">NULL</code>, these attributes must have a <code class="codeph">NULL</code> value. However, when the context object is self-contained, as after a call to <a href="ext_agg_ref.htm#GUID-424482C3-0051-4EE8-9E36-6AEE141F8370">ODCIAggregateWrapContext()</a>, these attributes hold the current context values.</p>
+<pre dir="ltr">CREATE TYPE MyAggrRoutines AS OBJECT
+(
+key RAW(4),
+ctxval GeometrySet,
+ctxval2 ...
+);
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADDCI4638"></a>
+<div class="props_rev_3"><a id="GUID-7E550E05-CFE3-4757-A7D4-4408BF8BE38F"></a>
+<h3 id="ADDCI-GUID-7E550E05-CFE3-4757-A7D4-4408BF8BE38F" class="sect3">User-Defined Aggregates and Analytic Functions</h3>
+<div>
+<p><a id="d36695e1183" class="indexterm-anchor"></a>Analytic functions enable you to compute various cumulative, moving, and centered aggregates over a set of rows called a window. For each row in a table, analytic functions return a value computed on the other rows contained in the given row&#39;s window. These functions provide access to several rows of a table without a self-join. User-defined aggregates can be used as analytic functions.</p>
+</div>
+<a id="ADDCI4639"></a>
+<div class="props_rev_3"><a id="GUID-266E98E1-8889-4603-A3E0-975B1589B674"></a>
+<h4 id="ADDCI-GUID-266E98E1-8889-4603-A3E0-975B1589B674" class="sect4">Using User-Defined Aggregates and Analytic Functions</h4>
+<div>
+<div class="section">
+<pre dir="ltr">SELECT Account_number, Trans_date, Trans_amount,
+   MyAVG (Trans_amount) OVER(
+      PARTITION BY Account_number ORDER BY Trans_date
+      RANGE INTERVAL &#39;7&#39; DAY PRECEDING) AS mavg_7day
+FROM Ledger;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADDCI4640"></a>
+<div class="props_rev_3"><a id="GUID-FD1CCD4C-A2B6-47EE-85E9-20BC01C69949"></a>
+<h3 id="ADDCI-GUID-FD1CCD4C-A2B6-47EE-85E9-20BC01C69949" class="sect3">Reuse of Aggregation Context for Analytic Functions</h3>
+<div>
+<p>When a user-defined aggregate is used as an analytic function, the aggregate is calculated for each row&#39;s corresponding window. Generally, each successive window contains largely the same set of rows, such that the new aggregation context, the new window, differs by only a few rows from the old aggregation context, the previous window. To reuse the aggregation context, any new rows that were not in the old context must be iterated over to add them, and any rows from the old context that do not belong in the new context must be removed. If the aggregation context cannot be reused, all the rows it contains must be reiterated to rebuild it.</p>
+<p>You can implement an optional routine, <a id="d36695e1302" class="indexterm-anchor"></a><a id="d36695e1306" class="indexterm-anchor"></a><a href="ext_agg_ref.htm#GUID-561F78C7-15D4-441D-8473-5F9D73AD310A">ODCIAggregateDelete()</a>, to allow Oracle to reuse the aggregation context more efficiently. <a href="ext_agg_ref.htm#GUID-561F78C7-15D4-441D-8473-5F9D73AD310A">ODCIAggregateDelete()</a> removes from the aggregation context rows from the previous context that are not in the new (current) window. Oracle calls this routine for each row that must be removed. For each row that must be added, Oracle calls <a href="ext_agg_ref.htm#GUID-6F703759-4FA6-4120-BEC3-F5BD2A576BF4">ODCIAggregateIterate()</a>.</p>
+<p>If the new aggregation context is a superset of the old one, then it contains all the rows from the old context and no rows must be deleted. Oracle then reuses the old context even if <a href="ext_agg_ref.htm#GUID-561F78C7-15D4-441D-8473-5F9D73AD310A">ODCIAggregateDelete()</a> is not implemented.</p>
+<div class="infoboxnotealso" id="GUID-FD1CCD4C-A2B6-47EE-85E9-20BC01C69949__GUID-162F4BB6-6252-490D-90AD-EA2B1DCA5F1B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink DWHSG021" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=DWHSG021"><span class="italic">Oracle Database Data Warehousing Guide</span></a> for information about analytic functions</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="ADDCI4641"></a>
+<div class="props_rev_3"><a id="GUID-2454C284-8A96-451F-B786-59354E2FB686"></a>
+<h3 id="ADDCI-GUID-2454C284-8A96-451F-B786-59354E2FB686" class="sect3">External Context and User-Defined Analytic Functions</h3>
+<div>
+<p>When user-defined aggregates are used as analytic functions, the aggregation context can be reused from one window to the next. In these cases, the flag argument of the <a href="ext_agg_ref.htm#GUID-881F8137-350A-4C42-994C-490D34C5ECE7">ODCIAggregateTerminate()</a> function has its <code class="codeph">ODCI_AGGREGATE_REUSE_CTX</code> bit set to indicate that the external memory holding the aggregation context should not be freed. Also, the <a href="ext_agg_ref.htm#GUID-CECC6140-A457-46BF-AC78-D29243758111">ODCIAggregateInitialize()</a> method is passed the implementation type instance of the previous window, so instead of having to allocate memory again, you can access and re-initialize the external memory previously allocated. To support external context for user-defined analytic functions, you should follow these steps:</p>
+<ol>
+<li>
+<p><a href="ext_agg_ref.htm#GUID-CECC6140-A457-46BF-AC78-D29243758111">ODCIAggregateInitialize()</a> - If the implementation type instance passed is not <code class="codeph">NULL</code>, use the previously allocated external memory instead of allocating new external memory, and reinitialize the aggregation context.</p>
+</li>
+<li>
+<p><a href="ext_agg_ref.htm#GUID-881F8137-350A-4C42-994C-490D34C5ECE7">ODCIAggregateTerminate()</a> - Free external memory only if the bit <code class="codeph">ODCI_AGGREGATE_REUSE_CTX</code> of the flag argument is not set.</p>
+</li>
+<li>
+<p><a href="ext_agg_ref.htm#GUID-12D1C061-ECF3-4133-AA24-2C7E2036DF94">ODCIAggregateMerge()</a> - Free external memory associated with the merged aggregation context.</p>
+</li>
+<li>
+<p><a href="ext_agg_ref.htm#GUID-881F8137-350A-4C42-994C-490D34C5ECE7">ODCIAggregateTerminate()</a> - Copy the aggregation context from the external memory into the implementation type instance, and free the external memory.</p>
+</li>
+<li>
+<p>All member methods - First determine if the context is stored externally or inline. If the context is inline, allocate external memory and copy the context there.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="ADDCI4643"></a><a id="ADDCI4644"></a><a id="ADDCI4642"></a>
+<div class="props_rev_3"><a id="GUID-3B89775A-D55C-4EDD-AF75-923A3940373D"></a>
+<h2 id="ADDCI-GUID-3B89775A-D55C-4EDD-AF75-923A3940373D" class="sect2">Using Materialized Views with User-Defined Aggregates</h2>
+<div>
+<div class="section">
+<p>A <a id="d36695e1515" class="indexterm-anchor"></a>materialized view definition can contain user-defined aggregates and built-in aggregate operators, as demonstrated in <a href="aggr_functions.htm#GUID-3B89775A-D55C-4EDD-AF75-923A3940373D__CIHCBBJJ">Example 11-7</a>.</p>
+<p>To enable the materialized view for query rewrite, the user-defined aggregates in the materialized view must be declared as <code class="codeph">DETERMINISTIC</code>, as demonstrated in <a href="aggr_functions.htm#GUID-3B89775A-D55C-4EDD-AF75-923A3940373D__CIHJJDAJ">Example 11-8</a>.</p>
+<p>When a user-defined aggregate is dropped or re-created, all of its dependent materialized views are marked invalid.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-3B89775A-D55C-4EDD-AF75-923A3940373D__CIHCBBJJ">
+<p class="titleinexample">Example 11-7 Creating Materialized Views</p>
+<pre dir="ltr">CREATE MATERIALIZED VIEW MyMV AS 
+SELECT gcols, MyUDAG(c1) FROM tab GROUP BY (gcols);
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-3B89775A-D55C-4EDD-AF75-923A3940373D__CIHJJDAJ">
+<p class="titleinexample">Example 11-8 Enabling Materialized Views for Query Rewrite</p>
+<pre dir="ltr">CREATE FUNCTION MyUDAG(x NUMBER) RETURN NUMBER
+DETERMINISTIC
+AGGREGATE USING MyImplType;
+
+CREATE MATERIALIZED VIEW MyMV
+ENABLE QUERY REWRITE AS
+SELECT gcols, MyUDAG(c1) FROM tab GROUP BY (gcols);
+</pre></div>
+<!-- class="example" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-3B89775A-D55C-4EDD-AF75-923A3940373D__GUID-B21A1C26-081A-4144-81A4-D3CDC312DF3A">
+<p class="notep1">See Also:</p>
+<p><a class="olink DWHSG008" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=DWHSG008"><span class="italic">Oracle Database Data Warehousing Guide</span></a> for information about materialized views</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADDCI4645"></a><a id="ADDCI026"></a>
+<div class="props_rev_3"><a id="GUID-3D6FD1F2-14C7-4694-B2CB-537E581460A1"></a>
+<h2 id="ADDCI-GUID-3D6FD1F2-14C7-4694-B2CB-537E581460A1" class="sect2">Creating and Using a User-Defined Aggregate Function</h2>
+<div>
+<div class="section">
+<p><a href="aggr_functions.htm#GUID-3D6FD1F2-14C7-4694-B2CB-537E581460A1__CIHECHID">Example 11-9</a> illustrates how to create and use a simple user-defined aggregate function, <code class="codeph">SecondMax()</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-3D6FD1F2-14C7-4694-B2CB-537E581460A1__CIHECHID">
+<p class="titleinexample">Example 11-9 Creating and Using a User-Defined Aggregate Function</p>
+<p><code class="codeph">SecondMax()</code> returns the second-largest value in a set of numbers.</p>
+<ol>
+<li>
+<p>Implement the type <code class="codeph">SecondMaxImpl</code> to contain the <code class="codeph">ODCIAggregate</code> routines:</p>
+<pre dir="ltr">create type SecondMaxImpl as object
+(
+  max NUMBER, -- highest value seen so far 
+  secmax NUMBER, -- second highest value seen so far
+  static function ODCIAggregateInitialize(sctx IN OUT SecondMaxImpl) 
+    return number,
+  member function ODCIAggregateIterate(self IN OUT SecondMaxImpl, 
+    value IN number) return number,
+  member function ODCIAggregateTerminate(self IN SecondMaxImpl, 
+    returnValue OUT number, flags IN number) return number,
+  member function ODCIAggregateMerge(self IN OUT SecondMaxImpl, 
+    ctx2 IN SecondMaxImpl) return number
+);
+/
+</pre></li>
+<li>
+<p>Implement the type body for <code class="codeph">SecondMaxImpl</code>:</p>
+<pre dir="ltr">create or replace type body SecondMaxImpl is 
+static function ODCIAggregateInitialize(sctx IN OUT SecondMaxImpl) 
+return number is 
+begin
+  sctx := SecondMaxImpl(0, 0);
+  return ODCIConst.Success;
+end;
+
+member function ODCIAggregateIterate(self IN OUT SecondMaxImpl, value IN number) return number is
+begin
+  if value &gt; self.max then
+    self.secmax := self.max;
+    self.max := value;
+  elsif value &gt; self.secmax then
+    self.secmax := value;
+  end if;
+  return ODCIConst.Success;
+end;
+
+member function ODCIAggregateTerminate(self IN SecondMaxImpl, 
+    returnValue OUT number, flags IN number) return number is
+begin
+  returnValue := self.secmax;
+  return ODCIConst.Success;
+end;
+
+member function ODCIAggregateMerge(self IN OUT SecondMaxImpl, ctx2 IN SecondMaxImpl) return number is
+begin
+  if ctx2.max &gt; self.max then
+    if ctx2.secmax &gt; self.secmax then 
+      self.secmax := ctx2.secmax;
+    else
+      self.secmax := self.max;
+    end if;
+    self.max := ctx2.max;
+  elsif ctx2.max &gt; self.secmax then
+    self.secmax := ctx2.max;
+  end if;
+  return ODCIConst.Success;
+end;
+end;
+/
+</pre></li>
+<li>
+<p>Create the user-defined aggregate:</p>
+<pre dir="ltr">CREATE FUNCTION SecondMax (input NUMBER) RETURN NUMBER 
+PARALLEL_ENABLE AGGREGATE USING SecondMaxImpl;
+</pre></li>
+<li>
+<p>Use <code class="codeph">SecondMax()</code>:</p>
+<pre dir="ltr">SELECT SecondMax(salary), department_id
+   FROM MyEmployees
+   GROUP BY department_id
+   HAVING SecondMax(salary) &gt; 9000;
+</pre></li>
+</ol>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5977">
+<tr>
+<td class="cellalignment5984">
+<table class="cellalignment5982">
+<tr>
+<td class="cellalignment5981"><a href="ext_optimizer.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5981"><a href="pipe_paral_tbl.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5986">
+<table class="cellalignment5980">
+<tr>
+<td class="cellalignment5981"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5981"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5981"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5981"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5981"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5981"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

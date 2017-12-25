@@ -1,0 +1,368 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-72351"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Labeling%20Connections%20in%20UCP"></a><title>Labeling Connections in UCP</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="This guide provides instructions for using Oracle Universal Connection Pooling API. The API is JDBC driver agnostic."/>
+<meta name="dcterms.created" content="2014-06-29T23:47:52Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Universal Connection Pool for JDBC Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49541-01"/>
+<meta name="dcterms.isVersionOf" content="JJUCP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="optimize.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="con_behv.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49541-01.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">9/16</span> <!-- End Header -->
+<div id="JJUCP8166" class="chapter"><a id="BABGJEEA"></a>
+<h1 class="chapter"><span class="secnum">5</span> Labeling Connections in UCP</h1>
+<p>This chapter discusses the following topics:</p>
+<ul>
+<li>
+<p><a href="#BABEIJBD">Overview of Labeling Connections in UCP</a></p>
+</li>
+<li>
+<p><a href="#BABBCJHC">Implementing a Labeling Callback in UCP</a></p>
+</li>
+<li>
+<p><a href="#BABBDEDH">Applying Connection Labels in UCP</a></p>
+</li>
+<li>
+<p><a href="#BABEEBJI">Borrowing Labeled Connections from UCP</a></p>
+</li>
+<li>
+<p><a href="#BABEECCC">Checking Unmatched Labels in UCP</a></p>
+</li>
+<li>
+<p><a href="#CIHDBFAF">Using UCP with DRCP</a></p>
+</li>
+<li>
+<p><a href="#BABFBFAC">Removing a Connection Label from UCP</a></p>
+</li>
+</ul>
+<a id="BABEIJBD"></a>
+<div id="JJUCP8167" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Overview of Labeling Connections in UCP</h2>
+<p><a id="sthref212"></a><a id="sthref213"></a><a id="sthref214"></a><a id="sthref215"></a>Applications often initialize connections retrieved from a connection pool before using the connection. The initialization varies and could include simple state re-initialization that requires method calls within the application code or database operations that require round trips over the network. The cost of such initialization may be significant.</p>
+<p>Labeling connections enables an application to attach arbitrary name/value pairs to a connection. The application can request a connection with the desired label from the connection pool. By associating particular labels with particular connection states, an application can retrieve an already initialized connection from the pool and avoid the time and cost of re-initialization. The connection labeling feature does not impose any meaning on user-defined keys or values; the meaning of user-defined keys and values is defined solely by the application.</p>
+<p>Some of the examples for connection labeling include, role, NLS language settings, transaction isolation levels, stored procedure calls, or any other state initialization that is expensive and necessary on the connection before work can be executed by the resource.</p>
+<p><a id="sthref216"></a><a id="sthref217"></a>Connection labeling is application-driven and requires the use of two interfaces. The <code>oracle.ucp.jdbc.LabelableConnection</code> interface is used to apply and remove connection labels, as well as retrieve labels that have been set on a connection. The <code>oracle.ucp.ConnectionLabelingCallback</code> interface is used to create a labeling callback that determines whether or not a connection with a requested label already exists. If no connections exist, the interface allows current connections to be configured as required. The methods of these interfaces are described in detail throughout this chapter.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABBCJHC"></a>
+<div id="JJUCP8168" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Implementing a Labeling Callback in UCP</h2>
+<p>UCP uses Database Resident Connection Pooling (DRCP) tagging infrastructure to support labeling in UCP, whether you work with single labels or multiple labels. However, the behavior with multiple labels can be a little different when you use the UCP and DRCP combination instead of only UCP.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="#CIHDBFAF">&#34;Using UCP with DRCP&#34;</a></div>
+<p><a id="sthref218"></a><a id="sthref219"></a><a id="sthref220"></a>A labeling callback is used to define how the connection pool selects labeled connections and allows the selected connection to be configured before returning it to an application. Applications that use the connection labeling feature must provide a callback implementation.</p>
+<p>A labeling callback is used when a labeled connection is requested but there are no connections in the pool that match the requested labels. The callback determines which connection requires the least amount of work in order to be re-configured to match the requested label and then enables the connection labels to be updated before returning the connection to the application. This section describes the following topics:</p>
+<ul>
+<li>
+<p><a href="#CIHDEBFH">Creating a Labeling Callback</a></p>
+</li>
+<li>
+<p><a href="#CIHECIBE">Registering a Labeling Callback</a></p>
+</li>
+<li>
+<p><a href="#CIHDEAAB">Removing a Labeling Callback</a></p>
+</li>
+</ul>
+<a id="CIHDEBFH"></a>
+<div id="JJUCP8169" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Creating a Labeling Callback</h3>
+<p><a id="sthref221"></a><a id="sthref222"></a><a id="sthref223"></a><a id="sthref224"></a>To create a labeling callback, an application implements the <code>oracle.ucp.ConnectionLabelingCallback</code> interface. One callback is created per connection pool. The interface provides the following two methods:</p>
+<ul>
+<li>
+<p><a href="#CIHCBJGI">The cost Method</a></p>
+</li>
+<li>
+<p><a href="#CIHECFCD">The configure Method</a></p>
+</li>
+</ul>
+<p class="subhead2"><a id="CIHCBJGI"></a><a id="JJUCP8266"></a><a id="sthref225"></a>The cost Method</p>
+<p>This method projects the cost of configuring connections considering label-matching differences. Upon a connection request, the connection pool uses this method to select a connection with the least configuration cost.</p>
+<pre>public int cost(Properties requestedLabels, Properties currentLabels);
+</pre>
+<p class="subhead2"><a id="CIHECFCD"></a><a id="JJUCP8267"></a><a id="sthref226"></a>The configure Method</p>
+<p>This method is called by the connection pool on the selected connection before returning it to the application. The method is used to set the state of the connection and apply or remove any labels to/from the connection.</p>
+<pre>public boolean configure(Properties requestedLabels, Connection conn);
+</pre>
+<p><a id="sthref227"></a>The connection pool iterates over each connection available in the pool. For each connection, it calls the <code>cost</code> method. The result of the <code>cost</code> method is an <code>integer</code> which represents an estimate of the cost required to reconfigure the connection to the required state. The larger the value, the costlier it is to reconfigure the connection. The connection pool always returns connections with the lowest cost value. The algorithm is as follows:</p>
+<ul>
+<li>
+<p>If the <code>cost</code> method returns <code>0</code> for a connection, then the connection is a match. The connection pool does not call the <code>configure</code> method on the connection found and returns the connection as it is.</p>
+</li>
+<li>
+<p>If the <code>cost</code> method returns a value greater than <code>0</code>, then the connection pool iterates until it finds a connection with a cost value of <code>0</code> or runs out of available connections.</p>
+</li>
+<li>
+<p>If the pool has iterated through all available connections and the lowest cost of a connection is <code>Integer.MAX_VALUE</code> (2147483647 by default), then no connection in the pool is able to satisfy the connection request. The pool creates and returns a new connection. If the pool has reached the maximum pool size (it cannot create a new connection), then the pool either throws an SQL exception or waits if the connection wait timeout attribute is specified.</p>
+</li>
+<li>
+<p>If the pool has iterated through all available connections and the lowest cost of a connection is less than <code>Integer.MAX_VALUE</code>, then the <code>configure</code> method is called on the connection and the connection is returned. If multiple connections are less than <code>Integer.MAX_VALUE</code>, the connection with the lowest cost is returned.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+A cost of <code>0</code> does not imply that <code>requestedLabels</code> equals <code>currentLabels</code>.</div>
+<div id="JJUCP8170" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref228"></a>
+<h4 class="sect3">Example of Labeling Callback</h4>
+<p><a id="sthref229"></a><a id="sthref230"></a>The following example demonstrates a simple labeling callback implementation that implements both the <code>cost</code> and <code>configure</code> methods. The callback is used to find a labeled connection that is initialized with a specific transaction isolation level.</p>
+<pre>class MyConnectionLabelingCallback
+  implements ConnectionLabelingCallback {
+
+  public MyConnectionLabelingCallback()
+  {
+  }
+
+  public int cost(Properties reqLabels, Properties currentLabels)
+  {
+    // Case 1: exact match
+    if (reqLabels.equals(currentLabels))
+    {
+      System.out.println(&#34;## Exact match found!! ##&#34;);
+      return 0;
+    }
+
+    // Case 2: some labels match with no unmatched labels
+    String iso1 = (String) reqLabels.get(&#34;TRANSACTION_ISOLATION&#34;);
+    String iso2 = (String) currentLabels.get(&#34;TRANSACTION_ISOLATION&#34;);
+    boolean match =
+      (iso1 != null &amp;&amp; iso2 != null &amp;&amp; iso1.equalsIgnoreCase(iso2));
+    Set rKeys = reqLabels.keySet();
+    Set cKeys = currentLabels.keySet();
+    if (match &amp;&amp; rKeys.containsAll(cKeys))
+    {
+      System.out.println(&#34;## Partial match found!! ##&#34;);
+      return 10;
+    }
+
+    // No label matches to application&#39;s preference.
+    // Do not choose this connection.
+    System.out.println(&#34;## No match found!! ##&#34;);
+    return Integer.MAX_VALUE;
+  }
+
+  public boolean configure(Properties reqLabels, Object conn)
+  {
+    try
+    {
+      String isoStr = (String) reqLabels.get(&#34;TRANSACTION_ISOLATION&#34;);
+      ((Connection)conn).setTransactionIsolation(Integer.valueOf(isoStr));
+      LabelableConnection lconn = (LabelableConnection) conn;
+
+      // Find the unmatched labels on this connection
+      Properties unmatchedLabels =
+       lconn.getUnmatchedConnectionLabels(reqLabels);
+
+      // Apply each label &lt;key,value&gt; in unmatchedLabels to conn
+      for (Map.Entry&lt;Object, Object&gt; label : unmatchedLabels.entrySet())
+      {
+        String key = (String) label.getKey();
+        String value = (String) label.getValue();
+        lconn.applyConnectionLabel(key, value);
+      }
+    }
+    catch (Exception exc)
+    {
+      return false;
+    }
+    return true;
+  }
+}
+</pre></div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CIHECIBE"></a>
+<div id="JJUCP8171" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Registering a Labeling Callback</h3>
+<p><a id="sthref231"></a><a id="sthref232"></a>A pool-enabled data source provides the <code>registerConnectionLabelingCallback(ConnectionLabelingCallback callback)</code> method for registering labeling callbacks. Only one callback may be registered on a connection pool. The following example demonstrates registering a labeling callback that is implemented in the <code>MyConnectionLabelingCallback</code> class:</p>
+<pre>MyConnectionLabelingCallback callback = new MyConnectionLabelingCallback();
+pds.registerConnectionLabelingCallback( callback );
+</pre></div>
+<!-- class="sect2" -->
+<a id="CIHDEAAB"></a>
+<div id="JJUCP8172" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Removing a Labeling Callback</h3>
+<p><a id="sthref233"></a><a id="sthref234"></a>A pool-enabled data source provides the <code>removeConnectionLabelingCallback()</code> method for removing a labeling callback. The following example demonstrates removing a labeling callback.</p>
+<pre>pds.removeConnectionLabelingCallback( callback );
+</pre></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CIHDBFAF"></a>
+<div id="JJUCP8268" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Using UCP with DRCP</h2>
+<p>Natively, DRCP supports connection tagging, which is a single label without weights. So, labeling with single label works transparently if you use UCP with DRCP. Multiple label UCP connections work, but they have the following behavior changes:</p>
+<ul>
+<li>
+<p>The <code>cost</code> method in the <code>ConnectionLabelingCallback</code> API is not invoked if you use UCP with DRCP using connection labeling</p>
+</li>
+<li>
+<p>UCP can invoke the <code>configure</code> method in the <code>ConnectionLabelingCallback</code> API more with DRCP configuration than without DRCP configuration.</p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink JJDBC29023" href="../JJDBC/drcp.htm#JJDBC29023"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> for more information about DRCP</div>
+</div>
+<!-- class="sect1" -->
+<a id="BABBDEDH"></a>
+<div id="JJUCP8173" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Applying Connection Labels in UCP</h2>
+<p><a id="sthref235"></a><a id="sthref236"></a><a id="sthref237"></a><a id="sthref238"></a><a id="sthref239"></a>Labels are applied on a borrowed connection using the <code>applyConnectionLabel</code> method from the <code>LabelableConnection</code> interface. This method is typically called from the <code>configure</code> method of the labeling callback. Any number of connection labels may be cumulatively applied on a borrowed connection. Each time a label is applied to a connection, the supplied key/value pair is added to the collection of labels already applied to the connection. Only the last applied value is retained for any given key.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+A labeling callback must be registered on the connection pool before a label can be applied on a borrowed connection; otherwise, an exception is thrown. See <a href="#BABBCJHC">&#34;Implementing a Labeling Callback in UCP&#34;</a>.</div>
+<p>The following example demonstrates initializing a connection with a transaction isolation level and then applying a label to the connection:</p>
+<pre>String pname = &#34;property1&#34;;
+String pvalue = &#34;value&#34;;
+Connection conn = pds.getConnection();
+
+// initialize the connection as required.
+
+conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+((LabelableConnection) conn).applyConnectionLabel(pname, pvalue);
+</pre>
+<p>In order to remove a given key from the set of connection labels applied, apply a label with the key to be removed and a <code>null</code> value. This may be used to clear a particular key/value pair from the set of connection labels.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABEEBJI"></a>
+<div id="JJUCP8174" class="sect1">
+<h2 class="sect1">Borrowing Labeled Connections from UCP</h2>
+<p><a id="sthref240"></a><a id="sthref241"></a><a id="sthref242"></a><a id="sthref243"></a>A pool-enabled data source provides two <code>getConnection</code> methods that are used to borrow a labeled connection from the pool. The methods are shown below:</p>
+<pre>public Connection getConnection(java.util.Properties labels )
+   throws SQLException;
+
+public Connection getConnection( String user, String password, 
+                                 java.util.Properties labels )
+   throws SQLException;
+</pre>
+<p>The methods require that the label be passed to the <code>getConnection</code> method as a <code>Properties</code> object. The following example demonstrates getting a connection with the label <code>property1, value</code>.</p>
+<pre>String pname = &#34;property1&#34;;
+String pvalue = &#34;value&#34;;
+Properties label = new Properties();
+label.setProperty(pname, pvalue);
+
+Connection conn = pds.getConnection(label);
+</pre></div>
+<!-- class="sect1" -->
+<a id="BABEECCC"></a>
+<div id="JJUCP8175" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Checking Unmatched Labels in UCP</h2>
+<p><a id="sthref244"></a><a id="sthref245"></a><a id="sthref246"></a><a id="sthref247"></a><a id="sthref248"></a>A connection may have multiple labels that each uniquely identifies the connection based on some desired criteria. The <code>getUnmatchedConnectionLabels</code> method is used to verify which connection labels matched from the requested labels and which did not. The method is used after a connection with multiple labels is borrowed from the connection pool and is typically used by a labeling callback. The following example demonstrates checking for unmatched labels.</p>
+<pre>String pname = &#34;property1&#34;;
+String pvalue = &#34;value&#34;;
+Properties label = new Properties();
+label.setProperty(pname, pvalue);
+
+Connecion conn = pds.getConnection(label);
+Properties unmatched = ((LabelableConnection)
+   connection).getUnmatchedConnectionLabels (label); 
+</pre></div>
+<!-- class="sect1" -->
+<a id="BABFBFAC"></a>
+<div id="JJUCP8176" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Removing a Connection Label from UCP</h2>
+<p><a id="sthref249"></a><a id="sthref250"></a><a id="sthref251"></a><a id="sthref252"></a>The <code>removeConnectionLabel</code> method is used to remove a label from a connection. This method is used after a labeled connection is borrowed from the connection pool. The following example demonstrates removing a connection label.</p>
+<pre>String pname = &#34;property1&#34;;
+String pvalue = &#34;value&#34;;
+Properties label = new Properties();
+label.setProperty(pname, pvalue);
+Connection conn = pds.getConnection(label);
+((LabelableConnection) conn).removeConnectionLabel(pname);
+</pre></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4234">
+<tr>
+<td class="cellalignment4243">
+<table class="cellalignment4239">
+<tr>
+<td class="cellalignment4238"><a href="optimize.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4238"><a href="con_behv.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4246">
+<table class="cellalignment4237">
+<tr>
+<td class="cellalignment4238"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4238"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4238"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4238"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4238"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4238"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

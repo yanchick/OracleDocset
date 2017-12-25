@@ -1,0 +1,524 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-79270"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20a%20TransactionProvider"></a><title>Using a TransactionProvider</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="dcterms.created" content="2014-06-27T7:32:42Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="OLAP Java API Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E17707-05"/>
+<meta name="dcterms.isVersionOf" content="OLAAP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2000, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="select.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="crscncpt.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E17707-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">13/19</span> <!-- End Header -->
+<div class="chapter"><a id="g1010472"></a> <a id="i1006411"></a>
+<h1 class="chapter"><span class="secnum">7</span> Using a TransactionProvider</h1>
+<p>This chapter describes the Oracle OLAP Java API <code>Transaction</code> and <code>TransactionProvider</code> interfaces and describes how you use implementations of those interfaces in an application. You get a <code>TransactionProvider</code> from a <code>DataProvider</code>. You use the <code>commitCurrentTransaction</code> method of the <code>TransactionProvider</code> to save a metadata object in persistent storage in the database. You also use that method after creating a derived <code>Source</code> and before creating a <code>Cursor</code> for the <code>Source</code>. For examples of committing a <code>Transaction</code> after creating a metadata object, see <a href="create.htm#g1008851">Chapter 4</a>.</p>
+<p>This chapter includes the following topics:</p>
+<ul>
+<li>
+<p><a href="#i1006165">About Creating a Metadata Object or a Query in a Transaction</a></p>
+</li>
+<li>
+<p><a href="#i1006167">Using TransactionProvider Objects</a></p>
+</li>
+</ul>
+<a id="i1006165"></a>
+<div class="sect1">
+<h2 class="sect1">About Creating a Metadata Object or a Query in a Transaction</h2>
+<p>The Oracle OLAP Java API is transactional. Creating metadata objects or <code>Source</code> objects for a query occurs in the context of a <code>Transaction</code>. A <code>TransactionProvider</code> provides <code>Transaction</code> objects to the application and commits or discards those <code>Transaction</code> objects.</p>
+<p>The <code>TransactionProvider</code> ensures the following:</p>
+<ul>
+<li>
+<p>A <code>Transaction</code> is isolated from other <code>Transaction</code> objects. Operations performed in a <code>Transaction</code> are not visible in, and do not affect, other <code>Transaction</code> objects.</p>
+</li>
+<li>
+<p>If an operation in a <code>Transaction</code> fails, then the effects of the operation are undone (the <code>Transaction</code> is rolled back).</p>
+</li>
+<li>
+<p>The effects of a completed <code>Transaction</code> persist.</p>
+</li>
+</ul>
+<p><a id="sthref754"></a><a id="sthref755"></a><a id="sthref756"></a>When you create a <code>DataProvider</code> and <code>UserSession</code>, the session does not at first have a <code>Transaction</code>. The first <code>Transaction</code> in a session is a root <code>Transaction</code>. You can explicitly create a root <code>Transaction</code> by calling the <code>createRootTransaction</code> method of the <code>TransactionProvider</code>. If you do not explicitly created one, then Oracle OLAP automatically creates a root <code>Transaction</code> the first time that you create or modify an <code>MdmObject</code> or a derived <code>Source</code>. To make permanent the changes to an <code>MdmObject</code>, you must commit the root <code>Transaction</code> in which you made the changes.</p>
+<p>A single-user application does not need to explicitly create a root <code>Transaction</code>. The ability to create multiple root <code>Transaction</code> objects is provided for use by multithreaded, middle-tier applications. If your application uses multiple root <code>Transaction</code> objects, the changes that the application makes in one root <code>Transaction</code> can be overwritten by changes the application makes in another root <code>Transaction</code>. The changes that occur in the last root <code>Transaction</code> that the application commits are the changes that persist.</p>
+<p><a id="sthref757"></a><a id="sthref758"></a>When you or Oracle OLAP creates the initial root <code>Transaction</code>, it is the <span class="italic">current</span> <code>Transaction</code>. If you create another root <code>Transaction</code>, it becomes the current <code>Transaction</code>.</p>
+<p>Oracle OLAP creates other <code>Transaction</code> objects as you create <code>Source</code> objects or child <code>Transaction</code> objects under a root <code>Transaction</code>. You must commit the root <code>Transaction</code> for the Oracle Database to add to persistent storage any metadata objects that you have created in any <code>Transaction</code> in the session.</p>
+<p>When you create a derived <code>Source</code> by calling a method of another <code>Source</code>, the derived <code>Source</code> is created in the context of the current <code>Transaction</code>. The <code>Source</code> is <span class="italic">active</span> in the <code>Transaction</code> in which you create it or in a child <code>Transaction</code> of that <code>Transaction</code>.</p>
+<p>You get or set the current <code>Transaction</code>, or begin a child <code>Transaction</code>, by calling methods of a <code>TransactionProvider</code>. In a child <code>Transaction</code> you can alter a query, for example by changing the selection of dimension elements or by performing a different mathematical or analytical operation on the data, which changes the state of a <code>Template</code> that you created in the parent <code>Transaction</code>. By displaying the data specified by the <code>Source</code> produced by the <code>Template</code> in the parent <code>Transaction</code> and also displaying the data specified by the <code>Source</code> produced by the <code>Template</code> in the child <code>Transaction</code>, you can provide the end user of your application with the means of easily altering a query and viewing the results of different operations on the same set of data, or the same operations on different sets of data.</p>
+<div class="sect2"><a id="sthref759"></a>
+<h3 class="sect2">Types of Transaction Objects</h3>
+<p><a id="sthref760"></a><a id="sthref761"></a><a id="sthref762"></a><a id="sthref763"></a>The OLAP Java API has the following two types of <code>Transaction</code> objects:</p>
+<ul>
+<li>
+<p>A read <code>Transaction</code>. Initially, the current <code>Transaction</code> is a read <code>Transaction</code>. A read <code>Transaction</code> is required for creating a <code>Cursor</code> to fetch data from Oracle OLAP. For more information on <code>Cursor</code> objects, see <a href="cursors.htm#g1018004">Chapter 9</a>.</p>
+</li>
+<li>
+<p>A write <code>Transaction</code>. A write <code>Transaction</code> is required for creating a derived <code>Source</code> or for changing the state of a <code>Template</code>. For more information on creating a derived <code>Source</code>, see <a href="query.htm#g1030586">Chapter 5</a>. For information on <code>Template</code> objects, see <a href="template.htm#g1013092">Chapter 10</a>.</p>
+</li>
+</ul>
+<p><a id="sthref764"></a>In the initial read <code>Transaction</code>, if you create a derived <code>Source</code> or if you change the state of a <code>Template</code> object, then a child write <code>Transaction</code> is automatically generated. That child <code>Transaction</code> becomes the current <code>Transaction</code>.</p>
+<p>If you then create another derived <code>Source</code> or change the <code>Template</code> state again, then that operation occurs in the same write <code>Transaction</code>. You can create any number of derived <code>Source</code> objects, or make any number of <code>Template</code> state changes, in that same write <code>Transaction</code>. You can use those <code>Source</code> objects, or the <code>Source</code> produced by the <code>Template</code>, to define a complex query.</p>
+<p>Before you can create a <code>Cursor</code> to fetch the result set specified by a derived <code>Source</code>, you must move the <code>Source</code> from the child write <code>Transaction</code> into the parent read <code>Transaction</code>. To do so, you commit the <code>Transaction</code>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CIHEAEDF"></a>
+<div class="sect2">
+<h3 class="sect2">Committing a Transaction</h3>
+<p><a id="sthref765"></a><a id="sthref766"></a>To move a <code>Source</code> that you created in a child <code>Transaction</code> into the parent read <code>Transaction</code>, call the <code>commitCurrentTransaction</code> method of the <code>TransactionProvider</code>. When you commit a child write <code>Transaction</code>, a <code>Source</code> you created in the child <code>Transaction</code> moves into the parent read <code>Transaction</code>. The child <code>Transaction</code> disappears and the parent <code>Transaction</code> becomes the current <code>Transaction</code>. The <code>Source</code> is active in the current read <code>Transaction</code> and you can therefore create a <code>Cursor</code> for it.</p>
+<p>In <a href="#BHAHEDGJ">Example 7-1</a>, <code>commit()</code> is a method that commits the current <code>Transaction</code>. In the example, <code>dp</code> is the <code>DataProvider</code>.</p>
+<div class="example">
+<p class="titleinexample"><a id="BHAHEDGJ"></a>Example 7-1 Committing the Current Transaction</p>
+<pre>private void commit()
+{
+  try 
+  {
+    (dp.getTransactionProvider()).commitCurrentTransaction();
+  } 
+  catch (Exception ex) 
+  {
+    System.out.println(&#34;Could not commit the Transaction. &#34; + ex);
+  } 
+}
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<div class="sect2"><a id="sthref767"></a>
+<h3 class="sect2">About Transaction and Template Objects</h3>
+<p><a id="sthref768"></a><a id="sthref769"></a>Getting and setting the current <code>Transaction</code>, beginning a child <code>Transaction</code>, and rolling back a <code>Transaction</code> are operations that you use to allow an end user to make different selections starting from a given state of a dynamic query.</p>
+<p>To present the end user with alternatives based on the same initial query, you do the following:</p>
+<ol>
+<li>
+<p>Create a <code>Template</code> in a parent <code>Transaction</code> and set the initial state for the <code>Template</code>.</p>
+</li>
+<li>
+<p>Get the <code>Source</code> produced by the <code>Template</code>, create a <code>Cursor</code> to retrieve the result set, get the values from the <code>Cursor</code>, and then display the results to the end user.</p>
+</li>
+<li>
+<p>Begin a child <code>Transaction</code> and modify the state of the <code>Template</code>.</p>
+</li>
+<li>
+<p>Get the <code>Source</code> produced by the <code>Template</code> in the child <code>Transaction</code>, create a <code>Cursor</code>, get the values, and display them.</p>
+</li>
+</ol>
+<p>You can then replace the first <code>Template</code> state with the second one or discard the second one and retain the first.</p>
+</div>
+<!-- class="sect2" -->
+<div class="sect2"><a id="sthref770"></a>
+<h3 class="sect2">Beginning a Child Transaction</h3>
+<p>To begin a child read <code>Transaction</code>, call the <code>beginSubtransaction</code> method of the <code>TransactionProvider</code> you are using. In the child read <code>Transaction</code>, if you change the state of a <code>Template</code>, then a child write <code>Transaction</code> begins automatically. The write <code>Transaction</code> is a child of the child read <code>Transaction</code>.</p>
+<p>To get the data specified by the <code>Source</code> produced by the <code>Template</code>, you commit the write <code>Transaction</code> into the parent read <code>Transaction</code>. You can then create a <code>Cursor</code> to fetch the data. The changed state of the <code>Template</code> is not visible in the original parent. The changed state does not become visible in the parent until you commit the child read <code>Transaction</code> into the parent read <code>Transaction</code>.</p>
+<p>After beginning a child read <code>Transaction</code>, you can begin a child read <code>Transaction</code> of that child, or a grandchild of the initial parent <code>Transaction</code>. For an example of creating child and grandchild <code>Transaction</code> objects, see <a href="#i1006243">Example 7-3</a>.</p>
+</div>
+<!-- class="sect2" -->
+<div class="sect2"><a id="sthref771"></a>
+<h3 class="sect2">About Rolling Back a Transaction</h3>
+<p><a id="sthref772"></a>You roll back, or undo, a <code>Transaction</code> by calling the <code>rollbackCurrentTransaction</code> method of the <code>TransactionProvider</code> you are using. Rolling back a <code>Transaction</code> discards any changes that you made during that <code>Transaction</code> and makes the <code>Transaction</code> disappear.</p>
+<p>Before rolling back a <code>Transaction</code>, you must close any <code>CursorManager</code> objects you created in that <code>Transaction</code>. After rolling back a <code>Transaction</code>, any <code>Source</code> objects that you created or <code>Template</code> state changes that you made in the <code>Transaction</code> are no longer valid. Any <code>Cursor</code> objects you created for those <code>Source</code> objects are also invalid.</p>
+<p>Once you roll back a <code>Transaction</code>, you cannot commit that <code>Transaction</code>. Likewise, once you commit a <code>Transaction</code>, you cannot roll it back.</p>
+<div class="example">
+<p class="titleinexample"><a id="BABBEJFB"></a>Example 7-2 Rolling Back a Transaction</p>
+<p><a id="sthref773"></a><a id="sthref774"></a>The following example uses the <code>TopBottomTemplate</code> and <code>SingleSelectionTemplate</code> classes that are described in <a href="template.htm#g1013092">Chapter 10, &#34;Creating Dynamic Queries&#34;</a>. In creating the <code>TopBottomTemplate</code> and <code>SingleSelectionTemplate</code> objects, the example uses the same code that appears in <a href="template.htm#i1006270">Example 10-4, &#34;Getting the Source Produced by the Template&#34;</a>. <a href="#BABBEJFB">Example 7-2</a> does not show that code. This example sets the state of the <code>TopBottomTemplate</code>. It begins a child <code>Transaction</code> that sets a different state for the <code>TopBottomTemplate</code> and then rolls back the child <code>Transaction</code>. The <code>println</code> method displays text through a <code>CursorPrintWriter</code> object and the <code>getContext</code> method gets a <code>Context11g</code> object that has methods that create <code>Cursor</code> objects and display their values through the <code>CursorPrintWriter</code>. The <code>CursorPrintWriter</code> and <code>Context11g</code> classes are used by the example programs in this documentation.</p>
+<pre>// The current Transaction is a read Transaction, t1.
+// Create a TopBottomTemplate using a hierarchy of the PRODUCT_AWJ dimension
+// as the base and dp as the DataProvider.
+TopBottomTemplate topNBottom = new TopBottomTemplate(prodHier, dp);
+
+// Changing the state of a Template requires a write Transaction, so a
+// write child Transaction, t2, is automatically started.
+topNBottom.setTopBottomType(TopBottomTemplate.TOP_BOTTOM_TYPE_TOP);
+topNBottom.setN(10);
+topNBottom.setCriterion(singleSelections.getSource());
+
+// Get the TransactionProvider and commit the Transaction t2.
+TransactionProvider tp = dp.getTransactionProvider();
+try
+{
+  tp.commitCurrentTransaction();           // t2 disappears
+}
+catch(Exception e)
+{
+  println(&#34;Cannot commit the Transaction. &#34; + e);
+}
+
+// The current Transaction is now t1.
+// Get the dynamic Source produced by the TopBottomTemplate.
+Source result = topNBottom.getSource();
+
+// Create a Cursor and display the results
+println(&#34;\nThe current state of the TopBottomTemplate&#34; +
+        &#34;\nproduces the following values:\n&#34;);
+getContext().displayTopBottomResult(result);
+
+// Start a child Transaction, t3. It is a read Transaction.
+tp.beginSubtransaction();          // t3 is the current Transaction
+
+// Change the state of topNBottom. Changing the state requires a 
+// write Transaction so Transaction t4 starts automatically.
+topNBottom.setTopBottomType(TopBottomTemplate.TOP_BOTTOM_TYPE_BOTTOM);
+topNBottom.setN(15);
+
+// Commit the Transaction.
+try
+{
+  tp.commitCurrentTransaction();           // t4 disappears
+}
+catch(Exception e)
+{
+  println(&#34;Cannot commit the Transaction. &#34; + e);
+}
+
+// Create a Cursor and display the results. // t3 is the current Transaction
+println(&#34;\nIn the child Transaction, the state of the&#34; +
+        &#34;\nTopBottomTemplate produces the following values:\n&#34;);
+getContext().displayTopBottomResult(result);
+// The displayTopBottomResult method closes the CursorManager for the
+// Cursor created in t3.
+
+// Undo t3, which discards the state of topNBottom that was set in t4.
+tp.rollbackCurrentTransaction();        // t3 disappears
+
+// Transaction t1 is now the current Transaction and the state of
+// topNBottom is the one defined in t2.
+
+// To show the current state of the TopNBottom template Source, commit
+// the Transaction, create a Cursor, and display the Cursor values.
+try
+{
+  tp.commitCurrentTransaction();
+}
+catch(Exception e)
+{
+  println(&#34;Cannot commit the Transaction. &#34; + e);
+}
+
+println(&#34;\nAfter rolling back the child Transaction, the state of&#34;
+        + &#34;\nthe TopBottomTemplate produces the following values:\n&#34;);
+getContext().displayTopBottomResult(result);
+</pre></div>
+<!-- class="example" -->
+<p><a href="#BABBEJFB">Example 7-2</a> produces the following output.</p>
+<pre>The current state of the TopBottomTemplate
+produces the following values:
+ 
+ 1. PRODUCT_PRIMARY::TOTAL_PRODUCT::TOTAL
+ 2. PRODUCT_PRIMARY::CLASS::SFT
+ 3. PRODUCT_PRIMARY::FAMILY::ACC
+ 4. PRODUCT_PRIMARY::CLASS::HRD
+ 5. PRODUCT_PRIMARY::FAMILY::MOD
+ 6. PRODUCT_PRIMARY::FAMILY::OS
+ 7. PRODUCT_PRIMARY::FAMILY::DISK
+ 8. PRODUCT_PRIMARY::ITEM::MOUSE PAD
+ 9. PRODUCT_PRIMARY::ITEM::OS 1 USER
+10. PRODUCT_PRIMARY::ITEM::DLX MOUSE
+ 
+In the child Transaction, the state of the
+TopBottomTemplate produces the following values:
+ 
+ 1. PRODUCT_PRIMARY::ITEM::EXT CD ROM
+ 2. PRODUCT_PRIMARY::ITEM::OS DOC ITA
+ 3. PRODUCT_PRIMARY::ITEM::OS DOC SPA
+ 4. PRODUCT_PRIMARY::ITEM::INT CD USB
+ 5. PRODUCT_PRIMARY::ITEM::ENVY EXT KBD
+ 6. PRODUCT_PRIMARY::ITEM::19 SVGA
+ 7. PRODUCT_PRIMARY::ITEM::OS DOC FRE
+ 8. PRODUCT_PRIMARY::ITEM::OS DOC GER
+ 9. PRODUCT_PRIMARY::ITEM::ENVY ABM
+10. PRODUCT_PRIMARY::ITEM::INT CD ROM
+11. PRODUCT_PRIMARY::ITEM::ENVY EXE
+12. PRODUCT_PRIMARY::ITEM::OS DOC KAN
+13. PRODUCT_PRIMARY::ITEM::ENVY STD
+14. PRODUCT_PRIMARY::ITEM::1GB USB DRV
+15. PRODUCT_PRIMARY::ITEM::SENT MM
+ 
+After rolling back the child Transaction, the state of
+the TopBottomTemplate produces the following values:
+ 
+ 1. PRODUCT_PRIMARY::TOTAL_PRODUCT::TOTAL
+ 2. PRODUCT_PRIMARY::CLASS::SFT
+ 3. PRODUCT_PRIMARY::FAMILY::ACC
+ 4. PRODUCT_PRIMARY::CLASS::HRD
+ 5. PRODUCT_PRIMARY::FAMILY::MOD
+ 6. PRODUCT_PRIMARY::FAMILY::OS
+ 7. PRODUCT_PRIMARY::FAMILY::DISK
+ 8. PRODUCT_PRIMARY::ITEM::MOUSE PAD
+ 9. PRODUCT_PRIMARY::ITEM::OS 1 USER
+10. PRODUCT_PRIMARY::ITEM::DLX MOUSE
+</pre></div>
+<!-- class="sect2" -->
+<div class="sect2"><a id="sthref775"></a>
+<h3 class="sect2">Getting and Setting the Current Transaction</h3>
+<p><a id="sthref776"></a><a id="sthref777"></a><a id="sthref778"></a>You get the current <code>Transaction</code> by calling the <code>getCurrentTransaction</code> method of the <code>TransactionProvider</code> you are using, as in the following example.</p>
+<pre>Transaction t1 = tp.getCurrentTransaction();
+</pre>
+<p>To make a previously saved <code>Transaction</code> the current <code>Transaction</code>, you call the <code>setCurrentTransaction</code> method of the <code>TransactionProvider</code>, as in the following example.</p>
+<pre>tp.setCurrentTransaction(t1);
+</pre></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="i1006167"></a>
+<div class="sect1">
+<h2 class="sect1">Using TransactionProvider Objects</h2>
+<p><a id="sthref779"></a>In the Oracle OLAP Java API, a <code>DataProvider</code> provides an implementation of the <code>TransactionProvider</code> interface. The <code>TransactionProvider</code> provides <code>Transaction</code> objects to your application.</p>
+<p>As described in <a href="#CIHEAEDF">&#34;Committing a Transaction&#34;</a>, you use the <code>commitCurrentTransaction</code> method to make a derived <code>Source</code> that you created in a child write <code>Transaction</code> visible in the parent read <code>Transaction</code>. You can then create a <code>Cursor</code> for that <code>Source</code>.</p>
+<p>If you are using <code>Template</code> objects in your application, then you might also use the other methods of <code>TransactionProvider</code> to do the following:</p>
+<ul>
+<li>
+<p>Begin a child <code>Transaction</code>.</p>
+</li>
+<li>
+<p>Get the current <code>Transaction</code> so you can save it.</p>
+</li>
+<li>
+<p>Set the current <code>Transaction</code> to a previously saved one.</p>
+</li>
+<li>
+<p>Rollback, or undo, the current <code>Transaction</code>, which discards any changes made in the <code>Transaction</code>. Once a <code>Transaction</code> has been rolled back, it is invalid and cannot be committed. Once a <code>Transaction</code> has been committed, it cannot be rolled back. If you created a <code>Cursor</code> for a <code>Source</code> in a <code>Transaction</code>, then you must close the <code>CursorManager</code> before rolling back the <code>Transaction</code>.<a id="sthref780"></a></p>
+</li>
+</ul>
+<p><a id="sthref781"></a><a id="sthref782"></a><a id="sthref783"></a><a href="#i1006243">Example 7-3</a> demonstrates the use of <code>Transaction</code> objects to modify dynamic queries. Like <a href="#BABBEJFB">Example 7-2</a>, this example uses the same code to create <code>TopBottomTemplate</code> and <code>SingleSelectionTemplate</code> objects as does <a href="template.htm#i1006270">Example 10-4, &#34;Getting the Source Produced by the Template&#34;</a>. This example does not show that code.</p>
+<p>To help track the <code>Transaction</code> objects, this example saves the different <code>Transaction</code> objects with calls to the <code>getCurrentTransaction</code> method. In the example, the <code>tp</code> object is the <code>TransactionProvider</code>. The <code>println</code> method displays text through a <code>CursorPrintWriter</code> and the <code>getContext</code> method gets a <code>Context11g</code> object that has methods that create <code>Cursor</code> objects and display their values through the <code>CursorPrintWriter</code>. The <code>commit</code> method is the method from <a href="#BHAHEDGJ">Example 7-1</a>.</p>
+<div class="example">
+<p class="titleinexample"><a id="i1006243"></a>Example 7-3 Using Child Transaction Objects</p>
+<pre>// The parent Transaction is the current Transaction at this point.
+// Save the parent read Transaction as parentT1.
+Transaction parentT1 = tp.getCurrentTransaction();
+
+// Get the dynamic Source produced by the TopBottomTemplate.
+Source result = topNBottom.getSource();
+
+// Create a Cursor and display the results.
+println(&#34;\nThe current state of the TopBottomTemplate&#34; +
+        &#34;\nproduces the following values:\n&#34;);
+getContext().displayTopBottomResult(result);
+
+// Begin a child Transaction of parentT1.
+tp.beginSubtransaction();  // This is a read Transaction.
+
+// Save the child read Transaction as childT2.
+Transaction childT2 = tp.getCurrentTransaction();
+
+// Change the state of the TopBottomTemplate. This starts a
+// write Transaction, a child of the read Transaction childT2.
+topNBottom.setN(12);
+topNBottom.setTopBottomType(TopBottomTemplate.TOP_BOTTOM_TYPE_BOTTOM);
+
+// Save the child write Transaction as writeT3.
+Transaction writeT3 = tp.getCurrentTransaction();
+
+// Commit the write Transaction writeT3.
+commit();
+
+// The commit moves the changes made in writeT3 into its parent,
+// the read Transaction childT2. The writeT3 Transaction
+// disappears. The current Transaction is now childT2
+// again but the state of the TopBottomTemplate has changed.
+
+// Create a Cursor and display the results of the changes to the
+// TopBottomTemplate that are visible in childT2.
+try
+{
+  println(&#34;\nIn the child Transaction, the state of the&#34; +
+          &#34;\nTopBottomTemplate produces the following values:\n&#34;);
+
+  getContext().displayTopBottomResult(result);
+}
+catch(Exception e)
+{
+  println(&#34;Cannot display the results of the query. &#34; + e);
+}
+
+// Begin a grandchild Transaction of the initial parent.
+tp.beginSubtransaction();  // This is a read Transaction.
+
+// Save the grandchild read Transaction as grandchildT4.
+Transaction grandchildT4 = tp.getCurrentTransaction();
+
+// Change the state of the TopBottomTemplate. This starts another
+// write Transaction, a child of grandchildT4.
+topNBottom.setTopBottomType(TopBottomTemplate.TOP_BOTTOM_TYPE_TOP);
+
+// Save the write Transaction as writeT5.
+Transaction writeT5 = tp.getCurrentTransaction();
+
+// Commit writeT5.
+commit();
+
+// Transaction grandchildT4 is now the current Transaction and the
+// changes made to the TopBottomTemplate state are visible.
+
+// Create a Cursor and display the results visible in grandchildT4.
+try
+{
+  println(&#34;\nIn the grandchild Transaction, the state of the&#34; +
+          &#34;\nTopBottomTemplate produces the following values:\n&#34;);
+  getContext().displayTopBottomResult(result);
+}
+catch(Exception e)
+{
+  println(&#34;&#34;Cannot display the results of the query. &#34; + e);
+}
+
+// Commit the grandchild into the child.
+commit();
+
+// Transaction childT2 is now the current Transaction.
+// Instead of preparing and committing the grandchild Transaction,
+// you could rollback the Transaction, as in the following
+// method call:
+//   rollbackCurrentTransaction();
+// If you roll back the grandchild Transaction, then the changes
+// you made to the TopBottomTemplate state in the grandchild 
+// are discarded and childT2 is the current Transaction.
+
+// Commit the child into the parent.
+commit();
+
+// Transaction parentT1 is now the current Transaction. Again,
+// you can roll back the childT2 Transaction instead of committing it.
+// If you do so, then the changes that you made in childT2 are discarded.
+// The current Transaction is be parentT1, which has the original state
+// of the TopBottomTemplate, without any of the changes made in the
+// grandchild or the child transactions.
+</pre>
+<p><a href="#i1006243">Example 7-3</a> produces the following output.</p>
+<pre>The current state of the TopBottomTemplate
+produces the following values:
+ 
+ 1. PRODUCT_PRIMARY::TOTAL_PRODUCT::TOTAL
+ 2. PRODUCT_PRIMARY::CLASS::SFT
+ 3. PRODUCT_PRIMARY::FAMILY::ACC
+ 4. PRODUCT_PRIMARY::CLASS::HRD
+ 5. PRODUCT_PRIMARY::FAMILY::MOD
+ 6. PRODUCT_PRIMARY::FAMILY::OS
+ 7. PRODUCT_PRIMARY::FAMILY::DISK
+ 8. PRODUCT_PRIMARY::ITEM::MOUSE PAD
+ 9. PRODUCT_PRIMARY::ITEM::OS 1 USER
+10. PRODUCT_PRIMARY::ITEM::DLX MOUSE
+ 
+In the child Transaction, the state of the
+TopBottomTemplate produces the following values:
+ 
+ 1. PRODUCT_PRIMARY::ITEM::EXT CD ROM
+ 2. PRODUCT_PRIMARY::ITEM::OS DOC ITA
+ 3. PRODUCT_PRIMARY::ITEM::OS DOC SPA
+ 4. PRODUCT_PRIMARY::ITEM::INT CD USB
+ 5. PRODUCT_PRIMARY::ITEM::ENVY EXT KBD
+ 6. PRODUCT_PRIMARY::ITEM::19 SVGA
+ 7. PRODUCT_PRIMARY::ITEM::OS DOC FRE
+ 8. PRODUCT_PRIMARY::ITEM::OS DOC GER
+ 9. PRODUCT_PRIMARY::ITEM::ENVY ABM
+10. PRODUCT_PRIMARY::ITEM::INT CD ROM
+11. PRODUCT_PRIMARY::ITEM::ENVY EXE
+12. PRODUCT_PRIMARY::ITEM::OS DOC KAN
+ 
+In the grandchild Transaction, the state of the
+TopBottomTemplate produces the following values:
+ 
+ 1. PRODUCT_PRIMARY::TOTAL_PRODUCT::TOTAL
+ 2. PRODUCT_PRIMARY::CLASS::SFT
+ 3. PRODUCT_PRIMARY::FAMILY::ACC
+ 4. PRODUCT_PRIMARY::CLASS::HRD
+ 5. PRODUCT_PRIMARY::FAMILY::MOD
+ 6. PRODUCT_PRIMARY::FAMILY::OS
+ 7. PRODUCT_PRIMARY::FAMILY::DISK
+ 8. PRODUCT_PRIMARY::ITEM::MOUSE PAD
+ 9. PRODUCT_PRIMARY::ITEM::OS 1 USER
+10. PRODUCT_PRIMARY::ITEM::DLX MOUSE
+11. PRODUCT_PRIMARY::ITEM::LT CASE
+12. PRODUCT_PRIMARY::ITEM::56KPS MODEM
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4769">
+<tr>
+<td class="cellalignment4776">
+<table class="cellalignment4774">
+<tr>
+<td class="cellalignment4773"><a href="select.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4773"><a href="crscncpt.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2000, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4778">
+<table class="cellalignment4772">
+<tr>
+<td class="cellalignment4773"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4773"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4773"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4773"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4773"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4773"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

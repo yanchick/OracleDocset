@@ -1,0 +1,1022 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-113938"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/The%20TimesTen%20Query%20Optimizer"></a><title>The TimesTen Query Optimizer</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 748"/>
+<meta name="dcterms.created" content="2014-09-30T15:13:4Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen In-Memory Database Operations Guide"/>
+<meta name="dcterms.identifier" content="E21633-12"/>
+<meta name="dcterms.isVersionOf" content="TTOPR"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="comp.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="perform.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21633-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">13/16</span> <!-- End Header -->
+<div id="TTOPR512" class="chapter"><a id="BABEJFHI"></a>
+<h1 class="chapter"><span class="secnum">9</span> The TimesTen Query Optimizer</h1>
+<p>The TimesTen cost-based query optimizer uses information about an application&#39;s tables and their available indexes to choose a fast path to the data. Application developers can examine the plan chosen by the optimizer to check that indexes are used appropriately. If necessary, application developers can provide hints to influence the optimizer&#39;s behavior so that it considers a different plan.</p>
+<p>This chapter includes the following topics:</p>
+<ul>
+<li>
+<p><a href="#CBACIHBC">When optimization occurs</a></p>
+</li>
+<li>
+<p><a href="#BABFJFII">Viewing SQL statements stored in the SQL command cache</a></p>
+</li>
+<li>
+<p><a href="#BABGEDFF">Viewing SQL query plans</a></p>
+</li>
+<li>
+<p><a href="#CBACFCAE">Modifying plan generation</a></p>
+</li>
+</ul>
+<a id="CBACIHBC"></a>
+<div id="TTOPR513" class="sect1">
+<h2 class="sect1">When optimization <a id="sthref1074"></a>occur<a id="sthref1075"></a>s</h2>
+<p>TimesTen invokes the optimizer for SQL statements when more than one execution plan is possible. The optimizer chooses what it thinks is the optimum plan. This plan persists until the statement is either invalidated or dropped by the application.</p>
+<p>A statement is automatically <a id="sthref1076"></a><a id="sthref1077"></a><span class="italic">invalidated</span> under the following circumstances:</p>
+<ul>
+<li>
+<p>An object that the command uses is dropped</p>
+</li>
+<li>
+<p>An object that the command uses is altered</p>
+</li>
+<li>
+<p>An index on a table or view that the command references is dropped</p>
+</li>
+<li>
+<p>An index is created on a table or view that the command references</p>
+</li>
+</ul>
+<p>You can manually invalidate statements with either of the following methods:</p>
+<ul>
+<li>
+<p>Use the <code>ttOptCmdCacheInvalidate</code> built-in procedure to invalidate statements in the SQL command cache. For more information, see <a href="perform.htm#CACIICID">&#34;Control the invalidation of commands in the SQL command cache&#34;</a>.</p>
+</li>
+<li>
+<p>Set the <code>invalidation</code> option to 1 in the <code>ttOptUpdateStats</code> or the <code>ttOptEstimateStats</code> built-in procedures<a id="sthref1078"></a><a id="sthref1079"></a>. These built-in procedures also update statistics for either a specified table or all of the current user&#39;s tables.<a id="sthref1080"></a></p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For complete details on when to calculate statistics, see <a href="perform.htm#CACBAGDC">&#34;Compute exact or estimated statistics&#34;</a>. In addition, see <a class="olink TTREF277" href="../TTREF/proced.htm#TTREF277">&#34;ttOptUpdateStats,&#34;</a> or <a class="olink TTREF264" href="../TTREF/proced.htm#TTREF264">&#34;ttOptEstimateStats&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+<p>An invalid statement is usually reprepared automatically just before it is re-executed. This means that the optimizer is invoked again at this time, possibly resulting in a new plan. Thus, a single statement may be prepared several times.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+When using JDBC, you must manually reprepare statement when a table has been altered.</div>
+<p>A statement may have to be prepared manually if, for example, the table that the statement referenced was dropped and a new table with the same name was created. When you prepare a statement manually, you should commit the prepare statement so it can be shared. If the statement is recompiled because it was invalid, and if recompilation involves DDL on one of the referenced tables, then the prepared statement must be committed to release the command lock.</p>
+<p><a id="sthref1081"></a>For example, in ODBC a command joining tables <code>T1</code> and <code>T2</code> may undergo the following changes:</p>
+<div class="inftblhruleinformal">
+<table class="cellalignment3233" title="Changes when joining tables T1" summary="This table shows the changes that may occur in ODBC for a command joining tables T1 and T2." dir="ltr">
+<thead>
+<tr class="cellalignment3224">
+<th class="cellalignment3234" id="r1c1-t4">Action</th>
+<th class="cellalignment3234" id="r1c2-t4">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r2c1-t4" headers="r1c1-t4"><code>SQLPrepare</code></td>
+<td class="cellalignment3230" headers="r2c1-t4 r1c2-t4">Command is prepared.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r3c1-t4" headers="r1c1-t4"><code>SQLExecute</code></td>
+<td class="cellalignment3230" headers="r3c1-t4 r1c2-t4">Command is executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r4c1-t4" headers="r1c1-t4"><code>SQLExecute</code></td>
+<td class="cellalignment3230" headers="r4c1-t4 r1c2-t4">Command is re-executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r5c1-t4" headers="r1c1-t4">Create Index on T1</td>
+<td class="cellalignment3230" headers="r5c1-t4 r1c2-t4">Command is invalidated.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r6c1-t4" headers="r1c1-t4"><code>SQLExecute</code></td>
+<td class="cellalignment3230" headers="r6c1-t4 r1c2-t4">Command is reprepared, then executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r7c1-t4" headers="r1c1-t4"><code>SQLExecute</code></td>
+<td class="cellalignment3230" headers="r7c1-t4 r1c2-t4">Command is re-executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r8c1-t4" headers="r1c1-t4"><code>ttOptUpdateStats</code> on T1</td>
+<td class="cellalignment3230" headers="r8c1-t4 r1c2-t4">Command is invalidated if the invalidate flag is passed to the <code>ttOptUpdateStats</code> procedure.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r9c1-t4" headers="r1c1-t4"><code>SQLExecute</code></td>
+<td class="cellalignment3230" headers="r9c1-t4 r1c2-t4">Command is reprepared, then executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r10c1-t4" headers="r1c1-t4"><code>SQLExecute</code></td>
+<td class="cellalignment3230" headers="r10c1-t4 r1c2-t4">Command is re-executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r11c1-t4" headers="r1c1-t4"><code>SQLFreeStmt</code></td>
+<td class="cellalignment3230" headers="r11c1-t4 r1c2-t4">Command is dropped.</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblhruleinformal" -->
+<p><a id="sthref1082"></a>In JDBC, a command joining tables <code>T1</code> and <code>T2</code> may undergo the following changes:</p>
+<div class="inftblhruleinformal">
+<table class="cellalignment3233" title="Changes when joining tables T1 and T2 using JDBC" summary="This table shows the changes that may occur in JDBC for a command joining tables T1 and T2." dir="ltr">
+<thead>
+<tr class="cellalignment3224">
+<th class="cellalignment3234" id="r1c1-t5">Action</th>
+<th class="cellalignment3234" id="r1c2-t5">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r2c1-t5" headers="r1c1-t5"><code>Connection.prepareStatement</code></td>
+<td class="cellalignment3230" headers="r2c1-t5 r1c2-t5">Command is prepared.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r3c1-t5" headers="r1c1-t5"><code>PreparedStatement.execute</code></td>
+<td class="cellalignment3230" headers="r3c1-t5 r1c2-t5">Command is executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r4c1-t5" headers="r1c1-t5"><code>PreparedStatement.execute</code></td>
+<td class="cellalignment3230" headers="r4c1-t5 r1c2-t5">Command is re-executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r5c1-t5" headers="r1c1-t5">Create Index on T1</td>
+<td class="cellalignment3230" headers="r5c1-t5 r1c2-t5">Command is invalidated.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r6c1-t5" headers="r1c1-t5"><code>PreparedStatement.execute</code></td>
+<td class="cellalignment3230" headers="r6c1-t5 r1c2-t5">Command is reprepared, then executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r7c1-t5" headers="r1c1-t5"><code>PreparedStatement.execute</code></td>
+<td class="cellalignment3230" headers="r7c1-t5 r1c2-t5">Command is re-executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r8c1-t5" headers="r1c1-t5"><code>ttOptUpdateStats</code> on T1</td>
+<td class="cellalignment3230" headers="r8c1-t5 r1c2-t5">Command is invalidated if the invalidate flag is passed to the <code>ttOptUpdateStats</code> procedure.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r9c1-t5" headers="r1c1-t5"><code>PreparedStatement.execute</code></td>
+<td class="cellalignment3230" headers="r9c1-t5 r1c2-t5">Command is reprepared, then executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r10c1-t5" headers="r1c1-t5"><code>PreparedStatement.execute</code></td>
+<td class="cellalignment3230" headers="r10c1-t5 r1c2-t5">Command is re-executed.</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r11c1-t5" headers="r1c1-t5"><code>PreparedStatement.close</code></td>
+<td class="cellalignment3230" headers="r11c1-t5 r1c2-t5">Command is dropped.</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblhruleinformal" -->
+<p>As illustrated, optimization is generally performed at prepare time, but it may also be performed later when indexes are dropped or created, or when statistics are modified. Optimization does not occur if a prepare can use a command in the cache.</p>
+<p>If a command was prepared with the <code>genPlan</code> flag set, it is recompiled with the same flag set. Thus, the plan is generated even though the plan for another query was found in the <code>SYS.PLAN</code> table.</p>
+<p><a id="sthref1083"></a>If an application specifies optimizer hints to influence the optimizer&#39;s behavior, these hints persist until the command is deleted. See <a href="#CBACFCAE">&#34;Modifying plan generation&#34;</a> for more information. For example, when the ODBC <code>SQLPrepare</code> function or JDBC <code>Connection.prepareStatement</code> method is called again on the same handle or when the <code>SQLFreeStmt</code> function or <code>PreparedStatement.close</code> method is called. This means that any intermediate reprepare operations that occur because of invalidations use those same hints.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABFJFII"></a>
+<div id="TTOPR514" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Viewing SQL statements stored in the SQL command cache</h2>
+<p>All commands executed&mdash;SQL statements, built-in procedures, and so on&mdash;are stored in the SQL command cache, which uses temporary memory. The commands are stored up until the limit of the SQL command cache is reached, then the new commands are stored after the last used commands are removed. You can retrieve one or more of these commands that are stored in the SQL command cache.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+This section describes viewing the commands stored in the SQL command cache. For details on how to view the query plans associated with these commands, see <a href="#BABJFDIE">&#34;Viewing query plans associated with commands stored in the SQL command cache&#34;</a>.</div>
+<p>The following sections describe how to view commands cached in the SQL command cache:</p>
+<ul>
+<li>
+<p><a href="#BABEIFBD">Managing performance and troubleshooting commands</a></p>
+</li>
+<li>
+<p><a href="#BABEAEAA">Displaying commands stored in the SQL command cache</a></p>
+</li>
+</ul>
+<a id="BABEIFBD"></a>
+<div id="TTOPR515" class="sect2">
+<h3 class="sect2">Managing performance and troubleshooting commands</h3>
+<p>You can view all one or more commands or details of their query plans with the <code>ttSQLCmdCacheInfo</code> and <code>ttSQLCmdQueryPlan</code> built-in procedures. Use the query plan information to monitor and troubleshoot your queries.</p>
+<p>Viewing commands and query plans can help you perform the following:</p>
+<ul>
+<li>
+<p>Detect updates or deletes that are not using an index scan.</p>
+</li>
+<li>
+<p>Monitor query plans of executing queries to ensure all plans are optimized.</p>
+</li>
+<li>
+<p>Detect applications that do not prepare SQL statements or that re-prepare the same statement multiple times.</p>
+</li>
+<li>
+<p>Detect the percentage of space used in the command cache for performance evaluation.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="BABEAEAA"></a>
+<div id="TTOPR516" class="sect2">
+<h3 class="sect2">Displaying commands stored in the SQL command cache<a id="sthref1084"></a><a id="sthref1085"></a></h3>
+<p>The commands executed against the TimesTen database are cached in the SQL command cache. The <code>ttSQLCmdCacheInfo</code> built-in procedure displays a specific or all cached commands in the TimesTen SQL command cache. By default, all commands are displayed; if you specify a command id, then only this command is retrieved for display.</p>
+<p>The command data is saved in the following format:</p>
+<ul>
+<li>
+<p>Command identifier, which is used to retrieve a specific command or its associated query plan.</p>
+</li>
+<li>
+<p>Private connection identifier.</p>
+</li>
+<li>
+<p>Counter for the number of executions.</p>
+</li>
+<li>
+<p>Counter for the number of times the user prepares this statement.</p>
+</li>
+<li>
+<p>Counter for the number of times the user re-prepares this SQL statement.</p>
+</li>
+<li>
+<p>Freeable status, where if the value is one, then the subdaemon can free the space with the garbage collector. A value of zero determines that the space is not able to be freed.</p>
+</li>
+<li>
+<p>Total size in bytes allocated for this command in the cache.</p>
+</li>
+<li>
+<p>User who created the command.</p>
+</li>
+<li>
+<p>Query text up to 1024 characters.</p>
+</li>
+<li>
+<p>Number of fetch executions performed internally for this statement.</p>
+</li>
+<li>
+<p>The timestamp when the statement started.</p>
+</li>
+<li>
+<p>The maximum execution time in seconds for the statement.</p>
+</li>
+<li>
+<p>Last measured execution time in seconds for the statement.</p>
+</li>
+<li>
+<p>The minimum execution time in seconds for the statement.</p>
+</li>
+</ul>
+<p>At the end of the list of all commands, a status is printed of how many commands were in the cache.</p>
+<p>The following examples show how to display all or a single command from the SQL command cache using the <code>ttSQLCmdCacheInfo</code> built-in utility:</p>
+<ul>
+<li>
+<p><a href="#BABFABBG">Displaying all commands in the SQL command cache</a></p>
+</li>
+<li>
+<p><a href="#BABGAIIF">Displaying a single SQL command</a></p>
+</li>
+</ul>
+<div id="TTOPR517" class="example">
+<p class="titleinexample"><a id="BABFABBG"></a>Example 9-1 Displaying all commands in the SQL command cache</p>
+<p>This example executes within <code>ttIsql</code> the <code>ttSQLCmdCacheInfo</code> built-in procedure without arguments to show all cached commands. The commands are displayed in terse format. To display the information where each column is prepended with the column name, execute <code>vertical on</code> before calling the <code>ttSQLCmdCacheInfo</code> procedure.</p>
+<pre>Command&gt; call ttSQLCmdCacheInfo;
+
+&lt; 110168040, 2048, 2, 2, 0, 1, 2792, CACHEUSER                      , create 
+writethrough cache group update_orders from ordertab
+(orderid number(10) not null primary key,
+custid number (6) not null), 0, 2013-01-04 13:13:47.614000, 4.908, 4.908, 0 &gt;
+&lt; 35681280, 2048, 0, 8, 0, 1, 5256, SYS                            , select null 
+from sys.obj$ where obj#=:1 and type#=:2 and obj# not in (select p_obj# from 
+dependency$ where p_obj# = sys.obj$.obj#), 0, &lt;NULL&gt;, 0, 0, 0 &gt;
+&lt; 110189568, 2048, 1, 1, 0, 1, 4304, PAT                           , call 
+ttstatsconfig(&#39;connsamplefactor&#39;,0), 0, 2013-01-08 08:33:18.969000, 0, 0, 0 &gt;
+&lt; 110176976, 2048, 1, 1, 0, 1, 4328, PAT                           , call 
+ttstatsconfig(&#39;sqlcmdsamplefactor&#39;,0), 2, 2013-01-08 08:32:31.751000, .000664, 
+.000664, .000664 &gt;
+&lt; 110193800, 2048, 1, 1, 0, 1, 4328, PAT                           , call 
+ttstatsconfig(&#39;connsamplefactor&#39;,&#39;1,0&#39;), 2, 2013-01-08 08:33:29.578000, 0, 0, 0 &gt;
+&lt; 35291992, 2048, 0, 1, 0, 1, 2568, SYS                            , select sys25 
+from sys.tables where cachegroup = ?, 0, &lt;NULL&gt;, 0, 0, 0 &gt;
+&lt; 40815768, 2048, 2, 1, 0, 0, 3944, SYS                            , select 
+u.user#, u.password, u.identification, u.astatus from sys.user$ u where u.name = 
+:name and u.type# = 1, 2, 2013-01-04 13:03:29.262000, 0, 0, 0 &gt;
+&lt; 110243304, 2048, 0, 2, 0, 1, 1208, PAT                           , call 
+ttcmdcacheinfo(), 0, &lt;NULL&gt;, 0, 0, 0 &gt;
+&lt; 35287688, 2048, 1, 1, 0, 1, 4232, SYS                            , select 
+cgname, cgowner, cgid, refresh_mode, refresh_state, refresh_interval, sys10, 
+TBLCNT, CGATTRIBUTES from sys.cache_group, 1, 2013-01-04 13:04:33.549000, 0, 0, 0 &gt;
+&lt; 110255264, 2048, 2, 2, 0, 1, 3048, SYS                            , select 
+order#,columns,types from sys.access$ where d_obj#=:1, 2, 2013-01-08 
+08:40:44.633000, 0, 0, 0 &gt;
+&lt; 110185240, 2048, 1, 1, 0, 1, 4312, PAT                           , call 
+ttstatsconfig(&#39;connsamplefactor&#39;,&#39;1,5&#39;), 2, 2013-01-08 08:33:09.505000, 0, 0, 0 &gt;
+&lt; 35031664, 2048, 1, 1, 0, 1, 2232, CACHEUSER                      , call 
+ttCacheUidPwdSet(&#39;cacheuser&#39;,&#39;oracle&#39;), 0, 2013-01-04 13:03:43.615000, .326, .326, 0 &gt;
+&lt; 110229864, 2048, 2, 2, 0, 1, 4240, PAT                           , call 
+ttstatsconfig(&#39;sqlcmdsamplefactor&#39;), 4, 2013-01-08 08:32:10.638000, .000082, 
+.000082, .000082 &gt;
+&lt; 40819648, 2048, 1, 1, 0, 0, 3904, SYS                            , select 1 
+from sys.sysauth$ s where (s.grantee# = :userid or s.grantee# = 1) and 
+(s.privilege# = :priv or s.privilege# = 67), 1, 2013-01-04 13:03:29.262000, 0, 0, 
+0 &gt;
+&lt; 35038832, 2048, 1, 2, 0, 1, 3336, CACHEUSER                      , create 
+writethrough cache group update_cust from active_customer
+(custid number (6) not null primary key,
+name varchar2(50),
+addr varchar2(100),
+zip varchar2(12)), 0, 2013-01-04 13:06:53.452000, 19.917, 19.917, 0 &gt;
+&lt; 110270264, 2048, 4, 4, 0, 1, 3888, SYS                            , select 
+piece#,length,piece from sys.idl_ub2$ where obj#=:1 and part=:2 and version=:3 
+order by piece#, 34, 2013-01-08 08:40:44.633000, 0, 0, 0 &gt;
+&lt; 110266280, 2048, 4, 4, 0, 1, 3888, SYS                            , select 
+piece#,length,piece from sys.idl_char$ where obj#=:1 and part=:2 and version=:3 
+order by piece#, 14, 2013-01-08 08:40:44.633000, 0, 0, 0 &gt;
+&lt; 35034128, 2048, 1, 1, 0, 1, 1688, CACHEUSER                      , call 
+ttGridCreate(&#39;ttGrid&#39;), 0, 2013-01-04 13:04:00.891000, 0, 0, 0 &gt;
+</pre></div>
+<!-- class="example" -->
+<div id="TTOPR518" class="example">
+<p class="titleinexample"><a id="BABGAIIF"></a>Example 9-2 Displaying a single SQL command</p>
+<p>If you provide a command id as the input for the <code>ttSQLCmdCacheInfo</code>, the single command is displayed from within the SQL command cache. If no command id is provided to the <code>ttSQLCmdCacheInfo</code> built-in procedure, then it displays information about all current commands, where the command id is the first column of the output.</p>
+<p>The following example displays the command identified by Command ID of <code>527973892</code>. It is displayed in terse format; to view with the column headings prepended, execute <code>vertical on</code> before calling the <code>ttSQLCmdCacheInfo</code> built-in.</p>
+<pre>Command&gt; call ttSQLCmdCacheInfo(527973892);
+&lt; 527973892, 2048, 0, 1, 0, 1, 2872, PAT                        , select * from 
+t1 where x1 in (select x2 from t2) or x1 in (select x3 from t3) order by 1, 2, 3 &gt;
+1 row found.
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABGEDFF"></a>
+<div id="TTOPR519" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Viewing SQL query plans</h2>
+<p>You can view the query plan for a command in one of two ways: storing the latest query plan into the system <code>PLAN</code> table or viewing all cached commands and their query plans in the SQL command cache. Both methods are described in the following sections:</p>
+<ul>
+<li>
+<p><a href="#CBAJEIFJ">Viewing a query plan from the system PLAN table</a></p>
+</li>
+<li>
+<p><a href="#BABJFDIE">Viewing query plans associated with commands stored in the SQL command cache</a></p>
+</li>
+</ul>
+<a id="CBAJEIFJ"></a>
+<div id="TTOPR520" class="sect2">
+<h3 class="sect2">Viewing a query plan from the system PLAN table</h3>
+<p><a id="sthref1086"></a><a id="sthref1087"></a><a id="sthref1088"></a>The optimizer prepares the query plans. For the last SQL statement to be executed, you can instruct that the plan be stored in the system <code>PLAN</code> table:</p>
+<ol>
+<li>
+<p>Instruct TimesTen to generate the plan and store it in the system <code>PLAN</code> table.</p>
+</li>
+<li>
+<p>Prepare the statement means calling the ODBC <code>S</code><a id="sthref1089"></a><a id="sthref1090"></a><code>QLPrepare</code> function or JDBC <code>Connection.prepareStatement</code><a id="sthref1091"></a><a id="sthref1092"></a><a id="sthref1093"></a> method on the statement. TimesTen stores the plan into the <code>PLAN</code> table.</p>
+</li>
+<li>
+<p>Read the generated plan within the <code>SYS.PLAN</code> table.</p>
+</li>
+</ol>
+<p>The stored plan is updated automatically whenever the command is reprepared. Re-preparation occurs automatically if one or more of the following occurs:</p>
+<ul>
+<li>
+<p>A table in the statement is altered.</p>
+</li>
+<li>
+<p>If indexes are created or dropped.</p>
+</li>
+<li>
+<p>The application invalidates commands when statistics are updated with the <code>invalidate</code> option in the <code>ttOptUpdateStats</code> built-in procedure.</p>
+</li>
+<li>
+<p>The user invalidates commands with the <code>ttOptCmdCacheInvalidate</code> built-in procedure.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information, see <a href="perform.htm#CACIICID">&#34;Control the invalidation of commands in the SQL command cache&#34;</a>. For more information on the built-in procedures, see <a class="olink TTREF277" href="../TTREF/proced.htm#TTREF277">&#34;ttOptUpdateStats&#34;</a> and <a class="olink TTREF772" href="../TTREF/proced.htm#TTREF772">&#34;ttOptCmdCacheInvalidate&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+<p>For these cases, read the <code>PLAN</code> table to view how the plan has been modified.</p>
+<div id="TTOPR521" class="sect3"><a id="sthref1094"></a>
+<h4 class="sect3">Instruct TimesTen to store the plan in the system PLAN table</h4>
+<p><a id="sthref1095"></a>Before you can view the plan in the system <code>PLAN</code> table, enable the creation of entries in the <code>PLAN</code> table with the plan generation option as follows:</p>
+<ul>
+<li>
+<p>For transaction level optimizer hints, call the built-in <code>ttOptSetFlag</code> procedure and enable the <code>GenPlan</code> flag.</p>
+</li>
+<li>
+<p>For statement level optimizer hints, set <code>TT_GENPLAN(1)</code>, which is only in effect for the statement. After the statement executes, the plan generation option takes on the value of the <code>GenPlan</code> transaction level optimizer hint.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+See <a href="#CBAEHHAB">&#34;Use optimizer hints to modify the execution plan&#34;</a> for details on statement level and transaction level optimizer hints.</div>
+<p>This informs TimesTen that all subsequent calls to the ODBC <code>SQLPrepare</code> function or JDBC <code>Connection.prepareStatement</code> method in the transaction should store the resulting plan in the current <code>SYS.PLAN</code> table.</p>
+<p>The <code>SYS.PLAN</code> table only stores one plan, so each call to the ODBC <code>SQLPrepare</code> function or JDBC <code>Connection.prepareStatement</code> method overwrites any plan currently stored in the table.</p>
+<p>If a command is prepared with plan generation option set, it is also recompiled for plan generation. Thus, the plan is generated even though the plan for another query was found in the <code>SYS.PLAN</code> table.</p>
+<p>You can use <code>showplan</code> in <code>ttIsql</code> to test the query and optimizer hints, which enables plan generation as well as shows the query plan for the statements in the transaction. Autocommit must be off.</p>
+<pre>autocommit 0;
+showplan 1;
+</pre></div>
+<!-- class="sect3" -->
+<a id="BABEJIGC"></a>
+<div id="TTOPR522" class="sect3">
+<h4 class="sect3">Reading query plan from the PLAN table</h4>
+<p><a id="sthref1096"></a>Once plan generation has been turned on and a command has been prepared, one or more rows in the <code>SYS.PLAN</code> table store the plan for the command. The number of rows in the table depends on the complexity of the command. Each row has seven columns, as described in <a class="olink TTSYS346" href="../TTSYS/systemtables.htm#TTSYS346">&#34;System Tables&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database System Tables and Views Reference</span>. <a id="sthref1097"></a><a id="sthref1098"></a><a id="sthref1099"></a></p>
+<div id="TTOPR523" class="example">
+<p class="titleinexample"><a id="CBAHGABJ"></a>Example 9-3 Generating a query plan</p>
+<p>This example uses the following query:</p>
+<pre>SELECT COUNT(*)
+FROM T1, T2, T3
+WHERE T3.B/T1.B &gt; 1
+AND T2.B &lt;&gt; 0
+AND T1.A = -T2.A
+AND T2.A = T3.A
+</pre>
+<p>The optimizer generates the five <code>SYS.PLAN</code> rows shown in the following table. Each row is one step in the plan and reflects an operation that is performed during query execution.</p>
+<div class="inftblhruleinformal">
+<table class="cellalignment3233" title="steps in the SYS.PLAN" summary="This table shows steps in the SYS.PLAN." dir="ltr">
+<thead>
+<tr class="cellalignment3224">
+<th class="cellalignment3234" id="r1c1-t9">Step</th>
+<th class="cellalignment3234" id="r1c2-t9">Level</th>
+<th class="cellalignment3234" id="r1c3-t9">Operation</th>
+<th class="cellalignment3234" id="r1c4-t9">TblNames</th>
+<th class="cellalignment3234" id="r1c5-t9">IXName</th>
+<th class="cellalignment3234" id="r1c6-t9">Pred</th>
+<th class="cellalignment3234" id="r1c7-t9">Other Pred</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r2c1-t9" headers="r1c1-t9">1</td>
+<td class="cellalignment3230" headers="r2c1-t9 r1c2-t9">3</td>
+<td class="cellalignment3230" headers="r2c1-t9 r1c3-t9">TblLkRangeScan</td>
+<td class="cellalignment3230" headers="r2c1-t9 r1c4-t9">T1</td>
+<td class="cellalignment3230" headers="r2c1-t9 r1c5-t9">IX1</td>
+<td class="cellalignment3230" headers="r2c1-t9 r1c6-t9">&nbsp;</td>
+<td class="cellalignment3230" headers="r2c1-t9 r1c7-t9">&nbsp;</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r3c1-t9" headers="r1c1-t9">2</td>
+<td class="cellalignment3230" headers="r3c1-t9 r1c2-t9">3</td>
+<td class="cellalignment3230" headers="r3c1-t9 r1c3-t9">TblLkRangeScan</td>
+<td class="cellalignment3230" headers="r3c1-t9 r1c4-t9">T2</td>
+<td class="cellalignment3230" headers="r3c1-t9 r1c5-t9">IX2(D)</td>
+<td class="cellalignment3230" headers="r3c1-t9 r1c6-t9">&nbsp;</td>
+<td class="cellalignment3230" headers="r3c1-t9 r1c7-t9">T2.B &lt;&gt; 0</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r4c1-t9" headers="r1c1-t9">3</td>
+<td class="cellalignment3230" headers="r4c1-t9 r1c2-t9">2</td>
+<td class="cellalignment3230" headers="r4c1-t9 r1c3-t9">MergeJoin</td>
+<td class="cellalignment3230" headers="r4c1-t9 r1c4-t9">&nbsp;</td>
+<td class="cellalignment3230" headers="r4c1-t9 r1c5-t9">&nbsp;</td>
+<td class="cellalignment3230" headers="r4c1-t9 r1c6-t9">T1.A = -T2.A</td>
+<td class="cellalignment3230" headers="r4c1-t9 r1c7-t9">&nbsp;</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r5c1-t9" headers="r1c1-t9">4</td>
+<td class="cellalignment3230" headers="r5c1-t9 r1c2-t9">2</td>
+<td class="cellalignment3230" headers="r5c1-t9 r1c3-t9">TblLkRangeScan</td>
+<td class="cellalignment3230" headers="r5c1-t9 r1c4-t9">T3</td>
+<td class="cellalignment3230" headers="r5c1-t9 r1c5-t9">IX3(D)</td>
+<td class="cellalignment3230" headers="r5c1-t9 r1c6-t9">&nbsp;</td>
+<td class="cellalignment3230" headers="r5c1-t9 r1c7-t9">&nbsp;</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r6c1-t9" headers="r1c1-t9">5</td>
+<td class="cellalignment3230" headers="r6c1-t9 r1c2-t9">1</td>
+<td class="cellalignment3230" headers="r6c1-t9 r1c3-t9">MergeJoin</td>
+<td class="cellalignment3230" headers="r6c1-t9 r1c4-t9">&nbsp;</td>
+<td class="cellalignment3230" headers="r6c1-t9 r1c5-t9">&nbsp;</td>
+<td class="cellalignment3230" headers="r6c1-t9 r1c6-t9">T2.A = T3.A</td>
+<td class="cellalignment3230" headers="r6c1-t9 r1c7-t9">T3.B / T1.B &gt; 1</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblhruleinformal" -->
+<p>For details about each column in the <code>SYS.PLAN</code> table, see <a href="#BABDGFDJ">&#34;Describing the PLAN table columns&#34;</a>.</p>
+</div>
+<!-- class="example" --></div>
+<!-- class="sect3" -->
+<a id="BABDGFDJ"></a>
+<div id="TTOPR524" class="sect3">
+<h4 class="sect3">Describing the PLAN table columns</h4>
+<p><a id="sthref1100"></a><a id="sthref1101"></a>The <code>SYS.PLAN</code> table has seven columns.</p>
+<div id="TTOPR525" class="sect4"><a id="sthref1102"></a>
+<h5 class="sect4">Column 1 (Step)</h5>
+<p><a id="sthref1103"></a><a id="sthref1104"></a>Indicates the order of operation, which always starts with one. <a href="#CBAHGABJ">Example 9-3</a> uses a table lock range scan in the following order:</p>
+<ol>
+<li>
+<p>Table locking range scan of IX1 on table <code>T1</code>.</p>
+</li>
+<li>
+<p>Table locking range scan of IX2 on <code>T2</code>.</p>
+</li>
+<li>
+<p>Merge join of <code>T1</code> and <code>T2</code> and so forth.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect4" -->
+<div id="TTOPR526" class="sect4"><a id="sthref1105"></a>
+<h5 class="sect4">Column 2 (<a id="sthref1106"></a><a id="sthref1107"></a>Level)</h5>
+<p>Indicates the position of the operation in the join-tree diagram that describes the execution. For <a href="#CBAHGABJ">Example 9-3</a>, the join tree is as follows:</p>
+<img width="532" height="190" src="./img/jointree.gif" alt="Description of jointree.gif follows"/><br/>
+<a id="sthref1108" href="./img_text/jointree.htm">Description of the illustration jointree.gif</a><br/>
+<br/></div>
+<!-- class="sect4" -->
+<div id="TTOPR527" class="sect4"><a id="sthref1109"></a>
+<h5 class="sect4">Column 3 (<a id="sthref1110"></a><a id="sthref1111"></a>Operation)</h5>
+<p>Indicates the type of operation being executed. For a description of the potential values in this field and the type of table scan each represents, see <code>SYS.PLAN</code> in <a class="olink TTSYS346" href="../TTSYS/systemtables.htm#TTSYS346">&#34;System Tables&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database System Tables and Views Reference</span>.</p>
+<p>Not all operations the optimizer performs are visible to the user. Only operations significant to performance analysis are shown in the <code>SYS.PLAN</code> table. <code>TblLk</code> is an optimizer hint that is honored at execution time in Serializable or Read Committed isolation. Table locks are used during a scan only if row locks are disabled during preparation.</p>
+</div>
+<!-- class="sect4" -->
+<div id="TTOPR528" class="sect4"><a id="sthref1112"></a>
+<h5 class="sect4">Column 4 (<a id="sthref1113"></a><a id="sthref1114"></a>TblNames)</h5>
+<p>Indicates the table that is being scanned. This column is used only when the operation is a scan. In all other cases, this column is <code>NULL</code>.</p>
+</div>
+<!-- class="sect4" -->
+<div id="TTOPR529" class="sect4"><a id="sthref1115"></a>
+<h5 class="sect4">Column 5 (<a id="sthref1116"></a><a id="sthref1117"></a>IXName)</h5>
+<p>Indicates the index that is being used. This column is used only when the operation is an index scan using an existing index&mdash;such as a hash or range scan. In all other cases, this column is <code>NULL</code>. Names of range indexes are followed with &#34;(D)&#34; if the scan is descending&mdash;from large to small rather than from small to large.</p>
+</div>
+<!-- class="sect4" -->
+<div id="TTOPR530" class="sect4"><a id="sthref1118"></a>
+<h5 class="sect4">Column 6 (<a id="sthref1119"></a><a id="sthref1120"></a>Pred)</h5>
+<p>Indicates the predicate that participates in the operation, if there is one. Predicates are used only with index scan and <code>MergeJoin</code> operations. The predicate<a id="sthref1121"></a> character string is limited to 1,024 characters.</p>
+<p>This column may be <code>NULL</code>&mdash;indicating no predicate&mdash;for a range scan. The optimizer may choose a range scan over a table scan because, in addition to filtering, it has two useful properties:</p>
+<ul>
+<li>
+<p>Rows are returned in sorted order, on index key.</p>
+</li>
+<li>
+<p>Rows may be returned faster, especially if the table is sparse.</p>
+</li>
+</ul>
+<p>In <a href="#CBAHGABJ">Example 9-3</a>, the range scans are used for their sorting capability; none of them evaluates a predicate.</p>
+</div>
+<!-- class="sect4" -->
+<div id="TTOPR531" class="sect4"><a id="sthref1122"></a>
+<h5 class="sect4">Column 7 (<a id="sthref1123"></a><a id="sthref1124"></a>Other Pred)</h5>
+<p>Indicates any other predicate that is applied while the operation is being executed. These predicates do not participate directly in the scan or join but are evaluated on each row returned by the scan or join.</p>
+<p>For example, at step two of the plan generated for <a href="#CBAHGABJ">Example 9-3</a>, a range scan is performed on table <code>T2</code>. When that scan is performed, the predicate <code>T2.B &lt;&gt; 0</code> is also evaluated. Similarly, once the final merge-join has been performed, it is then possible to evaluate the predicate <code>T3.B / T1.B &gt; 1</code>.</p>
+</div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="BABJFDIE"></a>
+<div id="TTOPR532" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Viewing query plans associated with commands stored in the SQL command cache</h3>
+<p>Use the query plan information to monitor and troubleshoot your queries.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more reasons why to use the <code>ttSQLCmdQueryPlan</code> built-in procedure, see <a href="#BABEIFBD">&#34;Managing performance and troubleshooting commands&#34;</a>.</div>
+<p>The <code>ttSQLCmdQueryPlan</code> built-in procedure displays the query plan of a specific statement or all statements in the command cache. It displays the detailed run-time query plans for the cached SQL queries. By default, all query plans are displayed; if you specify the command id taken from the command output, only the query plan for the specified command is displayed.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If you want to display a query plan for a specific command, you must provide the command identifier that is displayed with the <code>ttSQLCmdCacheInfo</code> built-in procedure. See <a href="#BABEAEAA">&#34;Displaying commands stored in the SQL command cache&#34;</a> for full details.</div>
+<p>The plan data displayed when you invoke this built-in procedure is as follows:</p>
+<ul>
+<li>
+<p>Command identifier</p>
+</li>
+<li>
+<p>Query text up to 1024 characters</p>
+</li>
+<li>
+<p>Step number of the current operation in the run-time query plan</p>
+</li>
+<li>
+<p>Level number of the current operation in the query plan tree</p>
+</li>
+<li>
+<p>Operation name of current step</p>
+</li>
+<li>
+<p>Name of table used</p>
+</li>
+<li>
+<p>Owner of the table</p>
+</li>
+<li>
+<p>Name of index used</p>
+</li>
+<li>
+<p>If used and available, the index predicate</p>
+</li>
+<li>
+<p>If used and available, the non-indexed predicate</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information on how to view this information, see <a href="#BABEJIGC">&#34;Reading query plan from the PLAN table&#34;</a>. The source of the data may be different, but the mapping and understanding of the material is the same as the query plan in the system <code>PLAN</code> table.</div>
+<p>The <code>ttSQLCmdQueryPlan</code> built-in process displays the query plan in a raw data format. Alternatively, you can execute the <code>ttIsql</code> <code>explain</code> command for a formatted version of this output. For more information, see <a href="ttisql.htm#CHDCBJJG">&#34;Display query plan for statement in SQL command cache&#34;</a>.</p>
+<p>The following examples show how to display all or a single SQL query plan from the SQL command cache using the <code>ttSQLCmdQueryPlan</code> built-in procedure:</p>
+<ul>
+<li>
+<p><a href="#BABCFGEG">Displaying all SQL query plans</a></p>
+</li>
+<li>
+<p><a href="#BABEBHHI">Displaying a single SQL query plan</a></p>
+</li>
+</ul>
+<div id="TTOPR533" class="example">
+<p class="titleinexample"><a id="BABCFGEG"></a>Example 9-4 Displaying all SQL query plans</p>
+<p>You can display all SQL query plans associated with commands stored in the command cache with the <code>ttSQLCmdQueryPlan</code> built-in procedure within the <code>ttIsql</code> utility.</p>
+<p>The following example shows the output when executing the <code>ttSQLCmdQueryPlan</code> built-in procedure without arguments, which displays detailed run-time query plans for all valid queries. For invalid queries, there is no query plan; instead, the query text is displayed.</p>
+<p>The query plans are displayed in terse format. To view with the column headings prepended, execute <code>vertical on</code> before calling the <code>ttSQLCmdQueryPlan</code> built-in procedure.</p>
+<p><span class="bold">Note</span>: For complex expressions, there may be some difficulties in printing out the original expressions.</p>
+<pre>Command&gt; call ttSQLCmdQueryPlan();
+
+&lt; 528079360, select * from t7 where x7 is not null or exists (select 1 from t2,t3 
+where not &#39;tuf&#39; like &#39;abc&#39;), &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 528079360, &lt;NULL&gt;, 0, 2, RowLkSerialScan                , T7 
+, PAT                        ,                                , ,  &gt;
+&lt; 528079360, &lt;NULL&gt;, 1, 3, RowLkRangeScan                 , T2 
+, PAT                        , I2                             , , NOT(LIKE( tuf 
+,abc ,NULL ))  &gt;
+&lt; 528079360, &lt;NULL&gt;, 2, 3, RowLkRangeScan                 , T3 
+, PAT                        , I2                             , ,  &gt;
+&lt; 528079360, &lt;NULL&gt;, 3, 2, NestedLoop                     , 
+,                                ,                                , ,  &gt;
+&lt; 528079360, &lt;NULL&gt;, 4, 1, NestedLoop(Left OuterJoin)     , 
+,                                ,                                , ,  &gt;
+&lt; 528079360, &lt;NULL&gt;, 5, 0, Filter                         , 
+,                                ,                                , , X7 &gt;
+&lt; 527576540, call ttSQLCmdQueryPlan(527973892), &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 527576540, &lt;NULL&gt;, 0, 0, Procedure Call                 , 
+,                                ,                                , ,  &gt;
+&lt; 528054656, create table t2(x2 int,y2 int, z2 int), &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 528066648, insert into t2 select * from t1, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 528066648, &lt;NULL&gt;, 0, 0, Insert                         , T2 
+, PAT                        ,                                , ,  &gt;
+&lt; 528013192, select * from t1 where exists (select * from t2 where x1=x2) or 
+y1=1, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 528061248, create index i1 on t3(y3), &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 528070368, call ttOptSetOrder(&#39;t3 t4 t2 t1&#39;), &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 528070368, &lt;NULL&gt;, 0, 0, Procedure Call                 , 
+,                                ,                                , ,  &gt;
+&lt; 528018856, insert into t2 select * from t1, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 527573452, call ttSQLCmdCacheInfo(527973892), &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 527573452, &lt;NULL&gt;, 0, 0, Procedure Call                 , 
+,                                ,                                , ,  &gt;
+&lt; 528123000, select * from t1 where x1 = 1 or x1 = (select x2 from t2,t3 where 
+z2=t3.x3), &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 528123000, &lt;NULL&gt;, 0, 2, RowLkSerialScan                , T1 
+, PAT                        ,                                , ,  &gt;
+&lt; 528123000, &lt;NULL&gt;, 1, 6, RowLkRangeScan                 , T2 
+, PAT                        , I2                             , ,  &gt;
+&lt; 528123000, &lt;NULL&gt;, 2, 6, RowLkRangeScan                 , T3 
+, PAT                        , I2                             , ,  Z2 = X3; &gt;
+&lt; 528123000, &lt;NULL&gt;, 3, 5, NestedLoop                     , 
+,                                ,                                , ,  &gt;
+&lt; 528123000, &lt;NULL&gt;, 4, 4, Materialized View              , 
+,                                ,                                , ,  &gt;
+&lt; 528123000, &lt;NULL&gt;, 5, 3, GroupBy                        , 
+,                                ,                                , ,  &gt;
+&lt; 528123000, &lt;NULL&gt;, 6, 2, Filter                         , 
+,                                ,                                , ,  X1 = 
+colum_name; &gt;
+&lt; 528123000, &lt;NULL&gt;, 7, 1, NestedLoop(Left OuterJoin)     , 
+,                                ,                                , ,  &gt;
+&lt; 528123000, &lt;NULL&gt;, 8, 0, Filter                         , 
+,                                ,                                , ,  X1 = 1; &gt;
+</pre></div>
+<!-- class="example" -->
+<div id="TTOPR534" class="example">
+<p class="titleinexample"><a id="BABEBHHI"></a>Example 9-5 Displaying a single SQL query plan</p>
+<p>You can display any query plan associated with a command by providing the command id of the command as the input for the <code>ttSQLCmdQueryPlan</code> built-in procedure. The single query plan is displayed from within the SQL command cache. If no command id is supplied, the <code>ttSQLCmdCacheInfo</code> built-in procedure displays information about all current commands in the TimesTen cache.</p>
+<p>The following example displays the query plan of the command identified by command id of <code>528078576</code>. It is displayed in terse format; to view with the column headings prepended, execute <code>vertical on</code> before calling the <code>ttSQLCmdQueryPlan</code> built-in procedure.</p>
+<p><span class="bold">Note</span>: for complex expressions, there are some difficulties to print original expressions.</p>
+<pre>Command&gt; call ttSQLCmdQueryPlan( 528078576);
+&lt; 528078576, select * from t1 where 1=2 or (x1 in (select x2 from t2, t5 where y2 
+in (select y3 from t3)) and y1 in (select x4 from t4)), &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, 
+&lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt;, &lt;NULL&gt; &gt;
+&lt; 528078576, &lt;NULL&gt;, 0, 4, RowLkSerialScan                , T1 
+, PAT                        ,                                , ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 1, 7, RowLkRangeScan                 , T2 
+, PAT                        , I2                             , ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 2, 7, RowLkRangeScan                 , T5 
+, PAT                        , I2                             , ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 3, 6, NestedLoop                     , 
+,                                ,                                , ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 4, 6, RowLkRangeScan                 , T3 
+, PAT                        , I1                             ,  ( (Y3=Y2; ) ) ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 5, 5, NestedLoop                     , 
+,                                ,                                , ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 6, 4, Filter                         , 
+,                                ,                                , ,  X1 = X2; &gt;
+&lt; 528078576, &lt;NULL&gt;, 7, 3, NestedLoop(Left OuterJoin)     , 
+,                                ,                                , ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 8, 2, Filter                         , 
+,                                ,                                , ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 9, 2, RowLkRangeScan                 , T4 
+, PAT                        , I2                             , ,  Y1 = X4; &gt;
+&lt; 528078576, &lt;NULL&gt;, 10, 1, NestedLoop(Left OuterJoin)     , 
+,                                ,                                , ,  &gt;
+&lt; 528078576, &lt;NULL&gt;, 11, 0, Filter                         , 
+,                                ,                                , ,  &gt;
+13 rows found.
+Command&gt;
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CBACFCAE"></a>
+<div id="TTOPR535" class="sect1">
+<h2 class="sect1">Modifying plan generation</h2>
+<p>If you decide that you want to modify a query plan, you can only modify the query plan that exists in the system <code>PLAN</code> table as described in <a href="#CBAJEIFJ">&#34;Viewing a query plan from the system PLAN table&#34;</a>. Once you do modify the query plan, it does not replace the query plan, but creates a new query plan with your changes.</p>
+<p><a id="sthref1125"></a><a id="sthref1126"></a>The following sections describe why you may want to modify execution plans and then how to modify them:</p>
+<ul>
+<li>
+<p><a href="#BABFGACD">Why modify an execution plan?</a></p>
+</li>
+<li>
+<p><a href="#BABDFIFC">How hints can influence an execution plan</a></p>
+</li>
+<li>
+<p><a href="#CBAEHHAB">Use optimizer hints to modify the execution plan</a></p>
+</li>
+</ul>
+<a id="BABFGACD"></a>
+<div id="TTOPR536" class="sect2">
+<h3 class="sect2">Why modify an <a id="sthref1127"></a>execution plan?</h3>
+<p>Applications may want to modify an execution plan for two reasons:</p>
+<ul>
+<li>
+<p><span class="bold">The plan is optimally fast but is ill-suited for the application.</span> The optimizer may select the fastest execution path, but this path may not be desirable from the application&#39;s point of view. For example, if the optimizer chooses to use certain indexes, these choices may prevent other operations-such as certain update or delete operations-from occurring simultaneously on the indexed tables. In this case, an application can prevent the use of those indexes.</p>
+<p>The plan chosen by the optimizer may also consume more memory than is available or than the application wants to allocate. For example, this may happen if the plan stores intermediate results or requires the creation of temporary indexes.</p>
+</li>
+</ul>
+<ul>
+<li>
+<p><span class="bold">The plan is not optimally performant.</span> The query optimizer chooses the plan that it estimates will execute the fastest based on its knowledge of the tables&#39; contents, available indexes, statistics, and the relative costs of various internal operations. The optimizer often has to make estimates or generalizations when evaluating this information, so there can be instances where it does not choose the fastest plan. In this case, an application can adjust the optimizer&#39;s behavior to try to produce a better plan.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="BABDFIFC"></a>
+<div id="TTOPR537" class="sect2">
+<h3 class="sect2">How hints can influence an execution plan</h3>
+<p>You can apply hints to pass instructions to the TimesTen query optimizer. The optimizer considers these hints when choosing the best execution plan for your query. Transaction level hints are in effect for all calls to the ODBC <code>SQLPrepare</code> function or JDBC<a id="sthref1128"></a> <code>P<a id="sthref1129"></a>reparedStatement</code> objects in the transaction.</p>
+<ul>
+<li>
+<p>If a command is prepared with certain hints in effect, those hints continue to apply if the command is reprepared automatically, even when this happens outside the initial prepare transaction. This can happen when a table is altered, or an index is dropped or created, or when statistics are modified, as described in <a href="#CBACIHBC">&#34;When optimization occurs&#34;</a>.</p>
+</li>
+<li>
+<p>If a command is prepared without hints, subsequent hints do not affect the command if it is reprepared automatically. An application must call the ODBC <a id="sthref1130"></a><a id="sthref1131"></a><a id="sthref1132"></a><code>SQLPrepare</code> function or JDBC<a id="sthref1133"></a><a id="sthref1134"></a><a id="sthref1135"></a> <code>Connection.prepareStatement</code> method a second time so that hints have an effect.</p>
+</li>
+</ul>
+<div id="TTOPR538" class="example">
+<p class="titleinexample"><a id="sthref1136"></a>Example 9-6 Tuning a join when using ODBC</p>
+<p>When using ODBC, a developer tuning a join on <code>T1</code> and <code>T2</code> might go through the steps shown in the following figure.</p>
+<img width="474" height="290" src="./img/tune_join.gif" alt="Description of tune_join.gif follows"/><br/>
+<a id="sthref1137" href="./img_text/tune_join.htm">Description of the illustration tune_join.gif</a><br/>
+<br/>
+<p>During execution, the application may then go through the steps shown in the following figure.</p>
+<img width="432" height="367" src="./img/execution_steps.gif" alt="Description of execution_steps.gif follows"/><br/>
+<a id="sthref1138" href="./img_text/execution_steps.htm">Description of the illustration execution_steps.gif</a><br/>
+<br/></div>
+<!-- class="example" -->
+<div id="TTOPR539" class="example">
+<p class="titleinexample"><a id="sthref1139"></a>Example 9-7 Tuning a join when using JDBC</p>
+<p>When using JDBC, a developer tuning a join on <code>T1</code> and <code>T2</code> might go through the steps shown in the following figure.</p>
+<img width="493" height="249" src="./img/jdbc_steps.gif" alt="Description of jdbc_steps.gif follows"/><br/>
+<a id="sthref1140" href="./img_text/jdbc_steps.htm">Description of the illustration jdbc_steps.gif</a><br/>
+<br/>
+<p>During execution, the application may then go through the steps shown in the following figure.</p>
+<img width="495" height="367" src="./img/jdbc_exec_steps.gif" alt="Description of jdbc_exec_steps.gif follows"/><br/>
+<a id="sthref1141" href="./img_text/jdbc_exec_steps.htm">Description of the illustration jdbc_exec_steps.gif</a><br/>
+<br/></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<a id="CBAEHHAB"></a>
+<div id="TTOPR540" class="sect2">
+<h3 class="sect2">Use optimizer hints to modify the <a id="sthref1142"></a><a id="sthref1143"></a><a id="sthref1144"></a>execution plan<a id="sthref1145"></a><a id="sthref1146"></a></h3>
+<p>You can apply hints that to pass instructions to the TimesTen query optimizer as follows:</p>
+<ul>
+<li>
+<p>To apply a hint only for a particular SQL statement, use a statement level optimizer hint.</p>
+</li>
+<li>
+<p>To apply a hint for an entire transaction, use a transaction level optimizer hint with the appropriate TimesTen built-in procedure.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+TimesTen concurrently processes read and write queries optimally. Your read queries can be optimized for read-only concurrency when you use transaction level optimizer hints such as <code>ttOptSetFlag (&#39;tblLock&#39;,1)</code> or statement level optimizer hints such as <code>/*+ tt_tbllock(1) tt_rowlock(0) */</code>. Write queries that operate concurrently with read optimized queries may result in contention.
+<p>You can control read optimization during periods of concurrent write operations with the <code>ttDbWriteConcurrencyModeSet</code> built-in procedure. For more information, see <a href="perform.htm#BABCDJHA">&#34;Control read optimization during concurrent write operations&#34;</a>.</p>
+</div>
+<p>Directions for applying hints are described in the following sections:</p>
+<ul>
+<li>
+<p><a href="#BABIJHEB">Apply statement level optimizer hints for a SQL statement</a></p>
+</li>
+<li>
+<p><a href="#BABJAFGJ">Apply transaction level optimizer hints for a transaction</a></p>
+</li>
+</ul>
+<a id="BABIJHEB"></a>
+<div id="TTOPR748" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Apply statement level optimizer hints for a SQL statement<a id="sthref1147"></a><a id="sthref1148"></a><a id="sthref1149"></a></h4>
+<p>A statement level optimizer hint is a specially formatted SQL comment containing instructions for the SQL optimizer. A statement level optimizer hint can be specified within the SQL statement that it is to be applied against with one of the following methods:</p>
+<ul>
+<li>
+<p>/*+ */ The hints can be defined over multiple lines. The hints must be enclosed in the comment syntax. The plus sign (+) denotes the start of a hint.</p>
+</li>
+<li>
+<p>--+ The hint must be defined on a single line after the plus sign (+).</p>
+</li>
+</ul>
+<p>The statement level optimizer hint can be specified in the <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>MERGE</code>, <code>DELETE</code>, <code>CREATE TABLE AS SELECT</code>, or <code>INSERT ... SELECT</code> statements. You must specify the hint within comment syntax immediately following the <code>SQL</code> <code>VERB</code>. The placement, rules, and syntax on how to define statement level optimizer hints are fully described in <a class="olink TTSQL528" href="../TTSQL/state.htm#TTSQL528">&#34;Statement level optimizer hints&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+<p>Any hint defined in the SQL statement overrides any transaction level optimizer hint defined by a TimesTen built-in procedure, which are described in <a href="#BABJAFGJ">&#34;Apply transaction level optimizer hints for a transaction&#34;</a>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If you specify any statement level optimizer hints incorrectly, TimesTen ignores these hints and does not provide an error. If you define conflicting hints, the rightmost hint overrides any conflicting hints for the statement.</div>
+</div>
+<!-- class="sect3" -->
+<a id="BABJAFGJ"></a>
+<div id="TTOPR749" class="sect3">
+<h4 class="sect3">Apply transaction level optimizer hints for a transaction<a id="sthref1150"></a></h4>
+<p>To change the query optimizer behavior for all statements in a transaction, an application calls one of the following built-in procedures using the ODBC procedure call interface:</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Make sure autocommit is off for transaction level optimizer hints. All optimizer flags are reset to their default values when the transaction has been committed or rolled back. If optimizer flags are set while autocommit is on, the optimizer flags are ignored because each statement is executed within its own transaction.</div>
+<ul>
+<li>
+<p><code><a id="sthref1151"></a><a id="sthref1152"></a>ttOptSetFlag</code>&mdash;Sets certain optimizer parameters. Provides the optimizer with transaction level optimizer hints with a recommendation on how to best optimize a particular query.</p>
+</li>
+<li>
+<p><code>ttOptGetFlag</code>&mdash;View the existing transaction level hints set for a database.</p>
+</li>
+<li>
+<p><code><a id="sthref1153"></a>ttOptSetOrder</code>&mdash;Enables an application to specify the table join order.</p>
+</li>
+<li>
+<p><code><a id="sthref1154"></a>ttOptUseIndex</code>&mdash;Enables an application to specify that an index be used or to disable the use of certain indexes; that is, to specify which indexes should be considered for each correlation in a query.</p>
+</li>
+<li>
+<p><a id="sthref1155"></a><code>ttOptClearStats</code>, <a id="sthref1156"></a><code>ttOptEstimateStats</code>, <code><a id="sthref1157"></a>ttOptSetColIntvlStats</code>, <code><a id="sthref1158"></a>ttOptSetTblStats</code>, <code><a id="sthref1159"></a>ttOptUpdateStats</code>&mdash;Manipulate statistics that the TimesTen Data Manager maintains on the application&#39;s data that are used by the query optimizer to estimate costs of various operations.</p>
+</li>
+</ul>
+<p>Some of these built-in procedures require that the user have privileges to the objects on which the utility executes. For full details on these built-in procedures and any privileges required, see <a class="olink TTREF213" href="../TTREF/proced.htm#TTREF213">&#34;Built-In Procedures&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+<p>The following examples provide an ODBC and JDBC method on how to use the <code>ttOptSetFlag</code> built-in procedure:</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can also experiment with optimizer settings using the <code>ttIsql</code> utility. The commands that start with &#34;<code>try</code>&#34; control transaction level optimizer hints. To view current transaction level optimizer hint settings, use the <code>optprofile</code> command.</div>
+<ul>
+<li>
+<p><a href="#CBAHHBAB">Example 9-8, &#34;Using ttOptSetFlag in JDBC&#34;</a></p>
+</li>
+<li>
+<p><a href="#CBAGECIG">Example 9-9, &#34;Using ttOptSetFlag in ODBC&#34;</a></p>
+</li>
+</ul>
+<div id="TTOPR541" class="example">
+<p class="titleinexample"><a id="CBAHHBAB"></a>Example 9-8 Using ttOptSetFlag in JDBC</p>
+<p>This JDBC example illustrates the use of <code>ttOptSetFlag</code> to prevent the optimizer from choosing a merge join.</p>
+<pre>import java.sql.*; 
+class Example 
+{ 
+ public void myMethod() { 
+    CallableStatement cStmt; 
+    PreparedStatement pStmt;
+     . . . . . 
+    try {
+         . . . . . . . 
+        // Prevent the optimizer from choosing Merge Join 
+        cStmt = con.prepareCall(&#34;{ 
+            CALL ttOptSetFlag(&#39;MergeJoin&#39;, 0)}&#34;); 
+        cStmt.execute();
+        // Next prepared query 
+        pStmt=con.prepareStatement( 
+        &#34;SELECT * FROM Tbl1, Tbl2 WHERE Tbl1.ssn=Tbl2.ssn&#34;);
+        . . . . . . . 
+        catch (SQLException ex) { 
+            ex.printStackTrace(); 
+        } 
+    } 
+    . . . . . . .
+}
+</pre></div>
+<!-- class="example" -->
+<div id="TTOPR542" class="example">
+<p class="titleinexample"><a id="CBAGECIG"></a>Example 9-9 Using ttOptSetFlag in ODBC</p>
+<p>This ODBC example illustrates the use of <code>ttOptSetFlag</code> to prevent the optimizer from choosing a merge join.</p>
+<pre>#include &lt;sql.h&gt;
+SQLRETURN rc;
+SQLHSTMT hstmt; fetchStmt;
+....
+rc = SQLExecDirect (hstmt, (SQLCHAR *)
+     &#34;{CALL ttOptSetFlag (MergeJoin, 0)}&#34;,
+     SQL_NTS)
+/* check return value */
+...
+rc = SQLPrepare (fetchStmt, ...)
+/* check return value */
+...
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment3223">
+<tr>
+<td class="cellalignment3230">
+<table class="cellalignment3228">
+<tr>
+<td class="cellalignment3227"><a href="comp.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment3227"><a href="perform.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment3232">
+<table class="cellalignment3226">
+<tr>
+<td class="cellalignment3227"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment3227"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment3227"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment3227"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment3227"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment3227"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

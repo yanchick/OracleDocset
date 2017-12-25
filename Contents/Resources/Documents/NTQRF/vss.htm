@@ -1,0 +1,972 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-79044"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Performing%20Database%20Backup%20and%20Recovery%20with%20VSS"></a><title>Performing Database Backup and Recovery with VSS</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1093"/>
+<meta name="dcterms.created" content="2017-05-17T5:53:58Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Platform Guide"/>
+<meta name="dcterms.identifier" content="E10714-16"/>
+<meta name="dcterms.isVersionOf" content="NTQRF"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tuning.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="authen.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E10714-16.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">13/28</span> <!-- End Header -->
+<div id="NTQRF280" class="chapter"><a id="sthref473"></a>
+<h1 class="chapter"><span class="secnum">9</span> Performing Database Backup and Recovery with VSS</h1>
+<p>This chapter explains how to use Volume Shadow Copy Service (VSS) applications to back up and recover an Oracle database. This chapter contains the following topics:</p>
+<ul>
+<li>
+<p><a href="#BABGGDCA">Overview of Database Backup and Recovery with VSS</a></p>
+</li>
+<li>
+<p><a href="#BABJEGCA">About Installing and Uninstalling the Oracle VSS Writer Service</a></p>
+</li>
+<li>
+<p><a href="#BABFEIFJ">About Backing Up a Database</a></p>
+</li>
+<li>
+<p><a href="#BABIGGCG">About Restoring and Recovering a Database</a></p>
+</li>
+<li>
+<p><a href="#BEICDDBD">About Integrating VSS with Third-Party Requester Applications</a></p>
+</li>
+<li>
+<p><a href="#BABEFBGH">About Duplicating a Database</a></p>
+</li>
+</ul>
+<a id="BABGGDCA"></a>
+<div id="NTQRF285" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><a id="sthref474"></a><a id="sthref475"></a><a id="sthref476"></a>Overview of Database Backup and Recovery with VSS</h2>
+<p>This section explains the basic concepts and tasks involved in backup and recovery with <a href="glossary.htm#CHDJIDEJ"><span class="xrefglossterm">component-based shadow copies</span></a>. The following topics are described:</p>
+<ul>
+<li>
+<p><a href="#BEIBGCEH">Purpose of Database Backup and Recovery with VSS</a></p>
+</li>
+<li>
+<p><a href="#BEIBJGJJ">Scope of This Chapter</a></p>
+</li>
+<li>
+<p><a href="#BEIJJCAE">Basic Concepts of Database Backup and Recovery with VSS</a></p>
+</li>
+<li>
+<p><a href="#BEICBEAE">Basic Steps of Backup and Recovery with VSS</a></p>
+</li>
+</ul>
+<a id="BEIBGCEH"></a>
+<div id="NTQRF286" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref477"></a><a id="sthref478"></a>Purpose of Database Backup and Recovery with VSS</h3>
+<p>VSS provides a Windows-specific interface that enables coordination between requesters that back up data, writers that update data on disk, and providers that manage storage. Oracle Database functions as a writer that is integrated with VSS-enabled applications.</p>
+<p>You can use VSS-enabled software and storage systems on Windows to back up and restore an Oracle database. A key benefit is the ability to use a VSS-enabled application to make an online backup of the whole database.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BEIBJGJJ"></a>
+<div id="NTQRF287" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref479"></a>Scope of This Chapter</h3>
+<p>This chapter assumes that you are familiar both with VSS applications and the Oracle Database backup and recovery principles and techniques described in <a class="olink BRADV" href="../BRADV/toc.htm"><span class="italic">Oracle Database Backup and Recovery User&#39;s Guide</span></a>. This chapter does not attempt to provide an introduction to backup and recovery. It only explains how to perform database backup and recovery in the VSS infrastructure.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BEIJJCAE"></a>
+<div id="NTQRF288" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref480"></a><a id="sthref481"></a><a id="sthref482"></a><a id="sthref483"></a>Basic Concepts of Database Backup and Recovery with VSS</h3>
+<p>VSS is an infrastructure on Windows server platforms that enables applications to create shadow copies. A <a href="glossary.htm#CHDJIHHH"><span class="xrefglossterm">shadow copy</span></a> is a consistent snapshot of the data held on a volume or component at a well-defined point in time. A <a href="glossary.htm#CHDBEACJ"><span class="xrefglossterm">shadow copy set</span></a> is a collection of shadow copies that are all taken at the same time. VSS identifies each shadow copy and shadow copy set by a persistent Global Unique Identifier (GUID).</p>
+<p>VSS provides the following infrastructure for running VSS applications:</p>
+<ul>
+<li>
+<p>Coordinates activities of requesters, providers, and writers in the creation and use of shadow copies</p>
+</li>
+<li>
+<p>Furnishes the default system provider</p>
+</li>
+<li>
+<p>Implements low-level driver functionality necessary for any provider to work</p>
+</li>
+</ul>
+<p>A VSS <a href="glossary.htm#CHDCBECG"><span class="xrefglossterm">requester</span></a> is an application that requests VSS services to create shadow copies. Typically, VSS requesters are backup applications. Requesters communicate with writers to gather system data and signal writers to prepare data for backup.</p>
+<p>A VSS <a href="glossary.htm#CHDDEGFI"><span class="xrefglossterm">provider</span></a> manages storage volumes and creates shadow copies on demand. In response to a requester, a provider generates COM events to signal applications of an impending shadow copy and creates and maintains this copy until it is no longer needed. During the life cycle of the shadow copy, the provider effectively supports two independent copies: the disk that is actively updated and a fixed copy that is stable for backup.</p>
+<p>A VSS <a href="glossary.htm#CHDDEGHB"><span class="xrefglossterm">writer</span></a> is an application or service that writes data to disk and cooperates with VSS providers and requesters. During backups, writers ensure that data is in the proper state for a shadow copy.</p>
+<p>The <a href="glossary.htm#CHDIAJDB"><span class="xrefglossterm">Oracle VSS writer</span></a> is a Windows service that coordinates an Oracle database instance and other VSS components. The writer service, which is started under the user account with <code dir="ltr">SYSDBA</code> privileges, runs separately from the database instance. You must use third-party requesters to perform backup and recovery within the VSS infrastructure.</p>
+<p>As explained in the following sections, the Oracle VSS writer supports both volume-based and component-based shadow copies. You can use these shadow copies in a backup and recovery strategy or to create a copy of your original database. You can use the duplicate database for testing or as a standby database.</p>
+<div id="NTQRF289" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref484"></a>
+<h4 class="sect3"><a id="sthref485"></a>Component-Based Shadow Copies</h4>
+<p>The Oracle VSS writer supports <a href="glossary.htm#CHDJIDEJ"><span class="xrefglossterm">component-based shadow copies</span></a>, which are sets of database files. The recommended technique for backing up an Oracle database with VSS writer is to create shadow copies of components. During a backup, the Oracle VSS writer saves the redo generated during snapshot creation in a metadata document. During a restore operation, the writer automatically extracts the redo from the metadata document and applies it to files restored from a snapshot.</p>
+</div>
+<!-- class="sect3" -->
+<div id="NTQRF290" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref486"></a>
+<h4 class="sect3"><a id="sthref487"></a>Volume-Based Shadow Copies</h4>
+<p>The Oracle VSS writer supports <a href="glossary.htm#CHDJHIBC"><span class="xrefglossterm">volume-based shadow copies</span></a>, which are snapshots of complete drive or volumes. Oracle Database places the files that it manages in a state suitable to create shadow copies. For example, the data files are placed in hot backup mode and a new snapshot control file is created for a database in <code dir="ltr">ARCHIVELOG</code> mode. Oracle VSS writer excludes files such as the current control file and online redo logs from the shadow copies. The writer also returns an error if the snapshot cannot be taken. For example, if a <code dir="ltr">NOARCHIVELOG</code> database is open in read/write mode, then the writer returns an error indicating that the snapshot is not possible.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Oracle Automatic Storage Management files and raw files are not supported for Oracle VSS snapshots.</div>
+</div>
+<!-- class="sect3" -->
+<div id="NTQRF291" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref488"></a>
+<h4 class="sect3"><a id="sthref489"></a>Oracle VSS Backup Types</h4>
+<p>Oracle VSS writer supports log, copy, full, differential, and incremental backups. The VSS writer uses time stamp mechanism for incremental and differential backups and stores a time stamp in the backup document using <code dir="ltr">SetBackupStamp()</code> API. This backup stamp is used by Oracle VSS writer during incremental or differential backups to specify changed files since the last full or incremental backup using <code dir="ltr">AddDifferencedFilesByLastModifyTime()</code> API.</p>
+<p>Oracle VSS writer also stores backup metadata and restore metadata, which must be available during restore operations so that the VSS writer can perform intelligent postrestore operations. In case of full or copy backup, the restore metadata contains important redo information to make the restored files consistent. Hence, it is imperative that Oracle VSS writer is called during restore operations to perform the recovery operations.</p>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="BEICBEAE"></a>
+<div id="NTQRF292" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref490"></a>Basic Steps of Backup and Recovery with VSS</h3>
+<p>The Oracle VSS writer is installed automatically as part of the database. If you must install or uninstall it manually, see <a href="#BABJEGCA">&#34;About Installing and Uninstalling the Oracle VSS Writer Service&#34;</a>.</p>
+<p>In the most typical backup scenario, you select the <code dir="ltr">Oracle Database</code> component in your VSS-enabled application and create a shadow copy. The shadow copy contains the database files, control files, and server parameter file. If the database is in <code dir="ltr">ARCHIVELOG</code> mode, then you can create the shadow copy when the database is open or closed; otherwise, only when closed.</p>
+<p>In a typical recovery scenario, you select the <code dir="ltr">Oracle Database</code> component in your VSS-enabled application and restore it. Afterward, you can open the database either in read-only mode or with the <code dir="ltr">RESETLOGS</code> option. The Oracle VSS writer also supports applications that perform point-in-time recovery.</p>
+<p>To restore a subset of database files, you can select individual components and restore them. The Oracle VSS writer performs the appropriate actions automatically in the postrestore phase so that the file can be used (or brought online) at the end of restore operation. For example, if you select a data file component for restore, then the writer automatically recovers the data file by using RMAN.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a href="#BABFEIFJ">&#34;About Backing Up a Database&#34;</a> to learn about the components that you can back up and the procedures for making component-based and volume-based backups</p>
+</li>
+<li>
+<p><a href="#BABIGGCG">&#34;About Restoring and Recovering a Database&#34;</a> to learn about the components that you can restore and the procedures for performing restore and recovery</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABJEGCA"></a>
+<div id="NTQRF293" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><a id="sthref491"></a><a id="sthref492"></a><a id="sthref493"></a>A<a id="sthref494"></a><a id="sthref495"></a><a id="sthref496"></a>bout Installing and Uninstalling the Oracle VSS Writer Service</h2>
+<p>The Oracle VSS writer runs separately from the Oracle database instance. From the perspective of the database, the VSS writer is simply an OCI client.</p>
+<p>Oracle VSS writer instances are created automatically during the setup of an instance. <code dir="ltr">oradim.exe</code> utility that sets up an instance, also starts Oracle&#39;s VSS writer utility to setup VSS writer instance for managing the given Oracle instance. In addition, the Oracle VSS writer provides command-line options to install and uninstall the writer service. If <code dir="ltr">/user</code> option is used but <code dir="ltr">/password</code> option not used, then <code dir="ltr">oravssw</code> waits for password through <code dir="ltr">stdin</code>. During installation, you can specify the Windows account under which the service must be started. The writer uses operating system authentication when connecting to a database instance. Thus, the Windows user must be able to log in as <code dir="ltr">SYSDBA</code> to the Oracle database instances managed by the writer service.</p>
+<p>Oracle VSS is supported on the same operating systems that are supported by Oracle Database. See <a class="olink NTDBI2698" href="../NTDBI/reqs.htm#NTDBI2698"><span class="italic">Oracle Database Installation Guide for Microsoft Windows</span></a> for the list of supported operating systems.</p>
+<p>The command-line syntaxes for the Oracle VSS writer are as follows:</p>
+<pre dir="ltr">oravssw {/q [/start | /stop | /status]}|
+oravssw {<span class="italic">SID</span> [/tl <span class="codeinlineitalic">trace_level</span>] [/tf <span class="codeinlineitalic">trace_file</span>]}|
+oravssw {<span class="italic">SID</span> [/i {/user:<span class="codeinlineitalic">userid</span> /password:<span class="codeinlineitalic">password</span>}]}|
+oravssw {<span class="codeinlineitalic">SID</span> [/d]}
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can change the user ID and password using the Services snap-in.</div>
+<p><a href="#BABEDFIB">Table 9-1</a> describes the options for the Oracle VSS writer.</p>
+<div id="NTQRF294" class="tblruleformal">
+<p class="titleintable"><a id="sthref497"></a><a id="BABEDFIB"></a>Table 9-1 Oracle VSS Writer Options</p>
+<table class="cellalignment5021" title="Oracle VSS Writer Options" summary="Oracle VSS writer options" dir="ltr">
+<thead>
+<tr class="cellalignment5010">
+<th class="cellalignment5020" id="r1c1-t5">Option</th>
+<th class="cellalignment5020" id="r1c2-t5">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r2c1-t5" headers="r1c1-t5">
+<p><code dir="ltr"><span class="codeinlineitalic">SID</span></code></p>
+</td>
+<td class="cellalignment5016" headers="r2c1-t5 r1c2-t5">
+<p><code dir="ltr"><span class="codeinlineitalic">SID</span></code> of the Oracle instance to which the service connects.</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r3c1-t5" headers="r1c1-t5">
+<p>/i {/user:<code dir="ltr"><span class="codeinlineitalic">userid</span></code>/password:<code dir="ltr"><span class="codeinlineitalic">password</span></code>}</p>
+</td>
+<td class="cellalignment5016" headers="r3c1-t5 r1c2-t5">
+<p>Installs Oracle VSS writer service for a specified <code dir="ltr"><span class="codeinlineitalic">SID</span></code>.</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r4c1-t5" headers="r1c1-t5">
+<p><code dir="ltr">/q</code></p>
+</td>
+<td class="cellalignment5016" headers="r4c1-t5 r1c2-t5">
+<p>Queries the Oracle VSS writer services. But when not used with options like <code dir="ltr">/start</code> or <code dir="ltr">/status</code> or <code dir="ltr">/stop</code>, it just displays the list of Oracle VSS writer services.</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r5c1-t5" headers="r1c1-t5">
+<p><code dir="ltr">/</code><code dir="ltr"><span class="codeinlineitalic">status</span></code></p>
+</td>
+<td class="cellalignment5016" headers="r5c1-t5 r1c2-t5">
+<p>Displays the current status of all Oracle writer services and can be used only with the <code dir="ltr">/q</code> option.</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r6c1-t5" headers="r1c1-t5">
+<p><code dir="ltr">/start</code></p>
+</td>
+<td class="cellalignment5016" headers="r6c1-t5 r1c2-t5">
+<p>Starts all Oracle VSS writer services and can be used only with the <code dir="ltr">/q</code> option.</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r7c1-t5" headers="r1c1-t5">
+<p><code dir="ltr">/stop</code></p>
+</td>
+<td class="cellalignment5016" headers="r7c1-t5 r1c2-t5">
+<p>Stops all Oracle VSS writer services and can be used only with the <code dir="ltr">/q</code> option.</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r8c1-t5" headers="r1c1-t5">
+<p><code dir="ltr">/tl</code></p>
+</td>
+<td class="cellalignment5016" headers="r8c1-t5 r1c2-t5">
+<p>Specifies the trace level for Oracle VSS writer for a specified <code dir="ltr"><span class="codeinlineitalic">SID</span></code>.</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r9c1-t5" headers="r1c1-t5">
+<p><code dir="ltr">/tf</code></p>
+</td>
+<td class="cellalignment5016" headers="r9c1-t5 r1c2-t5">
+<p>Specifies the trace file name for Oracle VSS writer for a specified <code dir="ltr"><span class="codeinlineitalic">SID</span></code>.</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r10c1-t5" headers="r1c1-t5">
+<p><code dir="ltr">/d</code></p>
+</td>
+<td class="cellalignment5016" headers="r10c1-t5 r1c2-t5">
+<p>Uninstalls Oracle VSS writer service for a specified <code dir="ltr"><span class="codeinlineitalic">SID</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblruleformal" -->
+<p>In <a href="#BABHFEFC">Example 9-1</a>, you install the service so that it connects to the <code dir="ltr">prod1</code> instance.</p>
+<div id="NTQRF295" class="example">
+<p class="titleinexample"><a id="BABHFEFC"></a>Example 9-1 Installing Oracle VSS Writer</p>
+<pre dir="ltr">oravssw prod1 /i 
+</pre></div>
+<!-- class="example" -->
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<ul>
+<li>
+<p>Any errors during operation of the Oracle VSS writer are reported by means of Windows System Event logging APIs. You can view these errors with the Windows Event Viewer.</p>
+</li>
+<li>
+<p>Oracle Database 10<span class="italic">g</span> Release 2 supports Oracle VSS snapshots only when Oracle VSS writer 11<span class="italic">g</span> or later is configured to manage the 10.2 database. See My Oracle Support Note 580558.1 for more information about installing Oracle VSS writer for use with 9<span class="italic">i</span> and 10<span class="italic">g</span> databases.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect1" -->
+<a id="BABFEIFJ"></a>
+<div id="NTQRF296" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><a id="sthref498"></a><a id="sthref499"></a><a id="sthref500"></a><a id="sthref501"></a><a id="sthref502"></a>About Backing Up a Database</h2>
+<p>The technique for backing up a database depends on the archiving mode of the database and whether you are making a component-based or volume-based backup. Oracle recommends shadow copies taken in component mode for backing up the Oracle database using VSS writer. The Oracle VSS writer defines the components that include the set of database files. The Oracle VSS writer then saves the redo generated during hot backup mode when the snapshot was created in the backup writer metadata document.</p>
+<p>The component hierarchy defined by the Oracle VSS writer is illustrated in <a href="#BEIHAAJE">Figure 9-1</a>.</p>
+<div id="NTQRF694" class="figure">
+<p class="titleinfigure"><a id="BEIHAAJE"></a>Figure 9-1 Oracle VSS Writer Component Hierarchy</p>
+<img width="659" height="382" src="img/comp.gif" alt="Description of Figure 9-1 follows"/><br/>
+<a id="sthref503" href="img_text/comp.htm">Description of &#39;&#39;Figure 9-1 Oracle VSS Writer Component Hierarchy&#39;&#39;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p><a href="#BABDFAJE">&#34;About Component-Based Backups&#34;</a> explains which components you can select when making component-based backups.</p>
+<a id="BABDFAJE"></a>
+<div id="NTQRF297" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref504"></a>About Component-Based Backups</h3>
+<p>The components supported by the Oracle VSS writer are listed in <a href="#BEIFBJBC">Table 9-2</a>. The name of the component is the value returned by an <code dir="ltr">OnIdentify</code> VSS message. The Selectable for Backup column indicates whether a component is eligible to be selected in VSS shadow copies.</p>
+<div id="NTQRF298" class="tblruleformal">
+<p class="titleintable"><a id="sthref505"></a><a id="BEIFBJBC"></a>Table 9-2 Components Backed Up by the Oracle VSS Writer</p>
+<table class="cellalignment5021" title="Components Backed Up by the Oracle VSS Writer" summary="This table describes components defined by the Oracle VSS writer. The table has the following columns: Component, Excluded, and Description." dir="ltr">
+<thead>
+<tr class="cellalignment5010">
+<th class="cellalignment5020" id="r1c1-t7">Component</th>
+<th class="cellalignment5020" id="r1c2-t7">Description</th>
+<th class="cellalignment5020" id="r1c3-t7">Selectable for Backup</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r2c1-t7" headers="r1c1-t7">
+<p>Oracle Database</p>
+</td>
+<td class="cellalignment5016" headers="r2c1-t7 r1c2-t7">
+<p>Contains the database files, control files, and server parameter file.</p>
+</td>
+<td class="cellalignment5016" headers="r2c1-t7 r1c3-t7">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r3c1-t7" headers="r1c1-t7">
+<p>Control File</p>
+</td>
+<td class="cellalignment5016" headers="r3c1-t7 r1c2-t7">
+<p>Contains the snapshot location of the control file for a database running in <code dir="ltr">ARCHIVELOG</code> mode, or the current control file locations when all database files are recovered to a consistent SCN.</p>
+<p><span class="bold">Note:</span> The files included in the Control File component determine whether current control files or snapshot control files are excluded. For example, if the database is opened in read-only mode, then the snapshot control file location is excluded from the snapshot.</p>
+</td>
+<td class="cellalignment5016" headers="r3c1-t7 r1c3-t7">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r4c1-t7" headers="r1c1-t7">
+<p>Server Parameter File</p>
+</td>
+<td class="cellalignment5016" headers="r4c1-t7 r1c2-t7">
+<p>Contains the location of the server parameter file, if the instance is using one.</p>
+</td>
+<td class="cellalignment5016" headers="r4c1-t7 r1c3-t7">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r5c1-t7" headers="r1c1-t7">
+<p>All TableSpaces</p>
+</td>
+<td class="cellalignment5016" headers="r5c1-t7 r1c2-t7">
+<p>Includes all tablespaces in a snapshot.</p>
+</td>
+<td class="cellalignment5016" headers="r5c1-t7 r1c3-t7">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r6c1-t7" headers="r1c1-t7">
+<p><span class="italic">tablespace_name</span>s</p>
+</td>
+<td class="cellalignment5016" headers="r6c1-t7 r1c2-t7">
+<p>Selects individual TableSpaces.</p>
+</td>
+<td class="cellalignment5016" headers="r6c1-t7 r1c3-t7">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r7c1-t7" headers="r1c1-t7">
+<p>Data file number=<span class="italic">n</span></p>
+</td>
+<td class="cellalignment5016" headers="r7c1-t7 r1c2-t7">
+<p>Selects individual data files. The metadata will contain <code dir="ltr">RESETLOGS</code> information, tablespace number, tablespace name, and DBID.</p>
+</td>
+<td class="cellalignment5016" headers="r7c1-t7 r1c3-t7">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r8c1-t7" headers="r1c1-t7">
+<p>ArchiveLogDest_<span class="italic">n</span></p>
+</td>
+<td class="cellalignment5016" headers="r8c1-t7 r1c2-t7">
+<p>Selects individual local archiving destinations other than the fast recovery area.</p>
+</td>
+<td class="cellalignment5016" headers="r8c1-t7 r1c3-t7">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r9c1-t7" headers="r1c1-t7">
+<p>Fast Recovery Area</p>
+</td>
+<td class="cellalignment5016" headers="r9c1-t7 r1c2-t7">
+<p>Includes all backup files and archived logs in the Fast Recovery Area in the VSS snapshot.</p>
+<p>Files backed up by VSS from the Fast Recovery Area can be subjected to deletion under space constraints.</p>
+</td>
+<td class="cellalignment5016" headers="r9c1-t7 r1c3-t7">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r10c1-t7" headers="r1c1-t7">
+<p>Archived Logs</p>
+</td>
+<td class="cellalignment5016" headers="r10c1-t7 r1c2-t7">
+<p>Logs in Fast Recovery Area</p>
+</td>
+<td class="cellalignment5016" headers="r10c1-t7 r1c3-t7">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r11c1-t7" headers="r1c1-t7">
+<p>Backup Files</p>
+</td>
+<td class="cellalignment5016" headers="r11c1-t7 r1c2-t7">
+<p>Backs up from Fast Recovery Area</p>
+</td>
+<td class="cellalignment5016" headers="r11c1-t7 r1c3-t7">
+<p>No</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblruleformal" -->
+<p>You can select only <code dir="ltr">Oracle Database</code>, <code dir="ltr">ArchiveLogDest_</code><code dir="ltr"><span class="codeinlineitalic">n</span></code>, and <code dir="ltr">Fast Recovery Area,</code> exposed by the Oracle VSS writer during a backup. The availability of the components in <a href="#BEIFBJBC">Table 9-2</a> may depend on the database state. For example, if the database is in <code dir="ltr">NOARCHIVELOG</code> mode, the <code dir="ltr">Archived Logs</code> component will not be returned. Likewise, if the instance is not started with a server parameter file, the <code dir="ltr">Server Parameter File</code> component will not be returned.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The components that are not marked as Selectable for Backup are implicitly included by components marked as Selectable for Backup.</div>
+<p>When you select <code dir="ltr">Oracle</code> <code dir="ltr">Database</code> component for backup or restore, all other components are implicitly selected for backup or restore. This implies that all files that are part of the selected component are candidates for backup or restore.</p>
+<p><code dir="ltr">ArchiveLogDest_n</code> and <code dir="ltr">Fast</code> <code dir="ltr">Recovery</code> <code dir="ltr">Area</code> components are defined to contain only log or incremental files. This means that the requester should backup files from these components only when creating a log for incremental or differential backup. Likewise, the requester should restore files from these components only when restoring from log or incremental or differential backups.</p>
+<p>The files in all other components other than <code dir="ltr">ArchiveLogDest_n</code> and <code dir="ltr">Fast</code> <code dir="ltr">Recovery</code> <code dir="ltr">Area</code> define database files. This means that the requester should backup files from these components only when creating a full or copy backup. Likewise, the requester should restore files from these components only when restoring from full or copy backup.</p>
+</div>
+<!-- class="sect2" -->
+<div id="NTQRF299" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref506"></a>
+<h3 class="sect2"><a id="sthref507"></a><a id="sthref508"></a>About Backing Up a Database in ARCHIVELOG Mode</h3>
+<p>The procedures in this section assume that the database is open read/write. You can also make closed, consistent backups by following the procedures in <a href="#BABJIDCH">&#34;About Backing Up a Database in NOARCHIVELOG Mode&#34;</a>.</p>
+<a id="BABJDGDA"></a>
+<div id="NTQRF300" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Making Component-Based Backups of an ARCHIVELOG Database</h4>
+<p>This section explains how to back up the whole database. You can back up only <code dir="ltr">Oracle Database,</code> <code dir="ltr">ArchiveLogDest_</code><code dir="ltr"><span class="codeinlineitalic">n</span></code>, and <code dir="ltr">Fast Recovery Area</code>, listed in <a href="#BEIFBJBC">Table 9-2, &#34;Components Backed Up by the Oracle VSS Writer&#34;</a>.</p>
+<p>To back up the whole database:</p>
+<ol>
+<li>
+<p>Start a SQL*Plus session on the target database and make sure the database is open <code dir="ltr">READ WRITE</code>.</p>
+</li>
+<li>
+<p>Use a third-party VSS requester to select the <code dir="ltr">Oracle Database</code> component.</p>
+</li>
+<li>
+<p>Create a snapshot of the database.</p>
+<p>Oracle VSS writer includes the server parameter file, control file, and data files in the snapshot. The online redo logs will not be included in the snapshot.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BABCCHBG"></a>
+<div id="NTQRF301" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Making Volume-Based Backups of an ARCHIVELOG Database</h4>
+<p>To make volume-based shadow copies of Oracle database when the database is open in read/write mode, the archived redo logs must be physically located on a separate volume from the volume containing the Oracle data files, control files, server parameter file, and online redo logs.</p>
+<p>To back up the database and archived redo logs by volume:</p>
+<ol>
+<li>
+<p>Start a SQL*Plus session on the target database and make sure the database is open <code dir="ltr">READ WRITE</code>.</p>
+</li>
+<li>
+<p>Use a third-party VSS requester to select the volumes where the data files, control files, and server parameter file are physically located.</p>
+</li>
+<li>
+<p>Create a snapshot of the database files.</p>
+<p>Oracle VSS writer includes the server parameter file, control file, and data files in the snapshot. The online redo logs will not be included in the snapshot. Note that you can restore the server parameter file individually, but the control files and data files must be always restored together.</p>
+</li>
+<li>
+<p>Use a third-party VSS requester to select the volumes where all of the archived redo logs (or the fast recovery area) are physically located.</p>
+</li>
+<li>
+<p>Create a snapshot of the archived redo logs.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="BABJIDCH"></a>
+<div id="NTQRF302" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref509"></a><a id="sthref510"></a>About Backing Up a Database in NOARCHIVELOG Mode</h3>
+<p>For an Oracle database running in <code dir="ltr">NOARCHIVELOG</code> mode, the database must be in a consistent state when you create a VSS snapshot. Backups made while the database is open read/write are not supported.</p>
+<a id="BABIJHCC"></a>
+<div id="NTQRF303" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Making Component-Based Backups of a NOARCHIVELOG Database</h4>
+<p>For an Oracle database in <code dir="ltr">NOARCHIVELOG</code> mode, the only supported component-based VSS snapshot is of <code dir="ltr">Oracle Database</code> when the type is full, default, or copy.</p>
+<p>To back up the database by component:</p>
+<ol>
+<li>
+<p>Start a SQL*Plus session on the target database and place the database in a consistent state. For example, enter the following commands:</p>
+<pre dir="ltr">SHUTDOWN
+STARTUP MOUNT
+</pre></li>
+<li>
+<p>Use a third-party VSS requester to select the <code dir="ltr">Oracle Database</code> component.</p>
+</li>
+<li>
+<p>Create a volume-based VSS snapshot.</p>
+<p>Oracle VSS writer includes the server parameter file, control file, and data files in the snapshot. The online redo logs will not be included in the snapshot.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BABIHGGD"></a>
+<div id="NTQRF304" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Making Volume-Based Backups of a NOARCHIVELOG Database</h4>
+<p>To back up the database by volume:</p>
+<ol>
+<li>
+<p>Start a SQL*Plus session on the target database and place the database in a consistent state. For example, enter the following commands:</p>
+<pre dir="ltr">SHUTDOWN
+STARTUP MOUNT
+</pre></li>
+<li>
+<p>Use a third-party VSS requester to select the volumes where the data files, control files, and server parameter file are physically located.</p>
+</li>
+<li>
+<p>Create a volume-based VSS snapshot.</p>
+<p>Oracle VSS writer includes the server parameter file, control file, and data files in the snapshot. The online redo logs will not be included in the snapshot. Note that you can restore the server parameter file individually, but the control files and data files must be always restored together.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABIGGCG"></a>
+<div id="NTQRF305" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><a id="sthref511"></a><a id="sthref512"></a><a id="sthref513"></a>About Restoring and Recovering a Database</h2>
+<p>This section explains how to restore and recover VSS snapshots. As in the case of backups, the procedure depends on the archiving mode of the database and the type of snapshot that you are restoring. The following topics are described:</p>
+<ul>
+<li>
+<p><a href="#BEIGCCJJ">About Restoring and Recovering a Database in ARCHIVELOG Mode</a></p>
+</li>
+<li>
+<p><a href="#BEIHDAGF">About Restoring a Database in NOARCHIVELOG Mode</a></p>
+</li>
+</ul>
+<a id="BEIGCCJJ"></a>
+<div id="NTQRF306" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">About Restoring and Recovering a Database in ARCHIVELOG Mode</h3>
+<p>You can select the components listed in <a href="#BABDHHCB">Table 9-3, &#34;Components Usable in a Restore Operation&#34;</a> in a restore and recovery operation. The table describes the validations that Oracle VSS writer performs for the components during the pre-restore phase, and the actions that it performs after the restore completes.</p>
+<div class="tblruleformalwidemax">
+<p class="titleintable"><a id="sthref514"></a><a id="BABDHHCB"></a>Table 9-3 Components Usable in a Restore Operation</p>
+<table class="cellalignment5021" title="Components Usable in a Restore Operation" summary="This table describes components defined by the Oracle VSS writer. The table has the following columns: Component, Excluded, and Description." dir="ltr">
+<thead>
+<tr class="cellalignment5010">
+<th class="cellalignment5020" id="r1c1-t9">Component</th>
+<th class="cellalignment5020" id="r1c2-t9">Pre-Restore Phase</th>
+<th class="cellalignment5020" id="r1c3-t9">PostRestore Phase</th>
+<th class="cellalignment5020" id="r1c4-t9">Section</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r2c1-t9" headers="r1c1-t9">
+<p>Server Parameter File</p>
+</td>
+<td class="cellalignment5016" headers="r2c1-t9 r1c2-t9">
+<p>Verifies that the database instance is not started. Otherwise, the writer returns a pre-restore failure.</p>
+</td>
+<td class="cellalignment5016" headers="r2c1-t9 r1c3-t9">
+<p>Ensures that the database is started <code dir="ltr">NOMOUNT</code>. If the server parameter file is restored to the default location for the Oracle home, then the instance starts <code dir="ltr">NOMOUNT</code> automatically. Otherwise, you must set <code dir="ltr">ORA_</code><code dir="ltr"><span class="codeinlineitalic">SID</span></code><code dir="ltr">_PFILE</code> to the location of the text-based initialization parameter file that points to the location of the server parameter file.</p>
+</td>
+<td class="cellalignment5016" headers="r2c1-t9 r1c4-t9">
+<p><a href="#BABHEFAI">&#34;Restoring the Server Parameter File&#34;</a></p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r3c1-t9" headers="r1c1-t9">
+<p>Control File</p>
+</td>
+<td class="cellalignment5016" headers="r3c1-t9 r1c2-t9">
+<p>Verifies that the instance is either started <code dir="ltr">NOMOUNT</code> or not started. If the instance is not started, the writer either starts the instance with the <code dir="ltr">ORA_</code><code dir="ltr"><span class="codeinlineitalic">SID</span></code><code dir="ltr">_PFILE</code> instance parameter file, or uses the initialization parameter file or server parameter file in the default location.</p>
+</td>
+<td class="cellalignment5016" headers="r3c1-t9 r1c3-t9">
+<p>Mounts control file after replicating control file to all the current control file locations pointed to by the instance.</p>
+</td>
+<td class="cellalignment5016" headers="r3c1-t9 r1c4-t9">
+<p><a href="#BABICDED">&#34;Recovering from the Loss of All Control Files&#34;</a></p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r4c1-t9" headers="r1c1-t9">
+<p>Tablespace or data file component</p>
+</td>
+<td class="cellalignment5016" headers="r4c1-t9 r1c2-t9">
+<p>Verifies that the database must be mounted or the specified data files or tablespaces must be offline.</p>
+</td>
+<td class="cellalignment5016" headers="r4c1-t9 r1c3-t9">
+<p>Performs complete recovery of these tablespaces or data files. The requester application can override the default recovery behavior.</p>
+</td>
+<td class="cellalignment5016" headers="r4c1-t9 r1c4-t9">
+<p><a href="#BABDEAGD">&#34;Recovering Tablespaces or Data Files&#34;</a></p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r5c1-t9" headers="r1c1-t9">
+<p>All Tablespaces</p>
+</td>
+<td class="cellalignment5016" headers="r5c1-t9 r1c2-t9">
+<p>Verifies that the database is mounted.</p>
+</td>
+<td class="cellalignment5016" headers="r5c1-t9 r1c3-t9">
+<p>Extracts redo from the backup writer metadata document and performs incomplete recovery on all the restored data files up to the time of snapshot creation. The requester application can override the default recovery behavior.</p>
+</td>
+<td class="cellalignment5016" headers="r5c1-t9 r1c4-t9">
+<p><a href="#BABIAECC">&#34;Recovering All Tablespaces&#34;</a></p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r6c1-t9" headers="r1c1-t9">
+<p>Oracle Database</p>
+</td>
+<td class="cellalignment5016" headers="r6c1-t9 r1c2-t9">
+<p>Verifies that the instance is not started.</p>
+</td>
+<td class="cellalignment5016" headers="r6c1-t9 r1c3-t9">
+<p>Starts the database instance, mounts the control file, and performs recovery. See the descriptions of postrestore behavior for Server Parameter File, Control File, and All Tablespaces.</p>
+</td>
+<td class="cellalignment5016" headers="r6c1-t9 r1c4-t9">
+<p><a href="#BABFBICH">&#34;Performing Disaster Recovery&#34;</a> and <a href="#BABJDFBD">&#34;Restoring Component-Based Backups of a NOARCHIVELOG Database&#34;</a></p>
+</td>
+</tr>
+<tr class="cellalignment5010">
+<td class="cellalignment5016" id="r7c1-t9" headers="r1c1-t9">
+<p>Archived redo log or fast recovery area</p>
+</td>
+<td class="cellalignment5016" headers="r7c1-t9 r1c2-t9">
+<p>None.</p>
+</td>
+<td class="cellalignment5016" headers="r7c1-t9 r1c3-t9">
+<p>Does not perform default recovery of this component. Nevertheless, the requester application can run required RMAN commands.</p>
+</td>
+<td class="cellalignment5016" headers="r7c1-t9 r1c4-t9">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblruleformalwidemax" -->
+<a id="BABHEFAI"></a>
+<div id="NTQRF308" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><a id="sthref515"></a>Restoring the Server Parameter File</h4>
+<p>This section explains how to restore the server parameter file.</p>
+<p>To restore the server parameter file:</p>
+<ol>
+<li>
+<p>Select the component named <code dir="ltr">Server Parameter File</code> from a VSS snapshot.</p>
+</li>
+<li>
+<p>Restore the server parameter file.</p>
+<p>Oracle VSS writer restores the server parameter file to the original location from where it was copied. You can also restore it to a new location.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BABICDED"></a>
+<div id="NTQRF309" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><a id="sthref516"></a>Recovering from the Loss of All Control Files</h4>
+<p>This section explains how to recover from the loss of all multiplexed control files.</p>
+<p>To recover from the loss of all control files:</p>
+<ol>
+<li>
+<p>Ensure that the database is in <code dir="ltr">NOMOUNT</code> state or can be started in <code dir="ltr">NOMOUNT</code> state by the Oracle VSS writer.</p>
+</li>
+<li>
+<p>Select the component named <code dir="ltr">Control File</code> from a VSS snapshot.</p>
+</li>
+<li>
+<p>Restore the component containing the lost control file.</p>
+<p>The Oracle VSS writer automatically mounts the database with the restored control files. If only the control file must be recovered, then the VSS requester application can ask the Oracle writer to perform complete recovery.</p>
+</li>
+<li>
+<p>Restore and recover other database components if necessary.</p>
+</li>
+<li>
+<p>Open the database with the <code dir="ltr">RESETLOGS</code> option.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BABDEAGD"></a>
+<div id="NTQRF310" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><a id="sthref517"></a>Recovering Tablespaces or Data Files</h4>
+<p>This section explains how to recover from the loss of one or more tablespaces or data files. This procedure assumes that not all data files are lost.</p>
+<p>To recover from the loss of all tablespaces or data files:</p>
+<ol>
+<li>
+<p>Ensure that the database is either mounted or open. If the database is open, then take the data files or tablespaces needing recovery offline with the <code dir="ltr">ALTER DATABASE ... OFFLINE</code> statement.</p>
+</li>
+<li>
+<p>If the archived redo logs are required for recovery of the data files or tablespaces, then restore the archived redo logs.</p>
+</li>
+<li>
+<p>Select the components from the VSS snapshot that contains the lost data files, or all data files in the lost tablespaces.</p>
+</li>
+<li>
+<p>Restore the component containing the lost data files.</p>
+<p>The Oracle VSS writer automatically recovers the restored data files. If some archived logs are missing, then you can restore the logs and recover the data files with SQL*Plus or RMAN.</p>
+</li>
+<li>
+<p>Bring the offline data files or tablespaces back online.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BABIAECC"></a>
+<div id="NTQRF311" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><a id="sthref518"></a>Recovering All Tablespaces</h4>
+<p>This section explains how to recover from the loss of all tablespaces.</p>
+<p>To recover all data files:</p>
+<ol>
+<li>
+<p>Ensure that the database is mounted.</p>
+</li>
+<li>
+<p>If the archived redo logs are required for recovery of the data files or tablespaces, then restore the archived redo logs.</p>
+</li>
+<li>
+<p>Select the component named <code dir="ltr">All Tablespaces</code> from a VSS snapshot.</p>
+</li>
+<li>
+<p>Restore the tablespaces.</p>
+<p>The Oracle VSS writer automatically recovers the restored data files. If some archived logs are missing, then you can restore the logs and recover the data files with SQL*Plus or RMAN.</p>
+</li>
+<li>
+<p>Open the database.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BABFBICH"></a>
+<div id="NTQRF312" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><a id="sthref519"></a>Performing Disaster Recovery</h4>
+<p>This section explains how to recover from the loss of the server parameter file, control file, and all data files.</p>
+<p>To perform disaster recovery:</p>
+<ol>
+<li>
+<p>Ensure that the instance is not started.</p>
+</li>
+<li>
+<p>If the archived redo logs are required for recovery of the data files or tablespaces, then restore the archived redo logs.</p>
+</li>
+<li>
+<p>Select the component named <code dir="ltr">Oracle Database</code> from a VSS snapshot.</p>
+</li>
+<li>
+<p>Restore the database.</p>
+<p>The Oracle VSS writer automatically starts the instance, mount the database, and recovers the restored data files. If some archived logs are missing, then you can restore the logs and recover the data files with SQL*Plus or RMAN.</p>
+</li>
+<li>
+<p>Open the database with the <code dir="ltr">RESETLOGS</code> option.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="BEIHDAGF"></a>
+<div id="NTQRF313" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref520"></a><a id="sthref521"></a>About Restoring a Database in NOARCHIVELOG Mode</h3>
+<p>For an Oracle database running in <code dir="ltr">NOARCHIVELOG</code> mode, no archived redo logs have been generated so no media recovery is possible. The database files must be in consistent state and require no additional recovery.</p>
+<a id="BABJDFBD"></a>
+<div id="NTQRF314" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Restoring Component-Based Backups of a NOARCHIVELOG Database</h4>
+<p>To restore a component-based backup:</p>
+<ol>
+<li>
+<p>Use a third-party VSS requester to select the <code dir="ltr">Oracle Database</code> component.</p>
+<p>The Oracle VSS writer automatically restores the data files and mounts the database.</p>
+</li>
+<li>
+<p>Open the database with the <code dir="ltr">RESETLOGS</code> option.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BABHEGGD"></a>
+<div id="NTQRF315" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Restoring Volume-Based Backups of a NOARCHIVELOG Database</h4>
+<p>To restore a volume-based backup:</p>
+<ol>
+<li>
+<p>Use a third-party VSS requester to select the volumes where the data files, control files, and server parameter file are physically located.</p>
+</li>
+<li>
+<p>Restore all volumes where data files and logs are located.</p>
+</li>
+<li>
+<p>Open the database with the <code dir="ltr">RESETLOGS</code> option.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BEICDDBD"></a>
+<div id="NTQRF695" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><a id="sthref522"></a><a id="sthref523"></a>About Integrating VSS with Third-Party Requester Applications</h2>
+<p>Oracle VSS writer allows third-party requester applications to control the behavior of recovery and backup sessions. Third-party requester applications use VSS API <code dir="ltr">setBackupOptions</code> or <code dir="ltr">setRestoreOptions</code> to pass an appropriate string to the writer. The writer uses <code dir="ltr">getBackupOptions</code> or <code dir="ltr">getRestoreOptions</code> to get the string set from the requester to perform the pre or post backup and restore actions.</p>
+<p>The following are the protocols to follow to exploit the flexibility of recovery operations provided by the writer:</p>
+<ul>
+<li>
+<p><a href="#BEIDJAFB">Running Writer Control Commands</a></p>
+</li>
+<li>
+<p><a href="#BEIGFDIE">Controlling Commands for Database or All Tablespaces Component</a></p>
+</li>
+</ul>
+<a id="BEIDJAFB"></a>
+<div id="NTQRF696" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref524"></a>Running Writer Control Commands</h3>
+<p>The writer control commands are applicable to all the restored components during the postrestore phase. The format is as follows:</p>
+<pre dir="ltr">OP1=CMD1, OP2=CMD2, . . . 
+</pre>
+<p>Run the commands in the following sequence:</p>
+<ol>
+<li>
+<p><code dir="ltr">POST_WTRCMD=NORECOVER</code></p>
+<p>This command instructs the writer to not perform any postrestore recovery activities defined in the default postrestore recovery operations for the restored component. Otherwise, the postrestore phase default actions are performed.</p>
+</li>
+<li>
+<p><code dir="ltr">POST_RMANCMD=</code><code dir="ltr"><span class="codeinlineitalic">cmdstr</span></code></p>
+<p>This command instructs the writer to run specific RMAN commands, instead of the default operations, after the current operation.</p>
+</li>
+<li>
+<p><code dir="ltr">PRE_SQLCMD=</code><code dir="ltr"><span class="codeinlineitalic">cmdstr</span></code></p>
+<p>This command instructs the writer to run specific SQL commands in <code dir="ltr">OnPrepareBackup</code> or <code dir="ltr">OnPreRestore</code> callback, before performing any other validations. The command is used to stop MRP on a standby database before VSS snapshot is created or to shut down database instance creating a cold backup of the database.</p>
+</li>
+<li>
+<p><code dir="ltr">POST_SQLCMD=</code><code dir="ltr"><span class="codeinlineitalic">cmdstr</span></code></p>
+<p>This command instructs the writer to run specific SQL commands in PostSnapshot or PostRestore callback. This command is used to restart MRP on standby database after VSS snapshot is created or to restart the database instance after the cold backup of the database is performed.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect2" -->
+<a id="BEIGFDIE"></a>
+<div id="NTQRF697" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref525"></a>Controlling Commands for Database or All Tablespaces Component</h3>
+<p>Run the following command:</p>
+<p><code dir="ltr">POST_WTRCMD=UNTIL_SNAPSHOT</code></p>
+<p>This command instructs the writer to perform recovery to the snapshot creation time. The writer extracts the system change number of the redo logs stored in the database component and performs recovery until the system change number.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABEFBGH"></a>
+<div id="NTQRF316" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><a id="sthref526"></a>About Duplicating a Database</h2>
+<p>If your VSS shadow copies are transportable, then you can use these shadow copies to duplicate the primary database. In this context of this chapter, duplication refers to the creation of a new database out of the shadow copies for a different database. A duplicate database created from shadow copies can either be a nonstandby database or a standby database for use in a Data Guard environment. Note that RMAN duplication, which makes use of the <code dir="ltr">DUPLICATE</code> command, is a different procedure.</p>
+<p>This section covers the following topics:</p>
+<ul>
+<li>
+<p><a href="#BEICHAFE">Creating a Nonstandby Database from Shadow Copies</a></p>
+</li>
+<li>
+<p><a href="#BEICJFCD">Creating a Standby Database From Shadow Copies</a></p>
+</li>
+</ul>
+<a id="BEICHAFE"></a>
+<div id="NTQRF317" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref527"></a>Creating a Nonstandby Database from Shadow Copies</h3>
+<p>This section assumes that you are duplicating the database on a host with the same file system structure as the primary database.</p>
+<p>To create a nonstandby database from shadow copies:</p>
+<ol>
+<li>
+<p>Restore the database on the new host by following the procedure in <a href="#BABFBICH">&#34;Performing Disaster Recovery&#34;</a>.</p>
+</li>
+<li>
+<p>Start a SQL*Plus session on the duplicate database and obtain the DBID. You can query the DBID as follows:</p>
+<pre dir="ltr">SELECT DBID FROM V$DATABASE;
+</pre></li>
+<li>
+<p>Shut down the database consistently. You can shut down the database as follows:</p>
+<pre dir="ltr">SHUTDOWN;
+</pre></li>
+<li>
+<p>Use the DBNEWID utility to change the DBID.</p>
+<p><a class="olink SUTIL014" href="../SUTIL/GUID-D138A757-6A2A-41A2-B722-A98708C5F5AD.htm#SUTIL014"><span class="italic">Oracle Database Utilities</span></a> explains how to use DBNEWID.</p>
+</li>
+<li>
+<p>Open the database.</p>
+</li>
+<li>
+<p>Start a SQL*Plus session on the duplicate database and query the DBID. You can query the DBID as follows:</p>
+<pre dir="ltr">SELECT DBID FROM V$DATABASE;
+</pre></li>
+</ol>
+</div>
+<!-- class="sect2" -->
+<a id="BEICJFCD"></a>
+<div id="NTQRF318" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><a id="sthref528"></a>Creating a Standby Database From Shadow Copies</h3>
+<p>This section assumes that you are create a standby database on a host with the same file system structure as the primary database. This section also assumes that you have read <a class="olink SBYDB" href="../SBYDB/toc.htm"><span class="italic">Oracle Data Guard Concepts and Administration</span></a> and are familiar with standby database creation and maintenance.</p>
+<p>To create a standby database from shadow copies:</p>
+<ol>
+<li>
+<p>Restore the database on the standby host by following the procedure in <a href="#BABFBICH">&#34;Performing Disaster Recovery&#34;</a>.</p>
+</li>
+<li>
+<p>Start a SQL*Plus session on the new database and a new standby control file must be obtained from primary database. You can create the control file with the SQL statement <code dir="ltr">ALTER DATABASE CREATE STANDBY CONTROLFILE</code>.</p>
+</li>
+<li>
+<p>Start the instance and mount the standby control file.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5009">
+<tr>
+<td class="cellalignment5016">
+<table class="cellalignment5014">
+<tr>
+<td class="cellalignment5013"><a href="tuning.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5013"><a href="authen.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5018">
+<table class="cellalignment5012">
+<tr>
+<td class="cellalignment5013"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5013"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5013"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5013"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5013"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5013"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-106354"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Uploading%20and%20Displaying%20BLOBs"></a><title>Uploading and Displaying BLOBs</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 743"/>
+<meta name="dcterms.created" content="2014-02-04T21:52:15Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database 2 Day + PHP Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E18554-05"/>
+<meta name="dcterms.isVersionOf" content="TDPPH"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2010, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="ch_eleven_image.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="ch_thirteen_monitor.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E18554-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">15/18</span> <!-- End Header -->
+<div id="TDPPH183" class="chapter"><a id="BABEIGDA"></a>
+<h1 class="chapter"><span class="secnum">12</span> Uploading and Displaying BLOBs</h1>
+<p>This chapter contains the following topics:</p>
+<ul>
+<li>
+<p><a href="#BABCGGHF">Creating a Table to Store the Logo</a></p>
+</li>
+<li>
+<p><a href="#BABGJBBF">Uploading Images in PHP OCI8</a></p>
+</li>
+<li>
+<p><a href="#BABDEFGF">Fetching the Logo and Creating an Image</a></p>
+</li>
+<li>
+<p><a href="#BABGJGJA">Displaying the Logo</a></p>
+</li>
+</ul>
+<a id="BABCGGHF"></a>
+<div id="TDPPH184" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Creating a Table to Store the Logo</h2>
+<p>The PHP OCI8 extension easily allows <code>LOB</code> data to be manipulated. A <code>BLOB</code> will be used in the AnyCo application to store a company logo which will be displayed on each web page.</p>
+<p>In SQL*Plus create a table <code>PICTURES</code> to store the logo:</p>
+<pre>CREATE TABLE pictures (id NUMBER, pic BLOB);
+ 
+CREATE SEQUENCE pictures_seq;
+CREATE TRIGGER pictures_trig BEFORE INSERT ON pictures FOR EACH ROW
+BEGIN
+    :NEW.id := pictures_seq.NEXTVAL;
+END;
+/
+</pre></div>
+<!-- class="sect1" -->
+<a id="BABGJBBF"></a>
+<div id="TDPPH185" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Uploading Images in PHP OCI8</h2>
+<p>Create a new PHP file <code>ac_logo_upload.php</code>. The initial contents are:</p>
+<pre>&lt;?php
+ 
+/**
+ * ac_logo_upload.php: Upload a new company logo
+ * @package Logo
+ */
+ 
+session_start();
+require(&#39;ac_db.inc.php&#39;);
+require(&#39;ac_equip.inc.php&#39;);
+ 
+$sess = new \Equipment\Session;
+$sess-&gt;getSession();
+if (!isset($sess-&gt;username) || empty($sess-&gt;username)
+        || !$sess-&gt;isPrivilegedUser()) {
+    header(&#39;Location: index.php&#39;);
+    exit;
+}
+ 
+$page = new \Equipment\Page;
+$page-&gt;printHeader(&#34;AnyCo Corp. Upload Logo&#34;);
+$page-&gt;printMenu($sess-&gt;username, $sess-&gt;isPrivilegedUser());
+printcontent($sess);
+$page-&gt;printFooter();
+ 
+// Functions
+ 
+?&gt;
+</pre>
+<p>Add the <code>printcontent()</code> function:</p>
+<pre>/**
+ * Print the main body of the page
+ *
+ * @param Session $sess
+ */
+function printcontent($sess) {
+    echo &#34;&lt;div id=&#39;content&#39;&gt;&#34;;
+    if (!isset($_FILES[&#39;lob_upload&#39;])) {
+        printform();
+    } else {
+        $blobdata = file_get_contents($_FILES[&#39;lob_upload&#39;][&#39;tmp_name&#39;]);
+        if (!$blobdata) {  
+            // N.b. this test could be enhanced to confirm the image is a JPEG
+            printform();
+        } else {
+            $db = new \Oracle\Db(&#34;Equipment&#34;, $sess-&gt;username);
+            $sql = &#39;INSERT INTO pictures (pic)
+                    VALUES(EMPTY_BLOB()) RETURNING pic INTO :blobbind&#39;;
+            $db-&gt;insertBlob($sql, &#39;Insert Logo BLOB&#39;, &#39;blobbind&#39;, $blobdata);
+            echo &#39;&lt;p&gt;New logo was uploaded&lt;/p&gt;&#39;;
+        }
+    }
+    echo &#34;&lt;/div&gt;&#34;;  // content
+}
+</pre>
+<p>This is in the now familiar two part structure with an HTML form and a form-handler. The <code>INSERT</code> statement uses a bind value to represent the <code>BLOB</code>. The new <code>Db</code> class <code>insertBlob()</code> will associate the <code>BLOB</code> data with the bind variable and commit the record. The uploaded image will be added to the <code>PICTURES</code> table.</p>
+<p>Complete <code>ac_logo_upload.php</code> by adding the form function <code>printform()</code>:</p>
+<pre>/**
+ * Print the HTML form to upload the image
+ *
+ * Adding CSRF protection is an exercise for the reader
+ */
+function printform() {
+    echo &lt;&lt;&lt;EOF
+Upload new company logo:
+&lt;form action=&#34;ac_logo_upload.php&#34; method=&#34;POST&#34; enctype=&#34;multipart/form-data&#34;&gt;
+&lt;div&gt;
+   Image file name: &lt;input type=&#34;file&#34; name=&#34;lob_upload&#34;&gt;
+   &lt;input type=&#34;submit&#34; value=&#34;Upload&#34;
+&lt;/div&gt;
+&lt;form
+EOF;
+}
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The &#39;EOF;&#39; token must be at the start of a line and not have trailing white space.</div>
+<p>When this form is submitted the PHP web server will be able to access uploaded <code>BLOB</code> data in the temporary file <code>$_FILES[&#39;lob_upload&#39;][&#39;tmp_name&#39;]</code>, as seen in <code>printcontent()</code>.</p>
+<p>PHP has various options controlling locations and upper sizes of files, refer to the PHP documentation. The AnyCo application will use the default values.</p>
+<p>Edit <code>ac_db.inc.php</code> and add the <code>insertBlob()</code> method to the <code>Db</code> class:</p>
+<pre>    /**
+     * Insert a BLOB
+     *
+     * $sql = &#39;INSERT INTO BTAB (BLOBID, BLOBDATA)
+     *        VALUES(:MYBLOBID, EMPTY_BLOB()) RETURNING BLOBDATA INTO :BLOBDATA&#39;
+     * Db::insertblob($sql, &#39;do insert for X&#39;, myblobid&#39;, 
+     * $blobdata, array(array(&#34;:p&#34;, $p, -1)));
+     *
+     * $sql = &#39;UPDATE MYBTAB SET blobdata = EMPTY_BLOB()
+     *        RETURNING blobdata INTO :blobdata&#39;
+     * Db::insertblob($sql, &#39;do insert for X&#39;, &#39;blobdata&#39;, $blobdata);
+     *
+     * @param string $sql An INSERT or UPDATE statement that returns a LOB locator
+     * @param string $action Action text for End-to-End Application Tracing
+     * @param string $blobbindname Bind variable name of the BLOB in the statement
+     * @param string $blob BLOB data to be inserted
+     * @param array $otherbindvars Bind variables. An array of tuples
+     */
+    public function insertBlob($sql, $action, $blobbindname, $blob, 
+    $otherbindvars = array()) {
+        $this-&gt;stid = oci_parse($this-&gt;conn, $sql);
+        $dlob = oci_new_descriptor($this-&gt;conn, OCI_D_LOB);
+        oci_bind_by_name($this-&gt;stid, $blobbindname, $dlob, -1, OCI_B_BLOB);
+        foreach ($otherbindvars as $bv) {
+            // oci_bind_by_name(resource, bv_name, php_variable, length)
+            oci_bind_by_name($this-&gt;stid, $bv[0], $bv[1], $bv[2]);
+        }
+        oci_set_action($this-&gt;conn, $action);
+        oci_execute($this-&gt;stid, OCI_NO_AUTO_COMMIT);
+        if ($dlob-&gt;save($blob)) {
+            oci_commit($this-&gt;conn);
+        }
+    }
+</pre>
+<p>The <code>insertBlob()</code> method accepts a final option parameter for normal bind variables. This is not used when it is called in <code>printcontent()</code> in <code>ac_logo_upload.php</code>.</p>
+<p>The <code>BLOB</code> is bound as a special type, similar to how a <code>REF CURSOR</code> was bound in the <a href="ch_six_ref_cur.htm#BABCDADC">Chapter 6, &#34;Showing Equipment Records by Using a REF CURSOR.&#34;</a> PHP OCI8 also has a <code>OCI_B_CLOB</code> constant which can be used for binding <code>CLOB</code>s. The <code>LOB</code> descriptor is an instance of PHP OCI8&#39;s <code>OCI-Lob</code> class, which has various methods for uploading and reading data. When <code>oci_execute()</code> is processed on the SQL <code>INSERT</code> statement the <code>OCI_NO_AUTO_COMMIT</code> flag is used. This is because the database transaction must remain open until the <code>$dlob-&gt;save()</code> method inserts the data. Finally, an explicit <code>oci_commit()</code> commits the <code>BLOB</code>.</p>
+<p>Run the AnyCo application in a browser and log in Administrator. Click the <span class="bold">Upload Logo</span> link in the left hand menu. Locate a JPEG image on your computer and select it. The next section of this chapter will display the image in the page header with the title, so choose an image of 15 to 20 pixels in height.</p>
+<img width="809" height="222" src="img/chap12_php_oci8.png" alt="Upload logo page"/><br/>
+<p>Click the <span class="bold">Upload</span> button.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABDEFGF"></a>
+<div id="TDPPH186" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Fetching the Logo and Creating an Image</h2>
+<p>Displaying the logo is similar in concept to how the graph image was displayed in the previous chapter. However since the <code>BLOB</code> is already in JPEG format the GD extension is not required.</p>
+<p>Create a new PHP file <code>ac_logo_img.php</code>. The file contains:</p>
+<pre>&lt;?php
+ 
+/**
+ * ac_logo_img.php: Create a JPEG image of the company logo
+ *
+ * Do not put any text or white space before the &#34;&lt;?php&#34; tag because it will
+ * be incorporated into the image stream and corrupt the picture.
+ *
+ * @package Logo
+ */
+ 
+session_start();
+require(&#39;ac_db.inc.php&#39;);
+require(&#39;ac_equip.inc.php&#39;);
+ 
+$sess = new \Equipment\Session;
+$sess-&gt;getSession();
+if (isset($sess-&gt;username) &amp;&amp; !empty($sess-&gt;username)) {
+    $username = $sess-&gt;username;
+} else { // index.php during normal execution, or other external caller
+    $username = &#34;unknown-logo&#34;;
+}
+ 
+$db = new \Oracle\Db(&#34;Equipment&#34;, $username);
+$sql = &#39;SELECT pic FROM pictures WHERE id = (SELECT MAX(id) FROM pictures)&#39;;
+$img = $db-&gt;fetchOneLob($sql, &#34;Get Logo&#34;, &#34;pic&#34;);
+ 
+header(&#34;Content-type: image/jpg&#34;);
+echo $img;
+ 
+?&gt;
+</pre>
+<p>This queries the most recent logo and sends it back as a JPEG stream. If the image appears corrupted, comment out the <code>header()</code> and <code>echo</code> function calls and check if any text or white space is being emitted by the script.</p>
+<p>The user name check differs from those used in previous sections. The logo is displayed on all pages including the login page before the web user name is known. Because <code>Db</code> accepts a user name for end-to-end tracing, <code>ac_logo_img.php</code> uses a bootstrap user name <code>unknown-logo</code>.</p>
+<p>Edit <code>ac_db.inc.php</code> and add the <code>fetchOneLob()</code> method to the <code>Db</code> class:</p>
+<pre>    /**
+     * Runs a query that fetches a LOB column
+     * @param string $sql A query that include a LOB column in the select list
+     * @param string $action Action text for End-to-End Application Tracing
+     * @param string $lobcolname The column name of the LOB in the query
+     * @param array $bindvars Bind variables. An array of tuples
+     * @return string The LOB data
+     */
+    public function fetchOneLob($sql, $action, $lobcolname, $bindvars = array()) {
+        $col = strtoupper($lobcolname);
+        $this-&gt;stid = oci_parse($this-&gt;conn, $sql);
+        foreach ($bindvars as $bv) {
+            // oci_bind_by_name(resource, bv_name, php_variable, length)
+            oci_bind_by_name($this-&gt;stid, $bv[0], $bv[1], $bv[2]);
+        }
+        oci_set_action($this-&gt;conn, $action);
+        oci_execute($this-&gt;stid);
+        $row = oci_fetch_array($this-&gt;stid, OCI_RETURN_NULLS);
+        $lob = null;
+        if (is_object($row[$col])) {
+            $lob = $row[$col]-&gt;load();
+            $row[$col]-&gt;free();
+        }
+        $this-&gt;stid = null;
+        return($lob);
+    }
+</pre>
+<p>The <code>oci_fetch_array()</code> options could have included the <code>OCI_RETURN_LOBS</code> flag to indicate the data should be returned as a PHP string. The code here shows the column being returned as a locator instead. This shows how a locator can be operated on, here using the <code>load()</code> to read all the data and <code>free()</code> method to free up resources. If you had an application with very large data, the locator <code>read()</code> method could be used to process the <code>LOB</code> in chunks, which would be a memory efficient way of processing large data streams.</p>
+<p>Unlike <code>insertBlob()</code> which bound using the <code>OCI_B_BLOB</code> type and was therefore specific for <code>BLOB</code>s, the <code>fetchOneLob()</code> can be used for both <code>BLOB</code> and <code>CLOB</code> data.</p>
+<p>If an application processes multiple images (or chunks of an image) sequentially in a loop, for example:</p>
+<pre>  while (($img = $db-&gt;fetchOneLob($sql, &#34;Get Logo&#34;, &#34;pic&#34;)) != null ) {
+      dosomething($img);
+  }
+</pre>
+<p>then you can reduce PHP&#39;s peak memory usage by explicitly un-setting <code>$img</code> at the foot of the loop:</p>
+<pre>      dosomething($img);
+      $unset($img);
+</pre>
+<p>This allows the memory allocated for the current <code>$img</code> to be reused for the next image data stream. Otherwise the original image memory is only freed after PHP constructs the second image and is ready to assign it to <code>$img</code>. This optimization is not needed by the AnyCo application.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABGJGJA"></a>
+<div id="TDPPH187" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Displaying the Logo</h2>
+<p>To display an uploaded logo in the AnyCo application, edit <code>ac_equip.inc.php</code> and un-comment the <code>LOGO_URL</code> definition:</p>
+<pre>define(&#39;LOGO_URL&#39;, &#39;http://localhost/ac_logo_img.php&#39;);
+</pre>
+<p>Make sure the URL is correct for your environment.</p>
+<p>The logo is displayed in <code>Page::printHeader()</code>. Every standard page of the application will show the logo. Rerun the application to verify this:</p>
+<img width="809" height="270" src="img/chap12_logo.png" alt="Displaying the Logo"/><br/>
+<p>Keeping images in the database allows the complete application data to be backed up and shared across all applications. However for performance you could consider implementing a caching technique that writes the logo to disk so it can be streamed directly without requiring the overhead of database access. The upload form could regenerate the disk file each time a new image is uploaded.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4949">
+<tr>
+<td class="cellalignment4956">
+<table class="cellalignment4954">
+<tr>
+<td class="cellalignment4953"><a href="ch_eleven_image.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4953"><a href="ch_thirteen_monitor.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2010, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4958">
+<table class="cellalignment4952">
+<tr>
+<td class="cellalignment4953"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4953"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4953"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4953"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4953"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4953"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

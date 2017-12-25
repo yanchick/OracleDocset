@@ -1,0 +1,525 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-100816"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Routing%20Engine%20Data"></a><title>Routing Engine Data</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-01-26T11:46:57Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Spatial and Graph Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49172-07"/>
+<meta name="dcterms.isVersionOf" content="SPATL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="network-data-model-ndm-network-administration.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="user-data.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49172-07.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-0997AE3A-250A-4E80-B9C8-C014FC8C0830"></a> <span id="PAGE" style="display:none;">471/475</span> <!-- End Header -->
+<a id="SPATL1569"></a>
+<h1 id="SPATL-GUID-0997AE3A-250A-4E80-B9C8-C014FC8C0830" class="sect1"><span class="enumeration_section">E.3</span> Routing Engine Data</h1>
+<div>
+<p>The routing engine uses routing engine data and user data. The routing engine data is stored in the EDGE, NODE, SIGN_POST, and PARTITION tables.</p>
+<p>The routing engine data models a road network as a directed graph of nodes and edges. Partitioning breaks this road network into 2**N (2<sup>N</sup>) subgraphs (local partitions) and one highway partition. The nodes of the road network are partitioned topologically, so each local partition contains the same number of nodes. Each node in the network is in one and only one partition. An edge can be entirely within a partition, an internal edge, or a bridge two partitions (that is, a boundary edge). The partitions are stored in the database as BLOBs, so they can easily be read into and removed from a cache. This allows the routing engine to operate without needing the entire road network to be in memory.</p>
+<p>Partitions 1 through N, local partitions, are all roughly the same size. Local partitions are read into the cache as needed when computing a route. These partitions remain in the cache until the cache is full, at which point the least used partitions are swapped out to make room for the partitions needed to compute the current route.</p>
+<p>Partition 0 (zero), the highway partition, differs from local partitions in two respects:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>It is not a topological partition of the road network. Instead, it is a subgraph of the road network containing only highway information. Because of this, the highway partition is much larger than a local partition.</p>
+</li>
+<li>
+<p>It is read into the cache at routing engine start up and remains resident.</p>
+</li>
+</ul>
+<p>The road network is partitioned in three phases. The first phase partitions the data, computing the number of partitions needed and which partitions contain which nodes and edges. The second phase converts these partitions into BLOBs and writes them to the database. The final phase rebuilds the routing engine network, partitions any user data, and writes the user data BLOBs to the database.</p>
+<p>Routing engine data is versioned. During the third phase of partitioning the routing engine version is written to the SDO_ROUTER_DATA_VERSION table and becomes the data version for this data set. If the data set is exported for use in another routing engine schema, this new routing engine&#39;s version must be compatible with the data version of the data set.</p>
+<p>Routing engine data is provided by data vendors in the Oracle Data Format (ODF) and is already partitioned. Generally, there is no need for a customer to repartition the data. However, there may be cases, such as when performance testing different partition sizes or merging data sets, where you may want to repartition the routing engine data.</p>
+<div class="infobox-note" id="GUID-0997AE3A-250A-4E80-B9C8-C014FC8C0830__GUID-9802A9CC-A24A-464E-ABE5-13063B9A55DE">
+<p class="notep1">Note:</p>
+<p>Repartitioning routing engine data can be a very time and resource intensive operation. Depending on the hardware being used, repartitioning a large data set, such as North America or the European Union, can easily run for a day or more.</p>
+</div>
+<p>This section includes the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="routing-engine-data.htm#GUID-C212EEC4-3A49-4044-8EAD-AD335A7F31A8">PARTITION_ROUTER Procedure</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-C090BCBF-0E8B-4D0F-AED9-9627BAE33AFD">CLEANUP_ROUTER Procedure</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-35492196-E7B6-40FA-8F13-5566A7C6CBA1">DUMP_PARTITIONS Procedure</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-85AA83BF-E7BD-4DEB-878B-0627A89B8244">VALIDATE_PARTITIONS Procedure</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-35EE3280-D593-49E5-8DE2-0BE6C9AE2083">GET_VERSION Procedure</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-436A6B18-8EB6-4977-B621-17BB6EF56B1D">Routing Engine Data Examples</a></p>
+</li>
+</ul>
+</div>
+<a id="SPATL1570"></a>
+<div class="props_rev_3"><a id="GUID-C212EEC4-3A49-4044-8EAD-AD335A7F31A8"></a>
+<h2 id="SPATL-GUID-C212EEC4-3A49-4044-8EAD-AD335A7F31A8" class="sect2"><span class="enumeration_section">E.3.1</span> PARTITION_ROUTER Procedure</h2>
+<div>
+<p>Syntax:</p>
+<pre dir="ltr">SDO_ROUTER_PARTITION.PARTION_ROUTER(
+    LOG_FILE_NAME IN VARCHAR2 := &#39;sdo_router_partition.log&#39;,
+    MAX_V_NO      IN NUMBER DEFAULT 10000,
+    DRIVING_SIDE  IN VARCHAR2 := &#39;R&#39;,
+    NETWORK_NAME  IN VARCHAR := &#39;ROUTER_NETWORK&#39;,
+    MAX_MEMORY    IN NUMBER := 1.75,
+    CLEANUP       IN BOOLEAN DEFAULT TRUE,
+    USE_SECUREFILES           IN BOOLEAN DEFAULT TRUE,
+    GENERATE_11G_RESTRICTIONS IN BOOLEAN DEFAULT TRUE);
+</pre>
+<p>The PARTITION_ROUTER procedure must be run from a routing engine schema that contains routing engine Oracle Data Format data. This procedure partitions the road network and creates the PARTITION table containing the routing engine data in BLOB format.</p>
+<p>The LOG_FILE_NAME parameter specifies the name of the log file written during routing engine partitioning. This log file is created in the SDO_ROUTER_LOG_DIR directory. Users can choose a log file name or use the default partitioning log file sdo_router_partition.log.</p>
+<p>The MAX_V_NO parameter specifies the maximum number of nodes allowed in a partition. There must be at least (MAX_V_NO+1) nodes in the NODE table.</p>
+<p>The DRIVING_SIDE parameter is a legacy parameter. Its only use was to generate Release 11<span class="italic">g</span> turn restrictions. Valid values are R (right side) and L (left side).The NETWORK_NAME parameter specifies the name of the routing engine network that is created during partitioning.</p>
+<p>The MAX_MEMORY parameter specifies the maximum Java heap size, in gigabytes, available to the partitioning process. The default value of 1.75G is enough for most data sets. This parameter only needs to be adjusted when partitioning data sets that are much smaller or much larger than normal.</p>
+<p>The CLEANUP parameter is used for debugging. By default, all of the intermediate tables created during the partitioning of the routing engine data are cleaned up. If there is problem while partitioning, leaving these tables in place (specifying CLEANUP=&gt;FALSE) can provide substantial debugging information.</p>
+<p>The USE_SECUREFILES parameter lets you create the routing engine&#39;s BLOBs in either BASICFILE or SECUREFILE format. Oracle recommends using the SECUREFILE format.</p>
+<p>The GENERATE_11G_RESTRICTIONS parameter controls the generation of Release 11<span class="italic">g</span> turn restriction data. In Oracle Database Release 11<span class="italic">g</span>, basic turn restrictions were implemented and stored in the PARTITION table. In Oracle Database Release 12<span class="italic">c</span>, turn restrictions are expanded and are stored in a user data table, ROUTER_TURN_RESTRICTION_DATA. To allow data providers to ship data partitioned under Release 12<span class="italic">c</span> to users still using a Release 11<span class="italic">g</span> Route Server, both types of turn restrictions are generated by default. When repartitioning data under Oracle Release 12<span class="italic">c</span>, for a Release 12<span class="italic">c</span> Route Server, you may set this parameter to FALSE.</p>
+</div>
+</div>
+<a id="SPATL1571"></a>
+<div class="props_rev_3"><a id="GUID-C090BCBF-0E8B-4D0F-AED9-9627BAE33AFD"></a>
+<h2 id="SPATL-GUID-C090BCBF-0E8B-4D0F-AED9-9627BAE33AFD" class="sect2"><span class="enumeration_section">E.3.2</span> CLEANUP_ROUTER Procedure</h2>
+<div>
+<p>Syntax:</p>
+<pre dir="ltr">SDO_ROUTER_PARTITION.CLEANUP_ROUTER(
+    ALL_TABLES IN BOOLEAN DEFAULT TRUE);
+</pre>
+<p>The CLEANUP_ROUTER procedure resets the routing engine&#39;s state, ensuring that all the tables and indexes are in good order and all intermediate tables are deleted. This is useful if partitioning fails or if partitioning completed successfully with the CLEANUP flag set to FALSE.</p>
+<p>The ALL_TABLES parameter controls what is reset. When set to FALSE, the routing engine is reset to a stable state but leaves the intermediate tables for debugging. This can be useful if partitioning failed. When set to TRUE, the routing engine is reset to a stable state and all intermediate tables used in partitioning are deleted. This can be useful when cleaning up after a successful <a href="routing-engine-data.htm#GUID-C212EEC4-3A49-4044-8EAD-AD335A7F31A8">PARTITION_ROUTER Procedure</a> that was run with the CLEANUP parameter set to FALSE.</p>
+</div>
+</div>
+<a id="SPATL1572"></a>
+<div class="props_rev_3"><a id="GUID-35492196-E7B6-40FA-8F13-5566A7C6CBA1"></a>
+<h2 id="SPATL-GUID-35492196-E7B6-40FA-8F13-5566A7C6CBA1" class="sect2"><span class="enumeration_section">E.3.3</span> DUMP_PARTITIONS Procedure</h2>
+<div>
+<p>Syntax:</p>
+<pre dir="ltr">DUMP_PARTITIONS(
+    LOG_FILE_NAME IN VARCHAR2 := &#39;sdo_router_partition.log&#39;,
+    START_PID     IN NUMBER DEFAULT 0,
+    END_PID       IN NUMBER DEFAULT -1,
+    VERBOSE       IN BOOLEAN DEFAULT FALSE);
+</pre>
+<p>The DUMP_PARTITIONS procedure dumps the contents of routing engine data partition BLOBs. This procedure unpacks a BLOB, formats the data, and writes it to a log file. A single running of this procedure can dump a single partition or a contiguous range of partitions. This range is defined from START_PID to END_PID, inclusive. The default is to dump all partitions. A non-contiguous range of partitions cannot be dumped in a single call.</p>
+<p>The LOG_FILE_NAME parameter is the name of the log file written when dumping routing engine partitions. This log file is created in the SDO_ROUTER_LOG_DIR directory. You can choose a log file name or write to the default partitioning log file <code>sdo_router_partition.log</code>.</p>
+<p>The START_PID parameter is the ID of the first partition to dump. The default START_PID is 0. The START_PID must be less than or equal to END_PID.</p>
+<p>The END_PID parameter is the ID of the last partition to dump. The default END_PID is -1, which is converted to the highest partition ID in the data set. If the start and end PID values are equal, a single partition is dumped. If END_PID is less than START_PID, an error message is written to the log.</p>
+<p>The VERBOSE parameter controls what data is dumped. The default value of FALSE dumps a summary of the partition information, including, the number of node and edges and the size of the BLOB. If this parameter is TRUE, in addition to the summary, all the information describing all the nodes and edges in the partition is dumped.</p>
+</div>
+</div>
+<a id="SPATL1573"></a>
+<div class="props_rev_3"><a id="GUID-85AA83BF-E7BD-4DEB-878B-0627A89B8244"></a>
+<h2 id="SPATL-GUID-85AA83BF-E7BD-4DEB-878B-0627A89B8244" class="sect2"><span class="enumeration_section">E.3.4</span> VALIDATE_PARTITIONS Procedure</h2>
+<div>
+<p>Syntax:</p>
+<pre dir="ltr">VALIDATE_PARTITIONS(
+    LOG_FILE_NAME IN VARCHAR2 := &#39;sdo_router_partition.log&#39;,
+    START_PID     IN NUMBER DEFAULT 0,
+    END_PID       IN NUMBER DEFAULT -1,
+    VERBOSE       IN BOOLEAN DEFAULT FALSE);
+</pre>
+<p>The VALIDATE_PARTITIONS procedure validates the contents of routing engine data partition BLOBs. Validating all the partitions in a large dataset can take some time to run, but it is the fastest way to read every byte in every partition to ensure that the partitions are ready to be used for routing. Validation only needs to be run if you suspect that there may be a problem with the partitions. If validation is run, Oracle recommends running the initial validation on all partitions with the VERBOSE flag set to FALSE. If a problem is found, then rerun the validation on the problem partitions with VERBOSE set to true.</p>
+<p>The LOG_FILE_NAME parameter is the name of the log file written while validating the routing engine data partitions. This log file is created in the SDO_ROUTER_LOG_DIR directory. You can choose a log file name or write to the default partitioning log file <code>sdo_router_partition.log</code>.</p>
+<p>The START_PID parameter is the ID of the first partition to validate. The default START_PID is 0. The START_PID must be less than or equal to END_PID.</p>
+<p>The END_PID parameter is the ID of the last partition to validate. The default END_PID is -1, which is converted to the highest partition ID in the data set. If the start and end PID values are equal, a single partition is validated. If END_PID is less than START_PID, an error message is written to the log.</p>
+<p>The VERBOSE parameter controls the level of detail of the validation messages. The default value of FALSE simply logs whether a partition passed or failed validation. If this parameter is TRUE, the validation of each element in the BLOB is logged.</p>
+</div>
+</div>
+<a id="SPATL1574"></a>
+<div class="props_rev_3"><a id="GUID-35EE3280-D593-49E5-8DE2-0BE6C9AE2083"></a>
+<h2 id="SPATL-GUID-35EE3280-D593-49E5-8DE2-0BE6C9AE2083" class="sect2"><span class="enumeration_section">E.3.5</span> GET_VERSION Procedure</h2>
+<div>
+<p>Syntax:</p>
+<pre dir="ltr">GET_VERSION(
+    LOG_FILE_NAME IN VARCHAR2 := &#39;sdo_router_partition.log&#39;);
+</pre>
+<p>The GET_VERSION procedure queries the SDO_ROUTER_DATA_VERSION table to get the routing engine data version and writes the result to the log file. (An an alternative, you can use SQL to query the SDO_ROUTER_DATA_VERSION table.)</p>
+<p>The LOG_FILE_NAME parameter is the name of the log file where the routing engine data version is written. This log file is created in the SDO_ROUTER_LOG_DIR directory. You can choose a log file name or write to the default partitioning log file <code>sdo_router_partition.log</code>.</p>
+</div>
+</div>
+<a id="SPATL1575"></a>
+<div class="props_rev_3"><a id="GUID-436A6B18-8EB6-4977-B621-17BB6EF56B1D"></a>
+<h2 id="SPATL-GUID-436A6B18-8EB6-4977-B621-17BB6EF56B1D" class="sect2"><span class="enumeration_section">E.3.6</span> Routing Engine Data Examples</h2>
+<div>
+<p>This section contains examples of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="routing-engine-data.htm#GUID-F1D63241-EE14-4FC9-9DEB-7215BE437B90">Partitioning a Small Data Set</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-509C1DAD-8C62-41D9-B343-D3D69F34633C">Partitioning a Full Data Set</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-25465F90-9C2C-4E86-BB4D-49A9B000C0E0">Dumping the Contents of a Partition</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-02C1157D-E11A-4432-88EC-6ED827B002EC">Validating the Contents of a Partition</a></p>
+</li>
+<li>
+<p><a href="routing-engine-data.htm#GUID-09B2B646-C587-47F6-B2AD-91E6DA21D81B">Querying the Routing Engine Data Version</a></p>
+</li>
+</ul>
+</div>
+<a id="SPATL1577"></a><a id="SPATL1576"></a>
+<div class="props_rev_3"><a id="GUID-F1D63241-EE14-4FC9-9DEB-7215BE437B90"></a>
+<h3 id="SPATL-GUID-F1D63241-EE14-4FC9-9DEB-7215BE437B90" class="sect3"><span class="enumeration_section">E.3.6.1</span> Partitioning a Small Data Set</h3>
+<div>
+<div class="section">
+<p><a href="routing-engine-data.htm#GUID-F1D63241-EE14-4FC9-9DEB-7215BE437B90__CACEGCDH">Example E-1</a> shows partitioning of a small data set. The data set in this example is the road network data for a radius of 100 miles around the center of San Francisco. This data set contains about 520,000 nodes and 1,200,00 edges. To partition the routing engine data, execute the statement from within the routing engine schema.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-F1D63241-EE14-4FC9-9DEB-7215BE437B90__CACEGCDH">
+<p class="titleinexample">Example E-1 Partitioning a Small Data Set</p>
+<pre dir="ltr">EXECUTE SDO_ROUTER_PARTITION.PARTITION_ROUTER(
+   &#39;sdo_router_partition.log&#39;, 1000, &#39;R&#39;, 
+   &#39;ROUTER_SF_NET&#39;, .75, FALSE, FALSE, FALSE);
+
+******** Beginning SDO Router partitioning
+** Schema: ROUTER_SF_SCHEMA
+** Logfile location:/scratch/logs/sdo_router_partition.log
+** Nodes per partition: 1000
+** Driving side: R
+** Router network name: ROUTER_SF_NET
+** Max JVM Memory Size: .75GB (805306368 bytes)
+** Cleanup temporary files: FALSE
+** BLOBs stored in BASICFILE format
+** Generating 11g turn restrictions: FALSE
+[This header is followed by extensive logging of the partitioning process.]
+</pre>
+<p>This example produces 1025 partitions, 1 highway partition, and 1024 local partitions. There are, on average, 516 nodes per partition. The driving side is set but is not used because Release 11<span class="italic">g</span> turn restrictions were not requested. The Java maximum heap size was set to three quarters of a gigabyte, more than enough to partition such a small data set. The partition BLOBs were written in Basicfile format, and when the partitioning completed the intermediate tables were not cleaned up.</p>
+<p>To clean up the intermediate tables left behind by partitioning, enter the following:</p>
+<pre dir="ltr">EXECUTE SDO_ROUTER_PARTITION.CLEANUP_ROUTER()
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="SPATL1579"></a><a id="SPATL1578"></a>
+<div class="props_rev_3"><a id="GUID-509C1DAD-8C62-41D9-B343-D3D69F34633C"></a>
+<h3 id="SPATL-GUID-509C1DAD-8C62-41D9-B343-D3D69F34633C" class="sect3"><span class="enumeration_section">E.3.6.2</span> Partitioning a Full Data Set</h3>
+<div>
+<div class="section">
+<p><a href="routing-engine-data.htm#GUID-509C1DAD-8C62-41D9-B343-D3D69F34633C__CACJJGGC">Example E-2</a> shows partitioning of a full data set. The data set for this example is the entire North American road network. This data set contains about 30 million nodes and 74 million edges. To partition the routing engine data, execute the statement from within the routing engine schema.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-509C1DAD-8C62-41D9-B343-D3D69F34633C__CACJJGGC">
+<p class="titleinexample">Example E-2 Partitioning a Full Data Set</p>
+<pre dir="ltr">EXECUTE SDO_ROUTER_PARTITION.PARTITION_ROUTER(
+   &#39;sdo_router_partition.log, 32000, &#39;R&#39;, &#39;ROUTER_NA_NET&#39;);
+
+******** Beginning SDO Router partitioning
+** Schema: ROUTER_NA_SCHEMA
+** Logfile location:/scratch/logs/sdo_router_partition.log
+** Nodes per partition: 32000
+** Driving side: R
+** Router network name: ROUTER_NA_NET
+** Max JVM Memory Size: 1.75GB (1879048192 bytes)
+** Cleanup temporary files: TRUE
+** BLOBs stored in SECUREFILE format
+** Generating 11g turn restrictions: TRUE
+[This header is followed by extensive logging of the partitioning process.]
+++ Partitioning a data set of this size is time and resource intensive ++
+ 
+</pre>
+<p>This example produces 1025 partitions, 1 highway partition, and 1024 local partitions. There are, on average, 29443 nodes per partition. The driving side is set to &#39;Right Side&#39; and is used to generate the requested Oracle 11<span class="italic">g</span> turn restrictions. The default Java heap size of 1.75 gigabytes is used. All routing engine data and user data BLOBs are stored in SECUREFILE format, and all intermediate tables are cleaned up after the successful partitioning.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="SPATL1581"></a><a id="SPATL1582"></a><a id="SPATL1580"></a>
+<div class="props_rev_3"><a id="GUID-25465F90-9C2C-4E86-BB4D-49A9B000C0E0"></a>
+<h3 id="SPATL-GUID-25465F90-9C2C-4E86-BB4D-49A9B000C0E0" class="sect3"><span class="enumeration_section">E.3.6.3</span> Dumping the Contents of a Partition</h3>
+<div>
+<div class="section">
+<p><a href="routing-engine-data.htm#GUID-25465F90-9C2C-4E86-BB4D-49A9B000C0E0__CACBCGGD">Example E-3</a> shows a dump of partitions 0 through 3 with the default VERBOSE value (FALSE) from the San Francisco data set. Note the BLOB size difference between the highway and local partitions. Also note that the highway partition is completely self-contained so there are no outbound edges. Local partitions have outgoing edges that connect them to other local partitions.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-25465F90-9C2C-4E86-BB4D-49A9B000C0E0__CACBCGGD">
+<p class="titleinexample">Example E-3 Dumping the Contents of a Partition (VERBOSE = FALSE)</p>
+<pre dir="ltr">EXEC SDO_ROUTER_PARTITION.DUMP_PARTITIONS(
+   &#39;dump_part0-3.log&#39;, 0, 3);
+
+******** Beginning partition dump
+** Logfile location: /scratch/logs/dump_part0-3.log
+** Routeserver data version: 12.1.0.2.1
+** Start partition id: 0
+** End partition id: 3
+** Verbose mode: FALSE
+[INFO] Starting dump of partition 0
+  Number of Nodes: 19392
+  Number of Nonboundary Edges: 22706
+  Number of Outgoing Boundary Edges: 0
+  Number of Incoming Boundary Edges: 0
+  Stored Partition ID: 0
+  Blob Length: 1748332
+ 
+[INFO] Starting dump of partition 1
+  Number of Nodes: 516
+  Number of Nonboundary Edges: 1190
+  Number of Outgoing Boundary Edges: 49
+  Number of Incoming Boundary Edges: 49
+  Stored Partition ID: 1
+  Blob Length: 81372
+ 
+[INFO] Starting dump of partition 2
+  Number of Nodes: 516
+  Number of Nonboundary Edges: 1099
+  Number of Outgoing Boundary Edges: 68
+  Number of Incoming Boundary Edges: 68
+  Stored Partition ID: 2
+  Blob Length: 78388
+[INFO] Starting dump of partition 3
+  Number of Nodes: 516
+  Number of Nonboundary Edges: 1101
+  Number of Outgoing Boundary Edges: 60
+  Number of Incoming Boundary Edges: 60
+  Stored Partition ID: 3
+  Blob Length: 77756
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-25465F90-9C2C-4E86-BB4D-49A9B000C0E0__CACFADGB">
+<p class="titleinexample">Example E-4 Dumping the Contents of a Partition (VERBOSE = TRUE)</p>
+<p><a href="routing-engine-data.htm#GUID-25465F90-9C2C-4E86-BB4D-49A9B000C0E0__CACFADGB">Example E-4</a> shows a dump of partition 8 with VERBOSE set to TRUE from the San Francisco data set. Note that the outbound edges log the partition ID where they terminate, and the inbound edges log the partition ID where they originate.</p>
+<pre dir="ltr">EXEC SDO_ROUTER_PARTITION.DUMP_PARTITIONS(
+   &#39;dump_part8.log&#39;, 8, 8, TRUE);
+
+******** Beginning partition dump
+** Logfile location:/scratch/logs/dump_part8.log
+** Routeserver data version: 12.1.0.2.1
+** Start partition id: 8
+** End partition id: 8
+** Verbose mode: TRUE
+[INFO] Starting dump of partition 8
+  Number of Nodes: 517
+  Number of Non-boundary Edges: 1145
+  Number of Outgoing Boundary Edges: 37
+  Number of Incoming Boundary Edges: 37
+  Stored Partition ID: 8
+  Blob Length: 77957
+
+  <span class="bold">Node information for partition 8:</span>
+    Node ID/X/Y/Highway: 84096388/-120.50809/37.98399/false
+    In Edges(3): -120862233, -120862227, 120862232
+    Out Edges(3): -120862232, 120862227, 120862233
+    *******************************
+    Node ID/X/Y/Highway: 84098023/-120.4882/37.99961/true
+    In Edges(3): -127829801, -120428259, 776737023
+    Out Edges(3): -776737023, 120428259, 127829801
+    *******************************
+*** Node information for the other 515 nodes...
+
+  <span class="bold">Non-boundary Edge information for partition 8:</span>
+  Internal Edges(1145):
+    Edge ID/Start Node ID/End Node ID: 910681077/942981443/206194644
+    Length/Speed Limit/Function Class: 130.3/5/5
+    *******************************
+    Edge ID/Start Node ID/End Node ID: -105461005/206194651/206194644
+    Length/Speed Limit/Function Class: 229.93/11/5
+    *******************************
+*** Edge information for the other 1143 internal edges...
+
+   <span class="bold">Outbound Boundary Edges(37):</span>
+    Edge ID/Start Node ID/End Node ID: -724019630/253265936/810705655
+    End Node Partition ID/Length: 7/511.07
+    Speed Limit/Function Class: 26/2
+    *******************************
+    Edge ID/Start Node ID/End Node ID: -105462459/252152310/206193109
+    End Node Partition ID/Length: 7/814.68
+    Speed Limit/Function Class: 11/5
+    *******************************
+*** Edge information for the other 35 outbound boundary edges...
+ 
+   <span class="bold">Inbound Boundary Edges(37):</span>
+    Edge ID/Start Node ID/End Node ID: 724019630/810705655/253265936
+    Start Node Partition ID/Length: 7/511.07
+    Speed Limit/Function Class: 26/2
+    *******************************
+    Edge ID/Start Node ID/End Node ID: 105462459/206193109/252152310
+    Start Node Partition ID/Length: 7/814.68
+    Speed Limit/Function Class: 11/5
+    *******************************
+*** Edge information for the other 35 inbound boundary edges...
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="SPATL1584"></a><a id="SPATL1585"></a><a id="SPATL1583"></a>
+<div class="props_rev_3"><a id="GUID-02C1157D-E11A-4432-88EC-6ED827B002EC"></a>
+<h3 id="SPATL-GUID-02C1157D-E11A-4432-88EC-6ED827B002EC" class="sect3"><span class="enumeration_section">E.3.6.4</span> Validating the Contents of a Partition</h3>
+<div>
+<div class="section">
+<p><a href="routing-engine-data.htm#GUID-02C1157D-E11A-4432-88EC-6ED827B002EC__CACEDJAA">Example E-5</a> shows validation of the contents of all the partitions in the data set with the default VERBOSE value (FALSE).</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-02C1157D-E11A-4432-88EC-6ED827B002EC__CACEDJAA">
+<p class="titleinexample">Example E-5 Validating the Contents of Partitions (VERBOSE = FALSE)</p>
+<pre dir="ltr">EXEC SDO_ROUTER_PARTITION.VALIDATE_PARTITIONS(
+   &#39;validate_all_partitions.log&#39;);
+
+******** Beginning partition validation
+** Logfile location:/scratch/logs/validate_all_partitions.log
+** Routeserver data version: 12.1.0.2.1
+** Start partition id: 0
+** End partition id: 1024
+** Verbose mode: FALSE
+[INFO] Starting validation of partition 0
+[INFO] Starting validation of partition 1
+[INFO] Starting validation of partition 2
+&hellip;
+[INFO] Starting validation of partition 1022
+[INFO] Starting validation of partition 1023
+[INFO] Starting validation of partition 1024
+[INFO] Partition validation complete
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-02C1157D-E11A-4432-88EC-6ED827B002EC__CACFFAEH">
+<p class="titleinexample">Example E-6 Validating the Contents of Partitions (VERBOSE = TRUE)</p>
+<p><a href="routing-engine-data.htm#GUID-02C1157D-E11A-4432-88EC-6ED827B002EC__CACFFAEH">Example E-6</a> shows validation of the contents of partitions 7 and 8 with VERBOSE set to TRUE.</p>
+<pre dir="ltr">EXEC SDO_ROUTER_PARTITION.VALIDATE_PARTITIONS(
+   &#39;validate_part7-8.log&#39;, 7, 8, TRUE);
+
+******** Beginning partition validation
+** Logfile location: /scratch/logs/validate_part7-8.log
+** Routeserver data version: 12.1.0.2.1
+** Start partition id: 7
+** End partition id: 8
+** Verbose mode: TRUE
+[INFO] Starting validation of partition 7
+  Header node count: OK
+  Header edge count: OK
+  BLOB partition id: OK
+  BLOB length: OK
+  BLOB node count: OK
+  BLOB information for 516 nodes: OK
+  BLOB information for 1154 internal edges: OK
+  BLOB information for 66 outbound boundary edges: OK
+  BLOB information for 65 inbound boundary edges: OK
+
+[INFO] Starting validation of partition 8
+  Header node count: OK
+  Header edge count: OK
+  BLOB partition id: OK
+  BLOB length: OK
+  BLOB node count: OK
+  BLOB information for 517 nodes: OK
+  BLOB information for 1145 internal edges: OK
+  BLOB information for 37 outbound boundary edges: OK
+  BLOB information for 37 inbound boundary edges: OK
+
+[INFO] Partition validation complete
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="SPATL1587"></a><a id="SPATL1586"></a>
+<div class="props_rev_3"><a id="GUID-09B2B646-C587-47F6-B2AD-91E6DA21D81B"></a>
+<h3 id="SPATL-GUID-09B2B646-C587-47F6-B2AD-91E6DA21D81B" class="sect3"><span class="enumeration_section">E.3.6.5</span> Querying the Routing Engine Data Version</h3>
+<div>
+<div class="section">
+<p><a href="routing-engine-data.htm#GUID-09B2B646-C587-47F6-B2AD-91E6DA21D81B__CACHEBGD">Example E-7</a> queries the routing engine data version number, writing the result to a log file.</p>
+<pre dir="ltr">SELECT * FROM sdo_router_data_version;
+</pre></div>
+<!-- class="section" -->
+<div class="example" id="GUID-09B2B646-C587-47F6-B2AD-91E6DA21D81B__CACHEBGD">
+<p class="titleinexample">Example E-7 Querying the Routing Data Version</p>
+<pre dir="ltr">EXEC SDO_ROUTER_PARTITION.GET_VERSION(&#39;version.log&#39;);
+
+INFO: Routeserver data version: 12.1.0.2.1
+</pre>
+<p>Alternatively, you could use the following SQL query to get the routing engine data version:</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment142">
+<tr>
+<td class="cellalignment149">
+<table class="cellalignment147">
+<tr>
+<td class="cellalignment146"><a href="network-data-model-ndm-network-administration.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment146"><a href="user-data.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment151">
+<table class="cellalignment145">
+<tr>
+<td class="cellalignment146"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment146"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment146"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment146"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment146"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment146"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

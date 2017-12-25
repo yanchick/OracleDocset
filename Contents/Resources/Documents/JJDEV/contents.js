@@ -1,0 +1,17 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Introduction to Java in Oracle Database", anchor: "JJDEV01000", file: "chone.htm" },
+  { topic: "chapter", section: "2", title: "Java Applications on Oracle Database", anchor: "JJDEV02000", file: "chtwo.htm" },
+  { topic: "chapter", section: "3", title: "Calling Java Methods in Oracle Database", anchor: "JJDEV13165", file: "chthree.htm" },
+  { topic: "chapter", section: "4", title: "Java Installation and Configuration", anchor: "JJDEV13214", file: "chfour.htm" },
+  { topic: "chapter", section: "5", title: "Developing Java Stored Procedures", anchor: "JJDEV13234", file: "chfive.htm" },
+  { topic: "chapter", section: "6", title: "Publishing Java Classes With Call Specifications", anchor: "JJDEV13255", file: "chsix.htm" },
+  { topic: "chapter", section: "7", title: "Calling Stored Procedures", anchor: "JJDEV13280", file: "chseven.htm" },
+  { topic: "chapter", section: "8", title: "Java Stored Procedures Application Example", anchor: "JJDEV13295", file: "cheight.htm" },
+  { topic: "chapter", section: "9", title: "Oracle Database Java Application Performance", anchor: "JJDEV09000", file: "chnine.htm" },
+  { topic: "chapter", section: "10", title: "Security for Oracle Database Java Applications", anchor: "JJDEV10000", file: "chten.htm" },
+  { topic: "chapter", section: "11", title: "Native Oracle JVM Support for JNDI", anchor: "JJDEV13346", file: "jndi_support.htm" },
+  { topic: "chapter", section: "12", title: "Schema Objects and Oracle JVM Utilities", anchor: "JJDEV13409", file: "cheleven.htm" },
+  { topic: "chapter", section: "13", title: "Database Web Services", anchor: "JJDEV13468", file: "chtwelve.htm" },
+  { topic: "appendix", section: "A", title: "DBMS_JAVA Package", anchor: "JJDEV13000", file: "appendixa.htm" },
+  { topic: "appendix", section: "B", title: "Classpath Extensions and User Classloaded Metadata", anchor: "JJDEV13542", file: "appendixb.htm" },
+  { } ];

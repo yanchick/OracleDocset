@@ -1,0 +1,1478 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-91721"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Conflict%20Resolution%20Concepts%20and%20Architecture"></a><title>Conflict Resolution Concepts and Architecture</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1042"/>
+<meta name="dcterms.created" content="2015-02-06T8:21:52Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Advanced Replication"/>
+<meta name="dcterms.identifier" content="E53117-02"/>
+<meta name="dcterms.isVersionOf" content="REPLN"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2015,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="repdt.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="repplan.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E53117-02.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">11/15</span> <!-- End Header -->
+<div id="REPLN005" class="chapter"><a id="i26513"></a>
+<h1 class="chapter"><span class="secnum">5</span> Conflict Resolution Concepts and Architecture</h1>
+<p>Some replication environments must create conflict resolution methods to resolve possible data conflicts that can result from replicating data between multiple sites.</p>
+<p>This chapter contains these topics:</p>
+<ul>
+<li>
+<p><a href="#i21406">Conflict Resolution Concepts</a></p>
+</li>
+<li>
+<p><a href="#i23857">Conflict Resolution Architecture</a></p>
+</li>
+</ul>
+<a id="i21406"></a>
+<div id="REPLN406" class="sect1">
+<h2 class="sect1">Conflict Resolution Concepts<a id="sthref782"></a></h2>
+<p>Replication conflicts can occur in a replication environment that permits concurrent updates to the same data at multiple sites. For example, when two transactions originating from different sites update the same row at nearly the same time, a conflict can occur. When you configure a replication environment, you must consider whether replication conflicts can occur. If your system design permits replication conflicts and a conflict occurs, then the system data does not converge until the conflict is resolved in some way.</p>
+<p>In general, your first choice should always be to design a replication environment that avoids the possibility of conflicts. Using several techniques, most system designs can avoid conflicts in all or a large percentage of the data that is replicated. However, many applications require that some percentage of data be updatable at multiple sites at any time. If this is the case, then you must address the possibility of replication conflicts.</p>
+<p>The next few sections introduce the following topics relating to replication conflicts:</p>
+<ul>
+<li>
+<p>How to design a replication system with replication conflicts in mind</p>
+</li>
+<li>
+<p>How to determine the types of conflicts that are possible in your replication environment</p>
+</li>
+<li>
+<p>How you can avoid replication conflicts in designing your replication environment</p>
+</li>
+<li>
+<p>How Oracle can detect and resolve conflicts in designs where conflict avoidance is not possible</p>
+</li>
+</ul>
+<p>This section contains these topics:</p>
+<ul>
+<li>
+<p><a href="#CHDGAIDD">Understanding Your Data and Application Requirements</a></p>
+</li>
+<li>
+<p><a href="#CHDJEHFF">Types of Replication Conflicts</a></p>
+</li>
+<li>
+<p><a href="#CHDHFAGC">Data Conflicts and Transaction Ordering</a></p>
+</li>
+<li>
+<p><a href="#CHDBJAAF">Conflict Detection</a></p>
+</li>
+<li>
+<p><a href="#CHDHHBAC">Conflict Resolution</a></p>
+</li>
+<li>
+<p><a href="#CHDEFDDI">Techniques for Avoiding Conflicts</a></p>
+</li>
+</ul>
+<a id="CHDGAIDD"></a>
+<div id="REPLN407" class="sect2">
+<h3 class="sect2">Understanding Your Data and Application Requirements<a id="sthref783"></a><a id="sthref784"></a></h3>
+<p>When you design any type of database application and its supporting database, it is critical that you understand the requirements of the application before you begin to build the database or the application itself. For example, each application should be modular, with clearly defined functional boundaries and dependencies, such as order-entry, shipping, billing, and so on. Furthermore, you should normalize supporting database data to reduce the amount of hidden dependencies between modules in the application system.</p>
+<p>In addition to basic database design practices, you must investigate additional requirements when building a database that operates in a replication environment. Start by considering the general requirements of the applications that will work with the replicated data. For example, some applications might work fine with read-only materialized views, and as a result, can avoid the possibility of replication conflicts altogether. Other applications might require that most of the replicated data be read-only and a small fraction of the data (for example, one or two tables or even one or two columns in a specific table) be updatable at all replication sites. In this case, you must determine how to resolve replication conflicts when they occur so that the integrity of replicated data remains intact.</p>
+<div id="REPLN408" class="sect3"><a id="sthref785"></a>
+<h4 class="sect3">Examples of Conflict Detection and Resolution</h4>
+<p>To better understand how to design a replicated database system with conflicts in mind, consider the following environments where conflict detection and resolution is feasible in some cases but not possible in others:</p>
+<ul>
+<li>
+<p>Conflict resolution is often not possible in reservation systems where multiple bookings for the same item are not allowed. For example, when reserving specific seats for a concert, different agents accessing different replicas of the reservation system cannot book the same seat for multiple customers because there is no way to resolve such a conflict.</p>
+</li>
+<li>
+<p>Conflict resolution is often possible in customer management systems. For example, salespeople can maintain customer address information at different databases in a replication environment. Should a conflict arise, the system can resolve the conflicting updates by applying the most recent update to a record.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CHDJEHFF"></a>
+<div id="REPLN409" class="sect2">
+<h3 class="sect2">Types of Replication Conflicts<a id="sthref786"></a></h3>
+<p>You might encounter these types of data conflicts in a replicated database environment:</p>
+<ul>
+<li>
+<p><a href="#i26888">Update Conflicts</a></p>
+</li>
+<li>
+<p><a href="#i26892">Uniqueness Conflicts</a></p>
+</li>
+<li>
+<p><a href="#i26896">Delete Conflicts</a></p>
+</li>
+</ul>
+<p>You will most likely encounter update conflicts in your replication environment, although you should always prepare to handle uniqueness and delete conflicts. Oracle recommends that your database design works to avoid these types of conflicts.</p>
+<a id="i26888"></a>
+<div id="REPLN410" class="sect3">
+<h4 class="sect3">Update Conflicts<a id="sthref787"></a><a id="sthref788"></a></h4>
+<p>An <span class="glossaryterm">update conflict</span> occurs when the replication of an update to a row conflicts with another update to the same row. Update conflicts can happen when two transactions originating from different sites update the same row at nearly the same time.</p>
+</div>
+<!-- class="sect3" -->
+<a id="i26892"></a>
+<div id="REPLN411" class="sect3">
+<h4 class="sect3">Uniqueness Conflicts<span class="italic"><a id="sthref789"></a><a id="sthref790"></a></span></h4>
+<p>A <span class="glossaryterm">uniqueness conflict</span> occurs when the replication of a row attempts to violate entity integrity, such as a <code dir="ltr">PRIMARY</code> <code dir="ltr">KEY</code> or <code dir="ltr">UNIQUE</code> constraint. For example, consider what happens when two transactions originate from two different sites, each inserting a row into a respective table replica with the same primary key value. In this case, replication of the transactions causes a uniqueness conflict.</p>
+</div>
+<!-- class="sect3" -->
+<a id="i26896"></a>
+<div id="REPLN412" class="sect3">
+<h4 class="sect3">Delete Conflicts<span class="italic"><a id="sthref791"></a><a id="sthref792"></a></span></h4>
+<p>A <span class="glossaryterm">delete conflict</span> occurs when two transactions originate from different sites, with one transaction deleting a row and another transaction updating or deleting the same row, because in this case the row does not exist to be either updated or deleted.</p>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CHDHFAGC"></a>
+<div id="REPLN413" class="sect2">
+<h3 class="sect2">Data Conflicts and Transaction Ordering<a id="sthref793"></a></h3>
+<p>Ordering conflicts can occur in replication environments with three or more master sites. If propagation to master site X is blocked for any reason, then updates to replicated data can continue to be propagated among other master sites. When propagation resumes, these updates might be propagated to site X in a different order than they occurred on the other masters, and these updates might conflict. By default, the resulting conflicts are recorded in the error log and can be reexecuted after the transactions they depend upon are propagated and applied. See <a href="#g48671">Table 5-1</a> for an example of an ordering conflict.</p>
+<p>To guarantee data convergence in replication environments with three or more master sites, you must select a conflict resolution method that can guarantee data convergence with any number of master sites (latest time stamp, minimum, maximum, priority group, additive).</p>
+<p>The minimum, maximum, priority group, and additive conflict resolution methods guarantee data convergence with any number of master sites, if certain conditions exist. See the appropriate conflict resolution method in <a href="#i23857">&#34;Conflict Resolution Architecture&#34;</a> for more information</p>
+<p>In addition to receiving a data conflict, replicated transactions that are applied out-of-order might experience referential integrity problems at a remote site if supporting data was not successfully propagated to that site. Consider the scenario where a new customer calls an order department; a customer record is created and an order is placed. If the order data is propagated to a remote site before the customer data, then a referential integrity error is raised because the customer that the order references does not exist at the remote site.</p>
+<p>If a referential integrity error is encountered, then you can easily resolve the situation by reexecuting the transaction in error after the supporting data has been propagated to the remote site.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CHDBJAAF"></a>
+<div id="REPLN414" class="sect2">
+<h3 class="sect2">Conflict Detection<a id="sthref794"></a><a id="sthref795"></a></h3>
+<p>Each master site in a replication system automatically detects and resolves replication conflicts when they occur. For example, when a master site pushes its deferred transaction queue to another master site in the system, the remote procedures being called at the receiving site can automatically detect if any replication conflicts exist.</p>
+<p>When a materialized view site pushes deferred transactions to its corresponding master site or master materialized view site, the receiving site performs conflict detection and resolution. A materialized view site refreshes its data by performing materialized view refreshes. The refresh mechanism ensures that, upon completion, the data at a materialized view is the same as the data at the corresponding master table or master materialized view, including the results of any conflict resolution. Therefore, it is not necessary for a materialized view site to perform work to detect or resolve replication conflicts.</p>
+<div id="REPLN415" class="sect3"><a id="sthref796"></a>
+<h4 class="sect3">How Oracle Detects Different Types of Conflicts</h4>
+<p>The receiving master site or master materialized view site in a replication system detects update, uniqueness, and delete conflicts as follows:</p>
+<ul>
+<li>
+<p>The receiving site detects an update conflict if there is any difference between the old values of the replicated row (the values before the modification) and the current values of the same row at the receiving site.</p>
+</li>
+<li>
+<p>The receiving site detects a uniqueness conflict if a uniqueness constraint violation occurs during an <code dir="ltr">INSERT</code> or <code dir="ltr">UPDATE</code> of a replicated row.</p>
+</li>
+<li>
+<p>The receiving site detects a delete conflict if it cannot find a row for an <code dir="ltr">UPDATE</code> or <code dir="ltr">DELETE</code> statement because the primary key of the row does not exist.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1"><span class="bold">Note</span>:</p>
+<ul>
+<li>
+<p>If a column is updated and the column&#39;s old value equals its new value, then Oracle never detects a conflict for this column update.</p>
+</li>
+<li>
+<p>To detect and resolve an update conflict for a row, the propagating site must send a certain amount of data about the new and old versions of the row to the receiving site. For maximum performance, tune the amount of data that Oracle uses to support update conflict detection and resolution. For more information, see <a href="#i24725">&#34;Send and Compare Old Values&#34;</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN416" class="sect3"><a id="sthref797"></a>
+<h4 class="sect3">Identifying Rows During Conflict Detection<a id="sthref798"></a></h4>
+<p>To detect replication conflicts accurately, Oracle must be able to uniquely identify and match corresponding rows at different sites during data replication. Typically, Advanced Replication uses the primary key of a table to uniquely identify rows in the table. When a table does not have a primary key, you must designate an alternate key&mdash;a column or set of columns that Oracle can use to uniquely identify rows in the table during data replication.</p>
+<div class="infobox-note">
+<p class="notep1"><span class="bold">Caution</span>:</p>
+Do not permit applications to update the primary key or alternate key columns of a table. This precaution ensures that Oracle can identify rows and preserve the integrity of replicated data.</div>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CHDHHBAC"></a>
+<div id="REPLN417" class="sect2">
+<h3 class="sect2">Conflict Resolution<a id="sthref799"></a></h3>
+<p>After a conflict has been detected, resolve the conflict with the goal of data convergence across all sites. Oracle provides several prebuilt conflict resolution methods to resolve update conflicts and in many situations can guarantee data convergence across a variety of replication environments. Oracle also offers several conflict resolution methods to handle uniqueness conflicts, though these methods cannot guarantee data convergence.</p>
+<p>Oracle does not provide any prebuilt conflict resolution methods to handle delete or ordering conflicts. Oracle does, however, enable you to build your own conflict resolution method to resolve data conflicts specific to your business rules. If you do build a conflict resolution method that cannot guarantee data convergence, which is likely for uniqueness and delete conflicts, then you should also build a notification facility to notify the database administrator so that data convergence can be manually achieved.</p>
+<p>Whether you use an Oracle prebuilt or user-defined conflict resolution method, it is applied as soon as the conflict is detected. If the defined conflict resolution method cannot resolve the conflict, then the conflict is logged in the error queue.</p>
+<p>To avoid a single point of failure for conflict resolution, you can define additional conflict resolution methods to backup the primary method. For example, in the unlikely event that the latest time stamp conflict resolution method cannot resolve a conflict because the time stamps are identical, you might want to define a site priority conflict resolution method, which breaks the time stamp tie and resolves the data conflict.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA109" href="../REPMA/rarmanage.htm#REPMA109"><span class="italic">Oracle Database Advanced Replication Management API Reference</span></a> for information about modifying tables without replicating the modifications, which might be necessary when you manually resolve a conflict that could not be resolved automatically</div>
+<div id="REPLN115" class="sect3"><a id="sthref800"></a>
+<h4 class="sect3">Multitier Materialized Views and Conflict Resolution<a id="sthref801"></a><a id="sthref802"></a><a id="sthref803"></a></h4>
+<p>When you have a master table and an updatable materialized view based on that master table, a refresh of the materialized view pushes its changes to the master site, where the master site handles any conflicts resulting from the push with its configured conflict resolution methods. Then, the materialized view pulls changes at the master down when the materialized view completes the refresh. The refresh is always initiated at the materialized view site.</p>
+<p>Similarly, the master materialized view of an updatable materialized view behaves in the same way as a master table. However, to handle conflicts resulting from a push from a materialized view, the master materialized view uses conflict resolution methods that it has pulled from its master. Here, the master can either be a master table at a master site or a master materialized view at another materialized view site. Conflict resolution methods cannot be configured directly at a materialized view site. Instead, the conflict resolution methods are pulled down from the immediate master automatically when you create an updatable materialized view and when you generate replication support for a materialized view. A read-only materialized view does not pull down conflict resolution methods from its master.</p>
+<p>For example, suppose a level 3 materialized view pushes its changes to its level 2 master materialized view. This push might cause a conflict at the level 2 materialized view. To handle the conflict, the level 2 materialized view uses the conflict resolution methods that it previously pulled from its level 1 master materialized view. Similarly, the level 1 materialized view handles conflicts with the conflict resolution methods that it previously pulled from its master site. <a href="#i33307">Figure 5-1</a> illustrates this configuration.</p>
+<div id="REPLN418" class="figure">
+<p class="titleinfigure"><a id="i33307"></a>Figure 5-1 Conflict Resolution and Multitier Materialized Views</p>
+<img width="600" height="488" src="img/repln094.gif" alt="Description of Figure 5-1 follows"/><br/>
+<a id="sthref804" href="img_text/repln094.htm">Description of &#34;Figure 5-1 Conflict Resolution and Multitier Materialized Views&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>Notice that each updatable materialized view pulls-down conflict resolution methods from its master, even if the updatable materialized view does not have any materialized views based on it. Notice also that a read-only materialized view does not pull down conflict resolution methods from its master.</p>
+<p>If you plan to change the conflict resolution methods for a master table in an environment with multitier materialized views, then complete the following general procedure:</p>
+<a id="i27295"></a>
+<ol>
+<li id="CHDJGFAD">
+<p>If you are modifying either column groups or key columns and you are using minimum communication for any of the updatable materialized views based on the master table, then complete the following sub-steps:</p>
+<a id="i27388"></a>
+<ol>
+<li id="CHDCGIEH">
+<p>Refresh the materialized views that are the farthest removed from the master table you are altering. By refreshing, you push all the deferred transactions from each materialized view to its master. For example, if you have three levels of materialized views, then refresh the level 3 materialized views.</p>
+</li>
+<li id="i27307">
+<p>Stop all data manipulation language (DML) changes at the materialized views you refreshed in Step <a href="#CHDCGIEH">a</a>.</p>
+</li>
+<li>
+<p>Repeat Step <a href="#CHDCGIEH">a</a> and Step <a href="#i27307">b</a> for each materialized view level until you complete these steps for the level 1 materialized views, which are based on a master table at a master site.</p>
+</li>
+</ol>
+</li>
+<li id="i27434">
+<p>If necessary, then quiesce the master group.</p>
+</li>
+<li>
+<p>Change the conflict resolution configuration at the master definition site.</p>
+</li>
+<li>
+<p>Regenerate replication support for the affected objects at the master definition site using either the <code dir="ltr">GENERATE_REPLICATION_SUPPORT</code> procedure in the <code dir="ltr">DBMS_REPCAT</code> package or the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+</li>
+<li>
+<p>If you quiesced the master group in Step <a href="#i27434">2</a>, then resume replication activity for the master group.</p>
+</li>
+<li id="i27330">
+<p>Regenerate replication support for the materialized views with the smallest level number that have not yet regenerated replication support. The current conflict resolution methods are pulled down from the immediate master during regeneration. The first time you complete this step, it is for the level 1 materialized views, the second time for the level 2 materialized views, and so on. You regenerate replication support for a materialized view using either the <code dir="ltr">GENERATE_MVIEW_SUPPORT</code> procedure in the <code dir="ltr">DBMS_REPCAT</code> package or the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+</li>
+<li id="i27331">
+<p>If you completed the sub-steps in Step <a href="#CHDJGFAD">1</a>, then allow DML changes at the materialized views with the smallest level number that do not currently allow DML changes. The first time you complete this step, it is for the level 1 materialized views, the second time for the level 2 materialized views, and so&nbsp;on.</p>
+</li>
+<li>
+<p>Repeat Step <a href="#i27330">6</a> and Step <a href="#i27331">7</a> for each level of materialized views until you complete these steps for the materialized views that are farthest removed from the master table. For example, if you have three levels of materialized views, then the last time you complete these steps it is for the level 3 materialized views.</p>
+</li>
+</ol>
+<p>This regeneration of replication support is not performed automatically. In an environment where different database administrators administer master sites and materialized view sites, the database administrator at the master sites must notify the database administrators at all of the affected materialized view sites of the changes in conflict resolution methods. Then, it is the responsibility of all of the database administrators to coordinate the previous procedure.</p>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN419" class="sect3"><a id="sthref805"></a>
+<h4 class="sect3">Column Subsetting of Updatable Materialized Views and Conflict Resolution<a id="sthref806"></a><a id="sthref807"></a><a id="sthref808"></a><a id="sthref809"></a><a id="sthref810"></a></h4>
+<p>Column subsetting enables you to exclude columns in master tables from materialized views by identifying specific columns in the <code dir="ltr">SELECT</code> statement during materialized view creation. If only a subset of the columns in a column group are included in an updatable materialized view, then do not create a conflict resolution method on this column group, unless the conflict resolution method is either discard or site priority. If the conflict resolution method is site priority, then column subsetting should only be used in single master replication environments where the master site has a higher priority number than the materialized view site.</p>
+<p>For any type of conflict resolution method other than discard and the variant of site priority described previously, the updatable materialized view sends information about changes for some of the columns in the column group but not others, causing Oracle to return an error when it tries to apply the conflict resolution method. Because discard and this variant of site priority do not depend on column information, you can use these methods along with column subsetting.</p>
+<p>For example, suppose the <code dir="ltr">employees</code> master table has a column group that contains the <code dir="ltr">employee_id</code>, <code dir="ltr">manager_id</code>, <code dir="ltr">department_id</code>, and <code dir="ltr">timestamp</code> columns. You define a latest time stamp conflict resolution method on the column group at the master site. Then, you create an updatable materialized view called <code dir="ltr">employees_mv</code> based on the <code dir="ltr">employees</code> master table, but you use column subsetting to exclude the <code dir="ltr">department_id</code> column from the materialized view. When an update is made to the <code dir="ltr">employee_id</code> or <code dir="ltr">manager_id</code> column at the materialized view, information about these changes are sent to the master site during a subsequent refresh. An error is returned at the master site because no information about the remaining column in the column group, <code dir="ltr">department_id</code>, is found when Oracle tries to apply the conflict resolution method.</p>
+<p>Keep this in mind if you are using multitier materialized views. Because the conflict resolution methods are pulled down from the master site to a master materialized view, the same rules apply to master materialized view sites and updatable materialized views based on them.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="repdt.htm#i29069">&#34;Column Subsetting with Deployment Templates&#34;</a></div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN420" class="sect3"><a id="sthref811"></a>
+<h4 class="sect3">Nested Tables and Conflict Resolution<a id="sthref812"></a><a id="sthref813"></a></h4>
+<p>For each nested table column, Oracle creates a hidden column in the table called the <code dir="ltr">NESTED_TABLE_ID</code> column. Oracle also creates a separate table called a storage table to store the elements of the nested table. The storage table stores a row for each element of the nested table for each parent table row. The storage table also contains a <code dir="ltr">NESTED_TABLE_ID</code> column, which corresponds to the parent table&#39;s <code dir="ltr">NESTED_TABLE_ID</code> column and is used to identify the elements of the nested table for a particular parent row. Nested table columns require special consideration in Advanced Replication.The underlying storage tables require as much consideration for conflict resolution as the parent table, and there are additional issues to consider.</p>
+<p>Replication handles data manipulation language (DML) statements on nested tables as separate DML statements on the parent table and storage table. When DML statements are executed on nested table columns, the actions performed by Oracle depend on the type of DML statement. The following table shows the actions performed by Oracle for each type of DML statement.</p>
+<div class="inftblhruleinformal">
+<table class="cellalignment5774" title="Actions Performed for DML Statements" summary="This table lists the actions performed by Oracle for each type of DML statement (insert, update, and delete) on a nested table column." dir="ltr">
+<thead>
+<tr class="cellalignment5765">
+<th class="cellalignment5775" id="r1c1-t6">Insert Statements</th>
+<th class="cellalignment5775" id="r1c2-t6">Delete Statements</th>
+<th class="cellalignment5775" id="r1c3-t6">Update Statements</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r2c1-t6" headers="r1c1-t6">
+<ul>
+<li>Inserts new rows into storage table (assuming nested table value is neither null nor empty).</li>
+<li>
+<p>Inserts new row into parent table, with the <code dir="ltr">NESTED_TABLE_ID</code> value referring to previously inserted storage rows.</p>
+</li>
+</ul>
+</td>
+<td class="cellalignment5771" headers="r2c1-t6 r1c2-t6">
+<ul>
+<li>Deletes any storage table rows associated with the parent table being deleted.</li>
+<li>
+<p>Deletes parent table row.</p>
+</li>
+</ul>
+</td>
+<td class="cellalignment5771" headers="r2c1-t6 r1c3-t6">
+<ul>
+<li>Inserts new rows into storage table (assuming the nested table column is set to a value that is neither null nor an empty table).</li>
+<li>
+<p>Updates the parent table row.</p>
+</li>
+<li>
+<p>Deletes old storage table rows.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblhruleinformal" -->
+<a id="i32615"></a>
+<div id="REPLN421" class="sect4">
+<h5 class="sect4">Example of Nested Table Conflicts</h5>
+<p>The following example illustrates how DML statements on nested table columns can lead to conflicts that are difficult to resolve. Following the example is information about ways to minimize conflicts.</p>
+<p>Suppose there is a university which stores information about its departments in a <code dir="ltr">department</code> table containing a nested table column that stores information about each department&#39;s courses:</p>
+<pre dir="ltr">CREATE TYPE Course AS OBJECT (
+    course_no NUMBER(4),
+    title VARCHAR2(35),
+    credits NUMBER(1));
+/
+
+CREATE TYPE CourseList AS TABLE OF Course;
+/
+
+CREATE TABLE department (
+      name VARCHAR2(20) primary key,
+      director VARCHAR2(20),
+      office VARCHAR2(20),
+      courses CourseList)
+      NESTED TABLE courses STORE AS courses_tab(
+        (PRIMARY KEY(nested_table_id,course_no)));
+</pre>
+<p>The university has campuses across the United States and uses multimaster replication to support its different locations. Each location can update the <code dir="ltr">department</code> table, which is replicated. On <code dir="ltr">univ1.example.com</code>, one of the master sites, information is inserted about the <code dir="ltr">Psychology</code> department.</p>
+<pre dir="ltr">INSERT INTO department
+      VALUES(&#39;Psychology&#39;, &#39;Irene Friedman&#39;, &#39;Fulton Hall 133&#39;,
+      CourseList(Course(1000, &#39;General Psychology&#39;, 5),
+      Course(2100, &#39;Experimental Psychology&#39;, 4),
+      Course(2200, &#39;Psychological Tests&#39;, 3),
+      Course(2250, &#39;Behavior Modification&#39;, 4),
+      Course(3540, &#39;Groups and Organizations&#39;, 3),
+      Course(3552, &#39;Human Factors in Business&#39;, 4),
+      Course(4210, &#39;Theories of Learning&#39;, 4)));
+</pre>
+<p>Advanced Replication propagates the insert to all masters.</p>
+<p>Then, change information arrives about the Psychology class offerings. That is, a class is added. The information is updated on <code dir="ltr">univ1.example.com</code>.</p>
+<pre dir="ltr">UPDATE department SET courses = CourseList(
+      Course(1000, &#39;General Psychology&#39;, 5),
+      Course(2100, &#39;Experimental Psychology&#39;, 4),
+      Course(2200, &#39;Psychological Tests&#39;, 3),
+      Course(2250, &#39;Behavior Modification&#39;, 4),
+      Course(3540, &#39;Groups and Organizations&#39;, 3),
+      Course(3552, &#39;Human Factors in Business&#39;, 4),
+      Course(4210, &#39;Theories of Learning&#39;, 4),
+      Course(4320, &#39;Cognitive Processes&#39;, 4)) 
+      WHERE name = &#39;Psychology&#39;;
+</pre>
+<p>After <code dir="ltr">univ1.example.com</code> has committed the update, but before the change is propagated to other master sites, another master site, <code dir="ltr">univ2.example.com</code>, receives information that two more class have been added, both <code dir="ltr">4320</code> and <code dir="ltr">4410</code>.</p>
+<pre dir="ltr">UPDATE department SET courses = CourseList(
+      Course(1000, &#39;General Psychology&#39;, 5),
+      Course(2100, &#39;Experimental Psychology&#39;, 4),
+      Course(2200, &#39;Psychological Tests&#39;, 3),
+      Course(2250, &#39;Behavior Modification&#39;, 4),
+      Course(3540, &#39;Groups and Organizations&#39;, 3),
+      Course(3552, &#39;Human Factors in Business&#39;, 4),
+      Course(4210, &#39;Theories of Learning&#39;, 4),
+      Course(4320, &#39;Cognitive Processes&#39;, 4),
+      Course(4410, &#39;Abnormal Psychology&#39;, 4)) 
+      WHERE name = &#39;Psychology&#39;;
+</pre>
+<p>Both the update on <code dir="ltr">univ1.example.com</code> and the update on <code dir="ltr">univ2.example.com</code> are pushed.</p>
+<p>There will be an update conflict on <code dir="ltr">department</code> table. Each user who made an update expects that it is the first update since the insert statement. But actually, the local update has taken place first, and therefore the <code dir="ltr">NESTED_TABLE_ID</code> has changed, because these are updates on the parent table. It is only updates on the nested table column (changing the storage table rows and <code dir="ltr">NESTED_TABLE_ID</code>) which are problematic. There is no problem updating other columns in the parent table.</p>
+<p>Suppose this conflict is resolved by keeping the local table update. Delete conflict resolution would be required on the storage table to ignore the missing rows, which were already deleted by the local update. The new rows inserted into the storage table, due to the update at the remote site, now have no reference in the parent table. These new storage table rows must also be dealt with. Otherwise, they are orphaned. The storage table would grow with course rows which are not accessible from the department table.</p>
+<p>Resolving conflicts by manipulating the storage table rows while updating the parent table is very difficult with two master sites in a multimaster replication environment and becomes nearly impossible as the number of master sites increases. If this type of update is necessary, then it might be best to not define any conflict resolution methods on the nested table and resolve conflicts manually. Incorrect conflict resolution could lead to divergence. That is, tables on different masters might no longer match.</p>
+</div>
+<!-- class="sect4" -->
+<div id="REPLN422" class="sect4"><a id="sthref814"></a>
+<h5 class="sect4">Recommendations for Avoiding Problematic Updates</h5>
+<p>The following recommendations enable you to avoid the problematic updates described in the preceding section:</p>
+<ul>
+<li>
+<p>Use a foreign key constraint, initially deferred, on the nested table. This constraint prevents dangling rows in the storage table. The following is an example of such a foreign key constraint:</p>
+<pre dir="ltr">ALTER TABLE courses_tab add CONSTRAINT courses_fk 
+  FOREIGN KEY(NESTED_TABLE_ID) REFERENCES department(courses) 
+  INITIALLY DEFERRED;
+</pre></li>
+<li>
+<p>Ensure that all inserts on the parent table insert an empty nested table. Do not use a null nested table value. This practice helps to create a reusable <code dir="ltr">NESTED_TABLE_ID</code>. The following is an example of an insert that included an empty nested table:</p>
+<pre dir="ltr">INSERT INTO department (name, director, office, courses) 
+   VALUES(&#39;Psychology&#39;, &#39;Irene Friedman&#39;, &#39;Fulton Hall 133&#39;, CourseList());
+</pre></li>
+<li>
+<p>Ensure that all inserts, deletes, and updates are performed directly on the nested table rather than through DML on the parent table. This practice helps to reuse the present <code dir="ltr">NESTED_TABLE_ID</code> value.</p>
+<p>The following is an example of deleting rows directly from a nested table:</p>
+<pre dir="ltr">DELETE FROM TABLE 
+   (SELECT courses FROM department WHERE name = &#39;Psychology&#39;);
+</pre>
+<p>Consider an example where the following rows are inserted directly into the nested table on <code dir="ltr">univ1.example.com</code>:</p>
+<pre dir="ltr">INSERT INTO TABLE 
+   (SELECT courses FROM department WHERE name = &#39;Psychology&#39;) 
+   VALUES (Course(5000, &#39;Social Psychology&#39;, 5));
+
+INSERT INTO TABLE 
+   (SELECT courses FROM department WHERE name = &#39;Psychology&#39;) 
+   VALUES (Course(5100, &#39;Psychology of Personality&#39;, 4));
+</pre>
+<p>Then, the following rows are inserted directly into the nested table on <code dir="ltr">univ2.example.com</code> before the preceding inserts on univ1.example.com are pushed:</p>
+<pre dir="ltr">INSERT INTO TABLE 
+   (SELECT courses FROM department WHERE name = &#39;Psychology&#39;) 
+   VALUES (Course(5000, &#39;Social Psychology&#39;, 5));
+
+INSERT INTO TABLE 
+   (SELECT courses FROM department WHERE name = &#39;Psychology&#39;) 
+   VALUES (Course(5100, &#39;Psychology of Personality&#39;, 4));
+
+INSERT INTO TABLE 
+   (SELECT courses FROM department WHERE name = &#39;Psychology&#39;) 
+   VALUES (Course(5500, &#39;Cognitive Neuroscience&#39;, 5));
+</pre>
+<p>Here, primary key conflicts will occur on the inserted rows in the storage table for courses 5000 and 5100), but a conflict resolution on the storage table which allows the inserts from one site to fail should provide the proper results. However, these inserts do not result in the more complicated problem involving multiple tables described in <a href="#i32615">&#34;Example of Nested Table Conflicts&#34;</a>, but the <code dir="ltr">NESTED_TABLE_ID</code> value is not lost, because this value has not changed.</p>
+</li>
+<li>
+<p>Consider using a trigger on the parent table that prevents inserts and updates that include manipulation of the nested table column. The following is an example of such a trigger:</p>
+<pre dir="ltr">CREATE OR REPLACE TRIGGER depart_trig
+  AFTER INSERT OR UPDATE ON department
+  FOR EACH ROW
+  DECLARE
+  new_ntid raw(100);
+  old_ntid raw(100);
+  BEGIN
+-- obtain the nested table ids
+  SELECT sys_op_tosetid(:new.courses) INTO new_ntid from dual;
+  SELECT sys_op_tosetid(:old.courses) INTO old_ntid from dual;
+  IF INSERTING THEN
+-- raise error on insert of a null nested table column
+    IF :new.courses IS NULL THEN
+      raise_application_error(-20011, &#39;inserting null nested table ref&#39;);
+    END IF;
+-- raise error if new rows are inserted in the storage table
+-- this is not strictly necessary, but it does enforce DML access
+-- semantics of separate DMLS on parent table and storage table
+    IF :new.courses.count != 0 THEN
+      raise_application_error(-20012, 
+      &#39;inserting rows into storage table while inserting parent table row&#39;);
+    END IF;
+  ELSE
+-- raise error if update has caused the NESTED_TABLE_ID to change
+    IF new_ntid != old_ntid THEN
+      raise_application_error(-20013, 
+        &#39;updating storage table reference while updating parent table row&#39;);
+    END IF;
+  END IF;
+END;
+/
+</pre></li>
+</ul>
+<p>These recommendations continue to apply with multilevel nesting, where the storage table row becomes a parent to another storage table&#39;s rows. All of these recommendations are good strategies at each level of nesting.</p>
+</div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CHDEFDDI"></a>
+<div id="REPLN423" class="sect2">
+<h3 class="sect2">Techniques for Avoiding Conflicts<a id="sthref815"></a><a id="sthref816"></a></h3>
+<p>Although Oracle provides powerful methods for resolving data conflicts, one of your highest priorities when designing a replicated database and front-end application should be to avoid data conflicts. The next few sections briefly suggest several techniques that you can use to avoid some or all replication conflicts.</p>
+<a id="i30429"></a>
+<div id="REPLN424" class="sect3">
+<h4 class="sect3">Use Column Groups</h4>
+<p>Column groups can help you avoid conflicts even if you do not apply any conflict resolution methods to the column groups. When your replicated table contains multiple column groups, each group is viewed independently when analyzing updates for conflicts.</p>
+<p>For example, consider a replicated table with column group <code dir="ltr">a_cg</code> and column group <code dir="ltr">b_cg</code>. Column group <code dir="ltr">a_cg</code> contains the following columns: <code dir="ltr">a1</code>, <code dir="ltr">a2</code>, and <code dir="ltr">a3</code>. Column group <code dir="ltr">b_cg</code> contains the following columns: <code dir="ltr">b1</code>, <code dir="ltr">b2</code>, and <code dir="ltr">b3</code>.</p>
+<p>The following updates occur at replication sites <code dir="ltr">sf.example.com</code> and <code dir="ltr">la.example.com</code>:</p>
+<ul>
+<li>
+<p>User <code dir="ltr">wsmith</code> updates column <code dir="ltr">a1</code> in a row at <code dir="ltr">sf.example.com</code>.</p>
+</li>
+<li>
+<p>At the same time, user <code dir="ltr">mroth</code> updates column <code dir="ltr">b2</code> in the same row at <code dir="ltr">la.example.com</code>.</p>
+</li>
+</ul>
+<p>In this case, no conflicts result because Oracle analyzes the updates separately in column groups <code dir="ltr">a_cg</code> and <code dir="ltr">b_cg</code>. If, however, column groups <code dir="ltr">a_cg</code> and <code dir="ltr">b_cg</code> did not exist, then all of the columns in the table would be in the same column group, and a conflict would have resulted. Also, with the column groups in place, if user <code dir="ltr">mroth</code> had updated column <code dir="ltr">a3</code> instead of column <code dir="ltr">b2</code>, then a conflict would have resulted, because both <code dir="ltr">a1</code> and <code dir="ltr">a3</code> are in the <code dir="ltr">a_cg</code> column group.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="#i30445">&#34;Column Groups&#34;</a> for more information about column groups</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN425" class="sect3"><a id="sthref817"></a>
+<h4 class="sect3">Use Primary Site and Dynamic Site Ownership Data Models<a id="sthref818"></a><a id="sthref819"></a><a id="sthref820"></a><a id="sthref821"></a></h4>
+<p>One way that you can avoid the possibility of replication conflicts is to limit the number of sites in the system with simultaneous update access to the replicated data. Two replicated data ownership models support this approach: primary site ownership and dynamic site ownership.</p>
+<div id="REPLN426" class="sect4"><a id="sthref822"></a>
+<h5 class="sect4">Primary Site Ownership</h5>
+<p>Primary ownership is the replicated data model that the read-only replication environments support. Primary ownership prevents all replication conflicts, because only a single server permits update access to a set of replicated data.</p>
+<p>Rather than control the ownership of data at the table level, applications can employ row and column subsetting to establish more granular static ownership of data. For example, applications might have update access to specific columns or rows in a replicated table on a site-by-site basis.</p>
+</div>
+<!-- class="sect4" -->
+<div id="REPLN427" class="sect4"><a id="sthref823"></a>
+<h5 class="sect4">Dynamic Site Ownership</h5>
+<p>The dynamic ownership replicated data model is less restrictive than primary site ownership. With dynamic ownership, capability to update a data replica moves from site to site, still ensuring that only one site provides update access to specific data at any time. A workflow system clearly illustrates the concept of dynamic ownership. For example, related departmental applications can read the status code of a product order, for example, <code dir="ltr">enterable</code>, <code dir="ltr">shippable</code>, <code dir="ltr">billable</code>, to determine when they can and cannot update the order.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA110" href="../REPMA/rarconflictres.htm#REPMA110"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> for more information about using dynamic ownership data models</div>
+</div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" -->
+<div id="REPLN428" class="sect3"><a id="sthref824"></a>
+<h4 class="sect3">Avoiding Specific Types of Conflicts</h4>
+<p>When both primary site ownership and dynamic ownership data models are too restrictive for your application requirements, you must use a shared ownership data model. Even so, typically you can use some simple strategies to avoid specific types of conflicts.</p>
+<div id="REPLN429" class="sect4"><a id="sthref825"></a>
+<h5 class="sect4">Avoiding Uniqueness Conflicts<a id="sthref826"></a></h5>
+<p>It is quite easy to configure a replication environment to prevent the possibility of uniqueness conflicts. For example, you can create sequences at each site so that each sequence at each site generates a mutually exclusive set of sequence numbers. This solution, however, can become problematic as the number of sites increase or the number of entries in the replicated table grows.</p>
+<p>Alternatively, you can append a unique site identifier as part of a composite primary key.</p>
+<p>Finally, you can select a globally unique value using the <code dir="ltr">SYS_GUID</code> function. Using the selected value as the primary key (or unique) value globally avoids uniqueness conflicts.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Sequences are not valid replication object types and you must therefore create the sequence at each site.</div>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="repmaster.htm#i41180">&#34;Alternatives to Replicating Sequences&#34;</a> for more information about sequences and <a class="olink SQLRF06120" href="../SQLRF/functions202.htm#SQLRF06120"><span class="italic">Oracle Database SQL Language Reference</span></a> for more information about the <code dir="ltr">SYS_GUID</code> function</div>
+</div>
+<!-- class="sect4" -->
+<a id="i22340"></a>
+<div id="REPLN430" class="sect4">
+<h5 class="sect4">Avoiding Delete Conflicts<a id="sthref827"></a></h5>
+<p>Always avoid delete conflicts replicated data environments. In general, applications that operate within an asynchronous, shared ownership data model should not delete rows using <code dir="ltr">DELETE</code> statements. Instead, applications should mark rows for deletion and then configure the system to periodically purge logically deleted rows using procedural replication.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+The instructions for creating conflict avoidance methods for delete conflicts in the <a class="olink REPMA111" href="../REPMA/rarconflictres.htm#REPMA111"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to prepare a table for delete avoidance and build a replicated procedure to purge marked rows</div>
+</div>
+<!-- class="sect4" -->
+<div id="REPLN431" class="sect4"><a id="sthref828"></a>
+<h5 class="sect4">Avoiding Update Conflicts<a id="sthref829"></a></h5>
+<p>After trying to eliminate the possibility of uniqueness and delete conflicts in a replication system, you should also try to limit the number of update conflicts that are possible. However, in a shared ownership data model, update conflicts cannot be avoided in all cases. If you cannot avoid all update conflicts, then you must understand exactly what types of replication conflicts are possible and then configure the system to resolve conflicts when they occur.</p>
+</div>
+<!-- class="sect4" -->
+<div id="REPLN432" class="sect4"><a id="sthref830"></a>
+<h5 class="sect4">Avoiding Ordering Conflicts<a id="sthref831"></a></h5>
+<p>Whenever possible, avoid or automatically resolve ordering conflicts. For example, select conflict resolution methods that ensure convergence in multimaster configurations where ordering conflicts are possible.</p>
+<p>The example in <a href="#g48671">Table 5-1</a> shows how having three master sites can lead to ordering conflicts. Master Site A has priority 30; Master Site B has priority 25; and Master Site C has priority 10; <span class="italic">x</span> is a column of a particular row in a column group that is assigned the <span class="glossaryterm">site-priority</span> conflict resolution method. The highest priority is given to the site with the highest priority value. Priority values can be any Oracle number and do not have to be consecutive integers.</p>
+<div id="REPLN433" class="tblformalwide">
+<p class="titleintable"><a id="sthref832"></a><a id="g48671"></a>Table 5-1 Example: Ordering Conflicts with Site Priority Conflict Resolution</p>
+<table class="cellalignment5774" title="Example: Ordering Conflicts with Site Priority Conflict Resolution" summary="This table lists different points in time and, for each point in time, an action at one or all master sites and the value of column x at each master site." dir="ltr">
+<thead>
+<tr class="cellalignment5765">
+<th class="cellalignment5775" id="r1c1-t12"><span class="bold">Time</span></th>
+<th class="cellalignment5775" id="r1c2-t12">Action</th>
+<th class="cellalignment5775" id="r1c3-t12">Site A</th>
+<th class="cellalignment5775" id="r1c4-t12">Site B</th>
+<th class="cellalignment5775" id="r1c5-t12">Site C</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r2c1-t12" headers="r1c1-t12">
+<p>1</p>
+</td>
+<td class="cellalignment5771" headers="r2c1-t12 r1c2-t12">
+<p>All sites are up and agree that x = 2.</p>
+</td>
+<td class="cellalignment5771" headers="r2c1-t12 r1c3-t12">
+<p>2</p>
+</td>
+<td class="cellalignment5771" headers="r2c1-t12 r1c4-t12">
+<p>2</p>
+</td>
+<td class="cellalignment5771" headers="r2c1-t12 r1c5-t12">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r3c1-t12" headers="r1c1-t12">
+<p>2</p>
+</td>
+<td class="cellalignment5771" headers="r3c1-t12 r1c2-t12">
+<p>Site A updates x = 5.</p>
+</td>
+<td class="cellalignment5771" headers="r3c1-t12 r1c3-t12">
+<p>5</p>
+</td>
+<td class="cellalignment5771" headers="r3c1-t12 r1c4-t12">
+<p>2</p>
+</td>
+<td class="cellalignment5771" headers="r3c1-t12 r1c5-t12">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r4c1-t12" headers="r1c1-t12">
+<p>3</p>
+</td>
+<td class="cellalignment5771" headers="r4c1-t12 r1c2-t12">
+<p>Site C becomes unavailable.</p>
+</td>
+<td class="cellalignment5771" headers="r4c1-t12 r1c3-t12">
+<p>5</p>
+</td>
+<td class="cellalignment5771" headers="r4c1-t12 r1c4-t12">
+<p>2</p>
+</td>
+<td class="cellalignment5771" headers="r4c1-t12 r1c5-t12">
+<p>down</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r5c1-t12" headers="r1c1-t12">
+<p>4</p>
+</td>
+<td class="cellalignment5771" headers="r5c1-t12 r1c2-t12">
+<p>Site A pushes update to Site B.<br/>
+Site A and Site B agree that x = 5.<br/>
+<br/>
+Site C is still unavailable.<br/>
+The update transaction remains in the queue at Site A.</p>
+</td>
+<td class="cellalignment5771" headers="r5c1-t12 r1c3-t12">
+<p>5</p>
+</td>
+<td class="cellalignment5771" headers="r5c1-t12 r1c4-t12">
+<p>5</p>
+</td>
+<td class="cellalignment5771" headers="r5c1-t12 r1c5-t12">
+<p>down</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r6c1-t12" headers="r1c1-t12">
+<p>5</p>
+</td>
+<td class="cellalignment5771" headers="r6c1-t12 r1c2-t12">
+<p>Site C becomes available with x = 2.<br/>
+Sites A and B agree that x = 5.</p>
+</td>
+<td class="cellalignment5771" headers="r6c1-t12 r1c3-t12">
+<p>5</p>
+</td>
+<td class="cellalignment5771" headers="r6c1-t12 r1c4-t12">
+<p>5</p>
+</td>
+<td class="cellalignment5771" headers="r6c1-t12 r1c5-t12">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r7c1-t12" headers="r1c1-t12">
+<p>6</p>
+</td>
+<td class="cellalignment5771" headers="r7c1-t12 r1c2-t12">
+<p>Site B updates x = 5 to x = 7.</p>
+</td>
+<td class="cellalignment5771" headers="r7c1-t12 r1c3-t12">
+<p>5</p>
+</td>
+<td class="cellalignment5771" headers="r7c1-t12 r1c4-t12">
+<p>7</p>
+</td>
+<td class="cellalignment5771" headers="r7c1-t12 r1c5-t12">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r8c1-t12" headers="r1c1-t12">
+<p>7</p>
+</td>
+<td class="cellalignment5771" headers="r8c1-t12 r1c2-t12">
+<p>Site B pushes the transaction to Site A.<br/>
+Sites A and B agree that x = 7.<br/>
+Site C still says x = 2.</p>
+</td>
+<td class="cellalignment5771" headers="r8c1-t12 r1c3-t12">
+<p>7</p>
+</td>
+<td class="cellalignment5771" headers="r8c1-t12 r1c4-t12">
+<p>7</p>
+</td>
+<td class="cellalignment5771" headers="r8c1-t12 r1c5-t12">
+<p>2</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r9c1-t12" headers="r1c1-t12">
+<p>8</p>
+</td>
+<td class="cellalignment5771" headers="r9c1-t12 r1c2-t12">
+<p>Site B pushes the transaction to Site C.<br/>
+Site C says the old value of x = 2;<br/>
+Site B says the old value of x = 5.<br/>
+Oracle detects a conflict and resolves it by applying the update from Site B, which has a higher priority level (25) than Site C (10).<br/>
+All site agree that x = 7.</p>
+</td>
+<td class="cellalignment5771" headers="r9c1-t12 r1c3-t12">
+<p>7</p>
+</td>
+<td class="cellalignment5771" headers="r9c1-t12 r1c4-t12">
+<p>7</p>
+</td>
+<td class="cellalignment5771" headers="r9c1-t12 r1c5-t12">
+<p>7</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r10c1-t12" headers="r1c1-t12">
+<p>9</p>
+</td>
+<td class="cellalignment5771" headers="r10c1-t12 r1c2-t12">
+<p>Site A successfully pushes its transaction (x = 5) to Site C.<br/>
+Oracle detects a conflict because the current value at<br/>
+Site C (x = 7) does not match the old value at Site A (x = 2).<br/>
+<br/>
+Site A has a higher priority (30) than Site C (10).<br/>
+Oracle resolves the conflict by applying the outdated update from Site A (x = 5).<br/>
+<br/>
+Because of this ordering conflict, the sites no longer converge.</p>
+</td>
+<td class="cellalignment5771" headers="r10c1-t12 r1c3-t12">
+<p>7</p>
+</td>
+<td class="cellalignment5771" headers="r10c1-t12 r1c4-t12">
+<p>7</p>
+</td>
+<td class="cellalignment5771" headers="r10c1-t12 r1c5-t12">
+<p>5</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformalwide" --></div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="i23857"></a>
+<div id="REPLN434" class="sect1">
+<h2 class="sect1">Conflict Resolution Architecture<a id="sthref833"></a></h2>
+<p>Very few architectural mechanisms and processes are visible when implementing conflict resolution into your replication environment. This section describes the few supporting mechanisms involved in conflict resolution and describes different aspects of Oracle&#39;s prebuilt conflict resolution methods.</p>
+<p>This section contains these topics:</p>
+<ul>
+<li>
+<p><a href="#CHDEEBDE">Support Mechanisms</a></p>
+</li>
+<li>
+<p><a href="#CHDGCDJB">Common Update Conflict Resolution Methods</a></p>
+</li>
+<li>
+<p><a href="#CHDBCGIJ">Additional Update Conflicts Resolution Methods</a></p>
+</li>
+<li>
+<p><a href="#CHDIIDBG">Uniqueness Conflicts Resolution Methods</a></p>
+</li>
+<li>
+<p><a href="#CHDDFDGF">Delete Conflict Resolution Methods</a></p>
+</li>
+<li>
+<p><a href="#i24725">Send and Compare Old Values</a></p>
+</li>
+</ul>
+<a id="CHDEEBDE"></a>
+<div id="REPLN435" class="sect2">
+<h3 class="sect2">Support Mechanisms</h3>
+<p>The most important mechanism involved in Oracle conflict resolution is the column group because it is the basis for all update conflict detection and resolution. Additionally, the error queue can provide you with important information to monitor the conflict detection activity of your replication environment.</p>
+<a id="i30445"></a>
+<div id="REPLN436" class="sect3">
+<h4 class="sect3">Column Groups<a id="sthref834"></a><a id="sthref835"></a><a id="sthref836"></a></h4>
+<p>Oracle uses column groups to detect and resolve update conflicts. A column group is a logical grouping of one or more columns in a replicated table. Every column in a replicated table is part of a single column group. When configuring replicated tables at the master definition site, you can create column groups and then assign columns and corresponding conflict resolution methods to each group.</p>
+<p>Column groups have the following characteristics:</p>
+<ul>
+<li>
+<p>A column can belong only to one column group.</p>
+</li>
+<li>
+<p>A column group can consist of one or more columns of a table.</p>
+</li>
+<li>
+<p>Conflict resolution is applicable only to columns in a column group.</p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="#i30429">&#34;Use Column Groups&#34;</a> for information about using column groups to avoid conflicts</div>
+<div id="REPLN437" class="sect4"><a id="sthref837"></a>
+<h5 class="sect4">Ensuring Data Integrity with Multiple Column Groups<a id="sthref838"></a><a id="sthref839"></a></h5>
+<p>Having column groups enables you to designate different methods of resolving conflicts for different types of data. For example, numeric data is often suited for an arithmetical resolution method, and character data is often suited for a time stamp resolution method. However, when selecting columns for a column group, it is important to group columns wisely. If two or more columns in a table must remain consistent with respect to each other, then place the columns within the same column group to ensure data integrity.</p>
+<p>For example, if the postal code column in a customer table uses one resolution method while the city column uses a different resolution method, then the sites could converge on a postal code that does not match the city. Therefore, all components of an address should typically be within a single column group so that conflict resolution is applied to the address as a unit.</p>
+</div>
+<!-- class="sect4" -->
+<div id="REPLN438" class="sect4"><a id="sthref840"></a>
+<h5 class="sect4">Shadow Column Groups<a id="sthref841"></a><a id="sthref842"></a><a id="sthref843"></a><a id="sthref844"></a></h5>
+<p>By default, every replicated table has a shadow column group. The shadow column group of a table contains all columns that are not within a specific column group. You <span class="italic">cannot</span> assign conflict resolution methods to a table&#39;s shadow group. Therefore, ensure that to include a column in a column group when conflict resolution is necessary for the column. Oracle detects conflicts that involve columns in the shadow column group but does not attempt to apply any conflict resolution methods to resolve these conflicts.</p>
+</div>
+<!-- class="sect4" -->
+<div id="REPLN439" class="sect4"><a id="sthref845"></a>
+<h5 class="sect4">Column Objects and Column Groups<a id="sthref846"></a><a id="sthref847"></a><a id="sthref848"></a><a id="sthref849"></a></h5>
+<p>An Oracle object based on a user-defined type that occupies a single column in a table is a column object. A column object cannot span column groups. That is, given a column group and a column object, either the column object and all of its attributes must be within the column group, or the column object and all of its attributes must be excluded from a column group.</p>
+<p>Oracle&#39;s prebuilt conflict resolution methods cannot resolve conflicts based on undefined column object attribute values. If a column object is <code dir="ltr">NULL</code>, then its attributes are undefined.</p>
+</div>
+<!-- class="sect4" -->
+<div id="REPLN440" class="sect4"><a id="sthref850"></a>
+<h5 class="sect4">Object Tables and Column Groups<a id="sthref851"></a><a id="sthref852"></a><a id="sthref853"></a><a id="sthref854"></a></h5>
+<p>An object table is a special kind of table in which each row represents an object based on a user-defined type. You can specify column groups that include a subset of the columns in an object table.</p>
+</div>
+<!-- class="sect4" -->
+<div id="REPLN441" class="sect4"><a id="sthref855"></a>
+<h5 class="sect4">Nested Tables and Column Groups<a id="sthref856"></a><a id="sthref857"></a><a id="sthref858"></a><a id="sthref859"></a></h5>
+<p>A nested table&#39;s storage table is treated as an independent table in conflict resolution. Therefore, you can create a column group based on a subset of the columns in a storage table.</p>
+</div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" -->
+<div id="REPLN442" class="sect3"><a id="sthref860"></a>
+<h4 class="sect3">Error Queue<a id="sthref861"></a><a id="sthref862"></a><a id="sthref863"></a></h4>
+<p>If a conflict resolution method fails to resolve a data conflict, or if you have not defined any conflict resolution methods, then the error queue contains information about the data conflict.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="repmaster.htm#i34583">&#34;Error Queue&#34;</a> for more information about the error queue</div>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CHDGCDJB"></a>
+<div id="REPLN443" class="sect2">
+<h3 class="sect2">Common Update Conflict Resolution Methods<a id="sthref864"></a></h3>
+<p>Although Oracle provides eight prebuilt update conflict resolution methods, the latest time stamp and the overwrite conflict resolution methods are the most commonly implemented resolution methods.</p>
+<p>These methods are the most common because they are easy to use and, in the proper environments, can guarantee data convergence. The latest time stamp and the overwrite conflict resolution methods are described in detail in the following two sections.</p>
+<div id="REPLN444" class="tblformal">
+<p class="titleintable"><a id="sthref865"></a><a id="sthref866"></a>Table 5-2 Convergence Properties of Common Update Conflict Resolution Methods</p>
+<table class="cellalignment5776" title="Convergence Properties of Common Update Conflict Resolution Methods" summary="This table lists conflict resolution methods and whether each method converges with multiple master sites." dir="ltr">
+<thead>
+<tr class="cellalignment5765">
+<th class="cellalignment5775" id="r1c1-t15">Resolution Methods</th>
+<th class="cellalignment5775" id="r1c2-t15">Convergence with Multiple Master Sites</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r2c1-t15" headers="r1c1-t15">
+<p>Latest time stamp</p>
+</td>
+<td class="cellalignment5771" headers="r2c1-t15 r1c2-t15">
+<p>YES<br/>
+(with backup method)</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r3c1-t15" headers="r1c1-t15">
+<p>Overwrite</p>
+</td>
+<td class="cellalignment5771" headers="r3c1-t15 r1c2-t15">
+<p>NO</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" -->
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+All of Oracle&#39;s prebuilt conflict resolution methods provide convergence in an environment with a single master site that has one or more materialized view sites.</div>
+<div id="REPLN445" class="sect3"><a id="sthref867"></a>
+<h4 class="sect3">Latest Timestamp<span class="italic"><a id="sthref868"></a><a id="sthref869"></a></span></h4>
+<p>The <span class="bold">latest time stamp</span> method resolves a conflict based on the most recent update, as identified by the time stamp of when the update occurred.</p>
+<p>The following example demonstrates an appropriate application of the latest time stamp update conflict resolution method:</p>
+<ol>
+<li>
+<p>A customer in Phoenix calls the local salesperson and updates her address information.</p>
+</li>
+<li>
+<p>After hanging up the phone, the customer realizes that she gave the local salesperson the wrong postal code.</p>
+</li>
+<li>
+<p>The customer tries to call the local salesperson with the correct postal code, but the salesperson cannot be reached.</p>
+</li>
+<li>
+<p>The customer calls the headquarters, which is located in New York. The New York site, rather than the Phoenix site, correctly updates the address information.</p>
+</li>
+<li>
+<p>The network connecting New York headquarters with the local Phoenix sales site goes down temporarily.</p>
+</li>
+<li>
+<p>When the New York/Phoenix network connection comes back up, Oracle sees two updates for the same address, and detects a conflict at each site.</p>
+</li>
+<li>
+<p>Using the latest time stamp method, Oracle selects the most recent update, and applies the address with the correct postal code.</p>
+</li>
+</ol>
+<p><a id="REPLN446"></a><span class="subhead3">Target Environments&nbsp;</span>The latest time stamp conflict resolution method works to converge replication environments with two or more master sites. Because time is always increasing, it is one of the few conflict resolution methods that can guarantee data convergence with multiple master sites. This resolution also works well with any number of materialized views.</p>
+<p><a id="REPLN447"></a><span class="subhead3">Support Mechanisms&nbsp;</span>To use the time stamp method, you must designate a column in the replicated table of type <code dir="ltr">DATE</code>. When an application updates any column in a column group, the application must also update the value of the designated time stamp column with the local <code dir="ltr">SYSDATE</code>. For a change applied from another site, the time stamp value should be set to the time stamp value from the originating site.</p>
+<div class="infobox-note">
+<p class="notep1"><span class="bold">Note</span>:</p>
+<a id="sthref870"></a><a id="sthref871"></a>When you use a time stamp conflict resolution method, you should designate a backup method, such as site priority, to be called if two sites have the same time stamp.</div>
+<a id="i34314"></a>
+<div id="REPLN448" class="sect4">
+<h5 class="sect4">Timestamp Configuration Issues</h5>
+<p>When you use time stamp resolution, you must carefully consider how time is measured on the different sites managing replicated data. For example, if a replication environment crosses time zones, then applications that use the system should convert all time stamps to a common time zone such as Greenwich Mean Time (GMT). Furthermore, if two sites in a system do not have their system clocks synchronized reasonably well, then time stamp comparisons might not be accurate enough to satisfy application requirements.</p>
+<p>You can maintain time stamp columns if you use the <code dir="ltr">EARLIEST</code> or <code dir="ltr">LATEST</code> time stamp update conflict resolution methods in the following ways:</p>
+<ul>
+<li>
+<p>Each application can include logic to synchronize time stamps.</p>
+</li>
+<li>
+<p>You can create a trigger for a replicated table to synchronize time stamps automatically for all applications.</p>
+</li>
+</ul>
+<p>A clock counts seconds as an increasing value. If you have properly designed your time-stamping mechanism and established a backup method in case two sites have the same time stamp, then the latest time stamp method (like the maximum value method) guarantees convergence. The earliest time stamp method, however, <span class="italic">cannot</span> guarantee convergence for more than one master site.</p>
+<p><a id="REPLN449"></a><span class="subhead3"><span class="bold">Implement Latest Timestamp</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define a latest time stamp conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA112" href="../REPMA/rarconflictres.htm#REPMA112"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" -->
+<a id="i23363"></a>
+<div id="REPLN450" class="sect3">
+<h4 class="sect3">Overwrite<a id="sthref872"></a><a id="sthref873"></a></h4>
+<p>The <span class="bold">overwrite</span> method replaces the current value at the destination site with the new value from the originating site, and therefore can never guarantee convergence with more than one master site. This method is designed to be used by a single master site and multiple materialized view sites. You can also use this form of conflict resolution with multiple master sites, though it does not guarantee data convergence and should be used with some form of a user-defined notification facility.</p>
+<p>For example, if you have a single master site that you expect to be used primarily for queries, with all updates being performed at the materialized view sites, then you might select the overwrite method. The overwrite method is also useful if:</p>
+<ul>
+<li>
+<p>Your primary concern is data convergence.</p>
+</li>
+<li>
+<p>You have a single master site.</p>
+</li>
+<li>
+<p>No particular business rule exists for selecting one update over the other.</p>
+</li>
+<li>
+<p>You have multiple master sites and you supply a notification facility to notify the person who ensures that data is correctly applied, instead of logging the conflict in the <code dir="ltr">DEFERROR</code> data dictionary view and leaving the resolution to your local database administrator.</p>
+</li>
+</ul>
+<p><a id="REPLN451"></a><span class="subhead3">Target Environments&nbsp;</span>The overwrite conflict resolution method ensures data convergence for replication environments that have a single master site with any number of materialized views. With this in mind, the overwrite conflict resolution method is ideal for mass deployment environments.</p>
+<p>If a conflict is detected, then the value originating from the materialized view site is used, which means that priority is given to the most recently refreshed materialized views.</p>
+<p><a id="REPLN452"></a><span class="subhead3">Support Mechanisms&nbsp;</span>No additional support mechanisms are required for the overwrite conflict resolution method.</p>
+<p><a id="REPLN453"></a><span class="subhead3"><span class="bold">Implement Overwrite</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define an overwrite conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA113" href="../REPMA/rarconflictres.htm#REPMA113"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CHDBCGIJ"></a>
+<div id="REPLN454" class="sect2">
+<h3 class="sect2">Additional Update Conflicts Resolution Methods<a id="sthref874"></a></h3>
+<p>If the latest time stamp or the overwrite conflict resolution methods do not meet your needs to resolve data conflicts that are encountered in your replication environment, then Oracle offers six additional prebuilt update conflict resolution methods.</p>
+<div id="REPLN455" class="tblformal">
+<p class="titleintable"><a id="sthref875"></a><a id="sthref876"></a>Table 5-3 Convergence Properties of Additional Update Conflict Resolution Methods</p>
+<table class="cellalignment5776" title="Convergence Properties of Additional Update Conflict Resolution Methods" summary="This table lists conflict resolution methods and whether each method converges with multiple master sites." dir="ltr">
+<thead>
+<tr class="cellalignment5765">
+<th class="cellalignment5775" id="r1c1-t20">Resolution Methods</th>
+<th class="cellalignment5775" id="r1c2-t20">Convergence with Multiple Master Sites</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r2c1-t20" headers="r1c1-t20">
+<p>Additive</p>
+</td>
+<td class="cellalignment5771" headers="r2c1-t20 r1c2-t20">
+<p>YES</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r3c1-t20" headers="r1c1-t20">
+<p>Average</p>
+</td>
+<td class="cellalignment5771" headers="r3c1-t20 r1c2-t20">
+<p>NO</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r4c1-t20" headers="r1c1-t20">
+<p>Discard</p>
+</td>
+<td class="cellalignment5771" headers="r4c1-t20 r1c2-t20">
+<p>NO</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r5c1-t20" headers="r1c1-t20">
+<p>Earliest time stamp</p>
+</td>
+<td class="cellalignment5771" headers="r5c1-t20 r1c2-t20">
+<p>NO</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r6c1-t20" headers="r1c1-t20">
+<p>Maximum</p>
+</td>
+<td class="cellalignment5771" headers="r6c1-t20 r1c2-t20">
+<p>YES<br/>
+(column values must always increase)</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r7c1-t20" headers="r1c1-t20">
+<p>Minimum</p>
+</td>
+<td class="cellalignment5771" headers="r7c1-t20 r1c2-t20">
+<p>YES<br/>
+(column values must always decrease)</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r8c1-t20" headers="r1c1-t20">
+<p>Priority group</p>
+</td>
+<td class="cellalignment5771" headers="r8c1-t20 r1c2-t20">
+<p>YES<br/>
+(with ordered update values)</p>
+</td>
+</tr>
+<tr class="cellalignment5765">
+<td class="cellalignment5771" id="r9c1-t20" headers="r1c1-t20">
+<p>Site priority</p>
+</td>
+<td class="cellalignment5771" headers="r9c1-t20 r1c2-t20">
+<p>NO</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" -->
+<a id="i23389"></a>
+<div id="REPLN456" class="sect3">
+<h4 class="sect3">Additive<a id="sthref877"></a><a id="sthref878"></a></h4>
+<p>The <span class="bold">additive</span> method works with column groups consisting of a single numeric column only. If a conflict arises, instead of choosing one value over another, then the difference of the two values is added to the current value.</p>
+<p>The additive method adds the difference between the old and new values at the originating site to the current value at the destination site according to this formula:</p>
+<pre dir="ltr">current value = current value + (new value - old value)
+</pre>
+<p>The additive conflict resolution method provides convergence for any number of master sites and materialized view sites.</p>
+<p><a id="REPLN457"></a><span class="subhead3">Target Environments&nbsp;</span>The additive conflict resolution method is designed to conserve data rather than choose the most appropriate data. This method might be useful in a financial environment where deposits and withdrawals happen so frequently that conflicts can arise; with a balance, it is important to conserve data rather than choose one value over another.</p>
+<p><a id="REPLN458"></a><span class="subhead3">Support Mechanisms&nbsp;</span>No additional support mechanisms are required for the additive conflict resolution method.</p>
+<p><a id="REPLN459"></a><span class="subhead3"><span class="bold">Implement Additive</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define an additive conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA114" href="../REPMA/rarconflictres.htm#REPMA114"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN460" class="sect3"><a id="sthref879"></a>
+<h4 class="sect3">Average<a id="sthref880"></a><a id="sthref881"></a></h4>
+<p>Like the additive method, the <span class="glossaryterm">average</span> method works with column groups consisting of a single numeric column only. Instead of adding the difference to the current value, the average method resolves the conflict by computing the average of the current and the new value.</p>
+<p>The average conflict resolution method averages the new column value from the originating site with the current value at the destination site.</p>
+<pre dir="ltr">current value = (current value + new value)/2
+</pre>
+<pre dir="ltr"></pre>
+<p>The average method cannot guarantee convergence if your replication environment has more than one master site.</p>
+<p><a id="REPLN461"></a><span class="subhead3">Target Environments&nbsp;</span>Because the average method cannot guarantee data convergence for replication environments with more than one master site, the average method is ideally implemented in mass deployment environment with a single master site and any number of updatable materialized views.</p>
+<p>The average method might be useful for scientific applications that would rather average two values than choose one value over another (for example, to compute the average temperature or weight).</p>
+<p><a id="REPLN462"></a><span class="subhead3">Support Mechanisms&nbsp;</span>No additional support mechanisms are required for the average conflict resolution method.</p>
+<p><a id="REPLN463"></a><span class="subhead3"><span class="bold">Implement Average</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define an average conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA114" href="../REPMA/rarconflictres.htm#REPMA114"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN464" class="sect3"><a id="sthref882"></a>
+<h4 class="sect3">Discard<a id="sthref883"></a><a id="sthref884"></a></h4>
+<p>The discard method ignores the values from the originating site and therefore can never guarantee convergence with more than one master site. The discard method ignores the new value from the originating site and retains the value at the destination site. This method is designed to be used by a single master site and multiple materialized view sites, or with some form of a user-defined notification facility.</p>
+<p>For example, if you have a single master site and multiple materialized view sites based on it, and you expect the materialized view sites to be used primarily for queries with all updates being performed at the master site, then you might select the discard method. The discard methods is also useful if:</p>
+<ul>
+<li>
+<p>Your primary concern is data convergence.</p>
+</li>
+<li>
+<p>You have a single master site.</p>
+</li>
+<li>
+<p>There is no particular business rule for selecting one update over the other.</p>
+</li>
+<li>
+<p>You have multiple master sites and you supply a notification facility to notify the person who ensures that data is correctly applied, instead of logging the conflict in the <code dir="ltr">DEFERROR</code> view and leaving the resolution to your local database administrator.</p>
+</li>
+</ul>
+<p><a id="REPLN465"></a><span class="subhead3">Target Environments&nbsp;</span>The discard conflict resolution method is best suited for a mass deployment model having a single master site with any number of materialized view sites. If a conflict is detected, then the value originating from the materialized view site is ignored, which means that priority is given to materialized views that refresh first.</p>
+<p><a id="REPLN466"></a><span class="subhead3">Support Mechanisms&nbsp;</span>No additional support mechanisms are required for the discard conflict resolution method.</p>
+<p><a id="REPLN467"></a><span class="subhead3"><span class="bold">Implement Discard</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define a discard conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA113" href="../REPMA/rarconflictres.htm#REPMA113"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN468" class="sect3"><a id="sthref885"></a>
+<h4 class="sect3">Earliest Timestamp<a id="sthref886"></a><a id="sthref887"></a></h4>
+<p>The <span class="bold">earliest time stamp</span> methods resolves a conflict based on the earliest (oldest) update, as identified by the time stamp of when the update occurred.</p>
+<p><a id="REPLN469"></a><span class="subhead3">Target Environments&nbsp;</span>The earliest time stamp conflict resolution method works to converge replication environments with a single master site and any number of materialized views. Because time is always increasing, the earliest time stamp conflict resolution cannot guarantee data convergence in replication environments with more than one master site. This resolution also works well with any number of materialized views, if you have a backup conflict resolution method for when two transactions have the same time stamp.</p>
+<p><a id="REPLN470"></a><span class="subhead3">Support Mechanisms&nbsp;</span>To use the time stamp method, you must designate a column in the replicated table of type <code dir="ltr">DATE</code>. When an application updates any column in a column group, the application must also update the value of the designated time stamp column with the local <code dir="ltr">SYSDATE</code>. For a change applied from another site, the time stamp value should be set to the time stamp value from the originating site. Be sure to review <a href="#i34314">&#34;Timestamp Configuration Issues&#34;</a>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<a id="sthref888"></a><a id="sthref889"></a>When you use a time stamp conflict resolution method, you should designate a backup method, such as site priority, to be called if two sites have the same time stamp.</div>
+<p><a id="REPLN471"></a><span class="subhead3"><span class="bold">Implement Earliest Timestamp</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define an earliest time stamp conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA112" href="../REPMA/rarconflictres.htm#REPMA112"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN472" class="sect3"><a id="sthref890"></a>
+<h4 class="sect3">Maximum<a id="sthref891"></a><a id="sthref892"></a></h4>
+<p>When Advanced Replication detects a conflict with a column group and calls the <span class="glossaryterm">maximum</span> value conflict resolution method, it compares the new value from the originating site with the current value from the destination site for a designated column in the column group. You must designate this column when you select the maximum value conflict resolution method.</p>
+<p>If the new value of the designated column is <span class="italic">greater than</span> the current value, then the column group values from the originating site are applied at the destination site, if all other errors were successfully resolved for the row. If the new value of the designated column is less than the current value, then the conflict is resolved by leaving the current values of the column group unchanged.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If the two values for the designated column are the same (for example, if the designated column was not the column causing the conflict), then the conflict is not resolved, and the values of the columns in the column group remain unchanged. Designate a backup conflict resolution method to be used for this case.</div>
+<p>There are no restrictions on the data types of the columns in the column group. Convergence for more than one master site is only guaranteed if the column value is always increasing.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You should not enforce an always-increasing restriction by using a <code dir="ltr">CHECK</code> constraint because the constraint could interfere with conflict resolution.</div>
+<p><a id="REPLN473"></a><span class="subhead3">Target Environments&nbsp;</span>If you have defined the maximum conflict resolution method and the target column that is used to resolve the conflict is always increasing across all sites, then this method guarantees data convergence with any number of master sites and materialized view sites.</p>
+<p><a id="REPLN474"></a><span class="subhead3">Support Mechanisms&nbsp;</span>No additional support mechanisms are required for the maximum conflict resolution method.</p>
+<p><a id="REPLN475"></a><span class="subhead3"><span class="bold">Implement Maximum</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define a maximum conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA115" href="../REPMA/rarconflictres.htm#REPMA115"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN476" class="sect3"><a id="sthref893"></a>
+<h4 class="sect3">Minimum<a id="sthref894"></a><a id="sthref895"></a></h4>
+<p>When Advanced Replication detects a conflict with a column group and calls the <span class="glossaryterm">minimum</span> value conflict resolution method, it compares the new value from the originating site with the current value from the destination site for a designated column in the column group. You must designate this column when you select the minimum value conflict resolution method.</p>
+<p>If the new value of the designated column is <span class="italic">less than</span> the current value, then the column group values from the originating site are applied at the destination site, if all other errors were successfully resolved for the row. If the new value of the designated column is greater than the current value, then the conflict is resolved by leaving the current values of the column group unchanged.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If the two values for the designated column are the same (for example, if the designated column was not the column causing the conflict), then the conflict is not resolved, and the values of the columns in the column group remain unchanged. Designate a backup conflict resolution method to be used for this case.</div>
+<p>There are no restrictions on the data types of the columns in the column group. Convergence for more than one master site is only guaranteed if the column value is always decreasing.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You should not enforce an always-decreasing restriction by using a <code dir="ltr">CHECK</code> constraint because the constraint could interfere with conflict resolution.</div>
+<p><a id="REPLN477"></a><span class="subhead3">Target Environments&nbsp;</span>If you have defined the minimum conflict resolution method and the target column that is used to resolve the conflict is always decreasing across all sites, then this method guarantees data convergence with any number of master sites and materialized view sites.</p>
+<p><a id="REPLN478"></a><span class="subhead3">Support Mechanisms&nbsp;</span>No additional support mechanisms are required for the minimum conflict resolution method.</p>
+<p><a id="REPLN479"></a><span class="subhead3"><span class="bold">Implement Minimum</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define a minimum conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA115" href="../REPMA/rarconflictres.htm#REPMA115"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> book to learn how to define minimum and maximum methods conflict resolution methods with the replication management&nbsp;API</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN480" class="sect3"><a id="sthref896"></a>
+<h4 class="sect3">Priority Groups<a id="sthref897"></a><a id="sthref898"></a></h4>
+<p>Priority groups enable you to assign a priority level to each possible value of a particular column. If Oracle detects a conflict, then Oracle updates the table whose &#34;priority&#34; column has a lower value using the data from the table with the higher priority value. Therefore, a higher value means a higher priority.</p>
+<p>You can guarantee convergence with more than one master site when you are using priority groups if the value of the priority column is always increasing. That is, the values in the priority column correspond to an ordered sequence of events; for example: ordered, shipped, billed.</p>
+<p>As shown in <a href="#i34006">Figure 5-2</a>, the <code dir="ltr">DBA_REPPRIORITY</code> view displays the priority level assigned to each priority group member (value that the &#34;priority&#34; column can contain). You must specify a priority for all possible values of the &#34;priority&#34; column.</p>
+<div id="REPLN481" class="figure">
+<p class="titleinfigure"><a id="i34006"></a>Figure 5-2 Using Priority Groups</p>
+<img width="489" height="381" src="img/repln080.gif" alt="Description of Figure 5-2 follows"/><br/>
+<a id="sthref899" href="img_text/repln080.htm">Description of &#34;Figure 5-2 Using Priority Groups&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>The <code dir="ltr">DBA_REPPRIORITY</code> view displays the values of all priority groups defined at the current location. In the example shown in <a href="#i34006">Figure 5-2</a>, there are two different priority groups: site-priority and order-status. The <code dir="ltr">customer</code> table is using the site-priority priority group. In the order-status priority group in this example, <code dir="ltr">billed</code> (priority 3) has a higher priority than <code dir="ltr">shipped</code> (priority 2), and <code dir="ltr">shipped</code> has a higher priority than <code dir="ltr">ordered</code> (priority 1).</p>
+<p>Before you use the Advanced Replication interface in Oracle Enterprise Manager Cloud Control to select the priority group method of update conflict resolution, you must designate which column in your table is the priority column.</p>
+<p><a id="REPLN482"></a><span class="subhead3">Target Environments&nbsp;</span>The priority group conflict resolution method is useful for replication environments that have been designed for a work flow environment. For example, once an order has reached the <code dir="ltr">shipping</code> status, updates from the <code dir="ltr">order entry</code> department are always over-written.</p>
+<p><a id="REPLN483"></a><span class="subhead3">Support Mechanisms&nbsp;</span>You must define the priority of the values contained in the target column. This priority definition is required so that Oracle knows how to resolve a conflict based on the priority of the column value that has been designated to resolve a conflict. The priority definitions are stored in a priority group.</p>
+<p><a id="REPLN484"></a><span class="subhead3"><span class="bold">Implement Priority Groups</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define a priority group conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA116" href="../REPMA/rarconflictres.htm#REPMA116"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN485" class="sect3"><a id="sthref900"></a>
+<h4 class="sect3">Site Priority<a id="sthref901"></a><a id="sthref902"></a></h4>
+<p>Site priority is a special kind of priority group. With site priority, the priority column you designate is automatically updated with the global database name of the site where the update originated. The <code dir="ltr">DBA_REPPRIORITY</code> view displays the priority level assigned to each database site.</p>
+<p>Site priority can be useful if one site is considered to be more likely to have the most accurate information. For example, in <a href="#i34006">Figure 5-2</a>, the <code dir="ltr">new_york.example.com</code> site (priority value = 2) is corporate headquarters, while the <code dir="ltr">houston.example.com</code> site (priority value&nbsp;=&nbsp;1) is an updatable materialized view at a sales office. Therefore, the headquarters office is considered more likely than the sales office to have the most accurate information about the credit that can be extended to each customer.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The priority-group column of the <code dir="ltr">DBA_REPPRIORITY</code> view shows both the site-priority group and the order-status group.</div>
+<p>When you are using site priority alone, convergence with more than one master site is not guaranteed, but site priority can be a good backup method in a multimaster environment, especially for breaking latest time stamp ties.</p>
+<p>Similar to priority groups, you must complete several preparatory steps before using the Advanced Replication interface in Oracle Enterprise Manager Cloud Control to select site priority conflict resolution for a column group.</p>
+<p><a id="REPLN486"></a><span class="subhead3">Target Environments&nbsp;</span>As with priority groups, site priority conflict resolution is commonly implemented in a work-flow environment. Additionally, when the site priority conflict resolution method is used in a mass deployment environment (which is a single master site and any number of materialized views), data convergence can be guaranteed.</p>
+<p>The site priority conflict resolution method is also a good backup conflict resolution method should a primary conflict resolution method fail in a multimaster environment.</p>
+<p><a id="REPLN487"></a><span class="subhead3">Support Mechanisms&nbsp;</span>A column must be designated to store site information when a row is updated. Additionally, you must create a trigger that populates this site column with the global name of the updating site when a row is either updated or inserted. A sample of this trigger is contained in the <a class="olink REPMA117" href="../REPMA/rarconflictres.htm#REPMA117"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> book.</p>
+<p>You also need to define the priority of the sites that participate in your replication environment. This priority definition is required so that Oracle knows how to resolve a conflict based on the priority of the site that performed the update/insert. The site priority definitions are stored in a priority group.</p>
+<p><a id="REPLN488"></a><span class="subhead3"><span class="bold">Implement Site Priority</span>&nbsp;</span>See the Advanced Replication interface&#39;s online Help to learn how to define a site priority conflict resolution method with the Advanced Replication interface in Oracle Enterprise Manager Cloud Control.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink REPMA117" href="../REPMA/rarconflictres.htm#REPMA117"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to define this type of conflict resolution method with the replication management API</div>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CHDIIDBG"></a>
+<div id="REPLN489" class="sect2">
+<h3 class="sect2">Uniqueness Conflicts Resolution Methods<a id="sthref903"></a></h3>
+<p>Oracle provides three prebuilt methods for resolving uniqueness conflicts:</p>
+<ul>
+<li>
+<p>Append the global site name of the originating site to the column value from the originating site.</p>
+</li>
+<li>
+<p>Append a generated sequence number to the column value from the originating site.</p>
+</li>
+<li>
+<p>Discard the row value from the originating site.</p>
+</li>
+</ul>
+<p>The following sections explain each uniqueness conflict resolution method in detail.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Oracle&#39;s prebuilt uniqueness conflict resolution methods do not actually converge the data in a replication environment; they simply provide techniques for resolving constraint violations. When you use one of Oracle&#39;s uniqueness conflict resolution methods, you should also use a notification mechanism to alert you to uniqueness conflicts when they happen and then manually converge replicated data, if necessary.</div>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+To add unique conflict resolution method for a column, the name of the unique index on the column must match the name of the unique or primary key constraint.</div>
+<a id="i30543"></a>
+<div id="REPLN490" class="sect3">
+<h4 class="sect3">Append Site Name<a id="sthref904"></a><a id="sthref905"></a></h4>
+<p>The <span class="glossaryterm">append site name</span> method works by appending the global database name of the site originating the transaction to the replicated column value that is generating a <code dir="ltr">dup_val_on_index</code> exception. Although this method allows the column to be inserted or updated without violating a unique integrity constraint, it does not provide any form of convergence between multiple master sites. The resulting discrepancies must be manually resolved; therefore, this method is meant to be used with some form of a notification facility.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Both append site name and append sequence can be used on character columns only.</div>
+<p>This method can be useful when the availability of the data is more important than the complete accuracy of the data. To allow data to be available as soon as it is replicated</p>
+<ul>
+<li>
+<p>Select append site name.</p>
+</li>
+<li>
+<p>Use a notification scheme to alert the appropriate person to resolve the duplication, instead of logging a conflict.</p>
+</li>
+</ul>
+<p>When a uniqueness conflict occurs, the append site name method appends the global database name of the site originating the transaction to the replicated column value. The name is appended to the first period (.). For example, <code dir="ltr">houston.example.com</code> becomes <code dir="ltr">houston</code>.</p>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN491" class="sect3"><a id="sthref906"></a>
+<h4 class="sect3">Append Sequence<a id="sthref907"></a><a id="sthref908"></a></h4>
+<p>The <span class="glossaryterm">append sequence</span> methods works by appending a generated sequence number to the column value that is generating a <code dir="ltr">dup_val_on_index</code> exception. Although this method allows the column to be inserted or updated without violating a unique integrity constraint, it does not provide any form of convergence between multiple master sites. The resulting discrepancies must be manually resolved; therefore, this method is meant to be used with some form of a notification facility.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Both append site name and append sequence can be used on character columns only.</div>
+<p>This method can be useful when the availability of the data is more important than the complete accuracy of the data. To allow data to be available as soon as it is replicated:</p>
+<ul>
+<li>
+<p>Select append sequence.</p>
+</li>
+<li>
+<p>Use a notification scheme to alert the appropriate person to resolve the duplication, instead of logging a conflict.</p>
+</li>
+</ul>
+<p>The append sequence method appends a generated sequence number to the column value. The column value is truncated as needed. If the generated portion of the column value exceeds the column length, then the conflict method does not resolve the error.</p>
+</div>
+<!-- class="sect3" -->
+<a id="i23644"></a>
+<div id="REPLN492" class="sect3">
+<h4 class="sect3">Discard<a id="sthref909"></a><a id="sthref910"></a></h4>
+<p>The <span class="glossaryterm">discard uniqueness</span> conflict resolution method resolves uniqueness conflicts by simply discarding the row from the originating site that caused the error. This method does not guarantees convergence with multiple master sites and should be used with a notification facility.</p>
+<p>Unlike the append methods, the discard uniqueness method minimizes the propagation of data until data accuracy can be verified.</p>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CHDDFDGF"></a>
+<div id="REPLN493" class="sect2">
+<h3 class="sect2">Delete Conflict Resolution Methods<a id="sthref911"></a></h3>
+<p>Oracle does not provide any prebuilt methods for resolving delete conflicts. As discussed in <a href="#i22340">&#34;Avoiding Delete Conflicts&#34;</a>, you should design your database and front-end application to avoid delete conflicts. You can achieve this goal by marking rows for deletion and at regular intervals, using procedural replication to purge such marked rows.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a href="#i22340">&#34;Avoiding Delete Conflicts&#34;</a> to learn how to avoid encountering delete conflicts</p>
+</li>
+<li>
+<p><a class="olink REPMA111" href="../REPMA/rarconflictres.htm#REPMA111"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> to learn how to build conflict avoidance into your replication environment</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" -->
+<a id="i24725"></a>
+<div id="REPLN110" class="sect2">
+<h3 class="sect2">Send and Compare Old Values<a id="sthref912"></a><a id="sthref913"></a><a id="sthref914"></a><a id="sthref915"></a><a id="sthref916"></a></h3>
+<p>To detect and resolve an update conflict for a row, the propagating site must send a certain amount of data about the new and old versions of the row to the receiving site. Depending on your environment, the amount of data that Oracle propagates to support update conflict detection and resolution can be different.</p>
+<p>You can reduce data propagation in some cases by using the <code dir="ltr">DBMS_REPCAT.SEND_OLD_VALUES</code> procedure and the <code dir="ltr">DBMS_REPCAT.COMPARE_OLD_VALUES</code> procedure to send old values only if they are needed to detect and resolve conflicts. For example, the latest time stamp conflict detection and resolution method does not require old values for nonkey and non time stamp columns in a column group if the columns are guaranteed to be updated whenever the timestamp column is updated.</p>
+<div class="infobox-note">
+<p class="notep1">Suggestion:</p>
+Further minimizing propagation of old values is particularly valuable if you are replicating LOB data types and do not expect conflicts on these columns.</div>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You must ensure that the appropriate old values are propagated to detect and resolve anticipated conflicts. User-supplied conflict resolution procedures must deal properly with <code dir="ltr">NULL</code> old column values that are transmitted. Using the <code dir="ltr">SEND_OLD_VALUES</code> and <code dir="ltr">COMPARE_OLD_VALUES</code> procedures to further reduce data propagation reduces protection against unexpected conflicts<span class="bold">.</span></div>
+<p>To further reduce data propagation, execute the following procedures:</p>
+<pre dir="ltr">DBMS_REPCAT.SEND_OLD_VALUES(
+   sname           IN  VARCHAR2,
+   oname           IN  VARCHAR2,
+   { column_list   IN  VARCHAR2,
+   | column_table  IN  DBMS_UTILITY.VARCHAR2s | DBMS_UTILITY.LNAME_ARRAY,}
+   operation       IN  VARCHAR2 := &#39;UPDATE&#39;,
+   send            IN  BOOLEAN  := TRUE );
+ 
+DBMS_REPCAT.COMPARE_OLD_VALUES(
+   sname           IN  VARCHAR2,
+   oname           IN  VARCHAR2,
+   { column_list   IN  VARCHAR2,
+   | column_table  IN  DBMS_UTILITY.VARCHAR2s | DBMS_UTILITY.LNAME_ARRAY,}
+   operation       IN  VARCHAR2 := &#39;UPDATE&#39;,
+   compare         IN  BOOLEAN := TRUE );
+</pre>
+<p>After executing these procedures, you must use the <code dir="ltr">DBMS_REPCAT.GENERATE_REPLICATION_SUPPORT</code> procedure to generate replication support with <code dir="ltr">min_communication</code> set to <code dir="ltr">TRUE</code> for this change to take effect.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The <code dir="ltr">operation</code> parameter enables you to decide whether to transmit old values for nonkey columns when rows are deleted or when nonkey columns are updated or both. If you do not send the old value, Oracle sends a <code dir="ltr">NULL</code> for the old value and assumes the old value is equal to the current value of the column at the target side when the update or delete is applied.</div>
+<p>The specified behavior for old column values is exposed in two columns in the <code dir="ltr">DBA_REPCOLUMN</code> data dictionary view: <code dir="ltr">COMPARE_OLD_ON_DELETE</code> (<code dir="ltr">Y</code> or <code dir="ltr">N</code>) and <code dir="ltr">COMPARE_OLD_ON_UPDATE</code> (<code dir="ltr">Y</code> or <code dir="ltr">N</code>).</p>
+<div id="REPLN494" class="sect3"><a id="sthref917"></a>
+<h4 class="sect3">Send and Compare Example</h4>
+<p>The following example shows how you can further reduce data propagation by using these procedures. Consider a table called <code dir="ltr">rsmith.reports</code> with three columns. Column 1 is the primary key and is in its own column group (column group 1). Column 2 and column 3 are in a second column group (column group 2).</p>
+<div id="REPLN495" class="figure">
+<p class="titleinfigure"><a id="sthref918"></a>Figure 5-3 Column Groups and Data Propagation</p>
+<img width="600" height="184" src="img/repln050.gif" alt="Description of Figure 5-3 follows"/><br/>
+<a id="sthref919" href="img_text/repln050.htm">Description of &#34;Figure 5-3 Column Groups and Data Propagation&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>The conflict resolution strategy for the second column group is site priority. Column&nbsp;2 is a <code dir="ltr">VARCHAR2</code> column containing the site name. Column 3 is a LOB column. Whenever you update the LOB, you must also update column 2 with the global name of the site at which the update occurs. Because there are no triggers for piecewise updates to LOBs, you must explicitly update column 2 whenever you do a piecewise update on the LOB.</p>
+<p>Suppose you use the <code dir="ltr">DBMS_REPCAT.GENERATE_REPLICATION_SUPPORT</code> procedure to generate replication support for <code dir="ltr">rsmith.reports</code> with <code dir="ltr">min_communication</code> set to <code dir="ltr">TRUE</code> and then use an <code dir="ltr">UPDATE</code> statement to modify column 2 (the site name) and column 3 (the LOB). The deferred remote procedure call (RPC) contains the new value of the site name and the new value of the LOB because they were updated. The deferred RPC also contains the old value of the primary key (column 1), the old value of the site name (column 2), and the old value of the LOB (column 3).</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The conflict detection and resolution strategy does not require the old value of the LOB. Only column C2 (the site name) is required for both conflict detection and resolution. Sending the old value for the LOB could add significantly to propagation time.</div>
+<p>To ensure that the old value of the LOB is not propagated when either column C2 or column C3 is updated, make the following calls:</p>
+<pre dir="ltr">BEGIN
+  DBMS_REPCAT.SEND_OLD_VALUES(
+     sname           =&gt;  &#39;rsmith&#39;,
+     oname           =&gt;  &#39;reports&#39;,
+     column_list     =&gt;  &#39;c3&#39;,
+     operation       =&gt;  &#39;UPDATE&#39;,
+     send            =&gt;  FALSE );
+END;
+/
+ 
+BEGIN
+  DBMS_REPCAT.COMPARE_OLD_VALUES(
+     sname           =&gt;  &#39;rsmith&#39;,
+     oname           =&gt;  &#39;reports&#39;,
+     column_list     =&gt;  &#39;c3&#39;,
+     operation       =&gt;  &#39;UPDATE&#39;,
+     compare         =&gt;  FALSE);
+END;
+/
+</pre>
+<p>You must use the <code dir="ltr">DBMS_REPCAT.GENERATE_REPLICATION_SUPPORT</code> procedure to generate replication support for <code dir="ltr">rsmith.reports</code> with <code dir="ltr">min_communication</code> set to <code dir="ltr">TRUE</code> for this change to take effect. Suppose you subsequently use an <code dir="ltr">UPDATE</code> statement to modify column 2 (the site name) and column 3 (the LOB). The deferred RPC contains the old value of the primary key (column 1), the old and new values of the site name (column 2), and just the new value of the LOB (column 3). The deferred RPC contains nulls for the new value of the primary key and the old value of the LOB.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Oracle conflict resolution does not support piecewise updates of LOBs.</div>
+</div>
+<!-- class="sect3" -->
+<div id="REPLN496" class="sect3"><a id="sthref920"></a>
+<h4 class="sect3">Send and Compare When Using Column Objects<a id="sthref921"></a><a id="sthref922"></a></h4>
+<p>You can specify leaf attributes of a column object when you send and compare old values if the attributes are not replication key columns. For example, suppose you create the following <code dir="ltr">cust_address_typ</code> object type.</p>
+<pre dir="ltr">CREATE TYPE cust_address_typ AS OBJECT
+     (street_address     VARCHAR2(40), 
+      postal_code        VARCHAR2(10), 
+      city               VARCHAR2(30), 
+      state_province     VARCHAR2(10), 
+      country_id         CHAR(2));
+/
+</pre>
+<p>You create the customers table using this type as a column object:</p>
+<pre dir="ltr">CREATE TABLE customers
+     (customer_id        NUMBER(6), 
+      cust_first_name    VARCHAR2(20), 
+      cust_last_name     VARCHAR2(20), 
+      cust_address       cust_address_typ, 
+      phone_numbers      phone_list_typ);
+</pre>
+<p>To send and compare old values for the <code dir="ltr">street_address</code> attribute of the <code dir="ltr">cust_address_typ</code> type in the <code dir="ltr">customers</code> table, run the following procedures to specify that you do want to send or compare the attribute value:</p>
+<pre dir="ltr">BEGIN
+  DBMS_REPCAT.SEND_OLD_VALUES(
+     sname           =&gt;  &#39;oe&#39;,
+     oname           =&gt;  &#39;customers&#39;,
+     column_list     =&gt;  &#39;cust_address.street_address&#39;, -- object attribute
+     operation       =&gt;  &#39;UPDATE&#39;,
+     send            =&gt;   TRUE );
+END;
+/
+ 
+BEGIN
+  DBMS_REPCAT.COMPARE_OLD_VALUES(
+     sname           =&gt;  &#39;oe&#39;,
+     oname           =&gt;  &#39;customers&#39;,
+     column_list     =&gt;  &#39;cust_address.street_address&#39;, -- object attribute
+     operation       =&gt;  &#39;UPDATE&#39;,
+     compare         =&gt;   TRUE);
+END;
+/
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If you have multiple levels of object attributes in one column object, then you can only specify the final (or leaf) attribute for the <code dir="ltr">column_list</code> parameter. You cannot specify middle attributes.</div>
+<p>You can also specify that you want to send and compare an entire column object. For example, the following procedures specify the entire <code dir="ltr">cust_address</code> column object:</p>
+<pre dir="ltr">BEGIN
+  DBMS_REPCAT.SEND_OLD_VALUES(
+     sname           =&gt;  &#39;oe&#39;,
+     oname           =&gt;  &#39;customers&#39;,
+     column_list     =&gt;  &#39;cust_address&#39;, -- entire column object
+     operation       =&gt;  &#39;UPDATE&#39;,
+     send            =&gt;   TRUE );
+END;
+/
+ 
+BEGIN
+  DBMS_REPCAT.COMPARE_OLD_VALUES(
+     sname           =&gt;  &#39;oe&#39;,
+     oname           =&gt;  &#39;customers&#39;,
+     column_list     =&gt;  &#39;cust_address&#39;, -- entire column object
+     operation       =&gt;  &#39;UPDATE&#39;,
+     compare         =&gt;   TRUE);
+END;
+/
+
+</pre>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+The <a class="olink REPMA019" href="../REPMA/rarrcatpac.htm#REPMA019"><span class="variable">Oracle Database Advanced Replication Management API Reference</span></a> for details about the <code dir="ltr">DBMS_REPCAT.SEND_OLD_VALUES</code> procedure and the <code dir="ltr">DBMS_REPCAT.COMPARE_OLD_VALUES</code> procedure</div>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5764">
+<tr>
+<td class="cellalignment5771">
+<table class="cellalignment5769">
+<tr>
+<td class="cellalignment5768"><a href="repdt.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5768"><a href="repplan.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2015,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5773">
+<table class="cellalignment5767">
+<tr>
+<td class="cellalignment5768"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5768"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5768"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5768"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5768"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5768"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

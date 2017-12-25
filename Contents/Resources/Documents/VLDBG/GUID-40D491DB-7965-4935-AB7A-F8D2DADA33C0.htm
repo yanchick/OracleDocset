@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114262"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Dropping%20a%20Partition%20from%20a%20Table%20that%20Contains%20Data%20and%20Global%20Indexes"></a><title>Dropping a Partition from a Table that Contains Data and Global Indexes</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-9E40E1DD-2844-4298-8897-86ED66F293DB.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-D2FC4255-EF84-4AEC-889C-F7D4B555A75F.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-40D491DB-7965-4935-AB7A-F8D2DADA33C0"></a> <span id="PAGE" style="display:none;">183/481</span> <!-- End Header --><a id="VLDBG1148"></a><a id="VLDBG1149"></a><a id="VLDBG1150"></a><a id="VLDBG1147"></a>
+<h1 id="VLDBG-GUID-40D491DB-7965-4935-AB7A-F8D2DADA33C0" class="sect1">Dropping a Partition from a Table that Contains Data and Global Indexes</h1>
+<div>
+<div class="section">
+<p>If the partition contains data and one or more global indexes are defined on the table, then use one of the following methods (method 1, 2 or 3) to drop the table partition.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead1">Method 1</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Issue the <code>ALTER</code> <code>TABLE</code> <code>DROP</code> <code>PARTITION</code> statement without maintaining global indexes. Afterward, you must rebuild any global indexes (whether partitioned or not) because the index (or index partitions) has been marked <code>UNUSABLE</code>. The following statements provide an example of dropping partition <code>dec98</code> from the <code>sales</code> table, then rebuilding its global nonpartitioned index.</p>
+<pre dir="ltr">ALTER TABLE sales DROP PARTITION dec98;
+ALTER INDEX sales_area_ix REBUILD;
+</pre>
+<p>If index <code>sales_area_ix</code> were a range-partitioned global index, then all partitions of the index would require rebuilding. Further, it is not possible to rebuild all partitions of an index in one statement. You must issue a separate <code>REBUILD</code> statement for each partition in the index. The following statements rebuild the index partitions <code>jan99_ix</code> to <code>dec99_ix</code>.</p>
+<pre dir="ltr">ALTER INDEX sales_area_ix REBUILD PARTITION jan99_ix;
+ALTER INDEX sales_area_ix REBUILD PARTITION feb99_ix;
+ALTER INDEX sales_area_ix REBUILD PARTITION mar99_ix;
+...
+ALTER INDEX sales_area_ix REBUILD PARTITION dec99_ix;
+</pre>
+<p>This method is most appropriate for large tables where the partition being dropped contains a significant percentage of the total data in the table. While asynchronous global index maintenance keeps global indexes valid without the need of any index maintenance, you must use the <code>UPDATE</code> <code>INDEXES</code> clause to enable this new functionality. This behavior ensures backward compatibility.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead1">Method 2</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Issue the <code>DELETE</code> statement to delete all rows from the partition before you issue the <code>ALTER</code> <code>TABLE</code> <code>DROP</code> <code>PARTITION</code> statement. The <code>DELETE</code> statement updates the global indexes.</p>
+<p>For example, to drop the first partition, issue the following statements:</p>
+<pre dir="ltr">DELETE FROM sales partition (dec98);
+ALTER TABLE sales DROP PARTITION dec98;
+</pre>
+<p>This method is most appropriate for small tables, or for large tables when the partition being dropped contains a small percentage of the total data in the table.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead1">Method 3</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Specify <code>UPDATE</code> <code>INDEXES</code> in the <code>ALTER</code> <code>TABLE</code> statement. Doing so leverages the new asynchronous global index maintenance. Indexes remain valid.</p>
+<pre dir="ltr">ALTER TABLE sales DROP PARTITION dec98
+     UPDATE INDEXES;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-9E40E1DD-2844-4298-8897-86ED66F293DB.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-D2FC4255-EF84-4AEC-889C-F7D4B555A75F.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

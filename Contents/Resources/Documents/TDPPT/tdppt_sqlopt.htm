@@ -1,0 +1,1282 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106511"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Optimizing%20Data%20Access%20Paths"></a><title>Optimizing Data Access Paths</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="SQL Access Advisor, filters, recommendations, options, scheduling, reviewing, summary, details, SQL, workload options, task options, implementing"/>
+<meta name="dcterms.created" content="2017-01-18T01:22:51Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database 2 Day + Performance Tuning Guide"/>
+<meta name="dcterms.identifier" content="E55047-05"/>
+<meta name="dcterms.isVersionOf" content="TDPPT"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2007, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="tdppt_sqltune.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="index.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E55047-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-1E926221-441F-483A-B045-8AE4A5764B8C"></a> <span id="PAGE" style="display:none;">21/22</span> <!-- End Header -->
+<a id="TDPPT170"></a>
+<h1 id="TDPPT-GUID-1E926221-441F-483A-B045-8AE4A5764B8C" class="sect1"><span class="enumeration_chapter">13</span> Optimizing Data Access Paths</h1>
+<div>
+<p>To achieve optimal performance for data-intensive queries, materialized views and indexes are essential for SQL statements. However, implementing these objects does not come without cost. Creation and maintenance of these objects can be time-consuming. Space requirements can be significant. SQL Access Advisor<a id="d26138e74" class="indexterm-anchor"></a><a id="d26138e78" class="indexterm-anchor"></a><a id="d26138e84" class="indexterm-anchor"></a> enables you to optimize query access paths by recommending materialized views and view logs<a id="d26138e87" class="indexterm-anchor"></a>, indexes, SQL profiles, and partitions<a id="d26138e92" class="indexterm-anchor"></a> for a specific workload.</p>
+<p>A <span class="bold">materialized view</span> provides access to table data by storing query results in a separate schema object. Unlike an ordinary view, which does not take up storage space or contain data, a materialized view contains the rows from a query of one or more base tables or views. A <span class="bold">materialized view log</span> is a schema object that records changes to a master table&#39;s data, so that a materialized view defined on the master table can be refreshed incrementally. SQL Access Advisor recommends how to optimize materialized views so that they can be rapidly refreshed and make use of the query rewrite feature.</p>
+<p>SQL Access Advisor also recommends bitmap, function-based, and B-tree indexes. A <span class="bold">bitmap index</span><a id="d26138e109" class="indexterm-anchor"></a> reduces response time for many types of ad hoc queries and can also reduce storage space compared to other indexes. A <span class="bold">function-based index</span><a id="d26138e116" class="indexterm-anchor"></a> computes the value of a function or expression involving one or more columns and stores it in the index. <span class="bold">B-tree indexes</span><a id="d26138e123" class="indexterm-anchor"></a> are commonly used to index unique or near-unique keys.</p>
+<p>Using SQL Access Advisor involves the following tasks:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-C29EE8A0-D8F6-460C-B728-3355E015C15E">Running SQL Access Advisor</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16">Reviewing the SQL Access Advisor Recommendations</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D">Implementing the SQL Access Advisor Recommendations</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-1E926221-441F-483A-B045-8AE4A5764B8C__GUID-53B6EBBC-B5C3-4B86-861C-A608C1B356C0">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tdppt_sqlid.htm#GUID-D4D8C985-93B4-402C-A6C9-D5ABA980BEDB">Identifying High-Load SQL Statements</a> &#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-6B386EC1-A58F-4CFC-AEFB-9F787A112396">Tuning SQL Statements</a> &#34;</span> for information about SQL Tuning Advisor</p>
+</li>
+<li>
+<p><a class="olink CNCPT411" target="_blank" href="../CNCPT/schemaob.htm#CNCPT411"><span class="italic">Oracle Database Concepts</span></a> to learn about materialized views</p>
+</li>
+<li>
+<p><a class="olink CNCPT721" target="_blank" href="../CNCPT/indexiot.htm#CNCPT721"><span class="italic">Oracle Database Concepts</span></a> to learn about indexes</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TDPPT171"></a>
+<div class="props_rev_3"><a id="GUID-C29EE8A0-D8F6-460C-B728-3355E015C15E"></a>
+<h2 id="TDPPT-GUID-C29EE8A0-D8F6-460C-B728-3355E015C15E" class="sect2">Running SQL Access Advisor</h2>
+<div>
+<div class="section">
+<p>This section describes how to run SQL Access Advisor to make recommendations for a SQL workload.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To run SQL Access Advisor:</p>
+<ol>
+<li>
+<p><a id="d26138e258" class="indexterm-anchor"></a><a id="d26138e262" class="indexterm-anchor"></a><a id="d26138e266" class="indexterm-anchor"></a><a id="d26138e270" class="indexterm-anchor"></a>Select the initial options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746">Selecting the Initial Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select the workload source you want to use for the analysis, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-89A6683D-509A-4681-B573-9BD208C20DD0">Selecting the Workload Source</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Define the filters options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-ECFF824D-E366-4FC3-A403-8B3248DDAD8C">Applying Filter Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Choose the types of recommendations, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-53DF5146-FC24-4EEB-BFD4-6AA9A863F66F">Specifying Recommendation Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Schedule the SQL Access Advisor task, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753">Specifying Task and Scheduling Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+<a id="TDPPT172"></a>
+<div class="props_rev_3"><a id="GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746"></a>
+<h3 id="TDPPT-GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746" class="sect3">Selecting the Initial Options</h3>
+<div>
+<div class="section">
+<p>The first step in running SQL Access Advisor is to select the initial options on the SQL Access Advisor: Initial Options page.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To select initial options:</p>
+<ol>
+<li>
+<p><a id="d26138e395" class="indexterm-anchor"></a>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">Advisors Home</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The Advisor Central page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">SQL Advisors</span>.</p>
+<p>The SQL Advisors page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">SQL Access Advisor</span>.</p>
+<p>The SQL Access Advisor: Initial Options page appears.</p>
+</li>
+<li>
+<p>Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">Verify use of access structures (indexes, materialized views, partitioning, and so on) only</span> to verify existing structures.</p>
+</li>
+<li>
+<p>Select <span class="bold">Recommend new access structures</span> to use the recommended options defined in the Oracle Enterprise Manager Cloud Control (Cloud Control) default template.</p>
+<p>If you select this option, then you can optionally complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">Inherit Options from a previously saved Task or Template</span> to use the options defined in an existing SQL Access Advisor task or another template.</p>
+</li>
+<li>
+<p>In Tasks and Templates, select the task or template that you want to use.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>In this example, <span class="bold">Recommend new access structures</span> is selected.</p>
+<div class="figure" id="GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746__GUID-A4546976-D112-4173-94A0-8D6372A22B62"><img width="634" height="402" src="img/GUID-8E40E905-E0EB-41B5-B9C6-3F5F87C4B579-default.gif" alt="Description of GUID-8E40E905-E0EB-41B5-B9C6-3F5F87C4B579-default.gif follows" title="Description of GUID-8E40E905-E0EB-41B5-B9C6-3F5F87C4B579-default.gif follows"/><br/>
+<a href="img_text/GUID-8E40E905-E0EB-41B5-B9C6-3F5F87C4B579-default.htm">Description of the illustration GUID-8E40E905-E0EB-41B5-B9C6-3F5F87C4B579-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Click <span class="bold">Continue</span>.</p>
+<p>The SQL Access Advisor: Workload Source page appears.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-89A6683D-509A-4681-B573-9BD208C20DD0">Selecting the Workload Source</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT173"></a>
+<div class="props_rev_3"><a id="GUID-89A6683D-509A-4681-B573-9BD208C20DD0"></a>
+<h3 id="TDPPT-GUID-89A6683D-509A-4681-B573-9BD208C20DD0" class="sect3">Selecting the Workload Source</h3>
+<div>
+<p>After initial options are specified for SQL Access Advisor, select the workload source<a id="d26138e562" class="indexterm-anchor"></a> that you want to use for the analysis, as described in the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-5BDAB81E-D5B7-43C6-91D1-70FF2383BAEC">Using SQL Statements from the Cache</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-B4BB1C63-D995-4885-9245-38E3F31932EB">Using an Existing SQL Tuning Set</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-54DC2734-CF4E-4A3D-BDF7-12064717685A">Using a Hypothetical Workload</a></p>
+</li>
+</ul>
+</div>
+<a id="TDPPT174"></a>
+<div class="props_rev_3"><a id="GUID-5BDAB81E-D5B7-43C6-91D1-70FF2383BAEC"></a>
+<h4 id="TDPPT-GUID-5BDAB81E-D5B7-43C6-91D1-70FF2383BAEC" class="sect4">Using SQL Statements from the Cache</h4>
+<div>
+<div class="section">
+<p>You can use SQL statements from the cache as the workload source. However, only current and recent SQL statements are stored in the SQL cache, so this workload source may not be representative of the entire workload on your database.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To use SQL statements from the cache as the workload source:</p>
+<ol>
+<li>
+<p>Select the initial options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746">Selecting the Initial Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>On the SQL Access Advisor: Workload Source page, select <span class="bold">Current and Recent SQL Activity</span>.</p>
+<div class="figure" id="GUID-5BDAB81E-D5B7-43C6-91D1-70FF2383BAEC__GUID-7B7F0BF7-D167-42E2-AE17-A1074B10A0C1"><img width="614" height="288" src="img/GUID-CFD8322E-A107-4089-BD8C-A9D65ABE219D-default.gif" alt="Description of GUID-CFD8322E-A107-4089-BD8C-A9D65ABE219D-default.gif follows" title="Description of GUID-CFD8322E-A107-4089-BD8C-A9D65ABE219D-default.gif follows"/><br/>
+<a href="img_text/GUID-CFD8322E-A107-4089-BD8C-A9D65ABE219D-default.htm">Description of the illustration GUID-CFD8322E-A107-4089-BD8C-A9D65ABE219D-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-ECFF824D-E366-4FC3-A403-8B3248DDAD8C">Applying Filter Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT175"></a>
+<div class="props_rev_3"><a id="GUID-B4BB1C63-D995-4885-9245-38E3F31932EB"></a>
+<h4 id="TDPPT-GUID-B4BB1C63-D995-4885-9245-38E3F31932EB" class="sect4">Using an Existing SQL Tuning Set</h4>
+<div>
+<div class="section">
+<p>You can use an existing SQL tuning set as the workload source. This option is useful because SQL tuning sets can be used repeatedly as the workload source for SQL Access Advisor and SQL Tuning Advisor.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To use a SQL tuning set as the workload source:</p>
+<ol>
+<li>
+<p>Select the initial options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746">Selecting the Initial Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>On the SQL Access Advisor: Workload Source page, select <span class="bold">Use an existing SQL Tuning Set</span>.</p>
+</li>
+<li>
+<p>Click the <span class="bold">SQL Tuning Set</span> search icon to use an existing SQL tuning set.</p>
+<p>The Search and Select: SQL Tuning Set dialog box appears.</p>
+</li>
+<li>
+<p>In the <span class="bold">Schema</span> field, enter the name of the schema containing the SQL tuning set you want to use and then click <span class="bold">Go</span>.</p>
+<p>A list of SQL tuning sets contained in the selected schema appears.</p>
+</li>
+<li>
+<p>Select the SQL tuning set to be used for the workload source and click <span class="bold">Select</span>.</p>
+<p>The Search and Select: SQL Tuning Set dialog box closes and the selected SQL Tuning Set now appears in the <span class="bold">SQL Tuning Set</span> field.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-ECFF824D-E366-4FC3-A403-8B3248DDAD8C">Applying Filter Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-B4BB1C63-D995-4885-9245-38E3F31932EB__GUID-7B285402-4C6F-42D6-A819-5B4CE2D223D3">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-13081B28-AB2A-485F-B836-74DAA9961BAA">Managing SQL Tuning Sets</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT177"></a>
+<div class="props_rev_3"><a id="GUID-54DC2734-CF4E-4A3D-BDF7-12064717685A"></a>
+<h4 id="TDPPT-GUID-54DC2734-CF4E-4A3D-BDF7-12064717685A" class="sect4">Using a Hypothetical Workload</h4>
+<div>
+<div class="section">
+<p>A <span class="bold">dimension table</span> stores all or part of the values for a logical dimension in a star or snowflake schema. You can create a hypothetical workload from dimension tables containing primary or foreign key constraints. This option is useful if the workload to be analyzed does not exist. In this case, SQL Access Advisor examines the current logical schema design, and provides recommendations based on the defined relationships between tables.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To use a hypothetical workload as the workload source:</p>
+<ol>
+<li>
+<p>Select the initial options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746">Selecting the Initial Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>On the SQL Access Advisor: Workload Source page, select <span class="bold">Create a Hypothetical Workload from the Following Schemas and Tables</span>.</p>
+</li>
+<li>
+<p>Leave <span class="bold">Schemas and Tables</span> empty and then click <span class="bold">Add</span> to search for tables.</p>
+<p>The Workload Source: Search and Select Schemas and Tables page appears.</p>
+</li>
+<li>
+<p>In the Tables section, enter a schema name in the <span class="bold">Schema</span> field and then click <span class="bold">Search</span>.</p>
+<p>A list of tables in the selected schema is displayed.</p>
+</li>
+<li>
+<p>Select the tables to be used in creating the hypothetical workload and then click <span class="bold">Add Tables</span>.</p>
+<p>The selected tables now appear in the <span class="bold">Schemas and Tables</span> field.</p>
+</li>
+<li>
+<p>Click <span class="bold">OK</span>.</p>
+<p>The SQL Access Advisor: Workload Source page appears with the selected tables now added.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-ECFF824D-E366-4FC3-A403-8B3248DDAD8C">Applying Filter Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-54DC2734-CF4E-4A3D-BDF7-12064717685A__GUID-83D45FA8-CAF6-4F1A-9395-60356CC5CD64">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT411" target="_blank" href="../CNCPT/schemaob.htm#CNCPT411"><span class="italic">Oracle Database Concepts</span></a> for an overview of materialized views</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TDPPT178"></a>
+<div class="props_rev_3"><a id="GUID-ECFF824D-E366-4FC3-A403-8B3248DDAD8C"></a>
+<h3 id="TDPPT-GUID-ECFF824D-E366-4FC3-A403-8B3248DDAD8C" class="sect3">Applying Filter Options</h3>
+<div>
+<div class="section">
+<p>After the workload source is selected, you can optionally apply filters to reduce the scope of the SQL statements found in the workload. Filters are beneficial for the following reasons:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Using filters directs SQL Access Advisor to make recommendations based on a specific subset of SQL statements from the workload, which may lead to better recommendations.</p>
+</li>
+<li>
+<p>Using filters removes extraneous SQL statements from the workload, which may greatly reduce processing time.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To apply filters to the workload source:</p>
+<ol>
+<li>
+<p>Select initial options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746">Selecting the Initial Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select the workload source, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-89A6683D-509A-4681-B573-9BD208C20DD0">Selecting the Workload Source</a>&#34;</span>.</p>
+</li>
+<li>
+<p>On the SQL Access Advisor: Workload Source page, click <span class="bold">Filter Options</span>.</p>
+<p>The Filter Options section expands.</p>
+</li>
+<li>
+<p>Select <span class="bold">Filter Workload Based on these Options</span>.</p>
+<p>The Filter Options section is enabled.</p>
+</li>
+<li>
+<p>Define the filters you want to apply, as described in the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-D74B6F5D-DB2C-4016-9D8A-F1662AE165C0">Defining Filters for Resource Consumption</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-F437CE73-006E-468B-ACEB-F120478B5EC1">Defining Filters for Users</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-2EA42F79-B45D-4AA8-91D1-F7EF861459B9">Defining Filters for Tables</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-77D192D2-5591-40AF-9CA3-6E124A380B8B">Defining Filters for SQL Text</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-9FB31376-8223-4D07-B77E-65FC497BC2B9">Defining Filters for Modules</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqlopt.htm#GUID-7F9A3544-AE0C-4E88-B919-7A6E92DCDEA1">Defining Filters for Actions</a></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Recommendation Options page appears.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-53DF5146-FC24-4EEB-BFD4-6AA9A863F66F">Specifying Recommendation Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+<a id="TDPPT179"></a>
+<div class="props_rev_3"><a id="GUID-D74B6F5D-DB2C-4016-9D8A-F1662AE165C0"></a>
+<h4 id="TDPPT-GUID-D74B6F5D-DB2C-4016-9D8A-F1662AE165C0" class="sect4">Defining Filters for Resource Consumption</h4>
+<div>
+<div class="section">
+<p>The resource consumption filter restricts the workload to include only the number of high-load SQL statements that you specify.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To define a filter for resource consumption:</p>
+<ol>
+<li>
+<p>On the SQL Access Advisor: Workload Source page, under User Resource Consumption, enter the number of high-load SQL statements in the <span class="bold">Number of Statements</span> field.</p>
+</li>
+<li>
+<p>From the Order by list, select one of the methods by which the SQL statements are to be ordered.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT180"></a>
+<div class="props_rev_3"><a id="GUID-F437CE73-006E-468B-ACEB-F120478B5EC1"></a>
+<h4 id="TDPPT-GUID-F437CE73-006E-468B-ACEB-F120478B5EC1" class="sect4">Defining Filters for Users</h4>
+<div>
+<div class="section">
+<p>The users filter restricts the workload to include or exclude SQL statements executed by users that you specify.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To define a filter for users:</p>
+<ol>
+<li>
+<p>On the SQL Access Advisor: Workload Source page, under Users, select <span class="bold">Include only SQL statements executed by these users</span> or <span class="bold">Exclude all SQL statements executed by these users</span>.</p>
+</li>
+<li>
+<p>To search for available users, click the Users search icon.</p>
+<p>The Search and Select: Users dialog box appears.</p>
+</li>
+<li>
+<p>Select the users whose SQL statements you want to include or exclude and then click <span class="bold">Select</span>.</p>
+<p>The Search and Select: Users dialog box closes and the selected tables now appear in the <span class="bold">Users</span> field.</p>
+<p>In this example, a filter is defined to include only SQL statements executed by the user <code>SH</code>.</p>
+<div class="figure" id="GUID-F437CE73-006E-468B-ACEB-F120478B5EC1__GUID-3CF1D387-2CA8-4FA5-9798-CA8A584C7F13"><img width="692" height="107" src="img/GUID-AA3D84F5-2589-4009-A95D-43CC069AC120-default.gif" alt="Description of GUID-AA3D84F5-2589-4009-A95D-43CC069AC120-default.gif follows" title="Description of GUID-AA3D84F5-2589-4009-A95D-43CC069AC120-default.gif follows"/><br/>
+<a href="img_text/GUID-AA3D84F5-2589-4009-A95D-43CC069AC120-default.htm">Description of the illustration GUID-AA3D84F5-2589-4009-A95D-43CC069AC120-default.gif</a></div>
+<!-- class="figure" --></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT181"></a>
+<div class="props_rev_3"><a id="GUID-2EA42F79-B45D-4AA8-91D1-F7EF861459B9"></a>
+<h4 id="TDPPT-GUID-2EA42F79-B45D-4AA8-91D1-F7EF861459B9" class="sect4">Defining Filters for Tables</h4>
+<div>
+<div class="section">
+<p>The tables filter restricts the workload to include or exclude SQL statements that access a list of tables that you specify. Table filters are not permitted if you selected the <span class="bold">Create a Hypothetical Workload from the Following Schemas and Tables</span> option, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-54DC2734-CF4E-4A3D-BDF7-12064717685A">Using a Hypothetical Workload</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To define a filter for tables:</p>
+<ol>
+<li>
+<p>To include only SQL statements that access a specific list of tables, enter the table names in the <span class="bold">Include only SQL statements that access any of these tables</span> field.</p>
+</li>
+<li>
+<p>To exclude all SQL statements that access a specific list of tables, enter the table names in the <span class="bold">Exclude all SQL statements that access any of these tables</span> field.</p>
+</li>
+<li>
+<p>To search for available tables, click the Tables search icon.</p>
+<p>The Search and Select: Schema and Table dialog box appears.</p>
+</li>
+<li>
+<p>Select the tables for which you want to include or exclude SQL statements and click <span class="bold">Select</span>.</p>
+<p>The Search and Select: Schema and Table dialog box closes and the selected tables now appear in the corresponding Tables field.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT182"></a>
+<div class="props_rev_3"><a id="GUID-77D192D2-5591-40AF-9CA3-6E124A380B8B"></a>
+<h4 id="TDPPT-GUID-77D192D2-5591-40AF-9CA3-6E124A380B8B" class="sect4">Defining Filters for SQL Text</h4>
+<div>
+<div class="section">
+<p>The SQL text filter restricts the workload to include or exclude SQL statements that contains SQL text substrings that you specify.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To define a filter for SQL text:</p>
+<ol>
+<li>
+<p>To include only SQL statements that contains specific SQL text, enter the SQL text to be included in the <span class="bold">Include only SQL statements containing these SQL text substrings</span> field.</p>
+</li>
+<li>
+<p>To exclude all SQL statements that contain specific SQL text, enter the SQL text to be excluded in the <span class="bold">Exclude all SQL statements containing these SQL text substrings</span> field.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT183"></a>
+<div class="props_rev_3"><a id="GUID-9FB31376-8223-4D07-B77E-65FC497BC2B9"></a>
+<h4 id="TDPPT-GUID-9FB31376-8223-4D07-B77E-65FC497BC2B9" class="sect4">Defining Filters for Modules</h4>
+<div>
+<div class="section">
+<p>The module filter restricts the workload to include or exclude SQL statements that are associated with modules that you specify.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To define a filter for module ID:</p>
+<ol>
+<li>
+<p>Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To include only SQL statements associated with a specific module ID in the workload, select <span class="bold">Include only SQL statements associated with these modules</span>.</p>
+</li>
+<li>
+<p>To exclude all SQL statements associated to a specific module ID from the workload, select <span class="bold">Exclude all SQL statements associated with these modules</span>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>In the Modules field, enter the names of the modules for which associated SQL statements are included or excluded.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT184"></a>
+<div class="props_rev_3"><a id="GUID-7F9A3544-AE0C-4E88-B919-7A6E92DCDEA1"></a>
+<h4 id="TDPPT-GUID-7F9A3544-AE0C-4E88-B919-7A6E92DCDEA1" class="sect4">Defining Filters for Actions</h4>
+<div>
+<div class="section">
+<p>The actions filter restricts the workload to include or exclude SQL statements that are associated with actions that you specify.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To define a filter for actions:</p>
+<ol>
+<li>
+<p>Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To include only SQL statements associated with a specific action in the workload, select <span class="bold">Include only SQL statements associated with these actions</span>.</p>
+</li>
+<li>
+<p>To exclude all SQL statements associated with a specific action from the workload, select <span class="bold">Exclude all SQL statements associated with these actions</span>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>In the Actions field, enter the actions for which associated SQL statements are included or excluded.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TDPPT185"></a>
+<div class="props_rev_3"><a id="GUID-53DF5146-FC24-4EEB-BFD4-6AA9A863F66F"></a>
+<h3 id="TDPPT-GUID-53DF5146-FC24-4EEB-BFD4-6AA9A863F66F" class="sect3">Specifying Recommendation Options</h3>
+<div>
+<div class="section">
+<p>To improve the underlying data access methods chosen by the optimizer for the workload, SQL Access Advisor provides recommendations for indexes, materialized views, and partitioning. Using these access structures can significantly improve the performance of the workload by reducing the time required to read data from the database. However, you must balance the benefits of using these access structures against the cost to maintain them.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To specify recommendation options:</p>
+<ol>
+<li>
+<p>Select initial options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746">Selecting the Initial Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select the workload source, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-89A6683D-509A-4681-B573-9BD208C20DD0">Selecting the Workload Source</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Define the filter options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-ECFF824D-E366-4FC3-A403-8B3248DDAD8C">Applying Filter Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>On the SQL Access Advisor: Recommendation Options page, under Access Structures to Recommend, select the type of access structures to be recommended by SQL Access Advisor:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Indexes</p>
+</li>
+<li>
+<p>Materialized Views</p>
+</li>
+<li>
+<p>Partitioning</p>
+</li>
+</ul>
+<p>In this example, all of the preceding access types are selected.</p>
+<div class="figure" id="GUID-53DF5146-FC24-4EEB-BFD4-6AA9A863F66F__GUID-E1D7BCA9-3408-489E-BA2B-C4D5363F97A2"><img width="222" height="86" src="img/GUID-B10163A0-2A32-409C-9350-9AEC6545D681-default.gif" alt="Description of GUID-B10163A0-2A32-409C-9350-9AEC6545D681-default.gif follows" title="Description of GUID-B10163A0-2A32-409C-9350-9AEC6545D681-default.gif follows"/><br/>
+<a href="img_text/GUID-B10163A0-2A32-409C-9350-9AEC6545D681-default.htm">Description of the illustration GUID-B10163A0-2A32-409C-9350-9AEC6545D681-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Under Scope, select the mode in which SQL Access Advisor runs. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">Limited</span>.</p>
+<p>In limited mode, SQL Access Advisor focuses on SQL statements with the highest cost in the workload. The analysis is quicker, but the recommendations may be limited.</p>
+</li>
+<li>
+<p>Select <span class="bold">Comprehensive</span>.</p>
+<p>In comprehensive mode, SQL Access Advisor analyzes all SQL statements in the workload. The analysis can take much longer, but the recommendations are exhaustive.</p>
+</li>
+</ul>
+<p>In this example, <span class="bold">Limited Mode</span> is selected.</p>
+<div class="figure" id="GUID-53DF5146-FC24-4EEB-BFD4-6AA9A863F66F__GUID-2D894C05-9937-4329-954B-DDC713156D54"><img width="515" height="135" src="img/GUID-897CD0B1-1B8B-4D5C-9630-75E95FE27C09-default.gif" alt="Description of GUID-897CD0B1-1B8B-4D5C-9630-75E95FE27C09-default.gif follows" title="Description of GUID-897CD0B1-1B8B-4D5C-9630-75E95FE27C09-default.gif follows"/><br/>
+<a href="img_text/GUID-897CD0B1-1B8B-4D5C-9630-75E95FE27C09-default.htm">Description of the illustration GUID-897CD0B1-1B8B-4D5C-9630-75E95FE27C09-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Optionally, click <span class="bold">Advanced Options</span>.</p>
+<p>The Advanced Options section expands. This section contains the following subsections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Workload Categorization</p>
+<p>In this section, you can specify the type of workload for which you want a recommendation. The following categories are available:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Workload Volatility</p>
+<p>Select <span class="bold">Consider only queries</span> if the workload primarily contains read-only operations, as in data warehouses. Volatility data is useful for online transaction processing (OLTP) systems, where the performance of <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> operations is critical.</p>
+</li>
+<li>
+<p>Workload Scope</p>
+<p>Select <span class="bold">Recommend dropping unused access structures</span> if the workload represents all access structure use cases.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Space Restrictions</p>
+<p>Indexes and materialized views increase performance at the cost of space. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">No, show me all recommendations (unlimited space)</span> to specify no space limits. When SQL Access Advisor is invoked with no space limits, it makes the best possible performance recommendations.</p>
+</li>
+<li>
+<p>Select <span class="bold">Yes, limit additional space to</span> and then enter the space limit in megabytes, gigabytes, or terabytes. When SQL Access Advisor is invoked with a space limit, it produces only recommendations with space requirements that do not exceed the specified limit.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuning Prioritization</p>
+<p>This section enables you to specify how SQL statements are tuned. Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>From the Prioritize tuning of SQL statements by list, select a method by which SQL statements are to be tuned and then click <span class="bold">Add</span>.</p>
+</li>
+<li>
+<p>Optionally, select <span class="bold">Consider access structures creation costs recommendations</span> to weigh the cost of creating access structures against the frequency and potential improvement of SQL statement execution time. Otherwise, creation cost is ignored. You should select this option if you want specific recommendations generated for SQL statements that are executed frequently.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Default Storage Locations</p>
+<p>Use this section to override the defaults defined for schema and tablespace locations. By default, indexes are in the schema and tablespace of the table they reference. Materialized views are in the schema and tablespace of the first table referenced in the query. Materialized view logs are in the default tablespace of the schema of the table that they reference.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The SQL Access Advisor: Schedule page appears.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753">Specifying Task and Scheduling Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT464"></a><a id="TDPPT186"></a>
+<div class="props_rev_3"><a id="GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753"></a>
+<h3 id="TDPPT-GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753" class="sect3">Specifying Task and Scheduling Options</h3>
+<div>
+<div class="section">
+<p>Use the SQL Access Advisor Schedule page to set or modify the schedule parameters for the SQL Access Advisor task.</p>
+<div class="figure" id="GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753__CIHIICJH">
+<p class="titleinfigure">Figure 13-1 Scheduling a SQL Access Advisor Task</p>
+<img width="526" height="584" src="img/GUID-84B0F888-9643-4B41-BFCF-B8EB6D053981-default.gif" alt="Description of Figure 13-1 follows" title="Description of Figure 13-1 follows"/><br/>
+<a href="img_text/GUID-84B0F888-9643-4B41-BFCF-B8EB6D053981-default.htm">Description of &#34;Figure 13-1 Scheduling a SQL Access Advisor Task&#34;</a></div>
+<!-- class="figure" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To schedule a SQL Access Advisor task:</p>
+<ol>
+<li>
+<p>Select initial options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-4DF1C69C-0363-44AE-A760-7C6B66EA2746">Selecting the Initial Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select the workload source, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-89A6683D-509A-4681-B573-9BD208C20DD0">Selecting the Workload Source</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Define the filter options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-ECFF824D-E366-4FC3-A403-8B3248DDAD8C">Applying Filter Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Specify the recommendation options, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-53DF5146-FC24-4EEB-BFD4-6AA9A863F66F">Specifying Recommendation Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>On the SQL Access Advisor: Schedule page, under Advisor Task Information, enter a name in the <span class="bold">Task Name</span> field if you do not want to use the system-generated task name.</p>
+<p>In the example in <a href="tdppt_sqlopt.htm#GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753__CIHIICJH">Figure 13-1</a>, <code>SQLACCESS8895797</code> is entered.</p>
+</li>
+<li>
+<p>In the <span class="bold">Task Description</span> field, enter a description of the task.</p>
+<p>In the example in <a href="tdppt_sqlopt.htm#GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753__CIHIICJH">Figure 13-1</a>, <code>SQL Access Advisor</code> is entered.</p>
+</li>
+<li>
+<p>From the Journaling Level list, select the level of journaling for the task.</p>
+<p>Journaling level controls the amount of information that is logged to the SQL Access Advisor journal during task execution. This information appears on the <span>Details</span> subpage when viewing task results.</p>
+<p>In the example in <a href="tdppt_sqlopt.htm#GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753__CIHIICJH">Figure 13-1</a>, <code>Basic</code> is selected.</p>
+</li>
+<li>
+<p>In the <span class="bold">Task Expiration (days)</span> field, enter the number of days to retain the task in the database before it is purged.</p>
+<p>In the example in <a href="tdppt_sqlopt.htm#GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753__CIHIICJH">Figure 13-1</a>, <code>30</code> is entered.</p>
+</li>
+<li>
+<p>In the <span class="bold">Total Time Limit (minutes)</span> field, enter the maximum number of minutes that the job is permitted to run.</p>
+<p>You must enter a time in this field rather than use the default.</p>
+</li>
+<li>
+<p>Under Scheduling Options, in the Schedule Type list, select a schedule type for the task and a maintenance window in which the task should run. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Click <span class="bold">Standard</span>.</p>
+<p>This schedule type enables you to select a repeating interval and start time for the task. Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enter your time zone code in the <span class="bold">Time Zone</span> field or click the search icon to locate the code for your area.</p>
+</li>
+<li>
+<p>In the Repeat list, select <span class="bold">Do Not Repeat</span> to perform the task only once, or select a unit of time and enter the number of units in the <span class="bold">Interval</span> field.</p>
+</li>
+<li>
+<p>Under Start, select <span class="bold">Immediately</span> to start the task now, or <span class="bold">Later</span> to schedule the task to start at a time specified using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Use Predefined Schedule</span>.</p>
+<p>This schedule type enables you to select an existing schedule. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In the <span class="bold">Schedule</span> field, enter the name of the schedule to be used for the task.</p>
+</li>
+<li>
+<p>To search for a schedule, click the search icon.</p>
+<p>The Search and Select: Schedule dialog box appears.</p>
+<p>Select the desired schedule and click <span class="bold">Select</span>. The selected schedule now appears in the <span class="bold">Schedule</span> field.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Standard Using PL/SQL for Repeated Interval</span>.</p>
+<p>This schedule type enables you to select a repeating interval and an execution time period (window) for the task. Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enter your time zone code in the <span class="bold">Time Zone</span> field or click the search icon to locate the code for your area.</p>
+</li>
+<li>
+<p>Under Available to Start, select <span class="bold">Immediately</span> to start the task now, or <span class="bold">Later</span> to schedule the task to start at a time specified using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+<li>
+<p>In the <span class="bold">Repeated Interval</span> field, enter a PL/SQL schedule expression, such as <code>SYSDATE+1</code>.</p>
+</li>
+<li>
+<p>Under Not Available After, select <span class="bold">No End Date</span> to indicate that there is no end date for the execution window, or <span class="bold">Specified End Date</span> to specify an end date using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Use Predefined Window</span>.</p>
+<p>This schedule type enables you to select an existing window. Select <span class="bold">Stop on Window Close</span> to stop the job when the window closes. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In the <span class="bold">Window</span> field, enter the name of the window to be used for the task.</p>
+</li>
+<li>
+<p>To search for a window, click the search icon.</p>
+<p>The Search and Select: Window and Window Groups dialog box appears.</p>
+<p>Select the desired window and click <span class="bold">Select</span>. The selected window now appears in the <span class="bold">Schedule</span> field.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Event</span>.</p>
+<p>Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enter your time zone code in the <span class="bold">Time Zone</span> field or click the search icon to locate the code for your area.</p>
+</li>
+<li>
+<p>Under Event Parameters, enter values in the <span class="bold">Queue Name</span> and <span class="bold">Condition</span> fields.</p>
+</li>
+<li>
+<p>Under Start, select <span class="bold">Immediately</span> to start the task now, or <span class="bold">Later</span> to schedule the task to start at a time specified using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+<li>
+<p>Under Not Available After, select <span class="bold">No End Date</span> to indicate that there is no end date for the execution window, or <span class="bold">Specified End Date</span> to specify an end date using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Calendar</span>.</p>
+<p>Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enter your time zone code in the <span class="bold">Time Zone</span> field or click the search icon to locate the code for your area.</p>
+</li>
+<li>
+<p>Under Calendar Expression, enter a calendar expression.</p>
+</li>
+<li>
+<p>Under Start, select <span class="bold">Immediately</span> to start the task now, or <span class="bold">Later</span> to schedule the task to start at a time specified using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+<li>
+<p>Under Not Available After, select <span class="bold">No End Date</span> to indicate that there is no end date for the execution window, or <span class="bold">Specified End Date</span> to specify an end date using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>In the example in <a href="tdppt_sqlopt.htm#GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753__CIHIICJH">Figure 13-1</a>, <span class="bold">Standard</span> is selected for schedule type. The task does not repeat and is scheduled to start immediately.</p>
+</li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The SQL Access Advisor: Review page appears.</p>
+<div class="figure" id="GUID-ABB1ED51-4F0B-4592-A8DE-0C78983B1753__GUID-24060AAE-0061-452F-BDD8-4F2D9B0EF323"><img width="564" height="330" src="img/GUID-2FB46A72-5A16-42D9-AF15-E082418ED278-default.gif" alt="Description of GUID-2FB46A72-5A16-42D9-AF15-E082418ED278-default.gif follows" title="Description of GUID-2FB46A72-5A16-42D9-AF15-E082418ED278-default.gif follows"/><br/>
+<a href="img_text/GUID-2FB46A72-5A16-42D9-AF15-E082418ED278-default.htm">Description of the illustration GUID-2FB46A72-5A16-42D9-AF15-E082418ED278-default.gif</a></div>
+<!-- class="figure" -->
+<p>Under Options is a list of modified options for the SQL Access Advisor task. To display both modified and unmodified options, click <span class="bold">Show All Options</span>. To view the SQL text for the task, click <span class="bold">Show SQL</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">Submit</span>.</p>
+<p>The Advisor Central page appears. A message informs you that the task was created successfully.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TDPPT187"></a>
+<div class="props_rev_3"><a id="GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16"></a>
+<h2 id="TDPPT-GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16" class="sect2">Reviewing the SQL Access Advisor Recommendations</h2>
+<div>
+<div class="section">
+<p>SQL Access Advisor graphically displays the recommendations and provides links so that you can quickly see which SQL statements benefit from a recommendation. Each recommendation produced by the SQL Access Advisor is linked to the SQL statement it benefits.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To review the SQL Access Advisor recommendations:</p>
+<ol>
+<li>
+<p>Run SQL Access Advisor to make the recommendations, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-C29EE8A0-D8F6-460C-B728-3355E015C15E">Running SQL Access Advisor</a>&#34;</span>.</p>
+</li>
+<li>
+<p><a id="d26138e2615" class="indexterm-anchor"></a>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">Advisors Home</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The Advisor Central page appears.</p>
+</li>
+<li>
+<p>Select the SQL Access Advisor task for review and click <span class="bold">View</span> <span class="bold">Result</span>.</p>
+<div class="figure" id="GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16__GUID-2C771F5A-BCBA-404C-8BF4-2FD74F5AF48E"><img width="654" height="129" src="img/GUID-5B7121A7-3CA5-4048-AE27-5BF8756755C5-default.gif" alt="Description of GUID-5B7121A7-3CA5-4048-AE27-5BF8756755C5-default.gif follows" title="Description of GUID-5B7121A7-3CA5-4048-AE27-5BF8756755C5-default.gif follows"/><br/>
+<a href="img_text/GUID-5B7121A7-3CA5-4048-AE27-5BF8756755C5-default.htm">Description of the illustration GUID-5B7121A7-3CA5-4048-AE27-5BF8756755C5-default.gif</a></div>
+<!-- class="figure" -->
+<p>If the task is not displayed, then you may need to refresh the screen. The Results for Task page appears.</p>
+</li>
+<li>
+<p>Review the Summary subpage, which provides an overview of the SQL Access Advisor analysis, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-2C5C7419-747C-4C18-B4C3-ED218E4168E5">Reviewing the SQL Access Advisor Recommendations: Summary</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Review the Recommendations subpage, which enables you to view the recommendations ranked by cost improvement, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-32E7A6E9-F8E8-4589-A486-7E13F024E63C">Reviewing the SQL Access Advisor Recommendations: Recommendations</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Review the SQL statements analyzed in the workload, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-97BA5EAF-C51B-4BD9-BC8A-2CF7C9EF1536">Reviewing the SQL Access Advisor Recommendations: SQL Statements</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Review the details of the workload, task options, and the SQL Access Advisor task, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-A846908B-66FC-4A79-8D6A-25C2F63B9A77">Reviewing the SQL Access Advisor Recommendations: Details</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+<a id="TDPPT188"></a>
+<div class="props_rev_3"><a id="GUID-2C5C7419-747C-4C18-B4C3-ED218E4168E5"></a>
+<h3 id="TDPPT-GUID-2C5C7419-747C-4C18-B4C3-ED218E4168E5" class="sect3">Reviewing the SQL Access Advisor Recommendations: Summary</h3>
+<div>
+<div class="section">
+<p>The Summary subpage displays an overview of the SQL Access Advisor analysis.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To review the recommendations summary:</p>
+<ol>
+<li>
+<p>Access the Results for Task page, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16">Reviewing the SQL Access Advisor Recommendations</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">Summary</span>.</p>
+<p>The Summary subpage of the Results for Tasks page appears.</p>
+<p>In this example, <span class="bold">Limited Mode</span> is selected so that SQL Access Advisor analyzes the highest cost statements rather than all statements.</p>
+<div class="figure" id="GUID-2C5C7419-747C-4C18-B4C3-ED218E4168E5__GUID-B10C9EC3-F02E-4028-8ABB-D441486272C7"><img width="617" height="509" src="img/GUID-33552068-4283-44BD-AF31-2D0891B794AC-default.gif" alt="Description of GUID-33552068-4283-44BD-AF31-2D0891B794AC-default.gif follows" title="Description of GUID-33552068-4283-44BD-AF31-2D0891B794AC-default.gif follows"/><br/>
+<a href="img_text/GUID-33552068-4283-44BD-AF31-2D0891B794AC-default.htm">Description of the illustration GUID-33552068-4283-44BD-AF31-2D0891B794AC-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Under Overall Workload Performance, assess the potential for improvement in implementing the recommendations.</p>
+</li>
+<li>
+<p>Use the Workload I/O Cost chart to compare the original workload I/O cost with the new cost.</p>
+<p>In this example, the workload I/O cost decreases from 107.1 million to 43.1 million by implementing the recommendations.</p>
+</li>
+<li>
+<p>Use the Query Execution Time Improvement chart to compare the improvement in query execution time.</p>
+<p>This chart shows the percentage of SQL statements in the workload whose execution time improves by accepting the recommendations. The SQL statements are grouped by the projected improvement factor along the horizontal axis on the chart (1x to &gt;10x). The percentage of SQL statements that improve by the projected improvement factor are along the vertical axis (0% to 100%).</p>
+<p>In this example, approximately 62 percent of SQL statements in the workload do not improve execution time, but about 25 percent have the potential for improvement of over 4x or more.</p>
+</li>
+<li>
+<p>Under Recommendations, click <span class="bold">Show Recommendation Action Counts</span>.</p>
+<p>In the following example, creating 2 indexes, 4 materialized views, and 4 materialized view logs is recommended.</p>
+<div class="figure" id="GUID-2C5C7419-747C-4C18-B4C3-ED218E4168E5__GUID-7F9E128F-8B11-4273-92B5-976BFD6DD419"><img width="377" height="155" src="img/GUID-DEEC9F43-79F8-4CCE-AF8F-9CD8A016A45A-default.gif" alt="Description of GUID-DEEC9F43-79F8-4CCE-AF8F-9CD8A016A45A-default.gif follows" title="Description of GUID-DEEC9F43-79F8-4CCE-AF8F-9CD8A016A45A-default.gif follows"/><br/>
+<a href="img_text/GUID-DEEC9F43-79F8-4CCE-AF8F-9CD8A016A45A-default.htm">Description of the illustration GUID-DEEC9F43-79F8-4CCE-AF8F-9CD8A016A45A-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Under SQL Statements, click <span class="bold">Show Statement Counts</span> to display the type of SQL statement.</p>
+<p>In the following example, 25 <code>SELECT</code> statements are analyzed.</p>
+<div class="figure" id="GUID-2C5C7419-747C-4C18-B4C3-ED218E4168E5__GUID-3C0E2E30-0F89-465B-A6B4-35A22B88D00B"><img width="219" height="187" src="img/GUID-542FB48E-B8DC-4C43-A0B3-41FE146E9431-default.gif" alt="Description of GUID-542FB48E-B8DC-4C43-A0B3-41FE146E9431-default.gif follows" title="Description of GUID-542FB48E-B8DC-4C43-A0B3-41FE146E9431-default.gif follows"/><br/>
+<a href="img_text/GUID-542FB48E-B8DC-4C43-A0B3-41FE146E9431-default.htm">Description of the illustration GUID-542FB48E-B8DC-4C43-A0B3-41FE146E9431-default.gif</a></div>
+<!-- class="figure" --></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT189"></a>
+<div class="props_rev_3"><a id="GUID-32E7A6E9-F8E8-4589-A486-7E13F024E63C"></a>
+<h3 id="TDPPT-GUID-32E7A6E9-F8E8-4589-A486-7E13F024E63C" class="sect3">Reviewing the SQL Access Advisor Recommendations: Recommendations</h3>
+<div>
+<div class="section">
+<p>The Recommendations subpage ranks the SQL Access Advisor recommendations by cost improvement. You can also view details about each recommendation.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To review recommendation details:</p>
+<ol>
+<li>
+<p>Access the Results for Task page, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16">Reviewing the SQL Access Advisor Recommendations</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">Recommendations</span>.</p>
+<p>The Recommendations subpage appears.</p>
+<div class="figure" id="GUID-32E7A6E9-F8E8-4589-A486-7E13F024E63C__GUID-4C7AE1F9-355A-4B97-9A16-A42FC3D53F3F"><img width="814" height="562" src="img/GUID-9586F90C-8A7F-4671-BC51-878F9F2B1C53-default.gif" alt="Description of GUID-9586F90C-8A7F-4671-BC51-878F9F2B1C53-default.gif follows" title="Description of GUID-9586F90C-8A7F-4671-BC51-878F9F2B1C53-default.gif follows"/><br/>
+<a href="img_text/GUID-9586F90C-8A7F-4671-BC51-878F9F2B1C53-default.htm">Description of the illustration GUID-9586F90C-8A7F-4671-BC51-878F9F2B1C53-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Use the Recommendations by Cost Improvement chart to view recommendations ordered by the cost improvement.</p>
+<p>Under Select Recommendations for Implementation, each recommendation is listed with its implementation status, recommendation ID, cost improvement, space consumption, and the number of affected SQL statements for each recommendation. Implementing the top recommendation has the biggest benefit to the total performance of the workload.</p>
+</li>
+<li>
+<p>To view details for a particular recommendation, select the recommendation and click <span class="bold">Recommendation Details</span>.</p>
+<p>The Recommendation Details page appears. For space reasons, the following screenshot does not show the rightmost columns of the Actions table. The columns not shown are Tablespace and Estimated Space Used (MB).</p>
+<div class="figure" id="GUID-32E7A6E9-F8E8-4589-A486-7E13F024E63C__GUID-3A1246B1-757A-4CCA-A14B-6436BC4BBE72"><img width="864" height="605" src="img/GUID-5F44755B-DF63-45EA-A07C-CB5D6214A0CB-default.gif" alt="Description of GUID-5F44755B-DF63-45EA-A07C-CB5D6214A0CB-default.gif follows" title="Description of GUID-5F44755B-DF63-45EA-A07C-CB5D6214A0CB-default.gif follows"/><br/>
+<a href="img_text/GUID-5F44755B-DF63-45EA-A07C-CB5D6214A0CB-default.htm">Description of the illustration GUID-5F44755B-DF63-45EA-A07C-CB5D6214A0CB-default.gif</a></div>
+<!-- class="figure" -->
+<p>The Recommendation Details page displays all actions for the specified recommendation.</p>
+<p>Under Actions, you can choose to specify the schema or the tablespace for all actions. For some actions you can modify the object name, tablespace, and schema. To view the SQL text of an action, click the link in the Action column for the specified action.</p>
+<p>Under SQL Affected by Recommendation, the SQL text of the SQL statement and cost improvement information are displayed.</p>
+</li>
+<li>
+<p>Click <span class="bold">OK</span>.</p>
+<p>The Recommendations subpage appears.</p>
+</li>
+<li>
+<p>To view the SQL text of a recommendation, select the recommendation and click <span class="bold">Show SQL</span>.</p>
+<p>The Show SQL page for the selected recommendation appears.</p>
+<div class="figure" id="GUID-32E7A6E9-F8E8-4589-A486-7E13F024E63C__GUID-35CFF904-0AD2-4A12-BC22-4CB7AA421E8B"><img width="828" height="693" src="img/GUID-D50A27E3-B8DD-4A18-B09F-5BB2947D20F7-default.gif" alt="Description of GUID-D50A27E3-B8DD-4A18-B09F-5BB2947D20F7-default.gif follows" title="Description of GUID-D50A27E3-B8DD-4A18-B09F-5BB2947D20F7-default.gif follows"/><br/>
+<a href="img_text/GUID-D50A27E3-B8DD-4A18-B09F-5BB2947D20F7-default.htm">Description of the illustration GUID-D50A27E3-B8DD-4A18-B09F-5BB2947D20F7-default.gif</a></div>
+<!-- class="figure" --></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT190"></a>
+<div class="props_rev_3"><a id="GUID-97BA5EAF-C51B-4BD9-BC8A-2CF7C9EF1536"></a>
+<h3 id="TDPPT-GUID-97BA5EAF-C51B-4BD9-BC8A-2CF7C9EF1536" class="sect3">Reviewing the SQL Access Advisor Recommendations: SQL Statements</h3>
+<div>
+<div class="section">
+<p>The SQL Statements subpage ranks SQL statements in the workload by cost improvement. You can use this page to view details about the SQL statements analyzed in the workload.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To review SQL statements:</p>
+<ol>
+<li>
+<p>Access the Results for Task page, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16">Reviewing the SQL Access Advisor Recommendations</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">SQL Statements</span>.</p>
+<p>The SQL Statements subpage appears.</p>
+<div class="figure" id="GUID-97BA5EAF-C51B-4BD9-BC8A-2CF7C9EF1536__GUID-A58CF64F-99D4-42ED-8A97-4EA735205244"><img width="809" height="617" src="img/GUID-03A2A308-0146-4749-99DC-3418FB2C6F47-default.gif" alt="Description of GUID-03A2A308-0146-4749-99DC-3418FB2C6F47-default.gif follows" title="Description of GUID-03A2A308-0146-4749-99DC-3418FB2C6F47-default.gif follows"/><br/>
+<a href="img_text/GUID-03A2A308-0146-4749-99DC-3418FB2C6F47-default.htm">Description of the illustration GUID-03A2A308-0146-4749-99DC-3418FB2C6F47-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Use the SQL Statements by Cost Improvement chart to view SQL statements in the workload ordered by the cost improvement.</p>
+<p>Under Select SQL Statements to be Improved, each SQL statement is listed with its statement ID, SQL text, associated recommendation, cost improvement, and execution count.</p>
+<p>Implementing the recommendation associated with the top SQL statement has the biggest benefit to the total performance of the workload. In this example, implementing the recommendation with ID 3 produces the biggest benefit, a cost improvement of 99.80%, for the SQL statement with ID 803.</p>
+</li>
+<li>
+<p>To view the SQL text of a recommendation, select the recommendation and click <span class="bold">Show SQL</span>.</p>
+<p>The Show SQL page for the selected recommendation appears.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT191"></a>
+<div class="props_rev_3"><a id="GUID-A846908B-66FC-4A79-8D6A-25C2F63B9A77"></a>
+<h3 id="TDPPT-GUID-A846908B-66FC-4A79-8D6A-25C2F63B9A77" class="sect3">Reviewing the SQL Access Advisor Recommendations: Details</h3>
+<div>
+<div class="section">
+<p>The Details subpage displays a list of all the workload and task options used in the analysis. You can also use this page to view a list of journal entries for the task, based on the journaling level used when the task was created.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To review workload and task details:</p>
+<ol>
+<li>
+<p>Access the Results for Task page, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16">Reviewing the SQL Access Advisor Recommendations</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">Details</span>.</p>
+<p>The Details subpage appears.</p>
+<div class="figure" id="GUID-A846908B-66FC-4A79-8D6A-25C2F63B9A77__GUID-7EBB20FC-97BF-4F1D-B144-E603DFAF948E"><img width="678" height="753" src="img/GUID-5A436F13-759B-41BA-993C-4828075A1809-default.gif" alt="Description of GUID-5A436F13-759B-41BA-993C-4828075A1809-default.gif follows" title="Description of GUID-5A436F13-759B-41BA-993C-4828075A1809-default.gif follows"/><br/>
+<a href="img_text/GUID-5A436F13-759B-41BA-993C-4828075A1809-default.htm">Description of the illustration GUID-5A436F13-759B-41BA-993C-4828075A1809-default.gif</a></div>
+<!-- class="figure" -->
+<p>Under Workload and Task Options, a list of options that were selected when the advisor task was created is displayed.</p>
+<p>Under Journal Entries, a list of messages that were logged to the SQL Access Advisor journal while the task was executing is displayed.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TDPPT192"></a>
+<div class="props_rev_3"><a id="GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D"></a>
+<h2 id="TDPPT-GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D" class="sect2">Implementing the SQL Access Advisor Recommendations</h2>
+<div>
+<div class="section">
+<p>A SQL Access Advisor recommendation can range from a simple suggestion to a complex solution that requires partitioning a set of existing base tables and implementing a set of database objects such as indexes, materialized views, and materialized view logs. You can select the recommendations for implementation and schedule when the job should be executed.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To implement the SQL Access Advisor recommendations:</p>
+<ol>
+<li>
+<p>Review the SQL Access Advisor recommendations for cost benefits to determine which ones, if any, should be implemented.</p>
+<p>See <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16">Reviewing the SQL Access Advisor Recommendations</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>Access the Results for Task page, as described in <span class="q">&#34;<a href="tdppt_sqlopt.htm#GUID-9F21CEC9-1158-46FD-BF97-996F95EABA16">Reviewing the SQL Access Advisor Recommendations</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">Recommendations</span>.</p>
+<p>The Recommendations subpage appears.</p>
+</li>
+<li>
+<p>Under Select Recommendations for Implementation, select the recommendation you want to implement and then click <span class="bold">Schedule Implementation</span>.</p>
+<p>In the following example, the recommendation with ID value <code>1</code> is selected.</p>
+<div class="figure" id="GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D__GUID-75E371D6-5E15-462B-B8D7-53D9B0B33466"><img width="813" height="308" src="img/GUID-F614E2A2-C175-435E-B055-C72FB4F605A2-default.gif" alt="Description of GUID-F614E2A2-C175-435E-B055-C72FB4F605A2-default.gif follows" title="Description of GUID-F614E2A2-C175-435E-B055-C72FB4F605A2-default.gif follows"/><br/>
+<a href="img_text/GUID-F614E2A2-C175-435E-B055-C72FB4F605A2-default.htm">Description of the illustration GUID-F614E2A2-C175-435E-B055-C72FB4F605A2-default.gif</a></div>
+<!-- class="figure" -->
+<p>The Schedule Implementation page appears.</p>
+</li>
+<li>
+<p>In the <span class="bold">Job Name</span> field, enter a name for the job if you do not want to use the system-generated job name.</p>
+</li>
+<li>
+<p>Determine whether the implementation job should stop if an error is encountered. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To stop processing if an error occurs, select <span class="bold">Stop on Error</span>.</p>
+</li>
+<li>
+<p>To continue processing even if an error occurs, deselect <span class="bold">Stop on Error</span>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Under Scheduling Options, in the Schedule Type list, select a schedule type for the task and a maintenance window in which the task should run. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Click <span class="bold">Standard</span>.</p>
+<p>This schedule type enables you to select a repeating interval and start time for the task. Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enter your time zone code in the <span class="bold">Time Zone</span> field or click the search icon to locate the code for your area.</p>
+</li>
+<li>
+<p>In the Repeat list, select <span class="bold">Do Not Repeat</span> to perform the task only once, or select a unit of time and enter the number of units in the <span class="bold">Interval</span> field.</p>
+</li>
+<li>
+<p>Under Start, select <span class="bold">Immediately</span> to start the task now, or <span class="bold">Later</span> to schedule the task to start at a time specified using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Use predefined schedule</span>.</p>
+<p>This schedule type enables you to select an existing schedule. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In the <span class="bold">Schedule</span> field, enter the name of the schedule to be used for the task.</p>
+</li>
+<li>
+<p>To search for a schedule, click the search icon.</p>
+<p>The Search and Select: Schedule dialog box appears.</p>
+<p>Select the desired schedule and click <span class="bold">Select</span>. The selected schedule now appears in the <span class="bold">Schedule</span> field.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Standard using PL/SQL for repeated interval</span>.</p>
+<p>This schedule type enables you to select a repeating interval and an execution window for the task. Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enter your time zone code in the <span class="bold">Time Zone</span> field or click the search icon to locate the code for your area.</p>
+</li>
+<li>
+<p>Under Available to Start, select <span class="bold">Immediately</span> to start the task now, or <span class="bold">Later</span> to schedule the task to start at a time specified using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+<li>
+<p>In the <span class="bold">Repeated Interval</span> field, enter a PL/SQL schedule expression, such as <code>SYSDATE+1</code>.</p>
+</li>
+<li>
+<p>Under Not Available After, select <span class="bold">No End Date</span> to indicate that there is no end date for the execution window, or <span class="bold">Specified End Date</span> to specify an end date using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Use predefined window</span>.</p>
+<p>This schedule type enables you to select an existing window. Select <span class="bold">Stop on Window Close</span> to stop the job when the window closes. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In the <span class="bold">Window</span> field, enter the name of the window to be used for the task.</p>
+</li>
+<li>
+<p>To search for a window, click the search icon.</p>
+<p>The Search and Select: Window and Window Groups dialog box appears.</p>
+<p>Select the desired window and click <span class="bold">Select</span>. The selected window now appears in the <span class="bold">Schedule</span> field.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Event</span>.</p>
+<p>Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enter your time zone code in the <span class="bold">Time Zone</span> field or click the search icon to locate the code for your area.</p>
+</li>
+<li>
+<p>Under Event Parameters, enter values in the <span class="bold">Queue Name</span> and <span class="bold">Condition</span> fields.</p>
+</li>
+<li>
+<p>Under Start, select <span class="bold">Immediately</span> to start the task now, or <span class="bold">Later</span> to schedule the task to start at a time specified using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+<li>
+<p>Under Not Available After, select <span class="bold">No End Date</span> to indicate that there is no end date for the execution window, or <span class="bold">Specified End Date</span> to specify an end date using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">Calendar</span>.</p>
+<p>Complete the following steps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enter your time zone code in the <span class="bold">Time Zone</span> field or click the search icon to locate the code for your area.</p>
+</li>
+<li>
+<p>Under Calendar Expression, enter a calendar expression.</p>
+</li>
+<li>
+<p>Under Start, select <span class="bold">Immediately</span> to start the task now, or <span class="bold">Later</span> to schedule the task to start at a time specified using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+<li>
+<p>Under Not Available After, select <span class="bold">No End Date</span> to indicate that there is no end date for the execution window, or <span class="bold">Specified End Date</span> to specify an end date using the <span class="bold">Date</span> and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>In this example, <span class="bold">Standard</span> is selected for schedule type. The job does not repeat and is scheduled to start immediately.</p>
+<div class="figure" id="GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D__GUID-68D3B09E-13DA-46B6-907A-A5A9DABF95F9"><img width="515" height="460" src="img/GUID-8AF52B8F-9911-429F-ADC9-B4F35A6CAC7F-default.gif" alt="Description of GUID-8AF52B8F-9911-429F-ADC9-B4F35A6CAC7F-default.gif follows" title="Description of GUID-8AF52B8F-9911-429F-ADC9-B4F35A6CAC7F-default.gif follows"/><br/>
+<a href="img_text/GUID-8AF52B8F-9911-429F-ADC9-B4F35A6CAC7F-default.htm">Description of the illustration GUID-8AF52B8F-9911-429F-ADC9-B4F35A6CAC7F-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Optionally, click <span class="bold">Show SQL</span> to view the SQL text for the job.</p>
+</li>
+<li>
+<p>Click <span class="bold">Submit</span> to submit the job.</p>
+</li>
+<li>
+<p>Do one of the following, depending on whether the job is scheduled to start immediately or later:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If you submitted the job immediately, and if the Results for Task page appears, then click the link in the <span class="bold">Scheduler Job</span> field to display the View Job page. Go to Step <a href="tdppt_sqlopt.htm#GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D__CIHBDFBF">12</a>.</p>
+</li>
+<li>
+<p>If the job is scheduled to start at a later time, then proceed to Step <a href="tdppt_sqlopt.htm#GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D__CHDDBFII">11</a>.</p>
+</li>
+</ul>
+</li>
+<li id="GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D__CHDDBFII">
+<p>Complete the following steps:</p>
+<ol>
+<li>
+<p>From the Administration menu, select <span class="bold">Oracle Scheduler</span>, then <span class="bold">Jobs</span>.</p>
+<p>The Scheduler Jobs page appears.</p>
+</li>
+<li>
+<p>Select the implementation job and click <span class="bold">View Job Definition</span>.</p>
+<p>The View Job page for the selected job appears.</p>
+</li>
+</ol>
+</li>
+<li id="GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D__CIHBDFBF">
+<p>On the View Job page, under Operation Detail, check the status of the operation.</p>
+<div class="figure" id="GUID-40A74CD9-F13B-4825-9AB7-6FD0A6C96E4D__GUID-015D0507-4C41-4BA4-8068-AE331D0D18C0"><img width="600" height="108" src="img/GUID-699F7CF7-6516-462E-B163-9D1D62D4C55D-default.gif" alt="Description of GUID-699F7CF7-6516-462E-B163-9D1D62D4C55D-default.gif follows" title="Description of GUID-699F7CF7-6516-462E-B163-9D1D62D4C55D-default.gif follows"/><br/>
+<a href="img_text/GUID-699F7CF7-6516-462E-B163-9D1D62D4C55D-default.htm">Description of the illustration GUID-699F7CF7-6516-462E-B163-9D1D62D4C55D-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Optionally, select the operation and click <span class="bold">View</span>.</p>
+<p>The Operation Detail page appears.</p>
+<p>This page contains information (such as start date and time, run duration, CPU time used, and session ID) that you can use when troubleshooting.</p>
+</li>
+<li>
+<p>Optionally, from the Database Home page, select <span class="bold">Schema</span>, then the page of the object that was created.</p>
+<p>Depending on the type of access structure that is created, you can display the access structure using the Indexes page, Materialized Views page, or the Materialized View Logs page.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment620">
+<tr>
+<td class="cellalignment627">
+<table class="cellalignment625">
+<tr>
+<td class="cellalignment624"><a href="tdppt_sqltune.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment624"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2007, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment629">
+<table class="cellalignment623">
+<tr>
+<td class="cellalignment624"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment624"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment624"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment624"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment624"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment624"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

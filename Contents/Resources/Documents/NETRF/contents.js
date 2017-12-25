@@ -1,0 +1,15 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Listener Control Utility", anchor: "NETRF001", file: "lsnrctl.htm" },
+  { topic: "chapter", section: "2", title: "Oracle Connection Manager Control Utility", anchor: "NETRF002", file: "cmctl.htm" },
+  { topic: "chapter", section: "3", title: "Syntax Rules for Configuration Files", anchor: "NETRF005", file: "syntax.htm" },
+  { topic: "chapter", section: "4", title: "Protocol Address Configuration", anchor: "NETRF004", file: "protocoladd.htm" },
+  { topic: "chapter", section: "5", title: "Parameters for the sqlnet.ora File", anchor: "NETRF006", file: "sqlnet.htm" },
+  { topic: "chapter", section: "6", title: "Local Naming Parameters in the tnsnames.ora File", anchor: "NETRF007", file: "tnsnames.htm" },
+  { topic: "chapter", section: "7", title: "Oracle Net Listener Parameters in the listener.ora File", anchor: "NETRF008", file: "listener.htm" },
+  { topic: "chapter", section: "8", title: "Oracle Connection Manager Parameters (cman.ora)", anchor: "NETRF009", file: "cman.htm" },
+  { topic: "chapter", section: "9", title: "Directory Usage Parameters in the ldap.ora File", anchor: "NETRF011", file: "ldap.htm" },
+  { topic: "appendix", section: "A", title: "Features Not Supported in this Release", anchor: "NETRF365", file: "unsupported.htm" },
+  { topic: "appendix", section: "B", title: "Upgrade Considerations for Oracle Net Services", anchor: "NETRF369", file: "mignet.htm" },
+  { topic: "appendix", section: "C", title: "LDAP Schema for Oracle Net Services", anchor: "NETRF012", file: "schema.htm" },
+  { topic: "glossary", section: "", title: "Glossary", anchor: "NETRF1681", file: "glossary.htm" },
+  { } ];

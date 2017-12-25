@@ -1,0 +1,620 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-105964"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20the%20DBMS_METADATA_DIFF%20API%20to%20Compare%20Object%20Metadata"></a><title>Using the DBMS_METADATA_DIFF API to Compare Object Metadata</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-07-10T17:06:49Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Utilities"/>
+<meta name="dcterms.identifier" content="E41528-09"/>
+<meta name="dcterms.isVersionOf" content="SUTIL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-E0EEE23F-EDED-40D2-BAE7-A1F5FF951589.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-DF431094-5F1D-478D-87E6-04CC774B761F.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41528-09.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-E9A778A7-2E9D-4240-8707-A52FF65556FE"></a> <span id="PAGE" style="display:none;">821/1019</span> <!-- End Header -->
+<a id="SUTIL3628"></a><a id="SUTIL3627"></a>
+<h1 id="SUTIL-GUID-E9A778A7-2E9D-4240-8707-A52FF65556FE" class="sect1">Using the DBMS_METADATA_DIFF API to Compare Object Metadata</h1>
+<div>
+<div class="section">
+<p>This section provides an example that uses the retrieval, comparison, and submit interfaces of <code class="codeph">DBMS_METADATA</code> and <code class="codeph">DBMS_METADATA_DIFF</code> to fetch metadata for two tables, compare the metadata, and generate <code class="codeph">ALTER</code> statements which make one table like the other. For simplicity, function variants are used throughout the example.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-E9A778A7-2E9D-4240-8707-A52FF65556FE__GUID-7A7FE9D7-77D8-483F-8B18-37FE39CCE24F">
+<p class="titleinexample">Example 21-10 Comparing Object Metadata</p>
+<ol>
+<li>
+<p>Create two tables, <code class="codeph">TAB1</code> and <code class="codeph">TAB2</code>:</p>
+<pre dir="ltr">SQL&gt; CREATE TABLE TAB1
+  2     (    &#34;EMPNO&#34; NUMBER(4,0),
+  3          &#34;ENAME&#34; VARCHAR2(10),
+  4          &#34;JOB&#34; VARCHAR2(9),
+  5          &#34;DEPTNO&#34; NUMBER(2,0)
+  6     ) ;
+ 
+Table created.
+ 
+SQL&gt; CREATE TABLE TAB2
+  2     (    &#34;EMPNO&#34; NUMBER(4,0) PRIMARY KEY ENABLE,
+  3          &#34;ENAME&#34; VARCHAR2(20),
+  4          &#34;MGR&#34; NUMBER(4,0),
+  5          &#34;DEPTNO&#34; NUMBER(2,0)
+  6     ) ;
+ 
+Table created.
+ 
+</pre>
+<p>Note the differences between <code class="codeph">TAB1</code> and <code class="codeph">TAB2</code>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The table names are different</p>
+</li>
+<li>
+<p><code class="codeph">TAB2</code> has a primary key constraint; <code class="codeph">TAB1</code> does not</p>
+</li>
+<li>
+<p>The length of the <code class="codeph">ENAME</code> column is different in each table</p>
+</li>
+<li>
+<p><code class="codeph">TAB1</code> has a <code class="codeph">JOB</code> column; <code class="codeph">TAB2</code> does not</p>
+</li>
+<li>
+<p><code class="codeph">TAB2</code> has a <code class="codeph">MGR</code> column; <code class="codeph">TAB1</code> does not</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Create a function to return the table metadata in SXML format. The following are some key points to keep in mind about SXML when you are using the <code class="codeph">DBMS_METADATA_DIFF</code> API:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>SXML is an XML representation of object metadata.</p>
+</li>
+<li>
+<p>The SXML returned is not the same as the XML returned by <code class="codeph">DBMS_METADATA.GET_XML</code>, which is complex and opaque and contains binary values, instance-specific values, and so on.</p>
+</li>
+<li>
+<p>SXML looks like a direct translation of SQL creation DDL into XML. The tag names and structure correspond to names in the <a class="olink SQLRF008" target="_blank" href="../SQLRF/statements_1.htm#SQLRF008"><span class="italic">Oracle Database SQL Language Reference</span></a>.</p>
+</li>
+<li>
+<p>SXML is designed to support editing and comparison.</p>
+</li>
+</ul>
+<p>To keep this example simple, a transform parameter is used to suppress physical properties:</p>
+<pre dir="ltr">SQL&gt; CREATE OR REPLACE FUNCTION get_table_sxml(name IN VARCHAR2) RETURN CLOB IS
+  2   open_handle NUMBER;
+  3   transform_handle NUMBER;
+  4   doc CLOB;
+  5  BEGIN
+  6   open_handle := DBMS_METADATA.OPEN(&#39;TABLE&#39;);
+  7   DBMS_METADATA.SET_FILTER(open_handle,&#39;NAME&#39;,name);
+  8   --
+  9   -- Use the &#39;SXML&#39; transform to convert XML to SXML
+ 10   --
+ 11   transform_handle := DBMS_METADATA.ADD_TRANSFORM(open_handle,&#39;SXML&#39;);
+ 12   --
+ 13   -- Use this transform parameter to suppress physical properties
+ 14   --
+ 15   DBMS_METADATA.SET_TRANSFORM_PARAM(transform_handle,&#39;PHYSICAL_PROPERTIES&#39;,
+ 16                                     FALSE);
+ 17   doc := DBMS_METADATA.FETCH_CLOB(open_handle);
+ 18   DBMS_METADATA.CLOSE(open_handle);
+ 19   RETURN doc;
+ 20  END;
+ 21  /
+ 
+Function created.
+ 
+</pre></li>
+<li>
+<p>Use the <code class="codeph">get_table_sxml</code> function to fetch the table SXML for the two tables:</p>
+<pre dir="ltr">SQL&gt; SELECT get_table_sxml(&#39;TAB1&#39;) FROM dual;
+ 
+  &lt;TABLE xmlns=&#34;http://xmlns.oracle.com/ku&#34; version=&#34;1.0&#34;&gt;
+   &lt;SCHEMA&gt;SCOTT&lt;/SCHEMA&gt;
+   &lt;NAME&gt;TAB1&lt;/NAME&gt;
+   &lt;RELATIONAL_TABLE&gt;
+      &lt;COL_LIST&gt;
+         &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;EMPNO&lt;/NAME&gt;
+            &lt;DATATYPE&gt;NUMBER&lt;/DATATYPE&gt;
+            &lt;PRECISION&gt;4&lt;/PRECISION&gt;
+            &lt;SCALE&gt;0&lt;/SCALE&gt;
+         &lt;/COL_LIST_ITEM&gt;
+         &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;ENAME&lt;/NAME&gt;
+            &lt;DATATYPE&gt;VARCHAR2&lt;/DATATYPE&gt;
+            &lt;LENGTH&gt;10&lt;/LENGTH&gt;
+         &lt;/COL_LIST_ITEM&gt;
+         &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;JOB&lt;/NAME&gt;
+            &lt;DATATYPE&gt;VARCHAR2&lt;/DATATYPE&gt;
+            &lt;LENGTH&gt;9&lt;/LENGTH&gt;
+         &lt;/COL_LIST_ITEM&gt;
+         &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;DEPTNO&lt;/NAME&gt;
+            &lt;DATATYPE&gt;NUMBER&lt;/DATATYPE&gt;
+            &lt;PRECISION&gt;2&lt;/PRECISION&gt;
+            &lt;SCALE&gt;0&lt;/SCALE&gt;
+         &lt;/COL_LIST_ITEM&gt;
+      &lt;/COL_LIST&gt;
+   &lt;/RELATIONAL_TABLE&gt;
+&lt;/TABLE&gt; 
+  
+1 row selected.
+ 
+SQL&gt; SELECT get_table_sxml(&#39;TAB2&#39;) FROM dual;
+ 
+  &lt;TABLE xmlns=&#34;http://xmlns.oracle.com/ku&#34; version=&#34;1.0&#34;&gt;
+   &lt;SCHEMA&gt;SCOTT&lt;/SCHEMA&gt;
+   &lt;NAME&gt;TAB2&lt;/NAME&gt;
+   &lt;RELATIONAL_TABLE&gt;
+      &lt;COL_LIST&gt;
+         &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;EMPNO&lt;/NAME&gt;
+            &lt;DATATYPE&gt;NUMBER&lt;/DATATYPE&gt;
+            &lt;PRECISION&gt;4&lt;/PRECISION&gt;
+            &lt;SCALE&gt;0&lt;/SCALE&gt;
+         &lt;/COL_LIST_ITEM&gt;
+         &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;ENAME&lt;/NAME&gt;
+            &lt;DATATYPE&gt;VARCHAR2&lt;/DATATYPE&gt;
+            &lt;LENGTH&gt;20&lt;/LENGTH&gt;
+         &lt;/COL_LIST_ITEM&gt;
+         &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;MGR&lt;/NAME&gt;
+            &lt;DATATYPE&gt;NUMBER&lt;/DATATYPE&gt;
+            &lt;PRECISION&gt;4&lt;/PRECISION&gt;
+            &lt;SCALE&gt;0&lt;/SCALE&gt;
+         &lt;/COL_LIST_ITEM&gt;
+         &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;DEPTNO&lt;/NAME&gt;
+            &lt;DATATYPE&gt;NUMBER&lt;/DATATYPE&gt;
+            &lt;PRECISION&gt;2&lt;/PRECISION&gt;
+            &lt;SCALE&gt;0&lt;/SCALE&gt;
+         &lt;/COL_LIST_ITEM&gt;
+      &lt;/COL_LIST&gt;
+      &lt;PRIMARY_KEY_CONSTRAINT_LIST&gt;
+         &lt;PRIMARY_KEY_CONSTRAINT_LIST_ITEM&gt;
+            &lt;COL_LIST&gt;
+               &lt;COL_LIST_ITEM&gt;
+                  &lt;NAME&gt;EMPNO&lt;/NAME&gt;
+               &lt;/COL_LIST_ITEM&gt;
+            &lt;/COL_LIST&gt;
+         &lt;/PRIMARY_KEY_CONSTRAINT_LIST_ITEM&gt;
+      &lt;/PRIMARY_KEY_CONSTRAINT_LIST&gt;
+   &lt;/RELATIONAL_TABLE&gt;
+&lt;/TABLE&gt; 
+ 
+1 row selected.
+ 
+</pre></li>
+<li>
+<p>Compare the results using the <code class="codeph">DBMS_METADATA</code> browsing APIs:</p>
+<pre dir="ltr">SQL&gt; SELECT dbms_metadata.get_sxml(&#39;TABLE&#39;,&#39;TAB1&#39;) FROM dual;
+SQL&gt; SELECT dbms_metadata.get_sxml(&#39;TABLE&#39;,&#39;TAB2&#39;) FROM dual;
+</pre></li>
+<li>
+<p>Create a function using the <code class="codeph">DBMS_METADATA_DIFF</code> API to compare the metadata for the two tables. In this function, the <code class="codeph">get_table_sxml</code> function that was just defined in step 2 is used.</p>
+<pre dir="ltr">SQL&gt; CREATE OR REPLACE FUNCTION compare_table_sxml(name1 IN VARCHAR2,
+  2                                          name2 IN VARCHAR2) RETURN CLOB IS
+  3   doc1 CLOB;
+  4   doc2 CLOB;
+  5   diffdoc CLOB;
+  6   openc_handle NUMBER;
+  7  BEGIN
+  8   --
+  9   -- Fetch the SXML for the two tables
+ 10   --
+ 11   doc1 := get_table_sxml(name1);
+ 12   doc2 := get_table_sxml(name2);
+ 13   --
+ 14   -- Specify the object type in the OPENC call
+ 15   --
+ 16   openc_handle := DBMS_METADATA_DIFF.OPENC(&#39;TABLE&#39;);
+ 17   --
+ 18   -- Add each document
+ 19   --
+ 20   DBMS_METADATA_DIFF.ADD_DOCUMENT(openc_handle,doc1);
+ 21   DBMS_METADATA_DIFF.ADD_DOCUMENT(openc_handle,doc2);
+ 22   --
+ 23   -- Fetch the SXML difference document
+ 24   --
+ 25   diffdoc := DBMS_METADATA_DIFF.FETCH_CLOB(openc_handle);
+ 26   DBMS_METADATA_DIFF.CLOSE(openc_handle);
+ 27   RETURN diffdoc;
+ 28  END;
+ 29  /
+ 
+Function created.
+</pre></li>
+<li>
+<p>Use the function to fetch the SXML difference document for the two tables:</p>
+<pre dir="ltr">SQL&gt; SELECT compare_table_sxml(&#39;TAB1&#39;,&#39;TAB2&#39;) FROM dual;
+
+&lt;TABLE xmlns=&#34;http://xmlns.oracle.com/ku&#34; version=&#34;1.0&#34;&gt;
+  &lt;SCHEMA&gt;SCOTT&lt;/SCHEMA&gt;
+  &lt;NAME value1=&#34;TAB1&#34;&gt;TAB2&lt;/NAME&gt;
+  &lt;RELATIONAL_TABLE&gt;
+    &lt;COL_LIST&gt;
+      &lt;COL_LIST_ITEM&gt;
+        &lt;NAME&gt;EMPNO&lt;/NAME&gt;
+        &lt;DATATYPE&gt;NUMBER&lt;/DATATYPE&gt;
+        &lt;PRECISION&gt;4&lt;/PRECISION&gt;
+        &lt;SCALE&gt;0&lt;/SCALE&gt;
+      &lt;/COL_LIST_ITEM&gt;
+      &lt;COL_LIST_ITEM&gt;
+        &lt;NAME&gt;ENAME&lt;/NAME&gt;
+        &lt;DATATYPE&gt;VARCHAR2&lt;/DATATYPE&gt;
+        &lt;LENGTH value1=&#34;10&#34;&gt;20&lt;/LENGTH&gt;
+      &lt;/COL_LIST_ITEM&gt;
+      &lt;COL_LIST_ITEM src=&#34;1&#34;&gt;
+        &lt;NAME&gt;JOB&lt;/NAME&gt;
+        &lt;DATATYPE&gt;VARCHAR2&lt;/DATATYPE&gt;
+        &lt;LENGTH&gt;9&lt;/LENGTH&gt;
+      &lt;/COL_LIST_ITEM&gt;
+      &lt;COL_LIST_ITEM&gt;
+        &lt;NAME&gt;DEPTNO&lt;/NAME&gt;
+        &lt;DATATYPE&gt;NUMBER&lt;/DATATYPE&gt;
+        &lt;PRECISION&gt;2&lt;/PRECISION&gt;
+        &lt;SCALE&gt;0&lt;/SCALE&gt;
+      &lt;/COL_LIST_ITEM&gt;
+      &lt;COL_LIST_ITEM src=&#34;2&#34;&gt;
+        &lt;NAME&gt;MGR&lt;/NAME&gt;
+        &lt;DATATYPE&gt;NUMBER&lt;/DATATYPE&gt;
+        &lt;PRECISION&gt;4&lt;/PRECISION&gt;
+        &lt;SCALE&gt;0&lt;/SCALE&gt;
+      &lt;/COL_LIST_ITEM&gt;
+    &lt;/COL_LIST&gt;
+    &lt;PRIMARY_KEY_CONSTRAINT_LIST src=&#34;2&#34;&gt;
+      &lt;PRIMARY_KEY_CONSTRAINT_LIST_ITEM&gt;
+        &lt;COL_LIST&gt;
+          &lt;COL_LIST_ITEM&gt;
+            &lt;NAME&gt;EMPNO&lt;/NAME&gt;
+          &lt;/COL_LIST_ITEM&gt;
+        &lt;/COL_LIST&gt;
+      &lt;/PRIMARY_KEY_CONSTRAINT_LIST_ITEM&gt;
+    &lt;/PRIMARY_KEY_CONSTRAINT_LIST&gt;
+  &lt;/RELATIONAL_TABLE&gt;
+&lt;/TABLE&gt;
+ 
+1 row selected.
+ 
+</pre>
+<p>The SXML difference document shows the union of the two SXML documents, with the XML attributes <code class="codeph">value1</code> and <code class="codeph">src</code> identifying the differences. When an element exists in only one document it is marked with <code class="codeph">src</code>. Thus, <code class="codeph">&lt;COL_LIST_ITEM src=&#34;1&#34;&gt;</code> means that this element is in the first document (<code class="codeph">TAB1</code>) but not in the second. When an element is present in both documents but with different values, the element&#39;s value is the value in the second document and the <code class="codeph">value1</code> gives its value in the first. For example, <code class="codeph">&lt;LENGTH value1=&#34;10&#34;&gt;20&lt;/LENGTH&gt;</code> means that the length is 10 in <code class="codeph">TAB1</code> (the first document) and 20 in <code class="codeph">TAB2</code>.</p>
+</li>
+<li>
+<p>Compare the result using the <code class="codeph">DBMS_METADATA_DIFF</code> browsing APIs:</p>
+<pre dir="ltr">SQL&gt; SELECT dbms_metadata_diff.compare_sxml(&#39;TABLE&#39;,&#39;TAB1&#39;,&#39;TAB2&#39;) FROM dual;
+</pre></li>
+<li>
+<p>Create a function using the <code class="codeph">DBMS_METADATA.CONVERT</code> API to generate an ALTERXML document. This is an XML document containing <code class="codeph">ALTER</code> statements to make one object like another. You can also use parse items to get information about the individual <code class="codeph">ALTER</code> statements. (This example uses the functions defined thus far.)</p>
+<pre dir="ltr">SQL&gt; CREATE OR REPLACE FUNCTION get_table_alterxml(name1 IN VARCHAR2,
+  2                                           name2 IN VARCHAR2) RETURN CLOB IS
+  3   diffdoc CLOB;
+  4   openw_handle NUMBER;
+  5   transform_handle NUMBER;
+  6   alterxml CLOB;
+  7  BEGIN
+  8   --
+  9   -- Use the function just defined to get the difference document
+ 10   --
+ 11   diffdoc := compare_table_sxml(name1,name2);
+ 12   --
+ 13   -- Specify the object type in the OPENW call
+ 14   --
+ 15   openw_handle := DBMS_METADATA.OPENW(&#39;TABLE&#39;);
+ 16   --
+ 17   -- Use the ALTERXML transform to generate the ALTER_XML document
+ 18   --
+ 19   transform_handle := DBMS_METADATA.ADD_TRANSFORM(openw_handle,&#39;ALTERXML&#39;);
+ 20   --
+ 21   -- Request parse items
+ 22   --
+ 23   DBMS_METADATA.SET_PARSE_ITEM(openw_handle,&#39;CLAUSE_TYPE&#39;);
+ 24   DBMS_METADATA.SET_PARSE_ITEM(openw_handle,&#39;NAME&#39;);
+ 25   DBMS_METADATA.SET_PARSE_ITEM(openw_handle,&#39;COLUMN_ATTRIBUTE&#39;);
+ 26   --
+ 27   -- Create a temporary LOB
+ 28   --
+ 29   DBMS_LOB.CREATETEMPORARY(alterxml, TRUE );
+ 30   --
+ 31   -- Call CONVERT to do the transform
+ 32   --
+ 33   DBMS_METADATA.CONVERT(openw_handle,diffdoc,alterxml);
+ 34   --
+ 35   -- Close context and return the result
+ 36   --
+ 37   DBMS_METADATA.CLOSE(openw_handle);
+ 38   RETURN alterxml;
+ 39  END;
+ 40  /
+ 
+Function created.
+</pre></li>
+<li>
+<p>Use the function to fetch the ALTER_XML document:</p>
+<pre dir="ltr">SQL&gt; SELECT get_table_alterxml(&#39;TAB1&#39;,&#39;TAB2&#39;) FROM dual;
+ 
+&lt;ALTER_XML xmlns=&#34;http://xmlns.oracle.com/ku&#34; version=&#34;1.0&#34;&gt;
+   &lt;OBJECT_TYPE&gt;TABLE&lt;/OBJECT_TYPE&gt;
+   &lt;OBJECT1&gt;
+      &lt;SCHEMA&gt;SCOTT&lt;/SCHEMA&gt;
+      &lt;NAME&gt;TAB1&lt;/NAME&gt;
+   &lt;/OBJECT1&gt;
+   &lt;OBJECT2&gt;
+      &lt;SCHEMA&gt;SCOTT&lt;/SCHEMA&gt;
+      &lt;NAME&gt;TAB2&lt;/NAME&gt;
+   &lt;/OBJECT2&gt;
+   &lt;ALTER_LIST&gt;
+      &lt;ALTER_LIST_ITEM&gt;
+         &lt;PARSE_LIST&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;NAME&lt;/ITEM&gt;
+               &lt;VALUE&gt;MGR&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;CLAUSE_TYPE&lt;/ITEM&gt;
+               &lt;VALUE&gt;ADD_COLUMN&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+         &lt;/PARSE_LIST&gt;
+         &lt;SQL_LIST&gt;
+            &lt;SQL_LIST_ITEM&gt;
+               &lt;TEXT&gt;ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; ADD (&#34;MGR&#34; NUMBER(4,0))&lt;/TEXT&gt;
+            &lt;/SQL_LIST_ITEM&gt;
+         &lt;/SQL_LIST&gt;
+      &lt;/ALTER_LIST_ITEM&gt;
+      &lt;ALTER_LIST_ITEM&gt;
+         &lt;PARSE_LIST&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;NAME&lt;/ITEM&gt;
+               &lt;VALUE&gt;JOB&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;CLAUSE_TYPE&lt;/ITEM&gt;
+               &lt;VALUE&gt;DROP_COLUMN&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+         &lt;/PARSE_LIST&gt;
+         &lt;SQL_LIST&gt;
+            &lt;SQL_LIST_ITEM&gt;
+               &lt;TEXT&gt;ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; DROP (&#34;JOB&#34;)&lt;/TEXT&gt;
+            &lt;/SQL_LIST_ITEM&gt;
+         &lt;/SQL_LIST&gt;
+      &lt;/ALTER_LIST_ITEM&gt;
+      &lt;ALTER_LIST_ITEM&gt;
+         &lt;PARSE_LIST&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;NAME&lt;/ITEM&gt;
+               &lt;VALUE&gt;ENAME&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;CLAUSE_TYPE&lt;/ITEM&gt;
+               &lt;VALUE&gt;MODIFY_COLUMN&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;COLUMN_ATTRIBUTE&lt;/ITEM&gt;
+               &lt;VALUE&gt; SIZE_INCREASE&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+         &lt;/PARSE_LIST&gt;
+         &lt;SQL_LIST&gt;
+            &lt;SQL_LIST_ITEM&gt;
+               &lt;TEXT&gt;ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; MODIFY 
+                    (&#34;ENAME&#34; VARCHAR2(20))
+               &lt;/TEXT&gt;
+            &lt;/SQL_LIST_ITEM&gt;
+         &lt;/SQL_LIST&gt;
+      &lt;/ALTER_LIST_ITEM&gt;
+      &lt;ALTER_LIST_ITEM&gt;
+         &lt;PARSE_LIST&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;CLAUSE_TYPE&lt;/ITEM&gt;
+               &lt;VALUE&gt;ADD_CONSTRAINT&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+         &lt;/PARSE_LIST&gt;
+         &lt;SQL_LIST&gt;
+            &lt;SQL_LIST_ITEM&gt;
+               &lt;TEXT&gt;ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; ADD  PRIMARY KEY
+                     (&#34;EMPNO&#34;) ENABLE
+               &lt;/TEXT&gt;
+            &lt;/SQL_LIST_ITEM&gt;
+         &lt;/SQL_LIST&gt;
+      &lt;/ALTER_LIST_ITEM&gt;
+      &lt;ALTER_LIST_ITEM&gt;
+         &lt;PARSE_LIST&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;NAME&lt;/ITEM&gt;
+               &lt;VALUE&gt;TAB1&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+            &lt;PARSE_LIST_ITEM&gt;
+               &lt;ITEM&gt;CLAUSE_TYPE&lt;/ITEM&gt;
+               &lt;VALUE&gt;RENAME_TABLE&lt;/VALUE&gt;
+            &lt;/PARSE_LIST_ITEM&gt;
+         &lt;/PARSE_LIST&gt;
+         &lt;SQL_LIST&gt;
+            &lt;SQL_LIST_ITEM&gt;
+               &lt;TEXT&gt;ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; RENAME TO &#34;TAB2&#34;&lt;/TEXT&gt;
+            &lt;/SQL_LIST_ITEM&gt;
+         &lt;/SQL_LIST&gt;
+      &lt;/ALTER_LIST_ITEM&gt;
+   &lt;/ALTER_LIST&gt;
+&lt;/ALTER_XML&gt;
+ 
+ 
+1 row selected.
+ 
+</pre></li>
+<li>
+<p>Compare the result using the <code class="codeph">DBMS_METADATA_DIFF</code> browsing API:</p>
+<pre dir="ltr">SQL&gt; SELECT dbms_metadata_diff.compare_alter_xml(&#39;TABLE&#39;,&#39;TAB1&#39;,&#39;TAB2&#39;) FROM dual;
+</pre></li>
+<li>
+<p>The ALTER_XML document contains an ALTER_LIST of each of the alters. Each ALTER_LIST_ITEM has a PARSE_LIST containing the parse items as name-value pairs and a SQL_LIST containing the SQL for the particular alter. You can parse this document and decide which of the SQL statements to execute, using the information in the PARSE_LIST. (Note, for example, that in this case one of the alters is a DROP_COLUMN, and you might choose not to execute that.)</p>
+</li>
+<li>
+<p>Create one last function that uses the <code class="codeph">DBMS_METADATA.CONVERT</code> API and the <code class="codeph">ALTER DDL</code> transform to convert the ALTER_XML document into SQL DDL:</p>
+<pre dir="ltr">SQL&gt; CREATE OR REPLACE FUNCTION get_table_alterddl(name1 IN VARCHAR2,
+  2                                           name2 IN VARCHAR2) RETURN CLOB IS
+  3   alterxml CLOB;
+  4   openw_handle NUMBER;
+  5   transform_handle NUMBER;
+  6   alterddl CLOB;
+  7  BEGIN
+  8   --
+  9   -- Use the function just defined to get the ALTER_XML document
+ 10   --
+ 11   alterxml := get_table_alterxml(name1,name2);
+ 12   --
+ 13   -- Specify the object type in the OPENW call
+ 14   --
+ 15   openw_handle := DBMS_METADATA.OPENW(&#39;TABLE&#39;);
+ 16   --
+ 17   -- Use ALTERDDL transform to convert the ALTER_XML document to SQL DDL
+ 18   -- 
+ 19   transform_handle := DBMS_METADATA.ADD_TRANSFORM(openw_handle,&#39;ALTERDDL&#39;);
+ 20   --
+ 21   -- Use the SQLTERMINATOR transform parameter to append a terminator
+ 22   -- to each SQL statement
+ 23   --
+ 24   DBMS_METADATA.SET_TRANSFORM_PARAM(transform_handle,&#39;SQLTERMINATOR&#39;,true);
+ 25   --
+ 26   -- Create a temporary lob
+ 27   --
+ 28   DBMS_LOB.CREATETEMPORARY(alterddl, TRUE );
+ 29   --
+ 30   -- Call CONVERT to do the transform
+ 31   --
+ 32   DBMS_METADATA.CONVERT(openw_handle,alterxml,alterddl);
+ 33   --
+ 34   -- Close context and return the result
+ 35   --
+ 36   DBMS_METADATA.CLOSE(openw_handle);
+ 37   RETURN alterddl;
+ 38  END;
+ 39  /
+ 
+Function created.
+ 
+</pre></li>
+<li>
+<p>Use the function to fetch the SQL ALTER statements:</p>
+<pre dir="ltr">SQL&gt; SELECT get_table_alterddl(&#39;TAB1&#39;,&#39;TAB2&#39;) FROM dual;
+ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; ADD (&#34;MGR&#34; NUMBER(4,0))
+/
+  ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; DROP (&#34;JOB&#34;)
+/
+  ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; MODIFY (&#34;ENAME&#34; VARCHAR2(20))
+/
+  ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; ADD  PRIMARY KEY (&#34;EMPNO&#34;) ENABLE
+/
+  ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; RENAME TO &#34;TAB2&#34;
+/
+  
+1 row selected.
+ 
+</pre></li>
+<li>
+<p>Compare the results using the <code class="codeph">DBMS_METADATA_DIFF</code> browsing API:</p>
+<pre dir="ltr">SQL&gt; SELECT dbms_metadata_diff.compare_alter(&#39;TABLE&#39;,&#39;TAB1&#39;,&#39;TAB2&#39;) FROM dual;
+ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; ADD (&#34;MGR&#34; NUMBER(4,0))
+  ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; DROP (&#34;JOB&#34;)
+  ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; MODIFY (&#34;ENAME&#34; VARCHAR2(20))
+  ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; ADD  PRIMARY KEY (&#34;EMPNO&#34;) USING INDEX 
+  PCTFREE 10 INITRANS 2 STORAGE ( INITIAL 16384 NEXT 16384 MINEXTENTS 1
+  MAXEXTENTS 505 PCTINCREASE 50 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL
+  DEFAULT)  ENABLE ALTER TABLE &#34;SCOTT&#34;.&#34;TAB1&#34; RENAME TO &#34;TAB2&#34;
+ 
+1 row selected.
+</pre></li>
+</ol>
+</div>
+<!-- class="example" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2015">
+<tr>
+<td class="cellalignment2022">
+<table class="cellalignment2020">
+<tr>
+<td class="cellalignment2019"><a href="GUID-E0EEE23F-EDED-40D2-BAE7-A1F5FF951589.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2019"><a href="GUID-DF431094-5F1D-478D-87E6-04CC774B761F.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2024">
+<table class="cellalignment2018">
+<tr>
+<td class="cellalignment2019"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2019"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2019"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2019"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2019"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2019"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,1445 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-200"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Managing%20Distributed%20Transactions"></a><title>Managing Distributed Transactions</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="Managing distributed transactions includes tasks such as specifying the comment point strength of a node, naming transactions, and managing in-doubt transactions."/>
+<meta name="keywords" content="commit point strength, specifying, two-phase commit, specifying commit point strength, commit point site, distributed transactions, transactions, naming distributed, naming, viewing database links, in-doubt transactions, database links, listing, listing database links, DBA_2PC_PENDING view, views, DBA_2PC_PENDING, using to list in-doubt transactions, forcing, COMMIT or ROLLBACK, session trees, tracing session tree in distributed transactions, tracing session tree, session trees for distributed transactions, tracing transactions, DBA_2PC_NEIGHBORS view, DBA_2PC_NEIGHBORS, using to trace session tree, in-doubt, deciding how to handle, discovering problems with, after a system failure, prepare/commit phases, failures during, errors, ORA-02050, ORA-02051, ORA-02054, deciding whether to perform manual override, COMMIT statement, ROLLBACK statement, manually overriding, distributed transactions, manually overriding in-doubt, undo segments, in-doubt distributed transactions, ALTER SESSION statement, ADVISE clause, setting advice, sessions, setting advice for transactions, manual overrides, FORCE clause, rolling back, savepoints, manually committing, system change numbers, manually rolling back, data dictionary, purging pending rows from, purging rows from data dictionary, DBMS_TRANSACTION package, PURGE_LOST_DB_ENTRY procedure, manually committing, example, manually overriding, scenario, pending transaction tables, pending transaction table, pending transactions table, lock timeout interval, locked resources, locks, transaction timeouts, ORA-02049, failure during, effects of failure, locks for in-doubt, ORA-01591, transaction failures, simulating, recoverer process, distributed transaction recovery, recoverer process and, enabling, disabling, ALTER SYSTEM statement, ENABLE DISTRIBUTED RECOVERY clause, ALTER SYSTEM statement, DISABLE DISTRIBUTED RECOVERY clause, enabling recoverer process, disabling recoverer process, read consistency, managing in distributed databases, distributed databases, managing read consistency"/>
+<meta name="dcterms.created" content="2017-07-10T12:24:11Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Administrator&rsquo;s Guide"/>
+<meta name="dcterms.identifier" content="E41484-15"/>
+<meta name="dcterms.isVersionOf" content="ADMIN"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2001, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="ds_txns.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="part_cdb.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41484-15.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-AB19431E-BF9F-4181-BC57-699F8A06149D"></a> <span id="PAGE" style="display:none;">44/59</span> <!-- End Header -->
+<a id="ADMIN032"></a>
+<h1 id="ADMIN-GUID-AB19431E-BF9F-4181-BC57-699F8A06149D" class="sect1"><span class="enumeration_chapter">35</span> Managing Distributed Transactions</h1>
+<p>Managing distributed transactions includes tasks such as specifying the comment point strength of a node, naming transactions, and managing in-doubt transactions.</p>
+<a id="ADMIN12247"></a>
+<div class="props_rev_3"><a id="GUID-45329B02-514E-446E-89FE-14BA008BEA07"></a>
+<h2 id="ADMIN-GUID-45329B02-514E-446E-89FE-14BA008BEA07" class="sect2"><span class="enumeration_section">35.1</span> Specifying the Commit Point Strength of a Node</h2>
+<div>
+<p>The database with the highest commit point strength determines which node commits first in a distributed transaction.</p>
+<div class="section">
+<p>When specifying a commit point strength for each node, ensure that the most critical server will be non-blocking if a failure occurs during a prepare or commit phase. The <code class="codeph">COMMIT_POINT_STRENGTH</code> initialization parameter determines the commit point strength of a node.</p>
+<p>The default value is operating system-dependent. The range of values is any integer from 0 to 255. For example, to set the commit point strength of a database to 200, include the following line in the database initialization parameter file:</p>
+<pre dir="ltr">COMMIT_POINT_STRENGTH = 200
+</pre>
+<p>The commit point strength is only used to determine the commit point site in a distributed transaction.</p>
+<p>When setting the commit point strength for a database, note the following considerations:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Because the commit point site stores information about the status of the transaction, the commit point site should not be a node that is frequently unreliable or unavailable in case other nodes need information about transaction status.</p>
+</li>
+<li>
+<p>Set the commit point strength for a database relative to the amount of critical shared data in the database. For example, a database on a mainframe computer usually shares more data among users than a database on a PC. Therefore, set the commit point strength of the mainframe to a higher value than the PC.</p>
+<div class="infoboxnotealso" id="GUID-45329B02-514E-446E-89FE-14BA008BEA07__GUID-00EE1E2C-021C-47E8-AA27-E8C02C382181">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="ds_txns.htm#GUID-FB773DD4-B700-423F-A9EB-8D6F6765583E" title="The job of the commit point site is to initiate a commit or roll back operation as instructed by the global coordinator.">Commit Point Site</a> &#34;</span> for a conceptual overview of commit points</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12248"></a>
+<div class="props_rev_3"><a id="GUID-7DCF2E63-08EC-4085-BC76-7D041D6EE96E"></a>
+<h2 id="ADMIN-GUID-7DCF2E63-08EC-4085-BC76-7D041D6EE96E" class="sect2"><span class="enumeration_section">35.2</span> Naming Transactions</h2>
+<div>
+<p>You can name a transaction. This is useful for identifying a specific distributed transaction and replaces the use of the <code class="codeph">COMMIT COMMENT</code> statement for this purpose.</p>
+<div class="section">
+<p>To name a transaction, use the <code class="codeph">SET TRANSACTION...NAME</code> statement. For example:</p>
+<pre dir="ltr">SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+     NAME &#39;update inventory checkpoint 0&#39;;
+</pre>
+<p>This example shows that the user started a new transaction with isolation level equal to <code class="codeph">SERIALIZABLE</code> and named it <code class="codeph">&#39;update inventory checkpoint 0&#39;</code>.</p>
+<p>For distributed transactions, the name is sent to participating sites when a transaction is committed. If a <code class="codeph">COMMIT COMMENT</code> exists, it is ignored when a transaction name exists.</p>
+<p>The transaction name is displayed in the <code class="codeph">NAME</code> column of the <code class="codeph">V$TRANSACTION</code> view, and in the <code class="codeph">TRAN_COMMENT</code> field of the <code class="codeph">DBA_2PC_PENDING</code> view when the transaction is committed.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12249"></a>
+<div class="props_rev_3"><a id="GUID-8D0E2B32-D23A-4885-941B-E6ADEC46F6B6"></a>
+<h2 id="ADMIN-GUID-8D0E2B32-D23A-4885-941B-E6ADEC46F6B6" class="sect2"><span class="enumeration_section">35.3</span> Viewing Information About Distributed Transactions</h2>
+<p>The data dictionary of each database stores information about all open distributed transactions. You can use data dictionary tables and views to gain information about the transactions.</p>
+<a id="ADMIN13153"></a><a id="ADMIN12250"></a>
+<div class="props_rev_3"><a id="GUID-CF29B5D4-0FBF-4A72-9EAD-A4618B7A6BC6"></a>
+<h3 id="ADMIN-GUID-CF29B5D4-0FBF-4A72-9EAD-A4618B7A6BC6" class="sect3"><span class="enumeration_section">35.3.1</span> Determining the ID Number and Status of Prepared Transactions</h3>
+<div>
+<p>Use the <code class="codeph">DBA_2PC_PENDING</code> view to determine the global commit number for a particular transaction ID. You can use this global commit number when manually resolving an in-doubt transaction.</p>
+<div class="section">
+<p>The following view shows the database links that have been defined at the local database and stored in the data dictionary:</p>
+<div class="tblformal" id="GUID-CF29B5D4-0FBF-4A72-9EAD-A4618B7A6BC6__GUID-6813CD87-053D-41D2-AA35-3B224ADE284C">
+<table class="cellalignment1849" summary="Column 1 lists the names of views used to display the database links; column 2 describes each view.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1923" id="d254175e442">View</th>
+<th class="cellalignment1924" id="d254175e445">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1925" id="d254175e450" headers="d254175e442">
+<p><code class="codeph">DBA_2PC_PENDING</code></p>
+</td>
+<td class="cellalignment1926" headers="d254175e450 d254175e445">
+<p>Lists all in-doubt distributed transactions. The view is empty until populated by an in-doubt transaction. After the transaction is resolved, the view is purged.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The following table shows the most relevant columns (for a description of all the columns in the view, see <a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a>):</p>
+<div class="tblformal" id="GUID-CF29B5D4-0FBF-4A72-9EAD-A4618B7A6BC6__g1008762">
+<p class="titleintable">Table 35-1 DBA_2PC_PENDING</p>
+<table class="cellalignment1849" title="DBA_2PC_PENDING" summary="Column 1 contains the view column name; column 2 describes the column.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1927" id="d254175e474">Column</th>
+<th class="cellalignment1928" id="d254175e477">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e482" headers="d254175e474">
+<p><code class="codeph">LOCAL_TRAN_ID</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e482 d254175e477">
+<p>Local transaction identifier in the format <span class="italic">integer</span>.<span class="italic">integer</span>.<span class="italic">integer</span>.</p>
+<p><span class="bold">Note:</span> When the <code class="codeph">LOCAL_TRAN_ID</code> and the <code class="codeph">GLOBAL_TRAN_ID</code> for a connection are the same, the node is the global coordinator of the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e510" headers="d254175e474">
+<p><code class="codeph">GLOBAL_TRAN_ID</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e510 d254175e477">
+<p>Global database identifier in the format <span class="italic">global_db_nam</span>e.<span class="italic">db_hex_id</span>.<span class="italic">local_tran_id</span>, where <span class="italic">db_hex_id</span> is an eight-character hexadecimal value used to uniquely identify the database. This common transaction ID is the same on every node for a distributed transaction.</p>
+<p><span class="bold">Note:</span> When the <code class="codeph">LOCAL_TRAN_ID</code> and the <code class="codeph">GLOBAL_TRAN_ID</code> for a connection are the same, the node is the global coordinator of the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e541" headers="d254175e474">
+<p><code class="codeph">STATE</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e541 d254175e477">
+<p><code class="codeph">STATE</code> can have the following values:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Collecting</p>
+<p>This category normally applies only to the global coordinator or local coordinators. The node is currently collecting information from other database servers before it can decide whether it can prepare.</p>
+</li>
+<li>
+<p>Prepared</p>
+<p>The node has prepared and may or may not have acknowledged this to its local coordinator with a prepared message. However, no commit request has been received. The node remains prepared, holding any local resource locks necessary for the transaction to commit.</p>
+</li>
+<li>
+<p>Committed</p>
+<p>The node (any type) has committed the transaction, but other nodes involved in the transaction may not have done the same. That is, the transaction is still pending at one or more nodes.</p>
+</li>
+<li>
+<p>Forced Commit</p>
+<p>A pending transaction can be forced to commit at the discretion of a database administrator. This entry occurs if a transaction is manually committed at a local node.</p>
+</li>
+<li>
+<p>Forced termination (rollback)</p>
+<p>A pending transaction can be forced to roll back at the discretion of a database administrator. This entry occurs if this transaction is manually rolled back at a local node.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e578" headers="d254175e474">
+<p><code class="codeph">MIXED</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e578 d254175e477">
+<p><code class="codeph">YES</code> means that part of the transaction was committed on one node and rolled back on another node.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e589" headers="d254175e474">
+<p><code class="codeph">TRAN_COMMENT</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e589 d254175e477">
+<p>Transaction comment or, if using transaction naming, the transaction name is placed here when the transaction is committed.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e597" headers="d254175e474">
+<p><code class="codeph">HOST</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e597 d254175e477">
+<p>Name of the host system.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e606" headers="d254175e474">
+<p><code class="codeph">COMMIT#</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e606 d254175e477">
+<p>Global commit number for committed transactions.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Execute the following script, named <code class="codeph">pending_txn_script</code>, to query pertinent information in <code class="codeph">DBA_2PC_PENDING</code> (sample output included):</p>
+<pre dir="ltr">COL LOCAL_TRAN_ID FORMAT A13
+COL GLOBAL_TRAN_ID FORMAT A30
+COL STATE FORMAT A8
+COL MIXED FORMAT A3
+COL HOST FORMAT A10
+COL COMMIT# FORMAT A10
+
+SELECT LOCAL_TRAN_ID, GLOBAL_TRAN_ID, STATE, MIXED, HOST, COMMIT#
+   FROM DBA_2PC_PENDING
+/
+
+SQL&gt; @pending_txn_script
+
+LOCAL_TRAN_ID GLOBAL_TRAN_ID                 STATE    MIX HOST       COMMIT#
+------------- ------------------------------ -------- --- ---------- ----------
+1.15.870      HQ.EXAMPLE.COM.ef192da4.1.15.870  commit   no  dlsun183   115499
+</pre>
+<p>This output indicates that local transaction <code class="codeph">1.15.870</code> has been committed on this node, but it may be pending on one or more other nodes. Because <code class="codeph">LOCAL_TRAN_ID</code> and the local part of <code class="codeph">GLOBAL_TRAN_ID</code> are the same, the node is the global coordinator of the transaction.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN13154"></a><a id="ADMIN12251"></a>
+<div class="props_rev_3"><a id="GUID-161034B0-BAEB-4750-9054-328356881B74"></a>
+<h3 id="ADMIN-GUID-161034B0-BAEB-4750-9054-328356881B74" class="sect3"><span class="enumeration_section">35.3.2</span> Tracing the Session Tree of In-Doubt Transactions</h3>
+<div>
+<p>The <code class="codeph">DBA_2PC_NEIGHBORS</code> view shows which in-doubt transactions are incoming from a remote client and which are outgoing to a remote server.</p>
+<div class="section">
+<div class="tblformal" id="GUID-161034B0-BAEB-4750-9054-328356881B74__GUID-D935C643-AB6F-4B07-92A7-B9006B291B71">
+<table class="cellalignment1849" summary="Column 1 lists the view name and column 2 describes the purpose of the view.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1858" id="d254175e743">View</th>
+<th class="cellalignment1970" id="d254175e746">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e751" headers="d254175e743">
+<p><code class="codeph">DBA_2PC_NEIGHBORS</code></p>
+</td>
+<td class="cellalignment1971" headers="d254175e751 d254175e746">
+<p>Lists all incoming (from remote client) and outgoing (to remote server) in-doubt distributed transactions. It also indicates whether the local node is the commit point site in the transaction.</p>
+<p>The view is empty until populated by an in-doubt transaction. After the transaction is resolved, the view is purged.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>When a transaction is in-doubt, you may need to determine which nodes performed which roles in the session tree. Use to this view to determine:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>All the incoming and outgoing connections for a given transaction</p>
+</li>
+<li>
+<p>Whether the node is the commit point site in a given transaction</p>
+</li>
+<li>
+<p>Whether the node is a global coordinator in a given transaction (because its local transaction ID and global transaction ID are the same)</p>
+</li>
+</ul>
+<p>The following table shows the most relevant columns (for an account of all the columns in the view, see <a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a>):</p>
+<div class="tblformal" id="GUID-161034B0-BAEB-4750-9054-328356881B74__GUID-247C1BC6-2BB4-42DF-A945-8EAED654144C">
+<p class="titleintable">Table 35-2 DBA_2PC_NEIGHBORS</p>
+<table class="cellalignment1849" title="DBA_2PC_NEIGHBORS" summary="Column 1 contains the view column name; column 2 describes the column.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1927" id="d254175e792">Column</th>
+<th class="cellalignment1928" id="d254175e795">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e800" headers="d254175e792">
+<p><code class="codeph">LOCAL_TRAN_ID</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e800 d254175e795">
+<p>Local transaction identifier with the format <span class="italic">integer</span>.<span class="italic">integer</span>.<span class="italic">integer</span>.</p>
+<p><span class="bold">Note:</span> When <code class="codeph">LOCAL_TRAN_ID</code> and <code class="codeph">GLOBAL_TRAN_ID</code>.<code class="codeph">DBA_2PC_PENDING</code> for a connection are the same, the node is the global coordinator of the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e831" headers="d254175e792">
+<p><code class="codeph">IN_OUT</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e831 d254175e795">
+<p><code class="codeph">IN</code> for incoming transactions; <code class="codeph">OUT</code> for outgoing transactions.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e845" headers="d254175e792">
+<p><code class="codeph">DATABASE</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e845 d254175e795">
+<p>For incoming transactions, the name of the client database that requested information from this local node; for outgoing transactions, the name of the database link used to access information on a remote server.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e854" headers="d254175e792">
+<p><code class="codeph">DBUSER_OWNER</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e854 d254175e795">
+<p>For incoming transactions, the local account used to connect by the remote database link; for outgoing transactions, the owner of the database link.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1929" id="d254175e863" headers="d254175e792">
+<p><code class="codeph">INTERFACE</code></p>
+</td>
+<td class="cellalignment1930" headers="d254175e863 d254175e795">
+<p><code class="codeph">C</code> is a commit message; <code class="codeph">N</code> is either a message indicating a prepared state or a request for a read-only commit.</p>
+<p>When <code class="codeph">IN_OUT</code> is <code class="codeph">OUT</code>, <code class="codeph">C</code> means that the child at the remote end of the connection is the commit point site and knows whether to commit or terminate. <code class="codeph">N</code> means that the local node is informing the remote node that it is prepared.</p>
+<p>When <code class="codeph">IN_OUT</code> is <code class="codeph">IN</code>, <code class="codeph">C</code> means that the local node or a database at the remote end of an outgoing connection is the commit point site. <code class="codeph">N</code> means that the remote node is informing the local node that it is prepared.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Execute the following script, named <code class="codeph">neighbors_script</code>, to query pertinent information in <code class="codeph">DBA_2PC_PENDING</code> (sample output included):</p>
+<pre dir="ltr">COL LOCAL_TRAN_ID FORMAT A13
+COL IN_OUT FORMAT A6
+COL DATABASE FORMAT A25
+COL DBUSER_OWNER FORMAT A15
+COL INTERFACE FORMAT A3
+SELECT LOCAL_TRAN_ID, IN_OUT, DATABASE, DBUSER_OWNER, INTERFACE 
+   FROM DBA_2PC_NEIGHBORS
+/
+
+SQL&gt; CONNECT SYS@hq.example.com AS SYSDBA
+SQL&gt; @neighbors_script
+
+LOCAL_TRAN_ID IN_OUT DATABASE                  DBUSER_OWNER    INT
+------------- ------ ------------------------- --------------- ---
+1.15.870      out    SALES.EXAMPLE.COM            SYS             C
+</pre>
+<p>This output indicates that the local node sent an outgoing request to remote server <code class="codeph">sales</code> to commit transaction <code class="codeph">1.15.870</code>. If <code class="codeph">sales</code> committed the transaction but no other node did, then you know that <code class="codeph">sales</code> is the commit point site, because the commit point site always commits first.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN12252"></a>
+<div class="props_rev_3"><a id="GUID-297F05FA-6F3E-40E6-8C11-C6B68CFAD9FE"></a>
+<h2 id="ADMIN-GUID-297F05FA-6F3E-40E6-8C11-C6B68CFAD9FE" class="sect2"><span class="enumeration_section">35.4</span> Deciding How to Handle In-Doubt Transactions</h2>
+<div>
+<p>A transaction is in-doubt when there is a failure during any aspect of the two-phase commit. Distributed transactions become in-doubt in the following ways: a server system running Oracle Database software crashes, a network connection between two or more Oracle Databases involved in distributed processing is disconnected, or an unhandled software error occurs.</p>
+<p>You can manually force the commit or rollback of a local, in-doubt distributed transaction. Because this operation can generate consistency problems, perform it only when specific conditions exist.</p>
+<div class="infobox-note" id="GUID-297F05FA-6F3E-40E6-8C11-C6B68CFAD9FE__GUID-D15E1B17-56CE-4C85-8EB1-A1E5E916983F">
+<p class="notep1">Note:</p>
+<a href="ds_txns.htm#GUID-364CA7BD-A02E-4A74-AF72-45021CAC3E3C" title="The two-phase commit mechanism ensures that all nodes either commit or perform a rollback together. What happens if any of the three phases fails because of a system or network error? The transaction becomes in-doubt.">In-Doubt Transactions</a></div>
+</div>
+<a id="ADMIN12253"></a>
+<div class="props_rev_3"><a id="GUID-A5D6851D-FE93-4A3F-A1A0-AFF0B47F85AC"></a>
+<h3 id="ADMIN-GUID-A5D6851D-FE93-4A3F-A1A0-AFF0B47F85AC" class="sect3"><span class="enumeration_section">35.4.1</span> Discovering Problems with a Two-Phase Commit</h3>
+<div>
+<p>Error messages inform applications when there are problems with distributed transactions.</p>
+<div class="section">
+<p>The user application that commits a distributed transaction is informed of a problem by one of the following error messages:</p>
+<pre dir="ltr">ORA-02050: transaction <span class="italic">ID</span> rolled back,
+           some remote dbs may be in-doubt
+ORA-02053: transaction <span class="italic">ID</span> committed,
+           some remote dbs may be in-doubt
+ORA-02054: transaction <span class="italic">ID</span> in-doubt
+</pre>
+<p>A robust application should save information about a transaction if it receives any of the preceding errors. This information can be used later if manual distributed transaction recovery is desired.</p>
+<p>No action is required by the administrator of any node that has one or more in-doubt distributed transactions due to a network or system failure. The automatic recovery features of the database transparently complete any in-doubt transaction so that the same outcome occurs on all nodes of a session tree (that is, all commit or all roll back) after the network or system failure is resolved.</p>
+<p>In extended outages, however, you can force the commit or rollback of a transaction to release any locked data. Applications must account for such possibilities.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12254"></a>
+<div class="props_rev_3"><a id="GUID-EE0D5633-6B92-47AC-A02E-7202A0C64094"></a>
+<h3 id="ADMIN-GUID-EE0D5633-6B92-47AC-A02E-7202A0C64094" class="sect3"><span class="enumeration_section">35.4.2</span> Determining Whether to Perform a Manual Override</h3>
+<div>
+<p>You should override an in-doubt transaction only under certain conditions.</p>
+<div class="section">
+<p>Override a specific in-doubt transaction manually <span class="italic">only</span> when one of the following conditions exists:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The in-doubt transaction locks data that is required by other transactions. This situation occurs when the <code class="codeph">ORA-01591</code> error message interferes with user transactions.</p>
+</li>
+<li>
+<p>An in-doubt transaction prevents the extents of an undo segment from being used by other transactions. The first portion of the local transaction ID of an in-doubt distributed transaction corresponds to the ID of the undo segment, as listed by the data dictionary view <code class="codeph">DBA_2PC_PENDING.</code></p>
+</li>
+<li>
+<p>The failure preventing the two-phase commit phases to complete cannot be corrected in an acceptable time period. Examples of such cases include a telecommunication network that has been damaged or a damaged database that requires a long recovery time.</p>
+</li>
+</ul>
+<p>Normally, you should decide to locally force an in-doubt distributed transaction in consultation with administrators at other locations. A wrong decision can lead to database inconsistencies that can be difficult to trace and that you must manually correct.</p>
+<p>If none of these conditions apply, <span class="italic">always</span> allow the automatic recovery features of the database to complete the transaction. If any of these conditions are met, however, consider a local override of the in-doubt transaction.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12255"></a>
+<div class="props_rev_3"><a id="GUID-32CDEA9B-5102-49A9-9893-E84D11205418"></a>
+<h3 id="ADMIN-GUID-32CDEA9B-5102-49A9-9893-E84D11205418" class="sect3"><span class="enumeration_section">35.4.3</span> Analyzing the Transaction Data</h3>
+<p>If you decide to force the transaction to complete, then analyze the available information.</p>
+<a id="ADMIN12256"></a>
+<div class="props_rev_3"><a id="GUID-B4297A79-212F-445A-A0FA-091D67467459"></a>
+<h4 id="ADMIN-GUID-B4297A79-212F-445A-A0FA-091D67467459" class="sect4"><span class="enumeration_section">35.4.3.1</span> Find a Node that Committed or Rolled Back</h4>
+<div>
+<p>Use the <code class="codeph">DBA_2PC_PENDING</code> view to find a node that has either committed or rolled back the transaction.</p>
+<div class="section">
+<p>If you can find a node that has already resolved the transaction, then you can follow the action taken at that node.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12257"></a>
+<div class="props_rev_3"><a id="GUID-329C351B-055E-407E-9329-B4AF632BB2F7"></a>
+<h4 id="ADMIN-GUID-329C351B-055E-407E-9329-B4AF632BB2F7" class="sect4"><span class="enumeration_section">35.4.3.2</span> Look for Transaction Comments</h4>
+<div>
+<p>See if any information is given in the <code class="codeph">TRAN_COMMENT</code> column of <code class="codeph">DBA_2PC_PENDING</code> for the distributed transaction.</p>
+<div class="section">
+<p>Comments are included in the <code class="codeph">COMMENT</code> clause of the <code class="codeph">COMMIT</code> statement, or if transaction naming is used, the transaction name is placed in the <code class="codeph">TRAN_COMMENT</code> field when the transaction is committed.</p>
+<p>For example, the comment of an in-doubt distributed transaction can indicate the origin of the transaction and what type of transaction it is:</p>
+<pre dir="ltr">COMMIT COMMENT &#39;Finance/Accts_pay/Trans_type 10B&#39;;
+</pre>
+<p>The <code class="codeph">SET TRANSACTION...NAME</code> statement could also have been used (and is preferable) to provide this information in a transaction name.</p>
+<div class="infoboxnotealso" id="GUID-329C351B-055E-407E-9329-B4AF632BB2F7__GUID-C912BFCC-6A15-4B34-963E-905B4EBF4066">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="ds_txnman.htm#GUID-7DCF2E63-08EC-4085-BC76-7D041D6EE96E" title="You can name a transaction. This is useful for identifying a specific distributed transaction and replaces the use of the COMMIT COMMENT statement for this purpose.">Naming Transactions</a>&#34;</span></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12258"></a>
+<div class="props_rev_3"><a id="GUID-70DA3373-1BC5-44E8-8947-4E57D62FE2CA"></a>
+<h4 id="ADMIN-GUID-70DA3373-1BC5-44E8-8947-4E57D62FE2CA" class="sect4"><span class="enumeration_section">35.4.3.3</span> Look for Transaction Advice</h4>
+<div>
+<p>See if any information is given in the <code class="codeph">ADVICE</code> column of <code class="codeph">DBA_2PC_PENDING</code> for the distributed transaction.</p>
+<div class="section">
+<p>An application can prescribe advice about whether to force the commit or force the rollback of separate parts of a distributed transaction with the <code class="codeph">ADVISE</code> clause of the <code class="codeph">ALTER SESSION</code> statement.</p>
+<p>The advice sent during the prepare phase to each node is the advice in effect at the time the most recent DML statement executed at that database in the current transaction.</p>
+<p>For example, consider a distributed transaction that moves an employee record from the <code class="codeph">emp</code> table at one node to the <code class="codeph">emp</code> table at another node. The transaction can protect the record--even when administrators independently force the in-doubt transaction at each node--by including the following sequence of SQL statements:</p>
+<pre dir="ltr">ALTER SESSION ADVISE COMMIT;
+INSERT INTO emp@hq ... ;    /*advice to commit at HQ */
+ALTER SESSION ADVISE ROLLBACK;
+DELETE FROM emp@sales ... ; /*advice to roll back at SALES*/
+
+ALTER SESSION ADVISE NOTHING;
+</pre>
+<p>If you manually force the in-doubt transaction following the given advice, the worst that can happen is that each node has a copy of the employee record; the record cannot disappear.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="ADMIN12259"></a>
+<div class="props_rev_3"><a id="GUID-ED8FA97B-AA2E-4CB8-9F9F-D9575CBE3E93"></a>
+<h2 id="ADMIN-GUID-ED8FA97B-AA2E-4CB8-9F9F-D9575CBE3E93" class="sect2"><span class="enumeration_section">35.5</span> Manually Overriding In-Doubt Transactions</h2>
+<div>
+<p>Use the <code class="codeph">COMMIT</code> or <code class="codeph">ROLLBACK</code> statement with the <code class="codeph">FORCE</code> option and a text string that indicates either the local or global transaction ID of the in-doubt transaction to commit.</p>
+<div class="infobox-note" id="GUID-ED8FA97B-AA2E-4CB8-9F9F-D9575CBE3E93__GUID-E9E504BB-DE89-4D79-B1B4-B969B6C40951">
+<p class="notep1">Note:</p>
+<p>In all examples, the transaction is committed or rolled back on the local node, and the local pending transaction table records a value of forced commit or forced termination for the <code class="codeph">STATE</code> column the row for this transaction.</p>
+</div>
+</div>
+<div class="sect3"><a id="GUID-94CB1DFF-1100-4D3B-8E83-902CA85B5551"></a>
+<h3 id="ADMIN-GUID-94CB1DFF-1100-4D3B-8E83-902CA85B5551" class="sect3"><span class="enumeration_section">35.5.1</span> Manually Committing an In-Doubt Transaction</h3>
+<p>You can manually commit an in-doubt transaction using a transaction ID or an SCN.</p>
+<a id="ADMIN12260"></a>
+<div class="props_rev_3"><a id="GUID-6DA6A749-FA02-4B3E-8416-3239D32A2B80"></a>
+<h4 id="ADMIN-GUID-6DA6A749-FA02-4B3E-8416-3239D32A2B80" class="sect4"><span class="enumeration_section">35.5.1.1</span> Privileges Required to Commit an In-Doubt Transaction</h4>
+<div>
+<p>Before attempting to commit the transaction, ensure that you have the proper privileges.</p>
+<p>Note the following requirements:</p>
+<div class="tblformal" id="GUID-6DA6A749-FA02-4B3E-8416-3239D32A2B80__GUID-1C158FB9-14DD-4704-AE21-4D209F14CD8B">
+<table class="cellalignment1849" summary="Column 1 lists who is attempting to commit a transaction.; column 2 lists the associated privileges that are required.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1991" id="d254175e1816">User Committing the Transaction</th>
+<th class="cellalignment1910" id="d254175e1819">Privilege Required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1992" id="d254175e1824" headers="d254175e1816">
+<p>You</p>
+</td>
+<td class="cellalignment1912" headers="d254175e1824 d254175e1819">
+<p><code class="codeph">FORCE TRANSACTION</code></p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1992" id="d254175e1833" headers="d254175e1816">
+<p>Another user</p>
+</td>
+<td class="cellalignment1912" headers="d254175e1833 d254175e1819">
+<p><code class="codeph">FORCE ANY TRANSACTION</code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="ADMIN12261"></a>
+<div class="props_rev_3"><a id="GUID-EB1D9627-1410-4DE7-B190-6539441B7D7B"></a>
+<h4 id="ADMIN-GUID-EB1D9627-1410-4DE7-B190-6539441B7D7B" class="sect4"><span class="enumeration_section">35.5.1.2</span> Committing Using Only the Transaction ID</h4>
+<div>
+<p>You can commit an in-doubt transaction using the transaction ID.</p>
+<div class="section">
+<p>The following SQL statement commits an in-doubt transaction:</p>
+<pre dir="ltr">COMMIT FORCE &#39;<span class="italic">transaction_id</span>&#39;;
+</pre>
+<p>The variable <span class="italic">transaction_id</span> is the identifier of the transaction as specified in either the <code class="codeph">LOCAL_TRAN_ID</code> or <code class="codeph">GLOBAL_TRAN_ID</code> columns of the <code class="codeph">DBA_2PC_PENDING</code> data dictionary view.</p>
+<p>For example, assume that you query <code class="codeph">DBA_2PC_PENDING</code> and determine that <code class="codeph">LOCAL_TRAN_ID</code> for a distributed transaction is <code class="codeph">1:45.13</code>.</p>
+<p>You then issue the following SQL statement to force the commit of this in-doubt transaction:</p>
+<pre dir="ltr">COMMIT FORCE &#39;1.45.13&#39;;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12262"></a>
+<div class="props_rev_3"><a id="GUID-672BECA8-8B03-43A7-AC93-14AFB76CB07C"></a>
+<h4 id="ADMIN-GUID-672BECA8-8B03-43A7-AC93-14AFB76CB07C" class="sect4"><span class="enumeration_section">35.5.1.3</span> Committing Using an SCN</h4>
+<div>
+<p>You can commit an in-doubt transaction using an SCN.</p>
+<div class="section">
+<p>Optionally, you can specify the SCN for the transaction when forcing a transaction to commit. This feature lets you commit an in-doubt transaction with the SCN assigned when it was committed at other nodes.</p>
+<p>Consequently, you maintain the synchronized commit time of the distributed transaction even if there is a failure. Specify an SCN only when you can determine the SCN of the same transaction already committed at another node.</p>
+<p>For example, assume you want to manually commit a transaction with the following global transaction ID:</p>
+<pre dir="ltr">SALES.EXAMPLE.COM.55d1c563.1.93.29 
+</pre>
+<p>First, query the <code class="codeph">DBA_2PC_PENDING</code> view of a remote database also involved with the transaction in question. Note the SCN used for the commit of the transaction at that node. Specify the SCN when committing the transaction at the local node. For example, if the SCN is <code class="codeph">829381993</code>, issue:</p>
+<pre dir="ltr">COMMIT FORCE &#39;SALES.EXAMPLE.COM.55d1c563.1.93.29&#39;, 829381993;
+</pre>
+<div class="infoboxnotealso" id="GUID-672BECA8-8B03-43A7-AC93-14AFB76CB07C__GUID-5ECA3ABD-9DFA-44D3-854A-A24B45659370">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF01110" target="_blank" href="../SQLRF/statements_4011.htm#SQLRF01110"><span class="italic">Oracle Database SQL Language Reference</span></a> for more information about using the <code class="codeph">COMMIT</code> statement</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN12263"></a>
+<div class="props_rev_3"><a id="GUID-370CCC2F-4F04-450F-A280-1394C661D836"></a>
+<h3 id="ADMIN-GUID-370CCC2F-4F04-450F-A280-1394C661D836" class="sect3"><span class="enumeration_section">35.5.2</span> Manually Rolling Back an In-Doubt Transaction</h3>
+<div>
+<p>You can roll back an in-doubt transaction using the transaction ID.</p>
+<div class="section">
+<p>Before attempting to roll back the in-doubt distributed transaction, ensure that you have the proper privileges. Note the following requirements:</p>
+<div class="tblformal" id="GUID-370CCC2F-4F04-450F-A280-1394C661D836__GUID-0E7D5D5B-287B-4311-89B1-10F4AECA95E6">
+<table class="cellalignment1849" summary="Column 1 lists who is attempting to commit a transaction.; column 2 lists the associated privileges that are required.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1991" id="d254175e2146">User Committing the Transaction</th>
+<th class="cellalignment1910" id="d254175e2149">Privilege Required</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1992" id="d254175e2154" headers="d254175e2146">
+<p>You</p>
+</td>
+<td class="cellalignment1912" headers="d254175e2154 d254175e2149">
+<p><code class="codeph">FORCE TRANSACTION</code></p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1992" id="d254175e2163" headers="d254175e2146">
+<p>Another user</p>
+</td>
+<td class="cellalignment1912" headers="d254175e2163 d254175e2149">
+<p><code class="codeph">FORCE ANY TRANSACTION</code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The following SQL statement rolls back an in-doubt transaction:</p>
+<pre dir="ltr">ROLLBACK FORCE &#39;<span class="italic">transaction_id</span>&#39;;
+</pre>
+<p>The variable <span class="italic">transaction_id</span> is the identifier of the transaction as specified in either the <code class="codeph">LOCAL_TRAN_ID</code> or <code class="codeph">GLOBAL_TRAN_ID</code> columns of the <code class="codeph">DBA_2PC_PENDING</code> data dictionary view.</p>
+<p>For example, to roll back the in-doubt transaction with the local transaction ID of <code class="codeph">2.9.4</code>, use the following statement:</p>
+<pre dir="ltr">ROLLBACK FORCE &#39;2.9.4&#39;;
+</pre>
+<div class="infobox-note" id="GUID-370CCC2F-4F04-450F-A280-1394C661D836__GUID-D0D56CA1-084E-4B99-8CC9-1E0354EA1401">
+<p class="notep1">Note:</p>
+<p>You cannot roll back an in-doubt transaction to a savepoint.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-370CCC2F-4F04-450F-A280-1394C661D836__GUID-7664189D-A1AB-4FD5-A92C-97075C3CE99F">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF01610" target="_blank" href="../SQLRF/statements_9023.htm#SQLRF01610"><span class="italic">Oracle Database SQL Language Reference</span></a> for more information about using the <code class="codeph">ROLLBACK</code> statement</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<div class="sect2"><a id="GUID-C4AC1D9D-1ED1-4210-A416-57023F4BC32D"></a>
+<h2 id="ADMIN-GUID-C4AC1D9D-1ED1-4210-A416-57023F4BC32D" class="sect2"><span class="enumeration_section">35.6</span> Purging Pending Rows from the Data Dictionary</h2>
+<p>You can purge pending rows from the data dictionary for in-doubt transactions.</p>
+<a id="ADMIN12264"></a>
+<div class="props_rev_3"><a id="GUID-FFA59211-8013-4ACB-BDCF-01162A42509F"></a>
+<h3 id="ADMIN-GUID-FFA59211-8013-4ACB-BDCF-01162A42509F" class="sect3"><span class="enumeration_section">35.6.1</span> About Purging Pending Rows from the Data Dictionary</h3>
+<div>
+<p>You can purge pending rows from the data dictionary for in-doubt transactions using the <code class="codeph">DBMS_TRANSACTION.PURGE_MIXED</code> procedure or the <code class="codeph">DBMS_TRANSACTION.PURGE_LOST_DB_ENTRY</code> procedure.</p>
+<p>Before RECO recovers an in-doubt transaction, the transaction appears in <code class="codeph">DBA_2PC_PENDING.STATE</code> as <code class="codeph">COLLECTING</code>, <code class="codeph">COMMITTED</code>, or <code class="codeph">PREPARED</code>. If you force an in-doubt transaction using <code class="codeph">COMMIT FORCE</code> or <code class="codeph">ROLLBACK FORCE</code>, then the states <code class="codeph">FORCED COMMIT</code> or <code class="codeph">FORCED ROLLBACK</code> may appear.</p>
+<p>Automatic recovery normally deletes entries in these states. The only exception is when recovery discovers a forced transaction that is in a state inconsistent with other sites in the transaction. In this case, the entry can be left in the table, and the <code class="codeph">MIXED</code> column in <code class="codeph">DBA_2PC_PENDING</code> has a value of <code class="codeph">YES</code>. These entries can be cleaned up with the <code class="codeph">DBMS_TRANSACTION.PURGE_MIXED</code> procedure.</p>
+<p>If automatic recovery is not possible because a remote database has been permanently lost, then recovery cannot identify the re-created database because it receives a new database ID when it is re-created. In this case, you must use the <code class="codeph">PURGE_LOST_DB_ENTRY</code> procedure in the <code class="codeph">DBMS_TRANSACTION</code> package to clean up the entries. The entries do not hold up database resources, so there is no urgency in cleaning them up.</p>
+<div class="infoboxnotealso" id="GUID-FFA59211-8013-4ACB-BDCF-01162A42509F__GUID-9BB1AED1-4DB2-41FC-A0BA-A59F7B7040A3">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS062" target="_blank" href="../ARPLS/d_transa.htm#ARPLS062"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for more information about the <code class="codeph">DBMS_TRANSACTION</code> package</p>
+</div>
+</div>
+</div>
+<a id="ADMIN12265"></a>
+<div class="props_rev_3"><a id="GUID-9F7188E7-7439-4C57-9ADC-3200EDF3B406"></a>
+<h3 id="ADMIN-GUID-9F7188E7-7439-4C57-9ADC-3200EDF3B406" class="sect3"><span class="enumeration_section">35.6.2</span> Executing the PURGE_LOST_DB_ENTRY Procedure</h3>
+<div>
+<p>Use the <code class="codeph">DBMS_TRANSACTION.PURGE_LOST_DB_ENTRY</code> procedure to clean up entries for in-doubt transactions in the data dictionary.</p>
+<div class="section">
+<p>To manually remove an entry from the data dictionary, use the following syntax (where <span class="italic">trans_id</span> is the identifier for the transaction):</p>
+<pre dir="ltr">DBMS_TRANSACTION.PURGE_LOST_DB_ENTRY(&#39;<span class="italic">trans_id</span>&#39;);
+</pre>
+<p>For example, to purge pending distributed transaction <code class="codeph">1.44.99</code>, enter the following statement in SQL*Plus:</p>
+<pre dir="ltr">EXECUTE DBMS_TRANSACTION.PURGE_LOST_DB_ENTRY(&#39;1.44.99&#39;);
+</pre>
+<p>Execute this procedure only if significant reconfiguration has occurred so that automatic recovery cannot resolve the transaction. Examples include:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Total loss of the remote database</p>
+</li>
+<li>
+<p>Reconfiguration in software resulting in loss of two-phase commit capability</p>
+</li>
+<li>
+<p>Loss of information from an external transaction coordinator such as a TPMonitor</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12266"></a>
+<div class="props_rev_3"><a id="GUID-AB1231EB-BDA1-409A-8A61-A7D5F346EAA1"></a>
+<h3 id="ADMIN-GUID-AB1231EB-BDA1-409A-8A61-A7D5F346EAA1" class="sect3"><span class="enumeration_section">35.6.3</span> Determining When to Use DBMS_TRANSACTION</h3>
+<div>
+<p>You typically should perform a specific action based on the state of a distributed transaction.</p>
+<p>The following tables indicates what the various states indicate about the distributed transaction and what the administrator&#39;s action should be:</p>
+<div class="tblformal" id="GUID-AB1231EB-BDA1-409A-8A61-A7D5F346EAA1__GUID-C5020E94-6234-49C8-966F-088FCCA8903E">
+<table class="cellalignment1849" summary="Column 1 lists the possible STATE column settings for a distributed transaction; column 2 lists the state of a global transaction; column 3 lists the state of a local transaction; column 4 lists the normal action that is required; column 5 lists alternative actions.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1913" id="d254175e2595">STATE Column</th>
+<th class="cellalignment1913" id="d254175e2598">State of Global Transaction</th>
+<th class="cellalignment1913" id="d254175e2601">State of Local Transaction</th>
+<th class="cellalignment1850" id="d254175e2604">Normal Action</th>
+<th class="cellalignment1897" id="d254175e2607">Alternative Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1915" id="d254175e2612" headers="d254175e2595">
+<p>Collecting</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2612 d254175e2598">
+<p>Rolled back</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2612 d254175e2601">
+<p>Rolled back</p>
+</td>
+<td class="cellalignment1852" headers="d254175e2612 d254175e2604">
+<p>None</p>
+</td>
+<td class="cellalignment1899" headers="d254175e2612 d254175e2607">
+<p><code class="codeph">PURGE_LOST_DB_ENTRY</code> (only if autorecovery cannot resolve transaction)</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1915" id="d254175e2630" headers="d254175e2595">
+<p>Committed</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2630 d254175e2598">
+<p>Committed</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2630 d254175e2601">
+<p>Committed</p>
+</td>
+<td class="cellalignment1852" headers="d254175e2630 d254175e2604">
+<p>None</p>
+</td>
+<td class="cellalignment1899" headers="d254175e2630 d254175e2607">
+<p><code class="codeph">PURGE_LOST_DB_ENTRY</code> (only if autorecovery cannot resolve transaction)</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1915" id="d254175e2648" headers="d254175e2595">
+<p>Prepared</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2648 d254175e2598">
+<p>Unknown</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2648 d254175e2601">
+<p>Prepared</p>
+</td>
+<td class="cellalignment1852" headers="d254175e2648 d254175e2604">
+<p>None</p>
+</td>
+<td class="cellalignment1899" headers="d254175e2648 d254175e2607">
+<p>Force commit or rollback</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1915" id="d254175e2664" headers="d254175e2595">
+<p>Forced commit</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2664 d254175e2598">
+<p>Unknown</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2664 d254175e2601">
+<p>Committed</p>
+</td>
+<td class="cellalignment1852" headers="d254175e2664 d254175e2604">
+<p>None</p>
+</td>
+<td class="cellalignment1899" headers="d254175e2664 d254175e2607">
+<p><code class="codeph">PURGE_LOST_DB_ENTRY</code> (only if autorecovery cannot resolve transaction)</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1915" id="d254175e2682" headers="d254175e2595">
+<p>Forced rollback</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2682 d254175e2598">
+<p>Unknown</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2682 d254175e2601">
+<p>Rolled back</p>
+</td>
+<td class="cellalignment1852" headers="d254175e2682 d254175e2604">
+<p>None</p>
+</td>
+<td class="cellalignment1899" headers="d254175e2682 d254175e2607">
+<p><code class="codeph">PURGE_LOST_DB_ENTRY</code> (only if autorecovery cannot resolve transaction)</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1915" id="d254175e2700" headers="d254175e2595">
+<p>Forced commit</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2700 d254175e2598">
+<p>Mixed</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2700 d254175e2601">
+<p>Committed</p>
+</td>
+<td class="cellalignment1852" headers="d254175e2700 d254175e2604">
+<p>Manually remove inconsistencies then use <code class="codeph">PURGE_MIXED</code></p>
+</td>
+<td class="cellalignment1899" headers="d254175e2700 d254175e2607">
+<p>-</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1915" id="d254175e2718" headers="d254175e2595">
+<p>Forced rollback</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2718 d254175e2598">
+<p>Mixed</p>
+</td>
+<td class="cellalignment1915" headers="d254175e2718 d254175e2601">
+<p>Rolled back</p>
+</td>
+<td class="cellalignment1852" headers="d254175e2718 d254175e2604">
+<p>Manually remove inconsistencies then use <code class="codeph">PURGE_MIXED</code></p>
+</td>
+<td class="cellalignment1899" headers="d254175e2718 d254175e2607">
+<p>-</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+</div>
+<a id="ADMIN13155"></a><a id="ADMIN12267"></a>
+<div class="props_rev_3"><a id="GUID-79B20A57-048B-4C66-9803-0C4FE81A4A84"></a>
+<h2 id="ADMIN-GUID-79B20A57-048B-4C66-9803-0C4FE81A4A84" class="sect2"><span class="enumeration_section">35.7</span> Manually Committing an In-Doubt Transaction: Example</h2>
+<div>
+<p>An example illustrates manually committing an in-doubt transaction.</p>
+<p><a href="ds_txnman.htm#GUID-79B20A57-048B-4C66-9803-0C4FE81A4A84__i1008140">Figure 35-1</a>, illustrates a failure during the commit of a distributed transaction. In this failure case, the prepare phase completes. During the commit phase, however, the commit confirmation of the commit point site never reaches the global coordinator, even though the commit point site committed the transaction. Inventory data is locked and cannot be accessed because the in-doubt transaction is critical to other transactions. Further, the locks must be held until the in-doubt transaction either commits or rolls back.</p>
+<div class="figure" id="GUID-79B20A57-048B-4C66-9803-0C4FE81A4A84__i1008140">
+<p class="titleinfigure">Figure 35-1 Example of an In-Doubt Distributed Transaction</p>
+<img width="507" height="216" src="img/GUID-D80530BA-60AB-4A35-912C-566F59C09545-default.png" alt="Description of Figure 35-1 follows" title="Description of Figure 35-1 follows"/><br/>
+<a href="img_text/GUID-D80530BA-60AB-4A35-912C-566F59C09545-print.htm">Description of &#34;Figure 35-1 Example of an In-Doubt Distributed Transaction&#34;</a></div>
+<!-- class="figure" -->
+<p>You can manually force the local portion of the in-doubt transaction.</p>
+</div>
+<a id="ADMIN12268"></a>
+<div class="props_rev_3"><a id="GUID-E55796F7-C66C-4B63-B0CC-592FA26B1DC9"></a>
+<h3 id="ADMIN-GUID-E55796F7-C66C-4B63-B0CC-592FA26B1DC9" class="sect3"><span class="enumeration_section">35.7.1</span> Step 1: Record User Feedback</h3>
+<div>
+<p>An example illustrates recording user feedback for an in-doubt transaction.</p>
+<div class="section">
+<p>The users of the local database system that conflict with the locks of the in-doubt transaction receive the following error message:</p>
+<pre dir="ltr">ORA-01591: lock held by in-doubt distributed transaction 1.21.17
+</pre>
+<p>In this case, <code class="codeph">1.21.17</code> is the local transaction ID of the in-doubt distributed transaction. You should request and record this ID number from users that report problems to identify which in-doubt transactions should be forced.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12269"></a>
+<div class="props_rev_3"><a id="GUID-FA9DB4D8-F8CE-43BE-9D90-8CDB7D0F1DB9"></a>
+<h3 id="ADMIN-GUID-FA9DB4D8-F8CE-43BE-9D90-8CDB7D0F1DB9" class="sect3"><span class="enumeration_section">35.7.2</span> Step 2: Query DBA_2PC_PENDING</h3>
+<div>
+<p>An example illustrates querying the <code class="codeph">DBA_2PC_PENDING</code> data dictionary view for information about in-doubt transactions.</p>
+<div class="section">
+<p>After connecting with SQL*Plus to <code class="codeph">warehouse</code>, query the local <code class="codeph">DBA_2PC_PENDING</code> data dictionary view to gain information about the in-doubt transaction:</p>
+<pre dir="ltr">CONNECT SYS@warehouse.example.com AS SYSDBA
+SELECT * FROM DBA_2PC_PENDING WHERE LOCAL_TRAN_ID = &#39;1.21.17&#39;;
+</pre>
+<p>The database returns the following information:</p>
+<pre dir="ltr">Column Name            Value
+---------------------- --------------------------------------
+LOCAL_TRAN_ID          1.21.17
+GLOBAL_TRAN_ID         SALES.EXAMPLE.COM.55d1c563.1.93.29
+STATE                  prepared
+MIXED                  no
+ADVICE
+TRAN_COMMENT           Sales/New Order/Trans_type 10B
+FAIL_TIME              31-MAY-91
+FORCE_TIME
+RETRY_TIME             31-MAY-91
+OS_USER                SWILLIAMS
+OS_TERMINAL            TWA139:
+HOST                   system1
+DB_USER                SWILLIAMS
+COMMIT#
+</pre></div>
+<!-- class="section" --></div>
+<a id="ADMIN12270"></a>
+<div class="props_rev_3"><a id="GUID-0A5604A6-E05B-44A8-95BD-E76CBC694FE2"></a>
+<h4 id="ADMIN-GUID-0A5604A6-E05B-44A8-95BD-E76CBC694FE2" class="sect4"><span class="enumeration_section">35.7.2.1</span> Determining the Global Transaction ID</h4>
+<div>
+<p>The global transaction ID is the common transaction ID that is the same on every node for a distributed transaction.</p>
+<div class="section">
+<p>It is of the form:</p>
+<p><span class="italic"><code class="codeph">global_database_name</code></span>.<span class="italic"><code class="codeph">hhhhhhhh.local</code></span>_<span class="italic"><code class="codeph">transaction_id</code></span></p>
+<p>where:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="italic"><code class="codeph">global_database_name</code></span> is the database name of the global coordinator.</p>
+</li>
+<li>
+<p><span class="italic"><code class="codeph">hhhhhhhh</code></span> is the internal database identifier of the global coordinator (in hexadecimal).</p>
+</li>
+<li>
+<p><span class="italic"><code class="codeph">local_transaction_id</code></span> is the corresponding local transaction ID assigned on the global coordinator.</p>
+</li>
+</ul>
+<p>Note that the last portion of the global transaction ID and the local transaction ID match at the global coordinator. In the example, you can tell that <code class="codeph">warehouse</code> is <span class="italic">not</span> the global coordinator because these numbers do not match:</p>
+<pre dir="ltr">LOCAL_TRAN_ID          1.21.17
+GLOBAL_TRAN_ID         ... 1.93.29
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12271"></a>
+<div class="props_rev_3"><a id="GUID-14445E6B-0F41-4D6C-8C10-A334CB4F4C95"></a>
+<h4 id="ADMIN-GUID-14445E6B-0F41-4D6C-8C10-A334CB4F4C95" class="sect4"><span class="enumeration_section">35.7.2.2</span> Determining the State of the Transaction</h4>
+<div>
+<p>The <code class="codeph">STATE</code> column of the <code class="codeph">DBA_2PC_PENDING</code> data dictionary view shows the state of the transaction.</p>
+<div class="section">
+<p>The transaction on this node is in a prepared state:</p>
+<pre dir="ltr">STATE          prepared 
+</pre>
+<p>Therefore, <code class="codeph">warehouse</code> waits for its coordinator to send either a commit or a rollback request.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12272"></a>
+<div class="props_rev_3"><a id="GUID-17F172BF-E1F2-4283-803F-B47AA166FE0E"></a>
+<h4 id="ADMIN-GUID-17F172BF-E1F2-4283-803F-B47AA166FE0E" class="sect4"><span class="enumeration_section">35.7.2.3</span> Looking for Comments or Advice</h4>
+<div>
+<p>The <code class="codeph">TRANS_COMMENT</code> column of the <code class="codeph">DBA_2PC_PENDING</code> data dictionary view shows the comment included for the transaction, while the <code class="codeph">ADVICE</code> column provides advice.</p>
+<div class="section">
+<p>The transaction comment or advice can include information about this transaction. If so, use this comment to your advantage. In this example, the origin and transaction type is in the transaction comment:</p>
+<pre dir="ltr">TRAN_COMMENT           Sales/New Order/Trans_type 10B
+</pre>
+<p>It could also be provided as a transaction name with a <code class="codeph">SET TRANSACTION...NAME</code> statement.</p>
+<p>This information can reveal something that helps you decide whether to commit or rollback the local portion of the transaction. If useful comments do not accompany an in-doubt transaction, you must complete some extra administrative work to trace the session tree and find a node that has resolved the transaction.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN12273"></a>
+<div class="props_rev_3"><a id="GUID-32C9C1FE-ACE1-4560-91E1-F04A916821F1"></a>
+<h3 id="ADMIN-GUID-32C9C1FE-ACE1-4560-91E1-F04A916821F1" class="sect3"><span class="enumeration_section">35.7.3</span> Step 3: Query DBA_2PC_NEIGHBORS on Local Node</h3>
+<div>
+<p>The purpose of this step is to climb the session tree so that you find coordinators, eventually reaching the global coordinator.</p>
+<div class="section">
+<p>Along the way, you may find a coordinator that has resolved the transaction. If not, you can eventually work your way to the commit point site, which will always have resolved the in-doubt transaction. To trace the session tree, query the <code class="codeph">DBA_2PC_NEIGHBORS</code> view on each node.</p>
+<p>In this case, you query this view on the <code class="codeph">warehouse</code> database:</p>
+<pre dir="ltr">CONNECT SYS@warehouse.example.com AS SYSDBA
+SELECT * FROM DBA_2PC_NEIGHBORS
+  WHERE LOCAL_TRAN_ID = &#39;1.21.17&#39;
+  ORDER BY SESS#, IN_OUT;
+
+Column Name            Value
+---------------------- --------------------------------------
+LOCAL_TRAN_ID          1.21.17
+IN_OUT                 in
+DATABASE               SALES.EXAMPLE.COM
+DBUSER_OWNER           SWILLIAMS
+INTERFACE              N
+DBID                   000003F4
+SESS#                  1
+BRANCH                 0100
+</pre></div>
+<!-- class="section" --></div>
+<a id="ADMIN12274"></a>
+<div class="props_rev_3"><a id="GUID-DFF2FCFE-BF33-450F-A329-B35329B206AD"></a>
+<h4 id="ADMIN-GUID-DFF2FCFE-BF33-450F-A329-B35329B206AD" class="sect4"><span class="enumeration_section">35.7.3.1</span> Obtaining Database Role and Database Link Information</h4>
+<div>
+<p>The <code class="codeph">DBA_2PC_NEIGHBORS</code> view provides information about connections associated with an in-doubt transaction.</p>
+<div class="section">
+<p>Information for each connection is different, based on whether the connection is <span class="bold">inbound</span> (<code class="codeph">IN_OUT = in</code>) or <span class="bold">outbound</span> (<code class="codeph">IN_OUT = out</code>):</p>
+<div class="tblformal" id="GUID-DFF2FCFE-BF33-450F-A329-B35329B206AD__GUID-BDAAFDE9-14E3-4ABA-BED3-18A3185040A3">
+<table class="cellalignment1849" summary="Column 1 lists the value of the IN_OUT column; column 2 explains the meaning of the value; column 3 explains the significance of the DATABASE column; column 4 explains the significance of the DBUSER_OWNER column.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1993" id="d254175e3384">IN_OUT</th>
+<th class="cellalignment1857" id="d254175e3387">Meaning</th>
+<th class="cellalignment1863" id="d254175e3390">DATABASE</th>
+<th class="cellalignment1923" id="d254175e3393">DBUSER_OWNER</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1994" id="d254175e3398" headers="d254175e3384">
+<p>in</p>
+</td>
+<td class="cellalignment1860" headers="d254175e3398 d254175e3387">
+<p>Your node is a server of another node.</p>
+</td>
+<td class="cellalignment1865" headers="d254175e3398 d254175e3390">
+<p>Lists the name of the client database that connected to your node.</p>
+</td>
+<td class="cellalignment1925" headers="d254175e3398 d254175e3393">
+<p>Lists the local account for the database link connection that corresponds to the in-doubt transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1994" id="d254175e3411" headers="d254175e3384">
+<p>out</p>
+</td>
+<td class="cellalignment1860" headers="d254175e3411 d254175e3387">
+<p>Your node is a client of other servers.</p>
+</td>
+<td class="cellalignment1865" headers="d254175e3411 d254175e3390">
+<p>Lists the name of the database link that connects to the remote node.</p>
+</td>
+<td class="cellalignment1925" headers="d254175e3411 d254175e3393">
+<p>Lists the owner of the database link for the in-doubt transaction.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>In this example, the <code class="codeph">IN_OUT</code> column reveals that the <code class="codeph">warehouse</code> database is a server for the <code class="codeph">sales</code> client, as specified in the DATABASE column:</p>
+<pre dir="ltr">IN_OUT                 in
+DATABASE               SALES.EXAMPLE.COM
+</pre>
+<p>The connection to <code class="codeph">warehouse</code> was established through a database link from the <code class="codeph">swilliams</code> account, as shown by the <code class="codeph">DBUSER_OWNER</code> column:</p>
+<pre dir="ltr">DBUSER_OWNER           SWILLIAMS
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12275"></a>
+<div class="props_rev_3"><a id="GUID-255782A9-AD10-43C2-8C64-6127385800DB"></a>
+<h4 id="ADMIN-GUID-255782A9-AD10-43C2-8C64-6127385800DB" class="sect4"><span class="enumeration_section">35.7.3.2</span> Determining the Commit Point Site</h4>
+<div>
+<p>The <code class="codeph">INTERFACE</code> column tells whether the local node or a subordinate node is the commit point site.</p>
+<div class="section">
+<pre dir="ltr">INTERFACE              N
+</pre>
+<p>Neither <code class="codeph">warehouse</code> nor any of its descendants is the commit point site, as shown by the <code class="codeph">INTERFACE</code> column.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN12276"></a>
+<div class="props_rev_3"><a id="GUID-B9228B48-2EF4-4D81-9A87-ECADDBF91F6F"></a>
+<h3 id="ADMIN-GUID-B9228B48-2EF4-4D81-9A87-ECADDBF91F6F" class="sect3"><span class="enumeration_section">35.7.4</span> Step 4: Querying Data Dictionary Views on All Nodes</h3>
+<div>
+<p>At this point, you can contact the administrator at the located nodes and ask each person to repeat Steps 2 and 3 using the global transaction ID.</p>
+<div class="infobox-note" id="GUID-B9228B48-2EF4-4D81-9A87-ECADDBF91F6F__GUID-310E0A73-60F0-47D1-8CEA-700CEB8C753C">
+<p class="notep1">Note:</p>
+<p>If you can directly connect to these nodes with another network, you can repeat Steps 2 and 3 yourself.</p>
+</div>
+<p>For example, the following results are returned when Steps 2 and 3 are performed at <code class="codeph">sales</code> and <code class="codeph">hq</code>.</p>
+</div>
+<a id="ADMIN12277"></a>
+<div class="props_rev_3"><a id="GUID-34D04555-C8E1-4DF9-98BC-F352FB7558FD"></a>
+<h4 id="ADMIN-GUID-34D04555-C8E1-4DF9-98BC-F352FB7558FD" class="sect4"><span class="enumeration_section">35.7.4.1</span> Checking the Status of Pending Transactions at sales</h4>
+<div>
+<p>At this stage, the <code class="codeph">sales</code> administrator queries the <code class="codeph">DBA_2PC_PENDING</code> data dictionary view.</p>
+<div class="section">
+<pre dir="ltr">SQL&gt; CONNECT SYS@sales.example.com AS SYSDBA
+SQL&gt; SELECT * FROM DBA_2PC_PENDING
+   &gt; WHERE GLOBAL_TRAN_ID = &#39;SALES.EXAMPLE.COM.55d1c563.1.93.29&#39;;
+
+Column Name            Value
+---------------------- --------------------------------------
+LOCAL_TRAN_ID          1.93.29
+GLOBAL_TRAN_ID         SALES.EXAMPLE.COM.55d1c563.1.93.29
+STATE                  prepared
+MIXED                  no
+ADVICE
+TRAN_COMMENT           Sales/New Order/Trans_type 10B
+FAIL_TIME              31-MAY-91
+FORCE_TIME
+RETRY_TIME             31-MAY-91
+OS_USER                SWILLIAMS
+OS_TERMINAL            TWA139:
+HOST                   system1
+DB_USER                SWILLIAMS
+COMMIT#
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12278"></a>
+<div class="props_rev_3"><a id="GUID-D2B69038-C8A4-4951-9FE9-8EF2E2994A51"></a>
+<h4 id="ADMIN-GUID-D2B69038-C8A4-4951-9FE9-8EF2E2994A51" class="sect4"><span class="enumeration_section">35.7.4.2</span> Determining the Coordinators and Commit Point Site at sales</h4>
+<div>
+<p>Next, the <code class="codeph">sales</code> administrator queries <code class="codeph">DBA_2PC_NEIGHBORS</code> to determine the global and local coordinators as well as the commit point site.</p>
+<div class="section">
+<pre dir="ltr">SELECT * FROM DBA_2PC_NEIGHBORS
+   WHERE GLOBAL_TRAN_ID = &#39;SALES.EXAMPLE.COM.55d1c563.1.93.29&#39;
+   ORDER BY SESS#, IN_OUT;
+</pre>
+<p>This query returns three rows:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The connection to <code class="codeph">warehouse</code></p>
+</li>
+<li>
+<p>The connection to <code class="codeph">hq</code></p>
+</li>
+<li>
+<p>The connection established by the user</p>
+</li>
+</ul>
+<p>Reformatted information corresponding to the rows for the <code class="codeph">warehouse</code> connection appears below:</p>
+<pre dir="ltr">Column Name            Value
+---------------------- --------------------------------------
+LOCAL_TRAN_ID          1.93.29
+IN_OUT                 OUT
+DATABASE               WAREHOUSE.EXAMPLE.COM
+DBUSER_OWNER           SWILLIAMS
+INTERFACE              N
+DBID                   55d1c563
+SESS#                  1
+BRANCH                 1
+</pre>
+<p>Reformatted information corresponding to the rows for the <code class="codeph">hq</code> connection appears below:</p>
+<pre dir="ltr">Column Name            Value
+---------------------- --------------------------------------
+LOCAL_TRAN_ID          1.93.29
+IN_OUT                 OUT
+DATABASE               HQ.EXAMPLE.COM
+DBUSER_OWNER           ALLEN
+INTERFACE              C
+DBID                   00000390
+SESS#                  1
+BRANCH                 1
+</pre>
+<p>The information from the previous queries reveal the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">sales</code> is the global coordinator because the local transaction ID and global transaction ID match.</p>
+</li>
+<li>
+<p>Two outbound connections are established from this node, but no inbound connections. <code class="codeph">sales</code> is not the server of another node.</p>
+</li>
+<li>
+<p><code class="codeph">hq</code> or one of its servers is the commit point site.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12279"></a>
+<div class="props_rev_3"><a id="GUID-1737EA48-120D-4586-B792-0999DE6E329D"></a>
+<h4 id="ADMIN-GUID-1737EA48-120D-4586-B792-0999DE6E329D" class="sect4"><span class="enumeration_section">35.7.4.3</span> Checking the Status of Pending Transactions at HQ</h4>
+<div>
+<p>At this stage, the <code class="codeph">hq</code> administrator queries the <code class="codeph">DBA_2PC_PENDING</code> data dictionary view.</p>
+<div class="section">
+<pre dir="ltr">SELECT * FROM DBA_2PC_PENDING@hq.example.com
+   WHERE GLOBAL_TRAN_ID = &#39;SALES.EXAMPLE.COM.55d1c563.1.93.29&#39;;
+
+Column Name            Value
+---------------------- --------------------------------------
+LOCAL_TRAN_ID          1.45.13
+GLOBAL_TRAN_ID         SALES.EXAMPLE.COM.55d1c563.1.93.29
+STATE                  COMMIT
+MIXED                  NO
+ACTION
+TRAN_COMMENT           Sales/New Order/Trans_type 10B
+FAIL_TIME              31-MAY-91
+FORCE_TIME
+RETRY_TIME             31-MAY-91
+OS_USER                SWILLIAMS
+OS_TERMINAL            TWA139:
+HOST                   SYSTEM1
+DB_USER                SWILLIAMS
+COMMIT#                129314
+</pre>
+<p>At this point, you have found a node that resolved the transaction. As the view reveals, it has been committed and assigned a commit ID number:</p>
+<pre dir="ltr">STATE                  COMMIT
+COMMIT#                129314
+</pre>
+<p>Therefore, you can force the in-doubt transaction to commit at your local database. It is a good idea to contact any other administrators you know that could also benefit from your investigation.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN12280"></a>
+<div class="props_rev_3"><a id="GUID-43E8473A-6159-425C-B6E1-9A09D1FC3666"></a>
+<h3 id="ADMIN-GUID-43E8473A-6159-425C-B6E1-9A09D1FC3666" class="sect3"><span class="enumeration_section">35.7.5</span> Step 5: Commit the In-Doubt Transaction</h3>
+<div>
+<p>Use the global ID to commit the in-doubt transaction.</p>
+<div class="section">
+<p>You contact the administrator of the <code class="codeph">sales</code> database, who manually commits the in-doubt transaction using the global ID:</p>
+<pre dir="ltr">SQL&gt; CONNECT SYS@sales.example.com AS SYSDBA
+SQL&gt; COMMIT FORCE &#39;SALES.EXAMPLE.COM.55d1c563.1.93.29&#39;;
+</pre>
+<p>As administrator of the <code class="codeph">warehouse</code> database, you manually commit the in-doubt transaction using the global ID:</p>
+<pre dir="ltr">SQL&gt; CONNECT SYS@warehouse.example.com AS SYSDBA
+SQL&gt; COMMIT FORCE &#39;SALES.EXAMPLE.COM.55d1c563.1.93.29&#39;;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12281"></a>
+<div class="props_rev_3"><a id="GUID-C93E137C-17F7-4CC4-9016-C3C3DB217CEF"></a>
+<h3 id="ADMIN-GUID-C93E137C-17F7-4CC4-9016-C3C3DB217CEF" class="sect3"><span class="enumeration_section">35.7.6</span> Step 6: Check for Mixed Outcome Using DBA_2PC_PENDING</h3>
+<div>
+<p>After you manually force a transaction to commit or roll back, the corresponding row in the pending transaction table remains. The state of the transaction is changed depending on how you forced the transaction.</p>
+<div class="section">
+<p>Every Oracle Database has a <span class="bold">pending transaction table</span>. This is a special table that stores information about distributed transactions as they proceed through the two-phase commit phases. You can query the pending transaction table of a database through the <code class="codeph">DBA_2PC_PENDING</code> data dictionary view (see <a href="ds_txnman.htm#GUID-CF29B5D4-0FBF-4A72-9EAD-A4618B7A6BC6__g1008762" title="Column 1 contains the view column name; column 2 describes the column.">Table 35-1</a>).</p>
+<p>Also of particular interest in the pending transaction table is the mixed outcome flag as indicated in <code class="codeph">DBA_2PC_PENDING.MIXED</code>. You can make the wrong choice if a pending transaction is forced to commit or roll back. For example, the local administrator rolls back the transaction, but the other nodes commit it. Incorrect decisions are detected automatically, and the damage flag for the corresponding pending transaction record is set (<code class="codeph">MIXED=yes</code>).</p>
+<p>The RECO (Recoverer) background process uses the information in the pending transaction table to finalize the status of in-doubt transactions. You can also use the information in the pending transaction table to manually override the automatic recovery procedures for pending distributed transactions.</p>
+<p>All transactions automatically resolved by RECO are removed from the pending transaction table. Additionally, all information about in-doubt transactions correctly resolved by an administrator (as checked when RECO reestablishes communication) are automatically removed from the pending transaction table. However, all rows resolved by an administrator that result in a mixed outcome across nodes remain in the pending transaction table of all involved nodes until they are manually deleted using <code class="codeph">DBMS_TRANSACTIONS.PURGE_MIXED</code>.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN12282"></a>
+<div class="props_rev_3"><a id="GUID-AFA3EFDD-95BA-4FAD-B465-8ED6776D1E59"></a>
+<h2 id="ADMIN-GUID-AFA3EFDD-95BA-4FAD-B465-8ED6776D1E59" class="sect2"><span class="enumeration_section">35.8</span> Data Access Failures Due to Locks</h2>
+<p>When you issue a SQL statement, the database attempts to lock the resources needed to successfully execute the statement. If the requested data is currently held by statements of other uncommitted transactions, however, and remains locked for a long time, a timeout occurs.</p>
+<a id="ADMIN12283"></a>
+<div class="props_rev_3"><a id="GUID-C2D78CB2-02D7-43ED-9603-A5DDFF392272"></a>
+<h3 id="ADMIN-GUID-C2D78CB2-02D7-43ED-9603-A5DDFF392272" class="sect3"><span class="enumeration_section">35.8.1</span> Transaction Timeouts</h3>
+<div>
+<p>A DML statement that requires locks on a remote database can be blocked if another transaction own locks on the requested data.</p>
+<p>If these locks continue to block the requesting SQL statement, then the following sequence of events occurs:</p>
+<ol>
+<li>
+<p>A timeout occurs.</p>
+</li>
+<li>
+<p>The database rolls back the statement.</p>
+</li>
+<li>
+<p>The database returns this error message to the user:</p>
+<pre dir="ltr">ORA-02049: time-out: distributed transaction waiting for lock
+</pre></li>
+</ol>
+<p>Because the transaction did not modify data, no actions are necessary as a result of the timeout. Applications should proceed as if a deadlock has been encountered. The user who executed the statement can try to reexecute the statement later. If the lock persists, then the user should contact an administrator to report the problem.</p>
+</div>
+</div>
+<a id="ADMIN12284"></a>
+<div class="props_rev_3"><a id="GUID-20B9F64E-3EC3-4967-9391-4EF7445C2ED9"></a>
+<h3 id="ADMIN-GUID-20B9F64E-3EC3-4967-9391-4EF7445C2ED9" class="sect3"><span class="enumeration_section">35.8.2</span> Locks from In-Doubt Transactions</h3>
+<div>
+<p>A query or DML statement that requires locks on a local database can be blocked indefinitely due to the locked resources of an in-doubt distributed transaction.</p>
+<p>In this case, the database issues the following error message:</p>
+<pre dir="ltr">ORA-01591: lock held by in-doubt distributed transaction <span class="italic">identifier</span>
+</pre>
+<p>In this case, the database rolls back the SQL statement immediately. The user who executed the statement can try to reexecute the statement later. If the lock persists, the user should contact an administrator to report the problem, <span class="italic">including</span> the ID of the in-doubt distributed transaction.</p>
+<p>The chances of these situations occurring are rare considering the low probability of failures during the critical portions of the two-phase commit. Even if such a failure occurs, and assuming quick recovery from a network or system failure, problems are automatically resolved without manual intervention. Thus, problems usually resolve before they can be detected by users or database administrators.</p>
+</div>
+</div>
+</div>
+<a id="ADMIN12285"></a>
+<div class="props_rev_3"><a id="GUID-26729889-99BC-4315-9903-AB8C171C557F"></a>
+<h2 id="ADMIN-GUID-26729889-99BC-4315-9903-AB8C171C557F" class="sect2"><span class="enumeration_section">35.9</span> Simulating Distributed Transaction Failure</h2>
+<p>You can force the failure of a distributed transaction to observe RECO automatically resolving the local portion of the transaction or to practice manually resolving in-doubt distributed transactions and observing the results.</p>
+<a id="ADMIN12286"></a>
+<div class="props_rev_3"><a id="GUID-E8A4CA95-AA4B-4796-BE1F-BC5D71BDF51F"></a>
+<h3 id="ADMIN-GUID-E8A4CA95-AA4B-4796-BE1F-BC5D71BDF51F" class="sect3"><span class="enumeration_section">35.9.1</span> Forcing a Distributed Transaction to Fail</h3>
+<div>
+<p>You can include comments in the <code class="codeph">COMMENT</code> parameter of the <code class="codeph">COMMIT</code> statement.</p>
+<div class="section">
+<p>To intentionally induce a failure during the two-phase commit phases of a distributed transaction, include the following comment in the <code class="codeph">COMMENT</code> parameter:</p>
+<pre dir="ltr">COMMIT COMMENT &#39;ORA-2PC-CRASH-TEST-<span class="italic">n</span>&#39;;
+</pre>
+<p>where <span class="italic">n</span> is one of the following integers:</p>
+<div class="tblformal" id="GUID-E8A4CA95-AA4B-4796-BE1F-BC5D71BDF51F__GUID-2E17040A-3774-475E-97B3-37EC43FF3B9A">
+<table class="cellalignment1849" summary="This table lists the possible values of n and their effect.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1858" id="d254175e4455">n</th>
+<th class="cellalignment1970" id="d254175e4458">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4463" headers="d254175e4455">
+<p>1</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4463 d254175e4458">
+<p>Crash commit point after collect</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4470" headers="d254175e4455">
+<p>2</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4470 d254175e4458">
+<p>Crash non-commit-point site after collect</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4477" headers="d254175e4455">
+<p>3</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4477 d254175e4458">
+<p>Crash before prepare (non-commit-point site)</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4484" headers="d254175e4455">
+<p>4</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4484 d254175e4458">
+<p>Crash after prepare (non-commit-point site)</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4491" headers="d254175e4455">
+<p>5</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4491 d254175e4458">
+<p>Crash commit point site before commit</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4498" headers="d254175e4455">
+<p>6</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4498 d254175e4458">
+<p>Crash commit point site after commit</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4505" headers="d254175e4455">
+<p>7</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4505 d254175e4458">
+<p>Crash non-commit-point site before commit</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4512" headers="d254175e4455">
+<p>8</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4512 d254175e4458">
+<p>Crash non-commit-point site after commit</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4519" headers="d254175e4455">
+<p>9</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4519 d254175e4458">
+<p>Crash commit point site before forget</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1861" id="d254175e4526" headers="d254175e4455">
+<p>10</p>
+</td>
+<td class="cellalignment1971" headers="d254175e4526 d254175e4458">
+<p>Crash non-commit-point site before forget</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>For example, the following statement returns the following messages if the local commit point strength is greater than the remote commit point strength and both nodes are updated:</p>
+<pre dir="ltr">COMMIT COMMENT &#39;ORA-2PC-CRASH-TEST-7&#39;;
+
+ORA-02054: transaction 1.93.29 in-doubt
+ORA-02059: ORA_CRASH_TEST_7 in commit comment
+</pre>
+<p>At this point, the in-doubt distributed transaction appears in the <code class="codeph">DBA_2PC_PENDING</code> view. If enabled, RECO automatically resolves the transaction.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN12287"></a>
+<div class="props_rev_3"><a id="GUID-326C26E8-9007-49C6-8080-D127FE920EEC"></a>
+<h3 id="ADMIN-GUID-326C26E8-9007-49C6-8080-D127FE920EEC" class="sect3"><span class="enumeration_section">35.9.2</span> Disabling and Enabling RECO</h3>
+<div>
+<p>The RECO background process of an Oracle Database instance automatically resolves failures involving distributed transactions. At exponentially growing time intervals, the RECO background process of a node attempts to recover the local portion of an in-doubt distributed transaction.</p>
+<div class="section">
+<p>RECO can use an existing connection or establish a new connection to other nodes involved in the failed transaction. When a connection is established, RECO automatically resolves all in-doubt transactions. Rows corresponding to any resolved in-doubt transactions are automatically removed from the pending transaction table of each database.</p>
+<p>You can enable and disable RECO using the <code class="codeph">ALTER SYSTEM</code> statement with the <code class="codeph">ENABLE</code>/<code class="codeph">DISABLE DISTRIBUTED RECOVERY</code> options. For example, you can temporarily disable RECO to force the failure of a two-phase commit and manually resolve the in-doubt transaction.</p>
+<p>The following statement disables RECO:</p>
+<pre dir="ltr">ALTER SYSTEM DISABLE DISTRIBUTED RECOVERY;
+</pre>
+<p>Alternatively, the following statement enables RECO so that in-doubt transactions are automatically resolved:</p>
+<pre dir="ltr">ALTER SYSTEM ENABLE DISTRIBUTED RECOVERY;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN12288"></a>
+<div class="props_rev_3"><a id="GUID-195124A5-FF1B-40BA-BAF9-CB5272E8BFD3"></a>
+<h2 id="ADMIN-GUID-195124A5-FF1B-40BA-BAF9-CB5272E8BFD3" class="sect2"><span class="enumeration_section">35.10</span> Managing Read Consistency</h2>
+<div>
+<p>An important restriction exists in the Oracle Database implementation of distributed read consistency.</p>
+<div class="section">
+<p>The problem arises because each system has its own SCN, which you can view as the database internal timestamp. The Oracle Database server uses the SCN to decide which version of data is returned from a query.</p>
+<p>The SCNs in a distributed transaction are synchronized at the end of each remote SQL statement and at the start and end of each transaction. Between two nodes that have heavy traffic and especially distributed updates, the synchronization is frequent. Nevertheless, no practical way exists to keep SCNs in a distributed system absolutely synchronized: a window always exists in which one node may have an SCN that is somewhat in the past with respect to the SCN of another node.</p>
+<p>Because of the SCN gap, you can execute a query that uses a slightly old snapshot, so that the most recent changes to the remote database are not seen. In accordance with read consistency, a query can therefore retrieve consistent, but out-of-date data. Note that all data retrieved by the query will be from the old SCN, so that if a locally executed update transaction updates two tables at a remote node, then data selected from both tables in the next remote access contain data before the update.</p>
+<p>One consequence of the SCN gap is that two consecutive <code class="codeph">SELECT</code> statements can retrieve different data even though no DML has been executed between the two statements. For example, you can issue an update statement and then commit the update on the remote database. When you issue a <code class="codeph">SELECT</code> statement on a view based on this remote table, the view does not show the update to the row. The next time that you issue the <code class="codeph">SELECT</code> statement, the update is present.</p>
+<p>You can use the following techniques to ensure that the SCNs of the two systems are synchronized just before a query:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Because SCNs are synchronized at the end of a remote query, precede each remote query with a dummy remote query to the same site, for example, <code class="codeph">SELECT * FROM DUAL@REMOTE</code>.</p>
+</li>
+<li>
+<p>Because SCNs are synchronized at the start of every remote transaction, commit or roll back the current transaction before issuing the remote query.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1842">
+<tr>
+<td class="cellalignment1854">
+<table class="cellalignment1847">
+<tr>
+<td class="cellalignment1846"><a href="ds_txns.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1846"><a href="part_cdb.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2001, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1856">
+<table class="cellalignment1845">
+<tr>
+<td class="cellalignment1846"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1846"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1846"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1846"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1846"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1846"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106803"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/SQL%20Processing"></a><title>SQL Processing</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="This chapter explains how database processes DDL statements to create objects, DML to modify data, and queries to retrieve data."/>
+<meta name="keywords" content="SQL processing, stages, locks, deadlocks, private SQL areas, parsing and, cursors, SQL parsing, parse calls, SQL, parsing, parsing, SQL, syntax check, semantic check, dedicated server, optimizer environment, optimizer, environment, processes, soft parse, soft parsing, library cache miss, data dictionary cache, library cache, hard parse, hard parsing, execution plans, shared SQL areas, shared pool, parsing check, shared pool check, latches, row sources, rows, row set, row source, result sets, result sets, SQL, row source generation, access paths, joins, nested loops, execution, execution trees, parse trees, data blocks, multiversion read consistency, recursive SQL, recursive, DDL (data definition language), processing of"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_pt_opt.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_optcncpt.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-B3415175-41F2-4EBB-95CF-5F8B5C39E927"></a> <span id="PAGE" style="display:none;">9/40</span> <!-- End Header -->
+<a id="TGSQL175"></a>
+<h1 id="TGSQL-GUID-B3415175-41F2-4EBB-95CF-5F8B5C39E927" class="sect1"><span class="enumeration_chapter">3</span> SQL Processing</h1>
+<div>
+<p>This chapter explains how database processes DDL statements to create objects, DML to modify data, and queries to retrieve data.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_sqlproc.htm#GUID-873A7B2C-CD17-428A-8AE2-5B08906E45FB" title="SQL processing is the parsing, optimization, row source generation, and execution of a SQL statement. Depending on the statement, the database may omit some of these stages.">About SQL Processing</a></p>
+</li>
+<li>
+<p><a href="tgsql_sqlproc.htm#GUID-BEB00996-3614-45F4-991B-2585E08D8C97" title="Most DML statements have a query component. In a query, execution of a cursor places the results of the query into a set of rows called the result set.">How Oracle Database Processes DML</a></p>
+</li>
+<li>
+<p><a href="tgsql_sqlproc.htm#GUID-C7B96C36-3AE9-4120-A511-C4B2992275DD" title="Oracle Database processes DDL differently from DML.">How Oracle Database Processes DDL</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL177"></a><a id="TGSQL176"></a>
+<div class="props_rev_3"><a id="GUID-873A7B2C-CD17-428A-8AE2-5B08906E45FB"></a>
+<h2 id="TGSQL-GUID-873A7B2C-CD17-428A-8AE2-5B08906E45FB" class="sect2">About SQL Processing</h2>
+<div>
+<p><span class="bold">SQL processing</span> is the parsing, optimization, row source generation, and execution of a SQL statement. Depending on the statement, the database may omit some of these stages.</p>
+<p>The following figure depicts the general stages of SQL processing.</p>
+<div class="figure" id="GUID-873A7B2C-CD17-428A-8AE2-5B08906E45FB__BABHAJJE">
+<p class="titleinfigure">Figure 3-1 Stages of SQL Processing</p>
+<img width="338" height="558" src="img/GUID-476CEA3E-17B5-454F-AD82-CF3FC19D81B1-default.gif" alt="Description of Figure 3-1 follows" title="Description of Figure 3-1 follows"/><br/>
+<a href="img_text/GUID-476CEA3E-17B5-454F-AD82-CF3FC19D81B1-print.htm">Description of &#34;Figure 3-1 Stages of SQL Processing&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="TGSQL178"></a>
+<div class="props_rev_3"><a id="GUID-8CF633B1-EAC4-47C7-9189-C479ADEF1FFA"></a>
+<h3 id="TGSQL-GUID-8CF633B1-EAC4-47C7-9189-C479ADEF1FFA" class="sect3">SQL Parsing</h3>
+<div>
+<p>The first stage of SQL processing is <span class="bold">parsing</span>.</p>
+<p>The parsing stage involves separating the pieces of a SQL statement into a data structure that other routines can process. The database parses a statement when instructed by the application, which means that only the application&shy;, and not the database itself, can reduce the number of parses.</p>
+<p>When an application issues a SQL statement, the application makes a <a href="glossary.htm#GUID-B7B23E36-A65E-43CD-AE96-37B62EA8CB32"><span class="xrefglossterm">parse call</span></a> to the database to prepare the statement for execution. The parse call opens or creates a <a href="glossary.htm#GUID-B29D6FB9-8D89-4124-A14F-E0FAEDAB2AA5"><span class="xrefglossterm">cursor</span></a>, which is a handle for the session-specific <a href="glossary.htm#GUID-CD39D395-8176-4A4F-AEEA-4971F8CB7C58"><span class="xrefglossterm">private SQL area</span></a> that holds a parsed SQL statement and other processing information. The cursor and private SQL area are in the program global area (PGA).</p>
+<p>During the parse call, the database performs the following checks:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_sqlproc.htm#GUID-26F3EC36-A200-482E-AAE5-35248A118873" title="Oracle Database must check each SQL statement for syntactic validity.">Syntax Check</a></p>
+</li>
+<li>
+<p><a href="tgsql_sqlproc.htm#GUID-EBB3A725-BF76-4B7C-A3A0-1D8CE20EFF7C" title="The semantics of a statement are its meaning. A semantic check determines whether a statement is meaningful, for example, whether the objects and columns in the statement exist.">Semantic Check</a></p>
+</li>
+<li>
+<p><a href="tgsql_sqlproc.htm#GUID-BFF0B26C-0A5D-4F79-B01E-8E1C4064A6AD" title="During the parse, the database performs a shared pool check to determine whether it can skip resource-intensive steps of statement processing.">Shared Pool Check</a></p>
+</li>
+</ul>
+<p>The preceding checks identify the errors that can be found <span class="italic">before statement execution</span>. Some errors cannot be caught by parsing. For example, the database can encounter deadlocks or errors in data conversion only during statement execution.</p>
+<div class="infoboxnotealso" id="GUID-8CF633B1-EAC4-47C7-9189-C479ADEF1FFA__GUID-E4A08F0E-B2E7-4D1C-8457-DF580481A02E">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT1336" target="_blank" href="../CNCPT/consist.htm#CNCPT1336"><span><cite>Oracle Database Concepts</cite></span></a> to learn about deadlocks</p>
+</div>
+</div>
+<a id="TGSQL179"></a>
+<div class="props_rev_3"><a id="GUID-26F3EC36-A200-482E-AAE5-35248A118873"></a>
+<h4 id="TGSQL-GUID-26F3EC36-A200-482E-AAE5-35248A118873" class="sect4">Syntax Check</h4>
+<div>
+<p>Oracle Database must check each SQL statement for syntactic validity.</p>
+<p>A statement that breaks a rule for well-formed SQL syntax fails the check. For example, the following statement fails because the keyword <code class="codeph">FROM</code> is misspelled as <code class="codeph">FORM</code>:</p>
+<pre dir="ltr">SQL&gt; SELECT * FORM employees;
+SELECT * FORM employees
+         *
+ERROR at line 1:
+ORA-00923: FROM keyword not found where expected
+</pre></div>
+</div>
+<a id="TGSQL180"></a>
+<div class="props_rev_3"><a id="GUID-EBB3A725-BF76-4B7C-A3A0-1D8CE20EFF7C"></a>
+<h4 id="TGSQL-GUID-EBB3A725-BF76-4B7C-A3A0-1D8CE20EFF7C" class="sect4">Semantic Check</h4>
+<div>
+<p>The semantics of a statement are its meaning. A semantic check determines whether a statement is meaningful, for example, whether the objects and columns in the statement exist.</p>
+<p>A syntactically correct statement can fail a semantic check, as shown in the following example of a query of a nonexistent table:</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM nonexistent_table;
+SELECT * FROM nonexistent_table
+              *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+</pre></div>
+</div>
+<a id="TGSQL182"></a><a id="TGSQL181"></a>
+<div class="props_rev_3"><a id="GUID-BFF0B26C-0A5D-4F79-B01E-8E1C4064A6AD"></a>
+<h4 id="TGSQL-GUID-BFF0B26C-0A5D-4F79-B01E-8E1C4064A6AD" class="sect4">Shared Pool Check</h4>
+<div>
+<p>During the parse, the database performs a shared pool check to determine whether it can skip resource-intensive steps of statement processing.</p>
+<p>To this end, the database uses a hashing algorithm to generate a hash value for every SQL statement. The statement hash value is the <a href="glossary.htm#GUID-894D17CF-F10C-4BD5-B2A2-E3AC23759B78"><span class="xrefglossterm">SQL ID</span></a> shown in <code class="codeph">V$SQL.SQL_ID</code>. This hash value is deterministic within a version of Oracle Database, so the same statement in a single instance or in different instances has the same SQL ID.</p>
+<p>When a user submits a SQL statement, the database searches the <a href="glossary.htm#GUID-577D0DD3-FB98-4B1B-BCFB-95313BB35C01"><span class="xrefglossterm">shared SQL area</span></a> to see if an existing parsed statement has the same hash value. The hash value of a SQL statement is distinct from the following values:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Memory address for the statement</p>
+<p>Oracle Database uses the SQL ID to perform a keyed read in a lookup table. In this way, the database obtains possible memory addresses of the statement.</p>
+</li>
+<li>
+<p>Hash value of an <a href="glossary.htm#GUID-800F2BE7-A383-4FF3-A9A6-FCE786AABA3B"><span class="xrefglossterm">execution plan</span></a> for the statement</p>
+<p>A SQL statement can have multiple plans in the shared pool. Typically, each plan has a different hash value. If the same SQL ID has multiple plan hash values, then the database knows that multiple plans exist for this SQL ID.</p>
+</li>
+</ul>
+<p>Parse operations fall into the following categories, depending on the type of statement submitted and the result of the hash check:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Hard parse</p>
+<p>If Oracle Database cannot reuse existing code, then it must build a new executable version of the application code. This operation is known as a <a href="glossary.htm#GUID-AB764C9E-2F03-49A9-BF8B-36A9FBD03BCE"><span class="xrefglossterm">hard parse</span></a>, or a <a href="glossary.htm#GUID-D12396D3-DCDA-4A61-8891-64AD81876EFD"><span class="xrefglossterm">library cache miss</span></a>.</p>
+<div class="infobox-note" id="GUID-BFF0B26C-0A5D-4F79-B01E-8E1C4064A6AD__GUID-BB11D2CF-1232-49C2-A010-BC21F727B77A">
+<p class="notep1">Note:</p>
+<p>The database always performs a hard parse of DDL.</p>
+</div>
+<p>During the hard parse, the database accesses the library cache and data dictionary cache numerous times to check the data dictionary. When the database accesses these areas, it uses a serialization device called a <a href="glossary.htm#GUID-B1C1EE03-1E9E-45F9-BD12-3B05654F7615"><span class="xrefglossterm">latch</span></a> on required objects so that their definition does not change. Latch contention increases statement execution time and decreases concurrency.</p>
+</li>
+<li>
+<p>Soft parse</p>
+<p>A <a href="glossary.htm#GUID-BA91B10B-FBA3-4DF6-B59B-9AA57C683D33"><span class="xrefglossterm">soft parse</span></a> is any parse that is not a hard parse. If the submitted statement is the same as a reusable SQL statement in the shared pool, then Oracle Database reuses the existing code. This reuse of code is also called a <a href="glossary.htm#GUID-22628BDA-52D1-4349-827A-071163A13D1A"><span class="xrefglossterm">library cache hit</span></a>.</p>
+<p>Soft parses can vary in how much work they perform. For example, configuring the session shared SQL area can sometimes reduce the amount of latching in the soft parses, making them &#34;softer.&#34;</p>
+<p>In general, a soft parse is preferable to a hard parse because the database skips the optimization and row source generation steps, proceeding straight to execution.</p>
+</li>
+</ul>
+<p>The following graphic is a simplified representation of a shared pool check of an <code class="codeph">UPDATE</code> statement in a dedicated server architecture.</p>
+<div class="figure" id="GUID-BFF0B26C-0A5D-4F79-B01E-8E1C4064A6AD__BABDFGJD">
+<p class="titleinfigure">Figure 3-2 Shared Pool Check</p>
+<img width="623" height="387" src="img/GUID-B288E97D-C133-479F-B3DE-97576412FCFB-default.gif" alt="Description of Figure 3-2 follows" title="Description of Figure 3-2 follows"/><br/>
+<a href="img_text/GUID-B288E97D-C133-479F-B3DE-97576412FCFB-print.htm">Description of &#34;Figure 3-2 Shared Pool Check&#34;</a></div>
+<!-- class="figure" -->
+<p>If a check determines that a statement in the shared pool has the same hash value, then the database performs semantic and environment checks to determine whether the statements have the same meaning. Identical syntax is not sufficient. For example, suppose two different users log in to the database and issue the following SQL statements:</p>
+<pre dir="ltr">CREATE TABLE my_table ( some_col INTEGER );
+SELECT * FROM my_table;
+</pre>
+<p>The <code class="codeph">SELECT</code> statements for the two users are syntactically identical, but two separate schema objects are named <code class="codeph">my_table</code>. This semantic difference means that the second statement cannot reuse the code for the first statement.</p>
+<p>Even if two statements are semantically identical, an environmental difference can force a hard parse. In this context, the <a href="glossary.htm#GUID-689C2576-297D-471D-8575-86FAE0185AAD"><span class="xrefglossterm">optimizer environment</span></a> is the totality of session settings that can affect execution plan generation, such as the work area size or optimizer settings (for example, the optimizer mode). Consider the following series of SQL statements executed by a single user:</p>
+<pre dir="ltr">ALTER SESSION SET OPTIMIZER_MODE=ALL_ROWS;
+ALTER SYSTEM FLUSH SHARED_POOL;               # optimizer environment 1
+SELECT * FROM sh.sales;
+
+ALTER SESSION SET OPTIMIZER_MODE=FIRST_ROWS;  # optimizer environment 2
+SELECT * FROM sh.sales;
+
+ALTER SESSION SET SQL_TRACE=true;             # optimizer environment 3
+SELECT * FROM sh.sales;
+</pre>
+<p>In the preceding example, the same <code class="codeph">SELECT</code> statement is executed in three different optimizer environments. Consequently, the database creates three separate shared SQL areas for these statements and forces a hard parse of each statement.</p>
+<div class="infoboxnotealso" id="GUID-BFF0B26C-0A5D-4F79-B01E-8E1C4064A6AD__GUID-D4B61C91-2173-4F68-A257-F72ECADE3297">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT007" target="_blank" href="../CNCPT/memory.htm#CNCPT007"><span><cite>Oracle Database Concepts</cite></span></a> to learn about private SQL areas and shared SQL areas</p>
+</li>
+<li>
+<p><a class="olink TGDBA558" target="_blank" href="../TGDBA/tune_shared_pool.htm#TGDBA558"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn how to configure the shared pool</p>
+</li>
+<li>
+<p><a class="olink CNCPT1358" target="_blank" href="../CNCPT/consist.htm#CNCPT1358"><span><cite>Oracle Database Concepts</cite></span></a> to learn about latches</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL183"></a>
+<div class="props_rev_3"><a id="GUID-0196D949-6B0F-4DB0-BCCF-768F16B0964C"></a>
+<h3 id="TGSQL-GUID-0196D949-6B0F-4DB0-BCCF-768F16B0964C" class="sect3">SQL Optimization</h3>
+<div>
+<p>During the optimization stage, Oracle Database must perform a hard parse at least once for every unique DML statement and performs the optimization during this parse.</p>
+<p>The database never optimizes DDL unless it includes a DML component such as a subquery that requires optimization.</p>
+</div>
+</div>
+<a id="TGSQL185"></a><a id="TGSQL184"></a>
+<div class="props_rev_3"><a id="GUID-E052E274-586D-4D76-960F-B831140F7B94"></a>
+<h3 id="TGSQL-GUID-E052E274-586D-4D76-960F-B831140F7B94" class="sect3">SQL Row Source Generation</h3>
+<div>
+<p>The <span class="bold">row source generator</span> is software that receives the optimal execution plan from the optimizer and produces an iterative execution plan that is usable by the rest of the database.</p>
+<p>The iterative plan is a binary program that, when executed by the SQL engine, produces the result set. The plan takes the form of a combination of steps. Each step returns a <a href="glossary.htm#GUID-88998F10-D77C-43B5-B148-E649BF366DC2"><span class="xrefglossterm">row set</span></a>. The next step either uses the rows in this set, or the last step returns the rows to the application issuing the SQL statement.</p>
+<p>A <a href="glossary.htm#GUID-BDE98BD8-BC33-45AD-97BF-81831BF94B04"><span class="xrefglossterm">row source</span></a> is a row set returned by a step in the execution plan along with a control structure that can iteratively process the rows. The row source can be a table, view, or result of a join or grouping operation.</p>
+<p>The row source generator produces a <a href="glossary.htm#GUID-8C474809-DFD4-4EA6-90FE-A17882D07E58"><span class="xrefglossterm">row source tree</span></a>, which is a collection of row sources. The row source tree shows the following information:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>An ordering of the tables referenced by the statement</p>
+</li>
+<li>
+<p>An access method for each table mentioned in the statement</p>
+</li>
+<li>
+<p>A join method for tables affected by join operations in the statement</p>
+</li>
+<li>
+<p>Data operations such as filter, sort, or aggregation</p>
+</li>
+</ul>
+<div class="example" id="GUID-E052E274-586D-4D76-960F-B831140F7B94__BABGEIBF">
+<p class="titleinexample">Example 3-1 Execution Plan</p>
+<p>This example shows the execution plan of a <code class="codeph">SELECT</code> statement when <code class="codeph">AUTOTRACE</code> is enabled. The statement selects the last name, job title, and department name for all employees whose last names begin with the letter <code class="codeph">A</code>. The execution plan for this statement is the output of the row source generator.</p>
+<pre dir="ltr">SELECT e.last_name, j.job_title, d.department_name 
+FROM   hr.employees e, hr.departments d, hr.jobs j
+WHERE  e.department_id = d.department_id
+AND    e.job_id = j.job_id
+AND    e.last_name LIKE &#39;A%&#39;;
+ 
+Execution Plan
+----------------------------------------------------------
+Plan hash value: 975837011
+
+--------------------------------------------------------------------------------
+| Id| Operation                     | Name        |Rows|Bytes|Cost(%CPU)|Time  |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT              |             |  3 | 189 | 7(15)| 00:00:01 |
+|*1 |  HASH JOIN                    |             |  3 | 189 | 7(15)| 00:00:01 |
+|*2 |   HASH JOIN                   |             |  3 | 141 | 5(20)| 00:00:01 |
+| 3 |    TABLE ACCESS BY INDEX ROWID| EMPLOYEES   |  3 |  60 | 2 (0)| 00:00:01 |
+|*4 |     INDEX RANGE SCAN          | EMP_NAME_IX |  3 |     | 1 (0)| 00:00:01 |
+| 5 |    TABLE ACCESS FULL          | JOBS        | 19 | 513 | 2 (0)| 00:00:01 |
+| 6 |   TABLE ACCESS FULL           | DEPARTMENTS | 27 | 432 | 2 (0)| 00:00:01 |
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+   2 - access(&#34;E&#34;.&#34;JOB_ID&#34;=&#34;J&#34;.&#34;JOB_ID&#34;)
+   4 - access(&#34;E&#34;.&#34;LAST_NAME&#34; LIKE &#39;A%&#39;)
+       filter(&#34;E&#34;.&#34;LAST_NAME&#34; LIKE &#39;A%&#39;)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL187"></a><a id="TGSQL186"></a>
+<div class="props_rev_3"><a id="GUID-CC83C349-364F-4AB4-8113-0FD6753EF3FB"></a>
+<h3 id="TGSQL-GUID-CC83C349-364F-4AB4-8113-0FD6753EF3FB" class="sect3">SQL Execution</h3>
+<div>
+<p>During execution, the SQL engine executes each row source in the tree produced by the row source generator. This step is the only mandatory step in DML processing.</p>
+<p><a href="tgsql_sqlproc.htm#GUID-CC83C349-364F-4AB4-8113-0FD6753EF3FB__BABJECHA">Figure 3-3</a> is an <a href="glossary.htm#GUID-CB39EBA4-C228-4A41-960C-B0D180FA9A13"><span class="xrefglossterm">execution tree</span></a>, also called a <span class="italic">parse tree</span>, that shows the flow of row sources from one step to another in the plan in <a href="tgsql_sqlproc.htm#GUID-E052E274-586D-4D76-960F-B831140F7B94__BABGEIBF">Example 3-1</a>. In general, the order of the steps in execution is the <span class="italic">reverse</span> of the order in the plan, so you read the plan from the bottom up.</p>
+<p>Each step in an execution plan has an ID number. The numbers in <a href="tgsql_sqlproc.htm#GUID-CC83C349-364F-4AB4-8113-0FD6753EF3FB__BABJECHA">Figure 3-3</a> correspond to the <code class="codeph">Id</code> column in the plan shown in <a href="tgsql_sqlproc.htm#GUID-E052E274-586D-4D76-960F-B831140F7B94__BABGEIBF">Example 3-1</a>. Initial spaces in the <code class="codeph">Operation</code> column of the plan indicate hierarchical relationships. For example, if the name of an operation is preceded by two spaces, then this operation is a child of an operation preceded by one space. Operations preceded by one space are children of the <code class="codeph">SELECT</code> statement itself.</p>
+<div class="figure" id="GUID-CC83C349-364F-4AB4-8113-0FD6753EF3FB__BABJECHA">
+<p class="titleinfigure">Figure 3-3 Row Source Tree</p>
+<img width="357" height="540" src="img/GUID-CFA4215E-0CDC-4355-9722-FCF16C6CEAB7-default.gif" alt="Description of Figure 3-3 follows" title="Description of Figure 3-3 follows"/><br/>
+<a href="img_text/GUID-CFA4215E-0CDC-4355-9722-FCF16C6CEAB7-print.htm">Description of &#34;Figure 3-3 Row Source Tree&#34;</a></div>
+<!-- class="figure" -->
+<p>In <a href="tgsql_sqlproc.htm#GUID-CC83C349-364F-4AB4-8113-0FD6753EF3FB__BABJECHA">Figure 3-3</a>, each node of the tree acts as a row source, which means that each step of the execution plan in <a href="tgsql_sqlproc.htm#GUID-E052E274-586D-4D76-960F-B831140F7B94__BABGEIBF">Example 3-1</a> either retrieves rows from the database or accepts rows from one or more row sources as input. The SQL engine executes each row source as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Steps indicated by the black boxes physically retrieve data from an object in the database. These steps are the access paths, or techniques for retrieving data from the database.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Step 6 uses a full table scan to retrieve all rows from the <code class="codeph">departments</code> table.</p>
+</li>
+<li>
+<p>Step 5 uses a full table scan to retrieve all rows from the <code class="codeph">jobs</code> table.</p>
+</li>
+<li>
+<p>Step 4 scans the <code class="codeph">emp_name_ix</code> index in order, looking for each key that begins with the letter <code class="codeph">A</code> and retrieving the corresponding rowid. For example, the rowid corresponding to <code class="codeph">Atkinson</code> is <code class="codeph">AAAPzRAAFAAAABSAAe</code>.</p>
+</li>
+<li>
+<p>Step 3 retrieves from the <code class="codeph">employees</code> table the rows whose rowids were returned by Step 4. For example, the database uses rowid <code class="codeph">AAAPzRAAFAAAABSAAe</code> to retrieve the row for <code class="codeph">Atkinson</code>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Steps indicated by the clear boxes operate on row sources.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Step 2 performs a <a href="glossary.htm#GUID-FF45796B-8A90-45C6-8A40-0B308B72AF7C"><span class="xrefglossterm">hash join</span></a>, accepting row sources from Steps 3 and 5, joining each row from the Step 5 row source to its corresponding row in Step 3, and returning the resulting rows to Step 1.</p>
+<p>For example, the row for employee <code class="codeph">Atkinson</code> is associated with the job name <code class="codeph">Stock Clerk</code>.</p>
+</li>
+<li>
+<p>Step 1 performs another hash join, accepting row sources from Steps 2 and 6, joining each row from the Step 6 source to its corresponding row in Step 2, and returning the result to the client.</p>
+<p>For example, the row for employee <code class="codeph">Atkinson</code> is associated with the department named <code class="codeph">Shipping</code>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>In some execution plans the steps are iterative and in others sequential. The hash join shown in <a href="tgsql_sqlproc.htm#GUID-E052E274-586D-4D76-960F-B831140F7B94__BABGEIBF">Example 3-1</a> is sequential. The database completes the steps in their entirety based on the join order. The database starts with the index range scan of <code class="codeph">emp_name_ix</code>. Using the rowids that it retrieves from the index, the database reads the matching rows in the <code class="codeph">employees</code> table, and then scans the <code class="codeph">jobs</code> table. After it retrieves the rows from the <code class="codeph">jobs</code> table, the database performs the hash join.</p>
+<p>During execution, the database reads the data from disk into memory if the data is not in memory. The database also takes out any locks and latches necessary to ensure data integrity and logs any changes made during the SQL execution. The final stage of processing a SQL statement is closing the cursor.</p>
+</div>
+</div>
+</div>
+<a id="TGSQL188"></a>
+<div class="props_rev_3"><a id="GUID-BEB00996-3614-45F4-991B-2585E08D8C97"></a>
+<h2 id="TGSQL-GUID-BEB00996-3614-45F4-991B-2585E08D8C97" class="sect2">How Oracle Database Processes DML</h2>
+<div>
+<p>Most DML statements have a query component. In a query, execution of a cursor places the results of the query into a set of rows called the <span class="bold">result set</span>.</p>
+</div>
+<div class="props_rev_3"><a id="GUID-422F679D-80AD-42CF-B38C-7D22A550E2AA"></a>
+<h3 id="TGSQL-GUID-422F679D-80AD-42CF-B38C-7D22A550E2AA" class="sect3">How Row Sets Are Fetched</h3>
+<div>
+<p>Result set rows can be fetched either a row at a time or in groups.</p>
+<p>In the fetch stage, the database selects rows and, if requested by the query, orders the rows. Each successive fetch retrieves another row of the result until the last row has been fetched.</p>
+<p>In general, the database cannot determine for certain the number of rows to be retrieved by a query until the last row is fetched. Oracle Database retrieves the data in response to fetch calls, so that the more rows the database reads, the more work it performs. For some queries the database returns the first row as quickly as possible, whereas for others it creates the entire result set before returning the first row.</p>
+</div>
+</div>
+<a id="TGSQL189"></a>
+<div class="props_rev_3"><a id="GUID-7F6D150A-DC47-4A34-8455-ECA648206297"></a>
+<h3 id="TGSQL-GUID-7F6D150A-DC47-4A34-8455-ECA648206297" class="sect3">Read Consistency</h3>
+<div>
+<p>In general, a query retrieves data by using the Oracle Database read consistency mechanism, which guarantees that all data blocks read by a query are consistent to a single point in time.</p>
+<p>Read consistency uses undo data to show past versions of data. For an example, suppose a query must read 100 data blocks in a full table scan. The query processes the first 10 blocks while DML in a different session modifies block 75. When the first session reaches block 75, it realizes the change and uses undo data to retrieve the old, unmodified version of the data and construct a noncurrent version of block 75 in memory.</p>
+<div class="infoboxnotealso" id="GUID-7F6D150A-DC47-4A34-8455-ECA648206297__GUID-D9C83CC9-747D-4DBB-B825-3B1A7269B8B7">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT020" target="_blank" href="../CNCPT/consist.htm#CNCPT020"><span><cite>Oracle Database Concepts</cite></span></a> to learn about multiversion read consistency</p>
+</div>
+</div>
+</div>
+<a id="TGSQL190"></a>
+<div class="props_rev_3"><a id="GUID-14D902DA-5CAC-4892-BE8B-880A4F8A6914"></a>
+<h3 id="TGSQL-GUID-14D902DA-5CAC-4892-BE8B-880A4F8A6914" class="sect3">Data Changes</h3>
+<div>
+<p>DML statements that must change data use read consistency to retrieve only the data that matched the search criteria when the modification began.</p>
+<p>Afterward, these statements retrieve the data blocks as they exist in their current state and make the required modifications. The database must perform other actions related to the modification of the data such as generating redo and undo data.</p>
+</div>
+</div>
+</div>
+<a id="TGSQL191"></a>
+<div class="props_rev_3"><a id="GUID-C7B96C36-3AE9-4120-A511-C4B2992275DD"></a>
+<h2 id="TGSQL-GUID-C7B96C36-3AE9-4120-A511-C4B2992275DD" class="sect2">How Oracle Database Processes DDL</h2>
+<div>
+<p>Oracle Database processes DDL differently from DML.</p>
+<p>For example, when you create a table, the database does not optimize the <code class="codeph">CREATE TABLE</code> statement. Instead, Oracle Database parses the DDL statement and carries out the command.</p>
+<p>The database processes DDL differently because it is a means of defining an object in the data dictionary. Typically, Oracle Database must parse and execute many <a href="glossary.htm#GUID-4BBB2EED-7E8C-4BAF-A3B3-B1CEF98342AC"><span class="xrefglossterm">recursive SQL</span></a> statements to execute a DDL statement. Suppose you create a table as follows:</p>
+<pre dir="ltr">CREATE TABLE mytable (mycolumn INTEGER);
+</pre>
+<p>Typically, the database would run dozens of recursive statements to execute the preceding statement. The recursive SQL would perform actions such as the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Issue a <code class="codeph">COMMIT</code> before executing the <code class="codeph">CREATE TABLE</code> statement</p>
+</li>
+<li>
+<p>Verify that user privileges are sufficient to create the table</p>
+</li>
+<li>
+<p>Determine which tablespace the table should reside in</p>
+</li>
+<li>
+<p>Ensure that the tablespace quota has not been exceeded</p>
+</li>
+<li>
+<p>Ensure that no object in the schema has the same name</p>
+</li>
+<li>
+<p>Insert rows that define the table into the data dictionary</p>
+</li>
+<li>
+<p>Issue a <code class="codeph">COMMIT</code> if the DDL statement succeeded or a <code class="codeph">ROLLBACK</code> if it did not</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-C7B96C36-3AE9-4120-A511-C4B2992275DD__GUID-302442FA-173D-444D-A365-653658578EED">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADFNS134" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS134"><span><cite>Oracle Database Development Guide</cite></span></a> to learn about processing DDL, transaction control, and other types of statements</p>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_pt_opt.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_optcncpt.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

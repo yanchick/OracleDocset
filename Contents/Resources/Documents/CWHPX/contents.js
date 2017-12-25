@@ -1,0 +1,16 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Oracle Grid Infrastructure Installation Checklist", anchor: "CWHPX444", file: "chklist.htm" },
+  { topic: "chapter", section: "2", title: "Configuring Servers for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWHPX460", file: "servers.htm" },
+  { topic: "chapter", section: "3", title: "Configuring Operating Systems for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWHPX160", file: "pre_hpux.htm" },
+  { topic: "chapter", section: "4", title: "Configuring Networks for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWHPX473", file: "networks.htm" },
+  { topic: "chapter", section: "5", title: "Configuring Users, Groups and Environments for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWHPX483", file: "usrgrps.htm" },
+  { topic: "chapter", section: "6", title: "Configuring Storage for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWHPX003", file: "storage.htm" },
+  { topic: "chapter", section: "7", title: "Installing Oracle Grid Infrastructure for a Cluster", anchor: "CWHPX315", file: "crsunix.htm" },
+  { topic: "chapter", section: "8", title: "Oracle Grid Infrastructure Postinstallation Procedures", anchor: "CWHPX326", file: "postinst.htm" },
+  { topic: "chapter", section: "9", title: "How to Modify or Deinstall Oracle Grid Infrastructure", anchor: "CWHPX345", file: "rem_orcl.htm" },
+  { topic: "appendix", section: "A", title: "Troubleshooting the Oracle Grid Infrastructure Installation Process", anchor: "CWHPX354", file: "trouble.htm" },
+  { topic: "appendix", section: "B", title: "How to Upgrade to Oracle Grid Infrastructure 12c Release 1", anchor: "CWHPX10001", file: "procstop.htm" },
+  { topic: "appendix", section: "C", title: "Installing and Configuring Oracle Database Using Response Files", anchor: "CWHPX505", file: "app_nonint.htm" },
+  { topic: "appendix", section: "D", title: "Oracle Grid Infrastructure for a Cluster Installation Concepts", anchor: "CWHPX506", file: "concepts.htm" },
+  { topic: "appendix", section: "E", title: "How to Complete Installation Tasks Manually", anchor: "CWHPX515", file: "manpreins.htm" },
+  { } ];

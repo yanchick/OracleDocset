@@ -1,0 +1,1645 @@
+<html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106778"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Improving%20Real-World%20Performance%20Through%20Cursor%20Sharing"></a><title>Improving Real-World Performance Through Cursor Sharing</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="Real-World Performance, cursor sharing, cursors, sharing, private SQL areas, about, CURSOR_SHARING initialization parameters, bind variables, shared SQL areas, child cursors, parent cursors, parent, child, V$SQLAREA view, parsing, hard, hard parses, parsing and, bind peeking, bind variable peeking, forcing, bind-sensitive, bind-sensitive cursors, bind-aware, bind-aware cursors, cursor merging"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_influence.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_pt_mon.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-971F4652-3950-4662-82DE-713DDEED317C"></a> <span id="PAGE" style="display:none;">25/40</span> <!-- End Header -->
+<a id="TGSQL848"></a>
+<h1 id="TGSQL-GUID-971F4652-3950-4662-82DE-713DDEED317C" class="sect1"><span class="enumeration_chapter">15</span> Improving Real-World Performance Through Cursor Sharing</h1>
+<div>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_cursor.htm#GUID-1DEE6AD7-C30E-4ABB-9BFF-B5895A6E386B" title="Oracle Database can share cursors, which are pointers to private SQL areas in the shared pool. Cursor sharing can improve database application performance by orders of magnitude.">Overview of Cursor Sharing</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-7A0CD3D1-1ECB-4DA4-813A-0D8D79C8B65D" title="The CURSOR_SHARING initialization parameter controls how the database processes statements with bind variables.">CURSOR_SHARING Initialization Parameter</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-277432AA-CD1C-4A75-AB28-7358E63265B3" title="The adaptive cursor sharing feature enables a single statement that contains bind variables to use multiple execution plans. Cursor sharing is &#34;adaptive&#34; because the cursor adapts its behavior so that the database does not always use the same plan for each execution or bind variable value.">Adaptive Cursor Sharing</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-EA2FC76C-275B-49E1-B38C-BA39B3B3E864" title="This section contains the following topics:">Real-World Performance Guidelines for Cursor Sharing</a></p>
+</li>
+</ul>
+</div>
+<div class="sect2"><a id="GUID-1DEE6AD7-C30E-4ABB-9BFF-B5895A6E386B"></a>
+<h2 id="TGSQL-GUID-1DEE6AD7-C30E-4ABB-9BFF-B5895A6E386B" class="sect2">Overview of Cursor Sharing</h2>
+<div>
+<p>Oracle Database can share cursors, which are pointers to private SQL areas in the shared pool. Cursor sharing can improve database application performance by orders of magnitude.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_cursor.htm#GUID-7A37EEAC-1B50-4744-B4BC-A3052313A7E4" title="A private SQL area holds information about a parsed SQL statement and other session-specific information for processing.">About Cursors</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-5154DB60-EB3C-41EF-AF32-226FC54BDA75" title="If an application issues a statement, and if Oracle Database cannot reuse a cursor, then it must build a new executable version of the application code. This operation is known as a hard parse.">About Cursors and Parsing</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-B7ABA6CC-3E81-4990-BDE4-CF69181079B9">About Literals and Bind Variables</a></p>
+</li>
+</ul>
+</div>
+<div class="sect3"><a id="GUID-7A37EEAC-1B50-4744-B4BC-A3052313A7E4"></a>
+<h3 id="TGSQL-GUID-7A37EEAC-1B50-4744-B4BC-A3052313A7E4" class="sect3">About Cursors</h3>
+<div>
+<p>A <span class="bold">private SQL area</span> holds information about a parsed SQL statement and other session-specific information for processing.</p>
+<p>When a server process executes SQL or PL/SQL code, the process uses the private SQL area to store bind variable values, query execution state information, and query execution work areas. The private SQL areas for each execution of a statement are not shared and may contain different values and data.</p>
+<p>A <a href="glossary.htm#GUID-B29D6FB9-8D89-4124-A14F-E0FAEDAB2AA5"><span class="xrefglossterm">cursor</span></a> is a name or handle to a specific private SQL area. The cursor contains session-specific state information such as bind variable values and result sets.</p>
+<p>As shown in the following graphic, you can think of a cursor as a pointer on the client side and as a state on the server side. Because cursors are closely associated with private SQL areas, the terms are sometimes used interchangeably.</p>
+<div class="figure" id="GUID-7A37EEAC-1B50-4744-B4BC-A3052313A7E4__GUID-32E3A1C4-201D-4E91-B19F-A704352DFC12">
+<p class="titleinfigure">Figure 15-1 Cursor</p>
+<img width="264" height="186" src="img/GUID-D3F2B149-6142-42D0-92FC-2B4B97B1A1EC-default.gif" alt="Description of Figure 15-1 follows" title="Description of Figure 15-1 follows"/><br/>
+<a href="img_text/GUID-D3F2B149-6142-42D0-92FC-2B4B97B1A1EC-print.htm">Description of &#34;Figure 15-1 Cursor&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="TGSQL94739"></a>
+<div class="props_rev_3"><a id="GUID-782D3329-0CC5-4312-B9B5-2A012A4AD7C8"></a>
+<h4 id="TGSQL-GUID-782D3329-0CC5-4312-B9B5-2A012A4AD7C8" class="sect4">Private and Shared SQL Areas</h4>
+<div>
+<p>A cursor in the private SQL area points to a <span class="bold">shared SQL area</span> in the library cache. Unlike the private SQL area, which contains session state information, the shared SQL area contains the parse tree and execution plan for the statement.</p>
+<p>For example, an execution of <code class="codeph">SELECT * FROM employees</code> has a plan and parse tree stored in one shared SQL area. An execution of <code class="codeph">SELECT * FROM departments</code>, which differs both syntactically and semantically, has a plan and parse tree stored in a separate shared SQL area.</p>
+<p>Multiple private SQL areas in the same or different sessions can reference a single shared SQL area, a phenomenon known as <span class="bold">cursor sharing</span>. For example, an execution of <code class="codeph">SELECT * FROM employees</code> in one session and an execution of the <code class="codeph">SELECT * FROM employees</code> (accessing the same table) in a different session can use the same parse tree and plan. A shared SQL area that is accessed by multiple statements is known as a <a href="glossary.htm#GUID-9DD889F6-A0BF-4E68-A53F-FC15371E9A09"><span class="xrefglossterm">shared cursor</span></a>.</p>
+<div class="figure" id="GUID-782D3329-0CC5-4312-B9B5-2A012A4AD7C8__GUID-DD8551AB-10C5-429A-8DDD-98ADC803D3E4">
+<p class="titleinfigure">Figure 15-2 Cursor Sharing</p>
+<img width="666" height="527" src="img/GUID-B71BA462-E5D5-4AB5-90BE-6E7668469CF2-default.gif" alt="Description of Figure 15-2 follows" title="Description of Figure 15-2 follows"/><br/>
+<a href="img_text/GUID-B71BA462-E5D5-4AB5-90BE-6E7668469CF2-print.htm">Description of &#34;Figure 15-2 Cursor Sharing&#34;</a></div>
+<!-- class="figure" -->
+<p>Oracle Database automatically determines whether the SQL statement or PL/SQL block being issued is textually identical to another statement currently in the library cache, using the following steps:</p>
+<ol>
+<li>
+<p>The text of the statement is hashed.</p>
+</li>
+<li>
+<p>The database looks for a matching hash value for an existing SQL statement in the shared pool. The following options are possible:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>No matching hash value exists.</p>
+<p>In this case, the SQL statement does not currently exist in the shared pool, so the database performs a hard parse. This ends the shared pool check.</p>
+</li>
+<li>
+<p>A matching hash value exists.</p>
+<p>In this case, the database proceeds to the next step, which is a text match.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The database compares the text of the matched statement to the text of the hashed statement to determine whether they are identical. The following options are possible:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The textual match fails.</p>
+<p>In this case, the text match process stops, resulting in a hard parse.</p>
+</li>
+<li>
+<p>The textual match succeeds.</p>
+<p>In this case, the database proceeds to the next step: determining whether the SQL can share an existing parent cursor, as explained in <span class="q">&#34;<a href="tgsql_cursor.htm#GUID-8CC2E0D8-4C67-4795-93A8-9F563E7F27C7" title="Every parsed SQL statement has a parent cursor and one or more child cursors. The parent cursor stores the text of the SQL statement. If the text of two statements is identical, then the statements share the same parent cursor. If the text is different, however, then the database creates a separate parent cursor.">Parent and Child Cursors</a>&#34;</span>.</p>
+<p>For a textual match to occur, the text of the SQL statements or PL/SQL blocks must be character-for-character identical, including spaces, case, and comments. For example, the following statements cannot use the same shared SQL area:</p>
+<pre dir="ltr">SELECT * FROM employees;
+SELECT * FROM Employees;
+SELECT *  FROM employees;
+</pre>
+<p>Usually, SQL statements that differ only in literals cannot use the same shared SQL area. For example, the following statements do not resolve to the same SQL area:</p>
+<pre dir="ltr">SELECT count(1) FROM employees WHERE manager_id = 121;
+SELECT count(1) FROM employees WHERE manager_id = 247;
+</pre>
+<p>The only exception to this rule is when the parameter <code class="codeph">CURSOR_SHARING</code> has been set to <code class="codeph">FORCE</code>, in which case similar statements can share SQL areas. The costs involved in using <code class="codeph">CURSOR_SHARING</code> are explained in <span class="q">&#34;<a href="tgsql_cursor.htm#GUID-7FF4E133-06A7-401E-9BFC-3B0B9C902346" title="The best practice is to write sharable SQL and use the default of EXACT for CURSOR_SHARING. However, for applications with many similar statements, setting CURSOR_SHARING to FORCE can sometimes significantly improve cursor sharing. The replacement of literals with system-generated bind values can lead to reduced memory usage, faster parses, and reduced latch contention. However, FORCE is not meant to be a permanent development solution.">Do Not Use CURSOR_SHARING = FORCE as a Permanent Fix</a>&#34;</span>.</p>
+</li>
+</ul>
+</li>
+</ol>
+<div class="infoboxnotealso" id="GUID-782D3329-0CC5-4312-B9B5-2A012A4AD7C8__GUID-CEA14D38-B95B-4029-97DC-51F591CB6FA8">
+<p class="notep1">See Also:</p>
+<p><a class="olink GUID-455358F8-D657-49A2-B32B-13A1DC53E7D2" target="_blank" href="../REFRN/GUID-455358F8-D657-49A2-B32B-13A1DC53E7D2.htm#GUID-455358F8-D657-49A2-B32B-13A1DC53E7D2"><span><cite>Oracle Database Reference</cite></span></a> to learn more about the <code class="codeph">CURSOR_SHARING</code> initialization parameter</p>
+</div>
+</div>
+</div>
+<div class="sect4"><a id="GUID-8CC2E0D8-4C67-4795-93A8-9F563E7F27C7"></a>
+<h4 id="TGSQL-GUID-8CC2E0D8-4C67-4795-93A8-9F563E7F27C7" class="sect4">Parent and Child Cursors</h4>
+<div>
+<p>Every parsed SQL statement has a parent cursor and one or more child cursors. The parent cursor stores the text of the SQL statement. If the text of two statements is identical, then the statements share the same parent cursor. If the text is different, however, then the database creates a separate parent cursor.</p>
+<div class="example" id="GUID-8CC2E0D8-4C67-4795-93A8-9F563E7F27C7__GUID-638A7A3E-22FA-4572-80B3-0A52FC21A7A9">
+<p class="titleinexample">Example 15-1 Parent Cursors</p>
+<p>In this example, the first two statements are syntactically different (the letter &ldquo;c&rdquo; is lowercase in the first statement and uppercase in the second statement), but semantically identical. Because of the syntactic difference, these statements have different parent cursors. The third statement is syntactically identical to the first statement (lowercase &ldquo;c&rdquo;), but semantically different because it refers to a <code class="codeph">customers</code> table in a different schema. Because of the syntactic identity, the third statement can share a parent cursor with the first statement.</p>
+<pre dir="ltr">SQL&gt; CONNECT oe@inst1
+Enter password: *******
+Connected.
+SQL&gt; SELECT COUNT(*) FROM customers;
+
+  COUNT(*)
+----------
+       319
+
+SQL&gt; SELECT COUNT(*) FROM Customers;
+
+  COUNT(*)
+----------
+       319
+
+SQL&gt; CONNECT sh@inst1
+Enter password:  *******
+Connected.
+SQL&gt; SELECT COUNT(*) FROM customers;
+
+  COUNT(*)
+----------
+    155500
+</pre>
+<p>The following query of <code class="codeph">V$SQL</code> indicates the two parents. The statement with the SQL ID of <code class="codeph">8h916vv2yw400</code>, which is the lowercase &ldquo;c&rdquo; version of the statement, has one parent cursor and two child cursors: child 0 and child 1. The statement with the SQL ID of <code class="codeph">5rn2uxjtpz0wd</code>, which is the uppercase &ldquo;c&rdquo; version of the statement, has a different parent cursor and only one child cursor: child 0.</p>
+<pre dir="ltr">SQL&gt; CONNECT SYSTEM@inst1
+Enter password:  *******
+Connected.
+
+SQL&gt; COL SQL_TEXT FORMAT a30
+SQL&gt; COL CHILD# FORMAT 99999
+SQL&gt; COL EXEC FORMAT 9999
+SQL&gt; COL SCHEMA FORMAT a6
+SQL&gt; SELECT SQL_ID, PARSING_SCHEMA_NAME AS SCHEMA, SQL_TEXT, 
+  2  CHILD_NUMBER AS CHILD#, EXECUTIONS AS EXEC FROM V$SQL 
+  3  WHERE SQL_TEXT LIKE &#39;%ustom%&#39; AND SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39; ORDER BY SQL_ID;
+
+SQL_ID        SCHEMA SQL_TEXT                       CHILD# EXEC
+------------- ------ ------------------------------ ------ -----
+5rn2uxjtpz0wd OE     SELECT COUNT(*) FROM Customers      0     1
+8h916vv2yw400 OE     SELECT COUNT(*) FROM customers      0     1
+8h916vv2yw400 SH     SELECT COUNT(*) FROM customers      1     1
+</pre></div>
+<!-- class="example" --></div>
+<div class="sect5"><a id="GUID-9D5F5901-FCAC-41E0-B405-8F02840BB08B"></a>
+<h5 id="TGSQL-GUID-9D5F5901-FCAC-41E0-B405-8F02840BB08B" class="sect5">Parent Cursors and V$SQLAREA</h5>
+<div>
+<p>The <code class="codeph">V$SQLAREA</code> view contains one row for every parent cursor.</p>
+<div class="example" id="GUID-9D5F5901-FCAC-41E0-B405-8F02840BB08B__GUID-4BBFB7F8-171B-4C08-BB8C-347DCA041058">
+<p>In the following example, a query of <code class="codeph">V$SQLAREA</code> shows two parent cursors, each identified with a different <code class="codeph">SQL_ID</code>. The <code class="codeph">VERSION_COUNT</code> indicates the number of child cursors.</p>
+<pre dir="ltr">COL SQL_TEXT FORMAT a30
+SELECT SQL_TEXT, SQL_ID, VERSION_COUNT, HASH_VALUE
+FROM   V$SQLAREA
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+ 
+SQL_TEXT                       SQL_ID        VERSION_COUNT HASH_VALUE
+------------------------------ ------------- ------------- ----------
+SELECT * FROM Employees        5bzhzpaa0wy9m             1 2483976499
+SELECT * FROM employees        4959aapufrm1k             2 1961610290
+</pre>
+<p>In the preceding output, the <code class="codeph">VERSION_COUNT</code> of <code class="codeph">2</code> for <code class="codeph">SELECT * FROM employees</code> indicates multiple child cursors, which were necessary because the statement was executed against two different objects. In contrast, the statement <code class="codeph">SELECT * FROM Employees</code> (note the capital &#34;E&#34;) was executed once, and so has one parent cursor, and one child cursor (<code class="codeph">VERSION_COUNT</code> of <code class="codeph">1</code>).</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<div class="sect5"><a id="GUID-D8E8EC1C-76CF-44B2-AC41-5F720EBDB349"></a>
+<h5 id="TGSQL-GUID-D8E8EC1C-76CF-44B2-AC41-5F720EBDB349" class="sect5">Child Cursors and V$SQL</h5>
+<div>
+<p>Every parent cursor has one or more child cursors. A <span class="bold">child cursor</span> contains the execution plan, bind variables, metadata about objects referenced in the query, optimizer environment, and other information. In contrast to the parent cursor, the child cursor does not store the text of the SQL statement.</p>
+<p>If a statement is able to reuse a parent cursor, then the database checks whether the statement can reuse an existing child cursor. The database performs several checks, including the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The database compares objects referenced in the issued statement to the objects referenced by the statement in the pool to ensure that they are all identical.</p>
+<p>References to schema objects in the SQL statements or PL/SQL blocks must resolve to the same object in the same schema. For example, if two users issue the following SQL statement, and if each user has its own <code class="codeph">employees</code> table, then the following statement is not identical because the statement references different <code class="codeph">employees</code> tables for each user:</p>
+<pre dir="ltr">SELECT * FROM employees;
+</pre></li>
+<li>
+<p>The database determines whether the optimizer mode is identical.</p>
+<p>For example, SQL statements must be optimized using the same <a href="glossary.htm#GUID-B9EC4A43-179B-43D1-B63C-82300FC34596"><span class="xrefglossterm">optimizer goal</span></a> (see <span class="q">&#34;<a href="tgsql_influence.htm#GUID-2D3EEFD3-C4C6-4D2F-B24A-8DC0C1E1CBA1" title="The optimizer goal is the prioritization of resource usage by the optimizer.">Choosing an Optimizer Goal</a>&#34;</span>).</p>
+</li>
+</ul>
+<div class="example" id="GUID-D8E8EC1C-76CF-44B2-AC41-5F720EBDB349__GUID-9C8CC0EA-0CC8-4A93-8588-7702FF789814">
+<p class="titleinexample">Example 15-2 Multiple Child Cursors</p>
+<p><code class="codeph">V$SQL</code> describes the statements that currently reside in the library cache. It contains one row for every child cursor, as shown in the following example:</p>
+<pre dir="ltr">SELECT SQL_TEXT, SQL_ID, USERNAME AS USR, CHILD_NUMBER AS CHILD#, 
+       HASH_VALUE, PLAN_HASH_VALUE AS PLAN_HASHV
+FROM   V$SQL s, DBA_USERS d
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;
+AND    d.USER_ID = s.PARSING_USER_ID;
+
+SQL_TEXT                SQL_ID        USR CHILD# HASH_VALUE PLAN_HASHV
+----------------------- ------------- --- ------ ---------- ----------
+SELECT * FROM Employees 5bzhzpaa0wy9m  HR      0 2483976499 1445457117
+SELECT * FROM employees 4959aapufrm1k  HR      0 1961610290 1445457117
+SELECT * FROM employees 4959aapufrm1k  SH      1 1961610290 1445457117
+</pre>
+<p>In the preceding results, the <code class="codeph">CHILD#</code> of the bottom two statements is different (<code class="codeph">0</code> and <code class="codeph">1</code>), even though the <code class="codeph">SQL_ID</code> is the same. This means that the statements have the same parent cursor, but different child cursors. In contrast, the statement with the <code class="codeph">SQL_ID</code> of <code class="codeph">5bzhzpaa0wy9m</code> has one parent and one child (<code class="codeph">CHILD#</code> of <code class="codeph">0</code>). All three SQL statements use the same execution plan, as indicated by identical values in the <code class="codeph">PLAN_HASH_VALUE</code> column.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<div class="sect5"><a id="GUID-5AC5DAC7-D5D0-4FF6-85E6-9A4C3B28C890"></a>
+<h5 id="TGSQL-GUID-5AC5DAC7-D5D0-4FF6-85E6-9A4C3B28C890" class="sect5">Cursor Mismatches and V$SQL_SHARED_CURSOR</h5>
+<div>
+<p>If a parent cursor has multiple children, then the <code class="codeph">V$SQL_SHARED_CURSOR</code> view provides information about why the cursor was not shared. For several types of incompatibility, the <code class="codeph">TRANSLATION_MISMATCH</code> column indicates a mismatch with the value <code class="codeph">Y</code> or <code class="codeph">N</code>.</p>
+<div class="example" id="GUID-5AC5DAC7-D5D0-4FF6-85E6-9A4C3B28C890__GUID-2F5BDA06-1E34-44B4-A7CF-A04ECD088936">
+<p class="titleinexample">Example 15-3 Translation Mismatch</p>
+<p>In this example, the <code class="codeph">TRANSLATION_MISMATCH</code> column shows that the two statements (<code class="codeph">SELECT * FROM employees</code>) referenced different objects, resulting in a <code class="codeph">TRANSLATION_MISMATCH</code> value of <code class="codeph">Y</code> for the last statement. Because sharing was not possible, each statement had a separate child cursor, as indicated by <code class="codeph">CHILD_NUMBER</code> of <code class="codeph">0</code> and <code class="codeph">1</code>.</p>
+<pre dir="ltr">SELECT S.SQL_TEXT, S.CHILD_NUMBER, s.CHILD_ADDRESS, 
+       C.TRANSLATION_MISMATCH
+FROM   V$SQL S, V$SQL_SHARED_CURSOR C
+WHERE  SQL_TEXT LIKE &#39;%employee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;
+AND S.CHILD_ADDRESS = C.CHILD_ADDRESS;
+
+SQL_TEXT                       CHILD_NUMBER    CHILD_ADDRESS T
+------------------------------ ------------ ---------------- -
+SELECT * FROM employees                   0 0000000081EE8690 N
+SELECT * FROM employees                   1 0000000081F22508 Y
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<div class="sect3"><a id="GUID-5154DB60-EB3C-41EF-AF32-226FC54BDA75"></a>
+<h3 id="TGSQL-GUID-5154DB60-EB3C-41EF-AF32-226FC54BDA75" class="sect3">About Cursors and Parsing</h3>
+<div>
+<p>If an application issues a statement, and if Oracle Database cannot reuse a cursor, then it must build a new executable version of the application code. This operation is known as a <strong class="term">hard parse</strong>.</p>
+<p>A <a href="glossary.htm#GUID-BA91B10B-FBA3-4DF6-B59B-9AA57C683D33"><span class="xrefglossterm">soft parse</span></a> is any parse that is not a hard parse, and occurs when the database can reuse existing code. Some soft parses are less resource-intensive than others. For example, if a parent cursor for the statement already exists, then Oracle Database can perform various optimizations, and then store the child cursor in the shared SQL area. If a parent cursor does not exist, however, then Oracle Database must also store the parent cursor in the shared SQL area, which creates additional memory overhead.</p>
+<p>Effectively, a hard parse recompiles a statement before running it. Hard parsing a SQL statement before every execution is analogous to recompiling a C program before every execution. A hard parse performs operations such as the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Checking the syntax of the SQL statement</p>
+</li>
+<li>
+<p>Checking the semantics of the SQL statement</p>
+</li>
+<li>
+<p>Checking the access rights of the user issuing the statement</p>
+</li>
+<li>
+<p>Creating an execution plan</p>
+</li>
+<li>
+<p>Accessing the library cache and data dictionary cache numerous times to check the data dictionary</p>
+</li>
+</ul>
+<p>An especially resource-intensive aspect of hard parsing is accessing the library cache and data dictionary cache numerous times to check the data dictionary. When the database accesses these areas, it uses a serialization device called a <a href="glossary.htm#GUID-B1C1EE03-1E9E-45F9-BD12-3B05654F7615"><span class="xrefglossterm">latch</span></a> on required objects so that their definition does not change during the check. Latch contention increases statement execution time and decreases concurrency.</p>
+<p>For all of the preceding reasons, the CPU and memory overhead of hard parses can create serious performance problems. The problems are especially evident in web applications that accept user input from a form, and then generate SQL statements dynamically. The Real-World Performance group strongly recommends reducing hard parsing as much as possible.</p>
+<div class="infobox-note" id="GUID-5154DB60-EB3C-41EF-AF32-226FC54BDA75__RWP3CONNECTIONPOOLSANDHARDPARSING-7EE8CD10">
+<p class="notep1">Video:</p>
+<div class="video-box">
+<div xmlns="" id="9268" class="video-container"></div>
+</div>
+</div>
+<div class="example" id="GUID-5154DB60-EB3C-41EF-AF32-226FC54BDA75__FINDINGPARSEINFORMATIONUSINGVSQL-7EE8A824">
+<p class="titleinexample">Example 15-4 Finding Parse Information Using V$SQL</p>
+<p>You can use various techniques to monitor hard and soft parsing. This example queries the session statistics to determine whether repeated executions of a <code class="codeph">DBA_JOBS</code> query increase the hard parse count. The first execution of the statement increases the hard parse count to <code class="codeph">49</code>, but the second execution does not change the hard parse count, which means that Oracle Database reused application code.</p>
+<pre dir="ltr">SQL&gt; ALTER SYSTEM FLUSH SHARED_POOL;
+
+System altered.
+
+SQL&gt; COL NAME FORMAT a18
+
+SQL&gt; SELECT s.NAME, m.VALUE
+  2  FROM   V$STATNAME s, V$MYSTAT m
+  3  WHERE  s.STATISTIC# = m.STATISTIC#
+  4  AND    s.NAME LIKE &#39;%(hard%&#39;;
+
+NAME                    VALUE
+------------------ ----------
+parse count (hard)         48
+
+SQL&gt; SELECT COUNT(*) FROM DBA_JOBS;
+
+  COUNT(*)
+----------
+         0
+
+SQL&gt; SELECT s.NAME, m.VALUE
+  2  FROM   V$STATNAME s, V$MYSTAT m
+  3  WHERE  s.STATISTIC# = m.STATISTIC#
+  4  AND    s.NAME LIKE &#39;%(hard%&#39;;
+
+NAME                    VALUE
+------------------ ----------
+parse count (hard)         <span class="bold">49</span>
+
+SQL&gt; SELECT COUNT(*) FROM DBA_JOBS;
+
+  COUNT(*)
+----------
+         0
+
+SQL&gt; SELECT s.NAME, m.VALUE
+  2  FROM   V$STATNAME s, V$MYSTAT m
+  3  WHERE  s.STATISTIC# = m.STATISTIC#
+  4  AND    s.NAME LIKE &#39;%(hard%&#39;;
+
+NAME                    VALUE
+------------------ ----------
+parse count (hard)         49
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-5154DB60-EB3C-41EF-AF32-226FC54BDA75__FINDINGPARSEINFORMATIONUSINGTRACEFI-7EE8AD2E">
+<p class="titleinexample">Example 15-5 Finding Parse Information Using Trace Files</p>
+<p>This example uses SQL Trace and the TKPROF utility to find parse information. You log in to the database with administrator privileges, and then query the directory location of the trace files (sample output included):</p>
+<pre dir="ltr">SET LINESIZE 120
+COLUMN value FORMAT A80
+
+SELECT value
+FROM   v$diag_info
+WHERE  name = &#39;Default Trace File&#39;;
+
+VALUE
+--------------------------------------------------------------------------------
+/disk1/oracle/log/diag/rdbms/orcl/orcl/trace/orcl_ora_23054.trc
+</pre>
+<p>You enable tracing, use the <code class="codeph">TRACEFILE_IDENTIFIER</code> initialization parameter to give the trace file a meaningful name, and then query <code class="codeph">hr.employees</code>:</p>
+<pre dir="ltr">EXEC DBMS_MONITOR.SESSION_TRACE_ENABLE(waits=&gt;TRUE, binds=&gt;TRUE); 
+ALTER SESSION SET TRACEFILE_IDENTIFIER = &#34;emp_stmt&#34;;
+SELECT * FROM hr.employees;
+EXIT;
+</pre>
+<p>Search the default trace file directory for the trace file that you generated:</p>
+<pre dir="ltr">% ls *emp_stmt.trc
+orcl_ora_17950_emp_stmt.trc
+</pre>
+<p>Use TKPROF to format the trace file, and then open the formatted file:</p>
+<pre dir="ltr">% tkprof orcl_ora_17950_emp_stmt.trc emp.out; vi emp.out
+</pre>
+<p>The formatted trace file contains the parse information for the query of <code class="codeph">hr.employees</code>.</p>
+<pre dir="ltr">SQL ID: brmjpfs7dcnub Plan Hash: 1445457117
+
+SELECT *
+FROM
+ hr.employees
+
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.07       0.08          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        9      0.00       0.00          3         12          0         107
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total       11      0.07       0.08          3         12          0         107
+
+<span class="bold">Misses in library cache during parse: 1
+</span>Optimizer mode: ALL_ROWS
+Parsing user id: SYSTEM
+Number of plan statistics captured: 1
+
+Rows (1st) Rows (avg) Rows (max)  Row Source Operation
+---------- ---------- ----------  ---------------------------------------------------
+       107        107        107  TABLE ACCESS FULL EMPLOYEES (cr=12 pr=3 pw=0 time=497 
+                                    us starts=1 cost=2 size=7383 card=107)
+</pre>
+<p>A library cache miss indicates a hard parse. Performing the same steps for a second execution of the same statement produces the following trace output, which shows no library cache misses:</p>
+<pre dir="ltr">SQL ID: brmjpfs7dcnub Plan Hash: 1445457117
+
+SELECT *
+FROM
+ hr.employees
+
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        9      0.00       0.00          3         12          0         107
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total       11      0.00       0.00          3         12          0         107
+
+<span class="bold">Misses in library cache during parse: 0
+</span>Optimizer mode: ALL_ROWS
+Parsing user id: SYSTEM
+Number of plan statistics captured: 1
+
+Rows (1st) Rows (avg) Rows (max)  Row Source Operation
+---------- ---------- ----------  ---------------------------------------------------
+       107        107        107  TABLE ACCESS FULL EMPLOYEES (cr=12 pr=3 pw=0 time=961 
+                                    us starts=1 cost=2 size=7383 card=107)
+</pre>
+<div class="infoboxnotealso" id="GUID-5154DB60-EB3C-41EF-AF32-226FC54BDA75__GUID-B29631D2-F84C-42DC-870B-27F90D6FDC3B">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_sqlproc.htm#GUID-BFF0B26C-0A5D-4F79-B01E-8E1C4064A6AD" title="During the parse, the database performs a shared pool check to determine whether it can skip resource-intensive steps of statement processing.">Shared Pool Check</a>&#34;</span></p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL849"></a>
+<div class="props_rev_3"><a id="GUID-B7ABA6CC-3E81-4990-BDE4-CF69181079B9"></a>
+<h3 id="TGSQL-GUID-B7ABA6CC-3E81-4990-BDE4-CF69181079B9" class="sect3">About Literals and Bind Variables</h3>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_cursor.htm#GUID-015E6C8F-4C33-4680-9481-9F93DEDD844B" title="When constructing SQL statements, some Oracle applications use literals instead of bind variables.">Literals and Cursors</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-042A85BF-D96E-44AB-9312-4EB115CCE7B0" title="You can develop Oracle applications to use bind variables instead of literals.">Bind Variables and Cursors</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-3550B486-A3D6-4FB2-99A9-4B90D4ADE421" title="In bind variable peeking (also known as bind peeking), the optimizer looks at the value in a bind variable when the database performs a hard parse of a statement. The optimizer does not look at the bind variable values before every parse. Rather, the optimizer peeks only when the optimizer is first invoked, which is during the hard parse.">Bind Variable Peeking</a></p>
+</li>
+</ul>
+</div>
+<div class="sect4"><a id="GUID-015E6C8F-4C33-4680-9481-9F93DEDD844B"></a>
+<h4 id="TGSQL-GUID-015E6C8F-4C33-4680-9481-9F93DEDD844B" class="sect4">Literals and Cursors</h4>
+<div>
+<p>When constructing SQL statements, some Oracle applications use literals instead of bind variables.</p>
+<p>For example, the statement <code class="codeph">SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 101</code> uses the literal value <code class="codeph">101</code> for the employee ID. By default, when similar statements do not use bind variables, Oracle Database cannot take advantage of cursor sharing. Thus, Oracle Database sees a statement that is identical except for the value <code class="codeph">102</code>, or any other random value, as a completely new statement, requiring a hard parse.</p>
+<p>The Real-World Performance group has determined that applications that use literals are a frequent cause of performance, scalability, and security problems. In the real world, it is not uncommon for applications to be written quickly, without considering cursor sharing. A classic example is a &ldquo;screen scraping&rdquo; application that copies the contents out of a web form, and then concatenates strings to construct the SQL statement dynamically.</p>
+<p>Major problems that result from using literal values include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Applications that concatenate literals input by an end user are prone to SQL injection attacks. Only rewriting the applications to use bind variables eliminates this threat.</p>
+</li>
+<li>
+<p>If every statement is hard parsed, then cursors are not shared, and so the database must consume more memory to create the cursors.</p>
+</li>
+<li>
+<p>Oracle Database must latch the shared pool and library cache when hard parsing. As the number of hard parses increases, so does the number of processes waiting to latch the shared pool. This situation decreases concurrency and increases contention.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-015E6C8F-4C33-4680-9481-9F93DEDD844B__ORACLEDATABASE12CRECOVERINGAPLUGGAB-6B61826C">
+<p class="notep1">Video:</p>
+<div class="video-box">
+<div xmlns="" id="9269" class="video-container"></div>
+</div>
+</div>
+<div class="example" id="GUID-015E6C8F-4C33-4680-9481-9F93DEDD844B__GUID-7FADDE5F-A0E4-4F29-B82A-414BCBCAE57A">
+<p class="titleinexample">Example 15-6 Literals and Cursor Sharing</p>
+<p>Consider an application that executes the following statements, which differ only in literals:</p>
+<pre dir="ltr">SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 101;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 120;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 165;
+</pre>
+<p>The following query of <code class="codeph">V$SQLAREA</code> shows that the three statements require three different parent cursors. As shown by <code class="codeph">VERSION_COUNT</code>, each parent cursor requires its own child cursor.</p>
+<pre dir="ltr">COL SQL_TEXT FORMAT a30
+SELECT SQL_TEXT, SQL_ID, VERSION_COUNT, HASH_VALUE
+FROM   V$SQLAREA
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT                              SQL_ID VERSION_COUNT HASH_VALUE
+------------------------------ ------------- ------------- ----------
+SELECT SUM(salary) FROM hr.emp b1tvfcc5qnczb             1  191509483
+loyees WHERE employee_id &lt; 165
+SELECT SUM(salary) FROM hr.emp cn5250y0nqpym             1 2169198547
+loyees WHERE employee_id &lt; 101
+SELECT SUM(salary) FROM hr.emp au8nag2vnfw67             1 3074912455
+loyees WHERE employee_id &lt; 120
+</pre>
+<div class="infoboxnotealso" id="GUID-015E6C8F-4C33-4680-9481-9F93DEDD844B__GUID-16EF4F90-4ACF-4267-B7FA-5E26CF423F2A">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_cursor.htm#GUID-7FF4E133-06A7-401E-9BFC-3B0B9C902346" title="The best practice is to write sharable SQL and use the default of EXACT for CURSOR_SHARING. However, for applications with many similar statements, setting CURSOR_SHARING to FORCE can sometimes significantly improve cursor sharing. The replacement of literals with system-generated bind values can lead to reduced memory usage, faster parses, and reduced latch contention. However, FORCE is not meant to be a permanent development solution.">Do Not Use CURSOR_SHARING = FORCE as a Permanent Fix</a>&#34;</span> to learn about SQL injection</p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<div class="sect4"><a id="GUID-042A85BF-D96E-44AB-9312-4EB115CCE7B0"></a>
+<h4 id="TGSQL-GUID-042A85BF-D96E-44AB-9312-4EB115CCE7B0" class="sect4">Bind Variables and Cursors</h4>
+<div>
+<p>You can develop Oracle applications to use bind variables instead of literals.</p>
+<p>A <a href="glossary.htm#GUID-CA223D31-C3CC-4037-9BAD-9AB69FDD4212"><span class="xrefglossterm">bind variable</span></a> is a placeholder in a query. For example, the statement <code class="codeph">SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id</code> uses the bind variable<code class="codeph">:emp_id</code> for the employee ID.</p>
+<p>The Real-World Performance group has found that applications that use bind variables perform better, are more scalable, and are more secure. Major benefits that result from using bind variables include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Applications that use bind variables are not vulnerable to the same SQL injection attacks as applications that use literals.</p>
+</li>
+<li>
+<p>When identical statements use bind variables, Oracle Database can take advantage of cursor sharing, and share the plan and other information when different values are bound to the same statement.</p>
+</li>
+<li>
+<p>Oracle Database avoids the overhead of latching the shared pool and library cache required for hard parsing.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-042A85BF-D96E-44AB-9312-4EB115CCE7B0__ORACLEDATABASE12CRECOVERINGAPLUGGAB-6B61826C">
+<p class="notep1">Video:</p>
+<div class="video-box">
+<div xmlns="" class="video-container"></div>
+</div>
+</div>
+<div class="example" id="GUID-042A85BF-D96E-44AB-9312-4EB115CCE7B0__GUID-19F02899-4D61-4F80-850A-4A71CA2273F2">
+<p class="titleinexample">Example 15-7 Bind Variables and Shared Cursors</p>
+<p>The following example uses the <code class="codeph">VARIABLE</code> command in SQL*Plus to create the <code class="codeph">emp_id</code> bind variable, and then executes a query using three different bind values (<code class="codeph">101</code>, <code class="codeph">120</code>, and <code class="codeph">165</code>):</p>
+<pre dir="ltr">VARIABLE emp_id NUMBER
+
+EXEC :emp_id := 101;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id;
+EXEC :emp_id := 120;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id;
+EXEC :emp_id := 165;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id;
+</pre>
+<p>The following query of <code class="codeph">V$SQLAREA</code> shows one unique SQL statement:</p>
+<pre dir="ltr">COL SQL_TEXT FORMAT a34
+SELECT SQL_TEXT, SQL_ID, VERSION_COUNT, HASH_VALUE
+FROM   V$SQLAREA
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT                           SQL_ID        VERSION_COUNT HASH_VALUE
+---------------------------------- ------------- ------------- ----------
+SELECT SUM(salary) FROM hr.employe 4318cbskba8yh             1 615850960
+es WHERE employee_id &lt; :emp_id
+</pre>
+<p>The <code class="codeph">VERSION_COUNT</code> value of <code class="codeph">1</code> indicates that the database reused the same child cursor rather than creating three separate child cursors. Using a bind variable made this reuse possible.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94738"></a><a id="TGSQL95251"></a>
+<div class="props_rev_3"><a id="GUID-3550B486-A3D6-4FB2-99A9-4B90D4ADE421"></a>
+<h4 id="TGSQL-GUID-3550B486-A3D6-4FB2-99A9-4B90D4ADE421" class="sect4">Bind Variable Peeking</h4>
+<div>
+<p>In <span class="bold">bind variable peeking</span> (also known as <span class="italic">bind peeking</span>), the optimizer looks at the value in a bind variable when the database performs a hard parse of a statement. The optimizer does not look at the bind variable values before every parse. Rather, the optimizer peeks only when the optimizer is <span class="italic">first</span> invoked, which is during the hard parse.</p>
+<p>When a query uses literals, the optimizer can use the literal values to find the best plan. However, when a query uses bind variables, the optimizer must select the best plan without the presence of literals in the SQL text. This task can be extremely difficult. By peeking at bind values during the initial hard parse, the optimizer can determine the cardinality of a <code class="codeph">WHERE</code> clause condition as if literals <span class="italic">had</span> been used, thereby improving the plan.</p>
+<p>Because the optimizer only peeks at the bind value during the hard parse, the plan may not be optimal for all possible bind values. The following examples illustrate this principle.</p>
+<div class="example" id="GUID-3550B486-A3D6-4FB2-99A9-4B90D4ADE421__GUID-FA3A4623-2191-44E3-B169-F456704A6F0D">
+<p class="titleinexample">Example 15-8 Literals Result in Different Execution Plans</p>
+<p>Assume that you execute the following statements, which execute three different statements using different literals (<code class="codeph">101</code>, <code class="codeph">120</code>, and <code class="codeph">165</code>), and then display the execution plans for each:</p>
+<pre dir="ltr">SET LINESIZE 167
+SET PAGESIZE 0
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 101;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 120;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 165;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+</pre>
+<p>The database hard parsed all three statements, which were not identical. The <code class="codeph">DISPLAY_CURSOR</code> output, which has been edited for clarity, shows that the optimizer chose the same index range scan plan for the first two statements, but a full table scan plan for the statement using literal <code class="codeph">165</code>:</p>
+<pre dir="ltr">SQL_ID       cn5250y0nqpym, child number 0
+-------------------------------------
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 101
+
+Plan hash value: 2410354593
+
+-------------------------------------------------------------------------------------
+|Id| Operation                            | Name         |Rows|Bytes|Cost(%CPU)|Time|
+-------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                     |               |  |   |2 (100)|          |
+| 1|  SORT AGGREGATE                      |               |1 | 8 |       |          |
+| 2|   TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES     |1 | 8 |2 (0)  | 00:00:01 |
+|*3|    INDEX RANGE SCAN                  | EMP_EMP_ID_PK |1 |   |1 (0)  | 00:00:01 |
+-------------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - access(&#34;EMPLOYEE_ID&#34;&lt;101)
+
+SQL_ID  au8nag2vnfw67, child number 0
+-------------------------------------
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 120
+
+Plan hash value: 2410354593
+
+-------------------------------------------------------------------------------------
+|Id| Operation                            | Name         |Rows|Bytes|Cost(%CPU)|Time|
+-------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                     |               |  |   |2 (100)|          |
+| 1|  SORT AGGREGATE                      |               |1 | 8 |       |          |
+| 2|   TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES     |20|160|2 (0)  | 00:00:01 |
+|*3|    INDEX RANGE SCAN                  | EMP_EMP_ID_PK |20|   |1 (0)  | 00:00:01 |
+-------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - access(&#34;EMPLOYEE_ID&#34;&lt;120)
+
+SQL_ID  b1tvfcc5qnczb, child number 0
+-------------------------------------
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 165
+
+Plan hash value: 1756381138
+
+-------------------------------------------------------------------------
+| Id  | Operation          | Name      |Rows| Bytes |Cost(%CPU)| Time   |
+-------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |           |    |       | 2 (100)|          |
+|   1 |  SORT AGGREGATE    |           |  1 |     8 |        |          |
+|*  2 |   TABLE ACCESS FULL| EMPLOYEES | 66 |   528 | 2   (0)| 00:00:01 |
+-------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - filter(&#34;EMPLOYEE_ID&#34;&lt;165)
+</pre>
+<p>The preceding output shows that the optimizer considers a full table scan more efficient than an index scan for the query that returns more rows.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-3550B486-A3D6-4FB2-99A9-4B90D4ADE421__GUID-6FD916FD-09BD-4C78-B37E-6788C4B0911E">
+<p class="titleinexample">Example 15-9 Bind Variables Result in Cursor Reuse</p>
+<p>This example rewrites the queries executed in <a href="tgsql_cursor.htm#GUID-3550B486-A3D6-4FB2-99A9-4B90D4ADE421__GUID-FA3A4623-2191-44E3-B169-F456704A6F0D">Example 15-8</a> to use bind variables instead of literals. You bind the same values (<code class="codeph">101</code>, <code class="codeph">120</code>, and <code class="codeph">165</code>) to the bind variable <code class="codeph">:emp_id</code>, and then display the execution plans for each:</p>
+<pre dir="ltr">VAR emp_id NUMBER
+
+EXEC :emp_id := 101;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+EXEC :emp_id := 120;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+EXEC :emp_id := 165;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+</pre>
+<p>The <code class="codeph">DISPLAY_CURSOR</code> output shows that the optimizer chose exactly the same plan for all three statements:</p>
+<pre dir="ltr">SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id
+
+Plan hash value: 2410354593
+
+-------------------------------------------------------------------------------------
+| Id | Operation                            | Name      |Rows|Bytes|Cost (%CPU)|Time|
+-------------------------------------------------------------------------------------
+|  0 | SELECT STATEMENT                     |               | |  |2 (100)|          |
+|  1 |  SORT AGGREGATE                      |               |1|8 |       |          |
+|  2 |   TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES     |1|8 |  2 (0)| 00:00:01 |
+|* 3 |    INDEX RANGE SCAN                  | EMP_EMP_ID_PK |1|  |  1 (0)| 00:00:01 |
+-------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - access(&#34;EMPLOYEE_ID&#34;&lt;:EMP_ID)
+</pre>
+<p>In contrast, when the preceding statements were executed with literals, the optimizer chose a lower-cost full table scan when the employee ID value was <code class="codeph">165</code>. This is the problem solved by adaptive cursor sharing (see <span class="q">&#34;<a href="tgsql_cursor.htm#GUID-277432AA-CD1C-4A75-AB28-7358E63265B3" title="The adaptive cursor sharing feature enables a single statement that contains bind variables to use multiple execution plans. Cursor sharing is &#34;adaptive&#34; because the cursor adapts its behavior so that the database does not always use the same plan for each execution or bind variable value.">Adaptive Cursor Sharing</a>&#34;</span>).</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL94748"></a>
+<div class="props_rev_3"><a id="GUID-267E5860-A8D5-4E5F-AE60-16304E97E4EE"></a>
+<h2 id="TGSQL-GUID-267E5860-A8D5-4E5F-AE60-16304E97E4EE" class="sect2">CURSOR_SHARING and Bind Variable Substitution</h2>
+<div>
+<p>This topic explains what the <code class="codeph">CURSOR_SHARING</code> initialization parameter is, and how setting it to different values affects how Oracle Database uses bind variables.</p>
+<p>This section contains the following topics:</p>
+</div>
+<div class="sect3"><a id="GUID-7A0CD3D1-1ECB-4DA4-813A-0D8D79C8B65D"></a>
+<h3 id="TGSQL-GUID-7A0CD3D1-1ECB-4DA4-813A-0D8D79C8B65D" class="sect3">CURSOR_SHARING Initialization Parameter</h3>
+<div>
+<p>The <code class="codeph">CURSOR_SHARING</code> initialization parameter controls how the database processes statements with bind variables.</p>
+<div class="section">
+<p>In Oracle Database 12<span class="italic">c</span>, the parameter supports the following values:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">EXACT</code></p>
+<p>This is the default value. The database enables only textually identical statements to share a cursor. The database does not attempt to replace literal values with system-generated bind variables. In this case, the optimizer generates a plan for each statement based on the literal value.</p>
+</li>
+<li>
+<p><code class="codeph">FORCE</code></p>
+<p>The database replaces all literals with system-generated bind variables. For statements that are identical after the bind variables replace the literals, the optimizer uses the same plan.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-7A0CD3D1-1ECB-4DA4-813A-0D8D79C8B65D__GUID-0AA98E35-F14C-4578-911C-08B989FD2885">
+<p class="notep1">Note:</p>
+<p>The <code class="codeph">SIMILAR</code> value for <code class="codeph">CURSOR_SHARING</code> is deprecated.</p>
+</div>
+<p>You can set <code class="codeph">CURSOR_SHARING</code> at the system or session level, or use the <code class="codeph">CURSOR_SHARING_EXACT</code> hint at the statement level.</p>
+<div class="infoboxnotealso" id="GUID-7A0CD3D1-1ECB-4DA4-813A-0D8D79C8B65D__GUID-9CD5DA26-0477-4437-8155-9E5B890F6913">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_cursor.htm#GUID-7FF4E133-06A7-401E-9BFC-3B0B9C902346" title="The best practice is to write sharable SQL and use the default of EXACT for CURSOR_SHARING. However, for applications with many similar statements, setting CURSOR_SHARING to FORCE can sometimes significantly improve cursor sharing. The replacement of literals with system-generated bind values can lead to reduced memory usage, faster parses, and reduced latch contention. However, FORCE is not meant to be a permanent development solution.">Do Not Use CURSOR_SHARING = FORCE as a Permanent Fix</a>&#34;</span></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94749"></a>
+<div class="props_rev_3"><a id="GUID-250B8578-4407-4A10-B609-67C2276EBBBB"></a>
+<h3 id="TGSQL-GUID-250B8578-4407-4A10-B609-67C2276EBBBB" class="sect3">Parsing Behavior When CURSOR_SHARING = FORCE</h3>
+<div>
+<p>When SQL statements use literals rather than bind variables, setting the <code class="codeph">CURSOR_SHARING</code> initialization parameter to <code class="codeph">FORCE</code> enables the database to replace literals with system-generated bind variables. Using this technique, the database can sometimes reduce the number of parent cursors in the shared SQL area.</p>
+<div class="infobox-note" id="GUID-250B8578-4407-4A10-B609-67C2276EBBBB__GUID-70C3427D-7F0A-4814-BF08-664009ED7865">
+<p class="notep1">Note:</p>
+<p>If a statement uses an <code class="codeph">ORDER BY</code> clause, then the database does not perform literal replacement in the clause because it is not semantically correct to consider the constant column number as a literal. The column number in the <code class="codeph">ORDER BY</code> clause affects the query plan and execution, so the database cannot share two cursors having different column numbers.</p>
+</div>
+<p>When <code class="codeph">CURSOR_SHARING</code> is set to <code class="codeph">FORCE</code>, the database performs the following steps during the parse:</p>
+<ol>
+<li>
+<p>Copies <span class="italic">all</span> literals in the statement to the PGA, and replaces them with system-generated bind variables</p>
+<p>For example, an application could process the following statement:</p>
+<pre dir="ltr">SELECT SUBSTR(last_name, 1, 4), SUM(salary) 
+FROM   hr.employees 
+WHERE  employee_id &lt; 101 GROUP BY last_name
+</pre>
+<p>The optimizer replaces literals, including the literals in the <code class="codeph">SUBSTR</code> function, as follows:</p>
+<pre dir="ltr">SELECT SUBSTR(last_name, :&#34;SYS_B_0&#34;, :&#34;SYS_B_1&#34;), SUM(salary) 
+FROM   hr.employees 
+WHERE  employee_id &lt; :&#34;SYS_B_2&#34; GROUP BY last_name
+</pre></li>
+<li>
+<p>Searches for an identical statement (same SQL hash value) in the shared pool</p>
+<p>If an identical statement is <span class="italic">not</span> found, then the database performs a hard parse. Otherwise, the database proceeds to the next step.</p>
+</li>
+<li>
+<p>Performs a soft parse of the statement</p>
+</li>
+</ol>
+<p>As the preceding steps indicate, setting the <code class="codeph">CURSOR_SHARING</code> initialization parameter to <code class="codeph">FORCE</code> does <span class="italic">not</span> reduce the parse count. Rather, in some cases, <code class="codeph">FORCE</code> enables the database to perform a soft parse instead of a hard parse. Also, <code class="codeph">FORCE</code> does not the prevent against SQL injection attacks because Oracle Database binds the values after any injection has already occurred.</p>
+<div class="example" id="GUID-250B8578-4407-4A10-B609-67C2276EBBBB__GUID-2321405F-C9F1-45E1-AD89-667498594D02">
+<p class="titleinexample">Example 15-10 Replacement of Literals with System Bind Variables</p>
+<p>This example sets <code class="codeph">CURSOR_SHARING</code> to <code class="codeph">FORCE</code> at the session level, executes three statements containing literals, and displays the plan for each statement:</p>
+<pre dir="ltr">ALTER SESSION SET CURSOR_SHARING=FORCE;
+SET LINESIZE 170
+SET PAGESIZE 0
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 101;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 120;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; 165;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+</pre>
+<p>The following <code class="codeph">DISPLAY_CURSOR</code> output, edited for readability, shows that all three statements used the same plan. The optimizer chose the plan, an index range scan, because it peeked at the <span class="italic">first</span> value (<code class="codeph">101</code>) bound to the system bind variable, and picked this plan as the best for all values. In fact, this plan is not the best plan for all values. When the value is <code class="codeph">165</code>, a full table scan is more efficient.</p>
+<pre dir="ltr">SQL_ID       cxx8n1cxr9khn, child number 0
+-------------------------------------
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :&#34;SYS_B_0&#34;
+
+Plan hash value: 2410354593
+
+-------------------------------------------------------------------------------------
+| Id  | Operation                           | Name       |Rows|Bytes|Cost(%CPU)|Time|
+-------------------------------------------------------------------------------------
+|  0 | SELECT STATEMENT                     |               |  |   |2 (100)|        |
+|  1 |  SORT AGGREGATE                      |               |1 | 8 |       |        |
+|  2 |   TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES     |1 | 8 |2 (0)  |00:00:01|
+|* 3 |    INDEX RANGE SCAN                  | EMP_EMP_ID_PK |1 |   |1 (0)  |00:00:01|
+-------------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - access(&#34;EMPLOYEE_ID&#34;&lt;101)
+
+</pre>
+<p>A query of <code class="codeph">V$SQLAREA</code> confirms that Oracle Database replaced with the literal with system bind variable <code class="codeph">:&rdquo;SYS_B_0&rdquo;</code>, and created one parent and one child cursor (<code class="codeph">VERSION_COUNT=1</code>) for all three statements, which means that all executions shared the same plan.</p>
+<pre dir="ltr">COL SQL_TEXT FORMAT a36
+SELECT SQL_TEXT, SQL_ID, VERSION_COUNT, HASH_VALUE
+FROM   V$SQLAREA
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT                             SQL_ID        VERSION_COUNT HASH_VALUE
+------------------------------------ ------------- ------------- ----------
+SELECT SUM(salary) FROM hr.employees cxx8n1cxr9khn             1  997509652
+ WHERE employee_id &lt; :&#34;SYS_B_0&#34;
+</pre>
+<div class="infoboxnotealso" id="GUID-250B8578-4407-4A10-B609-67C2276EBBBB__GUID-C8938B20-ABD1-4FE3-B718-2D84BCB814D5">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_cursor.htm#GUID-782D3329-0CC5-4312-B9B5-2A012A4AD7C8" title="A cursor in the private SQL area points to a shared SQL area in the library cache. Unlike the private SQL area, which contains session state information, the shared SQL area contains the parse tree and execution plan for the statement.">Private and Shared SQL Areas</a>&#34;</span> for more details on the various checks performed</p>
+</li>
+<li>
+<p><a class="olink REFRN10025" target="_blank" href="../REFRN/GUID-455358F8-D657-49A2-B32B-13A1DC53E7D2.htm#REFRN10025"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">CURSOR_SHARING</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL94740"></a>
+<div class="props_rev_3"><a id="GUID-277432AA-CD1C-4A75-AB28-7358E63265B3"></a>
+<h2 id="TGSQL-GUID-277432AA-CD1C-4A75-AB28-7358E63265B3" class="sect2">Adaptive Cursor Sharing</h2>
+<div>
+<p>The <span class="bold">adaptive cursor sharing</span> feature enables a single statement that contains bind variables to use multiple execution plans. Cursor sharing is &#34;adaptive&#34; because the cursor adapts its behavior so that the database does not always use the same plan for each execution or bind variable value.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_cursor.htm#GUID-42432DFE-D56A-4B9A-8FCF-94FB86012AFC" title="With bind peeking, the optimizer peeks at the values of user-defined bind variables on the first invocation of a cursor. The optimizer determines the cardinality of any WHERE clause condition as if literals had been used instead of bind variables. If a column in a WHERE clause has skewed data, however, then a histogram may exist on this column. When the optimizer peeks at the value of the user-defined bind variable and chooses a plan, this plan may not be good for all values.">Purpose of Adaptive Cursor Sharing</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-25A179EF-CAE7-42A2-BF91-F1D4EDAACCEC" title="Adaptive cursor sharing monitors statements that use bind variables to determine whether a new plan is more efficient.">How Adaptive Cursor Sharing Works: Example</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C" title="A bind-sensitive cursor is a cursor whose optimal plan may depend on the value of a bind variable.">Bind-Sensitive Cursors</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-FD923B79-F1A8-401A-8C61-FD00B41A70F4" title="A bind-aware cursor is a bind-sensitive cursor that is eligible to use different plans for different bind values.">Bind-Aware Cursors</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-59B4BED5-62FF-421F-92ED-7BB32F6E68F4" title="If the optimizer creates a plan for a bind-aware cursor, and if this plan is the same as an existing cursor, then the optimizer can perform cursor merging.">Cursor Merging</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-A3B8972A-A74D-4353-960B-5E09D294031E">Adaptive Cursor Sharing Views</a></p>
+</li>
+</ul>
+</div>
+<div class="sect3"><a id="GUID-42432DFE-D56A-4B9A-8FCF-94FB86012AFC"></a>
+<h3 id="TGSQL-GUID-42432DFE-D56A-4B9A-8FCF-94FB86012AFC" class="sect3">Purpose of Adaptive Cursor Sharing</h3>
+<div>
+<p>With bind peeking, the optimizer peeks at the values of user-defined bind variables on the first invocation of a cursor. The optimizer determines the cardinality of any <code class="codeph">WHERE</code> clause condition as if literals had been used instead of bind variables. If a column in a <code class="codeph">WHERE</code> clause has skewed data, however, then a histogram may exist on this column. When the optimizer peeks at the value of the user-defined bind variable and chooses a plan, this plan may not be good for all values.</p>
+<p>In adaptive cursor sharing, the database monitors data accessed over time for different bind values, ensuring the optimal choice of cursor for a specific bind value. For example, the optimizer might choose one plan for bind value <code class="codeph">10</code> and a different plan for bind value <code class="codeph">50</code>. Cursor sharing is &#34;adaptive&#34; because the cursor adapts its behavior so that the optimizer does not always choose the same plan for each execution or bind variable value. Thus, the optimizer automatically detects when different execution of a statement would benefit from different execution plans.</p>
+<div class="infobox-note" id="GUID-42432DFE-D56A-4B9A-8FCF-94FB86012AFC__GUID-07DBCDAF-D36B-4C4E-B4E7-2A0BCEDB2D9E">
+<p class="notep1">Note:</p>
+<p>Adaptive cursor sharing is independent of the <code class="codeph">CURSOR_SHARING</code> initialization parameter. Adaptive cursor sharing is equally applicable to statements that contain user-defined and system-generated bind variables. Adaptive cursor sharing does not apply to statements that contain only literals.</p>
+</div>
+</div>
+</div>
+<div class="sect3"><a id="GUID-25A179EF-CAE7-42A2-BF91-F1D4EDAACCEC"></a>
+<h3 id="TGSQL-GUID-25A179EF-CAE7-42A2-BF91-F1D4EDAACCEC" class="sect3">How Adaptive Cursor Sharing Works: Example</h3>
+<div>
+<p>Adaptive cursor sharing monitors statements that use bind variables to determine whether a new plan is more efficient.</p>
+<p>Assume that an application executes the following statement five times, binding different values every time:</p>
+<pre dir="ltr">SELECT * FROM employees WHERE salary = :sal AND department_id = :dept
+</pre>
+<p>Also assume in this example that a histogram exists on at least one of the columns in the predicate. The database processes this statement as follows:</p>
+<ol>
+<li>
+<p>The application issues the statement for the first time, which causes a hard parse. During the parse, the database performs the following tasks:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Peeks at the bind variables to generate the initial plan.</p>
+</li>
+<li>
+<p>Marks the cursor as bind-sensitive. A <a href="glossary.htm#GUID-13913DD1-DD30-49DF-8041-B3C0F0DC7F7D"><span class="xrefglossterm">bind-sensitive cursor</span></a> is a cursor whose optimal plan may depend on the value of a bind variable. To determine whether a different plan is beneficial, the database monitors the behavior of a bind-sensitive cursor that uses different bind values.</p>
+</li>
+<li>
+<p>Stores metadata about the predicate, including the cardinality of the bound values (in this example, assume that only 5 rows were returned).</p>
+</li>
+<li>
+<p>Creates an execution plan (in this example, index access) based on the peeked values.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The database executes the cursor, storing the bind values and execution statistics in the cursor.</p>
+</li>
+<li>
+<p>The application issues the statement a second time, using different bind variables, causing the database to perform a soft parse, and find the matching cursor in the library cache.</p>
+</li>
+<li>
+<p>The database executes the cursor.</p>
+</li>
+<li>
+<p>The database performs the following post-execution tasks:</p>
+<ol>
+<li>
+<p>The database compares the execution statistics for the second execution with the first-execution statistics.</p>
+</li>
+<li>
+<p>The database observes the pattern of statistics over all previous executions, and then decides whether to mark the cursor as a <a href="glossary.htm#GUID-4266372A-4D7E-4738-92BA-868354F55786"><span class="xrefglossterm">bind-aware cursor</span></a>. In this example, assume that the database decides the cursor is bind-aware.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>The application issues the statement a third time, using different bind variables, which causes a soft parse. Because the cursor is bind-aware, the database does the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Determines whether the cardinality of the new values falls within the same range as the stored cardinality. In this example, the cardinality is similar: 8 rows instead of 5 rows.</p>
+</li>
+<li>
+<p>Reuses the execution plan in the existing child cursor.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The database executes the cursor.</p>
+</li>
+<li>
+<p>The application issues the statement a fourth time, using different bind variables, causing a soft parse. Because the cursor is bind-aware, the database does the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Determines whether the cardinality of the new values falls within the same range as the stored cardinality. In this example, the cardinality is vastly different: 102 rows (in a table with 107 rows) instead of 5 rows.</p>
+</li>
+<li>
+<p>Does not find a matching child cursor.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The database performs a hard parse. As a result, the database does the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Creates a new child cursor with a <span class="italic">second</span> execution plan (in this example, a full table scan)</p>
+</li>
+<li>
+<p>Stores metadata about the predicate, including the cardinality of the bound values, in the cursor</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The database executes the new cursor.</p>
+</li>
+<li>
+<p>The database stores the new bind values and execution statistics in the new child cursor.</p>
+</li>
+<li>
+<p>The application issues the statement a fifth time, using different bind variables, which causes a soft parse. Because the cursor is bind-aware, the database does the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Determines whether the cardinality of the new values falls within the same range as the stored cardinality. In this example, the cardinality is 20.</p>
+</li>
+<li>
+<p>Does not find a matching child cursor.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The database performs a hard parse. As a result, the database does the following:</p>
+<ol>
+<li>
+<p>Creates a new child cursor with a <span class="italic">third</span> execution plan (in this example, index access)</p>
+</li>
+<li>
+<p>Determines that this index access execution plan is the same as the index access execution plan used for the first execution of the statement</p>
+</li>
+<li>
+<p>Merges the two child cursors containing index access plans, which involves storing the combined cardinality statistics into one child cursor, and deleting the other one</p>
+</li>
+</ol>
+</li>
+<li>
+<p>The database executes the cursor using the index access execution plan.</p>
+</li>
+</ol>
+</div>
+</div>
+<a id="TGSQL94742"></a><a id="TGSQL94741"></a>
+<div class="props_rev_3"><a id="GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C"></a>
+<h3 id="TGSQL-GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C" class="sect3">Bind-Sensitive Cursors</h3>
+<div>
+<p>A <span class="bold">bind-sensitive cursor</span> is a cursor whose optimal plan may depend on the value of a bind variable.</p>
+<p>The database has examined the bind value when computing cardinality, and considers the query &ldquo;sensitive&rdquo; to plan changes based on different bind values. The database monitors the behavior of a bind-sensitive cursor that uses different bind values to determine whether a different plan is beneficial.</p>
+<p>The optimizer uses the following criteria to decide whether a cursor is bind-sensitive:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The optimizer has peeked at the bind values to generate cardinality estimates.</p>
+</li>
+<li>
+<p>The bind is used in an equality or a range predicate.</p>
+</li>
+</ul>
+<p>For each execution of the query with a new bind value, the database records the execution statistics for the new value and compares them to the execution statistics for the previous value. If execution statistics vary greatly, then the database marks the cursor bind-aware.</p>
+<div class="example" id="GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C__GUID-AE386A44-DBE5-4B73-B866-37129E9C9070">
+<p class="titleinexample">Example 15-11 Column with Significant Data Skew</p>
+<p>This example assumes that the <code class="codeph">hr.employees.department_id</code> column has significant data skew. <code class="codeph">SYSTEM</code> executes the following setup code, which adds 100,000 employees in department 50 to the <code class="codeph">employees</code> table in the sample schema, for a total of 100,107 rows, and then gathers table statistics:</p>
+<pre dir="ltr">DELETE FROM hr.employees WHERE employee_id &gt; 999;
+
+ALTER TABLE hr.employees DISABLE NOVALIDATE CONSTRAINT emp_email_uk;
+
+DECLARE
+v_counter NUMBER(7) := 1000;
+BEGIN
+ FOR i IN 1..100000 LOOP    
+ INSERT INTO hr.employees 
+   VALUES (v_counter,null,&#39;Doe&#39;,&#39;Doe@example.com&#39;,null,&#39;07-JUN-02&#39;,&#39;AC_ACCOUNT&#39;,null,null,null,50);
+ v_counter := v_counter + 1;
+ END LOOP;
+END;
+/
+COMMIT; 
+
+EXEC DBMS_STATS.GATHER_TABLE_STATS ( ownname =&gt; &#39;hr&#39;, tabname =&gt; &#39;employees&#39;);
+
+ALTER SYSTEM FLUSH SHARED_POOL;
+</pre>
+<p>The following query shows a histogram on the <code class="codeph">employees.department_id</code> column:</p>
+<pre dir="ltr">COL TABLE_NAME FORMAT a15
+COL COLUMN_NAME FORMAT a20
+COL HISTOGRAM FORMAT a9
+
+SELECT TABLE_NAME, COLUMN_NAME, HISTOGRAM
+FROM   DBA_TAB_COLS
+WHERE  OWNER = &#39;HR&#39;
+AND    TABLE_NAME = &#39;EMPLOYEES&#39;
+AND    COLUMN_NAME = &#39;DEPARTMENT_ID&#39;;
+
+TABLE_NAME      COLUMN_NAME          HISTOGRAM
+--------------- -------------------- ---------
+EMPLOYEES       DEPARTMENT_ID        FREQUENCY
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C__GUID-F1AFAAFE-CCB3-4117-89F6-5E09A17377E7">
+<p class="titleinexample">Example 15-12 Low-Cardinality Query</p>
+<p>This example continues the example in <a href="tgsql_cursor.htm#GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C__GUID-AE386A44-DBE5-4B73-B866-37129E9C9070">Example 15-11</a>. The following query shows that the value <code class="codeph">10</code> has extremely low cardinality for the column <code class="codeph">department_id</code>, occupying .00099% of the rows:</p>
+<pre dir="ltr">VARIABLE dept_id NUMBER
+EXEC :dept_id := 10;
+SELECT COUNT(*), MAX(employee_id) FROM hr.employees WHERE department_id = :dept_id;
+
+  COUNT(*) MAX(EMPLOYEE_ID)
+---------- ----------------
+         1              200
+</pre>
+<p>The optimizer chooses an <a href="glossary.htm#GUID-15413560-9C69-4C7A-A16E-824D1DE7C5B3"><span class="xrefglossterm">index range scan</span></a>, as expected for such a low-cardinality query:</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR);
+
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  a9upgaqqj7bn5, child number 0
+-------------------------------------
+select COUNT(*), MAX(employee_id) FROM hr.employees WHERE department_id = :dept_id
+
+Plan hash value: 1642965905
+
+-------------------------------------------------------------------------------------
+| Id| Operation                           | Name       |Rows|Bytes|Cost (%CPU)|Time |
+-------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                     |                   |  |  |2(100)|        |
+| 1|  SORT AGGREGATE                      |                   |1 |8 |      |        |
+| 2|   TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES         |1 |8 |2  (0)|00:00:01|
+|*3|    INDEX RANGE SCAN                  | EMP_DEPARTMENT_IX |1 |  |1  (0)|00:00:01|
+-------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - access(&#34;DEPARTMENT_ID&#34;=:DEPT_ID)
+</pre>
+<p>The following query of <code class="codeph">V$SQL</code> obtains information about the cursor:</p>
+<pre dir="ltr">COL BIND_AWARE FORMAT a10
+COL SQL_TEXT FORMAT a22
+COL CHILD# FORMAT 99999
+COL EXEC FORMAT 9999
+COL BUFF_GETS FORMAT 999999999
+COL BIND_SENS FORMAT a9
+COL SHARABLE FORMAT a9
+
+SELECT SQL_TEXT, CHILD_NUMBER AS CHILD#, EXECUTIONS AS EXEC, 
+       BUFFER_GETS AS BUFF_GETS, IS_BIND_SENSITIVE AS BIND_SENS, 
+       IS_BIND_AWARE AS BIND_AWARE, IS_SHAREABLE AS SHARABLE
+FROM   V$SQL
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT               CHILD#  EXEC  BUFF_GETS BIND_SENS BIND_AWARE SHARABLE
+---------------------- ------ ----- ---------- --------- ---------- --------
+SELECT COUNT(*), MAX(e      0     1        196         Y          N        Y
+mployee_id) FROM hr.em
+ployees WHERE departme
+nt_id = :dept_id
+</pre>
+<p>The preceding output shows one <a href="glossary.htm#GUID-DD551B34-F6E3-4077-8C1D-500ACDC7380D"><span class="xrefglossterm">child cursor</span></a> that has been executed once for the low-cardinality query. The cursor has been marked bind-sensitive because the optimizer believes the optimal plan may depend on the value of the bind variable.</p>
+<p>When a cursor is marked bind-sensitive, Oracle Database monitors the behavior of the cursor using different bind values, to determine whether a different plan for different bind values is more efficient. The database marked this cursor bind-sensitive because the optimizer used the histogram on the <code class="codeph">department_id</code> column to compute the selectivity of the predicate <code class="codeph">WHERE department_id = :dept_id</code>. Because the presence of the histogram indicates that the column is skewed, different values of the bind variable may require different plans.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C__GUID-F47E3D3C-8287-4D04-8A3C-14868E1A143F">
+<p class="titleinexample">Example 15-13 High-Cardinality Query</p>
+<p>This example continues the example in <a href="tgsql_cursor.htm#GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C__GUID-F1AFAAFE-CCB3-4117-89F6-5E09A17377E7">Example 15-12</a>. The following code re-executes the same query using the value <code class="codeph">50</code>, which occupies 99.9% of the rows:</p>
+<pre dir="ltr">EXEC :dept_id := 50;
+SELECT COUNT(*), MAX(employee_id) FROM hr.employees WHERE department_id = :dept_id;
+
+  COUNT(*) MAX(EMPLOYEE_ID)
+---------- ----------------
+    100045           100999
+</pre>
+<p>Even though such an unselective query would be more efficient with a full table scan, the optimizer chooses the same index range scan used for <code class="codeph">department_id=10</code>. This reason is that the database assumes that the existing plan in the cursor can be shared:</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR);
+
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  a9upgaqqj7bn5, child number 0
+-------------------------------------
+SELECT COUNT(*), MAX(employee_id) FROM hr.employees WHERE department_id = :dept_id
+
+Plan hash value: 1642965905
+
+-------------------------------------------------------------------------------------
+| Id| Operation                           | Name       |Rows|Bytes|Cost (%CPU)|Time |
+-------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                     |                   |  |  |2(100)|        |
+| 1|  SORT AGGREGATE                      |                   |1 |8 |      |        |
+| 2|   TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES         |1 |8 |2  (0)|00:00:01|
+|*3|    INDEX RANGE SCAN                  | EMP_DEPARTMENT_IX |1 |  |1  (0)|00:00:01|
+-------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - access(&#34;DEPARTMENT_ID&#34;=:DEPT_ID)
+</pre>
+<p>A query of <code class="codeph">V$SQL</code> shows that the child cursor has now been executed twice:</p>
+<pre dir="ltr">SELECT SQL_TEXT, CHILD_NUMBER AS CHILD#, EXECUTIONS AS EXEC, 
+       BUFFER_GETS AS BUFF_GETS, IS_BIND_SENSITIVE AS BIND_SENS, 
+       IS_BIND_AWARE AS BIND_AWARE, IS_SHAREABLE AS SHARABLE
+FROM   V$SQL
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT               CHILD#  EXEC  BUFF_GETS BIND_SENS BIND_AWARE SHARABLE
+---------------------- ------ ----- ---------- --------- ---------- --------
+SELECT COUNT(*), MAX(e      0     2       1329         Y          N        Y
+mployee_id) FROM hr.em
+ployees WHERE departme
+nt_id = :dept_id
+</pre>
+<p>At this stage, the optimizer has not yet marked the cursor as bind-aware.</p>
+<div class="infoboxnotealso" id="GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C__GUID-4672F5A8-B32C-4601-A4A9-F8563A913F5B">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN30246" target="_blank" href="../REFRN/GUID-2B9340D7-4AA8-4894-94C0-D5990F67BE75.htm#REFRN30246"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">V$SQL</code></p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94744"></a><a id="TGSQL94743"></a>
+<div class="props_rev_3"><a id="GUID-FD923B79-F1A8-401A-8C61-FD00B41A70F4"></a>
+<h3 id="TGSQL-GUID-FD923B79-F1A8-401A-8C61-FD00B41A70F4" class="sect3">Bind-Aware Cursors</h3>
+<div>
+<p>A <span class="bold">bind-aware cursor</span> is a bind-sensitive cursor that is eligible to use different plans for different bind values.</p>
+<p>After a cursor has been made bind-aware, the optimizer chooses plans for future executions based on the bind value and its cardinality estimate. Thus, &ldquo;bind-aware&rdquo; means essentially &ldquo;best plan for the current bind value.&rdquo;</p>
+<p>When a statement with a bind-sensitive cursor executes, the optimizer uses an internal algorithm to determine whether to mark the cursor bind-aware. The decision depends on whether the cursor produces significantly different data access patterns for different bind values, resulting in a performance cost that differs from expectations.</p>
+<p>If the database marks the cursor bind-aware, then the <span class="italic">next</span> time that the cursor executes the database does the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Generates a new plan based on the bind value</p>
+</li>
+<li>
+<p>Marks the original cursor generated for the statement as not sharable (<code class="codeph">V$SQL.IS_SHAREABLE</code> is <code class="codeph">N</code>). The original cursor is no longer usable and is eligible to age out of the library cache</p>
+</li>
+</ul>
+<p>When the same query repeatedly executes with different bind values, the database adds new bind values to the &ldquo;signature&rdquo; of the SQL statement (which includes the optimizer environment, NLS settings, and so on), and categorizes the values. The database examines the bind values, and considers whether the current bind value results in a significantly different data volume, or whether an existing plan is sufficient. The database does <span class="italic">not</span> need to create a new plan for each new value.</p>
+<p>Consider a scenario in which you execute a statement with 12 distinct bind values (executing each distinct value twice), which causes the database to trigger 5 hard parses, and create 2 additional plans. Because the database performs 5 hard parses, it creates 5 new child cursors, even though some cursors have the same execution plan as existing cursors. The database marks the superfluous cursors as not usable, which means these cursors eventually age out of the library cache.</p>
+<p>During the initial hard parses, the optimizer is essentially mapping out the relationship between bind values and the appropriate execution plan. After this initial period, the database eventually reaches a steady state. Executing with a new bind value results in picking the best child cursor in the cache, without requiring a hard parse. Thus, the number of parses does <span class="italic">not</span> scale with the number of different bind values.</p>
+<div class="example" id="GUID-FD923B79-F1A8-401A-8C61-FD00B41A70F4__GUID-C0792D56-FF53-405A-8747-162EDF3A6B2E">
+<p class="titleinexample">Example 15-14 Bind-Aware Cursors</p>
+<p>This example continues the example in <span class="q">&#34;<a href="tgsql_cursor.htm#GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C" title="A bind-sensitive cursor is a cursor whose optimal plan may depend on the value of a bind variable.">Bind-Sensitive Cursors</a>&#34;</span>. The following code issues a second query <code class="codeph">employees</code> with the bind variable set to <code class="codeph">50</code>:</p>
+<pre dir="ltr">EXEC :dept_id := 50;
+SELECT COUNT(*), MAX(employee_id) FROM hr.employees WHERE department_id = :dept_id;
+
+  COUNT(*) MAX(EMPLOYEE_ID)
+---------- ----------------
+    100045           100999
+</pre>
+<p>During the first two executions, the database was monitoring the behavior of the queries, and determined that the different bind values caused the queries to differ significantly in cardinality. Based on this difference, the database adapts its behavior so that the same plan is not always shared for this query. Thus, the optimizer generates a new plan based on the current bind value, which is <code class="codeph">50</code>:</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR);
+
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  a9upgaqqj7bn5, child number 1
+-------------------------------------
+SELECT COUNT(*), MAX(employee_id) FROM hr.employees WHERE department_id = :dept_id
+
+Plan hash value: 1756381138
+
+-----------------------------------------------------------------------------
+| Id  | Operation          | Name      | Rows  | Bytes | Cost(%CPU)| Time   |
+-----------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |           |       |       |254 (100)|          |
+|   1 |  SORT AGGREGATE    |           |     1 |     8 |         |          |
+|*  2 |   TABLE ACCESS FULL| EMPLOYEES |  100K |  781K |254  (15)| 00:00:01 |
+-----------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - filter(&#34;DEPARTMENT_ID&#34;=:DEPT_ID)
+
+</pre>
+<p>The following query of <code class="codeph">V$SQL</code> obtains information about the cursor:</p>
+<pre dir="ltr">SELECT SQL_TEXT, CHILD_NUMBER AS CHILD#, EXECUTIONS AS EXEC, 
+       BUFFER_GETS AS BUFF_GETS, IS_BIND_SENSITIVE AS BIND_SENS, 
+       IS_BIND_AWARE AS BIND_AWARE, IS_SHAREABLE AS SHAREABLE
+FROM   V$SQL
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT               CHILD#  EXEC  BUFF_GETS BIND_SENS BIND_AWARE SHAREABLE
+---------------------- ------ ----- ---------- --------- ---------- ---------
+SELECT COUNT(*), MAX(e      0     2       1329         Y          N         N
+mployee_id) FROM hr.em
+ployees WHERE departme
+nt_id = :dept_id
+
+SELECT COUNT(*), MAX(e      1     1        800         Y          Y         Y
+mployee_id) FROM hr.em
+ployees WHERE departme
+nt_id = :dept_id
+</pre>
+<p>The preceding output shows that the database created an additional child cursor (<code class="codeph">CHILD#</code> of <code class="codeph">1</code>). Cursor <code class="codeph">0</code> is now marked as not shareable. Cursor <code class="codeph">1</code> shows a number of buffers gets lower than cursor <code class="codeph">0</code>, and is marked both bind-sensitive and bind-aware. A bind-aware cursor may use different plans for different bind values, depending on the selectivity of the predicates containing the bind variable.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-FD923B79-F1A8-401A-8C61-FD00B41A70F4__GUID-4CFDCC42-4003-4B01-94CC-9A6F7F604463">
+<p class="titleinexample">Example 15-15 Bind-Aware Cursors: Choosing the Optimal Plan</p>
+<p>This example continues the example in <span class="q">&#34;<a href="tgsql_cursor.htm#GUID-FD923B79-F1A8-401A-8C61-FD00B41A70F4__GUID-C0792D56-FF53-405A-8747-162EDF3A6B2E">Example 15-14</a>&#34;</span>. The following code executes the same <code class="codeph">employees</code> query with the value of <code class="codeph">10</code>, which has extremely low cardinality (only one row):</p>
+<pre dir="ltr">EXEC :dept_id := 10;
+SELECT COUNT(*), MAX(employee_id) FROM hr.employees WHERE department_id = :dept_id;
+
+  COUNT(*) MAX(EMPLOYEE_ID)
+---------- ----------------
+         1              200
+</pre>
+<p>The following output shows that the optimizer picked the best plan, which is an index scan, based on the low cardinality estimate for the current bind value of <code class="codeph">10</code>:</p>
+<pre dir="ltr">SQL&gt; SELECT * from TABLE(DBMS_XPLAN.DISPLAY_CURSOR);
+
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  a9upgaqqj7bn5, child number 2
+-------------------------------------
+select COUNT(*), MAX(employee_id) FROM hr.employees WHERE department_id = :dept_id
+
+Plan hash value: 1642965905
+
+-------------------------------------------------------------------------------------
+| Id| Operation                           | Name       |Rows|Bytes|Cost (%CPU)|Time |
+-------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                     |                   |  |  |2(100)|        |
+| 1|  SORT AGGREGATE                      |                   |1 |8 |      |        |
+| 2|   TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES         |1 |8 |2  (0)|00:00:01|
+|*3|    INDEX RANGE SCAN                  | EMP_DEPARTMENT_IX | 1|  |1  (0)|00:00:01|
+-------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - access(&#34;DEPARTMENT_ID&#34;=:DEPT_ID)
+</pre>
+<p>The <code class="codeph">V$SQL</code> output now shows that three child cursors exist:</p>
+<pre dir="ltr">SELECT SQL_TEXT, CHILD_NUMBER AS CHILD#, EXECUTIONS AS EXEC, 
+       BUFFER_GETS AS BUFF_GETS, IS_BIND_SENSITIVE AS BIND_SENS, 
+       IS_BIND_AWARE AS BIND_AWARE, IS_SHAREABLE AS SHAREABLE
+FROM   V$SQL
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT               CHILD#  EXEC  BUFF_GETS BIND_SENS BIND_AWARE SHAREABLE
+---------------------- ------ ----- ---------- --------- ---------- ---------
+SELECT COUNT(*), MAX(e      0     2       1329         Y          N         N
+mployee_id) FROM hr.em
+ployees WHERE departme
+nt_id = :dept_id
+
+SELECT COUNT(*), MAX(e      1     1        800         Y          Y         Y
+mployee_id) FROM hr.em
+ployees WHERE departme
+nt_id = :dept_id
+
+SELECT COUNT(*), MAX(e      2     1          3         Y          Y         Y
+mployee_id) FROM hr.em
+ployees WHERE departme
+nt_id = :dept_id
+</pre>
+<p>The database discarded the original cursor (<code class="codeph">CHILD#</code> of <code class="codeph">0</code>) when the cursor switched to bind-aware mode. This is a one-time overhead. The database marked cursor <code class="codeph">0</code> as not shareable (<code class="codeph">SHAREABLE</code> is <code class="codeph">N</code>), which means that this cursor is unusable and will be among the first to age out of the cursor cache.</p>
+<div class="infoboxnotealso" id="GUID-FD923B79-F1A8-401A-8C61-FD00B41A70F4__GUID-D25AC2B6-21FE-4939-9AAC-C30CA021210B">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN30246" target="_blank" href="../REFRN/GUID-2B9340D7-4AA8-4894-94C0-D5990F67BE75.htm#REFRN30246"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">V$SQL</code></p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94745"></a>
+<div class="props_rev_3"><a id="GUID-59B4BED5-62FF-421F-92ED-7BB32F6E68F4"></a>
+<h3 id="TGSQL-GUID-59B4BED5-62FF-421F-92ED-7BB32F6E68F4" class="sect3">Cursor Merging</h3>
+<div>
+<p>If the optimizer creates a plan for a bind-aware cursor, and if this plan is the same as an existing cursor, then the optimizer can perform <span class="bold">cursor merging</span>.</p>
+<p>In this case, the database merges cursors to save space in the library cache. The database increases the selectivity range for the cursor to include the selectivity of the new bind value.</p>
+<p>When a query uses a new bind variable, the optimizer tries to find a cursor that it thinks is a good fit based on similarity in the selectivity of the bind value. If the database cannot find such a cursor, then it creates a new one. If the plan for the new cursor is the same as one of the existing cursors, then the database merges the two cursors to save space in the library cache. The merge results in the database marking one cursor as not sharable. If the library cache is under space pressure, then the database ages out the non-sharable cursor first.</p>
+<div class="infoboxnotealso" id="GUID-59B4BED5-62FF-421F-92ED-7BB32F6E68F4__GUID-B1002D1E-AB42-4329-8D0F-70E7C750A9AA">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_cursor.htm#GUID-BC20D195-C80F-492A-B2D9-0BE2AFF6968C__GUID-AE386A44-DBE5-4B73-B866-37129E9C9070">Example 15-11</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="TGSQL94746"></a>
+<div class="props_rev_3"><a id="GUID-A3B8972A-A74D-4353-960B-5E09D294031E"></a>
+<h3 id="TGSQL-GUID-A3B8972A-A74D-4353-960B-5E09D294031E" class="sect3">Adaptive Cursor Sharing Views</h3>
+<div>
+<div class="section">
+<p>You can use the <code class="codeph">V$</code> views for adaptive cursor sharing to see selectivity ranges, cursor information (such as whether a cursor is bind-aware or bind-sensitive), and execution statistics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">V$SQL</code> shows whether a cursor is bind-sensitive or bind-aware.</p>
+</li>
+<li>
+<p><code class="codeph">V$SQL_CS_HISTOGRAM</code> shows the distribution of the execution count across a three-bucket execution history histogram.</p>
+</li>
+<li>
+<p><code class="codeph">V$SQL_CS_SELECTIVITY</code> shows the selectivity ranges stored for every predicate containing a bind variable if the selectivity was used to check cursor sharing. It contains the text of the predicates, and the low and high values for the selectivity ranges.</p>
+</li>
+<li>
+<p><code class="codeph">V$SQL_CS_STATISTICS</code> summarizes the information that the optimizer uses to determine whether to mark a cursor bind-aware. For a sample of executions, the database tracks the rows processed, buffer gets, and CPU time. The <code class="codeph">PEEKED</code> column shows <code class="codeph">YES</code> when the bind set was used to build the cursor; otherwise, the value is <code class="codeph">NO</code>.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-A3B8972A-A74D-4353-960B-5E09D294031E__GUID-AA5603B4-437D-48AC-9446-F461DDC1A5EF">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN30246" target="_blank" href="../REFRN/GUID-2B9340D7-4AA8-4894-94C0-D5990F67BE75.htm#REFRN30246"><span class="italic">Oracle Database Reference</span></a> to learn about <code class="codeph">V$SQL</code> and its related views</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<div class="sect2"><a id="GUID-EA2FC76C-275B-49E1-B38C-BA39B3B3E864"></a>
+<h2 id="TGSQL-GUID-EA2FC76C-275B-49E1-B38C-BA39B3B3E864" class="sect2">Real-World Performance Guidelines for Cursor Sharing</h2>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_cursor.htm#GUID-3C4E8893-02F2-40C3-A485-4BE066A67921" title="The Real-World Performance group strongly suggests that all enterprise applications use bind variables. Oracle Database applications were intended to be written with bind variables. Avoid application designs that result in large numbers of users issuing dynamic, unshared SQL statements.">Develop Applications with Bind Variables for Security and Performance</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-7FF4E133-06A7-401E-9BFC-3B0B9C902346" title="The best practice is to write sharable SQL and use the default of EXACT for CURSOR_SHARING. However, for applications with many similar statements, setting CURSOR_SHARING to FORCE can sometimes significantly improve cursor sharing. The replacement of literals with system-generated bind values can lead to reduced memory usage, faster parses, and reduced latch contention. However, FORCE is not meant to be a permanent development solution.">Do Not Use CURSOR_SHARING = FORCE as a Permanent Fix</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-6C3AFFA0-21DD-41BC-8DEE-5FC9A58B0954" title="By default, any variation in the text of two SQL statements prevents the database from sharing a cursor, including the names of bind variables. Also, changes in the size of bind variables can cause cursor mismatches. For this reason, using bind variables in application code is not enough to guarantee cursor sharing.">Establish Coding Conventions to Increase Cursor Reuse</a></p>
+</li>
+<li>
+<p><a href="tgsql_cursor.htm#GUID-DFFA6889-AF72-47F8-BC28-5BC05FEE8553" title="A best practice is to prevent users of the application from changing the optimization approach and goal for their individual sessions. Any changes to the optimizer environment can prevent otherwise identical statements from sharing cursors.">Minimize Session-Level Changes to the Optimizer Environment</a></p>
+</li>
+</ul>
+</div>
+<div class="sect3"><a id="GUID-3C4E8893-02F2-40C3-A485-4BE066A67921"></a>
+<h3 id="TGSQL-GUID-3C4E8893-02F2-40C3-A485-4BE066A67921" class="sect3">Develop Applications with Bind Variables for Security and Performance</h3>
+<div>
+<p>The Real-World Performance group strongly suggests that all enterprise applications use bind variables. Oracle Database applications were intended to be written with bind variables. Avoid application designs that result in large numbers of users issuing dynamic, unshared SQL statements.</p>
+<div class="section">
+<p>Whenever Oracle Database fails to find a match for a statement in the library cache, it must perform a hard parse. Despite the dangers of developing applications with literals, not all real-world applications use bind variables. Developers sometimes find that it is faster and easier to write programs that use literals. However, decreased development time does not lead to better performance and security after deployment.</p>
+<div class="infobox-note" id="GUID-3C4E8893-02F2-40C3-A485-4BE066A67921__SEERWP3CONNECTIONPOOLSANDHARDPARSIN-7CDE75E1">
+<p class="notep1">Video:</p>
+<p>See <a class="olink vid_oll_rwp_hard_parsing" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=vid_oll_rwp_hard_parsing"><span class="italic">RWP #3: Connection Pools and Hard Parsing</span></a> for a demo illustrating the performance problems caused by hard parsing</p>
+</div>
+<p>The primary benefits of using bind variables are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Resource efficiency</p>
+<p>Compiling a program before every execution does not use resources efficiently, but this is essentially what Oracle Database does when it performs a hard parse. The database server must expend significant CPU and memory to create cursors, generate and evaluate execution plans, and so on. By enabling the database to share cursors, soft parsing consumes far fewer resources. If an application uses literals instead of bind variables, but executes only a few queries each day, then DBAs may not perceive the extra overhead as a performance problem. However, if an application executes hundreds or thousands of queries per second, then the extra resource overhead can easily degrade performance to unacceptable levels. Using bind variables enables the database to perform a hard parse only once, no matter how many times the statement executes.</p>
+</li>
+<li>
+<p>Scalability</p>
+<p>When the database performs a hard parse, the database spends more time acquiring and holding latches in the shared pool and library cache. Latches are low-level serialization devices. The longer and more frequently the database latches structures in shared memory, the longer the queue for these latches becomes. When multiple statements share the same execution plan, the requests for latches and the durations of latches go down. This behavior increases scalability.</p>
+</li>
+<li>
+<p>Throughput and response time</p>
+<p>When the database avoids constantly reparsing and creating cursors, more of its time is spent in user space. The Real-World Performance group has found that changing literals to use binds often leads to orders of magnitude improvements in throughput and user response time.</p>
+<div class="infobox-note" id="GUID-3C4E8893-02F2-40C3-A485-4BE066A67921__SEERWP4BINDVARIABLESANDSOFTPARSINGF-7CDE8F66">
+<p class="notep1">Video:</p>
+<p>See <a class="olink vid_oll_rwp_binds" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=vid_oll_rwp_binds"><span class="italic">RWP #4: Bind Variables and Soft Parsing</span></a> for a demo showing the performance benefits of bind variables</p>
+</div>
+</li>
+<li>
+<p>Security</p>
+<p>The only way to prevent SQL injection attacks is to use bind variables. Malicious users can exploit application that concatenate strings by &ldquo;injecting&rdquo; code into the application.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-3C4E8893-02F2-40C3-A485-4BE066A67921__FORANEXAMPLEOFANAPPLICATIONTHATFIXE-7D417FD0">
+<p class="notep1">See Also:</p>
+<p><a class="olink LNPLS647" target="_blank" href="../LNPLS/dynamic.htm#LNPLS647"><span class="italic">Oracle Database PL/SQL Language Reference</span></a> for an example of an application that fixes a security vulnerability created by literals</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94750"></a>
+<div class="props_rev_3"><a id="GUID-7FF4E133-06A7-401E-9BFC-3B0B9C902346"></a>
+<h3 id="TGSQL-GUID-7FF4E133-06A7-401E-9BFC-3B0B9C902346" class="sect3">Do Not Use CURSOR_SHARING = FORCE as a Permanent Fix</h3>
+<div>
+<p>The best practice is to write sharable SQL and use the default of <code class="codeph">EXACT</code> for <code class="codeph">CURSOR_SHARING</code>. However, for applications with many similar statements, setting <code class="codeph">CURSOR_SHARING</code> to <code class="codeph">FORCE</code> can sometimes significantly improve cursor sharing. The replacement of literals with system-generated bind values can lead to reduced memory usage, faster parses, and reduced latch contention. However, <code class="codeph">FORCE</code> is not meant to be a permanent development solution.</p>
+<div class="section">
+<p>As a general guideline, the Real-World Performance group recommends <span class="italic">against</span> setting <code class="codeph">CURSOR_SHARING</code> to <code class="codeph">FORCE</code> exception in rare situations, and then only when all of the following conditions are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Statements in the shared pool differ only in the values of literals.</p>
+</li>
+<li>
+<p>Response time is suboptimal because of a very high number of library cache misses.</p>
+</li>
+<li>
+<p>Your existing code has a serious security and scalability bug&mdash;the absence of bind variables&mdash;and you need a <span class="italic">temporary</span> band-aid until the source code can be fixed.</p>
+</li>
+<li>
+<p>You set this initialization parameter at the session level and not at the instance level.</p>
+</li>
+</ul>
+<p>Setting <code class="codeph">CURSOR_SHARING</code> to <code class="codeph">FORCE</code> has the following drawbacks:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>It indicates that the application does not use user-defined bind variables, which means that it is open to SQL injection. Setting <code class="codeph">CURSOR_SHARING</code> to <code class="codeph">FORCE</code> does <span class="italic">not</span> fix SQL injection bugs or render the code any more secure. The database binds values only after any malicious SQL text has already been injected.</p>
+<div class="p">
+<div class="infobox-note" id="GUID-7FF4E133-06A7-401E-9BFC-3B0B9C902346__ORACLEDATABASE12CRECOVERINGAPLUGGAB-6B61826C">
+<p class="notep1">Video:</p>
+<p>See <a class="olink vid_oll_rwp_binds" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=vid_oll_rwp_binds"><span class="italic">RWP #4: Bind Variables and Soft Parsing</span></a> for an AWR analysis by the Real-World Performance group of an application that uses <code class="codeph">FORCE</code>.</p>
+</div>
+</div>
+</li>
+<li>
+<p>The database must perform extra work during the soft parse to find a similar statement in the shared pool.</p>
+</li>
+<li>
+<p>The database removes every literal, which means that it can remove useful information. For example, the database strips out literal values in <code class="codeph">SUBSTR</code> and <code class="codeph">TO_DATE</code> functions. The use of system-generated bind variables where literals are more optimal can have a negative impact on execution plans.</p>
+</li>
+<li>
+<p>There is an increase in the maximum lengths (as returned by <code class="codeph">DESCRIBE</code>) of any selected expressions that contain literals in a <code class="codeph">SELECT</code> statement. However, the actual length of the data returned does not change.</p>
+</li>
+<li>
+<p>Star transformation is not supported.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-7FF4E133-06A7-401E-9BFC-3B0B9C902346__GUID-833ECB56-AA3D-4E07-A1AB-87888C9D761A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_cursor.htm#GUID-267E5860-A8D5-4E5F-AE60-16304E97E4EE" title="This topic explains what the CURSOR_SHARING initialization parameter is, and how setting it to different values affects how Oracle Database uses bind variables.">CURSOR_SHARING and Bind Variable Substitution</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN10025" target="_blank" href="../REFRN/GUID-455358F8-D657-49A2-B32B-13A1DC53E7D2.htm#REFRN10025"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">CURSOR_SHARING</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<div class="sect3"><a id="GUID-6C3AFFA0-21DD-41BC-8DEE-5FC9A58B0954"></a>
+<h3 id="TGSQL-GUID-6C3AFFA0-21DD-41BC-8DEE-5FC9A58B0954" class="sect3">Establish Coding Conventions to Increase Cursor Reuse</h3>
+<div>
+<p>By default, any variation in the text of two SQL statements prevents the database from sharing a cursor, including the names of bind variables. Also, changes in the size of bind variables can cause cursor mismatches. For this reason, using bind variables in application code is not enough to <span class="italic">guarantee</span> cursor sharing.</p>
+<div class="section">
+<p class="subhead3"></p>
+<p>The Real-World Performance group recommends that you standardize spacing and capitalization conventions for SQL statements and PL/SQL blocks. Also establish conventions for the naming and definitions of bind variables. If the database does not share cursors as expected, begin your diagnosis by querying <code class="codeph">V$SQL_SHARED_CURSOR</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-6C3AFFA0-21DD-41BC-8DEE-5FC9A58B0954__GUID-3DEA82EF-D06F-4872-9A1F-E7342DFC4DB0">
+<p class="titleinexample">Example 15-16 Variations in SQL Text</p>
+<p>In this example, an application that uses bind variables executes 7 statements using the same bind variable value, but the statements are not textually identical:</p>
+<pre dir="ltr">VARIABLE emp_id NUMBER
+EXEC :emp_id := 101;
+
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :emp_id;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :EMP_ID;
+SELECT SUM(salary) FROM hr.employees WHERE employee_id &lt; :Emp_Id;
+SELECT SUM(salary)  FROM hr.employees WHERE employee_id &lt; :emp_id;
+select sum(salary) from hr.employees where employee_id &lt; :emp_id;
+Select sum(salary) From hr.employees Where employee_id &lt; :emp_id;
+Select sum(salary) From hr.employees Where employee_id&lt; :emp_id;
+</pre>
+<p>A query of <code class="codeph">V$SQLAREA</code> shows that no cursor sharing occurred:</p>
+<pre dir="ltr">COL SQL_TEXT FORMAT a35
+SELECT SQL_TEXT, SQL_ID, VERSION_COUNT, HASH_VALUE
+FROM   V$SQLAREA
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT                            SQL_ID        VERSION_COUNT HASH_VALUE
+----------------------------------- ------------- ------------- ----------
+SELECT SUM(salary) FROM hr.employee bkrfu3ggu5315             1 3751971877
+s WHERE employee_id &lt; :EMP_ID
+SELECT SUM(salary) FROM hr.employee 70mdtwh7xj9gv             1  265856507
+s WHERE employee_id &lt; :Emp_Id
+Select sum(salary) From hr.employee 18tt4ny9u5wkt             1 2476929625
+s Where employee_id&lt; :emp_id
+SELECT SUM(salary)  FROM hr.employe b6b21tbyaf8aq             1 4238811478
+es WHERE employee_id &lt; :emp_id
+SELECT SUM(salary) FROM hr.employee 4318cbskba8yh             1  615850960
+s WHERE employee_id &lt; :emp_id
+select sum(salary) from hr.employee 633zpx3xm71kj             1 4214457937
+s where employee_id &lt; :emp_id
+Select sum(salary) From hr.employee 1mqbbbnsrrw08             1  830205960
+s Where employee_id &lt; :emp_id
+
+7 rows selected.
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-6C3AFFA0-21DD-41BC-8DEE-5FC9A58B0954__GUID-8C2B8622-0CF8-4A0A-A706-391B750A4B95">
+<p class="titleinexample">Example 15-17 Bind Length Mismatch</p>
+<p>The following code defines a bind variable with different lengths, and then executes textually identical statements with the same bind values:</p>
+<pre dir="ltr">VARIABLE lname VARCHAR2(20)
+EXEC :lname := &#39;Taylor&#39;;
+SELECT SUM(salary) FROM hr.employees WHERE last_name = :lname;
+VARIABLE lname VARCHAR2(100)
+EXEC :lname := &#39;Taylor&#39;;
+SELECT SUM(salary) FROM hr.employees WHERE last_name = :lname;
+</pre>
+<p>The following query shows that the database did not share the cursor:</p>
+<pre dir="ltr">COL SQL_TEXT FORMAT a35
+SELECT SQL_TEXT, SQL_ID, VERSION_COUNT, HASH_VALUE
+FROM   V$SQLAREA
+WHERE  SQL_TEXT LIKE &#39;%mployee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;;
+
+SQL_TEXT                            SQL_ID             VERSION_COUNT HASH_VALUE
+----------------------------------- ------------- ------------- ----------
+SELECT SUM(salary) FROM hr.employee buh8j4557r0h1             2 1249608193
+s WHERE last_name = :lname
+</pre>
+<p>The reason is because of the bind lengths:</p>
+<pre dir="ltr">COL BIND_LENGTH_UPGRADEABLE FORMAT a15
+SELECT s.SQL_TEXT, s.CHILD_NUMBER, 
+       c.BIND_LENGTH_UPGRADEABLE
+FROM   V$SQL s, V$SQL_SHARED_CURSOR c
+WHERE  SQL_TEXT LIKE &#39;%employee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;
+AND    s.CHILD_ADDRESS = c.CHILD_ADDRESS;
+
+SQL_TEXT                            CHILD_NUMBER BIND_LENGTH_UPG
+----------------------------------- ------------ ---------------
+SELECT SUM(salary) FROM hr.employee            0 N
+s WHERE last_name = :lname
+SELECT SUM(salary) FROM hr.employee            1 Y
+s WHERE last_name = :lname
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94747"></a>
+<div class="props_rev_3"><a id="GUID-DFFA6889-AF72-47F8-BC28-5BC05FEE8553"></a>
+<h3 id="TGSQL-GUID-DFFA6889-AF72-47F8-BC28-5BC05FEE8553" class="sect3">Minimize Session-Level Changes to the Optimizer Environment</h3>
+<div>
+<p>A best practice is to prevent users of the application from changing the optimization approach and goal for their individual sessions. Any changes to the optimizer environment can prevent otherwise identical statements from sharing cursors.</p>
+<div class="example" id="GUID-DFFA6889-AF72-47F8-BC28-5BC05FEE8553__GUID-A866629E-AC61-44B7-9110-5C0A18607632">
+<p class="titleinexample">Example 15-18 Environment Mismatches</p>
+<p>This example shows two textually identical statements that nevertheless do not share a cursor:</p>
+<pre dir="ltr">VARIABLE emp_id NUMBER
+
+EXEC :emp_id := 110;
+
+ALTER SESSION SET OPTIMIZER_MODE = FIRST_ROWS;
+SELECT salary FROM hr.employees WHERE employee_id &lt; :emp_id;
+ALTER SESSION SET OPTIMIZER_MODE = ALL_ROWS;
+SELECT salary FROM hr.employees WHERE employee_id &lt; :emp_id;
+</pre>
+<p>A query of <code class="codeph">V$SQL_SHARED_CURSOR</code> shows a mismatch in the optimizer modes:</p>
+<pre dir="ltr">SELECT S.SQL_TEXT, S.CHILD_NUMBER, s.CHILD_ADDRESS, 
+       C.OPTIMIZER_MODE_MISMATCH
+FROM   V$SQL S, V$SQL_SHARED_CURSOR C
+WHERE  SQL_TEXT LIKE &#39;%employee%&#39;
+AND    SQL_TEXT NOT LIKE &#39;%SQL_TEXT%&#39;
+AND S.CHILD_ADDRESS = C.CHILD_ADDRESS;
+
+SQL_TEXT                            CHILD_NUMBER CHILD_ADDRESS    O
+----------------------------------- ------------ ---------------- -
+SELECT salary FROM hr.employees WHE            0 0000000080293040 N
+RE employee_id &lt; :emp_id
+SELECT salary FROM hr.employees WHE            1 000000008644E888 Y
+RE employee_id &lt; :emp_id
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_influence.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_pt_mon.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

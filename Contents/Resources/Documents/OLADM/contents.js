@@ -1,0 +1,16 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "OLAP DML Basic Concepts", anchor: "OLADM101", file: "dml_basics.htm" },
+  { topic: "chapter", section: "2", title: "Data Types, Operators, and Expressions", anchor: "OLADM137", file: "dml_expression.htm" },
+  { topic: "chapter", section: "3", title: "Formulas, Models, Aggregations, and Allocations", anchor: "OLADM226", file: "dml_objects.htm" },
+  { topic: "chapter", section: "4", title: "OLAP DML Properties", anchor: "OLADM320", file: "dml_properties.htm" },
+  { topic: "chapter", section: "5", title: "OLAP DML Options", anchor: "OLADM341", file: "dml_options.htm" },
+  { topic: "chapter", section: "6", title: "OLAP DML Programs", anchor: "OLADM260", file: "dml_program.htm" },
+  { topic: "chapter", section: "7", title: "OLAP DML Functions: A - K", anchor: "OLADM457", file: "dml_functions_1.htm" },
+  { topic: "chapter", section: "8", title: "OLAP DML Functions: L - Z", anchor: "OLADM576", file: "dml_functions_2.htm" },
+  { topic: "chapter", section: "9", title: "OLAP DML Commands: A-G", anchor: "OLADM721", file: "dml_commands_1.htm" },
+  { topic: "chapter", section: "10", title: "OLAP DML Commands: H-Z", anchor: "OLADM827", file: "dml_commands_2.htm" },
+  { topic: "appendix", section: "A", title: "OLAP_TABLE SQL Functions", anchor: "OLADM930", file: "dml_app_sqlfunc.htm" },
+  { topic: "appendix", section: "B", title: "\u00A0\u00A0DBMS_AW PL/SQL Package", anchor: "OLADM946", file: "dml_app_dbms_aw.htm" },
+  { topic: "appendix", section: "C", title: "OLAP_API_SESSION_INIT PL/SQL Package", anchor: "OLADM997", file: "dml_app_sessioninit.htm" },
+  { topic: "appendix", section: "D", title: "Changes in Previous Releases", anchor: "BABHJFEB", file: "dml_prev_chngs.htm" },
+  { } ];

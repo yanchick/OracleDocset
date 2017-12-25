@@ -1,0 +1,2471 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106785"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Joins"></a><title>Joins</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="Oracle Database provides several optimizations for joining row sets."/>
+<meta name="keywords" content=", hash joins, cost-based optimization, joins, sort-merge and cost-based optimization, sort merge joins, nested loops joins, nested loops and cost-based optimization, semijoins, antijoins, subqueries, NOT IN, NOT IN subquery, nested loops, outer loops, in nested loops join, inner loop, in nested loops joins, driving table, nested loop joins, how they work, join methods, USE_NL hint, hash, sort merge, cartesian joins, cartesian, outer joins, outer"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_optop.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_pt_stats.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-BD96F1B4-76D4-43DF-98B6-D07F46838C4A"></a> <span id="PAGE" style="display:none;">17/40</span> <!-- End Header -->
+<a id="TGSQL242"></a>
+<h1 id="TGSQL-GUID-BD96F1B4-76D4-43DF-98B6-D07F46838C4A" class="sect1"><span class="enumeration_chapter">9</span> Joins</h1>
+<div>
+<p>Oracle Database provides several optimizations for joining row sets.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_join.htm#GUID-F47AB553-07F0-42E8-BF55-C31DCD5AAC81" title="A join combines the output from exactly two row sources, such as tables or views, and returns one row source. The returned row source is the data set.">About Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-54F957FB-3568-499A-BCD2-B242BFFF913D" title="A join method is the mechanism for joining two row sources. Depending on the statistics, the optimizer chooses the method with the lowest estimated cost.">Join Methods</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-8E7760A6-48D6-4794-BF2F-290349C019B9" title="A join type is determined by the type of join condition.">Join Types</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-C02C3673-75E2-4D92-AAEF-30AC58C32AD1" title="Oracle Database can optimize certain types of joins.">Join Optimizations</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95231"></a>
+<div class="props_rev_3"><a id="GUID-F47AB553-07F0-42E8-BF55-C31DCD5AAC81"></a>
+<h2 id="TGSQL-GUID-F47AB553-07F0-42E8-BF55-C31DCD5AAC81" class="sect2">About Joins</h2>
+<div>
+<p>A <span class="bold">join</span> combines the output from exactly two row sources, such as tables or views, and returns one row source. The returned row source is the data set.</p>
+<p>A join is characterized by multiple tables in the <code class="codeph">WHERE</code> (non-ANSI) or <code class="codeph">FROM ... JOIN</code> (ANSI) clause of a SQL statement. Whenever multiple tables exist in the <code class="codeph">FROM</code> clause, Oracle Database performs a join.</p>
+<p>A <a href="glossary.htm#GUID-F2A09892-D404-46BD-82B1-3DB0BC286FE2"><span class="xrefglossterm">join condition</span></a> compares two row sources using an expression. The join condition defines the relationship between the tables. If the statement does not specify a join condition, then the database performs a Cartesian join, matching every row in one table with every row in the other table.</p>
+<div class="infoboxnotealso" id="GUID-F47AB553-07F0-42E8-BF55-C31DCD5AAC81__GUID-C7FD3549-3901-4564-AA97-5D665CFB40B8">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_join.htm#GUID-07D9388C-6DCB-4F88-BF59-AF223C10B8FC" title="The database uses a Cartesian join when one or more of the tables does not have any join conditions to any other tables in the statement.">Cartesian Joins</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink SQLRF30046" target="_blank" href="../SQLRF/queries006.htm#SQLRF30046"><span><cite>Oracle Database SQL Language Reference</cite></span></a> for a concise discussion of joins in Oracle SQL</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95346"></a><a id="TGSQL95347"></a><a id="TGSQL95348"></a><a id="TGSQL95349"></a><a id="TGSQL95345"></a>
+<div class="props_rev_3"><a id="GUID-31B0F249-A5AA-41E9-AE98-A484FC5C487C"></a>
+<h3 id="TGSQL-GUID-31B0F249-A5AA-41E9-AE98-A484FC5C487C" class="sect3">Join Trees</h3>
+<div>
+<p>Typically, a join tree is represented as an upside-down tree structure.</p>
+<p>As shown in the following graphic, <code class="codeph">table1</code> is the left table, and <code class="codeph">table2</code> is the right table. The optimizer processes the join from left to right. For example, if this graphic depicted a nested loops join, then <code class="codeph">table1</code> is the outer loop, and <code class="codeph">table2</code> is the inner loop.</p>
+<div class="figure" id="GUID-31B0F249-A5AA-41E9-AE98-A484FC5C487C__BABEFJII">
+<p class="titleinfigure">Figure 9-1 Join Tree</p>
+<img width="182" height="149" src="img/GUID-3C6E9BA6-8AD2-4AA4-A84C-CE20A17B8DAE-default.png" alt="Description of Figure 9-1 follows" title="Description of Figure 9-1 follows"/><br/>
+<a href="img_text/GUID-3C6E9BA6-8AD2-4AA4-A84C-CE20A17B8DAE-print.htm">Description of &#34;Figure 9-1 Join Tree&#34;</a></div>
+<!-- class="figure" -->
+<p>The input of a join can be the result set from a previous join. If the right child of every internal node of a join tree is a table, then the tree is a <a href="glossary.htm#GUID-5697281B-74F7-4AF2-A73F-3CC1A96EA947"><span class="xrefglossterm">left deep join tree</span></a>, as shown in the following example. Most join trees are left deep joins.</p>
+<div class="figure" id="GUID-31B0F249-A5AA-41E9-AE98-A484FC5C487C__BABFJDCH">
+<p class="titleinfigure">Figure 9-2 Left Deep Join Tree</p>
+<img width="297" height="266" src="img/GUID-2E5FD17F-8A6B-4171-9FBF-32BC0107B9D1-default.png" alt="Description of Figure 9-2 follows" title="Description of Figure 9-2 follows"/><br/>
+<a href="img_text/GUID-2E5FD17F-8A6B-4171-9FBF-32BC0107B9D1-print.htm">Description of &#34;Figure 9-2 Left Deep Join Tree&#34;</a></div>
+<!-- class="figure" -->
+<p>If the left child of every internal node of a join tree is a table, then the tree is called a <a href="glossary.htm#GUID-E01EE140-6652-4697-B257-C07148045B25"><span class="xrefglossterm">right deep join tree</span></a>, as shown in the following diagram.</p>
+<div class="figure" id="GUID-31B0F249-A5AA-41E9-AE98-A484FC5C487C__BABHFGHB">
+<p class="titleinfigure">Figure 9-3 Right Deep Join Tree</p>
+<img width="297" height="266" src="img/GUID-E0DA83D9-1DEA-4658-8552-8988096D9010-default.png" alt="Description of Figure 9-3 follows" title="Description of Figure 9-3 follows"/><br/>
+<a href="img_text/GUID-E0DA83D9-1DEA-4658-8552-8988096D9010-print.htm">Description of &#34;Figure 9-3 Right Deep Join Tree&#34;</a></div>
+<!-- class="figure" -->
+<p>If the left or the right child of an internal node of a join tree can be a join node, then the tree is called a <a href="glossary.htm#GUID-4E921FAD-0F1B-47E7-A1A4-EAAAD5E043AB"><span class="xrefglossterm">bushy join tree</span></a>. In the following example, <code class="codeph">table4</code> is a right child of a join node, <code class="codeph">table1</code> is the left child of a join node, and <code class="codeph">table2</code> is the left child of a join node.</p>
+<div class="figure" id="GUID-31B0F249-A5AA-41E9-AE98-A484FC5C487C__BABCEGEI">
+<p class="titleinfigure">Figure 9-4 Bushy Join Tree</p>
+<img width="240" height="266" src="img/GUID-27F5CB83-79A0-4AE5-A77C-9B6F29C84E62-default.png" alt="Description of Figure 9-4 follows" title="Description of Figure 9-4 follows"/><br/>
+<a href="img_text/GUID-27F5CB83-79A0-4AE5-A77C-9B6F29C84E62-print.htm">Description of &#34;Figure 9-4 Bushy Join Tree&#34;</a></div>
+<!-- class="figure" -->
+<p>In yet another variation, both inputs of a join are the results of a previous join.</p>
+</div>
+</div>
+<a id="TGSQL94679"></a>
+<div class="props_rev_3"><a id="GUID-5435FC78-D572-4CEE-A733-CDB1DB8E544B"></a>
+<h3 id="TGSQL-GUID-5435FC78-D572-4CEE-A733-CDB1DB8E544B" class="sect3">How the Optimizer Executes Join Statements</h3>
+<div>
+<p>The database joins pairs of row sources. When multiple tables exist in the <code class="codeph">FROM</code> clause, the optimizer must determine which join operation is most efficient for each pair.</p>
+<p>The optimizer must make the following interrelated decisions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Access paths</p>
+<p>As for simple statements, the optimizer must choose an <a href="glossary.htm#GUID-22DF198C-4310-4307-BF29-DCE765725BD4"><span class="xrefglossterm">access path</span></a> to retrieve data from each table in the join statement. For example, the optimizer might choose between a full table scan or an index scan. See <span class="q">&#34;<a href="tgsql_optop.htm#GUID-00711237-35D3-4CFC-A234-59B3EC53DCD1" title="An access path is a technique used by a query to retrieve rows from a row source.">Optimizer Access Paths</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Join methods</p>
+<p>To join each pair of row sources, Oracle Database must decide how to do it. The &#34;how&#34; is the join method. The possible join methods are nested loop, sort merge, and hash joins. A Cartesian join requires one of the preceding join methods. Each join method has specific situations in which it is more suitable than the others. See <span class="q">&#34;<a href="tgsql_join.htm#GUID-54F957FB-3568-499A-BCD2-B242BFFF913D" title="A join method is the mechanism for joining two row sources. Depending on the statistics, the optimizer chooses the method with the lowest estimated cost.">Join Methods</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Join types</p>
+<p>The join condition determines the join type. For example, an inner join retrieves only rows that match the join condition. An outer join retrieves rows that do not match the join condition. See <span class="q">&#34;<a href="tgsql_join.htm#GUID-8E7760A6-48D6-4794-BF2F-290349C019B9" title="A join type is determined by the type of join condition.">Join Types</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Join order</p>
+<p>To execute a statement that joins more than two tables, Oracle Database joins two tables and then joins the resulting row source to the next table. This process continues until all tables are joined into the result. For example, the database joins two tables, and then joins the result to a third table, and then joins this result to a fourth table, and so on.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL94680"></a>
+<div class="props_rev_3"><a id="GUID-8621DCD7-6F70-4720-8049-BA630B58F26C"></a>
+<h3 id="TGSQL-GUID-8621DCD7-6F70-4720-8049-BA630B58F26C" class="sect3">How the Optimizer Chooses Execution Plans for Joins</h3>
+<div>
+<p>When determining the join order and method, the optimizer goal is to reduce the number of rows early so it performs less work throughout the execution of the SQL statement.</p>
+<p>The optimizer generates a set of execution plans, according to possible join orders, join methods, and available access paths. The optimizer then estimates the cost of each plan and chooses the one with the lowest cost. When choosing an execution plan, the optimizer considers the following factors:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The optimizer first determines whether joining two or more tables results in a row source containing at most one row.</p>
+<p>The optimizer recognizes such situations based on <code class="codeph">UNIQUE</code> and <code class="codeph">PRIMARY KEY</code> constraints on the tables. If such a situation exists, then the optimizer places these tables first in the join order. The optimizer then optimizes the join of the remaining set of tables.</p>
+</li>
+<li>
+<p>For join statements with <a href="glossary.htm#GUID-733FE231-0E7E-41AD-B5E0-ACA84B92FC6F"><span class="xrefglossterm">outer join</span></a> conditions, the table with the outer join operator typically comes after the other table in the condition in the join order.</p>
+<p>In general, the optimizer does not consider join orders that violate this guideline, although the optimizer overrides this ordering condition in certain circumstances. Similarly, when a subquery has been converted into an <a href="glossary.htm#GUID-4EF44AED-32FD-4FF4-9ECB-24F0011A667E"><span class="xrefglossterm">antijoin</span></a> or <a href="glossary.htm#GUID-EA539BF9-F0F2-479B-90B5-1855CD8E34B9"><span class="xrefglossterm">semijoin</span></a>, the tables from the subquery must come after those tables in the outer query block to which they were connected or correlated. However, hash antijoins and semijoins are able to override this ordering condition in certain circumstances.</p>
+</li>
+</ul>
+<p>The optimizer estimates cost of a query plan by computing the estimated I/Os and CPU. These I/Os have specific costs associated with them: one cost for a single block I/O, and another cost for multiblock I/Os. Also, different functions and expressions have CPU costs associated with them. The optimizer determines the total cost of a query plan using these metrics. These metrics may be influenced by many initialization parameter and session settings at compile time, such as the <code class="codeph">DB_FILE_MULTI_BLOCK_READ_COUNT</code> setting, system statistics, and so on.</p>
+<p>For example, the optimizer estimates costs in the following ways:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The cost of a <a href="glossary.htm#GUID-51D8DCA1-3607-46E0-AD38-388EC50273D0"><span class="xrefglossterm">nested loops join</span></a> depends on the cost of reading each selected row of the <a href="glossary.htm#GUID-5BAB6F1F-5D4C-4EDA-8F59-D97A75D4254C"><span class="xrefglossterm">outer table</span></a> and each of its matching rows of the <a href="glossary.htm#GUID-95EF749F-18E4-47A5-9B8F-AD39A722FAB4"><span class="xrefglossterm">inner table</span></a> into memory. The optimizer estimates these costs using statistics in the data dictionary.</p>
+</li>
+<li>
+<p>The cost of a <a href="glossary.htm#GUID-2A7F42FE-2859-4B9C-83AD-EFF8FFB4AB92"><span class="xrefglossterm">sort merge join</span></a> depends largely on the cost of reading all the sources into memory and sorting them.</p>
+</li>
+<li>
+<p>The cost of a <a href="glossary.htm#GUID-FF45796B-8A90-45C6-8A40-0B308B72AF7C"><span class="xrefglossterm">hash join</span></a> largely depends on the cost of building a hash table on one of the input sides to the join and using the rows from the other side of the join to probe it.</p>
+</li>
+</ul>
+<div class="example" id="GUID-8621DCD7-6F70-4720-8049-BA630B58F26C__GUID-DEB39775-CCE8-40FF-ADB4-77984F7B0B33">
+<p class="titleinexample">Example 9-1 Estimating Costs for Join Order and Method</p>
+<p>Conceptually, the optimizer constructs matrix of join orders and methods and the cost associated with each. For example, the optimizer must determine how best to join the <code class="codeph">date_dim</code> and <code class="codeph">lineorder</code> tables in a query. The following table shows the possible variations of methods and orders, and the cost for each. In this example, a nested loops join in the order <code class="codeph">date_dim</code>, <code class="codeph">lineorder</code> has the lowest cost.</p>
+<div class="tblformal" id="GUID-8621DCD7-6F70-4720-8049-BA630B58F26C__GUID-A80577B8-94A1-45C0-8378-8FE440FBE1BD">
+<p class="titleintable">Table 9-1 Sample Costs for Join of date_dim and lineorder Tables</p>
+<table class="cellalignment4808" title="Sample Costs for Join of date_dim and lineorder Tables" summary="Join methods and orders">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d59470e718">Join Method</th>
+<th class="cellalignment4870" id="d59470e720">Cost of date_dim, lineorder</th>
+<th class="cellalignment4870" id="d59470e722">Cost of lineorder, date_dim</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e726" headers="d59470e718">Nested Loops</td>
+<td class="cellalignment4871" headers="d59470e726 d59470e720">39,480</td>
+<td class="cellalignment4871" headers="d59470e726 d59470e722">6,187,540</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e733" headers="d59470e718">Hash Join</td>
+<td class="cellalignment4871" headers="d59470e733 d59470e720">187,528</td>
+<td class="cellalignment4871" headers="d59470e733 d59470e722">194,909</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e740" headers="d59470e718">Sort Merge</td>
+<td class="cellalignment4871" headers="d59470e740 d59470e720">217,129</td>
+<td class="cellalignment4871" headers="d59470e740 d59470e722">217,129</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-8621DCD7-6F70-4720-8049-BA630B58F26C__GUID-4C2292DA-1C6A-43EF-8CCE-45E0612529DE">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E" title="The optimizer cost model relies on statistics collected about the objects involved in a query, and the database and host where the query runs.">Introduction to Optimizer Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-8758EF88-1CC6-41BD-8581-246702414D1D" title="Optimizer defaults are adequate for most operations, but not all.">Influencing the Optimizer</a>&#34;</span> for more information about optimizer hints</p>
+</li>
+<li>
+<p><a class="olink REFRN10037" target="_blank" href="../REFRN/GUID-69E45087-14DF-492B-B55A-8F2E936947A5.htm#REFRN10037"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">DB_FILE_MULTIBLOCK_READ_COUNT</code></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL95333"></a><a id="TGSQL95232"></a>
+<div class="props_rev_3"><a id="GUID-54F957FB-3568-499A-BCD2-B242BFFF913D"></a>
+<h2 id="TGSQL-GUID-54F957FB-3568-499A-BCD2-B242BFFF913D" class="sect2">Join Methods</h2>
+<div>
+<p>A join method is the mechanism for joining two row sources. Depending on the statistics, the optimizer chooses the method with the lowest estimated cost.</p>
+<p>As shown in <a href="tgsql_join.htm#GUID-54F957FB-3568-499A-BCD2-B242BFFF913D__BABHDGDJ">Figure 9-5</a>, each join method has two children: the driving (also called <span class="italic">outer</span>) row source and the driven-to (also called <span class="italic">inner</span>) row source.</p>
+<div class="figure" id="GUID-54F957FB-3568-499A-BCD2-B242BFFF913D__BABHDGDJ">
+<p class="titleinfigure">Figure 9-5 Join Method</p>
+<img width="423" height="189" src="img/GUID-F3D75014-AA0F-4558-A7F1-2B22F173E79D-default.png" alt="Description of Figure 9-5 follows" title="Description of Figure 9-5 follows"/><br/>
+<a href="img_text/GUID-F3D75014-AA0F-4558-A7F1-2B22F173E79D-print.htm">Description of &#34;Figure 9-5 Join Method&#34;</a></div>
+<!-- class="figure" -->
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_join.htm#GUID-A2DA6A1E-6180-4AB9-A777-586AF3953D53" title="Nested loops join an outer data set to an inner data set. For each row in the outer data set that matches the single-table predicates, the database retrieves all rows in the inner data set that satisfy the join predicate. If an index is available, then the database can use it to access the inner data set by rowid.">Nested Loops Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-91E61BDC-E5F2-49FA-99AE-DD88A2FBB4FB" title="The database uses a hash join to join larger data sets.">Hash Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-5FCD34FE-ED04-4AB2-BC90-9752FED94F4F" title="A sort merge join is a variation on a nested loops join.">Sort Merge Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-07D9388C-6DCB-4F88-BF59-AF223C10B8FC" title="The database uses a Cartesian join when one or more of the tables does not have any join conditions to any other tables in the statement.">Cartesian Joins</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL244"></a>
+<div class="props_rev_3"><a id="GUID-A2DA6A1E-6180-4AB9-A777-586AF3953D53"></a>
+<h3 id="TGSQL-GUID-A2DA6A1E-6180-4AB9-A777-586AF3953D53" class="sect3">Nested Loops Joins</h3>
+<div>
+<p>Nested loops join an outer data set to an inner data set. For each row in the outer data set that matches the single-table predicates, the database retrieves all rows in the inner data set that satisfy the join predicate. If an index is available, then the database can use it to access the inner data set by rowid.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_join.htm#GUID-CEBC5D18-1857-4F6B-8FA7-B9EEA3442653" title="Nested loops joins are useful when the database joins small subsets of data, the database joins large sets of data with the optimizer mode set to FIRST_ROWS, or the join condition is an efficient method of accessing the inner table.">When the Optimizer Considers Nested Loops Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-C3D5CEA4-0AF4-4E15-8167-6C5D065A95D3" title="Conceptually, nested loops are equivalent to two nested for loops.">How Nested Loop Joins Work</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-73806FB2-F507-4B4E-9797-FD0C7A252D49" title="The outer loop of a nested loop can itself be a row source generated by a different nested loop. The database can nest two or more outer loops to join as many tables as needed. Each loop is a data access method.">Nested Nested Loops</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-D83585A7-4ADB-48C9-958E-693374BF7A31" title="Oracle Database 11g introduced a new implementation for nested loops that reduces overall latency for physical I/O. When an index or a table block is not in the buffer cache and is needed to process the join, a physical I/O is required. The database can batch multiple physical I/O requests and process them using a vector I/O (array) instead of one at a time. The database sends an array of rowids to the operating system, which performs the read.">Current Implementation for Nested Loops Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-025483CA-9FC7-40A1-B907-FDA2B0BCAF04" title="In the current release, both the new and original implementation of nested loops are possible.">Original Implementation for Nested Loops Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-97E2CC5B-F0F8-410D-AEBF-63EB18E562C7" title="For some SQL examples, the data is small enough for the optimizer to prefer full table scans and hash joins. However, you can add a USE_NL to instruct the optimizer to join each specified table to another row source with a nested loops join, using the specified table as the inner table.">Nested Loops Controls</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94684"></a>
+<div class="props_rev_3"><a id="GUID-CEBC5D18-1857-4F6B-8FA7-B9EEA3442653"></a>
+<h4 id="TGSQL-GUID-CEBC5D18-1857-4F6B-8FA7-B9EEA3442653" class="sect4">When the Optimizer Considers Nested Loops Joins</h4>
+<div>
+<p>Nested loops joins are useful when the database joins small subsets of data, the database joins large sets of data with the optimizer mode set to <code class="codeph">FIRST_ROWS</code>, or the join condition is an efficient method of accessing the inner table.</p>
+<div class="infobox-note" id="GUID-CEBC5D18-1857-4F6B-8FA7-B9EEA3442653__GUID-A099DD62-0329-4A98-BAA6-962FCB87EB36">
+<p class="notep1">Note:</p>
+<p>The number of rows expected from the join is what drives the optimizer decision, not the size of the underlying tables. For example, a query might join two tables of a billion rows each, but because of the filters the optimizer expects data sets of 5 rows each.</p>
+</div>
+<p>In general, nested loops joins work best on small tables with indexes on the join conditions. If a row source has only one row, as with an equality lookup on a primary key value (for example, <code class="codeph">WHERE employee_id=101</code>), then the join is a simple lookup. The optimizer always tries to put the smallest row source first, making it the driving table.</p>
+<p>Various factors enter into the optimizer decision to use nested loops. For example, the database may read several rows from the outer row source in a batch. Based on the number of rows retrieved, the optimizer may choose either a nested loop or a hash join to the inner row source. For example, if a query joins <code class="codeph">departments</code> to driving table <code class="codeph">employees</code>, and if the predicate specifies a value in <code class="codeph">employees.last_name</code>, then the database might read enough entries in the index on <code class="codeph">last_name</code> to determine whether an internal threshold is passed. If the threshold is not passed, then the optimizer picks a nested loop join to <code class="codeph">departments</code>, and if the threshold is passed, then the database performs a hash join, which means reading the rest of <code class="codeph">employees</code>, hashing it into memory, and then joining to <code class="codeph">departments</code>.</p>
+<p>If the access path for the inner loop is not dependent on the outer loop, then the result can be a Cartesian product: for every iteration of the outer loop, the inner loop produces the same set of rows. To avoid this problem, use other join methods to join two independent row sources.</p>
+<div class="infoboxnotealso" id="GUID-CEBC5D18-1857-4F6B-8FA7-B9EEA3442653__GUID-CCDCEB37-F4A2-41E6-88B7-347542DCB940">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-C1C85DEA-3583-40FE-B5BB-6AC8F76FFE34__BBAIEADC" title="This table describes parameters that control optimizer behavior.">Table 14-1</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-5A1EB094-1A9E-4B69-9BE5-39BDA2B3253C" title="An adaptive plan enables the optimizer to defer the final plan decision for a statement until execution time.">Adaptive Query Plans</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95233"></a>
+<div class="props_rev_3"><a id="GUID-C3D5CEA4-0AF4-4E15-8167-6C5D065A95D3"></a>
+<h4 id="TGSQL-GUID-C3D5CEA4-0AF4-4E15-8167-6C5D065A95D3" class="sect4">How Nested Loop Joins Work</h4>
+<div>
+<p>Conceptually, nested loops are equivalent to two nested <code class="codeph">for</code> loops.</p>
+<p>For example, if a query joins <code class="codeph">employees</code> and <code class="codeph">departments</code>, then a nested loop in pseudocode might be:</p>
+<pre dir="ltr">FOR erow IN (select * from employees where X=Y) LOOP
+  FOR drow IN (select * from departments where erow is matched) LOOP
+    output values from erow and drow
+  END LOOP
+END LOOP
+</pre>
+<p>The inner loop is executed for every row of the outer loop. The <code class="codeph">employees</code> table is the &#34;outer&#34; data set because it is in the exterior <code class="codeph">for</code> loop. The outer table is sometimes called a driving table. The <code class="codeph">departments</code> table is the &#34;inner&#34; data set because it is in the interior <code class="codeph">for</code> loop.</p>
+<p>A nested loops join involves the following basic steps:</p>
+<ol>
+<li>
+<p>The optimizer determines the driving row source and designates it as the outer loop.</p>
+<p>The outer loop produces a set of rows for driving the join condition. The row source can be a table accessed using an index scan, a full table scan, or any other operation that generates rows.</p>
+<p>The number of iterations of the inner loop depends on the number of rows retrieved in the outer loop. For example, if 10 rows are retrieved from the outer table, then the database must perform 10 lookups in the inner table. If 10,000,000 rows are retrieved from the outer table, then the database must perform 10,000,000 lookups in the inner table.</p>
+</li>
+<li>
+<p>The optimizer designates the other row source as the inner loop.</p>
+<p>The outer loop appears before the inner loop in the execution plan, as follows:</p>
+<pre dir="ltr">NESTED LOOPS 
+  <span class="italic">outer_loop</span>
+  <span class="italic">inner_loop</span> 
+</pre></li>
+<li>
+<p>For every fetch request from the client, the basic process is as follows:</p>
+<ol>
+<li>
+<p>Fetch a row from the outer row source</p>
+</li>
+<li>
+<p>Probe the inner row source to find rows that match the predicate criteria</p>
+</li>
+<li>
+<p>Repeat the preceding steps until all rows are obtained by the fetch request</p>
+</li>
+</ol>
+<p>Sometimes the database sorts rowids to obtain a more efficient buffer access pattern.</p>
+</li>
+</ol>
+</div>
+</div>
+<a id="TGSQL95235"></a><a id="TGSQL95234"></a>
+<div class="props_rev_3"><a id="GUID-73806FB2-F507-4B4E-9797-FD0C7A252D49"></a>
+<h4 id="TGSQL-GUID-73806FB2-F507-4B4E-9797-FD0C7A252D49" class="sect4">Nested Nested Loops</h4>
+<div>
+<p>The outer loop of a nested loop can itself be a row source generated by a different nested loop. The database can nest two or more outer loops to join as many tables as needed. Each loop is a data access method.</p>
+<p>The following template shows how the database iterates through three nested loops:</p>
+<pre dir="ltr">SELECT STATEMENT
+  NESTED LOOPS 3
+    NESTED LOOPS 2          - Row source becomes OUTER LOOP 3.1
+      NESTED LOOPS 1        - Row source becomes OUTER LOOP 2.1
+        OUTER LOOP 1.1
+        INNER LOOP 1.2  
+      INNER LOOP 2.2
+    INNER LOOP 3.2
+</pre>
+<p>The database orders the loops as follows:</p>
+<ol>
+<li>
+<p>The database iterates through <code class="codeph">NESTED LOOPS 1</code>:</p>
+<pre dir="ltr">NESTED LOOPS 1 
+  OUTER LOOP 1.1
+  INNER LOOP 1.2
+</pre>
+<p>The output of <code class="codeph">NESTED LOOP 1</code> is a row source.</p>
+</li>
+<li>
+<p>The database iterates through <code class="codeph">NESTED LOOPS 2</code>, using the row source generated by <code class="codeph">NESTED LOOPS 1</code> as its outer loop:</p>
+<pre dir="ltr">NESTED LOOPS 2       
+  OUTER LOOP 2.1         - Row source generated by NESTED LOOPS 1
+  INNER LOOP 2.2 
+</pre>
+<p>The output of <code class="codeph">NESTED LOOPS 2</code> is another row source.</p>
+</li>
+<li>
+<p>The database iterates through <code class="codeph">NESTED LOOPS 3</code>, using the row source generated by <code class="codeph">NESTED LOOPS 2</code> as its outer loop:</p>
+<pre dir="ltr">NESTED LOOPS 3      
+  OUTER LOOP 3.1         - Row source generated by NESTED LOOPS 2
+  INNER LOOP 3.2
+</pre></li>
+</ol>
+<div class="example" id="GUID-73806FB2-F507-4B4E-9797-FD0C7A252D49__GUID-6BFCCF64-A370-435C-922D-AB5238017267">
+<p class="titleinexample">Example 9-2 Nested Nested Loops Join</p>
+<p>Suppose you join the <code class="codeph">employees</code> and <code class="codeph">departments</code> tables as follows:</p>
+<pre dir="ltr">SELECT /*+ ORDERED USE_NL(d) */ e.last_name, e.first_name, d.department_name
+FROM   employees e, departments d
+WHERE  e.department_id=d.department_id
+AND    e.last_name like &#39;A%&#39;;
+</pre>
+<p>The plan reveals that the optimizer chose two nested loops (Step 1 and Step 2) to access the data:</p>
+<pre dir="ltr">SQL_ID  ahuavfcv4tnz4, child number 0
+-------------------------------------
+SELECT /*+ ORDERED USE_NL(d) */ e.last_name, d.department_name FROM
+employees e, departments d WHERE  e.department_id=d.department_id AND
+ e.last_name like &#39;A%&#39;
+ 
+Plan hash value: 1667998133
+ 
+----------------------------------------------------------------------------------
+|Id| Operation                             |Name      |Rows|Bytes|Cost(%CPU)|Time|
+----------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                      |             |  |   |5 (100)|        |
+| 1|  NESTED LOOPS                         |             |  |   |       |        |
+| 2|   NESTED LOOPS                        |             | 3|102|5   (0)|00:00:01|
+| 3|    TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES   | 3| 54|2   (0)|00:00:01|
+|*4|     INDEX RANGE SCAN                  | EMP_NAME_IX | 3|   |1   (0)|00:00:01|
+|*5|    INDEX UNIQUE SCAN                  | DEPT_ID_PK  | 1|   |0   (0)|        |
+| 6|   TABLE ACCESS BY INDEX ROWID         | DEPARTMENTS | 1| 16|1   (0)|00:00:01|
+----------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   4 - access(&#34;E&#34;.&#34;LAST_NAME&#34; LIKE &#39;A%&#39;)
+       filter(&#34;E&#34;.&#34;LAST_NAME&#34; LIKE &#39;A%&#39;)
+   5 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+</pre>
+<p>In this example, the basic process is as follows:</p>
+<ol>
+<li>
+<p>The database begins iterating through the inner nested loop (Step 2) as follows:</p>
+<ol>
+<li>
+<p>The database searches the <code class="codeph">emp_name_ix</code> for the rowids for all last names that begins with <code class="codeph">A</code> (Step 4).</p>
+<p>For example:</p>
+<pre dir="ltr">Abel,employees_rowid
+Ande,employees_rowid
+Atkinson,employees_rowid
+Austin,employees_rowid
+</pre></li>
+<li>
+<p>Using the rowids from the previous step, the database retrieves a batch of rows from the <code class="codeph">employees</code> table (Step 3). For example:</p>
+<pre dir="ltr">Abel,Ellen,80
+Abel,John,50
+</pre>
+<p>These rows become the outer row source for the innermost nested loop.</p>
+<p>The batch step is typically part of adaptive execution plans. To determine whether a nested loop is better than a hash join, the optimizer needs to determine many rows come back from the row source. If too many rows are returned, then the optimizer switches to a different join method.</p>
+</li>
+<li>
+<p>For each row in the outer row source, the database scans the <code class="codeph">dept_id_pk</code> index to obtain the rowid in <code class="codeph">departments</code> of the matching department ID (Step 5), and joins it to the <code class="codeph">employees</code> rows. For example:</p>
+<pre dir="ltr">Abel,Ellen,80,departments_rowid
+Ande,Sundar,80,departments_rowid
+Atkinson,Mozhe,50,departments_rowid
+Austin,David,60,departments_rowid
+</pre>
+<p>These rows become the outer row source for the outer nested loop (Step 1).</p>
+</li>
+</ol>
+</li>
+<li>
+<p>The database iterates through the outer nested loop as follows:</p>
+<ol>
+<li>
+<p>The database reads the first row in outer row source.</p>
+<p>For example:</p>
+<pre dir="ltr">Abel,Ellen,80,departments_rowid
+</pre></li>
+<li>
+<p>The database uses the <code class="codeph">departments</code> rowid to retrieve the corresponding row from <code class="codeph">departments</code> (Step 6), and then joins the result to obtain the requested values (Step 1).</p>
+<p>For example:</p>
+<pre dir="ltr">Abel,Ellen,80,Sales
+</pre></li>
+<li>
+<p>The database reads the next row in the outer row source, uses the <code class="codeph">departments</code> rowid to retrieve the corresponding row from <code class="codeph">departments</code> (Step 6), and iterates through the loop until all rows are retrieved.</p>
+<p>The result set has the following form:</p>
+<pre dir="ltr">Abel,Ellen,80,Sales
+Ande,Sundar,80,Sales
+Atkinson,Mozhe,50,Shipping
+Austin,David,60,IT
+</pre></li>
+</ol>
+</li>
+</ol>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94683"></a>
+<div class="props_rev_3"><a id="GUID-D83585A7-4ADB-48C9-958E-693374BF7A31"></a>
+<h4 id="TGSQL-GUID-D83585A7-4ADB-48C9-958E-693374BF7A31" class="sect4">Current Implementation for Nested Loops Joins</h4>
+<div>
+<p>Oracle Database 11<span class="italic">g</span> introduced a new implementation for nested loops that reduces overall latency for physical I/O. When an index or a table block is not in the buffer cache and is needed to process the join, a physical I/O is required. The database can batch multiple physical I/O requests and process them using a vector I/O (array) instead of one at a time. The database sends an array of rowids to the operating system, which performs the read.</p>
+<p>As part of the new implementation, two <code class="codeph">NESTED LOOPS</code> join row sources might appear in the execution plan where only one would have appeared in prior releases. In such cases, Oracle Database allocates one <code class="codeph">NESTED LOOPS</code> join row source to join the values from the table on the outer side of the join with the index on the inner side. A second row source is allocated to join the result of the first join, which includes the rowids stored in the index, with the table on the inner side of the join.</p>
+<p>Consider the query in <span class="q">&#34;<a href="tgsql_join.htm#GUID-025483CA-9FC7-40A1-B907-FDA2B0BCAF04" title="In the current release, both the new and original implementation of nested loops are possible.">Original Implementation for Nested Loops Joins</a>&#34;</span>. In the current implementation, the execution plan for this query might be as follows:</p>
+<pre dir="ltr">-------------------------------------------------------------------------------------
+| Id | Operation                    | Name              |Rows|Bytes|Cost%CPU| Time  |
+-------------------------------------------------------------------------------------
+|  0 | SELECT STATEMENT             |                   | 19 | 722 |  3 (0)|00:00:01|
+|  1 |  NESTED LOOPS                |                   |    |     |       |        |
+|  2 |   NESTED LOOPS               |                   | 19 | 722 |  3 (0)|00:00:01|
+|* 3 |    TABLE ACCESS FULL         | DEPARTMENTS       |  2 |  32 |  2 (0)|00:00:01|
+|* 4 |    INDEX RANGE SCAN          | EMP_DEPARTMENT_IX | 10 |     |  0 (0)|00:00:01|
+|  5 |   TABLE ACCESS BY INDEX ROWID| EMPLOYEES         | 10 | 220 |  1 (0)|00:00:01|
+-------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   3 - filter(&#34;D&#34;.&#34;DEPARTMENT_NAME&#34;=&#39;Marketing&#39; OR &#34;D&#34;.&#34;DEPARTMENT_NAME&#34;=&#39;Sales&#39;)
+   4 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+</pre>
+<p>In this case, rows from the <code class="codeph">hr.departments</code> table form the outer row source (Step 3) of the inner nested loop (Step 2). The index <code class="codeph">emp_department_ix</code> is the inner row source (Step 4) of the inner nested loop. The results of the inner nested loop form the outer row source (Row 2) of the outer nested loop (Row 1). The <code class="codeph">hr.employees</code> table is the outer row source (Row 5) of the outer nested loop.</p>
+<p>For each fetch request, the basic process is as follows:</p>
+<ol>
+<li>
+<p>The database iterates through the inner nested loop (Step 2) to obtain the rows requested in the fetch:</p>
+<ol>
+<li>
+<p>The database reads the first row of <code class="codeph">departments</code> to obtain the department IDs for departments named <code class="codeph">Marketing</code> or <code class="codeph">Sales</code> (Step 3). For example:</p>
+<pre dir="ltr">Marketing,20
+</pre>
+<p>This row set is the outer loop. The database caches the data in the PGA.</p>
+</li>
+<li>
+<p>The database scans <code class="codeph">emp_department_ix</code>, which is an index on the <code class="codeph">employees</code> table, to find <code class="codeph">employees</code> rowids that correspond to this department ID (Step 4), and then joins the result (Step 2).</p>
+<p>The result set has the following form:</p>
+<pre dir="ltr">Marketing,20,employees_rowid
+Marketing,20,employees_rowid
+Marketing,20,employees_rowid
+</pre></li>
+<li>
+<p>The database reads the next row of <code class="codeph">departments</code>, scans <code class="codeph">emp_department_ix</code> to find <code class="codeph">employees</code> rowids that correspond to this department ID, and then iterates through the loop until the client request is satisfied.</p>
+<p>In this example, the database only iterates through the outer loop twice because only two rows from <code class="codeph">departments</code> satisfy the predicate filter. Conceptually, the result set has the following form:</p>
+<pre dir="ltr">Marketing,20,employees_rowid
+Marketing,20,employees_rowid
+Marketing,20,employees_rowid
+.
+.
+.
+Sales,80,employees_rowid
+Sales,80,employees_rowid
+Sales,80,employees_rowid
+.
+.
+.
+</pre>
+<p>These rows become the outer row source for the outer nested loop (Step 1). This row set is cached in the PGA.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>The database organizes the rowids obtained in the previous step so that it can more efficiently access them in the cache.</p>
+</li>
+<li>
+<p>The database begins iterating through the outer nested loop as follows:</p>
+<ol>
+<li>
+<p>The database retrieves the first row from the row set obtained in the previous step, as in the following example:</p>
+<pre dir="ltr">Marketing,20,employees_rowid
+</pre></li>
+<li>
+<p>Using the rowid, the database retrieves a row from <code class="codeph">employees</code> to obtain the requested values (Step 1), as in the following example:</p>
+<pre dir="ltr">Michael,Hartstein,13000,Marketing
+</pre></li>
+<li>
+<p>The database retrieves the next row from the row set, uses the rowid to probe <code class="codeph">employees</code> for the matching row, and iterates through the loop until all rows are retrieved.</p>
+<p>The result set has the following form:</p>
+<pre dir="ltr">Michael,Hartstein,13000,Marketing
+Pat,Fay,6000,Marketing
+John,Russell,14000,Sales
+Karen,Partners,13500,Sales
+Alberto,Errazuriz,12000,Sales
+.
+.
+.
+</pre></li>
+</ol>
+</li>
+</ol>
+<p>In some cases, a second join row source is not allocated, and the execution plan looks the same as it did before Oracle Database 11<span class="italic">g</span>. The following list describes such cases:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>All of the columns needed from the inner side of the join are present in the index, and there is no table access required. In this case, Oracle Database allocates only one join row source.</p>
+</li>
+<li>
+<p>The order of the rows returned might be different from the order returned in releases earlier than Oracle Database 12<span class="italic">c</span>. Thus, when Oracle Database tries to preserve a specific ordering of the rows, for example to eliminate the need for an <code class="codeph">ORDER</code> <code class="codeph">BY</code> sort, Oracle Database might use the original implementation for nested loops joins.</p>
+</li>
+<li>
+<p>The <code class="codeph">OPTIMIZER_FEATURES_ENABLE</code> initialization parameter is set to a release before Oracle Database 11<span class="italic">g</span>. In this case, Oracle Database uses the original implementation for nested loops joins.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL94681"></a>
+<div class="props_rev_3"><a id="GUID-025483CA-9FC7-40A1-B907-FDA2B0BCAF04"></a>
+<h4 id="TGSQL-GUID-025483CA-9FC7-40A1-B907-FDA2B0BCAF04" class="sect4">Original Implementation for Nested Loops Joins</h4>
+<div>
+<p>In the current release, both the new and original implementation of nested loops are possible.</p>
+<p>For an example of the original implementation, consider the following join of the <code class="codeph">hr.employees</code> and <code class="codeph">hr.departments</code> tables:</p>
+<pre dir="ltr">SELECT e.first_name, e.last_name, e.salary, d.department_name
+FROM   hr.employees e, hr.departments d
+WHERE  d.department_name IN (&#39;Marketing&#39;, &#39;Sales&#39;)
+AND    e.department_id = d.department_id;
+</pre>
+<p>In releases before Oracle Database 11<span class="italic">g</span>, the execution plan for this query might appear as follows:</p>
+<pre dir="ltr">------------------------------------------------------------------------------------------------
+| Id  | Operation                   | Name              | Rows  | Bytes | Cost (%CPU)| Time    |
+------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT            |                   |    19 |   722 |     3  (0)| 00:00:01 |
+|   1 |  TABLE ACCESS BY INDEX ROWID| EMPLOYEES         |    10 |   220 |     1  (0)| 00:00:01 |
+|   2 |   NESTED LOOPS              |                   |    19 |   722 |     3  (0)| 00:00:01 |
+|*  3 |    TABLE ACCESS FULL        | DEPARTMENTS       |     2 |    32 |     2  (0)| 00:00:01 |
+|*  4 |    INDEX RANGE SCAN         | EMP_DEPARTMENT_IX |    10 |       |     0  (0)| 00:00:01 |
+------------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   3 - filter(&#34;D&#34;.&#34;DEPARTMENT_NAME&#34;=&#39;Marketing&#39; OR &#34;D&#34;.&#34;DEPARTMENT_NAME&#34;=&#39;Sales&#39;)
+   4 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+</pre>
+<p>For each fetch request, the basic process is as follows:</p>
+<ol>
+<li>
+<p>The database iterates through the loop to obtain the rows requested in the fetch:</p>
+<ol>
+<li>
+<p>The database reads the first row of <code class="codeph">departments</code> to obtain the department IDs for departments named <code class="codeph">Marketing</code> or <code class="codeph">Sales</code> (Step 3). For example:</p>
+<pre dir="ltr">Marketing,20
+</pre>
+<p>This row set is the outer loop. The database caches the row in the PGA.</p>
+</li>
+<li>
+<p>The database scans <code class="codeph">emp_department_ix</code>, which is an index on the <code class="codeph">employees.department_id</code> column, to find <code class="codeph">employees</code> rowids that correspond to this department ID (Step 4), and then joins the result (Step 2).</p>
+<p>Conceptually, the result set has the following form:</p>
+<pre dir="ltr">Marketing,20,<span class="italic">employees_rowid</span>
+Marketing,20,<span class="italic">employees_rowid</span>
+Marketing,20,<span class="italic">employees_rowid</span>
+</pre></li>
+<li>
+<p>The database reads the next row of <code class="codeph">departments</code>, scans <code class="codeph">emp_department_ix</code> to find <code class="codeph">employees</code> rowids that correspond to this department ID, and iterates through the loop until the client request is satisfied.</p>
+<p>In this example, the database only iterates through the outer loop twice because only two rows from <code class="codeph">departments</code> satisfy the predicate filter. Conceptually, the result set has the following form:</p>
+<pre dir="ltr">Marketing,20,<span class="italic">employees_rowid</span>
+Marketing,20,<span class="italic">employees_rowid</span>
+Marketing,20,<span class="italic">employees_rowid</span>
+.
+.
+.
+Sales,80,<span class="italic">employees_rowid</span>
+Sales,80,<span class="italic">employees_rowid</span>
+Sales,80,<span class="italic">employees_rowid</span>
+.
+.
+.
+</pre></li>
+</ol>
+</li>
+<li>
+<p>Depending on the circumstances, the database may organize the cached rowids obtained in the previous step so that it can more efficiently access them.</p>
+</li>
+<li>
+<p>For each <code class="codeph">employees</code> rowid in the result set generated by the nested loop, the database retrieves a row from <code class="codeph">employees</code> to obtain the requested values (Step 1).</p>
+<p>Thus, the basic process is to read a rowid and retrieve the matching <code class="codeph">employees</code> row, read the next rowid and retrieve the matching <code class="codeph">employees</code> row, and so on. Conceptually, the result set has the following form:</p>
+<pre dir="ltr">Michael,Hartstein,13000,Marketing
+Pat,Fay,6000,Marketing
+John,Russell,14000,Sales
+Karen,Partners,13500,Sales
+Alberto,Errazuriz,12000,Sales
+.
+.
+.
+</pre></li>
+</ol>
+</div>
+</div>
+<a id="TGSQL95236"></a><a id="TGSQL94685"></a>
+<div class="props_rev_3"><a id="GUID-97E2CC5B-F0F8-410D-AEBF-63EB18E562C7"></a>
+<h4 id="TGSQL-GUID-97E2CC5B-F0F8-410D-AEBF-63EB18E562C7" class="sect4">Nested Loops Controls</h4>
+<div>
+<p>For some SQL examples, the data is small enough for the optimizer to prefer full table scans and hash joins. However, you can add a <code class="codeph">USE_NL</code> to instruct the optimizer to join each specified table to another row source with a nested loops join, using the specified table as the inner table.</p>
+<p>The related hint <code class="codeph">USE_NL_WITH_INDEX(<span class="codeinlineitalic">table index</span>)</code> hint instructs the optimizer to join the specified table to another row source with a nested loops join using the specified table as the inner table. The index is optional. If no index is specified, then the nested loops join uses an index with at least one join predicate as the index key.</p>
+<div class="example" id="GUID-97E2CC5B-F0F8-410D-AEBF-63EB18E562C7__GUID-E222ED08-1F53-4217-9D1B-0BCC3D224D13">
+<p class="titleinexample">Example 9-3 Nested Loops Hint</p>
+<p>Assume that the optimizer chooses a hash join for the following query:</p>
+<pre dir="ltr">SELECT e.last_name, d.department_name
+FROM   employees e, departments d
+WHERE  e.department_id=d.department_id;
+</pre>
+<p>The plan looks as follows:</p>
+<pre dir="ltr">------------------------------------------------------------------------------
+|Id | Operation          | Name        | Rows  | Bytes |Cost(%CPU)| Time     |
+------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT   |             |       |       |   5 (100)|          |
+|*1 |  HASH JOIN         |             |   106 |  2862 |   5  (20)| 00:00:01 |
+| 2 |   TABLE ACCESS FULL| DEPARTMENTS |    27 |   432 |   2   (0)| 00:00:01 |
+| 3 |   TABLE ACCESS FULL| EMPLOYEES   |   107 |  1177 |   2   (0)| 00:00:01 |
+------------------------------------------------------------------------------
+</pre>
+<p>To force a nested loops join using <code class="codeph">departments</code> as the inner table, add the <code class="codeph">USE_NL</code> hint as in the following query:</p>
+<pre dir="ltr">SELECT /*+ ORDERED USE_NL(d) */ e.last_name, d.department_name
+FROM   employees e, departments d
+WHERE  e.department_id=d.department_id;
+</pre>
+<p>The plan looks as follows:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id | Operation          | Name        | Rows  | Bytes |Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------
+|  0 | SELECT STATEMENT   |             |       |       |   34 (100)|          |
+|  1 |  NESTED LOOPS      |             |   106 |  2862 |   34   (3)| 00:00:01 |
+|  2 |   TABLE ACCESS FULL| EMPLOYEES   |   107 |  1177 |    2   (0)| 00:00:01 |
+|* 3 |   TABLE ACCESS FULL| DEPARTMENTS |     1 |    16 |    0   (0)|          |
+--------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - filter(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+</pre>
+<p>The database obtains the result set as follows:</p>
+<ol>
+<li>
+<p>In the nested loop, the database reads <code class="codeph">employees</code> to obtain the last name and department ID for an employee (Step 2). For example:</p>
+<pre dir="ltr">De Haan,90
+</pre></li>
+<li>
+<p>For the row obtained in the previous step, the database scans <code class="codeph">departments</code> to find the department name that matches the <code class="codeph">employees</code> department ID (Step 3), and joins the result (Step 1). For example:</p>
+<pre dir="ltr">De Haan,Executive
+</pre></li>
+<li>
+<p>The database retrieves the next row in <code class="codeph">employees</code>, retrieves the matching row from <code class="codeph">departments</code>, and then repeats this process until all rows are retrieved.</p>
+<p>The result set has the following form:</p>
+<pre dir="ltr">De Haan,Executive
+Kochnar,Executive
+Baer,Public Relations
+King,Executive
+.
+.
+.
+</pre></li>
+</ol>
+<div class="infoboxnotealso" id="GUID-97E2CC5B-F0F8-410D-AEBF-63EB18E562C7__GUID-C588B1FC-8F6A-4DAC-BA80-55D695AD82C1">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-5976D09A-257A-49F3-94E0-247B1247270A">Guidelines for Join Order Hints</a>&#34;</span> to learn more about the <code class="codeph">USE_NL</code> hint</p>
+</li>
+<li>
+<p><a class="olink SQLRF50701" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50701"><span class="italic">Oracle Database SQL Language Reference</span></a> to learn about the <code class="codeph">USE_NL</code> hint</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL245"></a>
+<div class="props_rev_3"><a id="GUID-91E61BDC-E5F2-49FA-99AE-DD88A2FBB4FB"></a>
+<h3 id="TGSQL-GUID-91E61BDC-E5F2-49FA-99AE-DD88A2FBB4FB" class="sect3">Hash Joins</h3>
+<div>
+<p>The database uses a <span class="bold">hash join</span> to join larger data sets.</p>
+<p>The optimizer uses the smaller of two data sets to build a hash table on the join key in memory, using a deterministic hash function to specify the location in the hash table in which to store each row. The database then scans the larger data set, probing the hash table to find the rows that meet the join condition.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_join.htm#GUID-93D59774-BC0C-4BDF-88E3-0A2B346A0A62" title="In general, the optimizer considers a hash join when a relatively large amount of data must be joined (or a large percentage of a small table must be joined), and the join is an equijoin.">When the Optimizer Considers Hash Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-5A801568-F4E2-45C5-940B-55D23761BFD7" title="A hashing algorithm takes a set of inputs and applies a deterministic hash function to generate a hash value between 1 and n, where n is the size of the hash table.">How Hash Joins Work</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-0F295C4C-FF10-4BE8-BB0C-C8CD78545277" title="The database must use a different technique when the hash table does not fit entirely in the PGA. In this case, the database uses a temporary space to hold portions (called partitions) of the hash table, and sometimes portions of the larger table that probes the hash table.">How Hash Joins Work When the Hash Table Does Not Fit in the PGA</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-E8076180-ABDD-47F4-B6CB-DDDB6887B131" title="The USE_HASH hint instructs the optimizer to use a hash join when joining two tables together.">Hash Join Controls</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94687"></a>
+<div class="props_rev_3"><a id="GUID-93D59774-BC0C-4BDF-88E3-0A2B346A0A62"></a>
+<h4 id="TGSQL-GUID-93D59774-BC0C-4BDF-88E3-0A2B346A0A62" class="sect4">When the Optimizer Considers Hash Joins</h4>
+<div>
+<p>In general, the optimizer considers a hash join when a relatively large amount of data must be joined (or a large percentage of a small table must be joined), and the join is an equijoin.</p>
+<p>A hash join is most cost effective when the smaller data set fits in memory. In this case, the cost is limited to a single read pass over the two data sets.</p>
+<p>Because the hash table is in the PGA, Oracle Database can access rows without latching them. This technique reduces logical I/O by avoiding the necessity of repeatedly latching and reading blocks in the database buffer cache.</p>
+<p>If the data sets do not fit in memory, then the database partitions the row sources, and the join proceeds partition by partition. This can use a lot of sort area memory, and I/O to the temporary tablespace. This method can still be the most cost effective, especially when the database uses parallel query servers.</p>
+</div>
+</div>
+<a id="TGSQL95237"></a>
+<div class="props_rev_3"><a id="GUID-5A801568-F4E2-45C5-940B-55D23761BFD7"></a>
+<h4 id="TGSQL-GUID-5A801568-F4E2-45C5-940B-55D23761BFD7" class="sect4">How Hash Joins Work</h4>
+<div>
+<p>A hashing algorithm takes a set of inputs and applies a deterministic hash function to generate a hash value between 1 and <span class="italic">n</span>, where <span class="italic">n</span> is the size of the hash table.</p>
+<p>In a hash join, the input values are the join keys. The output values are indexes (slots) in an array, which is the hash table.</p>
+</div>
+<a id="TGSQL95295"></a>
+<div class="props_rev_3"><a id="GUID-1E1D17CA-442F-4889-B83C-1A6C41540C91"></a>
+<h5 id="TGSQL-GUID-1E1D17CA-442F-4889-B83C-1A6C41540C91" class="sect5">Hash Tables</h5>
+<div>
+<p>To illustrate a hash table, assume that the database hashes <code class="codeph">hr.departments</code> in a join of <code class="codeph">departments</code> and <code class="codeph">employees</code>. The join key column is <code class="codeph">department_id</code>.</p>
+<p>The first 5 rows of <code class="codeph">departments</code> are as follows:</p>
+<pre dir="ltr">SQL&gt; select * from departments where rownum &lt; 6;
+ 
+DEPARTMENT_ID DEPARTMENT_NAME                MANAGER_ID LOCATION_ID
+------------- ------------------------------ ---------- -----------
+           10 Administration                        200        1700
+           20 Marketing                             201        1800
+           30 Purchasing                            114        1700
+           40 Human Resources                       203        2400
+           50 Shipping                              121        1500
+</pre>
+<p>The database applies the hash function to each <code class="codeph">department_id</code> in the table, generating a hash value for each. For this illustration, the hash table has 5 slots (it could have more or less). Because <span class="italic">n</span> is <code class="codeph">5</code>, the possible hash values range from <code class="codeph">1</code> to <code class="codeph">5</code>. The hash functions might generate the following values for the department IDs:</p>
+<pre dir="ltr">f(10) = 4
+f(20) = 1
+f(30) = 4
+f(40) = 2
+f(50) = 5
+</pre>
+<p>Note that the hash function happens to generate the same hash value of <code class="codeph">4</code> for departments <code class="codeph">10</code> and <code class="codeph">30</code>. This is known as a <a href="glossary.htm#GUID-1391B1A0-90E0-4E77-87F3-3703B434F194"><span class="xrefglossterm">hash collision</span></a>. In this case, the database puts the records for departments <code class="codeph">10</code> and <code class="codeph">30</code> in the same slot, using a linked list. Conceptually, the hash table looks as follows:</p>
+<pre dir="ltr">1    20,Marketing,201,1800
+2    40,Human Resources,203,2400
+3
+4    10,Administration,200,1700 -&gt; 30,Purchasing,114,1700
+5    50,Shipping,121,1500
+</pre></div>
+</div>
+<a id="TGSQL94688"></a><a id="TGSQL95296"></a>
+<div class="props_rev_3"><a id="GUID-9EE5CD4C-B90C-4E61-83DC-BD585D79635C"></a>
+<h5 id="TGSQL-GUID-9EE5CD4C-B90C-4E61-83DC-BD585D79635C" class="sect5">Hash Join: Basic Steps</h5>
+<div>
+<p>The optimizer uses the smaller data source to build a hash table on the join key in memory, and then scans the larger table to find the joined rows.</p>
+<p>The basic steps are as follows:</p>
+<ol>
+<li>
+<p>The database performs a full scan of the smaller data set, called the <span class="bold">build table</span>, and then applies a hash function to the join key in each row to build a hash table in the PGA.</p>
+<p>In pseudocode, the algorithm might look as follows:</p>
+<pre dir="ltr">FOR small_table_row IN (SELECT * FROM small_table)
+LOOP
+  slot_number := HASH(small_table_row.join_key);
+  INSERT_HASH_TABLE(slot_number,small_table_row);
+END LOOP;
+</pre></li>
+<li>
+<p>The database probes the second data set, called the <span class="bold">probe table</span>, using whichever access mechanism has the lowest cost.</p>
+<p>Typically, the database performs a full scan of both the smaller and larger data set. The algorithm in pseudocode might look as follows:</p>
+<pre dir="ltr">FOR large_table_row IN (SELECT * FROM large_table)
+LOOP
+   slot_number := HASH(large_table_row.join_key);
+   small_table_row = LOOKUP_HASH_TABLE(slot_number,large_table_row.join_key);
+   IF small_table_row FOUND
+   THEN
+      output small_table_row + large_table_row;
+   END IF;
+END LOOP;
+</pre>
+<p>For each row retrieved from the larger data set, the database does the following:</p>
+<ol>
+<li>
+<p>Applies the same hash function to the join column or columns to calculate the number of the relevant slot in the hash table.</p>
+<p>For example, to probe the hash table for department ID <code class="codeph">30</code>, the database applies the hash function to <code class="codeph">30</code>, which generates the hash value <code class="codeph">4</code>.</p>
+</li>
+<li>
+<p>Probes the hash table to determine whether rows exists in the slot.</p>
+<p>If no rows exist, then the database processes the next row in the larger data set. If rows exist, then the database proceeds to the next step.</p>
+</li>
+<li>
+<p>Checks the join column or columns for a match. If a match occurs, then the database either reports the rows or passes them to the next step in the plan, and then processes the next row in the larger data set.</p>
+<p>If multiple rows exist in the hash table slot, the database walks through the linked list of rows, checking each one. For example, if department <code class="codeph">30</code> hashes to slot <code class="codeph">4</code>, then the database checks each row until it finds <code class="codeph">30</code>.</p>
+</li>
+</ol>
+</li>
+</ol>
+<div class="example" id="GUID-9EE5CD4C-B90C-4E61-83DC-BD585D79635C__GUID-E62BDD95-89A0-43A4-91C6-526CA259F83A">
+<p class="titleinexample">Example 9-4 Hash Joins</p>
+<p>An application queries the <code class="codeph">oe.orders</code> and <code class="codeph">oe.order_items</code> tables, joining on the <code class="codeph">order_id</code> column.</p>
+<pre dir="ltr">SELECT o.customer_id, l.unit_price * l.quantity
+FROM   orders o, order_items l
+WHERE  l.order_id = o.order_id;
+</pre>
+<p>The execution plan is as follows:</p>
+<pre dir="ltr">--------------------------------------------------------------------------
+| Id  | Operation            |  Name        | Rows  | Bytes | Cost (%CPU)|
+--------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |              |   665 | 13300 |     8  (25)|
+|*  1 |  HASH JOIN           |              |   665 | 13300 |     8  (25)|
+|   2 |   TABLE ACCESS FULL  | ORDERS       |   105 |   840 |     4  (25)|
+|   3 |   TABLE ACCESS FULL  | ORDER_ITEMS  |   665 |  7980 |     4  (25)|
+--------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   1 - access(&#34;L&#34;.&#34;ORDER_ID&#34;=&#34;O&#34;.&#34;ORDER_ID&#34;)
+</pre>
+<p>Because the <code class="codeph">orders</code> table is small relative to the <code class="codeph">order_items</code> table, which is 6 times larger, the database hashes <code class="codeph">orders</code>. In a hash join, the data set for the build table always appears first in the list of operations (Step 2). In Step 3, the database performs a full scan of the larger <code class="codeph">order_items</code> later, probing the hash table for each row.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL95238"></a>
+<div class="props_rev_3"><a id="GUID-0F295C4C-FF10-4BE8-BB0C-C8CD78545277"></a>
+<h4 id="TGSQL-GUID-0F295C4C-FF10-4BE8-BB0C-C8CD78545277" class="sect4">How Hash Joins Work When the Hash Table Does Not Fit in the PGA</h4>
+<div>
+<p>The database must use a different technique when the hash table does not fit entirely in the PGA. In this case, the database uses a temporary space to hold portions (called partitions) of the hash table, and sometimes portions of the larger table that probes the hash table.</p>
+<p>The basic process is as follows:</p>
+<ol>
+<li>
+<p>The database performs a full scan of the smaller data set, and then builds an array of hash buckets in both the PGA and on disk.</p>
+<p>When the PGA hash area fills up, the database finds the largest partition within the hash table and writes it to temporary space on disk. The database stores any new row that belongs to this on-disk partition on disk, and all other rows in the PGA. Thus, part of the hash table is in memory and part of it on disk.</p>
+</li>
+<li>
+<p>The database takes a first pass at reading the other data set.</p>
+<p>For each row, the database does the following:</p>
+<ol>
+<li>
+<p>Applies the same hash function to the join column or columns to calculate the number of the relevant hash bucket.</p>
+</li>
+<li>
+<p>Probes the hash table to determine whether rows exist in the bucket <span class="italic">in memory</span>.</p>
+<p>If the hashed value points to a row in memory, then the database completes the join and returns the row. If the value points to a hash partition on disk, however, then the database stores this row in the temporary tablespace, using the same partitioning scheme used for the original data set.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>The database reads each on-disk temporary partition one by one</p>
+</li>
+<li>
+<p>The database joins each partition row to the row in the corresponding on-disk temporary partition.</p>
+</li>
+</ol>
+</div>
+</div>
+<a id="TGSQL94689"></a>
+<div class="props_rev_3"><a id="GUID-E8076180-ABDD-47F4-B6CB-DDDB6887B131"></a>
+<h4 id="TGSQL-GUID-E8076180-ABDD-47F4-B6CB-DDDB6887B131" class="sect4">Hash Join Controls</h4>
+<div>
+<p>The <code class="codeph">USE_HASH</code> hint instructs the optimizer to use a hash join when joining two tables together.</p>
+<div class="infoboxnotealso" id="GUID-E8076180-ABDD-47F4-B6CB-DDDB6887B131__GUID-EDCF636C-965A-4CDC-895A-F364D8AEC8FD">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-5976D09A-257A-49F3-94E0-247B1247270A">Guidelines for Join Order Hints</a>&#34;</span></p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL94690"></a>
+<div class="props_rev_3"><a id="GUID-5FCD34FE-ED04-4AB2-BC90-9752FED94F4F"></a>
+<h3 id="TGSQL-GUID-5FCD34FE-ED04-4AB2-BC90-9752FED94F4F" class="sect3">Sort Merge Joins</h3>
+<div>
+<p>A sort merge join is a variation on a nested loops join.</p>
+<p>If the two data sets in the join are not already sorted, then the database sorts them. These are the <code class="codeph">SORT JOIN</code> operations. For each row in the first data set, the database probes the second data set for matching rows and joins them, basing its start position on the match made in the previous iteration. This is the <code class="codeph">MERGE JOIN</code> operation.</p>
+<div class="figure" id="GUID-5FCD34FE-ED04-4AB2-BC90-9752FED94F4F__GUID-CD346B70-7D5C-47E9-AD77-13203BBEDD12">
+<p class="titleinfigure">Figure 9-6 Sort Merge Join</p>
+<img width="423" height="269" src="img/GUID-269F51C2-7C39-4DA7-8B1B-EA7AE8DDAD7F-default.png" alt="Description of Figure 9-6 follows" title="Description of Figure 9-6 follows"/><br/>
+<a href="img_text/GUID-269F51C2-7C39-4DA7-8B1B-EA7AE8DDAD7F-print.htm">Description of &#34;Figure 9-6 Sort Merge Join&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="TGSQL94691"></a>
+<div class="props_rev_3"><a id="GUID-3F935776-FE28-4350-9FA4-E6B47489156E"></a>
+<h4 id="TGSQL-GUID-3F935776-FE28-4350-9FA4-E6B47489156E" class="sect4">When the Optimizer Considers Sort Merge Joins</h4>
+<div>
+<p>A hash join requires one hash table and one probe of this table, whereas a sort merge join requires two sorts.</p>
+<p>The optimizer may choose a sort merge join over a hash join for joining large amounts of data when any of the following conditions is true:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The join condition between two tables is not an equijoin, that is, uses an inequality condition such as <code class="codeph">&lt;</code>, <code class="codeph">&lt;=</code>, <code class="codeph">&gt;</code>, or <code class="codeph">&gt;=</code>.</p>
+<p>In contrast to sort merges, hash joins require an equality condition.</p>
+</li>
+<li>
+<p>Because of sorts required by other operations, the optimizer finds it cheaper to use a sort merge.</p>
+<p>If an index exists, then the database can avoid sorting the first data set. However, the database always sorts the second data set, regardless of indexes.</p>
+</li>
+</ul>
+<p>A sort merge has the same advantage over a nested loops join as the hash join: the database accesses rows in the PGA rather than the SGA, reducing logical I/O by avoiding the necessity of repeatedly latching and reading blocks in the database buffer cache. In general, hash joins perform better than sort merge joins because sorting is expensive. However, sort merge joins offer the following advantages over a hash join:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>After the initial sort, the merge phase is optimized, resulting in faster generation of output rows.</p>
+</li>
+<li>
+<p>A sort merge can be more cost-effective than a hash join when the hash table does not fit completely in memory.</p>
+<p>A hash join with insufficient memory requires both the hash table and the other data set to be copied to disk. In this case, the database may have to read from disk multiple times. In a sort merge, if memory cannot hold the two data sets, then the database writes them both to disk, but reads each data set no more than once.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95310"></a><a id="TGSQL95311"></a><a id="TGSQL95309"></a>
+<div class="props_rev_3"><a id="GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227"></a>
+<h4 id="TGSQL-GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227" class="sect4">How Sort Merge Joins Work</h4>
+<div>
+<p>As in a nested loops join, a sort merge join reads two data sets, but sorts them when they are not already sorted. For each row in the first data set, the database finds a starting row in the second data set, and then reads the second data set until it finds a nonmatching row.</p>
+<p>In pseudocode, the high-level algorithm for sort merge might look as follows:</p>
+<pre dir="ltr">READ data_set_1 SORT BY JOIN KEY TO temp_ds1
+READ data_set_2 SORT BY JOIN KEY TO temp_ds2
+ 
+READ ds1_row FROM temp_ds1
+READ ds2_row FROM temp_ds2
+
+WHILE NOT eof ON temp_ds1,temp_ds2
+LOOP
+    IF ( temp_ds1.key = temp_ds2.key ) OUTPUT JOIN ds1_row,ds2_row
+    ELSIF ( temp_ds1.key &lt;= temp_ds2.key ) READ ds1_row FROM temp_ds1
+    ELSIF ( temp_ds1.key =&gt; temp_ds2.key ) READ ds2_row FROM temp_ds2
+END LOOP
+</pre>
+<p>For example, the following table shows sorted values in two data sets: <code class="codeph">temp_ds1</code> and <code class="codeph">temp_ds2</code>.</p>
+<div class="tblformal" id="GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227__GUID-9E542AC2-F6E6-4779-A47F-4C4335E341C9">
+<p class="titleintable">Table 9-2 Sorted Data Sets</p>
+<table class="cellalignment4890" title="Sorted Data Sets" summary="The column temp_ds1 contains values 10, 20, 30, 40, 50, 60, and 70. The column temp_ds2 contains values 20, 20, 40, 40, 40, 40, 40, 60, 70, and 70.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d59470e3341">temp_ds1</th>
+<th class="cellalignment4870" id="d59470e3343">temp_ds2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3347" headers="d59470e3341">10</td>
+<td class="cellalignment4871" headers="d59470e3347 d59470e3343">20</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3352" headers="d59470e3341">20</td>
+<td class="cellalignment4871" headers="d59470e3352 d59470e3343">20</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3357" headers="d59470e3341">30</td>
+<td class="cellalignment4871" headers="d59470e3357 d59470e3343">40</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3362" headers="d59470e3341">40</td>
+<td class="cellalignment4871" headers="d59470e3362 d59470e3343">40</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3367" headers="d59470e3341">50</td>
+<td class="cellalignment4871" headers="d59470e3367 d59470e3343">40</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3372" headers="d59470e3341">60</td>
+<td class="cellalignment4871" headers="d59470e3372 d59470e3343">40</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3377" headers="d59470e3341">70</td>
+<td class="cellalignment4871" headers="d59470e3377 d59470e3343">40</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3382" headers="d59470e3341">.</td>
+<td class="cellalignment4871" headers="d59470e3382 d59470e3343">60</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3387" headers="d59470e3341">.</td>
+<td class="cellalignment4871" headers="d59470e3387 d59470e3343">70</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3392" headers="d59470e3341">.</td>
+<td class="cellalignment4871" headers="d59470e3392 d59470e3343">70</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>As shown in the following table, the database begins by reading <code class="codeph">10</code> in <code class="codeph">temp_ds1</code>, and then reads the first value in <code class="codeph">temp_ds2</code>. Because <code class="codeph">20</code> in <code class="codeph">temp_ds2</code> is higher than <code class="codeph">10</code> in <code class="codeph">temp_ds1</code>, the database stops reading <code class="codeph">temp_ds2</code>.</p>
+<div class="tblformal" id="GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227__GUID-F04E9A1A-AF41-48D2-ADB8-69F07269D163">
+<p class="titleintable">Table 9-3 Start at 10 in temp_ds1</p>
+<table class="cellalignment4890" title="Start at 10 in temp_ds1" summary="The column temp_ds1 contains values 10, 20, 30, 40, 50, 60, and 70. The column temp_ds2 contains values 20, 20, 40, 40, 40, 40, 40, 60, 70, and 70. The database starts at 10 in temp_ds1, and at 20 in temp_ds2.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d59470e3434">temp_ds1</th>
+<th class="cellalignment4870" id="d59470e3436">temp_ds2</th>
+<th class="cellalignment4870" id="d59470e3438">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3442" headers="d59470e3434">10 [start here]</td>
+<td class="cellalignment4871" headers="d59470e3442 d59470e3436">20 [start here] [stop here]</td>
+<td class="cellalignment4871" headers="d59470e3442 d59470e3438">20 in temp_ds2 is higher than 10 in temp_ds1. Stop. Start again with next row in temp_ds1.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3449" headers="d59470e3434">20</td>
+<td class="cellalignment4871" headers="d59470e3449 d59470e3436">20</td>
+<td class="cellalignment4871" headers="d59470e3449 d59470e3438">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3455" headers="d59470e3434">30</td>
+<td class="cellalignment4871" headers="d59470e3455 d59470e3436">40</td>
+<td class="cellalignment4871" headers="d59470e3455 d59470e3438">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3461" headers="d59470e3434">40</td>
+<td class="cellalignment4871" headers="d59470e3461 d59470e3436">40</td>
+<td class="cellalignment4871" headers="d59470e3461 d59470e3438">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3467" headers="d59470e3434">50</td>
+<td class="cellalignment4871" headers="d59470e3467 d59470e3436">40</td>
+<td class="cellalignment4871" headers="d59470e3467 d59470e3438">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3473" headers="d59470e3434">60</td>
+<td class="cellalignment4871" headers="d59470e3473 d59470e3436">40</td>
+<td class="cellalignment4871" headers="d59470e3473 d59470e3438">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3479" headers="d59470e3434">70</td>
+<td class="cellalignment4871" headers="d59470e3479 d59470e3436">40</td>
+<td class="cellalignment4871" headers="d59470e3479 d59470e3438">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3485" headers="d59470e3434">.</td>
+<td class="cellalignment4871" headers="d59470e3485 d59470e3436">60</td>
+<td class="cellalignment4871" headers="d59470e3485 d59470e3438">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3491" headers="d59470e3434">.</td>
+<td class="cellalignment4871" headers="d59470e3491 d59470e3436">70</td>
+<td class="cellalignment4871" headers="d59470e3491 d59470e3438">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3497" headers="d59470e3434">.</td>
+<td class="cellalignment4871" headers="d59470e3497 d59470e3436">70</td>
+<td class="cellalignment4871" headers="d59470e3497 d59470e3438">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The database proceeds to the next value in <code class="codeph">temp_ds1</code>, which is <code class="codeph">20</code>. The database proceeds through <code class="codeph">temp_ds2</code> as shown in the following table.</p>
+<div class="tblformal" id="GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227__GUID-123424C4-04EA-495B-9F26-3A11D9F706BD">
+<p class="titleintable">Table 9-4 Start at 20 in temp_ds1</p>
+<table class="cellalignment4890" title="Start at 20 in temp_ds1" summary="The column temp_ds1 contains values 10, 20, 30, 40, 50, 60, and 70. The column temp_ds2 contains values 20, 20, 40, 40, 40, 40, 40, 60, 70, and 70. The database starts at 20 in temp_ds1, and at 20 in temp_ds2.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d59470e3524">temp_ds1</th>
+<th class="cellalignment4870" id="d59470e3526">temp_ds2</th>
+<th class="cellalignment4870" id="d59470e3528">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3532" headers="d59470e3524">10</td>
+<td class="cellalignment4871" headers="d59470e3532 d59470e3526">20 [start here]</td>
+<td class="cellalignment4871" headers="d59470e3532 d59470e3528">Match. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3539" headers="d59470e3524">20 [start here]</td>
+<td class="cellalignment4871" headers="d59470e3539 d59470e3526">20</td>
+<td class="cellalignment4871" headers="d59470e3539 d59470e3528">Match. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3546" headers="d59470e3524">30</td>
+<td class="cellalignment4871" headers="d59470e3546 d59470e3526">40 [stop here]</td>
+<td class="cellalignment4871" headers="d59470e3546 d59470e3528">40 in temp_ds2 is higher than 20 in temp_ds1. Stop. Start again with next row in temp_ds1.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3553" headers="d59470e3524">40</td>
+<td class="cellalignment4871" headers="d59470e3553 d59470e3526">40</td>
+<td class="cellalignment4871" headers="d59470e3553 d59470e3528">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3559" headers="d59470e3524">50</td>
+<td class="cellalignment4871" headers="d59470e3559 d59470e3526">40</td>
+<td class="cellalignment4871" headers="d59470e3559 d59470e3528">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3565" headers="d59470e3524">60</td>
+<td class="cellalignment4871" headers="d59470e3565 d59470e3526">40</td>
+<td class="cellalignment4871" headers="d59470e3565 d59470e3528">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3571" headers="d59470e3524">70</td>
+<td class="cellalignment4871" headers="d59470e3571 d59470e3526">40</td>
+<td class="cellalignment4871" headers="d59470e3571 d59470e3528">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3577" headers="d59470e3524">.</td>
+<td class="cellalignment4871" headers="d59470e3577 d59470e3526">60</td>
+<td class="cellalignment4871" headers="d59470e3577 d59470e3528">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3583" headers="d59470e3524">.</td>
+<td class="cellalignment4871" headers="d59470e3583 d59470e3526">70</td>
+<td class="cellalignment4871" headers="d59470e3583 d59470e3528">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3589" headers="d59470e3524">.</td>
+<td class="cellalignment4871" headers="d59470e3589 d59470e3526">70</td>
+<td class="cellalignment4871" headers="d59470e3589 d59470e3528">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The database proceeds to the next row in <code class="codeph">temp_ds1</code>, which is <code class="codeph">30</code>. The database starts at the number of its last match, which was <code class="codeph">20</code>, and then proceeds through <code class="codeph">temp_ds2</code> looking for a match, as shown in the following table.</p>
+<div class="tblformal" id="GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227__GUID-3FC1DA9C-FE2F-44BA-AEA3-26BC5C8F7685">
+<p class="titleintable">Table 9-5 Start at 30 in temp_ds1</p>
+<table class="cellalignment4890" title="Start at 30 in temp_ds1" summary="The column temp_ds1 contains values 10, 20, 30, 40, 50, 60, and 70. The column temp_ds2 contains values 20, 20, 40, 40, 40, 40, 40, 60, 70, and 70. The database starts at 30 in temp_ds1, and at 20 in temp_ds2.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d59470e3619">temp_ds1</th>
+<th class="cellalignment4870" id="d59470e3621">temp_ds2</th>
+<th class="cellalignment4870" id="d59470e3623">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3627" headers="d59470e3619">10</td>
+<td class="cellalignment4871" headers="d59470e3627 d59470e3621">20</td>
+<td class="cellalignment4871" headers="d59470e3627 d59470e3623">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3633" headers="d59470e3619">20</td>
+<td class="cellalignment4871" headers="d59470e3633 d59470e3621">20 [start at last match]</td>
+<td class="cellalignment4871" headers="d59470e3633 d59470e3623">20 in temp_ds2 is lower than 30 in temp_ds1. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3640" headers="d59470e3619">30 [start here]</td>
+<td class="cellalignment4871" headers="d59470e3640 d59470e3621">40 [stop here]</td>
+<td class="cellalignment4871" headers="d59470e3640 d59470e3623">40 in temp_ds2 is higher than 30 in temp_ds1. Stop. Start again with next row in temp_ds1.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3647" headers="d59470e3619">40</td>
+<td class="cellalignment4871" headers="d59470e3647 d59470e3621">40</td>
+<td class="cellalignment4871" headers="d59470e3647 d59470e3623">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3653" headers="d59470e3619">50</td>
+<td class="cellalignment4871" headers="d59470e3653 d59470e3621">40</td>
+<td class="cellalignment4871" headers="d59470e3653 d59470e3623">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3659" headers="d59470e3619">60</td>
+<td class="cellalignment4871" headers="d59470e3659 d59470e3621">40</td>
+<td class="cellalignment4871" headers="d59470e3659 d59470e3623">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3665" headers="d59470e3619">70</td>
+<td class="cellalignment4871" headers="d59470e3665 d59470e3621">40</td>
+<td class="cellalignment4871" headers="d59470e3665 d59470e3623">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3671" headers="d59470e3619">.</td>
+<td class="cellalignment4871" headers="d59470e3671 d59470e3621">60</td>
+<td class="cellalignment4871" headers="d59470e3671 d59470e3623">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3677" headers="d59470e3619">.</td>
+<td class="cellalignment4871" headers="d59470e3677 d59470e3621">70</td>
+<td class="cellalignment4871" headers="d59470e3677 d59470e3623">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3683" headers="d59470e3619">.</td>
+<td class="cellalignment4871" headers="d59470e3683 d59470e3621">70</td>
+<td class="cellalignment4871" headers="d59470e3683 d59470e3623">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The database proceeds to the next row in <code class="codeph">temp_ds1</code>, which is <code class="codeph">40</code>. As shown in the following table, the database starts at the number of its last match in <code class="codeph">temp_ds2</code>, which was <code class="codeph">20</code>, and then proceeds through <code class="codeph">temp_ds2</code> looking for a match.</p>
+<div class="tblformal" id="GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227__GUID-332A4FD0-3DF9-4A69-8B95-28E59AFE13A2">
+<p class="titleintable">Table 9-6 Start at 40 in temp_ds1</p>
+<table class="cellalignment4890" title="Start at 40 in temp_ds1" summary="The column temp_ds1 contains values 10, 20, 30, 40, 50, 60, and 70. The column temp_ds2 contains values 20, 20, 40, 40, 40, 40, 40, 60, 70, and 70. The database starts at 40 in temp_ds1, and at 20 in temp_ds2.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d59470e3717">temp_ds1</th>
+<th class="cellalignment4870" id="d59470e3719">temp_ds2</th>
+<th class="cellalignment4870" id="d59470e3721">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3725" headers="d59470e3717">10</td>
+<td class="cellalignment4871" headers="d59470e3725 d59470e3719">20</td>
+<td class="cellalignment4871" headers="d59470e3725 d59470e3721">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3731" headers="d59470e3717">20</td>
+<td class="cellalignment4871" headers="d59470e3731 d59470e3719">20 [start at last match]</td>
+<td class="cellalignment4871" headers="d59470e3731 d59470e3721">20 in temp_ds2 is lower than 40 in temp_ds1. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3738" headers="d59470e3717">30</td>
+<td class="cellalignment4871" headers="d59470e3738 d59470e3719">40</td>
+<td class="cellalignment4871" headers="d59470e3738 d59470e3721">Match. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3745" headers="d59470e3717">40 [start here]</td>
+<td class="cellalignment4871" headers="d59470e3745 d59470e3719">40</td>
+<td class="cellalignment4871" headers="d59470e3745 d59470e3721">Match. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3752" headers="d59470e3717">50</td>
+<td class="cellalignment4871" headers="d59470e3752 d59470e3719">40</td>
+<td class="cellalignment4871" headers="d59470e3752 d59470e3721">Match. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3759" headers="d59470e3717">60</td>
+<td class="cellalignment4871" headers="d59470e3759 d59470e3719">40</td>
+<td class="cellalignment4871" headers="d59470e3759 d59470e3721">Match. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3766" headers="d59470e3717">70</td>
+<td class="cellalignment4871" headers="d59470e3766 d59470e3719">40</td>
+<td class="cellalignment4871" headers="d59470e3766 d59470e3721">Match. Proceed to next value in temp_ds2.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3773" headers="d59470e3717">.</td>
+<td class="cellalignment4871" headers="d59470e3773 d59470e3719">60 [stop here]</td>
+<td class="cellalignment4871" headers="d59470e3773 d59470e3721">60 in temp_ds2 is higher than 40 in temp_ds1. Stop. Start again with next row in temp_ds1.</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3780" headers="d59470e3717">.</td>
+<td class="cellalignment4871" headers="d59470e3780 d59470e3719">70</td>
+<td class="cellalignment4871" headers="d59470e3780 d59470e3721">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d59470e3786" headers="d59470e3717">.</td>
+<td class="cellalignment4871" headers="d59470e3786 d59470e3719">70</td>
+<td class="cellalignment4871" headers="d59470e3786 d59470e3721">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The database continues in this way until it has matched the final <code class="codeph">70</code> in <code class="codeph">temp_ds2</code>. This scenario demonstrates that the database, as it reads through <code class="codeph">temp_ds1</code>, does not need to read every row in <code class="codeph">temp_ds2</code>. This is an advantage over a nested loops join.</p>
+<div class="example" id="GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227__GUID-1CDCD0C9-4355-4238-91DB-F84D0720076C">
+<p class="titleinexample">Example 9-5 Sort Merge Join Using Index</p>
+<p>The following query joins the <code class="codeph">employees</code> and <code class="codeph">departments</code> tables on the <code class="codeph">department_id</code> column, ordering the rows on <code class="codeph">department_id</code> as follows:</p>
+<pre dir="ltr">SELECT e.employee_id, e.last_name, e.first_name, e.department_id, 
+       d.department_name
+FROM   employees e, departments d
+WHERE  e.department_id = d.department_id
+ORDER BY department_id;
+</pre>
+<p>A query of <code class="codeph">DBMS_XPLAN.DISPLAY_CURSOR</code> shows that the plan uses a sort merge join:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+|Id| Operation                    | Name        |Rows|Bytes |Cost (%CPU)| Time |
+--------------------------------------------------------------------------------
+| 0| SELECT STATEMENT             |             |    |      | 5(100)|          |
+| 1|  MERGE JOIN                  |             |106 | 4028 | 5 (20)| 00:00:01 |
+| 2|   TABLE ACCESS BY INDEX ROWID| DEPARTMENTS | 27 |  432 | 2  (0)| 00:00:01 |
+| 3|    INDEX FULL SCAN           | DEPT_ID_PK  | 27 |      | 1  (0)| 00:00:01 |
+|*4|   SORT JOIN                  |             |107 | 2354 | 3 (34)| 00:00:01 |
+| 5|    TABLE ACCESS FULL         | EMPLOYEES   |107 | 2354 | 2  (0)| 00:00:01 |
+--------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   4 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+       filter(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+</pre>
+<p>The two data sets are the <code class="codeph">departments</code> table and the <code class="codeph">employees</code> table. Because an index orders the <code class="codeph">departments</code> table by <code class="codeph">department_id</code>, the database can read this index and avoid a sort (Step 3). The database only needs to sort the <code class="codeph">employees</code> table (Step 4), which is the most CPU-intensive operation.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-D96D76E3-3DA4-4354-9617-7DE8AFE00227__GUID-712E8248-5334-4494-857A-0431E1DCABD6">
+<p class="titleinexample">Example 9-6 Sort Merge Join Without an Index</p>
+<p>You join the <code class="codeph">employees</code> and <code class="codeph">departments</code> tables on the <code class="codeph">department_id</code> column, ordering the rows on <code class="codeph">department_id</code> as follows. In this example, you specify <code class="codeph">NO_INDEX</code> and <code class="codeph">USE_MERGE</code> to force the optimizer to choose a sort merge:</p>
+<pre dir="ltr">SELECT /*+ USE_MERGE(d e) NO_INDEX(d) */ e.employee_id, e.last_name, e.first_name, 
+       e.department_id, d.department_name
+FROM   employees e, departments d
+WHERE  e.department_id = d.department_id
+ORDER BY department_id;
+</pre>
+<p>A query of <code class="codeph">DBMS_XPLAN.DISPLAY_CURSOR</code> shows that the plan uses a sort merge join:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation           | Name        | Rows  | Bytes | Cost (%CPU)| Time    |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT    |             |       |       |     6 (100)|         |
+| 1 |  MERGE JOIN         |             |   106 |  9540 |     6  (34)| 00:00:01|
+| 2 |   SORT JOIN         |             |    27 |   567 |     3  (34)| 00:00:01|
+| 3 |    TABLE ACCESS FULL| DEPARTMENTS |    27 |   567 |     2   (0)| 00:00:01|
+|*4 |   SORT JOIN         |             |   107 |  7383 |     3  (34)| 00:00:01|
+| 5 |    TABLE ACCESS FULL| EMPLOYEES   |   107 |  7383 |     2   (0)| 00:00:01|
+--------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   4 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+       filter(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+</pre>
+<p>Because the <code class="codeph">departments.department_id</code> index is ignored, the optimizer performs a sort, which increases the combined cost of Step 2 and Step 3 by 67% (from <code class="codeph">3</code> to <code class="codeph">5</code>).</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94692"></a>
+<div class="props_rev_3"><a id="GUID-F6BCB3C1-6EE6-4A84-8B3D-659CAF9CBF4F"></a>
+<h4 id="TGSQL-GUID-F6BCB3C1-6EE6-4A84-8B3D-659CAF9CBF4F" class="sect4">Sort Merge Join Controls</h4>
+<div>
+<p>The <code class="codeph">USE_MERGE</code> hint instructs the optimizer to use a sort merge join.</p>
+<p>In some situations it may make sense to override the optimizer with the <code class="codeph">USE_MERGE</code> hint. For example, the optimizer can choose a full scan on a table and avoid a sort operation in a query. However, there is an increased cost because a large table is accessed through an index and single block reads, as opposed to faster access through a full table scan.</p>
+<div class="infoboxnotealso" id="GUID-F6BCB3C1-6EE6-4A84-8B3D-659CAF9CBF4F__GUID-EE214692-A01D-4BB9-B837-719BF382F8DC">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF50702" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50702"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about the <code class="codeph">USE_MERGE</code> hint</p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL94986"></a>
+<div class="props_rev_3"><a id="GUID-07D9388C-6DCB-4F88-BF59-AF223C10B8FC"></a>
+<h3 id="TGSQL-GUID-07D9388C-6DCB-4F88-BF59-AF223C10B8FC" class="sect3">Cartesian Joins</h3>
+<div>
+<p>The database uses a <span class="bold">Cartesian join</span> when one or more of the tables does not have any join conditions to any other tables in the statement.</p>
+<p>The optimizer joins every row from one data source with every row from the other data source, creating the Cartesian product of the two sets. Therefore, the total number of rows resulting from the join is calculated using the following formula, where <code class="codeph">rs1</code> is the number of rows in first row set and <code class="codeph">rs2</code> is the number of rows in the second row set:</p>
+<pre dir="ltr">rs1 X rs2 = total rows in result set
+</pre></div>
+<a id="TGSQL94987"></a>
+<div class="props_rev_3"><a id="GUID-11E7100E-1316-4963-83C5-A85940BE9BB6"></a>
+<h4 id="TGSQL-GUID-11E7100E-1316-4963-83C5-A85940BE9BB6" class="sect4">When the Optimizer Considers Cartesian Joins</h4>
+<div>
+<p>The optimizer uses a Cartesian join for two row sources in any of the following circumstances:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>No join condition exists.</p>
+<p>In some cases, the optimizer could pick up a common <span class="bold"><a href="glossary.htm#GUID-73A2A2BA-68CB-4036-BB5C-3CBB5D799286"><span class="xrefglossterm">filter condition</span></a></span> between the two tables as a possible join condition.</p>
+<div class="infobox-note" id="GUID-11E7100E-1316-4963-83C5-A85940BE9BB6__GUID-40D78C19-08DE-4B54-B787-4288929C179D">
+<p class="notep1">Note:</p>
+<p>If a Cartesian join appears in a query plan, it could be caused by an inadvertently omitted join condition. In general, if a query joins <span class="italic">n</span> tables, then <span class="italic">n</span>-1 join conditions are required to avoid a Cartesian join.</p>
+</div>
+</li>
+<li>
+<p>A Cartesian join is an efficient method.</p>
+<p>For example, the optimizer may decide to generate a Cartesian product of two very small tables that are both joined to the same large table.</p>
+</li>
+<li>
+<p>The <code class="codeph">ORDERED</code> hint specifies a table before its join table is specified.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95334"></a><a id="TGSQL95312"></a>
+<div class="props_rev_3"><a id="GUID-531732AA-D0B0-4DFA-A5B9-8EDC3359BE67"></a>
+<h4 id="TGSQL-GUID-531732AA-D0B0-4DFA-A5B9-8EDC3359BE67" class="sect4">How Cartesian Joins Work</h4>
+<div>
+<p>At a high level, the algorithm for a Cartesian join looks as follows, where <code class="codeph">ds1</code> is typically the smaller data set, and <code class="codeph">ds2</code> is the larger data set:</p>
+<pre dir="ltr">FOR ds1_row IN ds1 LOOP
+  FOR ds2_row IN ds2 LOOP
+    output ds1_row and ds2_row
+  END LOOP
+END LOOP
+</pre>
+<div class="example" id="GUID-531732AA-D0B0-4DFA-A5B9-8EDC3359BE67__GUID-54BCE493-6E47-4A9B-A816-6C5CB2A6A36D">
+<p class="titleinexample">Example 9-7 Cartesian Join</p>
+<p>In this example, a user intends to perform an inner join of the <code class="codeph">employees</code> and <code class="codeph">departments</code> tables, but accidentally leaves off the join condition:</p>
+<pre dir="ltr">SELECT e.last_name, d.department_name
+FROM   employees e, departments d
+</pre>
+<p>The execution plan is as follows:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation              | Name        | Rows  | Bytes |Cost (%CPU)| Time  |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT       |             |       |       |11 (100)|          |
+| 1 |  MERGE JOIN CARTESIAN  |             |  2889 | 57780 |11   (0)| 00:00:01 |
+| 2 |   TABLE ACCESS FULL    | DEPARTMENTS |    27 |   324 | 2   (0)| 00:00:01 |
+| 3 |   BUFFER SORT          |             |   107 |   856 | 9   (0)| 00:00:01 |
+| 4 |    INDEX FAST FULL SCAN| EMP_NAME_IX |   107 |   856 | 0   (0)|          |
+--------------------------------------------------------------------------------
+</pre>
+<p>In Step 1 of the preceding plan, the <code class="codeph">CARTESIAN</code> keyword indicates the presence of a Cartesian join. The number of rows (2889) is the product of 27 and 107.</p>
+<p>In Step 3, the <code class="codeph">BUFFER SORT</code> operation indicates that the database is copying the data blocks obtained by the scan of <code class="codeph">emp_name_ix</code> from the SGA to the PGA. This strategy avoids multiple scans of the same blocks in the database buffer cache, which would generate many logical reads and permit resource contention.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL95335"></a><a id="TGSQL94988"></a>
+<div class="props_rev_3"><a id="GUID-10F781A7-4372-4042-AACA-6F67580789E8"></a>
+<h4 id="TGSQL-GUID-10F781A7-4372-4042-AACA-6F67580789E8" class="sect4">Cartesian Join Controls</h4>
+<div>
+<p>The <code class="codeph">ORDERED</code> hint instructs the optimizer to join tables in the order in which they appear in the <code class="codeph">FROM</code> clause. By forcing a join between two row sources that have no direct connection, the optimizer must perform a Cartesian join.</p>
+<div class="infoboxnotealso" id="GUID-10F781A7-4372-4042-AACA-6F67580789E8__GUID-B23F120A-6C94-4F5F-8C71-825480526BC0">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF50601" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50601"><span class="italic">Oracle Database SQL Language Reference</span></a> to learn about the <code class="codeph">ORDERED</code> hint</p>
+</div>
+<div class="example" id="GUID-10F781A7-4372-4042-AACA-6F67580789E8__GUID-AB86E0AE-4B94-422B-A3F0-AAC889EBE7B2">
+<p class="titleinexample">Example 9-8 ORDERED Hint</p>
+<p>In the following example, the <code class="codeph">ORDERED</code> hint instructs the optimizer to join <code class="codeph">employees</code> and <code class="codeph">locations</code>, but no join condition connects these two row sources:</p>
+<pre dir="ltr">SELECT /*+ORDERED*/ e.last_name, d.department_name, l.country_id, l.state_province
+FROM   employees e, locations l, departments d
+WHERE  e.department_id = d.department_id
+AND    d.location_id = l.location_id
+</pre>
+<p>The following execution plan shows a Cartesian product (Step 3) between <code class="codeph">locations</code> (Step 6) and <code class="codeph">employees</code> (Step 4), which is then joined to the <code class="codeph">departments</code> table (Step 2):</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation             | Name        | Rows  | Bytes |Cost (%CPU)|Time    |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT      |             |       |       | 37 (100)|          |
+|*1 |  HASH JOIN            |             |   106 |  4664 | 37   (6)| 00:00:01 |
+| 2 |   TABLE ACCESS FULL   | DEPARTMENTS |    27 |   513 |  2   (0)| 00:00:01 |
+| 3 |   <span class="bold">MERGE JOIN CARTESIAN</span>|             |  2461 | 61525 | 34   (3)| 00:00:01 |
+| 4 |    TABLE ACCESS FULL  | EMPLOYEES   |   107 |  1177 |  2   (0)| 00:00:01 |
+| 5 |    BUFFER SORT        |             |    23 |   322 | 32   (4)| 00:00:01 |
+| 6 |     TABLE ACCESS FULL | LOCATIONS   |    23 |   322 |  0   (0)|          |
+--------------------------------------------------------------------------------
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL95239"></a>
+<div class="props_rev_3"><a id="GUID-8E7760A6-48D6-4794-BF2F-290349C019B9"></a>
+<h2 id="TGSQL-GUID-8E7760A6-48D6-4794-BF2F-290349C019B9" class="sect2">Join Types</h2>
+<div>
+<p>A join type is determined by the type of join condition.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_join.htm#GUID-F93F1CCA-BD59-4D75-BE42-0E958CDB6E51" title="An inner join (sometimes called a simple join) is a join that returns only rows that satisfy the join condition. Inner joins are either equijoins or nonequijoins.">Inner Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-2174C4BA-C852-4050-9269-353A3B40B355" title="An outer join returns all rows that satisfy the join condition and also returns some or all of those rows from one table for which no rows from the other satisfy the join condition. Thus, an outer join extends the result of a simple join.">Outer Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-816CED08-10A7-4B39-9790-E68996782847">Semijoins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-084D65F8-0517-4B85-960F-F1CDEE69C693">Antijoins</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95240"></a>
+<div class="props_rev_3"><a id="GUID-F93F1CCA-BD59-4D75-BE42-0E958CDB6E51"></a>
+<h3 id="TGSQL-GUID-F93F1CCA-BD59-4D75-BE42-0E958CDB6E51" class="sect3">Inner Joins</h3>
+<div>
+<p>An <span class="bold">inner join</span> (sometimes called a <span class="italic">simple join</span>) is a join that returns only rows that satisfy the join condition. Inner joins are either equijoins or nonequijoins.</p>
+</div>
+<a id="TGSQL95313"></a>
+<div class="props_rev_3"><a id="GUID-90D3120E-1F5F-494C-9420-2E7F48337E3F"></a>
+<h4 id="TGSQL-GUID-90D3120E-1F5F-494C-9420-2E7F48337E3F" class="sect4">Equijoins</h4>
+<div>
+<p>An <span class="bold">equijoin</span> is an inner join whose join condition contains an equality operator.</p>
+<p>The following example is an equijoin because the join condition contains only an equality operator:</p>
+<pre dir="ltr">SELECT e.employee_id, e.last_name, d.department_name
+FROM   employees e, departments d
+WHERE  e.department_id=d.department_id;
+</pre>
+<p>In the preceding query, the join condition is <code class="codeph">e.department_id=d.department_id</code>. If a row in the <code class="codeph">employees</code> table has a department ID that matches the value in a row in the <code class="codeph">departments</code> table, then the database returns the joined result; otherwise, the database does not return a result.</p>
+</div>
+</div>
+<a id="TGSQL95314"></a>
+<div class="props_rev_3"><a id="GUID-C9653D35-455F-44C9-91F4-82B18478B43A"></a>
+<h4 id="TGSQL-GUID-C9653D35-455F-44C9-91F4-82B18478B43A" class="sect4">Nonequijoins</h4>
+<div>
+<p>A <span class="bold">nonequijoin</span> is an inner join whose join condition contains an operator that is not an equality operator.</p>
+<p>The following query lists all employees whose hire date occurred when employee 176 (who is listed in <code class="codeph">job_history</code> because he changed jobs in 2007) was working at the company:</p>
+<pre dir="ltr">SELECT e.employee_id, e.first_name, e.last_name, e.hire_date
+FROM   employees e, job_history h
+WHERE  h.employee_id = 176
+AND    e.hire_date BETWEEN h.start_date AND h.end_date;
+</pre>
+<p>In the preceding example, the condition joining <code class="codeph">employees</code> and <code class="codeph">job_history</code> does not contain an equality operator, so it is a nonequijoin. Nonequijoins are relatively rare.</p>
+<p>Note that a hash join requires at least a partial equijoin. The following SQL script contains an equality join condition (<code class="codeph">e1.empno = e2.empno</code>) and a nonequality condition:</p>
+<pre dir="ltr">SET AUTOTRACE TRACEONLY EXPLAIN
+SELECT *
+FROM   scott.emp e1 JOIN scott.emp e2
+ON     ( e1.empno = e2.empno
+AND      e1.hiredate BETWEEN e2.hiredate-1 AND e2.hiredate+1 )
+</pre>
+<p>The optimizer chooses a hash join for the preceding query, as shown in the following plan:</p>
+<pre dir="ltr">Execution Plan
+----------------------------------------------------------
+Plan hash value: 3638257876
+ 
+---------------------------------------------------------------------------
+| Id  | Operation          | Name | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |      |     1 |   174 |     5  (20)| 00:00:01 |
+|*  1 |  HASH JOIN         |      |     1 |   174 |     5  (20)| 00:00:01 |
+|   2 |   TABLE ACCESS FULL| EMP  |    14 |  1218 |     2   (0)| 00:00:01 |
+|   3 |   TABLE ACCESS FULL| EMP  |    14 |  1218 |     2   (0)| 00:00:01 |
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access(&#34;E1&#34;.&#34;EMPNO&#34;=&#34;E2&#34;.&#34;EMPNO&#34;)
+       filter(&#34;E1&#34;.&#34;HIREDATE&#34;&gt;=INTERNAL_FUNCTION(&#34;E2&#34;.&#34;HIREDATE&#34;)-1 AND
+              &#34;E1&#34;.&#34;HIREDATE&#34;&lt;=INTERNAL_FUNCTION(&#34;E2&#34;.&#34;HIREDATE&#34;)+1)
+</pre></div>
+</div>
+</div>
+<a id="TGSQL94989"></a>
+<div class="props_rev_3"><a id="GUID-2174C4BA-C852-4050-9269-353A3B40B355"></a>
+<h3 id="TGSQL-GUID-2174C4BA-C852-4050-9269-353A3B40B355" class="sect3">Outer Joins</h3>
+<div>
+<p>An <strong class="term">outer join</strong> returns all rows that satisfy the join condition and also returns some or all of those rows from one table for which no rows from the other satisfy the join condition. Thus, an outer join extends the result of a simple join.</p>
+<p>In ANSI syntax, the <code class="codeph">OUTER JOIN</code> clause specifies an outer join. In the <code class="codeph">FROM</code> clause, the <a href="glossary.htm#GUID-3171DB52-9306-4B3F-A30C-052CDD5EBB60"><span class="xrefglossterm">left table</span></a> appears to the left of the <code class="codeph">OUTER JOIN</code> keywords, and the <a href="glossary.htm#GUID-462FD89A-89C8-4C2F-8376-EEADD7460082"><span class="xrefglossterm">right table</span></a> appears to the right of these keywords. The left table is also called the outer table, and the right table is also called the inner table. For example, in the following statement the <code class="codeph">employees</code> table is the left or outer table:</p>
+<pre dir="ltr">SELECT employee_id, last_name, first_name
+FROM   employees LEFT OUTER JOIN departments
+ON     (employees.department_id=departments.departments_id);
+</pre>
+<p>Outer joins require the outer joined table to be the driving table. In the preceding example, <code class="codeph">employees</code> is the driving table, and <code class="codeph">departments</code> is the driven-to table.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_join.htm#GUID-1ACFF09D-C8E1-4272-97B9-900D2053B91E">Nested Loop Outer Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-278E01B5-9498-40EC-B0BD-CC415C18E078">Hash Join Outer Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-538140BC-7F1D-43AE-AF4C-89539902B3FD" title="When an outer join cannot drive from the outer (preserved) table to the inner (optional) table, it cannot use a hash join or nested loops joins.">Sort Merge Outer Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-9FAA29BF-B7E3-48CE-9B27-4276195F24D0">Full Outer Joins</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-C176D438-5532-4C3C-81E6-8C7EBAAED3DD">Multiple Tables on the Left of an Outer Join</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94990"></a>
+<div class="props_rev_3"><a id="GUID-1ACFF09D-C8E1-4272-97B9-900D2053B91E"></a>
+<h4 id="TGSQL-GUID-1ACFF09D-C8E1-4272-97B9-900D2053B91E" class="sect4">Nested Loop Outer Joins</h4>
+<div>
+<p>The database uses this operation to loop through an outer join between two tables. The outer join returns the outer (preserved) table rows, even when no corresponding rows are in the inner (optional) table.</p>
+<p>In a standard nested loop, the optimizer chooses the order of tables&mdash;which is the driving table and which the driven table&mdash;based on the cost. However, in a nested loop outer join, the join condition determines the order of tables. The database uses the outer, row-preserved table to drive to the inner table.</p>
+<p>The optimizer uses nested loops joins to process an outer join in the following circumstances:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>It is possible to drive from the outer table to the inner table.</p>
+</li>
+<li>
+<p>Data volume is low enough to make the nested loop method efficient.</p>
+</li>
+</ul>
+<p>For an example of a nested loop outer join, you can add the <code class="codeph">USE_NL</code> hint to <a href="tgsql_join.htm#GUID-278E01B5-9498-40EC-B0BD-CC415C18E078__BABCIBBJ">Example 9-9</a> to instruct the optimizer to use a nested loop. For example:</p>
+<pre dir="ltr">SELECT /*+ USE_NL(c o) */ cust_last_name,
+       SUM(NVL2(o.customer_id,0,1)) &#34;Count&#34;
+FROM   customers c, orders o
+WHERE  c.credit_limit &gt; 1000
+AND    c.customer_id = o.customer_id(+)
+GROUP BY cust_last_name;
+</pre></div>
+</div>
+<a id="TGSQL94992"></a><a id="TGSQL94993"></a><a id="TGSQL94991"></a>
+<div class="props_rev_3"><a id="GUID-278E01B5-9498-40EC-B0BD-CC415C18E078"></a>
+<h4 id="TGSQL-GUID-278E01B5-9498-40EC-B0BD-CC415C18E078" class="sect4">Hash Join Outer Joins</h4>
+<div>
+<p>The optimizer uses hash joins for processing an outer join when either of the following conditions is met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The data volume is large enough to make the hash join method efficient.</p>
+</li>
+<li>
+<p>It is not possible to drive from the outer table to the inner table.</p>
+</li>
+</ul>
+<p>The cost determines the order of tables. The outer table, including preserved rows, may be used to build the hash table, or it may be used to probe the hash table.</p>
+<div class="example" id="GUID-278E01B5-9498-40EC-B0BD-CC415C18E078__BABCIBBJ">
+<p class="titleinexample">Example 9-9 Hash Join Outer Joins</p>
+<p>This example shows a typical hash join outer join query, and its execution plan. In this example, all the customers with credit limits greater than 1000 are queried. An outer join is needed so that the query captures customers who have no orders.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The outer table is <code class="codeph">customers</code>.</p>
+</li>
+<li>
+<p>The inner table is <code class="codeph">orders</code>.</p>
+</li>
+<li>
+<p>The join preserves the <code class="codeph">customers</code> rows, including those rows without a corresponding row in <code class="codeph">orders</code>.</p>
+</li>
+</ul>
+<p>You could use a <code class="codeph">NOT</code> <code class="codeph">EXISTS</code> subquery to return the rows. However, because you are querying all the rows in the table, the hash join performs better (unless the <code class="codeph">NOT</code> <code class="codeph">EXISTS</code> subquery is not nested).</p>
+<pre dir="ltr">SELECT cust_last_name, SUM(NVL2(o.customer_id,0,1)) &#34;Count&#34;
+FROM   customers c, orders o
+WHERE  c.credit_limit &gt; 1000
+AND    c.customer_id = o.customer_id(+)
+GROUP BY cust_last_name;
+
+--------------------------------------------------------------------------------
+| Id  | Operation          | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+|  0 | SELECT STATEMENT    |           |       |       |     7 (100)|          |
+|  1 |  HASH GROUP BY      |           |   168 |  3192 |     7  (29)| 00:00:01 |
+|* 2 |   <span class="bold">HASH JOIN OUTER</span>   |           |   318 |  6042 |     6  (17)| 00:00:01 |
+|* 3 |    TABLE ACCESS FULL| CUSTOMERS |   260 |  3900 |     3   (0)| 00:00:01 |
+|* 4 |    TABLE ACCESS FULL| ORDERS    |   105 |   420 |     2   (0)| 00:00:01 |
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access(&#34;C&#34;.&#34;CUSTOMER_ID&#34;=&#34;O&#34;.&#34;CUSTOMER_ID&#34;)
+ 
+PLAN_TABLE_OUTPUT
+-------------------------------------------------------------------------------
+   3 - filter(&#34;C&#34;.&#34;CREDIT_LIMIT&#34;&gt;1000)
+   4 - filter(&#34;O&#34;.&#34;CUSTOMER_ID&#34;&gt;0)
+</pre>
+<p>The query looks for customers which satisfy various conditions. An outer join returns <code class="codeph">NULL</code> for the inner table columns along with the outer (preserved) table rows when it does not find any corresponding rows in the inner table. This operation finds all the <code class="codeph">customers</code> rows that do not have any <code class="codeph">orders</code> rows.</p>
+<p>In this case, the outer join condition is the following:</p>
+<pre dir="ltr">customers.customer_id = orders.customer_id(+)
+</pre>
+<p>The components of this condition represent the following:</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-278E01B5-9498-40EC-B0BD-CC415C18E078__BABIDIAB">
+<p class="titleinexample">Example 9-10 Outer Join to a Multitable View</p>
+<p>In this example, the outer join is to a multitable view. The optimizer cannot drive into the view like in a normal join or push the predicates, so it builds the entire row set of the view.</p>
+<pre dir="ltr">SELECT c.cust_last_name, sum(revenue)
+FROM   customers c, v_orders o
+WHERE  c.credit_limit &gt; 2000
+AND    o.customer_id(+) = c.customer_id
+GROUP BY c.cust_last_name;
+</pre>
+<pre dir="ltr">----------------------------------------------------------------------------
+| Id  | Operation              |  Name        | Rows  | Bytes | Cost (%CPU)|
+----------------------------------------------------------------------------
+|   0 | SELECT STATEMENT       |              |   144 |  4608 |    16  (32)|
+|   1 |  HASH GROUP BY         |              |   144 |  4608 |    16  (32)|
+|*  2 |   HASH JOIN OUTER      |              |   663 | 21216 |    15  (27)|
+|*  3 |    TABLE ACCESS FULL   | CUSTOMERS    |   195 |  2925 |     6  (17)|
+|   4 |    VIEW                | V_ORDERS     |   665 | 11305 |            |
+|   5 |     HASH GROUP BY      |              |   665 | 15960 |     9  (34)|
+|*  6 |      HASH JOIN         |              |   665 | 15960 |     8  (25)|
+|*  7 |       TABLE ACCESS FULL| ORDERS       |   105 |   840 |     4  (25)|
+|   8 |       TABLE ACCESS FULL| ORDER_ITEMS  |   665 | 10640 |     4  (25)|
+----------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   2 - access(&#34;O&#34;.&#34;CUSTOMER_ID&#34;(+)=&#34;C&#34;.&#34;CUSTOMER_ID&#34;)
+   3 - filter(&#34;C&#34;.&#34;CREDIT_LIMIT&#34;&gt;2000)
+   6 - access(&#34;O&#34;.&#34;ORDER_ID&#34;=&#34;L&#34;.&#34;ORDER_ID&#34;)
+   7 - filter(&#34;O&#34;.&#34;CUSTOMER_ID&#34;&gt;0)
+</pre>
+<p>The view definition is as follows:</p>
+<pre dir="ltr">CREATE OR REPLACE view v_orders AS
+SELECT l.product_id, SUM(l.quantity*unit_price) revenue, 
+       o.order_id, o.customer_id
+FROM   orders o, order_items l
+WHERE  o.order_id = l.order_id
+GROUP BY l.product_id, o.order_id, o.customer_id;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94994"></a>
+<div class="props_rev_3"><a id="GUID-538140BC-7F1D-43AE-AF4C-89539902B3FD"></a>
+<h4 id="TGSQL-GUID-538140BC-7F1D-43AE-AF4C-89539902B3FD" class="sect4">Sort Merge Outer Joins</h4>
+<div>
+<p>When an outer join cannot drive from the outer (preserved) table to the inner (optional) table, it cannot use a hash join or nested loops joins.</p>
+<p>In this case, it uses the sort merge outer join.</p>
+<p>The optimizer uses sort merge for an outer join in the following cases:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A nested loops join is inefficient. A nested loops join can be inefficient because of data volumes.</p>
+</li>
+<li>
+<p>The optimizer finds it is cheaper to use a sort merge over a hash join because of sorts required by other operations.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL94996"></a><a id="TGSQL94997"></a><a id="TGSQL94995"></a>
+<div class="props_rev_3"><a id="GUID-9FAA29BF-B7E3-48CE-9B27-4276195F24D0"></a>
+<h4 id="TGSQL-GUID-9FAA29BF-B7E3-48CE-9B27-4276195F24D0" class="sect4">Full Outer Joins</h4>
+<div>
+<p>A <a id="d59470e5424" class="indexterm-anchor"></a><a id="d59470e5426" class="indexterm-anchor"></a><span class="bold"><a href="glossary.htm#GUID-E3848E9E-9A23-4B1D-8CC1-B881C0A49B0B"><span class="xrefglossterm">full outer join</span></a></span> is a combination of the left and right outer joins. In addition to the inner join, rows from both tables that have not been returned in the result of the inner join are preserved and extended with nulls. In other words, full outer joins join tables together, yet show rows with no corresponding rows in the joined tables.</p>
+<div class="example" id="GUID-9FAA29BF-B7E3-48CE-9B27-4276195F24D0__BABCHEAG">
+<p class="titleinexample">Example 9-11 Full Outer Join</p>
+<p>The following query retrieves all departments and all employees in each department, but also includes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Any employees without departments</p>
+</li>
+<li>
+<p>Any departments without employees</p>
+</li>
+</ul>
+<pre dir="ltr">SELECT d.department_id, e.employee_id
+FROM   employees e FULL OUTER JOIN departments d
+ON     e.department_id = d.department_id
+ORDER BY d.department_id;
+</pre>
+<p>The statement produces the following output:</p>
+<pre dir="ltr">DEPARTMENT_ID EMPLOYEE_ID
+------------- -----------
+           10         200
+           20         201
+           20         202
+           30         114
+           30         115
+           30         116
+...
+          270
+          280
+                      178
+                      207
+
+125 rows selected.
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-9FAA29BF-B7E3-48CE-9B27-4276195F24D0__BABIJCIF">
+<p class="titleinexample">Example 9-12 Execution Plan for a Full Outer Join</p>
+<p>Starting with Oracle Database 11<span class="italic">g</span>, Oracle Database automatically uses a native execution method based on a hash join for executing full outer joins whenever possible. When the database uses the new method to execute a full outer join, the execution plan for the query contains <code class="codeph">HASH</code> <code class="codeph">JOIN</code> <code class="codeph">FULL</code> <code class="codeph">OUTER</code>. The query in <a href="tgsql_join.htm#GUID-9FAA29BF-B7E3-48CE-9B27-4276195F24D0__BABCHEAG">Example 9-11</a> uses the following execution plan:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation               | Name       |Rows |Bytes |Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT        |            | 122 | 4758 |   6  (34)| 00:0 0:01 |
+| 1 |  SORT ORDER BY          |            | 122 | 4758 |   6  (34)| 00:0 0:01 |
+| 2 |   VIEW                  | VW_FOJ_0   | 122 | 4758 |   5  (20)| 00:0 0:01 |
+|*3 |    <span class="bold">HASH JOIN FULL OUTER</span> |            | 122 | 1342 |   5  (20)| 00:0 0:01 |
+| 4 |     INDEX FAST FULL SCAN| DEPT_ID_PK |  27 |  108 |   2   (0)| 00:0 0:01 |
+| 5 |     TABLE ACCESS FULL   | EMPLOYEES  | 107 |  749 |   2   (0)| 00:0 0:01 |
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   3 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+</pre>
+<p><code class="codeph">HASH</code> <code class="codeph">JOIN</code> <code class="codeph">FULL</code> <code class="codeph">OUTER</code> is included in the preceding plan (Step 3), indicating that the query uses the hash full outer join execution method. Typically, when the full outer join condition between two tables is an equijoin, the hash full outer join execution method is possible, and Oracle Database uses it automatically.</p>
+<p>To instruct the optimizer to consider using the hash full outer join execution method, apply the <code class="codeph">NATIVE_FULL_OUTER_JOIN</code> hint. To instruct the optimizer not to consider using the hash full outer join execution method, apply the <code class="codeph">NO_NATIVE_FULL_OUTER_JOIN</code> hint. The <code class="codeph">NO_NATIVE_FULL_OUTER_JOIN</code> hint instructs the optimizer to exclude the native execution method when joining each specified table. Instead, the full outer join is executed as a union of left outer join and an antijoin.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL95113"></a>
+<div class="props_rev_3"><a id="GUID-C176D438-5532-4C3C-81E6-8C7EBAAED3DD"></a>
+<h4 id="TGSQL-GUID-C176D438-5532-4C3C-81E6-8C7EBAAED3DD" class="sect4">Multiple Tables on the Left of an Outer Join</h4>
+<div>
+<p>In Oracle Database 12<span class="italic">c</span>, multiple tables may exist on the left of an outer-joined table. This enhancement enables Oracle Database to merge a view that contains multiple tables and appears on the left of outer join.</p>
+<p>In releases before Oracle Database 12<span class="italic">c</span>, a query such as the following was invalid, and would trigger an <code class="codeph">ORA-01417</code> error message:</p>
+<pre dir="ltr">SELECT t1.d, t3.c
+FROM   t1, t2, t3
+WHERE  t1.z = t2.z 
+AND    t1.x = t3.x (+) 
+AND    t2.y = t3.y (+);
+</pre>
+<p>Starting in Oracle Database 12<span class="italic">c</span>, the preceding query is valid.</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95241"></a>
+<div class="props_rev_3"><a id="GUID-816CED08-10A7-4B39-9790-E68996782847"></a>
+<h3 id="TGSQL-GUID-816CED08-10A7-4B39-9790-E68996782847" class="sect3">Semijoins</h3>
+<div>
+<p>A <span class="bold"><a href="glossary.htm#GUID-EA539BF9-F0F2-479B-90B5-1855CD8E34B9"><span class="xrefglossterm">semijoin</span></a></span> is a join between two data sets that returns a row from the first set when a matching row exists in the subquery data set. The database stops processing the second data set at the first match. Thus, optimization does not duplicate rows from the first data set when multiple rows in the second data set satisfy the subquery criteria.</p>
+<div class="infobox-note" id="GUID-816CED08-10A7-4B39-9790-E68996782847__GUID-BC796732-679A-4CC9-AFD2-750CCFE5F68E">
+<p class="notep1">Note:</p>
+<p>Semijoins and antijoins are considered join types even though the SQL constructs that cause them are subqueries. They are internal algorithms that the optimizer uses to flatten subquery constructs so that they can be resolved in a join-like way.</p>
+</div>
+</div>
+<a id="TGSQL95315"></a>
+<div class="props_rev_3"><a id="GUID-44C2DD4F-8C1B-4EA5-867B-CF5A6B90A01B"></a>
+<h4 id="TGSQL-GUID-44C2DD4F-8C1B-4EA5-867B-CF5A6B90A01B" class="sect4">When the Optimizer Considers Semijoins</h4>
+<div>
+<p>A semijoin avoids returning a huge number of rows when a query only needs to determine whether a match exists. With large data sets, this optimization can result in significant time savings over a nested loops join that must loop through every record returned by the inner query for every row in the outer query. The optimizer can apply the semijoin optimization to nested loops joins, hash joins, and sort merge joins.</p>
+<p>The optimizer may choose a semijoin in the following circumstances:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The statement uses either an <code class="codeph">IN</code> or <code class="codeph">EXISTS</code> clause.</p>
+</li>
+<li>
+<p>The statement contains a subquery in the <code class="codeph">IN</code> or <code class="codeph">EXISTS</code> clause.</p>
+</li>
+<li>
+<p>The <code class="codeph">IN</code> or <code class="codeph">EXISTS</code> clause is not contained inside an <code class="codeph">OR</code> branch.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95317"></a><a id="TGSQL95318"></a><a id="TGSQL95316"></a>
+<div class="props_rev_3"><a id="GUID-B3DE9781-0579-44D1-A7B5-3132504590E2"></a>
+<h4 id="TGSQL-GUID-B3DE9781-0579-44D1-A7B5-3132504590E2" class="sect4">How Semijoins Work</h4>
+<div>
+<p>The semijoin optimization is implemented differently depending on what type of join is used. The following pseudocode shows a semijoin for a nested loops join:</p>
+<pre dir="ltr">FOR ds1_row IN ds1 LOOP
+  match := false;
+  FOR ds2_row IN ds2_subquery LOOP
+    IF (ds1_row matches ds2_row) THEN
+      match := true;
+      EXIT -- stop processing second data set when a match is found
+    END IF
+  END LOOP
+  IF (match = true) THEN 
+    RETURN ds1_row
+  END IF
+END LOOP
+</pre>
+<p>In the preceding pseudocode, <code class="codeph">ds1</code> is the first data set, and <code class="codeph">ds2_subquery</code> is the subquery data set. The code obtains the first row from the first data set, and then loops through the subquery data set looking for a match. The code exits the inner loop as soon as it finds a match, and then begins processing the next row in the first data set.</p>
+<div class="example" id="GUID-B3DE9781-0579-44D1-A7B5-3132504590E2__BABGCCDA">
+<p class="titleinexample">Example 9-13 Semijoin Using WHERE EXISTS</p>
+<p>The following query uses a <code class="codeph">WHERE EXISTS</code> clause to list only the departments that contain employees:</p>
+<pre dir="ltr">SELECT department_id, department_name 
+FROM   departments
+WHERE EXISTS (SELECT 1
+              FROM   employees 
+              WHERE  employees.department_id = departments.department_id)
+</pre>
+<p>The execution plan reveals a <code class="codeph">NESTED LOOPS SEMI</code> operation in Step 1:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation          | Name              |Rows|Bytes|Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT   |                   |    |     |    2 (100)|          |
+| 1 |  <span class="bold">NESTED LOOPS SEMI</span> |                   | 11 | 209 |    2   (0)| 00:00:01 |
+| 2 |   TABLE ACCESS FULL| DEPARTMENTS       | 27 | 432 |    2   (0)| 00:00:01 |
+|*3 |   INDEX RANGE SCAN | EMP_DEPARTMENT_IX | 44 | 132 |    0   (0)|          |
+--------------------------------------------------------------------------------
+</pre>
+<p>For each row in <code class="codeph">departments</code>, which forms the outer loop, the database obtains the department ID, and then probes the <code class="codeph">employees.department_id</code> index for matching entries. Conceptually, the index looks as follows:</p>
+<pre dir="ltr">10,rowid
+10,rowid
+10,rowid
+10,rowid
+30,rowid
+30,rowid
+30,rowid
+...
+</pre>
+<p>If the first entry in the <code class="codeph">departments</code> table is department <code class="codeph">30</code>, then the database performs a range scan of the index until it finds the first <code class="codeph">30</code> entry, at which point it stops reading the index and returns the matching row from <code class="codeph">departments</code>. If the next row in the outer loop is department <code class="codeph">20</code>, then the database scans the index for a <code class="codeph">20</code> entry, and not finding any matches, performs the next iteration of the outer loop. The database proceeds in this way until all matching rows are returned.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-B3DE9781-0579-44D1-A7B5-3132504590E2__GUID-44A64557-19FF-4B01-89BD-0CC6FFAA927C">
+<p class="titleinexample">Example 9-14 Semijoin Using IN</p>
+<p>The following query uses a <code class="codeph">IN</code> clause to list only the departments that contain employees:</p>
+<pre dir="ltr">SELECT department_id, department_name
+FROM   departments
+WHERE  department_id IN 
+       (SELECT department_id 
+        FROM   employees); 
+</pre>
+<p>The execution plan reveals a <code class="codeph">NESTED LOOPS SEMI</code> operation in Step 1:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation          | Name              |Rows|Bytes|Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT   |                   |    |     |    2 (100)|          |
+| 1 |  <span class="bold">NESTED LOOPS SEMI</span> |                   | 11 | 209 |    2   (0)| 00:00:01 |
+| 2 |   TABLE ACCESS FULL| DEPARTMENTS       | 27 | 432 |    2   (0)| 00:00:01 |
+|*3 |   INDEX RANGE SCAN | EMP_DEPARTMENT_IX | 44 | 132 |    0   (0)|          |
+--------------------------------------------------------------------------------
+</pre>
+<p>The plan is identical to the plan in <a href="tgsql_join.htm#GUID-B3DE9781-0579-44D1-A7B5-3132504590E2__BABGCCDA">Example 9-13</a>.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL95320"></a>
+<div class="props_rev_3"><a id="GUID-084D65F8-0517-4B85-960F-F1CDEE69C693"></a>
+<h3 id="TGSQL-GUID-084D65F8-0517-4B85-960F-F1CDEE69C693" class="sect3">Antijoins</h3>
+<div>
+<p>An <span class="bold"><a href="glossary.htm#GUID-4EF44AED-32FD-4FF4-9ECB-24F0011A667E"><span class="xrefglossterm">antijoin</span></a></span> is a join between two data sets that returns a row from the first set when a matching row does not exist in the subquery data set. Like a semijoin, an antijoin stops processing the subquery data set when the first match is found. Unlike a semijoin, the antijoin only returns a row when no match is found.</p>
+</div>
+<a id="TGSQL95321"></a>
+<div class="props_rev_3"><a id="GUID-4FBBDD86-2AC0-425F-B3A6-36E72A423876"></a>
+<h4 id="TGSQL-GUID-4FBBDD86-2AC0-425F-B3A6-36E72A423876" class="sect4">When the Optimizer Considers Antijoins</h4>
+<div>
+<p>An antijoin avoids unnecessary processing when a query only needs to return a row when a match does not exist. With large data sets, this optimization can result in significant time savings over a nested loops join that must loop through every record returned by the inner query for every row in the outer query. The optimizer can apply the antijoin optimization to nested loops joins, hash joins, and sort merge joins.</p>
+<p>The optimizer may choose an antijoin in the following circumstances:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The statement uses either the <code class="codeph">NOT IN</code> or <code class="codeph">NOT EXISTS</code> clause.</p>
+</li>
+<li>
+<p>The statement has a subquery in the <code class="codeph">NOT IN</code> or <code class="codeph">NOT EXISTS</code> clause.</p>
+</li>
+<li>
+<p>The <code class="codeph">NOT IN</code> or <code class="codeph">NOT EXISTS</code> clause is not contained inside an <code class="codeph">OR</code> branch.</p>
+</li>
+<li>
+<p>The statement performs an outer join and applies an <code class="codeph">IS NULL</code> condition to a join column, as in the following example:</p>
+<pre dir="ltr">SET AUTOTRACE TRACEONLY EXPLAIN
+SELECT emp.*
+FROM   emp, dept
+WHERE  emp.deptno = dept.deptno(+)
+AND    dept.deptno IS NULL
+
+Execution Plan
+----------------------------------------------------------
+Plan hash value: 1543991079
+ 
+---------------------------------------------------------------------------
+| Id  | Operation          | Name | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |      |    14 |  1400 |     5  (20)| 00:00:01 |
+|*  1 |  HASH JOIN ANTI    |      |    14 |  1400 |     5  (20)| 00:00:01 |
+|   2 |   TABLE ACCESS FULL| EMP  |    14 |  1218 |     2   (0)| 00:00:01 |
+|   3 |   TABLE ACCESS FULL| DEPT |     4 |    52 |     2   (0)| 00:00:01 |
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access(&#34;EMP&#34;.&#34;DEPTNO&#34;=&#34;DEPT&#34;.&#34;DEPTNO&#34;)
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+</pre></li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95323"></a><a id="TGSQL95322"></a>
+<div class="props_rev_3"><a id="GUID-D20C1B6F-9CFF-4F4A-87F3-D1A2BEEBEFF3"></a>
+<h4 id="TGSQL-GUID-D20C1B6F-9CFF-4F4A-87F3-D1A2BEEBEFF3" class="sect4">How Antijoins Work</h4>
+<div>
+<p>The antijoin optimization is implemented differently depending on what type of join is used. The following pseudocode shows an antijoin for a nested loops join:</p>
+<pre dir="ltr">FOR ds1_row IN ds1 LOOP
+  match := true;
+  FOR ds2_row IN ds2 LOOP
+    IF (ds1_row matches ds2_row) THEN
+      match := false;
+      EXIT -- stop processing second data set when a match is found
+    END IF
+  END LOOP
+  IF (match = true) THEN 
+    RETURN ds1_row
+  END IF
+END LOOP
+</pre>
+<p>In the preceding pseudocode, <code class="codeph">ds1</code> is the first data set, and <code class="codeph">ds2</code> is the second data set. The code obtains the first row from the first data set, and then loops through the second data set looking for a match. The code exits the inner loop as soon as it finds a match, and begins processing the next row in the first data set.</p>
+<div class="example" id="GUID-D20C1B6F-9CFF-4F4A-87F3-D1A2BEEBEFF3__GUID-303A36E3-2961-4385-9A5A-4A3B85482BDA">
+<p class="titleinexample">Example 9-15 Semijoin Using WHERE EXISTS</p>
+<p>The following query uses a <code class="codeph">WHERE EXISTS</code> clause to list only the departments that contain employees:</p>
+<pre dir="ltr">SELECT department_id, department_name 
+FROM   departments
+WHERE EXISTS (SELECT 1
+              FROM   employees 
+              WHERE  employees.department_id = departments.department_id)
+</pre>
+<p>The execution plan reveals a <code class="codeph">NESTED LOOPS SEMI</code> operation in Step 1:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation          | Name              |Rows|Bytes |Cost(%CPU)| Time     |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT   |                   |    |      |   2 (100)|          |
+| 1 |  <span class="bold">NESTED LOOPS SEMI</span> |                   | 11 |  209 |   2   (0)| 00:00:01 |
+| 2 |   TABLE ACCESS FULL| DEPARTMENTS       | 27 |  432 |   2   (0)| 00:00:01 |
+|*3 |   INDEX RANGE SCAN | EMP_DEPARTMENT_IX | 44 |  132 |   0   (0)|          |
+--------------------------------------------------------------------------------
+</pre>
+<p>For each row in <code class="codeph">departments</code>, which forms the outer loop, the database obtains the department ID, and then probes the <code class="codeph">employees.department_id</code> index for matching entries. Conceptually, the index looks as follows:</p>
+<pre dir="ltr">10,rowid
+10,rowid
+10,rowid
+10,rowid
+30,rowid
+30,rowid
+30,rowid
+...
+</pre>
+<p>If the first record in the <code class="codeph">departments</code> table is department <code class="codeph">30</code>, then the database performs a range scan of the index until it finds the first <code class="codeph">30</code> entry, at which point it stops reading the index and returns the matching row from <code class="codeph">departments</code>. If the next row in the outer loop is department <code class="codeph">20</code>, then the database scans the index for a <code class="codeph">20</code> entry, and not finding any matches, performs the next iteration of the outer loop. The database proceeds in this way until all matching rows are returned.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL95325"></a><a id="TGSQL95326"></a><a id="TGSQL95324"></a>
+<div class="props_rev_3"><a id="GUID-78F90A8B-3638-47FF-AEFC-274790BE45D8"></a>
+<h4 id="TGSQL-GUID-78F90A8B-3638-47FF-AEFC-274790BE45D8" class="sect4">How Antijoins Handle Nulls</h4>
+<div>
+<p>For semijoins, <code class="codeph">IN</code> and <code class="codeph">EXISTS</code> are functionally equivalent. However, <code class="codeph">NOT IN</code> and <code class="codeph">NOT EXISTS</code> are not functionally equivalent. The difference is because of nulls. If a null value is returned to a <code class="codeph">NOT IN</code> operator, then the statement returns no records. To see why, consider the following <code class="codeph">WHERE</code> clause:</p>
+<pre dir="ltr">WHERE department_id NOT IN (null, 10, 20)
+</pre>
+<p>The database tests the preceding expression as follows:</p>
+<pre dir="ltr">WHERE (department_id != null) 
+AND   (department_id != 10) 
+AND   (department_id != 20)
+</pre>
+<p>For the entire expression to be <code class="codeph">true</code>, each individual condition must be <code class="codeph">true</code>. However, a null value cannot be compared to another value, so the <code class="codeph">department_id !=null</code> condition cannot be <code class="codeph">true</code>, and thus the whole expression cannot be <code class="codeph">true</code>. The following techniques enable a statement to return records even when nulls are returned to the <code class="codeph">NOT IN</code> operator:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Apply an <code class="codeph">NVL</code> function to the columns returned by the subquery.</p>
+</li>
+<li>
+<p>Add an <code class="codeph">IS NOT NULL</code> predicate to the subquery.</p>
+</li>
+<li>
+<p>Implement <code class="codeph">NOT NULL</code> constraints.</p>
+</li>
+</ul>
+<p>In contrast to <code class="codeph">NOT IN</code>, the <code class="codeph">NOT EXISTS</code> clause only considers predicates that return the existence of a match, and ignores any row that does not match or could not be determined because of nulls. If at least one row in the subquery matches the row from the outer query, then <code class="codeph">NOT EXISTS</code> returns <code class="codeph">false</code>. If no tuples match, then <code class="codeph">NOT EXISTS</code> returns <code class="codeph">true</code>. The presence of nulls in the subquery does not affect the search for matching records.</p>
+<p>In releases earlier than Oracle Database 11<span class="italic">g</span>, the optimizer could not use an antijoin optimization when nulls could be returned by a subquery. However, starting in Oracle Database 11<span class="italic">g</span>, the <code class="codeph">ANTI NA</code> (and <code class="codeph">ANTI SNA</code>) optimizations described in the following sections enable the optimizer to use an antijoin even when nulls are possible.</p>
+<div class="example" id="GUID-78F90A8B-3638-47FF-AEFC-274790BE45D8__GUID-1069AEBC-187C-41B2-AC0C-A4793780B755">
+<p class="titleinexample">Example 9-16 Antijoin Using NOT IN</p>
+<p>Suppose that a user issues the following query with a <code class="codeph">NOT IN</code> clause to list the departments that contain no employees:</p>
+<pre dir="ltr">SELECT department_id, department_name
+FROM   departments
+WHERE  department_id NOT IN 
+       (SELECT department_id 
+        FROM   employees);
+</pre>
+<p>The preceding query returns no rows even though several departments contain no employees. This result, which was not intended by the user, occurs because the <code class="codeph">employees.department_id</code> column is nullable.</p>
+<p>The execution plan reveals a <code class="codeph">NESTED LOOPS ANTI SNA</code> operation in Step 2:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation              | Name              |Rows|Bytes|Cost (%CPU)| Time |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT       |                   |    |     | 4(100)|          |
+|*1 |  FILTER                |                   |    |     |       |          |
+| 2 |   <span class="bold">NESTED LOOPS ANTI SNA</span>|                   | 17 | 323 | 4 (50)| 00:00:01 |
+| 3 |    TABLE ACCESS FULL   | DEPARTMENTS       | 27 | 432 | 2  (0)| 00:00:01 |
+|*4 |    INDEX RANGE SCAN    | EMP_DEPARTMENT_IX | 41 | 123 | 0  (0)|          |
+|*5 |   TABLE ACCESS FULL    | EMPLOYEES         |  1 |   3 | 2  (0)| 00:00:01 |
+--------------------------------------------------------------------------------
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   1 - filter( IS NULL)
+   4 - access(&#34;DEPARTMENT_ID&#34;=&#34;DEPARTMENT_ID&#34;)
+   5 - filter(&#34;DEPARTMENT_ID&#34; IS NULL)
+</pre>
+<p>The <code class="codeph">ANTI SNA</code> stands for &#34;single null-aware antijoin.&#34; <code class="codeph">ANTI NA</code> stands for &#34;null-aware antijoin.&#34; The null-aware operation enables the optimizer to use the semijoin optimization even on a nullable column. In releases earlier than Oracle Database 11<span class="italic">g</span>, the database could not perform antijoins on <code class="codeph">NOT IN</code> queries when nulls were possible.</p>
+<p>Suppose that the user rewrites the query by applying an <code class="codeph">IS NOT NULL</code> condition to the subquery:</p>
+<pre dir="ltr">SELECT department_id, department_name
+FROM   departments
+WHERE  department_id NOT IN 
+       (SELECT department_id 
+        FROM   employees
+        WHERE  department_id IS NOT NULL);
+</pre>
+<p>The preceding query returns 16 rows, which is the expected result. Step 1 in the plan shows a standard <code class="codeph">NESTED LOOPS ANTI</code> join instead of an <code class="codeph">ANTI NA</code> or <code class="codeph">ANTI SNA</code> join because the subquery cannot returns nulls:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+|Id| Operation          | Name              | Rows| Bytes | Cost (%CPU)| Time  |
+--------------------------------------------------------------------------------
+| 0| SELECT STATEMENT   |                   |     |       |  2 (100)|          |
+| 1|  <span class="bold">NESTED LOOPS ANTI</span> |                   |  17 |   323 |  2   (0)| 00:00:01 |
+| 2|   TABLE ACCESS FULL| DEPARTMENTS       |  27 |   432 |  2   (0)| 00:00:01 |
+|*3|   INDEX RANGE SCAN | EMP_DEPARTMENT_IX |  41 |   123 |  0   (0)|          |
+--------------------------------------------------------------------------------
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - access(&#34;DEPARTMENT_ID&#34;=&#34;DEPARTMENT_ID&#34;)
+       filter(&#34;DEPARTMENT_ID&#34; IS NOT NULL)
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-78F90A8B-3638-47FF-AEFC-274790BE45D8__GUID-7F2A4EB0-C2CE-43D4-ADF4-CBFDA8BFB351">
+<p class="titleinexample">Example 9-17 Antijoin Using NOT EXISTS</p>
+<p>Suppose that a user issues the following query with a <code class="codeph">NOT EXISTS</code> clause to list the departments that contain no employees:</p>
+<pre dir="ltr">SELECT department_id, department_name
+FROM   departments d
+WHERE  NOT EXISTS
+       (SELECT null
+        FROM   employees e
+        WHERE  e.department_id = d.department_id)
+</pre>
+<p>The preceding query avoids the null problem for <code class="codeph">NOT IN</code> clauses. Thus, even though <code class="codeph">employees.department_id</code> column is nullable, the statement returns the desired result.</p>
+<p>Step 1 of the execution plan reveals a <code class="codeph">NESTED LOOPS ANTI</code> operation, not the <code class="codeph">ANTI NA</code> variant, which was necessary for <code class="codeph">NOT IN</code> when nulls were possible:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+| Id| Operation          | Name              | Rows  | Bytes | Cost (%CPU)|Time|
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT   |                   |       |       | 2 (100)|        |
+| 1 |  NESTED LOOPS ANTI |                   |    17 |   323 | 2   (0)|00:00:01|
+| 2 |   TABLE ACCESS FULL| DEPARTMENTS       |    27 |   432 | 2   (0)|00:00:01|
+|*3 |   INDEX RANGE SCAN | EMP_DEPARTMENT_IX |    41 |   123 | 0   (0)|        |
+--------------------------------------------------------------------------------
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - access(&#34;E&#34;.&#34;DEPARTMENT_ID&#34;=&#34;D&#34;.&#34;DEPARTMENT_ID&#34;)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL95297"></a>
+<div class="props_rev_3"><a id="GUID-C02C3673-75E2-4D92-AAEF-30AC58C32AD1"></a>
+<h2 id="TGSQL-GUID-C02C3673-75E2-4D92-AAEF-30AC58C32AD1" class="sect2">Join Optimizations</h2>
+<div>
+<p>Oracle Database can optimize certain types of joins.</p>
+<p>This section describes common join optimizations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_join.htm#GUID-C9E0663B-822E-4733-8016-E56A73D903F3" title="A Bloom filter tests one set of values to determine whether they are members another set, for example, set (10,20,30,40) and set (10,30,60,70). The filter determines that 60 and 70 are guaranteed not to be members of the first set, and that 10 and 30 are probably members. Bloom filters are especially useful when the amount of memory needed to store the filter is small relative to the amount of data in the data set, and when most data is expected to fail the membership test.In this example, a parallel query joins the sales fact table to the products and times dimension tables, and filters on fiscal week 18.">Bloom Filters</a></p>
+</li>
+<li>
+<p><a href="tgsql_join.htm#GUID-3932756E-EDFC-4D4D-93CD-9F9F2AE2C2D7" title="A partition-wise join is an optimization that divides a large join of two tables, one of which must be partitioned on the join key, into several smaller joins.">Partition-Wise Joins</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95298"></a>
+<div class="props_rev_3"><a id="GUID-C9E0663B-822E-4733-8016-E56A73D903F3"></a>
+<h3 id="TGSQL-GUID-C9E0663B-822E-4733-8016-E56A73D903F3" class="sect3">Bloom Filters</h3>
+<div>
+<p>A Bloom filter, named after its creator Burton Bloom, is a low-memory data structure that tests membership in a set. A Bloom filter correctly indicates when an element is not in a set, but can incorrectly indicate when an element is in a set. Thus, false negatives are impossible but false positives are possible.</p>
+</div>
+<a id="TGSQL95299"></a>
+<div class="props_rev_3"><a id="GUID-3B016FCE-13E4-43E3-884E-ED0B212FC9F5"></a>
+<h4 id="TGSQL-GUID-3B016FCE-13E4-43E3-884E-ED0B212FC9F5" class="sect4">Purpose of Bloom Filters</h4>
+<div>
+<p>A Bloom filter tests one set of values to determine whether they are members another set, for example, set (10,20,30,40) and set (10,30,60,70). The filter determines that 60 and 70 are <span class="italic">guaranteed</span> not to be members of the first set, and that 10 and 30 are <span class="italic">probably</span> members. Bloom filters are especially useful when the amount of memory needed to store the filter is small relative to the amount of data in the data set, and when most data is expected to fail the membership test.</p>
+<p>Oracle Database uses Bloom filters to various specific goals, including the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Reduce the amount of data transferred to slave processes in a parallel query, especially when the database discards most rows because they do not fulfill a join condition</p>
+</li>
+<li>
+<p>Eliminate unneeded partitions when building a partition access list in a join, known as <span class="italic">partition pruning</span></p>
+</li>
+<li>
+<p>Test whether data exists in the server result cache, thereby avoiding a disk read</p>
+</li>
+<li>
+<p>Filter members in Exadata cells, especially when joining a large fact table and small dimension tables in a star schema</p>
+</li>
+</ul>
+<p>Bloom filters can occur in both parallel and serial processing.</p>
+</div>
+</div>
+<a id="TGSQL95300"></a>
+<div class="props_rev_3"><a id="GUID-D158E3CF-1B10-4391-A1C6-639216623A35"></a>
+<h4 id="TGSQL-GUID-D158E3CF-1B10-4391-A1C6-639216623A35" class="sect4">How Bloom Filters Work</h4>
+<div>
+<p>A Bloom filter uses an array of bits to indicate inclusion in a set. For example, 8 elements (an arbitrary number used for this example) in an array are initially set to <code class="codeph">0</code>:</p>
+<pre dir="ltr">e1 e2 e3 e4 e5 e6 e7 e8
+ 0  0  0  0  0  0  0  0
+</pre>
+<p>This array represents a set. To represent an input value <span class="italic">i</span> in this array, three separate hash functions (an arbitrary number used for this example) are applied to <span class="italic">i</span>, each generating a hash value between <code class="codeph">1</code> and <code class="codeph">8</code>:</p>
+<pre dir="ltr">f1(i) = h1
+f2(i) = h2
+f3(i) = h3
+</pre>
+<p>For example, to store the value <code class="codeph">17</code> in this array, the hash functions set <span class="italic">i</span> to <code class="codeph">17</code>, and then return the following hash values:</p>
+<pre dir="ltr">f1(17) = 5
+f2(17) = 3
+f3(17) = 5
+</pre>
+<p>In the preceding example, two of the hash functions happened to return the same value of <code class="codeph">5</code>, known as a <span class="italic">hash collision</span>. Because the distinct hash values are <code class="codeph">5</code> and <code class="codeph">3</code>, the 5th and 3rd elements in the array are set to <code class="codeph">1</code>:</p>
+<pre dir="ltr">e1 e2 e3 e4 e5 e6 e7 e8
+ 0  0  1  0  1  0  0  0
+</pre>
+<p>Testing the membership of <code class="codeph">17</code> in the set reverses the process. To test whether the set <span class="italic">excludes</span> the value <code class="codeph">17</code>, element <code class="codeph">3</code> or element <code class="codeph">5</code> must contain a <code class="codeph">0</code>. If a <code class="codeph">0</code> is present in either element, then the set cannot contain <code class="codeph">17</code>. No false negatives are possible.</p>
+<p>To test whether the set <span class="italic">includes</span> <code class="codeph">17</code>, both element <code class="codeph">3</code> and element <code class="codeph">5</code> must contain <code class="codeph">1</code> values. However, if the test indicates a <code class="codeph">1</code> for both elements, then it is still possible for the set <span class="italic">not</span> to include <code class="codeph">17</code>. False positives are possible. For example, the following array might represent the value <code class="codeph">22</code>, which also has a <code class="codeph">1</code> for both element <code class="codeph">3</code> and element <code class="codeph">5</code>:</p>
+<pre dir="ltr">e1 e2 e3 e4 e5 e6 e7 e8
+ 1  0  1  0  1  0  0  0
+</pre></div>
+</div>
+<a id="TGSQL95301"></a>
+<div class="props_rev_3"><a id="GUID-BBC13BB9-9BDC-439C-9A05-974F0FAFFF0C"></a>
+<h4 id="TGSQL-GUID-BBC13BB9-9BDC-439C-9A05-974F0FAFFF0C" class="sect4">Bloom Filter Controls</h4>
+<div>
+<p>The optimizer automatically determines whether to use Bloom filters. To override optimizer decisions, use the hints <code class="codeph">PX_JOIN_FILTER</code> and <code class="codeph">NO_PX_JOIN_FILTER</code>.</p>
+<div class="infoboxnotealso" id="GUID-BBC13BB9-9BDC-439C-9A05-974F0FAFFF0C__GUID-B517338B-E99B-4E61-9BF3-64F800185636">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF50585" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50585"><span class="italic">Oracle Database SQL Language Reference</span></a> to learn more about the bloom filter hints</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95302"></a>
+<div class="props_rev_3"><a id="GUID-BB21BC10-031D-4E43-9774-92764BF84FA4"></a>
+<h4 id="TGSQL-GUID-BB21BC10-031D-4E43-9774-92764BF84FA4" class="sect4">Bloom Filter Metadata</h4>
+<div>
+<p>The following dynamic performance views contain metadata about Bloom filters:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">V$SQL_JOIN_FILTER</code></p>
+<p>This view shows the number of rows filtered out (<code class="codeph">FILTERED</code> column) and tested (<code class="codeph">PROBED</code> column) by an active Bloom filter.</p>
+</li>
+<li>
+<p><code class="codeph">V$PQ_TQSTAT</code></p>
+<p>This view displays the number of rows processed through each parallel execution server at each stage of the execution tree. You can use it to monitor how much Bloom filters have reduced data transfer among parallel processes.</p>
+</li>
+</ul>
+<p>In an execution plan, a Bloom filter is indicated by keywords <code class="codeph">JOIN FILTER</code> in the <code class="codeph">Operation</code> column, and the prefix <code class="codeph">:BF</code> in the <code class="codeph">Name</code> column, as in the 9th step of the following plan snippet:</p>
+<pre dir="ltr">----------------------------------------------------------------------------
+| Id  | Operation                  | Name     |    TQ  |IN-OUT| PQ Distrib |
+----------------------------------------------------------------------------
+...
+|   9 |      <span class="bold">JOIN FILTER CREATE</span>    | <span class="bold">:BF0000</span>  |  Q1,03 | PCWP |            |
+</pre>
+<p>In the <code class="codeph">Predicate Information</code> section of the plan, filters that contain functions beginning with the string <code class="codeph">SYS_OP_BLOOM_FILTER</code> indicate use of a Bloom filter.</p>
+</div>
+</div>
+<a id="TGSQL95303"></a>
+<div class="props_rev_3"><a id="GUID-8E7B4239-B6B2-423E-94D1-DED4338C0077"></a>
+<h4 id="TGSQL-GUID-8E7B4239-B6B2-423E-94D1-DED4338C0077" class="sect4">Bloom Filters: Scenario</h4>
+<div>
+<p>In this example, a parallel query joins the <code class="codeph">sales</code> fact table to the <code class="codeph">products</code> and <code class="codeph">times</code> dimension tables, and filters on fiscal week <code class="codeph">18</code>.</p>
+<pre dir="ltr">SELECT /*+ parallel(s) */ p.prod_name, s.quantity_sold
+FROM   sh.sales s, sh.products p, sh.times t 
+WHERE  s.prod_id = p.prod_id
+AND    s.time_id = t.time_id
+AND    t.fiscal_week_number = 18;
+</pre>
+<p>Querying <code class="codeph">DBMS_XPLAN.DISPLAY_CURSOR</code> provides the following output:</p>
+<pre dir="ltr">SELECT * FROM
+  TABLE(DBMS_XPLAN.DISPLAY_CURSOR(format =&gt; &#39;BASIC,+PARALLEL,+PREDICATE&#39;));
+
+EXPLAINED SQL STATEMENT:
+------------------------
+SELECT /*+ parallel(s) */ p.prod_name, s.quantity_sold FROM sh.sales s,
+sh.products p, sh.times t WHERE s.prod_id = p.prod_id AND s.time_id =
+t.time_id AND t.fiscal_week_number = 18
+ 
+Plan hash value: 1183628457
+ 
+----------------------------------------------------------------------------
+| Id  | Operation                  | Name     |    TQ  |IN-OUT| PQ Distrib |
+----------------------------------------------------------------------------
+|   0 | SELECT STATEMENT           |          |        |      |            |
+|   1 |  PX COORDINATOR            |          |        |      |            |
+|   2 |   PX SEND QC (RANDOM)      | :TQ10003 |  Q1,03 | P-&gt;S | QC (RAND)  |
+|*  3 |    HASH JOIN BUFFERED      |          |  Q1,03 | PCWP |            |
+|   4 |     PX RECEIVE             |          |  Q1,03 | PCWP |            |
+|   5 |      PX SEND BROADCAST     | :TQ10001 |  Q1,01 | S-&gt;P | BROADCAST  |
+|   6 |       PX SELECTOR          |          |  Q1,01 | SCWC |            |
+|   7 |        TABLE ACCESS FULL   | PRODUCTS |  Q1,01 | SCWP |            |
+|*  8 |     HASH JOIN              |          |  Q1,03 | PCWP |            |
+|   9 |      JOIN FILTER CREATE    | :BF0000  |  Q1,03 | PCWP |            |
+|  10 |       BUFFER SORT          |          |  Q1,03 | PCWC |            |
+|  11 |        PX RECEIVE          |          |  Q1,03 | PCWP |            |
+|  12 |         PX SEND HYBRID HASH| :TQ10000 |        | S-&gt;P | HYBRID HASH|
+|* 13 |          TABLE ACCESS FULL | TIMES    |        |      |            |
+|  14 |      PX RECEIVE            |          |  Q1,03 | PCWP |            |
+|  15 |       PX SEND HYBRID HASH  | :TQ10002 |  Q1,02 | P-&gt;P | HYBRID HASH|
+|  16 |        JOIN FILTER USE     | :BF0000  |  Q1,02 | PCWP |            |
+|  17 |         PX BLOCK ITERATOR  |          |  Q1,02 | PCWC |            |
+|* 18 |          TABLE ACCESS FULL | SALES    |  Q1,02 | PCWP |            |
+----------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - access(&#34;S&#34;.&#34;PROD_ID&#34;=&#34;P&#34;.&#34;PROD_ID&#34;)
+   8 - access(&#34;S&#34;.&#34;TIME_ID&#34;=&#34;T&#34;.&#34;TIME_ID&#34;)
+  13 - filter(&#34;T&#34;.&#34;FISCAL_WEEK_NUMBER&#34;=18)
+  18 - access(:Z&gt;=:Z AND :Z&lt;=:Z)
+       filter(SYS_OP_BLOOM_FILTER(:BF0000,&#34;S&#34;.&#34;TIME_ID&#34;))
+</pre>
+<p>A single server process scans the <code class="codeph">times</code> table (Step 13), and then uses a hybrid hash distribution method to send the rows to the parallel execution servers (Step 12). The processes in set <code class="codeph">Q1,03</code> create a bloom filter (Step 9). The processes in set <code class="codeph">Q1,02</code> scan <code class="codeph">sales</code> in parallel (Step 18), and then use the Bloom filter to discard rows from <code class="codeph">sales</code> (Step 16) before sending them on to set <code class="codeph">Q1,03</code> using hybrid hash distribution (Step 15). The processes in set <code class="codeph">Q1,03</code> hash join the <code class="codeph">times</code> rows to the filtered <code class="codeph">sales</code> rows (Step 8). The processes in set <code class="codeph">Q1,01</code> scan <code class="codeph">products</code> (Step 7), and then send the rows to <code class="codeph">Q1,03</code> (Step 5). Finally, the processes in <code class="codeph">Q1,03</code> join the <code class="codeph">products</code> rows to the rows generated by the previous hash join (Step 3).</p>
+<p>The following figure illustrates the basic process.</p>
+<div class="figure" id="GUID-8E7B4239-B6B2-423E-94D1-DED4338C0077__GUID-9F1299A0-1098-4E06-AA8A-E40E730B7BCF">
+<p class="titleinfigure">Figure 9-7 Bloom Filter</p>
+<img width="314" height="182" src="img/GUID-79FD24E4-9D54-41A3-A3EC-FE0452549ED7-default.png" alt="Description of Figure 9-7 follows" title="Description of Figure 9-7 follows"/><br/>
+<a href="img_text/GUID-79FD24E4-9D54-41A3-A3EC-FE0452549ED7-print.htm">Description of &#34;Figure 9-7 Bloom Filter&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+</div>
+<a id="TGSQL95336"></a>
+<div class="props_rev_3"><a id="GUID-3932756E-EDFC-4D4D-93CD-9F9F2AE2C2D7"></a>
+<h3 id="TGSQL-GUID-3932756E-EDFC-4D4D-93CD-9F9F2AE2C2D7" class="sect3">Partition-Wise Joins</h3>
+<div>
+<p>A <span class="bold">partition-wise join</span> is an optimization that divides a large join of two tables, one of which must be partitioned on the join key, into several smaller joins.</p>
+<p>Partition-wise joins are either of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Full partition-wise join</p>
+<p>Both tables must be equipartitioned on their join keys, or use reference partitioning (that is, be related by referential constraints). The database divides a large join into smaller joins between two partitions from the two joined tables.</p>
+</li>
+<li>
+<p>Partial partition-wise joins</p>
+<p>Only one table is partitioned on the join key. The other table may or may not be partitioned.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-3932756E-EDFC-4D4D-93CD-9F9F2AE2C2D7__GUID-9ECD4737-056A-4005-95EE-5734FCE8558B">
+<p class="notep1">See Also:</p>
+<p><a class="olink VLDBG00402" target="_blank" href="../VLDBG/GUID-7C28CD29-5189-4A53-9691-380E13515015.htm#VLDBG00402"><span><cite>Oracle Database VLDB and Partitioning Guide</cite></span></a> explains partition-wise joins in detail</p>
+</div>
+</div>
+<a id="TGSQL95337"></a>
+<div class="props_rev_3"><a id="GUID-F22AB852-6377-4DB9-BACC-8D024616DC1E"></a>
+<h4 id="TGSQL-GUID-F22AB852-6377-4DB9-BACC-8D024616DC1E" class="sect4">Purpose of Partition-Wise Joins</h4>
+<div>
+<p>Partition-wise joins reduce query response time by minimizing the amount of data exchanged among parallel execution servers when joins execute in parallel. This technique significantly reduces response time and improves the use of CPU and memory. In Oracle Real Application Clusters (Oracle RAC) environments, partition-wise joins also avoid or at least limit the data traffic over the interconnect, which is the key to achieving good scalability for massive join operations.</p>
+</div>
+</div>
+<a id="TGSQL95339"></a><a id="TGSQL95338"></a>
+<div class="props_rev_3"><a id="GUID-7DDACB80-9FFC-4B30-A80F-1C0615012C02"></a>
+<h4 id="TGSQL-GUID-7DDACB80-9FFC-4B30-A80F-1C0615012C02" class="sect4">How Partition-Wise Joins Work</h4>
+<div>
+<p>When the database serially joins two partitioned tables <span class="italic">without</span> using a partition-wise join, a single server process performs the join.</p>
+<p>In the following illustration, the join is <span class="italic">not</span> partition-wise because the server process joins every partition of table <code class="codeph">t1</code> to every partition of table <code class="codeph">t2</code>.</p>
+<div class="figure" id="GUID-7DDACB80-9FFC-4B30-A80F-1C0615012C02__BABBAGDD">
+<p class="titleinfigure">Figure 9-8 Join That Is Not Partition-Wise</p>
+<img width="210" height="420" src="img/GUID-0581E305-F31A-4FFC-8EBE-D7A8947F5554-default.png" alt="Description of Figure 9-8 follows" title="Description of Figure 9-8 follows"/><br/>
+<a href="img_text/GUID-0581E305-F31A-4FFC-8EBE-D7A8947F5554-print.htm">Description of &#34;Figure 9-8 Join That Is Not Partition-Wise&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="TGSQL95341"></a><a id="TGSQL95340"></a>
+<div class="props_rev_3"><a id="GUID-C3EAE02A-F6C6-4F7C-A368-F9F498738F76"></a>
+<h5 id="TGSQL-GUID-C3EAE02A-F6C6-4F7C-A368-F9F498738F76" class="sect5">How a Full Partition-Wise Join Works</h5>
+<div>
+<p>The database performs a full partition-wise join either serially or in parallel.</p>
+<p>The following graphic shows a full partition-wise join performed in parallel. In this case, the granule of parallelism is a partition. Each parallel execution server joins the partitions in pairs. For example, the first parallel execution server joins the first partition of <code class="codeph">t1</code> to the first partition of <code class="codeph">t2</code>. The parallel execution coordinator then assembles the result.</p>
+<div class="figure" id="GUID-C3EAE02A-F6C6-4F7C-A368-F9F498738F76__BABJAHAJ">
+<p class="titleinfigure">Figure 9-9 Full Partition-Wise Join in Parallel</p>
+<img width="336" height="393" src="img/GUID-D73F5FCD-79D3-49F9-9830-7311288274EF-default.png" alt="Description of Figure 9-9 follows" title="Description of Figure 9-9 follows"/><br/>
+<a href="img_text/GUID-D73F5FCD-79D3-49F9-9830-7311288274EF-print.htm">Description of &#34;Figure 9-9 Full Partition-Wise Join in Parallel&#34;</a></div>
+<!-- class="figure" -->
+<p>A full partition-wise join can also join partitions to subpartitions, which is useful when the tables use different partitioning methods. For example, <code class="codeph">customers</code> is partitioned by hash, but <code class="codeph">sales</code> is partitioned by range. If you subpartition <code class="codeph">sales</code> by hash, then the database can perform a full partition-wise join between the hash partitions of the <code class="codeph">customers</code> and the hash subpartitions of <code class="codeph">sales</code>.</p>
+<p>In the execution plan, the presence of a partition operation before the join signals the presence of a full partition-wise join, as in the following snippet:</p>
+<pre dir="ltr">|   8 |         PX PARTITION HASH ALL|
+|*  9 |          HASH JOIN           |
+</pre>
+<div class="infoboxnotealso" id="GUID-C3EAE02A-F6C6-4F7C-A368-F9F498738F76__GUID-C57A6C54-D985-48D9-97CE-4C0A57CE0C8D">
+<p class="notep1">See Also:</p>
+<p><a class="olink VLDBG1241" target="_blank" href="../VLDBG/GUID-673EFAFE-6D0C-4323-A086-67385B4DCA76.htm#VLDBG1241"><span class="italic">Oracle Database VLDB and Partitioning Guide</span></a> explains full partition-wise joins in detail, and includes several examples</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95343"></a><a id="TGSQL95342"></a>
+<div class="props_rev_3"><a id="GUID-DB0AC6E5-6E59-4B61-9C96-480A8C8FBFAC"></a>
+<h5 id="TGSQL-GUID-DB0AC6E5-6E59-4B61-9C96-480A8C8FBFAC" class="sect5">How a Partial Partition-Wise Join Works</h5>
+<div>
+<p>Partial partition-wise joins, unlike their full partition-wise counterpart, must execute in parallel.</p>
+<p>The following graphic shows a partial partition-wise join between <code class="codeph">t1</code>, which is partitioned, and <code class="codeph">t2</code>, which is not partitioned.</p>
+<div class="figure" id="GUID-DB0AC6E5-6E59-4B61-9C96-480A8C8FBFAC__BABHJHEH">
+<p class="titleinfigure">Figure 9-10 Partial Partition-Wise Join</p>
+<img width="540" height="423" src="img/GUID-5C5FFA6F-543B-4538-AA42-714D99E5D006-default.png" alt="Description of Figure 9-10 follows" title="Description of Figure 9-10 follows"/><br/>
+<a href="img_text/GUID-5C5FFA6F-543B-4538-AA42-714D99E5D006-print.htm">Description of &#34;Figure 9-10 Partial Partition-Wise Join&#34;</a></div>
+<!-- class="figure" -->
+<p>Because <code class="codeph">t2</code> is not partitioned, a set of parallel execution servers must generate partitions from <code class="codeph">t2</code> as needed. A different set of parallel execution servers then joins the <code class="codeph">t1</code> partitions to the dynamically generated partitions. The parallel execution coordinator assembles the result.</p>
+<p>In the execution plan, the operation <code class="codeph">PX SEND PARTITION (KEY)</code> signals a partial partition-wise join, as in the following snippet:</p>
+<pre dir="ltr">|  11 |            PX SEND PARTITION (KEY)    |
+</pre>
+<div class="infoboxnotealso" id="GUID-DB0AC6E5-6E59-4B61-9C96-480A8C8FBFAC__GUID-C8433A1E-D755-425A-AF43-ABC094A3B9BC">
+<p class="notep1">See Also:</p>
+<p><a class="olink VLDBG1247" target="_blank" href="../VLDBG/GUID-34563811-55B5-4ABF-8960-F225AB3CC240.htm#VLDBG1247"><span><cite>Oracle Database VLDB and Partitioning Guide</cite></span></a> explains full partition-wise joins in detail, and includes several examples</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_optop.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_pt_stats.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

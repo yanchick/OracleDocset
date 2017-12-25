@@ -1,0 +1,1156 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-114017"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Resolving%20Replication%20Conflicts"></a><title>Resolving Replication Conflicts</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 726"/>
+<meta name="dcterms.created" content="2014-09-29T11:11:56Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen In-Memory Database Replication Guide"/>
+<meta name="dcterms.identifier" content="E21635-11"/>
+<meta name="dcterms.isVersionOf" content="TTREP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="monitor.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="perform.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21635-11.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">17/21</span> <!-- End Header -->
+<div id="TTREP519" class="chapter"><a id="BABGABJH"></a>
+<h1 class="chapter"><span class="secnum">13</span> Resolving Replication Conflicts</h1>
+<p>This chapter includes these topics:</p>
+<ul>
+<li>
+<p><a href="#BABJDCDG">How replication conflicts occur</a></p>
+</li>
+<li>
+<p><a href="#BABGFGAG">Using a timestamp to resolve conflicts</a></p>
+</li>
+<li>
+<p><a href="#BABCIGBI">Configuring timestamp comparison</a></p>
+</li>
+<li>
+<p><a href="#BABJIBBB">Reporting conflicts</a></p>
+</li>
+<li>
+<p><a href="#BABBEDGG">The conflict report XML Document Type Definition</a></p>
+</li>
+</ul>
+<a id="BABJDCDG"></a>
+<div id="TTREP615" class="sect1">
+<h2 class="sect1">How replication <a id="sthref795"></a><a id="sthref796"></a><a id="sthref797"></a>conflicts occur</h2>
+<p>Tables in databases configured in a bidirectional replication scheme may be subject to replication conflicts. A replication conflict occurs when applications on bidirectionally replicated databases initiate an update, insert or delete operation on the same data item at the same time. If no special steps are taken, each database can end up in disagreement with the last update made by the other database.</p>
+<p>These types of replication conflicts can occur:</p>
+<ul>
+<li>
+<p><span class="italic">Update conflicts</span>: This type of conflict occurs when concurrently running transactions at different databases make simultaneous update requests on the same row in the same table, and install different values for one or more columns.</p>
+</li>
+<li>
+<p><span class="italic">Uniqueness conflicts</span>: This type of conflict occurs when concurrently running transactions at different databases make simultaneous insert requests for a row in the same table that has the same primary or unique key, but different values for one or more other columns.</p>
+</li>
+<li>
+<p><span class="italic">Delete conflicts</span>: This type of conflict occurs when a transaction at one database deletes a row while a concurrent transaction at another database simultaneously updates or inserts the same row. Currently, TimesTen can detect delete/update conflicts, but cannot detect delete/insert conflicts. TimesTen cannot resolve either type of delete conflict.</p>
+</li>
+</ul>
+<p>See <a href="#BABJIBBB">&#34;Reporting conflicts&#34;</a> for example reports generated by TimesTen upon detecting update, uniqueness, and delete conflicts.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+TimesTen does not detect conflicts involving <code>TRUNCATE TABLE</code> statements.</div>
+<div id="TTREP616" class="sect2"><a id="sthref798"></a>
+<h3 class="sect2">Update and insert conflicts</h3>
+<p><a href="#BABIFFFB">Figure 13-1</a> shows the results from an update conflict, which would occur for the value of <code>X</code> under the following circumstances:</p>
+<div class="inftblhruleinformal">
+<table class="cellalignment5810" title="Steps in an update conflict" summary="This table lists the results of an update conflict under different circumstances." dir="ltr">
+<thead>
+<tr class="cellalignment5804">
+<th class="cellalignment5811" id="r1c1-t3">Steps</th>
+<th class="cellalignment5811" id="r1c2-t3">On Database A</th>
+<th class="cellalignment5811" id="r1c3-t3">On Database B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5804">
+<td class="cellalignment5812" id="r2c1-t3" headers="r1c1-t3">Initial condition</td>
+<td class="cellalignment5812" headers="r2c1-t3 r1c2-t3">X is 1.</td>
+<td class="cellalignment5812" headers="r2c1-t3 r1c3-t3">X is 1.</td>
+</tr>
+<tr class="cellalignment5804">
+<td class="cellalignment5812" id="r3c1-t3" headers="r1c1-t3">The application on each database updates X simultaneously.</td>
+<td class="cellalignment5812" headers="r3c1-t3 r1c2-t3">Set X=2.</td>
+<td class="cellalignment5812" headers="r3c1-t3 r1c3-t3">Set X=100.</td>
+</tr>
+<tr class="cellalignment5804">
+<td class="cellalignment5812" id="r4c1-t3" headers="r1c1-t3">The replication agent on each database sends its update to the other database.</td>
+<td class="cellalignment5812" headers="r4c1-t3 r1c2-t3">Replicate X to database B.</td>
+<td class="cellalignment5812" headers="r4c1-t3 r1c3-t3">Replicate X to database A.</td>
+</tr>
+<tr class="cellalignment5804">
+<td class="cellalignment5812" id="r5c1-t3" headers="r1c1-t3">Each database now has the other&#39;s update.</td>
+<td class="cellalignment5812" headers="r5c1-t3 r1c2-t3">Replication says to set X=100.</td>
+<td class="cellalignment5812" headers="r5c1-t3 r1c3-t3">Replication says to set X=2.</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblhruleinformal" -->
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Uniqueness conflicts resulting from conflicting inserts follow a similar pattern as update conflicts, but the conflict involves the whole row.</div>
+<div id="TTREP617" class="figure">
+<p class="titleinfigure"><a id="BABIFFFB"></a>Figure 13-1 Update conflict</p>
+<img width="462" height="273" src="img/timestamp.gif" alt="Description of Figure 13-1 follows"/><br/>
+<a id="sthref799" href="img_text/timestamp.htm">Description of &#34;Figure 13-1 Update conflict&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>If update or insert conflicts remain unchecked, the master and subscriber databases fall out of synchronization with each other. It may be difficult or even impossible to determine which database is correct.</p>
+<p>With update conflicts, it is possible for a transaction to update many data items but have a conflict on a few of them. Most of the transaction&#39;s effects survive the conflict, with only a few being overwritten by replication. If you decide to ignore such conflicts, the transactional consistency of the application data is compromised.</p>
+<p>If an update conflict occurs, and if the updated columns for each version of the row are different, then the non-primary key fields for the row may diverge between the replicated tables.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Within a single database, update conflicts are prevented by the locking protocol: only one transaction at a time can update a specific row in the database. However, update conflicts can occur in replicated systems due to the ability of each database to operate independently.</div>
+<p>TimesTen replication uses timestamp-based conflict resolution to cope with simultaneous updates or inserts. Through the use of timestamp-based conflict resolution, you may be able to keep the replicated databases synchronized and transactionally consistent.</p>
+</div>
+<!-- class="sect2" -->
+<div id="TTREP618" class="sect2"><a id="sthref800"></a>
+<h3 class="sect2">Delete/update conflicts</h3>
+<p><a href="#BABJFBAI">Figure 13-2</a> shows the results from a delete/update conflict, which would occur for Row 4 under the following circumstances:</p>
+<div class="inftblhruleinformal">
+<table class="cellalignment5810" title="Steps in a delete/update conflict" summary="This table lists the results of a delete/update conflict under different circumstances." dir="ltr">
+<thead>
+<tr class="cellalignment5804">
+<th class="cellalignment5811" id="r1c1-t7">Steps</th>
+<th class="cellalignment5811" id="r1c2-t7">On database A</th>
+<th class="cellalignment5811" id="r1c3-t7">On database B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5804">
+<td class="cellalignment5812" id="r2c1-t7" headers="r1c1-t7">Initial condition.</td>
+<td class="cellalignment5812" headers="r2c1-t7 r1c2-t7">Row 4 exists.</td>
+<td class="cellalignment5812" headers="r2c1-t7 r1c3-t7">Row 4 exists.</td>
+</tr>
+<tr class="cellalignment5804">
+<td class="cellalignment5812" id="r3c1-t7" headers="r1c1-t7">The applications issue a conflicting update and delete on Row 4 simultaneously.</td>
+<td class="cellalignment5812" headers="r3c1-t7 r1c2-t7">Update Row 4.</td>
+<td class="cellalignment5812" headers="r3c1-t7 r1c3-t7">Delete Row 4.</td>
+</tr>
+<tr class="cellalignment5804">
+<td class="cellalignment5812" id="r4c1-t7" headers="r1c1-t7">The replication agent on each database sends the delete or update to the other.</td>
+<td class="cellalignment5812" headers="r4c1-t7 r1c2-t7">Replicate update to database B.</td>
+<td class="cellalignment5812" headers="r4c1-t7 r1c3-t7">Replicate delete to database A.</td>
+</tr>
+<tr class="cellalignment5804">
+<td class="cellalignment5812" id="r5c1-t7" headers="r1c1-t7">Each database now has the delete or update from the other database.</td>
+<td class="cellalignment5812" headers="r5c1-t7 r1c2-t7">Replication says to delete Row 4.</td>
+<td class="cellalignment5812" headers="r5c1-t7 r1c3-t7">Replication says to update Row 4.</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblhruleinformal" -->
+<div id="TTREP619" class="figure">
+<p class="titleinfigure"><a id="BABJFBAI"></a>Figure 13-2 Delete/update conflict</p>
+<img width="459" height="270" src="img/delete_conflict.gif" alt="Description of Figure 13-2 follows"/><br/>
+<a id="sthref801" href="img_text/delete_conflict.htm">Description of &#34;Figure 13-2 Delete/update conflict&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>Although TimesTen can detect and report delete/update conflicts, it cannot resolve them. Under these circumstances, the master and subscriber databases fall out of synchronization with each other.</p>
+<p>Although TimesTen cannot ensure synchronization between databases following such a conflict, it does ensure that the most recent transaction is applied to each database. If the timestamp for the delete is more recent than that for the update, the row is deleted on each database. If the timestamp for the update is more recent than that for the delete, the row is updated on the local database. However, because the row was deleted on the other database, the replicated update is discarded. See <a href="#BABFDHBI">&#34;Reporting delete/update conflicts&#34;</a> for example reports.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+There is an exception to this behavior when timestamp comparison is enabled on a table using <code>UPDATE BY USER</code>. See <a href="#BABHCHDD">&#34;Enabling user timestamp column maintenance&#34;</a> for details.</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABGFGAG"></a>
+<div id="TTREP620" class="sect1">
+<h2 class="sect1">Using a timestamp to resolve conflicts<a id="sthref802"></a></h2>
+<p>For replicated tables that are subject to conflicts, create the table with a special column of type <code>BINARY(8)</code> to hold a timestamp value that indicates the time the row was inserted or last updated. You can then configure TimesTen to automatically insert a timestamp value into this column each time a particular row is changed, as described in <a href="#BABCIGBI">&#34;Configuring timestamp comparison&#34;</a>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+TimesTen does not support conflict resolution between cached tables in a cache group and an Oracle database.</div>
+<p>How replication computes the timestamp column depends on your system:</p>
+<ul>
+<li>
+<p>On UNIX systems, the timestamp value is derived from the <code>timeval</code> structure returned by the <code>gettimeofday</code> system call. This structure reports the time of day in a pair of 4-byte words to a resolution of 1 microsecond. The actual resolution of the value is system-dependent.</p>
+</li>
+<li>
+<p>On Windows systems, the timestamp value is derived from the <span class="bold">GetSystemTimeAsFileTime</span> Win32 call. The Windows file time is reported in units of 0.1 microseconds, but effective granularity can be as coarse as 10 milliseconds.</p>
+</li>
+</ul>
+<p>TimesTen uses the time value returned by the system at the time the transaction applies each record as the record&#39;s insert or update time. Therefore, rows that are inserted or updated by a single transaction may receive different timestamp values.</p>
+<p>When applying a <a id="sthref803"></a>transaction received from a master, the replication agent at the subscriber database performs timestamp resolution for insert, update, and delete operations as follows:</p>
+<ul>
+<li>
+<p>When applying replicated <code>INSERT</code> operations:</p>
+<ul>
+<li>
+<p>If the timestamp of the transaction record to be applied is newer than the timestamp of the existing row, the existing row is overwritten.</p>
+</li>
+<li>
+<p>If the timestamp of the transaction record and the stored record are equal, the insert operation is discarded.</p>
+</li>
+<li>
+<p>If the timestamp of the transaction record is older than the timestamp of the stored record, the insert operation from the transaction is discarded.</p>
+</li>
+<li>
+<p>If the stored row has been deleted, then no timestamp is available for comparison. A replicated insert operation on a previously deleted row is applied as an insert.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>When applying replicated <code>UPDATE</code> operations:</p>
+<ul>
+<li>
+<p>If the timestamp of the transaction record to be applied is newer than the timestamp of the stored record, TimesTen applies the update operation to the row.</p>
+</li>
+<li>
+<p>If the timestamp of the transaction record and the stored record are equal, the update operation is discarded.</p>
+</li>
+<li>
+<p>If the timestamp of the transaction record is older than the timestamp of the stored record, the update operation from the transaction is discarded.</p>
+</li>
+<li>
+<p>If the stored row has been deleted, then no timestamp is available for comparison. Any replicated update operations designated for the deleted row are discarded.</p>
+</li>
+<li>
+<p>An update operation that cannot find the updated row is considered a delete conflict, which is reported but cannot be resolved.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>When applying replicated <code>DELETE</code> operations:</p>
+<ul>
+<li>
+<p>If the timestamp of a replicated delete operation is newer than the timestamp of the existing row, the existing row is deleted.</p>
+</li>
+<li>
+<p>If the timestamp of a replicated delete operation is older than the timestamp of the stored record (the row has been modified recently), the delete operation is rejected.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If the <code>ON EXCEPTION NO ACTION</code> clause is specified for a table, then the update, insert, or delete operation that fails a timestamp comparison is rejected. This may result in transactional inconsistencies if replication applies some (but not all) of the actions of a transaction. If the <code>ON EXCEPTION ROLLBACK WORK</code> clause is specified for a table (which is also the default), an update operation that fails timestamp comparison causes the entire transaction to be rejected.</div>
+</li>
+</ul>
+<div id="TTREP628" class="sect2"><a id="sthref804"></a>
+<h3 class="sect2">Timestamp comparisons for local updates<a id="sthref805"></a></h3>
+<p>To maintain synchronization of tables between replicated sites, TimesTen also performs timestamp comparisons for updates performed by local transactions. If an updated table is declared to have automatic timestamp maintenance, then updates to records that have timestamps exceeding the current system time are prohibited.</p>
+<p>Normally, clocks on replicated systems are synchronized sufficiently to ensure that a locally updated record is given a later timestamp than that in the same record stored on the other systems. Perfect synchronization may not be possible or affordable, but by protecting record timestamps from &#34;going backwards,&#34; replication can help to ensure that the tables on replicated systems stay synchronized.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABCIGBI"></a>
+<div id="TTREP621" class="sect1">
+<h2 class="sect1"><a id="sthref806"></a><a id="sthref807"></a>Configuring timestamp comparison</h2>
+<p>To configure timestamp comparison:</p>
+<ul>
+<li>
+<p>Include a column in your replicated tables to hold the timestamp value. See <a href="#BABEFFFE">&#34;Including a timestamp column in replicated tables&#34;</a>.</p>
+</li>
+<li>
+<p>Include a <code>CHECK CONFLICTS</code> clause for each <code>TABLE</code> element in the <code>CREATE REPLICATION</code> statement to identify the timestamp column, how timestamps are to be generated, what to do in the event of a conflict, and how to report conflicts. See <a href="#BABFFGEA">&#34;Configuring the CHECK CONFLICTS clause&#34;</a>.</p>
+</li>
+</ul>
+<a id="BABEFFFE"></a>
+<div id="TTREP622" class="sect2">
+<h3 class="sect2">Including a timestamp column in replicated tables</h3>
+<p>To use timestamp comparison on replicated tables, you must specify a nullable column of type <code>BINARY(8)</code> to hold the timestamp value. The timestamp column must be created along with the table as part of a <code>CREATE TABLE</code> statement. It cannot be added later as part of an <code>ALTER TABLE</code> statement. In addition, the timestamp column cannot be part of a primary key or index. <a href="#BABEHDCC">Example 13-1</a> shows that the <code>rep.tab</code> table contains a column named <code>tstamp</code> of type <code>BINARY(8)</code> to hold the timestamp value.</p>
+<div id="TTREP623" class="example">
+<p class="titleinexample"><a id="BABEHDCC"></a>Example 13-1 Including a timestamp column when creating a table</p>
+<pre>CREATE TABLE rep.tab (col1 NUMBER NOT NULL,
+                      col2 NUMBER NOT NULL,
+                      tstamp BINARY(8),
+                      PRIMARY KEY (col1));
+</pre>
+<p>If no timestamp column is defined in the replicated table, timestamp comparison cannot be performed to detect conflicts. Instead, at each site, the value of a row in the database reflects the most recent update applied to the row, either by local applications or by replication.</p>
+</div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<a id="BABFFGEA"></a>
+<div id="TTREP624" class="sect2">
+<h3 class="sect2">Configuring the CHECK CONFLICTS clause<a id="sthref808"></a></h3>
+<p>When configuring your replication scheme, you can set up timestamp comparison for a <code>TABLE</code> element by including a <code>CHECK CONFLICTS</code> clause in the table&#39;s element description in the <code>CREATE REPLICATION</code> statement.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+A <code>CHECK CONFLICT</code> clause cannot be specified for <code>DATASTORE</code> elements.</div>
+<p>For more details on the syntax, see <a class="olink TTSQL298" href="../TTSQL/state.htm#TTSQL298">&#34;CREATE REPLICATION&#34;</a> statement and <a class="olink TTSQL299" href="../TTSQL/state.htm#TTSQL299">&#34;CHECK CONFLICTS&#34;</a> clause in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>. <a href="#BABEADAD">Example 13-2</a> shows how <code>CHECK CONFLICTS</code> might be used when configuring your replication scheme.</p>
+<div id="TTREP625" class="example">
+<p class="titleinexample"><a id="BABEADAD"></a>Example 13-2 Automatic timestamp comparison</p>
+<p>In this example, we establish automatic timestamp comparison for the bidirectional replication scheme defined in <a href="design.htm#CHDGIFDF">Example 9-10</a>. The DSNs, <code>west_dsn</code> and <code>east_dsn</code>, define the <code>westds</code> and <code>eastds</code> databases that replicate the <code>repl.accounts</code> table containing the <code>tstamp</code> timestamp table. In the event of a comparison failure, discard the transaction that includes an update with the older timestamp.</p>
+<pre>CREATE REPLICATION r1
+ELEMENT elem_accounts_1 TABLE accounts
+  CHECK CONFLICTS BY ROW TIMESTAMP
+    COLUMN tstamp
+    UPDATE BY SYSTEM
+    ON EXCEPTION ROLLBACK WORK
+  MASTER westds ON &#34;westcoast&#34;
+  SUBSCRIBER eastds ON &#34;eastcoast&#34;
+ELEMENT elem_accounts_2 TABLE accounts
+  CHECK CONFLICTS BY ROW TIMESTAMP
+    COLUMN tstamp
+    UPDATE BY SYSTEM
+    ON EXCEPTION ROLLBACK WORK
+  MASTER eastds ON &#34;eastcoast&#34;
+  SUBSCRIBER westds ON &#34;westcoast&#34;;
+</pre>
+<p>When bidirectionally replicating databases with conflict resolution, the replicated tables on each database must be set with the same <code>CHECK CONFLICTS</code> attributes. If you need to disable or change the <code>CHECK CONFLICTS</code> settings for the replicated tables, use the <code>ALTER REPLICATION</code> statement described in <a href="alter.htm#BGBJGBFH">&#34;Eliminating conflict detection in a classic replication scheme&#34;</a> and apply to each replicated database.</p>
+</div>
+<!-- class="example" -->
+<div id="TTREP626" class="sect3"><a id="sthref809"></a>
+<h4 class="sect3">Enabling system <a id="sthref810"></a><a id="sthref811"></a>timestamp column maintenance</h4>
+<p>Enable system timestamp comparison by using:</p>
+<pre>CHECK CONFLICTS BY ROW TIMESTAMP
+  COLUMN <span class="italic">ColumnName</span>
+  UPDATE BY SYSTEM
+</pre>
+<p>TimesTen automatically maintains the value of the timestamp column using the current time returned by the underlying operating system. This is the default setting.</p>
+<p>When you specify <code>UPDATE BY SYSTEM</code>, TimesTen:</p>
+<ul>
+<li>
+<p>Initializes the timestamp column to the current time when a new record is inserted into the table.</p>
+</li>
+<li>
+<p>Updates the timestamp column to the current time when an existing record is modified.</p>
+</li>
+</ul>
+<p>During initial load, the timestamp column values should be left <code>NULL</code>, and applications should not give a value for the timestamp column when inserting or updating a row.</p>
+<p>When you use the <code>ttBulkCp</code> or <code>ttMigrate</code> utility to save TimesTen tables, the saved rows maintain their current timestamp values. When the table is subsequently copied or migrated back into TimesTen, the timestamp column retains the values it had when the copy or migration file was created.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If you configure TimesTen for timestamp comparison after using the <code>ttBulkCp</code> or <code>ttMigrate</code> to copy or migrate your tables, the initial values of the timestamp columns remain <code>NULL</code>, which is considered by replication to be the earliest possible time.</div>
+</div>
+<!-- class="sect3" -->
+<a id="BABHCHDD"></a>
+<div id="TTREP627" class="sect3">
+<h4 class="sect3">Enabling user timestamp column maintenance<a id="sthref812"></a></h4>
+<p>Enable user timestamp column maintenance on a table by using:</p>
+<pre>CHECK CONFLICTS BY ROW TIMESTAMP
+  COLUMN <span class="italic">ColumnName</span>
+  UPDATE BY USER
+</pre>
+<p>When you configure <code>UPDATE BY USER</code>, your application is responsible for maintaining timestamp values. The timestamp values used by your application can be arbitrary, but the time values cannot decrease. In cases where the user explicitly sets or updates the timestamp column, the application-provided value is used instead of the current time.</p>
+<p>Replicated delete operations always carry a system-generated timestamp. If replication has been configured with <code>UPDATE BY USER</code> and an update/delete conflict occurs, the conflict is resolved by comparing the two timestamp values and the operation with the larger timestamp wins. If the basis for the user timestamp varies from that of the system-generated timestamp, the results may not be as expected. Therefore, if you expect delete conflicts to occur, use system-generated timestamps.</p>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABJIBBB"></a>
+<div id="TTREP629" class="sect1">
+<h2 class="sect1"><a id="sthref813"></a><a id="sthref814"></a>Reporting conflicts</h2>
+<p>TimesTen conflict checking may be configured to report conflicts to a human-readable plain text file, or to an XML file for use by user applications. This section includes the topics:</p>
+<ul>
+<li>
+<p><a href="#BABFBDHC">Reporting conflicts to a text file</a></p>
+</li>
+<li>
+<p><a href="#BABJIHHA">Reporting conflicts to an XML file</a></p>
+</li>
+<li>
+<p><a href="#BABJJFDF">Reporting uniqueness conflicts</a></p>
+</li>
+<li>
+<p><a href="#BABHEIJH">Reporting update conflicts</a></p>
+</li>
+<li>
+<p><a href="#BABFDHBI">Reporting delete/update conflicts</a></p>
+</li>
+<li>
+<p><a href="#BABJDAIB">Suspending and resuming the reporting of conflicts</a></p>
+</li>
+</ul>
+<a id="BABFBDHC"></a>
+<div id="TTREP630" class="sect2">
+<h3 class="sect2">Reporting conflicts to a text file</h3>
+<p>To configure replication to report conflicts to a human-readable text file (the default), use:</p>
+<pre>CHECK CONFLICTS BY ROW TIMESTAMP
+  COLUMN <span class="italic">ColumnName</span>
+  ...
+  REPORT TO &#39;<span class="italic">FileName</span>&#39; FORMAT STANDARD
+</pre>
+<p>An entry is added to the report file <code><span class="codeinlineitalic">FileName</span></code> that describes each conflict. The phrase <code>FORMAT STANDARD</code> is optional and may be omitted, as the standard report format is the default.</p>
+<p>Each failed operation logged in the report consists of an entry that starts with a header, followed by information specific to the conflicting operation. Each entry is separated by a number of blank lines in the report.</p>
+<p>The header contains:</p>
+<ul>
+<li>
+<p>The time the conflict was discovered.</p>
+</li>
+<li>
+<p>The databases that sent and received the conflicting update.</p>
+</li>
+<li>
+<p>The table in which the conflict occurred.</p>
+</li>
+</ul>
+<p>The header has the following format:</p>
+<pre>Conflict detected at <span class="italic">time</span> on <span class="italic">date</span>
+Datastore : <span class="italic">subscriber_database</span>
+Transmitting name : <span class="italic">master</span><span class="italic">_database</span>
+Table : <span class="italic">username</span>.<span class="italic">tablename</span>
+</pre>
+<p>For example:</p>
+<pre>Conflict detected at 20:08:37 on 05-17-2004
+Datastore : /tmp/subscriberds
+Transmitting name : MASTERDS
+Table : USER1.T1
+</pre>
+<p>Following the header is the information specific to the conflict. Data values are shown in ASCII format. Binary data is translated into hexadecimal before display, and floating-point values are shown with appropriate precision and scale.</p>
+<p>For further description of the conflict report file, see <a href="#BABJJFDF">&#34;Reporting uniqueness conflicts&#34;</a>, <a href="#BABHEIJH">&#34;Reporting update conflicts&#34;</a> and <a href="#BABFDHBI">&#34;Reporting delete/update conflicts&#34;</a>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABJIHHA"></a>
+<div id="TTREP631" class="sect2">
+<h3 class="sect2">Reporting conflicts to an XML file</h3>
+<p>To configure replication to report conflicts to an XML file, use:</p>
+<pre>CHECK CONFLICTS BY ROW TIMESTAMP
+  COLUMN <span class="italic">ColumnName</span>
+  ...
+  REPORT TO &#39;<span class="italic">FileName</span>&#39; FORMAT XML
+</pre>
+<p>Replication uses the base file name <code><span class="codeinlineitalic">FileName</span></code> to create two files. <code><span class="codeinlineitalic">FileName</span></code><code>.xml</code> is a header file that contains the XML Document Type Definition for the conflict report structure, as well as the root element, defined as <code>&lt;ttrepconflictreport&gt;</code>. Inside the root element is an XML directive to include the file <code><span class="codeinlineitalic">FileName</span></code><code>.include</code>, and it is to this file that all conflicts are written. Each conflict is written as a single element of type <code>&lt;conflict&gt;</code>.</p>
+<p>For further description of the conflict report file XML elements, see <a href="#BABBEDGG">&#34;The conflict report XML Document Type Definition&#34;</a>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+When performing log maintenance on an XML conflict report file, only the file <code><span class="codeinlineitalic">FileName</span></code>.include should be truncated or moved. For conflict reporting to continue to function correctly, the file <code><span class="codeinlineitalic">FileName</span></code><code>.xml</code> should be left untouched.</div>
+</div>
+<!-- class="sect2" -->
+<a id="BABJJFDF"></a>
+<div id="TTREP632" class="sect2">
+<h3 class="sect2">Reporting uniqueness conflicts</h3>
+<p>A uniqueness conflict record is issued when a replicated insert fails because of a conflict.</p>
+<p>A uniqueness conflict record in the report file contains:</p>
+<ul>
+<li>
+<p>The timestamp and values for the existing tuple, which is the tuple that the conflicting tuple is in conflict with</p>
+</li>
+<li>
+<p>The timestamp and values for the conflicting insert tuple, which is the tuple of the insert that failed</p>
+</li>
+<li>
+<p>The key column values used to identify the record</p>
+</li>
+<li>
+<p>The action that was taken when the conflict was detected (discard the single row insert or the entire transaction)</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If the transaction was discarded, the contents of the entire transaction are logged in the report file.</div>
+</li>
+</ul>
+<p>The format of a uniqueness conflict record is:</p>
+<pre>Conflicting insert tuple timestamp : &lt;timestamp in binary format&gt;
+Existing tuple timestamp : &lt;timestamp in binary format&gt;
+The existing tuple :
+&lt;&lt;column value&gt; [,&lt;column value&gt;. ..]&gt;
+The conflicting tuple :
+&lt;&lt;column value&gt; [,&lt;column value&gt; ...]&gt;
+The key columns for the tuple:
+&lt;&lt;key column name&gt; : &lt;key column value&gt;&gt;
+Transaction containing this insert skipped
+Failed transaction:
+Insert into table &lt;user&gt;.&lt;table&gt; &lt;&lt;columnvalue&gt; [,&lt;columnvalue&gt;...]&gt;
+End of failed transaction
+</pre>
+<p><a href="#BABCJABJ">Example 13-3</a> shows the output from a uniqueness conflict on the row identified by the primary key value, &#39;2&#39;. The older insert replicated from <code>subscriberds</code> conflicts with the newer insert in <code>masterds</code>, so the replicated insert is discarded.</p>
+<div id="TTREP633" class="example">
+<p class="titleinexample"><a id="BABCJABJ"></a>Example 13-3 Output from uniqueness conflict</p>
+<pre>Conflict detected at 13:36:00 on 03-25-2002
+Datastore : /tmp/masterds
+Transmitting name : SUBSCRIBERDS
+Table : TAB
+Conflicting insert tuple timestamp : 3C9F983D00031128
+Existing tuple timestamp : 3C9F983E000251C0
+The existing tuple :
+&lt; 2, 2, 3C9F983E000251C0&gt;
+The conflicting tuple :
+&lt; 2, 100, 3C9F983D00031128&gt;
+The key columns for the tuple:
+&lt;COL1 : 2&gt;
+Transaction containing this insert skipped
+Failed transaction:
+Insert into table TAB &lt; 2, 100, 3C9F983D00031128&gt;
+End of failed transaction
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<a id="BABHEIJH"></a>
+<div id="TTREP634" class="sect2">
+<h3 class="sect2">Reporting update conflicts</h3>
+<p>An update conflict record is issued when a replicated update fails because of a conflict. This record reports:</p>
+<ul>
+<li>
+<p>The timestamp and values for the existing tuple, which is the tuple that the conflicting tuple is in conflict with.</p>
+</li>
+<li>
+<p>The timestamp and values for the conflicting update tuple, which is the tuple of the update that failed.</p>
+</li>
+<li>
+<p>The old values, which are the original values of the conflicting tuple before the failed update.</p>
+</li>
+<li>
+<p>The key column values used to identify the record.</p>
+</li>
+<li>
+<p>The action that was taken when the conflict was detected (discard the single row update or the entire transaction).</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If the transaction was discarded, the contents of the entire transaction are logged in the report file.</div>
+</li>
+</ul>
+<p>The format of an update conflict record is:</p>
+<pre>Conflicting update tuple timestamp : &lt;timestamp in binary format&gt;
+Existing tuple timestamp : &lt;timestamp in binary format&gt;
+The existing tuple :
+&lt;&lt;column value&gt; [,&lt;column value&gt;. ..]&gt;
+The conflicting update tuple :
+TSTAMP :&lt;timestamp&gt; :&lt;&lt;column value&gt; [,&lt;column value&gt;. ..]&gt;
+The old values in the conflicting update:
+TSTAMP :&lt;timestamp&gt; :&lt;&lt;column value&gt; [,&lt;column value&gt;. ..]&gt;
+The key columns for the tuple:
+&lt;&lt;key column name&gt; : &lt;key column value&gt;&gt;
+Transaction containing this update skipped
+Failed transaction:
+Update table &lt;user&gt;.&lt;table&gt; with keys:
+&lt;&lt;key column name&gt; : &lt;key column value&gt;&gt;
+New tuple value:
+&lt;TSTAMP :&lt;timestamp&gt; :&lt;&lt;column value&gt; [,&lt;column value&gt;. ..]&gt;
+End of failed transaction
+</pre>
+<p><a href="#BABBGIJB">Example 13-4</a> shows the output from an update conflict on the <code>col2</code> value in the row identified by the primary key value, &#39;6&#39;. The older update replicated from the <code>masterds</code> database conflicts with the newer update in <code>subscriberds</code>, so the replicated update is discarded.</p>
+<div id="TTREP635" class="example">
+<p class="titleinexample"><a id="BABBGIJB"></a>Example 13-4 Output from an update conflict</p>
+<pre>Conflict detected at 15:03:18 on 03-25-2002
+Datastore : /tmp/subscriberds
+Transmitting name : MASTERDS
+Table : TAB
+Conflicting update tuple timestamp : 3C9FACB6000612B0
+Existing tuple timestamp : 3C9FACB600085CA0
+The existing tuple :
+&lt; 6, 99, 3C9FACB600085CA0&gt;
+The conflicting update tuple :
+&lt;TSTAMP :3C9FACB6000612B0, COL2 : 50&gt;
+The old values in the conflicting update:
+&lt;TSTAMP :3C9FAC85000E01F0, COL2 : 2&gt;
+The key columns for the tuple:
+&lt;COL1 : 6&gt;
+Transaction containing this update skipped
+Failed transaction:
+Update table TAB with keys:
+&lt;COL1 : 6&gt;
+New tuple value: &lt;TSTAMP :3C9FACB6000612B0, COL2 : 50&gt;
+End of failed transaction
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<a id="BABFDHBI"></a>
+<div id="TTREP636" class="sect2">
+<h3 class="sect2">Reporting delete/update conflicts</h3>
+<p>A delete/update conflict record is issued when an update is attempted on a row that has more recently been deleted. This record reports:</p>
+<ul>
+<li>
+<p>The timestamp and values for the conflicting update tuple or conflicting delete tuple, whichever tuple failed.</p>
+</li>
+<li>
+<p>If the delete tuple failed, the report also includes the timestamp and values for the existing tuple, which is the surviving update tuple with which the delete tuple was in conflict.</p>
+</li>
+<li>
+<p>The key column values used to identify the record.</p>
+</li>
+<li>
+<p>The action that was taken when the conflict was detected (discard the single row update or the entire transaction).</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If the transaction was discarded, the contents of the entire transaction are logged in the report file. TimesTen cannot detect delete/insert conflicts.</div>
+</li>
+</ul>
+<p>The format of a record that indicates a delete conflict with a failed update is:</p>
+<pre>Conflicting update tuple timestamp : &lt;timestamp in binary format&gt;
+The conflicting update tuple :
+TSTAMP :&lt;timestamp&gt; :&lt;&lt;column value&gt; [,&lt;column value&gt;. ..]&gt;
+This transaction skipped
+The tuple does not exist
+Transaction containing this update skipped
+Update table &lt;user&gt;.&lt;table&gt; with keys:
+&lt;&lt;key column name&gt; : &lt;key column value&gt;&gt;
+New tuple value:
+&lt;TSTAMP :&lt;timestamp&gt; :&lt;&lt;column value&gt; [,&lt;column value&gt;. ..]&gt;
+End of failed transaction
+</pre>
+<p><a href="#BABHCHBJ">Example 13-5</a> shows the output from a delete/update conflict caused by an update on a row that has more recently been deleted. Because there is no row to update, the update from <code>SUBSCRIBERDS</code> is discarded.</p>
+<div id="TTREP637" class="example">
+<p class="titleinexample"><a id="BABHCHBJ"></a>Example 13-5 Output from a delete/update conflict: delete is more recent</p>
+<pre>Conflict detected at 15:27:05 on 03-25-2002
+Datastore : /tmp/masterds
+Transmitting name : SUBSCRIBERDS
+Table : TAB
+Conflicting update tuple timestamp : 3C9FB2460000AFC8
+The conflicting update tuple :
+&lt;TSTAMP :3C9FB2460000AFC8, COL2 : 99&gt;
+The tuple does not exist
+Transaction containing this update skipped
+Failed transaction:
+Update table TAB with keys:
+&lt;COL1 : 2&gt;
+New tuple value: &lt;TSTAMP :3C9FB2460000AFC8,
+COL2 : 99&gt;
+End of failed transaction
+</pre>
+<p>The format of a record that indicates an update conflict with a failed delete is:</p>
+<pre>Conflicting binary delete tuple timestamp : &lt;timestamp in binary format&gt;
+Existing binary tuple timestamp : &lt;timestamp in binary format&gt;
+The existing tuple :
+&lt;&lt;column value&gt; [,&lt;column value&gt;. ..]&gt;
+The key columns for the tuple:
+&lt;&lt;key column name&gt; : &lt;key column value&gt;&gt;
+Transaction containing this delete skipped
+Failed transaction:
+Delete table &lt;user&gt;.&lt;table&gt; with keys:
+&lt;&lt;key column name&gt; : &lt;key column value&gt;&gt;
+End of failed transaction
+</pre>
+<p><a href="#BABIGDBI">Example 13-6</a> shows the output from a delete/update conflict caused by a delete on a row that has more recently been updated. Because the row was updated more recently than the delete, the delete from <code>masterds</code> is discarded.</p>
+</div>
+<!-- class="example" -->
+<div id="TTREP638" class="example">
+<p class="titleinexample"><a id="BABIGDBI"></a>Example 13-6 Output from a delete/update conflict: update is more recent</p>
+<pre>Conflict detected at 15:27:20 on 03-25-2002
+Datastore : /tmp/subscriberds
+Transmitting name : MASTERDS
+Table : TAB
+Conflicting binary delete tuple timestamp : 3C9FB258000708C8
+Existing binary tuple timestamp : 3C9FB25800086858
+The existing tuple :
+&lt; 147, 99, 3C9FB25800086858&gt;
+The key columns for the tuple:
+&lt;COL1 : 147&gt;
+Transaction containing this delete skipped
+Failed transaction:
+Delete table TAB with keys:
+&lt;COL1 : 147&gt;
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<a id="BABJDAIB"></a>
+<div id="TTREP639" class="sect2">
+<h3 class="sect2">Suspending and resuming the reporting of conflicts</h3>
+<p>Provided your applications are well-behaved, replication usually encounters and reports only sporadic conflicts. However, it is sometimes possible under heavy load to trigger a flurry of conflicts in a short amount of time, particularly when applications are in development and such errors are expected. This can potentially have a negative impact on the performance of the host because of excessive writes to the conflict report file and the large number of SNMP traps that can be generated.</p>
+<p>To avoid overwhelming a host with replication conflicts, you can configure replication to suspend conflict reporting when the number of conflicts per second has exceeded a user-specified threshold. Conflict reporting may also be configured to resume once the conflicts per second have fallen below a user-specified threshold.</p>
+<p>Conflict reporting suspension and resumption can be detected by an application by catching the SNMP traps <code>ttRepConflictReportStoppingTrap</code> and <code>ttRepConflictReportStartingTrap</code>, respectively. See <a class="olink TTERR138" href="../TTERR/snmp.htm#TTERR138">&#34;Diagnostics through SNMP Traps&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Error Messages and SNMP Traps</span> for more information.</p>
+<p>To configure conflict reporting to be suspended and resumed based on the number of conflicts per second, use the <code>CONFLICT REPORTING SUSPEND AT</code> and <code>CONFLICT REPORTING RESUME AT</code> attributes for the <code>STORE</code> clause of a replication scheme.</p>
+<p>If the replication agent is stopped while conflict reporting is suspended, conflict reporting is enabled when the replication agent is restarted. The SNMP trap <code>ttRepConflictReportingStartingTrap</code> is not sent if this occurs. This means that an application that monitors the conflict report suspension traps must also monitor the traps for replication agent stopping and starting.</p>
+<p>If you set <code>CONFLICT REPORTING RESUME AT</code> to <code>0</code>, reporting does not resume until the replication agent is restarted.</p>
+<p><a href="#BABCDCJJ">Example 13-7</a> demonstrates the configuration of a replication schemes where conflict reporting ceases when the number of conflicts exceeds 20 per second, and conflict reporting resumes when the number of conflicts drops below 10 per second.</p>
+<div id="TTREP640" class="example">
+<p class="titleinexample"><a id="BABCDCJJ"></a>Example 13-7 Configuring conflict reporting thresholds</p>
+<pre>CREATE REPLICATION r1
+ELEMENT elem_accounts_1 TABLE accounts
+      CHECK CONFLICTS BY ROW TIMESTAMP
+        COLUMN tstamp
+        UPDATE BY SYSTEM
+        ON EXCEPTION ROLLBACK WORK
+        REPORT TO &#39;conflicts&#39; FORMAT XML
+  MASTER westds ON &#34;westcoast&#34;
+  SUBSCRIBER eastds ON &#34;eastcoast&#34;
+ELEMENT elem_accounts_2 TABLE accounts
+      CHECK CONFLICTS BY ROW TIMESTAMP
+        COLUMN tstamp
+        UPDATE BY SYSTEM
+        ON EXCEPTION ROLLBACK WORK
+        REPORT TO &#39;conflicts&#39; FORMAT XML
+  MASTER eastds ON &#34;eastcoast&#34;
+  SUBSCRIBER westds ON &#34;westcoast&#34;
+STORE westds ON &#34;westcoast&#34;
+  CONFLICT REPORTING SUSPEND AT 20
+  CONFLICT REPORTING RESUME AT 10
+STORE eastds ON &#34;eastcoast&#34;
+  CONFLICT REPORTING SUSPEND AT 20
+  CONFLICT REPORTING RESUME AT 10;
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABBEDGG"></a>
+<div id="TTREP641" class="sect1">
+<h2 class="sect1">The conflict report XML Document Type Definition<a id="sthref815"></a></h2>
+<p>The TimesTen XML format conflict report is are based on the XML 1.0 specification (<code><a href="http://www.w3.org/TR/REC-xml">http://www.w3.org/TR/REC-xml</a></code>). The XML Document Type Definition (DTD) for the replication conflict report is a set of markup declarations that describes the elements and structure of a valid XML file containing a log of replication conflicts. This DTD can be found in the XML header file, identified by the suffix <code>.xml</code>, that is created when replication is configured to report conflicts to an XML file. User applications which understand XML use the DTD to parse the rest of the XML replication conflict report. For more information on reading and understanding XML Document Type Definitions, see <code><a href="http://www.w3.org/TR/REC-xml">http://www.w3.org/TR/REC-xml</a></code>.</p>
+<pre>&lt;?xml version=&#34;1.0&#34;?&gt;
+&lt;!DOCTYPE ttreperrorlog [
+    &lt;!ELEMENT ttrepconflictreport(conflict*) &gt;
+    &lt;!ELEMENT repconflict        (header, conflict, scope, failedtransaction) &gt; 
+    &lt;!ELEMENT header             (time, datastore, transmitter, table) &gt;
+    &lt;!ELEMENT time               (hour, min, sec, year, month, day) &gt;
+    &lt;!ELEMENT hour               (#PCDATA) &gt;
+    &lt;!ELEMENT min                (#PCDATA) &gt;
+    &lt;!ELEMENT sec                (#PCDATA) &gt;
+    &lt;!ELEMENT year               (#PCDATA) &gt;
+    &lt;!ELEMENT month              (#PCDATA) &gt;
+    &lt;!ELEMENT day                (#PCDATA) &gt;
+    &lt;!ELEMENT datastore          (#PCDATA) &gt;
+    &lt;!ELEMENT transmitter        (#PCDATA) &gt;
+    &lt;!ELEMENT table              (tableowner, tablename) &gt;
+    &lt;!ELEMENT tableowner          (#PCDATA) &gt;
+    &lt;!ELEMENT tablename          (#PCDATA) &gt;
+    &lt;!ELEMENT scope              (#PCDATA) &gt;
+    &lt;!ELEMENT failedtransaction  ((insert | update | delete)+) &gt;
+    &lt;!ELEMENT insert             (sql) &gt;
+    &lt;!ELEMENT update             (sql, keyinfo, newtuple) &gt;
+    &lt;!ELEMENT delete             (sql, keyinfo) &gt;
+    &lt;!ELEMENT sql                (#PCDATA) &gt;
+    &lt;!ELEMENT keyinfo            (column+) &gt;
+    &lt;!ELEMENT newtuple           (column+) &gt;
+    &lt;!ELEMENT column             (columnname, columntype, columnvalue) &gt;
+    &lt;!ATTLIST column               
+        pos CDATA #REQUIRED &gt;
+    &lt;!ELEMENT columnname         (#PCDATA) &gt;
+    &lt;!ELEMENT columnvalue        (#PCDATA) &gt;
+    &lt;!ATTLIST columnvalue 
+        isnull (true | false) &#34;false&#34;&gt;
+    &lt;!ELEMENT existingtuple       (column+) &gt;
+    &lt;!ELEMENT conflictingtuple    (column+) &gt;
+    &lt;!ELEMENT conflictingtimestamp(#PCDATA) &gt;
+    &lt;!ELEMENT existingtimestamp   (#PCDATA) &gt;
+    &lt;!ELEMENT oldtuple            (column+) &gt;
+    &lt;!ELEMENT conflict            (conflictingtimestamp, existingtimestamp*,
+                                   existingtuple*, conflictingtuple*, 
+                                   oldtuple*, keyinfo*) &gt; 
+&lt;!ATTLIST conflict
+    type (insert | update | deletedupdate | updatedeleted) #REQUIRED&gt;
+&lt;!ENTITY logFile                  SYSTEM &#34;Filename.include&#34;&gt;
+]&gt;
+&lt;ttrepconflictreport&gt;
+  &amp;logFile;
+&lt;/ttrepconflictreport&gt;
+</pre>
+<a id="BABHBGAJ"></a>
+<div id="TTREP642" class="sect2">
+<h3 class="sect2">The main body of the document</h3>
+<p>The <code>.xml</code> file for the XML replication conflict report is merely a header, containing the XML Document Type Definition that describes the report format and links to a file with the suffix <code>.include</code>. This include file is the main body of the report, containing each replication conflict as a separate element. There are three possible types of elements: insert, update and delete/update conflicts. Each conflict type requires a slightly different element structure.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABCDHBB"></a>
+<div id="TTREP643" class="sect2">
+<h3 class="sect2">The uniqueness conflict element</h3>
+<p>A uniqueness conflict occurs when a replicated insertion fails because a row with an identical key column was inserted more recently. See <a href="#BABJJFDF">&#34;Reporting uniqueness conflicts&#34;</a> for a description of the information that is written to the conflict report for a uniqueness conflict.</p>
+<p><a href="#BABIGAGC">Example 13-8</a> illustrates the format of a uniqueness conflict XML element, using the values from <a href="#BABCJABJ">Example 13-3</a>.</p>
+<div id="TTREP644" class="example">
+<p class="titleinexample"><a id="BABIGAGC"></a>Example 13-8 Uniqueness conflict element</p>
+<pre>&lt;repconflict&gt;
+    &lt;header&gt;
+     &lt;time&gt;
+          &lt;hour&gt;13&lt;/hour&gt;
+          &lt;min&gt;36&lt;/min&gt;
+          &lt;sec&gt;00&lt;/sec&gt;
+          &lt;year&gt;2002&lt;/year&gt; &lt;month&gt;03&lt;/month&gt;
+          &lt;day&gt;25&lt;/day&gt;
+      &lt;/time&gt;
+      &lt;datastore&gt;/tmp/masterds&lt;/datastore&gt;
+      &lt;transmitter&gt;SUBSCRIBERDS&lt;/transmitter&gt;
+      &lt;table&gt;
+          &lt;tableowner&gt;REPL&lt;/tableowner&gt;
+          &lt;tablename&gt;TAB&lt;/tablename&gt;
+     &lt;/table&gt;
+   &lt;/header&gt;
+   &lt;conflict type=&#34;insert&#34;&gt;
+     &lt;conflictingtimestamp&gt;3C9F983D00031128&lt;/conflictingtimestamp&gt;
+     &lt;existingtimestamp&gt;3C9F983E000251C0&lt;/existingtimestamp&gt;
+     &lt;existingtuple&gt;
+         &lt;column pos=&#34;1&#34;&gt;
+           &lt;columnname&gt;COL1&lt;/columnname&gt;
+           &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+           &lt;columnvalue&gt;2&lt;/columnvalue&gt;
+         &lt;/column&gt;
+         &lt;column pos=&#34;2&#34;&gt;
+           &lt;columnname&gt;COL2&lt;/columnname&gt;
+           &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+           &lt;columnvalue&gt;2&lt;/columnvalue&gt;
+         &lt;/column&gt;
+           &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+           &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+           &lt;columnvalue&gt;3C9F983E000251C0&lt;/columnvalue&gt;
+         &lt;/column&gt;
+      &lt;/existingtuple&gt;
+      &lt;conflictingtuple&gt;
+         &lt;column pos=&#34;1&#34;&gt;
+           &lt;columnname&gt;COL1&lt;/columnname&gt;
+           &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+           &lt;columnvalue&gt;2&lt;/columnvalue&gt;
+        &lt;/column&gt;
+        &lt;column pos=&#34;2&#34;&gt;
+           &lt;columnname&gt;COL2&lt;/columnname&gt;
+           &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+           &lt;columnvalue&gt;100&lt;/columnvalue&gt;
+        &lt;/column&gt;
+        &lt;column pos=&#34;3&#34;&gt;
+           &lt;columname&gt;TSTAMP&lt;/columnname&gt;
+           &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+           &lt;columnvalue&gt;3C9F983D00031128&lt;/columnvalue&gt;
+        &lt;/column&gt;
+     &lt;/conflictingtuple&gt;
+     &lt;keyinfo&gt;
+        &lt;column pos=&#34;1&#34;&gt;
+          &lt;columnname&gt;COL1&lt;/columnname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;2&lt;/columnvalue&gt;
+        &lt;/column&gt;
+    &lt;/keyinfo&gt;
+ &lt;/conflict&gt;
+ &lt;scope&gt;TRANSACTION&lt;/scope&gt;
+ &lt;failedtransaction&gt;
+   &lt;insert&gt;
+      &lt;sql&gt;Insert into table TAB &lt;/sql&gt;
+      &lt;column pos=&#34;1&#34;&gt;
+         &lt;columnname&gt;COL1&lt;/columnname&gt;
+         &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+         &lt;columnvalue&gt;2&lt;/columnvalue&gt;
+      &lt;/column&gt;
+      &lt;column pos=&#34;2&#34;&gt;
+         &lt;columnname&gt;COL2&lt;/columnname&gt;
+         &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+        &lt;columnvalue&gt;100&lt;/columnvalue&gt;
+      &lt;/column&gt;
+      &lt;column pos=&#34;3&#34;&gt;
+         &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+         &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+         &lt;columnvalue&gt;3C9F983D00031128&lt;/columnvalue&gt;
+      &lt;/column&gt;
+    &lt;/insert&gt;
+  &lt;/failedtransaction&gt;
+&lt;/repconflict&gt;
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<a id="BABIBDDH"></a>
+<div id="TTREP645" class="sect2">
+<h3 class="sect2">The update conflict element</h3>
+<p>An update conflict occurs when a replicated update fails because the row was updated more recently. See <a href="#BABHEIJH">&#34;Reporting update conflicts&#34;</a> for a description of the information that is written to the conflict report for an update conflict.</p>
+<p><a href="#BABGEIEC">Example 13-9</a> illustrates the format of an update conflict XML element, using the values from <a href="#BABBGIJB">Example 13-4</a>.</p>
+<div id="TTREP646" class="example">
+<p class="titleinexample"><a id="BABGEIEC"></a>Example 13-9 Update conflict element</p>
+<pre>&lt;repconflict&gt;
+    &lt;header&gt;
+       &lt;time&gt;
+          &lt;hour&gt;15&lt;/hour&gt;
+          &lt;min&gt;03&lt;/min&gt;
+          &lt;sec&gt;18&lt;/sec&gt;
+          &lt;year&gt;2002&lt;/year&gt;
+          &lt;month&gt;03&lt;/month&gt;
+          &lt;day&gt;25&lt;/day&gt;
+      &lt;/time&gt;
+      &lt;datastore&gt;/tmp/subscriberds&lt;/datastore&gt;
+      &lt;transmitter&gt;MASTERDS&lt;/transmitter&gt;
+      &lt;table&gt;
+         &lt;tableowner&gt;REPL&lt;/tableowner&gt;
+         &lt;tablename&gt;TAB&lt;/tablename&gt;
+      &lt;/table&gt;
+   &lt;/header&gt;
+   &lt;conflict type=&#34;update&#34;&gt;
+      &lt;conflictingtimestamp&gt;
+          3C9FACB6000612B0
+      &lt;/conflictingtimestamp&gt;
+      &lt;existingtimestamp&gt;3C9FACB600085CA0&lt;/existingtimestamp&gt;
+      &lt;existingtuple&gt;
+        &lt;column pos=&#34;1&#34;&gt;
+          &lt;columnname&gt;COL1&lt;/columnname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;6&lt;/columnvalue&gt;
+        &lt;/column&gt;
+        &lt;column pos=&#34;2&#34;&gt;
+          &lt;columnname&gt;COL2&lt;/columname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;99&lt;/columnvalue&gt;
+        &lt;/column&gt;
+        &lt;column pos=&#34;3&#34;&gt;
+          &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+          &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+          &lt;columnvalue&gt;3C9FACB600085CA0&gt;&lt;/columnvalue&gt;
+        &lt;/column&gt;
+     &lt;/existingtuple&gt;
+     &lt;conflictingtuple&gt;
+        &lt;column pos=&#34;3&#34;&gt;
+          &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+          &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+          &lt;columnvalue&gt;3C9FACB6000612B0&lt;/columnvalue&gt;
+        &lt;/column&gt;
+        &lt;column pos=&#34;2&#34;&gt;
+          &lt;columnname&gt;COL2&lt;/columnname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;50&lt;/columnvalue&gt;
+        &lt;/column&gt;
+    &lt;/conflictingtuple&gt;
+    &lt;oldtuple&gt;
+        &lt;column pos=&#34;3&#34;&gt;
+          &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+          &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+          &lt;columnvalue&gt;3C9FAC85000E01F0&lt;/columnvalue&gt;
+       &lt;/column&gt;
+       &lt;column pos=&#34;2&#34;&gt;
+          &lt;columnname&gt;COL2&lt;/columnname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;2&lt;/columnvalue&gt;
+       &lt;/column&gt;
+   &lt;/oldtuple&gt;
+   &lt;keyinfo&gt;
+       &lt;column pos=&#34;1&#34;&gt;
+         &lt;columnname&gt;COL1&lt;/columnname&gt;
+         &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+         &lt;columnvalue&gt;6&lt;/columnvalue&gt;
+       &lt;/column&gt;
+  &lt;/keyinfo&gt;
+&lt;/conflict&gt;
+&lt;scope&gt;TRANSACTION&lt;/scope&gt;
+&lt;failedtransaction&gt;
+   &lt;update&gt;
+      &lt;&lt;sql&gt;Update table TAB&lt;/sql&gt;
+      &lt;&lt;keyinfo&gt;
+         &lt;column pos=&#34;1&#34;&gt;
+           &lt;columnname&gt;COL1&lt;/columnname&gt;
+           &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+           &lt;columnvalue&gt;6&lt;/columnvalue&gt;
+         &lt;/column&gt;
+      &lt;/keyinfo&gt;
+         &lt;column pos=&#34;3&#34;&gt;
+           &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+           &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+           &lt;columnvalue&gt;3C9FACB6000612B0&lt;/columnvalue&gt;
+         &lt;/column&gt;
+         &lt;column pos=&#34;2&#34;&gt;
+           &lt;columnname&gt;COL2&lt;/columnname&gt;
+           &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+           &lt;columnvalue&gt;50&lt;/columnvalue&gt;
+         &lt;/column&gt;
+      &lt;/update&gt;
+   &lt;/failedtransaction&gt;
+&lt;/repconflict&gt;
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<a id="BABGGCJD"></a>
+<div id="TTREP647" class="sect2">
+<h3 class="sect2">The delete/update conflict element</h3>
+<p>A delete/update conflict occurs when a replicated update fails because the row to be updated has already been deleted on the database receiving the update, or when a replicated deletion fails because the row has been updated more recently. See <a href="#BABFDHBI">&#34;Reporting delete/update conflicts&#34;</a> for a description of the information that is written to the conflict report for a delete/update conflict.</p>
+<p><a href="#BABFICAH">Example 13-10</a> illustrates the format of a delete/update conflict XML element in which an update fails because the row has been deleted more recently, using the values from <a href="#BABHCHBJ">Example 13-5</a>.</p>
+<div id="TTREP648" class="example">
+<p class="titleinexample"><a id="BABFICAH"></a>Example 13-10 Delete/update conflict element: delete is more recent</p>
+<pre>&lt;repconflict&gt;
+   &lt;header&gt;
+       &lt;time&gt;
+          &lt;hour&gt;15&lt;/hour&gt;
+          &lt;min&gt;27&lt;/min&gt;
+          &lt;sec&gt;05&lt;/sec&gt;
+          &lt;year&gt;2002&lt;/year&gt;
+          &lt;month&gt;03&lt;/month&gt;
+          &lt;day&gt;25&lt;/day&gt;
+       &lt;/time&gt;
+       &lt;datastore&gt;/tmp/masterds&lt;/datastore&gt;
+       &lt;transmitter&gt;SUBSCRIBERDS&lt;/transmitter&gt;
+       &lt;table&gt;
+          &lt;tableowner&gt;REPL&lt;/tableowner&gt;
+          &lt;tablename&gt;TAB&lt;/tablename&gt;
+       &lt;/table&gt;
+   &lt;/header&gt;
+   &lt;conflict type=&#34;update&#34;&gt;
+      &lt;conflictingtimestamp&gt;
+          3C9FB2460000AFC8
+      &lt;/conflictingtimestamp&gt;
+      &lt;conflictingtuple&gt;
+        &lt;column pos=&#34;3&#34;&gt;
+          &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+          &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+          &lt;columnvalue&gt;3C9FB2460000AFC8&lt;/columnvalue&gt;
+        &lt;/column&gt;
+        &lt;column pos=&#34;2&#34;&gt;
+          &lt;columnname&gt;COL2&lt;/columnname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;99/columnvalue&gt;
+        &lt;/column&gt;
+     &lt;/conflictingtuple&gt;
+     &lt;keyinfo&gt;
+        &lt;column pos=&#34;1&#34;&gt;
+          &lt;columnname&gt;COL1&lt;/columnname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;2&lt;/columnvalue&gt;
+        &lt;/column&gt;
+    &lt;/keyinfo&gt;
+  &lt;/conflict&gt;
+  &lt;scope&gt;TRANSACTION&lt;/scope&gt;
+  &lt;failedtransaction&gt;
+     &lt;update&gt;
+       &lt;sql&gt;Update table TAB&lt;/sql&gt;
+   &lt;keyinfo&gt;
+       &lt;column pos=&#34;1&#34;&gt;
+         &lt;columnname&gt;COL1&lt;/columnname&gt;
+         &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+         &lt;columnvalue&gt;2&lt;/columnvalue&gt;
+       &lt;/column&gt;
+   &lt;/keyinfo&gt;
+       &lt;column pos=&#34;3&#34;&gt;
+         &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+         &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+         &lt;columnvalue&gt;3C9FB2460000AFC8&lt;/columnvalue&gt;
+       &lt;/column&gt;
+       &lt;column pos=&#34;2&#34;&gt;
+         &lt;columnname&gt;COL2&lt;/columnname&gt;
+         &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+         &lt;columnvalue&gt;99&lt;/columnvalue&gt;
+       &lt;/column&gt;
+    &lt;/update&gt;
+  &lt;/failedtransaction&gt;
+&lt;/repconflict&gt;
+</pre>
+<p><a href="#BABBJIEC">Example 13-11</a> illustrates the format of a delete/update conflict XML element in which a deletion fails because the row has been updated more recently, using the values from <a href="#BABIGDBI">Example 13-6</a>.</p>
+</div>
+<!-- class="example" -->
+<div id="TTREP649" class="example">
+<p class="titleinexample"><a id="BABBJIEC"></a>Example 13-11 Delete/update conflict element: update is more recent</p>
+<pre>&lt;repconflict&gt;
+   &lt;header&gt;
+       &lt;time&gt;
+          &lt;hour&gt;15&lt;/hour&gt;
+          &lt;min&gt;27&lt;/min&gt;
+          &lt;sec&gt;20&lt;/sec&gt;
+          &lt;year&gt;2002&lt;/year&gt;
+          &lt;month&gt;03&lt;/month&gt;
+          &lt;day&gt;25&lt;/day&gt;
+       &lt;/time&gt;
+       &lt;datastore&gt;/tmp/masterds&lt;/datastore&gt;
+       &lt;transmitter&gt;MASTERDS&lt;/transmitter&gt;
+       &lt;table&gt;
+         &lt;tableowner&gt;REPL&lt;/tableowner&gt;
+         &lt;tablename&gt;TAB&lt;/tablename&gt;
+       &lt;/table&gt;
+   &lt;/header&gt;
+   &lt;conflict type=&#34;delete&#34;&gt;
+       &lt;conflictingtimestamp&gt;
+            3C9FB258000708C8
+       &lt;/conflictingtimestamp&gt;
+       &lt;existingtimestamp&gt;3C9FB25800086858&lt;/existingtimestamp&gt;
+    &lt;existingtuple&gt;
+       &lt;column pos=&#34;1&#34;&gt;
+          &lt;columnname&gt;COL1&lt;/columnname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;147&lt;/columnvalue&gt;
+       &lt;/column&gt;
+       &lt;column pos=&#34;2&#34;&gt;
+          &lt;columnname&gt;COL2&lt;/columnname&gt;
+          &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+          &lt;columnvalue&gt;99&lt;/columnvalue&gt;
+       &lt;/column&gt;
+       &lt;column pos=&#34;3&#34;&gt;
+          &lt;columnname&gt;TSTAMP&lt;/columnname&gt;
+          &lt;columntype&gt;BINARY(8)&lt;/columntype&gt;
+          &lt;columnvalue&gt;3C9FB25800086858&lt;/columnvalue&gt;
+       &lt;/column&gt;
+    &lt;/existingtuple&gt;
+    &lt;keyinfo&gt;
+       &lt;column pos=&#34;1&#34;&gt;
+         &lt;columnname&gt;COL1&lt;/columnname&gt;
+         &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+         &lt;columnvalue&gt;147&lt;/columnvalue&gt;
+       &lt;/column&gt;
+    &lt;/keyinfo&gt;
+  &lt;/conflict&gt;
+  &lt;scope&gt;TRANSACTION&lt;/scope&gt;
+  &lt;failedtransaction&gt;
+     &lt;delete&gt;
+        &lt;sql&gt;Delete from table TAB&lt;/sql&gt;
+    &lt;keyinfo&gt;
+       &lt;column pos=&#34;1&#34;&gt;
+         &lt;columnname&gt;COL1&lt;/columnname&gt;
+         &lt;columntype&gt;NUMBER(38)&lt;/columntype&gt;
+         &lt;columnvalue&gt;147&lt;/columnvalue&gt;
+       &lt;/column&gt;
+      &lt;/keyinfo&gt;
+    &lt;/delete&gt;
+  &lt;/failedtransaction&gt;
+&lt;/repconflict&gt;
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5803">
+<tr>
+<td class="cellalignment5812">
+<table class="cellalignment5808">
+<tr>
+<td class="cellalignment5807"><a href="monitor.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5807"><a href="perform.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5814">
+<table class="cellalignment5806">
+<tr>
+<td class="cellalignment5807"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5807"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5807"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5807"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5807"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5807"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

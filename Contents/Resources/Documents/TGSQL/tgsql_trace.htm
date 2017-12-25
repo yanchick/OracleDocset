@@ -1,0 +1,2211 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106809"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Performing%20Application%20Tracing"></a><title>Performing Application Tracing</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="This chapter explains what end-to-end application tracing is, and how to generate and read trace files."/>
+<meta name="keywords" content=", end-to-end application tracing, overview, DBMS_MONITOR package, DBMS_APPLICATION_INFO package, action and module names, creating a service, SQL trace facility, TKPROF program, tracing, identifying files, trace files, DIAGNOSTIC_DEST initialization parameter, initialization parameters, DIAGNOSTIC_DEST, CURSOR_NUM column, TKPROF_TABLE table, USER_ID column, TKPROF_TABLE, DEPTH column, DATE_OF_INSERT column, SQL_STATEMENT column, TKPROF_TABLE, execution plans, TKPROF, EXPLAIN PLAN statement, invoking with the TKPROF program, using the EXPLAIN PLAN statement"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_stcb.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_pt_sqltune.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-440D3AD4-B302-408E-8627-FE8032DD09F9"></a> <span id="PAGE" style="display:none;">29/40</span> <!-- End Header -->
+<a id="TGSQL791"></a>
+<h1 id="TGSQL-GUID-440D3AD4-B302-408E-8627-FE8032DD09F9" class="sect1"><span class="enumeration_chapter">18</span> Performing Application Tracing</h1>
+<div>
+<p>This chapter explains what end-to-end application tracing is, and how to generate and read trace files.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_trace.htm#GUID-246A5A52-E666-4DBC-BDF6-98B83260A7AD" title="End-to-end application tracing can identify the source of an excessive database workload, such as a high load SQL statement, by client identifier, service, module, action, session, instance, or an entire database.">Overview of End-to-End Application Tracing</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-33FA4E54-C759-480B-A075-CF75E6D85CAD" title="The procedure SERV_MOD_ACT_STAT_ENABLE enables statistic gathering for a combination of service, module, and action, whereas the procedure SERV_MOD_ACT_STAT_DISABLE disables statistic gathering for a combination of service, module, and action.">Enabling Statistics Gathering for End-to-End Tracing</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-C490364E-6DF4-4A1C-B8B4-A59451686BC0" title="The SESSION_TRACE_ENABLE procedure enables the trace for a given database session identifier (SID) on the local instance. The DBMS_MONITOR.DATABASE_TRACE_ENABLE procedure overrides all other session-level traces, but is complementary to the client identifier, service, module, and action traces. Tracing is enabled for all current and future sessions.">Enabling End-to-End Application Tracing</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-045E1093-E389-4F2A-94CB-820AF356C564">Generating Output Files Using SQL Trace and TKPROF</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-A92E180C-8F2C-4864-ABFC-8439CEFFE368">Guidelines for Interpreting TKPROF Output</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-66C145A4-A8C9-4688-A00C-22B71C19DFF6" title="The TKPROF program formats the contents of the trace file and places the output into a readable output file. TKPROF supports a number of command-line options.">Application Tracing Utilities</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-DED467E4-4890-47B7-84DB-FAB180E9E780" title="You can display the statistics that have been gathered with the following V$ and data dictionary views.A Cloud Control report or the DBA_ENABLED_TRACES view can display outstanding traces.">Views for Application Tracing</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-440D3AD4-B302-408E-8627-FE8032DD09F9__GUID-1522EF5F-2A61-41BE-A38E-258535495C27">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQPUG534" target="_blank" href="../SQPUG/ch_eight.htm#SQPUG534"><span><cite>SQL*Plus User&#39;s Guide and Reference</cite></span></a> to learn about the use of Autotrace to trace and tune SQL*Plus statements</p>
+</div>
+</div>
+<a id="TGSQL792"></a>
+<div class="props_rev_3"><a id="GUID-246A5A52-E666-4DBC-BDF6-98B83260A7AD"></a>
+<h2 id="TGSQL-GUID-246A5A52-E666-4DBC-BDF6-98B83260A7AD" class="sect2">Overview of End-to-End Application Tracing</h2>
+<div>
+<p>End-to-end application tracing can identify the source of an excessive database workload, such as a high load SQL statement, by client identifier, service, module, action, session, instance, or an entire database.</p>
+<p>In multitier environments, the middle tier routes a request from an end client to different database sessions, making it difficult to track a client across database sessions. End-to-end application tracing is an infrastructure that uses a client ID to uniquely trace a specific end-client through all tiers to the database and provides information about the operation that an end client is performing in the database.</p>
+</div>
+<a id="TGSQL94999"></a>
+<div class="props_rev_3"><a id="GUID-E9F88E73-FB9A-40CF-B133-B5BF30F2BC56"></a>
+<h3 id="TGSQL-GUID-E9F88E73-FB9A-40CF-B133-B5BF30F2BC56" class="sect3">Purpose of End-to-End Application Tracing</h3>
+<div>
+<p>End-to-End application tracing simplifies diagnosing performance problems in multitier environments.</p>
+<p>For example, you can identify the source of an excessive workload, such as a high-load SQL statement, and contact the user responsible. Also, a user having problems can contact you. You can then identify what this user&#39;s session is doing at the database level.</p>
+<p>End-to-End application tracing also simplifies management of application workloads by tracking specific modules and actions in a service. The module and action names are set by the application developer. For example, you can use the <code class="codeph">SET_MODULE</code> and <code class="codeph">SET_ACTION</code> procedures in the <code class="codeph">DBMS_APPLICATION_INFO</code> package to set these values in a PL/SQL program.</p>
+<p>End-to-End application tracing can identify workload problems for:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Client identifier - specifies an end user based on the logon ID, such as <code class="codeph">HR.HR</code></p>
+</li>
+<li>
+<p>Service - specifies a group of applications with common attributes, service level thresholds, and priorities; or a single application, such as <code class="codeph">ACCTG</code> for an accounting application</p>
+</li>
+<li>
+<p>Module - specifies a functional block, such as Accounts Receivable or General Ledger, of an application</p>
+</li>
+<li>
+<p>Action - specifies an action, such as an <code class="codeph">INSERT</code> or <code class="codeph">UPDATE</code> operation, in a module</p>
+</li>
+<li>
+<p>Session - specifies a session based on a given database session identifier (SID), on the local instance</p>
+</li>
+<li>
+<p>Instance - specifies a given instance based on the instance name</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95001"></a>
+<div class="props_rev_3"><a id="GUID-31EF2BD5-28DB-488F-A855-8DA324F6970B"></a>
+<h3 id="TGSQL-GUID-31EF2BD5-28DB-488F-A855-8DA324F6970B" class="sect3">Tools for End-to-End Application Tracing</h3>
+<div>
+<p>The SQL Trace facility and TKPROF are two basic performance diagnostic tools that can help you accurately assess the efficiency of the SQL statements an application runs.</p>
+<p>For best results, use these tools with <code class="codeph">EXPLAIN PLAN</code> rather than using <code class="codeph">EXPLAIN PLAN</code> alone. After tracing information is written to files, you can consolidate this data with the TRCSESS utility, and then diagnose it with TKPROF or SQL Trace.</p>
+<p>The recommended interface for end-to-end application tracing is Oracle Enterprise Manager Cloud Control (Cloud Control). Using Cloud Control, you can view the top consumers for each consumer type, and enable or disable statistics gathering and SQL tracing for specific consumers. If Cloud Control is unavailable, then you can manage this feature using the <code class="codeph">DBMS_MONITOR</code> APIs.</p>
+<div class="infoboxnotealso" id="GUID-31EF2BD5-28DB-488F-A855-8DA324F6970B__GUID-43AB6FE3-7020-4671-894D-BB80E869BC62">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS" target="_blank" href="../ARPLS/toc.htm"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> for information about the <code class="codeph">DBMS_MONITOR</code>, <code class="codeph">DBMS_SESSION</code>, <code class="codeph">DBMS_SERVICE</code>, and <code class="codeph">DBMS_APPLICATION_INFO</code> packages</p>
+</div>
+</div>
+<a id="TGSQL807"></a>
+<div class="props_rev_3"><a id="GUID-374ABE48-C63F-4A7B-B80E-906A51F9246C"></a>
+<h4 id="TGSQL-GUID-374ABE48-C63F-4A7B-B80E-906A51F9246C" class="sect4">Overview of the SQL Trace Facility</h4>
+<div>
+<p>The SQL Trace facility provides performance information on individual SQL statements.</p>
+<p>SQL Trace generates the following statistics for each statement:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Parse, execute, and fetch counts</p>
+</li>
+<li>
+<p>CPU and elapsed times</p>
+</li>
+<li>
+<p>Physical reads and logical reads</p>
+</li>
+<li>
+<p>Number of rows processed</p>
+</li>
+<li>
+<p>Misses on the library cache</p>
+</li>
+<li>
+<p>User name under which each parse occurred</p>
+</li>
+<li>
+<p>Each commit and rollback</p>
+</li>
+<li>
+<p>Wait event data for each SQL statement, and a summary for each trace file</p>
+</li>
+</ul>
+<p>If the cursor for the SQL statement is closed, then SQL Trace also provides row source information that includes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Row operations showing the actual execution plan of each SQL statement</p>
+</li>
+<li>
+<p>Number of rows, number of consistent reads, number of physical reads, number of physical writes, and time elapsed for each operation on a row</p>
+</li>
+</ul>
+<p>Although you can enable the SQL Trace facility for a session or an instance, Oracle recommends that you use the <code class="codeph">DBMS_SESSION</code> or <code class="codeph">DBMS_MONITOR</code> packages instead. When the SQL Trace facility is enabled for a session or for an instance, performance statistics for all SQL statements executed in a user session or in the instance are placed into trace files. Using the SQL Trace facility can affect performance and may result in increased system overhead, excessive CPU usage, and inadequate disk space.</p>
+<p>The TRCSESS command-line utility consolidates tracing information from several trace files based on specific criteria, such as session or client ID.</p>
+<div class="infoboxnotealso" id="GUID-374ABE48-C63F-4A7B-B80E-906A51F9246C__GUID-EAF6702E-8B42-4626-A7D6-CCAF15AC181D">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_trace.htm#GUID-9E4264C7-76AF-451B-99ED-83FB1AAAE3E5">TRCSESS</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_trace.htm#GUID-C490364E-6DF4-4A1C-B8B4-A59451686BC0" title="The SESSION_TRACE_ENABLE procedure enables the trace for a given database session identifier (SID) on the local instance. The DBMS_MONITOR.DATABASE_TRACE_ENABLE procedure overrides all other session-level traces, but is complementary to the client identifier, service, module, and action traces. Tracing is enabled for all current and future sessions.">Enabling End-to-End Application Tracing</a>&#34;</span> to learn how to use the <code class="codeph">DBMS_SESSION</code> or <code class="codeph">DBMS_MONITOR</code> packages to enable SQL tracing for a session or an instance</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL808"></a>
+<div class="props_rev_3"><a id="GUID-A1F41137-03E2-43AD-98E4-AD49760C4C35"></a>
+<h4 id="TGSQL-GUID-A1F41137-03E2-43AD-98E4-AD49760C4C35" class="sect4">Overview of TKPROF</h4>
+<div>
+<p>To format the contents of the trace file and place the output into a readable output file, run the TKPROF program.</p>
+<p>TKPROF can also do the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Create a SQL script that stores the statistics in the database</p>
+</li>
+<li>
+<p>Determine the execution plans of SQL statements</p>
+</li>
+</ul>
+<p>TKPROF reports each statement executed with the resources it has consumed, the number of times it was called, and the number of rows which it processed. This information enables you to locate those statements that are using the greatest resource. With baselines available, you can assess whether the resources used are reasonable given the work done.</p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL793"></a>
+<div class="props_rev_3"><a id="GUID-33FA4E54-C759-480B-A075-CF75E6D85CAD"></a>
+<h2 id="TGSQL-GUID-33FA4E54-C759-480B-A075-CF75E6D85CAD" class="sect2">Enabling Statistics Gathering for End-to-End Tracing</h2>
+<div>
+<p>To gather the appropriate statistics using PL/SQL, you must enable statistics gathering for client identifier, service, module, or action using procedures in <code class="codeph">DBMS_MONITOR</code>. The default level is the session-level statistics gathering. Statistics gathering is global for the database and continues after a database instance is restarted.</p>
+<p>You can gather statistics by the following criteria:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_trace.htm#GUID-EE7E5FD9-36AD-4E35-951E-6F9B345217DC">Enabling Statistics Gathering for a Client ID</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-EC773447-7BA3-4D03-9593-3AF7FDA118EC" title="The procedure SERV_MOD_ACT_STAT_ENABLE enables statistic gathering for a combination of service, module, and action, whereas the procedure SERV_MOD_ACT_STAT_DISABLE disables statistic gathering for a combination of service, module, and action.">Enabling Statistics Gathering for a Service_ Module_ and Action</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94955"></a><a id="TGSQL794"></a>
+<div class="props_rev_3"><a id="GUID-EE7E5FD9-36AD-4E35-951E-6F9B345217DC"></a>
+<h3 id="TGSQL-GUID-EE7E5FD9-36AD-4E35-951E-6F9B345217DC" class="sect3">Enabling Statistics Gathering for a Client ID</h3>
+<div>
+<div class="section">
+<p>The procedure <code class="codeph">CLIENT_ID_STAT_ENABLE</code> enables statistics gathering for a given client ID, whereas the procedure <code class="codeph">CLIENT_ID_STAT_DISABLE</code> disables it. You can view client identifiers in the <code class="codeph">CLIENT_IDENTIFIER</code> column in <code class="codeph">V$SESSION</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes that you want to enable and then disable statistics gathering for the client with the ID <code class="codeph">oe.oe</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable and disable statistics gathering for a client identifier:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and then connect to the database with the appropriate privileges.</p>
+</li>
+<li>
+<p>Enable statistics gathering for <code class="codeph">oe.oe</code>.</p>
+<p>For example, run the following command:</p>
+<pre dir="ltr">EXECUTE DBMS_MONITOR.CLIENT_ID_STAT_ENABLE(client_id =&gt; &#39;OE.OE&#39;);
+</pre></li>
+<li>
+<p>Disable statistics gathering for <code class="codeph">oe.oe</code>.</p>
+<p>For example, run the following command:</p>
+<pre dir="ltr">EXECUTE DBMS_MONITOR.CLIENT_ID_STAT_DISABLE(client_id =&gt; &#39;OE.OE&#39;);
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94956"></a><a id="TGSQL795"></a>
+<div class="props_rev_3"><a id="GUID-EC773447-7BA3-4D03-9593-3AF7FDA118EC"></a>
+<h3 id="TGSQL-GUID-EC773447-7BA3-4D03-9593-3AF7FDA118EC" class="sect3">Enabling Statistics Gathering for Services, Modules, and Actions</h3>
+<div>
+<p>The procedure <code class="codeph">SERV_MOD_ACT_STAT_ENABLE</code> enables statistic gathering for a combination of service, module, and action, whereas the procedure <code class="codeph">SERV_MOD_ACT_STAT_DISABLE</code> disables statistic gathering for a combination of service, module, and action.</p>
+<div class="section">
+<p>When you change the module or action using the preceding <code class="codeph">DBMS_MONITOR</code> procedures, the change takes effect when the next user call is executed in the session. For example, if a module is set to <code class="codeph">module1</code> in a session, and if the module is reset to <code class="codeph">module2</code> in a user call in the session, then the module remains <code class="codeph">module1</code> during this user call. The module is changed to <code class="codeph">module2</code> in the next user call in the session.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes that you want to gather statistics as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>For the <code class="codeph">ACCTG</code> service</p>
+</li>
+<li>
+<p>For all actions in the <code class="codeph">PAYROLL</code> module</p>
+</li>
+<li>
+<p>For the <code class="codeph">INSERT ITEM</code> action within the <code class="codeph">GLEDGER</code> module</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable and disable statistics gathering for a service, module, and action:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and then connect to the database with the appropriate privileges.</p>
+</li>
+<li>
+<p>Enable statistics gathering for the desired service, module, and action.</p>
+<p>For example, run the following commands:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_MONITOR.SERV_MOD_ACT_STAT_ENABLE(
+    service_name =&gt; &#39;ACCTG&#39;   
+,   module_name  =&gt; &#39;PAYROLL&#39; );
+END;
+
+BEGIN 
+  DBMS_MONITOR.SERV_MOD_ACT_STAT_ENABLE(
+    service_name =&gt; &#39;ACCTG&#39;      
+,   module_name  =&gt; &#39;GLEDGER&#39;     
+,   action_name  =&gt; &#39;INSERT ITEM&#39; );
+END;
+</pre></li>
+<li>
+<p>Disable statistic gathering for the previously specified combination of service, module, and action.</p>
+<p>For example, run the following command:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_MONITOR.SERV_MOD_ACT_STAT_DISABLE(
+    service_name =&gt; &#39;ACCTG&#39;       
+,   module_name  =&gt; &#39;GLEDGER&#39;     
+,   action_name  =&gt; &#39;INSERT ITEM&#39; );
+END;
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL797"></a>
+<div class="props_rev_3"><a id="GUID-C490364E-6DF4-4A1C-B8B4-A59451686BC0"></a>
+<h2 id="TGSQL-GUID-C490364E-6DF4-4A1C-B8B4-A59451686BC0" class="sect2">Enabling End-to-End Application Tracing</h2>
+<div>
+<p>To enable tracing for client identifier, service, module, action, session, instance or database, execute the appropriate procedures in the <code class="codeph">DBMS_MONITOR</code> package. You can enable tracing for specific diagnosis and workload management by the following criteria:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_trace.htm#GUID-BBC8ECB8-8EB6-4815-9C38-E9631DEE3C04">Enabling Tracing for a Client Identifier</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-37DD6B78-6A99-4D6B-83A8-D96587A4EFD4">Enabling Tracing for a Service_ Module_ and Action</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-F872D6F9-E015-481F-80F6-8A7036A6AD29" title="The SESSION_TRACE_ENABLE procedure enables the trace for a given database session identifier (SID) on the local instance.">Enabling Tracing for a Session</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-C8E6C609-C849-4C74-9F69-2F41FA1A2ABA" title="The DBMS_MONITOR.DATABASE_TRACE_ENABLE procedure overrides all other session-level traces, but is complementary to the client identifier, service, module, and action traces. Tracing is enabled for all current and future sessions.">Enabling Tracing for the Instance or Database</a></p>
+</li>
+</ul>
+<p>With the criteria that you provide, specific trace information is captured in a set of trace files and combined into a single output trace file.</p>
+</div>
+<a id="TGSQL94957"></a><a id="TGSQL798"></a>
+<div class="props_rev_3"><a id="GUID-BBC8ECB8-8EB6-4815-9C38-E9631DEE3C04"></a>
+<h3 id="TGSQL-GUID-BBC8ECB8-8EB6-4815-9C38-E9631DEE3C04" class="sect3">Enabling Tracing for a Client Identifier</h3>
+<div>
+<div class="section">
+<p>To enable tracing globally for the database for a specified client identifier, use the <code class="codeph">CLIENT_ID_TRACE_ENABLE</code> procedure. The <code class="codeph">CLIENT_ID_TRACE_DISABLE</code> procedure disables tracing globally for the database for a given client identifier.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">OE.OE</code> is the client identifier for which SQL tracing is to be enabled.</p>
+</li>
+<li>
+<p>You want to include wait information in the trace.</p>
+</li>
+<li>
+<p>You want to exclude bind information from the trace.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable and disable tracing for a client identifier:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and then connect to the database with the appropriate privileges.</p>
+</li>
+<li>
+<p>Enable tracing for the client.</p>
+<p>For example, execute the following program:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_MONITOR.CLIENT_ID_TRACE_ENABLE(
+    client_id =&gt; &#39;OE.OE&#39; ,      
+    waits     =&gt; true    ,      
+    binds     =&gt; false   );
+END;
+</pre></li>
+<li>
+<p>Disable tracing for the client.</p>
+<p>For example, execute the following command:</p>
+<pre dir="ltr">EXECUTE DBMS_MONITOR.CLIENT_ID_TRACE_DISABLE(client_id =&gt; &#39;OE.OE&#39;);
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94958"></a><a id="TGSQL799"></a>
+<div class="props_rev_3"><a id="GUID-37DD6B78-6A99-4D6B-83A8-D96587A4EFD4"></a>
+<h3 id="TGSQL-GUID-37DD6B78-6A99-4D6B-83A8-D96587A4EFD4" class="sect3">Enabling Tracing for a Service, Module, and Action</h3>
+<div>
+<div class="section">
+<p>The <code class="codeph">SERV_MOD_ACT_TRACE_ENABLE</code> procedure enables SQL tracing for a specified combination of service name, module, and action globally for a database, unless the procedure specifies a database instance name. The <code class="codeph">SERV_MOD_ACT_TRACE_DISABLE</code> procedure disables the trace at all enabled instances for a given combination of service name, module, and action name globally.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to enable tracing for the service <code class="codeph">ACCTG</code>.</p>
+</li>
+<li>
+<p>You want to enable tracing for all actions for the combination of the <code class="codeph">ACCTG</code> service and the <code class="codeph">PAYROLL</code> module.</p>
+</li>
+<li>
+<p>You want to include wait information in the trace.</p>
+</li>
+<li>
+<p>You want to exclude bind information from the trace.</p>
+</li>
+<li>
+<p>You want to enable tracing only for the <code class="codeph">inst1</code> instance.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable and disable tracing for a service, module, and action:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and then connect to the database with the appropriate privileges.</p>
+</li>
+<li>
+<p>Enable tracing for the service, module, and actions.</p>
+<p>For example, execute the following command:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_MONITOR.SERV_MOD_ACT_TRACE_ENABLE(
+    service_name  =&gt; &#39;ACCTG&#39;   ,
+    module_name   =&gt; &#39;PAYROLL&#39; ,
+    waits         =&gt;  true     ,
+    binds         =&gt;  false    ,
+    instance_name =&gt; &#39;inst1&#39;   );
+END;
+</pre></li>
+<li>
+<p>Disable tracing for the service, module, and actions.</p>
+<p>For example, execute the following command:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_MONITOR.SERV_MOD_ACT_TRACE_DISABLE(
+    service_name  =&gt; &#39;ACCTG&#39;   ,
+    module_name   =&gt; &#39;PAYROLL&#39; ,
+    instance_name =&gt; &#39;inst1&#39;   );
+END;
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL95363"></a><a id="TGSQL800"></a>
+<div class="props_rev_3"><a id="GUID-F872D6F9-E015-481F-80F6-8A7036A6AD29"></a>
+<h3 id="TGSQL-GUID-F872D6F9-E015-481F-80F6-8A7036A6AD29" class="sect3">Enabling Tracing for a Session</h3>
+<div>
+<p>The <code class="codeph">SESSION_TRACE_ENABLE</code> procedure enables the trace for a given database session identifier (SID) on the local instance.</p>
+<div class="section">
+<p>Whereas the <code class="codeph">DBMS_MONITOR</code> package can only be invoked by a user with the DBA role, users can also enable SQL tracing for their own session by invoking the <code class="codeph">DBMS_SESSION.SESSION_TRACE_ENABLE</code> procedure, as in the following example:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_SESSION.SESSION_TRACE_ENABLE(
+    waits =&gt; true
+  , binds =&gt; false);
+END;
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to log in to the database with administrator privileges.</p>
+</li>
+<li>
+<p>User <code class="codeph">OE</code> has one active session.</p>
+</li>
+<li>
+<p>You want to temporarily enable tracing for the <code class="codeph">OE</code> session.</p>
+</li>
+<li>
+<p>You want to include wait information in the trace.</p>
+</li>
+<li>
+<p>You want to exclude bind information from the trace.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable and disable tracing for a session:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and then log in to the database with the administrator privileges.</p>
+</li>
+<li>
+<p>Determine the session ID and serial number values for the session to trace.</p>
+<p>For example, query <code class="codeph">V$SESSION</code> as follows:</p>
+<pre dir="ltr">SELECT SID, SERIAL#, USERNAME 
+FROM   V$SESSION
+WHERE  USERNAME = &#39;OE&#39;;
+
+       SID    SERIAL# USERNAME
+---------- ---------- ------------------------------
+        27         60 OE
+</pre></li>
+<li>
+<p>Use the values from the preceding step to enable tracing for a specific session.</p>
+<p>For example, execute the following program to enable tracing for the <code class="codeph">OE</code> session, where the <code class="codeph">true</code> argument includes wait information in the trace and the <code class="codeph">false</code> argument excludes bind information from the trace:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_MONITOR.SESSION_TRACE_ENABLE(
+    session_id =&gt; 27 
+  , serial_num =&gt; 60
+  , waits      =&gt; true
+  , binds      =&gt; false);
+END;
+</pre></li>
+<li>
+<p>Disable tracing for the session.</p>
+<p>The <code class="codeph">SESSION_TRACE_DISABLE</code> procedure disables the trace for a given database session identifier (SID) and serial number. For example:</p>
+<pre dir="ltr">BEGIN
+  DBMS_MONITOR.SESSION_TRACE_DISABLE(
+    session_id =&gt; 27
+  , serial_num =&gt; 60);
+END;
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL95364"></a><a id="TGSQL95365"></a><a id="TGSQL801"></a>
+<div class="props_rev_3"><a id="GUID-C8E6C609-C849-4C74-9F69-2F41FA1A2ABA"></a>
+<h3 id="TGSQL-GUID-C8E6C609-C849-4C74-9F69-2F41FA1A2ABA" class="sect3">Enabling Tracing for the Instance or Database</h3>
+<div>
+<p>The <code class="codeph">DBMS_MONITOR.DATABASE_TRACE_ENABLE</code> procedure overrides all other session-level traces, but is complementary to the client identifier, service, module, and action traces. Tracing is enabled for all current and future sessions.</p>
+<div class="section">
+<p>All new sessions inherit the wait and bind information specified by this procedure until you call the <code class="codeph">DATABASE_TRACE_DISABLE</code> procedure. When you invoke this procedure with the <code class="codeph">instance_name</code> parameter, the procedure resets the session-level SQL trace for the named instance. If you invoke this procedure without the <code class="codeph">instance_name</code> parameter, then the procedure resets the session-level SQL trace for the entire database.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Prerequisites</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>You must have administrative privileges to execute the <code class="codeph">DATABASE_TRACE_ENABLE</code> procedure.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to enable tracing for all SQL the <code class="codeph">inst1</code> instance.</p>
+</li>
+<li>
+<p>You want wait information to be in the trace.</p>
+</li>
+<li>
+<p>You do not want bind information in the trace.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable and disable tracing for a session:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and then log in to the database with the necessary privileges.</p>
+</li>
+<li>
+<p>Call the <code class="codeph">DATABASE_TRACE_ENABLE</code> procedure to enable SQL tracing for a given instance or an entire database.</p>
+<p>For example, execute the following program, where the <code class="codeph">true</code> argument specifies that wait information is in the trace, and the <code class="codeph">false</code> argument specifies that no bind information is in the trace:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_MONITOR.DATABASE_TRACE_ENABLE(
+    waits         =&gt; true
+  , binds         =&gt; false
+  , instance_name =&gt; &#39;inst1&#39; );
+END;
+</pre></li>
+<li>
+<p>Disable tracing for the session.</p>
+<p>The <code class="codeph">SESSION_TRACE_DISABLE</code> procedure disables the trace. For example, the following program disables tracing for <code class="codeph">inst1</code>:</p>
+<pre dir="ltr">EXECUTE DBMS_MONITOR.DATABASE_TRACE_DISABLE(instance_name =&gt; &#39;inst1&#39;);
+</pre>
+<p>To disable the session-level SQL tracing for an entire database, invoke the <code class="codeph">DATABASE_TRACE_DISABLE</code> procedure without specifying the <code class="codeph">instance_name</code> parameter:</p>
+<pre dir="ltr">EXECUTE DBMS_MONITOR.DATABASE_TRACE_DISABLE();
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL809"></a>
+<div class="props_rev_3"><a id="GUID-045E1093-E389-4F2A-94CB-820AF356C564"></a>
+<h2 id="TGSQL-GUID-045E1093-E389-4F2A-94CB-820AF356C564" class="sect2">Generating Output Files Using SQL Trace and TKPROF</h2>
+<div>
+<p>This section explains the basic procedure for using SQL Trace and TKPROF.</p>
+<div class="section">
+<p class="subhead2">To use the SQL Trace facility and TKPROF:</p>
+<ol>
+<li>
+<p>Set initialization parameters for trace file management.</p>
+<p>See <span class="q">&#34;<a href="tgsql_trace.htm#GUID-A4FD1913-D35A-4EE6-9CE8-361718433E91">Step 1: Setting Initialization Parameters for Trace File Management</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Enable the SQL Trace facility for the desired session, and run the application. This step produces a trace file containing statistics for the SQL statements issued by the application.</p>
+<p>See <span class="q">&#34;<a href="tgsql_trace.htm#GUID-A465F2E0-F841-4E2A-B54D-7C062C869E48">Step 2: Enabling the SQL Trace Facility</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Run TKPROF to translate the trace file created in Step 2 into a readable output file. This step can optionally create a SQL script that you can use to store the statistics in a database.</p>
+<p>See <span class="q">&#34;<a href="tgsql_trace.htm#GUID-83A1CF94-F9AC-4631-80EA-EB0B1A339C0E">Step 3: Generating Output Files with TKPROF</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Optionally, run the SQL script produced in Step 3 to store the statistics in the database.</p>
+<p>See <span class="q">&#34;<a href="tgsql_trace.htm#GUID-BDB972EC-AFBC-433C-AAB9-F50F453474F4">Step 4: Storing SQL Trace Facility Statistics</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+<a id="TGSQL811"></a><a id="TGSQL810"></a>
+<div class="props_rev_3"><a id="GUID-A4FD1913-D35A-4EE6-9CE8-361718433E91"></a>
+<h3 id="TGSQL-GUID-A4FD1913-D35A-4EE6-9CE8-361718433E91" class="sect3">Step 1: Setting Initialization Parameters for Trace File Management</h3>
+<div>
+<div class="section">
+<p>When the SQL Trace facility is enabled for a session, Oracle Database generates a trace file containing statistics for traced SQL statements for that session. When the SQL Trace facility is enabled for an instance, Oracle Database creates a separate trace file for each process.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To set initialization parameters for trace file management:</p>
+<ol>
+<li>
+<p>Check the settings of the <code class="codeph">TIMED_STATISTICS</code>, <code class="codeph">MAX_DUMP_FILE_SIZE</code>, and <code class="codeph">DIAGNOSTIC_DEST</code> initialization parameters, as indicated in <a href="tgsql_trace.htm#GUID-A4FD1913-D35A-4EE6-9CE8-361718433E91__CHDCDGFH" title="This table describes the initialization parameters that should be checked before enabling SQL Trace.">Table 18-1</a>.</p>
+<div class="tblformal" id="GUID-A4FD1913-D35A-4EE6-9CE8-361718433E91__CHDCDGFH">
+<p class="titleintable">Table 18-1 Initialization Parameters to Check Before Enabling SQL Trace</p>
+<table class="cellalignment4929" title="Initialization Parameters to Check Before Enabling SQL Trace" summary="This table describes the initialization parameters that should be checked before enabling SQL Trace.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4854" id="d99857e2097">Parameter</th>
+<th class="cellalignment4855" id="d99857e2100">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4856" id="d99857e2105" headers="d99857e2097">
+<p><code class="codeph">DIAGNOSTIC_DEST</code></p>
+</td>
+<td class="cellalignment4857" headers="d99857e2105 d99857e2100">
+<p>Specifies the location of the Automatic Diagnostic Repository (ADR) Home. The diagnostic files for each database instance are located in this dedicated directory. <a class="olink REFRN10280" target="_blank" href="../REFRN/GUID-BFE9648A-24D4-4717-8C33-21B0868401EE.htm#REFRN10280"><span class="italic">Oracle Database Reference</span></a> for information about the <code class="codeph">DIAGNOSTIC_DEST</code> initialization parameter.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4856" id="d99857e2123" headers="d99857e2097">
+<p><code class="codeph">MAX_DUMP_FILE_SIZE</code></p>
+</td>
+<td class="cellalignment4857" headers="d99857e2123 d99857e2100">
+<p>When the SQL Trace facility is enabled at the database instance level, every call to the database writes a text line in a file in the operating system&#39;s file format. The maximum size of these files in operating system blocks is limited by this initialization parameter. The default is <code class="codeph">UNLIMITED</code>. See <a class="olink ADMIN11244" target="_blank" href="../ADMIN/monitoring.htm#ADMIN11244"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to learn how to control the trace file size.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4856" id="d99857e2140" headers="d99857e2097">
+<p><code class="codeph">TIMED_STATISTICS</code></p>
+</td>
+<td class="cellalignment4857" headers="d99857e2140 d99857e2100">
+<p>Enables and disables the collection of timed statistics, such as CPU and elapsed times, by the SQL Trace facility, and the collection of various statistics in the <code class="codeph">V$</code> views.</p>
+<p>If <code class="codeph">STATISTICS_LEVEL</code> is set to <code class="codeph">TYPICAL</code> or <code class="codeph">ALL</code>, then the default value of <code class="codeph">TIMED_STATISTICS</code> is <code class="codeph">true</code>. If <code class="codeph">STATISTICS_LEVEL</code> is set to <code class="codeph">BASIC</code>, then the default value of <code class="codeph">TIMED_STATISTICS</code> is <code class="codeph">false</code>. See <a class="olink REFRN10214" target="_blank" href="../REFRN/GUID-16B23F95-8644-407A-A6C8-E85CADFA61FF.htm#REFRN10214"><span class="italic">Oracle Database Reference</span></a> for information about the <code class="codeph">STATISTICS_LEVEL</code> initialization parameter.</p>
+<p>Enabling timing causes extra timing calls for low-level operations. This is a dynamic parameter. It is also a session parameter. See <a class="olink REFRN10218" target="_blank" href="../REFRN/GUID-1F65183A-5F77-42E1-8BC1-294910F3A731.htm#REFRN10218"><span class="italic">Oracle Database Reference</span></a> for information about the <code class="codeph">TIMED_STATISTICS</code> initialization parameter.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></li>
+<li>
+<p>Devise a way of recognizing the resulting trace file.</p>
+<p>Be sure you know how to distinguish the trace files by name. You can tag trace files by including in your programs a statement such as <code class="codeph">SELECT</code> <code class="codeph">&#39;</code><span class="italic"><code class="codeph">program_name</code></span><code class="codeph">&#39;</code> <code class="codeph">FROM</code> <code class="codeph">DUAL</code>. You can then trace each file back to the process that created it.</p>
+<p>You can also set the <code class="codeph">TRACEFILE_IDENTIFIER</code> initialization parameter to specify a custom identifier that becomes part of the trace file name (see <a class="olink REFRN10220" target="_blank" href="../REFRN/GUID-976352B6-1189-4B73-835B-9D5441D11115.htm#REFRN10220"><span class="italic">Oracle Database Reference</span></a> for information about the <code class="codeph">TRACEFILE_IDENTIFIER</code> initialization parameter). For example, you can add <span class="italic"><code class="codeph">my_trace_id</code></span> to subsequent trace file names for easy identification with the following:</p>
+<pre dir="ltr">ALTER SESSION SET TRACEFILE_IDENTIFIER = &#39;<span class="italic">my_trace_id</span>&#39;;
+</pre></li>
+<li>
+<p>If the operating system retains multiple versions of files, then ensure that the version limit is high enough to accommodate the number of trace files you expect the SQL Trace facility to generate.</p>
+</li>
+<li>
+<p>If the generated trace files can be owned by an operating system user other than yourself, then ensure that you have the necessary permissions to use TKPROF to format them.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL812"></a>
+<div class="props_rev_3"><a id="GUID-A465F2E0-F841-4E2A-B54D-7C062C869E48"></a>
+<h3 id="TGSQL-GUID-A465F2E0-F841-4E2A-B54D-7C062C869E48" class="sect3">Step 2: Enabling the SQL Trace Facility</h3>
+<div>
+<div class="section">
+<p><a id="d99857e2333" class="indexterm-anchor"></a><a id="d99857e2337" class="indexterm-anchor"></a>Enable the SQL Trace facility at either of the following levels:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Database instance</p>
+<p>Use <code class="codeph">DBMS_MONITOR.DATABASE_TRACE_ENABLE</code> procedure to enable tracing, and <code class="codeph">DBMS_MONITOR.DATABASE_TRACE_DISABLE</code> procedure to disable tracing.</p>
+</li>
+<li>
+<p>Database session</p>
+<p>Use <code class="codeph">DBMS_SESSION.SET_SQL_TRACE</code> procedure to enable tracing (<code class="codeph">true</code>) or disable tracing (<code class="codeph">false</code>).</p>
+<div class="infobox-note" id="GUID-A465F2E0-F841-4E2A-B54D-7C062C869E48__GUID-14B6D693-5567-498F-834F-84177B1F2CFC">
+<p class="notep1">Note:</p>
+<p>Because running the SQL Trace facility increases system overhead, enable it only when tuning SQL statements, and disable it when you are finished.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable and disable tracing at the database instance level:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and connect to the database with administrator privileges.</p>
+</li>
+<li>
+<p>Enable tracing at the database instance level.</p>
+<p>The following example enables tracing for the <code class="codeph">orcl</code> instance:</p>
+<pre dir="ltr">EXEC DBMS_MONITOR.DATABASE_TRACE_ENABLE(INSTANCE_NAME =&gt; &#39;orcl&#39;);
+</pre></li>
+<li>
+<p>Execute the statements to be traced.</p>
+</li>
+<li>
+<p>Disable tracing for the database instance.</p>
+<p>The following example disables tracing for the <code class="codeph">orcl</code> instance:</p>
+<pre dir="ltr">EXEC DBMS_MONITOR.DATABASE_TRACE_DISABLE(INSTANCE_NAME =&gt; &#39;orcl&#39;);
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable and disable tracing at the session level:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and connect to the database with the desired credentials.</p>
+</li>
+<li>
+<p>Enable tracing for the current session.</p>
+<p>The following example enables tracing for the current session:</p>
+<pre dir="ltr">EXEC DBMS_SESSION.SET_SQL_TRACE(sql_trace =&gt; true);
+</pre></li>
+<li>
+<p>Execute the statements to be traced.</p>
+</li>
+<li>
+<p>Disable tracing for the current session.</p>
+<p>The following example disables tracing for the current session:</p>
+<pre dir="ltr">EXEC DBMS_SESSION.SET_SQL_TRACE(sql_trace =&gt; false);
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-A465F2E0-F841-4E2A-B54D-7C062C869E48__GUID-98D32ECA-274E-4453-A4DD-75360A2850E3">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS67166" target="_blank" href="../ARPLS/d_monitor.htm#ARPLS67166"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about <code class="codeph">DBMS_MONITOR.DATABASE_TRACE_ENABLE</code></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL95366"></a><a id="TGSQL813"></a>
+<div class="props_rev_3"><a id="GUID-83A1CF94-F9AC-4631-80EA-EB0B1A339C0E"></a>
+<h3 id="TGSQL-GUID-83A1CF94-F9AC-4631-80EA-EB0B1A339C0E" class="sect3">Step 3: Generating Output Files with TKPROF</h3>
+<div>
+<div class="section">
+<p>TKPROF accepts as input a trace file produced by the SQL Trace facility, and it produces a formatted output file. TKPROF can also generate execution plans.</p>
+<p>After the SQL Trace facility has generated trace files, you can:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Run TKPROF on each individual trace file, producing several formatted output files, one for each session.</p>
+</li>
+<li>
+<p>Concatenate the trace files, and then run TKPROF on the result to produce a formatted output file for the entire instance.</p>
+</li>
+<li>
+<p>Run the TRCSESS command-line utility to consolidate tracing information from several trace files, then run TKPROF on the result.</p>
+</li>
+</ul>
+<p>TKPROF does not report <code class="codeph">COMMIT</code> and <code class="codeph">ROLLBACK</code> statements recorded in the trace file.</p>
+<div class="infobox-note" id="GUID-83A1CF94-F9AC-4631-80EA-EB0B1A339C0E__GUID-DBBB7FAD-F8F6-4FDE-AD02-9F579F433ADB">
+<p class="notep1">Note:</p>
+<p>The following SQL statements are truncated to 25 characters in the <a id="d99857e2542" class="indexterm-anchor"></a>SQL Trace file:</p>
+<pre dir="ltr">SET ROLE
+GRANT
+ALTER USER
+ALTER ROLE
+CREATE USER
+CREATE ROLE
+</pre></div>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-83A1CF94-F9AC-4631-80EA-EB0B1A339C0E__GUID-4F6E3AFC-A4F2-46BD-A75D-D89E12BDD7BE">
+<p class="titleinexample">Example 18-1 TKPROF Output</p>
+<pre dir="ltr">SELECT * FROM emp, dept 
+WHERE emp.deptno = dept.deptno;
+
+call   count      cpu    elapsed     disk    query current    rows
+---- -------  -------  --------- -------- -------- -------  ------
+Parse      1     0.16      0.29         3       13       0       0
+Execute    1     0.00      0.00         0        0       0       0
+Fetch      1     0.03      0.26         2        2       4      14 
+ 
+Misses in library cache during parse: 1 
+Parsing user id: (8) SCOTT 
+
+Rows     Execution Plan
+-------  --------------------------------------------------- 
+</pre>
+<pre dir="ltr">14  MERGE JOIN
+ 4   SORT JOIN
+ 4     TABLE ACCESS (FULL) OF &#39;DEPT&#39;
+14    SORT JOIN
+14      TABLE ACCESS (FULL) OF &#39;EMP&#39;
+</pre>
+<pre dir="ltr"></pre>
+<p><a id="d99857e2558" class="indexterm-anchor"></a>For this statement, TKPROF output includes the following information:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The text of the SQL statement</p>
+</li>
+<li>
+<p>The SQL Trace statistics in tabular form</p>
+</li>
+<li>
+<p>The number of library cache misses for the parsing and execution of the statement.</p>
+</li>
+<li>
+<p>The user initially parsing the statement.</p>
+</li>
+<li>
+<p>The execution plan<a id="d99857e2579" class="indexterm-anchor"></a> generated by <code class="codeph">EXPLAIN</code> <code class="codeph">PLAN</code>.</p>
+</li>
+</ul>
+<p>TKPROF also provides a summary of user level statements and recursive SQL calls for the trace file.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL834"></a>
+<div class="props_rev_3"><a id="GUID-BDB972EC-AFBC-433C-AAB9-F50F453474F4"></a>
+<h3 id="TGSQL-GUID-BDB972EC-AFBC-433C-AAB9-F50F453474F4" class="sect3">Step 4: Storing SQL Trace Facility Statistics</h3>
+<div>
+<p>You might want to keep a history of the statistics generated by the SQL Trace facility for an application, and compare them over time. <code class="codeph">TKPROF</code> can generate a SQL script that creates a table and inserts rows of statistics into it. This script contains:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A <code class="codeph">CREATE</code> <code class="codeph">TABLE</code> statement that creates an output table named <code class="codeph">TKPROF_TABLE</code>.</p>
+</li>
+<li>
+<p><code class="codeph">INSERT</code> statements that add rows of statistics, one for each traced SQL statement, to <code class="codeph">TKPROF_TABLE</code>.</p>
+</li>
+</ul>
+<p>After running <code class="codeph">TKPROF</code>, run this script to store the statistics in the database.</p>
+</div>
+<a id="TGSQL835"></a>
+<div class="props_rev_3"><a id="GUID-FEE8BC1B-4036-43F2-9FAB-4C8CFA17BE45"></a>
+<h4 id="TGSQL-GUID-FEE8BC1B-4036-43F2-9FAB-4C8CFA17BE45" class="sect4">Generating the TKPROF Output SQL Script</h4>
+<div>
+<div class="section">
+<p><a id="d99857e2777" class="indexterm-anchor"></a>When you run <code class="codeph">TKPROF</code>, use the <code class="codeph">INSERT</code> parameter to specify the name of the generated SQL script. If you omit this parameter, then <code class="codeph">TKPROF</code> does not generate a script.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL836"></a>
+<div class="props_rev_3"><a id="GUID-EE4D0B73-12A6-40FA-A40E-DC312C746DD4"></a>
+<h4 id="TGSQL-GUID-EE4D0B73-12A6-40FA-A40E-DC312C746DD4" class="sect4">Editing the TKPROF Output SQL Script</h4>
+<div>
+<div class="section">
+<p><a id="d99857e2869" class="indexterm-anchor"></a>After <code class="codeph">TKPROF</code> has created the SQL script, you might want to edit the script before running it. If you have created an output table for previously collected statistics, and if you want to add new statistics to this table, then remove the <code class="codeph">CREATE</code> <code class="codeph">TABLE</code> statement from the script. The script then inserts the new rows into the existing table.</p>
+<p>If you have created multiple output tables, perhaps to store statistics from different databases in different tables, then edit the <code class="codeph">CREATE</code> <code class="codeph">TABLE</code> and <code class="codeph">INSERT</code> statements to change the name of the output table.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL838"></a><a id="TGSQL837"></a>
+<div class="props_rev_3"><a id="GUID-FA5C99BF-A42B-4BB0-A963-E175E0CF4A69"></a>
+<h4 id="TGSQL-GUID-FA5C99BF-A42B-4BB0-A963-E175E0CF4A69" class="sect4">Querying the Output Table</h4>
+<div>
+<div class="section">
+<p>The following <code class="codeph">CREATE</code> <code class="codeph">TABLE</code> statement creates the <code class="codeph">TKPROF_TABLE</code>:</p>
+<pre dir="ltr">CREATE TABLE TKPROF_TABLE (
+</pre>
+<pre dir="ltr">DATE_OF_INSERT    DATE,
+CURSOR_NUM        NUMBER,
+DEPTH             NUMBER,
+USER_ID           NUMBER,
+PARSE_CNT         NUMBER,
+PARSE_CPU         NUMBER,
+PARSE_ELAP        NUMBER,
+PARSE_DISK        NUMBER,
+PARSE_QUERY       NUMBER,
+PARSE_CURRENT     NUMBER,
+PARSE_MISS        NUMBER,
+EXE_COUNT         NUMBER,
+EXE_CPU           NUMBER,
+EXE_ELAP          NUMBER,
+EXE_DISK          NUMBER,
+EXE_QUERY         NUMBER,
+EXE_CURRENT       NUMBER,
+EXE_MISS          NUMBER,
+EXE_ROWS          NUMBER,
+FETCH_COUNT       NUMBER,
+FETCH_CPU         NUMBER,
+FETCH_ELAP        NUMBER,
+FETCH_DISK        NUMBER,
+FETCH_QUERY       NUMBER,
+FETCH_CURRENT     NUMBER,
+FETCH_ROWS        NUMBER,
+CLOCK_TICKS       NUMBER,
+SQL_STATEMENT     LONG);
+</pre>
+<pre dir="ltr"></pre>
+<p>Most output table columns correspond directly to the statistics that appear in the formatted output file. For example, the <code class="codeph">PARSE_CNT</code> column value corresponds to the count statistic for the parse step in the output file.</p>
+<p>The columns in <a href="tgsql_trace.htm#GUID-FA5C99BF-A42B-4BB0-A963-E175E0CF4A69__CHDFEIAB" title="This table describes the TKPROF_TABLE columns.">Table 18-2</a> help you identify a row of statistics.</p>
+<div class="tblformal" id="GUID-FA5C99BF-A42B-4BB0-A963-E175E0CF4A69__CHDFEIAB">
+<p class="titleintable">Table 18-2 TKPROF_TABLE Columns for Identifying a Row of Statistics</p>
+<table class="cellalignment4808" title="TKPROF_TABLE Columns for Identifying a Row of Statistics" summary="This table describes the TKPROF_TABLE columns.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4874" id="d99857e3035">Column</th>
+<th class="cellalignment4884" id="d99857e3038">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e3043" headers="d99857e3035">
+<p><code class="codeph">SQL_STATEMENT</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e3043 d99857e3038">
+<p>This is the SQL statement for which the SQL Trace facility collected the row of statistics. Because this column has data type <code class="codeph">LONG</code>, you cannot use it in expressions or <code class="codeph">WHERE</code> clause conditions.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e3057" headers="d99857e3035">
+<p><code class="codeph">DATE_OF_INSERT</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e3057 d99857e3038">
+<p>This is the date and time when the row was inserted into the table. This value is different from the time when the SQL Trace facility collected the statistics.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e3065" headers="d99857e3035">
+<p><code class="codeph">DEPTH</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e3065 d99857e3038">
+<p>This indicates the level of recursion at which the SQL statement was issued. For example, a value of 0 indicates that a user issued the statement. A value of 1 indicates that Oracle Database generated the statement as a recursive call to process a statement with a value of 0 (a statement issued by a user). A value of <span class="italic">n</span> indicates that Oracle Database generated the statement as a recursive call to process a statement with a value of <span class="italic">n</span>-1.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e3079" headers="d99857e3035">
+<p><code class="codeph">USER_ID</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e3079 d99857e3038">
+<p>This identifies the user issuing the statement. This value also appears in the formatted output file.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e3087" headers="d99857e3035">
+<p><code class="codeph">CURSOR_NUM</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e3087 d99857e3038">
+<p>Oracle Database uses this column value to keep track of the cursor to which each SQL statement was assigned.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The output table does not store the statement&#39;s execution plan. The following query returns the statistics from the output table. These statistics correspond to the formatted output shown in <span class="q">&#34;<a href="tgsql_trace.htm#GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6__CHDDBHAD">Example 18-7</a>&#34;</span>.</p>
+<pre dir="ltr">SELECT * FROM TKPROF_TABLE;
+</pre>
+<p>Sample output appears as follows:</p>
+<pre dir="ltr">DATE_OF_INSERT CURSOR_NUM DEPTH USER_ID PARSE_CNT PARSE_CPU PARSE_ELAP
+-------------- ---------- ----- ------- --------- --------- ---------- 
+21-DEC-2012          1      0     8         1        16         22
+
+PARSE_DISK PARSE_QUERY PARSE_CURRENT PARSE_MISS EXE_COUNT EXE_CPU 
+---------- ----------- ------------- ---------- --------- ------- 
+    3          11           0            1           1         0 
+
+EXE_ELAP EXE_DISK EXE_QUERY EXE_CURRENT EXE_MISS EXE_ROWS FETCH_COUNT 
+-------- -------- --------- ----------- -------- -------- ----------- 
+    0        0        0          0          0        0         1 
+
+FETCH_CPU FETCH_ELAP FETCH_DISK FETCH_QUERY FETCH_CURRENT FETCH_ROWS 
+--------- ---------- ---------- ----------- ------------- ---------- 
+     2        20          2          2            4           10 
+
+SQL_STATEMENT 
+---------------------------------------------------------------------
+SELECT * FROM EMP, DEPT WHERE EMP.DEPTNO = DEPT.DEPTNO 
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL820"></a>
+<div class="props_rev_3"><a id="GUID-A92E180C-8F2C-4864-ABFC-8439CEFFE368"></a>
+<h2 id="TGSQL-GUID-A92E180C-8F2C-4864-ABFC-8439CEFFE368" class="sect2">Guidelines for Interpreting TKPROF Output</h2>
+<div>
+<p>This section provides guidelines for interpreting <code class="codeph">TKPROF</code> output.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_trace.htm#GUID-A853A5BC-B2BB-4071-AF28-550D4E2C5848">Guideline for Interpreting the Resolution of Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-681AB1DC-082B-460C-8656-DC3286627D0C">Guideline for Recursive SQL Statements</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-16256746-D82C-46DF-8EE0-B4230C22C723">Guideline for Deciding Which Statements to Tune</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-EBA1A650-19A7-4C79-B602-166442887595">Guidelines for Avoiding Traps in TKPROF Interpretation</a></p>
+</li>
+</ul>
+<p>While <code class="codeph">TKPROF</code> provides a useful analysis, the most accurate measure of efficiency is the performance of the application. At the end of the <code class="codeph">TKPROF</code> output is a summary of the work that the process performed during the period that the trace was running.</p>
+</div>
+<a id="TGSQL827"></a>
+<div class="props_rev_3"><a id="GUID-A853A5BC-B2BB-4071-AF28-550D4E2C5848"></a>
+<h3 id="TGSQL-GUID-A853A5BC-B2BB-4071-AF28-550D4E2C5848" class="sect3">Guideline for Interpreting the Resolution of Statistics</h3>
+<div>
+<div class="section">
+<p>Timing statistics have a resolution of one hundredth of a second. Therefore, any operation on a cursor that takes a hundredth of a second or less might not be timed accurately. Keep this limitation in mind when interpreting statistics. In particular, be careful when interpreting the results from simple queries that execute very quickly.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL828"></a>
+<div class="props_rev_3"><a id="GUID-681AB1DC-082B-460C-8656-DC3286627D0C"></a>
+<h3 id="TGSQL-GUID-681AB1DC-082B-460C-8656-DC3286627D0C" class="sect3">Guideline for Recursive SQL Statements</h3>
+<div>
+<div class="section">
+<p><a id="d99857e3373" class="indexterm-anchor"></a>Sometimes, to execute a SQL statement issued by a user, Oracle Database must issue additional SQL statements. Such statements are called recursive calls or recursive SQL. For example, if a session inserts a row into a table that has insufficient space to hold that row, then the database makes recursive calls to allocate the space dynamically. The database also generates recursive calls when data dictionary information is not available in memory and so must be retrieved from disk.</p>
+<p>If recursive calls occur while the SQL Trace facility is enabled, then <code class="codeph">TKPROF</code> produces statistics for the recursive SQL statements and marks them clearly as recursive SQL statements in the output file. You can suppress the listing of Oracle Database internal recursive calls (for example, space management) in the output file by setting the <code class="codeph">SYS</code> command-line parameter to <code class="codeph">NO</code>. The statistics for a recursive SQL statement are included in the listing for that statement, not in the listing for the SQL statement that caused the recursive call. So, when you are calculating the total resources required to process a SQL statement, consider the statistics for that statement and those for recursive calls caused by that statement.</p>
+<div class="infobox-note" id="GUID-681AB1DC-082B-460C-8656-DC3286627D0C__GUID-524CB3AD-4964-489A-8FCA-C657343460B8">
+<p class="notep1">Note:</p>
+<p>Recursive SQL statistics are not included for SQL-level operations.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL833"></a>
+<div class="props_rev_3"><a id="GUID-16256746-D82C-46DF-8EE0-B4230C22C723"></a>
+<h3 id="TGSQL-GUID-16256746-D82C-46DF-8EE0-B4230C22C723" class="sect3">Guideline for Deciding Which Statements to Tune</h3>
+<div>
+<div class="section">
+<p>You must determine which SQL statements use the most CPU or disk resource. If the <code class="codeph">TIMED_STATISTICS</code> parameter is enabled, then you can find high CPU activity in the <code class="codeph">CPU</code> column. If <code class="codeph">TIMED_STATISTICS</code> is not enabled, then check the <code class="codeph">QUERY</code> and <code class="codeph">CURRENT</code> columns.</p>
+<p>With the exception of locking problems and inefficient PL/SQL loops, neither the CPU time nor the elapsed time is necessary to find problem statements. The key is the number of block visits, both query (that is, subject to read consistency) and current (that is, not subject to read consistency). Segment headers and blocks that are going to be updated are acquired in current mode, but all query and subquery processing requests the data in query mode. These are precisely the same measures as the instance statistics <code class="codeph">CONSISTENT</code> <code class="codeph">GETS</code> and <code class="codeph">DB</code> <code class="codeph">BLOCK</code> <code class="codeph">GETS</code>. You can find high disk activity in the <code class="codeph">disk</code> column.</p>
+<p>The following listing shows <code class="codeph">TKPROF</code> output for one SQL statement as it appears in the output file<a id="d99857e3511" class="indexterm-anchor"></a><a id="d99857e3515" class="indexterm-anchor"></a>:<a id="d99857e3520" class="indexterm-anchor"></a></p>
+<pre dir="ltr">SELECT * 
+FROM emp, dept 
+WHERE emp.deptno = dept.deptno;
+
+call   count      cpu    elapsed     disk    query current    rows
+---- -------  -------  --------- -------- -------- -------  ------
+Parse     11     0.08      0.18        0       0       0         0
+Execute   11     0.23      0.66        0       3       6         0
+Fetch     35     6.70      6.83      100   12326       2       824
+------------------------------------------------------------------
+total     57     7.01      7.67      100   12329       8       826
+
+Misses in library cache during parse: 0 
+</pre>
+<p>If it is acceptable to have 7.01 CPU seconds and to retrieve 824 rows, then you need not look any further at this trace output. In fact, a major use of <code class="codeph">TKPROF</code> reports in a tuning exercise is to eliminate processes from the detailed tuning phase.</p>
+<p>The output indicates that 10 unnecessary parse call were made (because 11 parse calls exist for this single statement) and that array fetch operations were performed. More rows were fetched than there were fetches performed. A large gap between <code class="codeph">CPU</code> and <code class="codeph">elapsed</code> timings indicates Physical I/Os.</p>
+<div class="infoboxnotealso" id="GUID-16256746-D82C-46DF-8EE0-B4230C22C723__GUID-39EB01AA-B54D-4A3B-9813-242117A976EB">
+<p class="notep1">See Also:</p>
+<p><a href="tgsql_trace.htm#GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6__CHDEICAF">Example 18-4</a></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL839"></a>
+<div class="props_rev_3"><a id="GUID-EBA1A650-19A7-4C79-B602-166442887595"></a>
+<h3 id="TGSQL-GUID-EBA1A650-19A7-4C79-B602-166442887595" class="sect3">Guidelines for Avoiding Traps in TKPROF Interpretation</h3>
+<div>
+<p>This section describes some fine points of <code class="codeph">TKPROF</code> interpretation:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_trace.htm#GUID-2D5E244C-1852-40F0-B222-3DBA59380A56">Guideline for Avoiding the Argument Trap</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-1308081A-42E3-4B9B-8838-67AFB6DA4AF2">Guideline for Avoiding the Read Consistency Trap</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-207AB87B-22D5-40EA-A796-AE6CA631E3D7">Guideline for Avoiding the Schema Trap</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-7A286CCD-6889-43C2-B72E-A4BB93E88E1A">Guideline for Avoiding the Time Trap</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL840"></a>
+<div class="props_rev_3"><a id="GUID-2D5E244C-1852-40F0-B222-3DBA59380A56"></a>
+<h4 id="TGSQL-GUID-2D5E244C-1852-40F0-B222-3DBA59380A56" class="sect4">Guideline for Avoiding the Argument Trap</h4>
+<div>
+<div class="section">
+<p>If you are not aware of the values being bound at run time, then it is possible to fall into the argument trap. <code class="codeph">EXPLAIN PLAN</code> cannot determine the type of a bind variable from the text of SQL statements, and it always assumes that the type is <code class="codeph">VARCHAR</code>. If the bind variable is actually a number or a date, then <code class="codeph">TKPROF</code> can cause implicit data conversions, which can cause inefficient plans to be executed. To avoid this situation, experiment with different data types in the query, and perform the conversion yourself.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL841"></a>
+<div class="props_rev_3"><a id="GUID-1308081A-42E3-4B9B-8838-67AFB6DA4AF2"></a>
+<h4 id="TGSQL-GUID-1308081A-42E3-4B9B-8838-67AFB6DA4AF2" class="sect4">Guideline for Avoiding the Read Consistency Trap</h4>
+<div>
+<div class="section">
+<p>The next example illustrates the read consistency trap. Without knowing that an uncommitted transaction had made a series of updates to the <code class="codeph">NAME</code> column, it is very difficult to see why so many block visits would be incurred.</p>
+<p>Cases like this are not normally repeatable: if the process were run again, it is unlikely that another transaction would interact with it in the same way.</p>
+<pre dir="ltr">SELECT name_id
+FROM cq_names 
+WHERE name = &#39;FLOOR&#39;;
+
+call     count     cpu     elapsed     disk     query current     rows
+----     -----     ---     -------     ----     ----- -------     ----
+Parse        1    0.10        0.18        0         0       0        0
+Execute      1    0.00        0.00        0         0       0        0
+Fetch        1    0.11        0.21        2       101       0        1
+
+Misses in library cache during parse: 1
+Parsing user id: 01 (USER1)
+
+Rows     Execution Plan
+e----     --------- ----
+   0     SELECT STATEMENT
+   1       TABLE ACCESS (BY ROWID) OF &#39;CQ_NAMES&#39;
+   2         INDEX (RANGE SCAN) OF &#39;CQ_NAMES_NAME&#39; (NON_UNIQUE) 
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL842"></a>
+<div class="props_rev_3"><a id="GUID-207AB87B-22D5-40EA-A796-AE6CA631E3D7"></a>
+<h4 id="TGSQL-GUID-207AB87B-22D5-40EA-A796-AE6CA631E3D7" class="sect4">Guideline for Avoiding the Schema Trap</h4>
+<div>
+<div class="section">
+<p>This example shows an extreme (and thus easily detected) example of the schema trap. At first, it is difficult to see why such an apparently straightforward indexed query must look at so many database blocks, or why it should access any blocks at all in current mode.</p>
+<pre dir="ltr">SELECT name_id
+FROM cq_names 
+WHERE name = &#39;FLOOR&#39;;
+
+call        count        cpu      elapsed     disk  query current rows
+--------  -------   --------    ---------  ------- ------ ------- ----
+Parse           1       0.06         0.10        0      0       0    0
+Execute         1       0.02         0.02        0      0       0    0 
+Fetch           1       0.23         0.30       31     31       3    1
+
+Misses in library cache during parse: 0
+Parsing user id: 02  (USER2)
+
+Rows     Execution Plan
+-------  ---------------------------------------------------
+      0  SELECT STATEMENT
+   2340    TABLE ACCESS (BY ROWID) OF &#39;CQ_NAMES&#39;
+      0      INDEX (RANGE SCAN) OF &#39;CQ_NAMES_NAME&#39; (NON-UNIQUE)
+</pre>
+<p>Two statistics suggest that the query might have been executed with a full table scan. These statistics are the current mode block visits, plus the number of rows originating from the Table Access row source in the execution plan. The explanation is that the required index was built after the trace file had been produced, but before <code class="codeph">TKPROF</code> had been run.</p>
+<p>Generating a new trace file gives the following data:</p>
+<pre dir="ltr">SELECT name_id
+FROM cq_names 
+WHERE name = &#39;FLOOR&#39;; 
+
+call    count    cpu   elapsed  disk  query current     rows
+-----  ------ ------  -------- ----- ------ -------    -----
+Parse       1   0.01      0.02     0      0       0        0
+Execute     1   0.00      0.00     0      0       0        0
+Fetch       1   0.00      0.00     0      2       0        1
+
+Misses in library cache during parse: 0
+Parsing user id: 02  (USER2)
+
+Rows     Execution Plan
+-------  ---------------------------------------------------
+      0  SELECT STATEMENT
+      1    TABLE ACCESS (BY ROWID) OF &#39;CQ_NAMES&#39;
+      2      INDEX (RANGE SCAN) OF &#39;CQ_NAMES_NAME&#39; (NON-UNIQUE)
+</pre>
+<p>One of the marked features of this correct version is that the parse call took 10 milliseconds of CPU time and 20 milliseconds of elapsed time, but the query apparently took no time at all to execute and perform the fetch. These anomalies arise because the clock tick of 10 milliseconds is too long relative to the time taken to execute and fetch the data. In such cases, it is important to get lots of executions of the statements, so that you have statistically valid numbers.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL843"></a>
+<div class="props_rev_3"><a id="GUID-7A286CCD-6889-43C2-B72E-A4BB93E88E1A"></a>
+<h4 id="TGSQL-GUID-7A286CCD-6889-43C2-B72E-A4BB93E88E1A" class="sect4">Guideline for Avoiding the Time Trap</h4>
+<div>
+<div class="section">
+<p>Sometimes, as in the following example, you might wonder why a particular query has taken so long.</p>
+<pre dir="ltr">UPDATE cq_names SET ATTRIBUTES = lower(ATTRIBUTES)
+WHERE ATTRIBUTES = :att 
+
+call       count       cpu    elapsed     disk    query current        rows
+-------- -------  --------  --------- -------- -------- -------  ----------
+Parse          1      0.06       0.24        0        0       0           0
+Execute        1      0.62      19.62       22      526      12           7
+Fetch          0      0.00       0.00        0        0       0           0
+
+Misses in library cache during parse: 1
+Parsing user id: 02  (USER2)
+
+Rows     Execution Plan
+-------  ---------------------------------------------------
+      0  UPDATE STATEMENT
+  2519  TABLE ACCESS (FULL) OF &#39;CQ_NAMES&#39;
+</pre>
+<p>Again, the answer is interference from another transaction. In this case, another transaction held a shared lock on the table <code class="codeph">cq_names</code> for several seconds before and after the update was issued. It takes a fair amount of experience to diagnose that interference effects are occurring. On the one hand, comparative data is essential when the interference is contributing only a short delay (or a small increase in block visits in the previous example). However, if the interference contributes only modest overhead, and if the statement is essentially efficient, then its statistics may not require analysis.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL95367"></a>
+<div class="sect2"><a id="GUID-66C145A4-A8C9-4688-A00C-22B71C19DFF6"></a>
+<h2 id="TGSQL-GUID-66C145A4-A8C9-4688-A00C-22B71C19DFF6" class="sect2">Application Tracing Utilities</h2>
+<div>
+<p>This section describes the syntax and semantics for the following utilities:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_trace.htm#GUID-9E4264C7-76AF-451B-99ED-83FB1AAAE3E5">TRCSESS</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-9C03013B-6587-4475-8888-16E84DAD5806" title="The TKPROF program formats the contents of the trace file and places the output into a readable output file.">TKPROF</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95368"></a>
+<div class="sect3"><a id="GUID-9E4264C7-76AF-451B-99ED-83FB1AAAE3E5"></a>
+<h3 id="TGSQL-GUID-9E4264C7-76AF-451B-99ED-83FB1AAAE3E5" class="sect3">TRCSESS</h3>
+<div>
+<p><a id="d99857e4166" class="indexterm-anchor"></a><a id="d99857e4168" class="indexterm-anchor"></a>The TRCSESS utility consolidates trace output from selected trace files based on user-specified criteria. After TRCSESS merges the trace information into a single output file, TKPROF can process the output file.</p>
+</div>
+<a id="TGSQL95369"></a>
+<div class="sect4"><a id="GUID-D4D248DF-8269-49B0-B719-EF41F85D4E34"></a>
+<h4 id="TGSQL-GUID-D4D248DF-8269-49B0-B719-EF41F85D4E34" class="sect4">Purpose</h4>
+<div>
+<p>TRCSESS is useful for consolidating the tracing of a particular session for performance or debugging purposes.</p>
+<p>Tracing a specific session is usually not a problem in the dedicated server model because one process serves a session during its lifetime. You can see the trace information for the session from the trace file belonging to the server process. However, in a shared server configuration, a user session is serviced by different processes over time. The trace for the user session is scattered across different trace files belonging to different processes, which makes it difficult to get a complete picture of the life cycle of a session.</p>
+</div>
+</div>
+<a id="TGSQL95370"></a>
+<div class="sect4"><a id="GUID-6D9676AF-F14B-4576-9FBF-25F87D39082D"></a>
+<h4 id="TGSQL-GUID-6D9676AF-F14B-4576-9FBF-25F87D39082D" class="sect4">Guidelines</h4>
+<div>
+<p>You must specify one of the <code class="codeph">session</code>, <code class="codeph">clientid</code>, <code class="codeph">service</code>, <code class="codeph">action</code>, or <code class="codeph">module</code> options. If you specify multiple options, then TRCSESS consolidates all trace files that satisfy the specified criteria into the output file.</p>
+</div>
+</div>
+<a id="TGSQL95371"></a>
+<div class="sect4"><a id="GUID-2A3B090A-BF15-4676-93D5-21F7B9D890DA"></a>
+<h4 id="TGSQL-GUID-2A3B090A-BF15-4676-93D5-21F7B9D890DA" class="sect4">Syntax</h4>
+<div>
+<pre dir="ltr">trcsess  [output=<span class="italic">output_file_name</span>]
+         [session=<span class="italic">session_id</span>]
+         [clientid=<span class="italic">client_id</span>]
+         [service=<span class="italic">service_name</span>]
+         [action=<span class="italic">action_name</span>]
+         [module=<span class="italic">module_name</span>]
+         [<span class="italic">trace_files</span>]
+</pre></div>
+</div>
+<a id="TGSQL95372"></a>
+<div class="sect4"><a id="GUID-906FA3FD-257A-4EE4-8A36-5733098565FB"></a>
+<h4 id="TGSQL-GUID-906FA3FD-257A-4EE4-8A36-5733098565FB" class="sect4">Options</h4>
+<div>
+<div class="tblformal" id="GUID-906FA3FD-257A-4EE4-8A36-5733098565FB__GUID-5261394C-CED4-4FA8-A15A-F68DC457DC6A">
+<table class="cellalignment4808" summary="TRSESS options">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4839" id="d99857e4531">Argument</th>
+<th class="cellalignment4839" id="d99857e4534">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e4539" headers="d99857e4531">
+<p><code class="codeph">output</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e4539 d99857e4534">
+<p>Specifies the file where the output is generated. If this option is not specified, then the utility writes to standard output.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e4547" headers="d99857e4531">
+<p><code class="codeph">session</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e4547 d99857e4534">
+<p>Consolidates the trace information for the session specified. The session identifier is a combination of session index and session serial number, such as <code class="codeph">21.2371</code>. You can locate these values in the <code class="codeph">V$SESSION</code> view.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e4561" headers="d99857e4531">
+<p><code class="codeph">clientid</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e4561 d99857e4534">
+<p>Consolidates the trace information for the specified client ID.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e4569" headers="d99857e4531">
+<p><code class="codeph">service</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e4569 d99857e4534">
+<p>Consolidates the trace information for the specified service name.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e4577" headers="d99857e4531">
+<p><code class="codeph">action</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e4577 d99857e4534">
+<p>Consolidates the trace information for the specified action name.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e4585" headers="d99857e4531">
+<p><code class="codeph">module</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e4585 d99857e4534">
+<p>Consolidates the trace information for the specified module name.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e4593" headers="d99857e4531">
+<p><span class="italic"><code class="codeph">trace_files</code></span></p>
+</td>
+<td class="cellalignment4802" headers="d99857e4593 d99857e4534">
+<p>Lists the trace file names, separated by spaces, in which TRCSESS should look for trace information. You can use the wildcard character (<code class="codeph">*</code>) to specify the trace file names. If you do not specify trace files, then TRCSESS uses all files in the current directory as input.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="TGSQL95374"></a><a id="TGSQL95375"></a><a id="TGSQL95373"></a>
+<div class="sect4"><a id="GUID-42AAC7B3-6FD1-4125-AFEC-12F79E31F757"></a>
+<h4 id="TGSQL-GUID-42AAC7B3-6FD1-4125-AFEC-12F79E31F757" class="sect4">Examples</h4>
+<div>
+<div class="example" id="GUID-42AAC7B3-6FD1-4125-AFEC-12F79E31F757__GUID-1307EAF0-EBDB-4DFA-B32E-9DD944B5E070">
+<p class="titleinexample">Example 18-2 Tracing a Single Session</p>
+<p>This sample output of TRCSESS shows the container of traces for a particular session. In this example, the session index and serial number equals <code class="codeph">21.2371</code>. All files in current directory are taken as input.</p>
+<pre dir="ltr">trcsess session=21.2371
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-42AAC7B3-6FD1-4125-AFEC-12F79E31F757__GUID-72FAAF97-8DD4-4903-BFD3-A7E9C6408B9A">
+<p class="titleinexample">Example 18-3 Specifying Multiple Trace Files</p>
+<p>The following example specifies two trace files:</p>
+<pre dir="ltr">trcsess session=21.2371 main_12359.trc main_12995.trc
+</pre>
+<p>The sample output is similar to the following:</p>
+<pre dir="ltr">[PROCESS ID = 12359] 
+*** 2014-04-02 09:48:28.376 
+PARSING IN CURSOR #1 len=17 dep=0 uid=27 oct=3 lid=27 tim=868373970961 hv=887450622 ad=&#39;22683fb4&#39; 
+select * from cat 
+END OF STMT 
+PARSE #1:c=0,e=339,p=0,cr=0,cu=0,mis=0,r=0,dep=0,og=4,tim=868373970944 
+EXEC #1:c=0,e=221,p=0,cr=0,cu=0,mis=0,r=0,dep=0,og=4,tim=868373971411 
+FETCH #1:c=0,e=791,p=0,cr=7,cu=0,mis=0,r=1,dep=0,og=4,tim=868373972435 
+FETCH #1:c=0,e=1486,p=0,cr=20,cu=0,mis=0,r=6,dep=0,og=4,tim=868373986238 
+*** 2014-04-02 10:03:58.058 
+XCTEND rlbk=0, rd_only=1 
+STAT #1 id=1 cnt=7 pid=0 pos=1 obj=0 op=&#39;FILTER  &#39; 
+STAT #1 id=2 cnt=7 pid=1 pos=1 obj=18 op=&#39;TABLE ACCESS BY INDEX ROWID OBJ$ &#39; 
+STAT #1 id=3 cnt=7 pid=2 pos=1 obj=37 op=&#39;INDEX RANGE SCAN I_OBJ2 &#39; 
+STAT #1 id=4 cnt=0 pid=1 pos=2 obj=4 op=&#39;TABLE ACCESS CLUSTER TAB$J2 &#39; 
+STAT #1 id=5 cnt=6 pid=4 pos=1 obj=3 op=&#39;INDEX UNIQUE SCAN I_OBJ# &#39; 
+[PROCESS ID=12995] 
+*** 2014-04-02 10:04:32.738 
+Archiving is disabled  
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL95376"></a>
+<div class="sect3"><a id="GUID-9C03013B-6587-4475-8888-16E84DAD5806"></a>
+<h3 id="TGSQL-GUID-9C03013B-6587-4475-8888-16E84DAD5806" class="sect3">TKPROF</h3>
+<div>
+<p>The TKPROF program formats the contents of the trace file and places the output into a readable output file.</p>
+<p>TKPROF can also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Create a SQL script that stores the statistics in the database</p>
+</li>
+<li>
+<p>Determine the execution plans of SQL statements</p>
+<div class="infobox-note" id="GUID-9C03013B-6587-4475-8888-16E84DAD5806__GUID-E20C3C5C-055C-4DA0-9EC9-9AE087914876">
+<p class="notep1">Note:</p>
+<p>If the cursor for a SQL statement is not closed, then TKPROF output does not automatically include the actual execution plan of the SQL statement. In this situation, use the <code class="codeph">EXPLAIN</code> option with TKPROF to generate an execution plan.</p>
+</div>
+</li>
+</ul>
+<p>TKPROF reports each statement executed with the resources it has consumed, the number of times it was called, and the number of rows which it processed.</p>
+</div>
+<a id="TGSQL95377"></a>
+<div class="sect4"><a id="GUID-E494C346-8892-4713-B1A1-8CBFF3E734B1"></a>
+<h4 id="TGSQL-GUID-E494C346-8892-4713-B1A1-8CBFF3E734B1" class="sect4">Purpose</h4>
+<div>
+<p>TKPROF can locate statements using the greatest resource. With baselines available, you can assess whether the resources used are reasonable given the work done.</p>
+</div>
+</div>
+<a id="TGSQL95378"></a>
+<div class="sect4"><a id="GUID-5049625B-72C1-435F-A6F7-6B19A78E878E"></a>
+<h4 id="TGSQL-GUID-5049625B-72C1-435F-A6F7-6B19A78E878E" class="sect4">Guidelines</h4>
+<div>
+<p>The input and output files are the only required arguments. If you invoke TKPROF without arguments, then the tool displays online help.</p>
+</div>
+</div>
+<a id="TGSQL95379"></a>
+<div class="sect4"><a id="GUID-32F3AB58-B20C-4363-A47E-F1EF909D02FF"></a>
+<h4 id="TGSQL-GUID-32F3AB58-B20C-4363-A47E-F1EF909D02FF" class="sect4">Syntax</h4>
+<div>
+<pre dir="ltr">tkprof <span class="italic">input_file</span> <span class="italic">output_file</span>
+  [ waits=yes|no ] 
+  [ sort=<span class="italic">option </span>] 
+  [ print=<span class="italic">n</span> ]
+  [ aggregate=yes|no ] 
+  [ insert=<span class="italic">filename3 </span>] 
+  [ sys=yes|no ]
+  [ table=<span class="italic">schema.table</span> ]
+  [ explain=<span class="italic">user/password </span>] 
+  [ record=<span class="italic">filename4 </span>] 
+  [ width=<span class="italic">n </span>]
+</pre></div>
+</div>
+<a id="TGSQL95381"></a><a id="TGSQL95380"></a>
+<div class="sect4"><a id="GUID-024D1DE6-6405-4F3D-B403-40DE010F2252"></a>
+<h4 id="TGSQL-GUID-024D1DE6-6405-4F3D-B403-40DE010F2252" class="sect4">Options</h4>
+<div>
+<p>TKPROF supports a number of command-line options.</p>
+<div class="tblformal" id="GUID-024D1DE6-6405-4F3D-B403-40DE010F2252__GUID-4E02AD6F-679E-41BD-B6BF-69A707F5B5FF">
+<p class="titleintable">Table 18-3 TKPROF Arguments</p>
+<table class="cellalignment4808" title="TKPROF Arguments" summary="This table describes the arguments that are used with TKPROF.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4839" id="d99857e5168">Argument</th>
+<th class="cellalignment4839" id="d99857e5171">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5176" headers="d99857e5168">
+<p><span class="italic"><code class="codeph">input_file</code></span></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5176 d99857e5171">
+<p>Specifies the input file, a trace file containing statistics produced by the SQL Trace facility. This file can be either a trace file produced for a single session, or a file produced by concatenating individual trace files from multiple sessions.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5185" headers="d99857e5168">
+<p><span class="italic"><code class="codeph">output_file</code></span></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5185 d99857e5171">
+<p>Specifies the file to which <code class="codeph">TKPROF</code> writes its formatted output.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5197" headers="d99857e5168">
+<p><code class="codeph">WAITS</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5197 d99857e5171">
+<p>Specifies whether to record summary for any wait events found in the trace file. Valid values are <code class="codeph">YES</code> (default) and <code class="codeph">NO</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5211" headers="d99857e5168">
+<p><code class="codeph">SORT</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5211 d99857e5171">
+<p>Sorts traced SQL statements in descending order of specified sort option before listing them in the output file. If multiple options are specified, then the output is sorted in descending order by the sum of the values specified in the sort options. If you omit this parameter, then <code class="codeph">TKPROF</code> lists statements into the output file in order of first use. Sort options are listed as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">PRSCNT</code> - Number of times parsed</p>
+</li>
+<li>
+<p><code class="codeph">PRSCPU</code> - CPU time spent parsing</p>
+</li>
+<li>
+<p><code class="codeph">PRSELA</code> - Elapsed time spent parsing</p>
+</li>
+<li>
+<p><code class="codeph">PRSDSK</code> - Number of physical reads from disk during parse</p>
+</li>
+<li>
+<p><code class="codeph">PRSQRY</code> - Number of consistent mode block reads during parse</p>
+</li>
+<li>
+<p><code class="codeph">PRSCU</code> - Number of current mode block reads during parse</p>
+</li>
+<li>
+<p><code class="codeph">PRSMIS</code> - Number of library cache misses during parse</p>
+</li>
+<li>
+<p><code class="codeph">EXECNT</code> - Number of executions</p>
+</li>
+<li>
+<p><code class="codeph">EXECPU</code> - CPU time spent executing</p>
+</li>
+<li>
+<p><code class="codeph">EXEELA</code> - Elapsed time spent executing</p>
+</li>
+<li>
+<p><code class="codeph">EXEDSK</code> - Number of physical reads from disk during execute</p>
+</li>
+<li>
+<p><code class="codeph">EXEQRY</code> - Number of consistent mode block reads during execute</p>
+</li>
+<li>
+<p><code class="codeph">EXECU</code> - Number of current mode block reads during execute</p>
+</li>
+<li>
+<p><code class="codeph">EXEROW</code> - Number of rows processed during execute</p>
+</li>
+<li>
+<p><code class="codeph">EXEMIS</code> - Number of library cache misses during execute</p>
+</li>
+<li>
+<p><code class="codeph">FCHCNT</code> - Number of fetches</p>
+</li>
+<li>
+<p><code class="codeph">FCHCPU</code> - CPU time spent fetching</p>
+</li>
+<li>
+<p><code class="codeph">FCHELA</code> - Elapsed time spent fetching</p>
+</li>
+<li>
+<p><code class="codeph">FCHDSK</code> - Number of physical reads from disk during fetch</p>
+</li>
+<li>
+<p><code class="codeph">FCHQRY</code> - Number of consistent mode block reads during fetch</p>
+</li>
+<li>
+<p><code class="codeph">FCHCU</code> - Number of current mode block reads during fetch</p>
+</li>
+<li>
+<p><code class="codeph">FCHROW</code> - Number of rows fetched</p>
+</li>
+<li>
+<p><code class="codeph">USERID</code> - Userid of user that parsed the cursor</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5340" headers="d99857e5168">
+<p><code class="codeph">PRINT</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5340 d99857e5171">
+<p>Lists only the first integer sorted SQL statements from the output file. If you omit this parameter, then <code class="codeph">TKPROF</code> lists all traced SQL statements. This parameter does not affect the optional SQL script. The SQL script always generates insert data for all traced SQL statements.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5351" headers="d99857e5168">
+<p><code class="codeph">AGGREGATE</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5351 d99857e5171">
+<p>If you specify <code class="codeph">AGGREGATE</code> = <code class="codeph">NO</code>, then <code class="codeph">TKPROF</code> does not aggregate multiple users of the same SQL text.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5368" headers="d99857e5168">
+<p><code class="codeph">INSERT</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5368 d99857e5171">
+<p>Creates a SQL script that stores the trace file statistics in the database. <code class="codeph">TKPROF</code> creates this script with the name <span class="italic"><code class="codeph">filename3</code></span>. This script creates a table and inserts a row of statistics for each traced SQL statement into the table.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5383" headers="d99857e5168">
+<p><code class="codeph">SYS</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5383 d99857e5171">
+<p>Enables and disables the listing of SQL statements issued by the user <code class="codeph">SYS</code>, or recursive SQL statements, into the output file. The default value of <code class="codeph">YES</code> causes <code class="codeph">TKPROF</code> to list these statements. The value of <code class="codeph">NO</code> causes <code class="codeph">TKPROF</code> to omit them. This parameter does not affect the optional SQL script. The SQL script always inserts statistics for all traced SQL statements, including recursive SQL statements.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5406" headers="d99857e5168">
+<p><code class="codeph">TABLE</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5406 d99857e5171">
+<p>Specifies the schema and name of the table into which <code class="codeph">TKPROF</code> temporarily places execution plans before writing them to the output file. If the specified table exists, then <code class="codeph">TKPROF</code> deletes all rows in the table, uses it for the <code class="codeph">EXPLAIN PLAN</code> statement (which writes more rows into the table), and then deletes those rows. If this table does not exist, then <code class="codeph">TKPROF</code> creates it, uses it, and then drops it.</p>
+<p>The specified user must be able to issue <code class="codeph">INSERT</code>, <code class="codeph">SELECT</code>, and <code class="codeph">DELETE</code> statements against the table. If the table does not exist, then the user must also be able to issue <code class="codeph">CREATE TABLE</code> and <code class="codeph">DROP TABLE</code> statements.</p>
+<p>This option enables multiple individuals to run <code class="codeph">TKPROF</code> concurrently with the same user in the <code class="codeph">EXPLAIN</code> value. These individuals can specify different <code class="codeph">TABLE</code> values and avoid destructively interfering with each other&#39;s processing on the temporary plan table.</p>
+<p><code class="codeph">TKPROF</code> supports the following combinations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">EXPLAIN</code> parameter without the <code class="codeph">TABLE</code> parameter</p>
+<p><code class="codeph">TKPROF</code> uses the table <code class="codeph">PROF$PLAN_TABLE</code> in the schema of the user specified by the <code class="codeph">EXPLAIN</code> parameter</p>
+</li>
+<li>
+<p>The <code class="codeph">TABLE</code> parameter without the <code class="codeph">EXPLAIN</code> parameter</p>
+<p><code class="codeph">TKPROF</code> ignores the <code class="codeph">TABLE</code> parameter.</p>
+</li>
+</ul>
+<p>If no plan table exists, then <code class="codeph">TKPROF</code> creates the table <code class="codeph">PROF$PLAN_TABLE</code> and then drops it at the end.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5502" headers="d99857e5168">
+<p><code class="codeph">EXPLAIN</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5502 d99857e5171">
+<p>Determines the execution plan for each SQL statement in the trace file and writes these execution plans to the output file. <code class="codeph">TKPROF</code> also displays the number of rows processed by each step of the execution plan.</p>
+<p><code class="codeph">TKPROF</code> determines execution plans by issuing the <code class="codeph">EXPLAIN</code> <code class="codeph">PLAN</code> statement after connecting to Oracle Database with the user and password specified in this parameter. The specified user must have <code class="codeph">CREATE SESSION</code> system privileges. <code class="codeph">TKPROF</code> takes longer to process a large trace file if the <code class="codeph">EXPLAIN</code> option is used.</p>
+<p><span class="bold">Note:</span> Trace files generated immediately after instance startup contain data that reflects the activity of the startup process. In particular, they reflect a disproportionate amount of I/O activity as caches in the system global area (SGA) are filled. For the purposes of tuning, ignore such trace files.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5536" headers="d99857e5168">
+<p><code class="codeph">RECORD</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5536 d99857e5171">
+<p>Creates a SQL script with the specified <span class="italic"><code class="codeph">filename</code></span> with all of the nonrecursive SQL in the trace file. You can use this script to replay the user events from the trace file.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d99857e5549" headers="d99857e5168">
+<p><code class="codeph">WIDTH</code></p>
+</td>
+<td class="cellalignment4802" headers="d99857e5549 d99857e5171">
+<p>An integer that controls the output line width of some <code class="codeph">TKPROF</code> output, such as the explain plan. This parameter is useful for post-processing of <code class="codeph">TKPROF</code> output.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="TGSQL95382"></a>
+<div class="sect4"><a id="GUID-2ACECBE8-C812-432C-AFC4-0FD0E04490CE"></a>
+<h4 id="TGSQL-GUID-2ACECBE8-C812-432C-AFC4-0FD0E04490CE" class="sect4">Output</h4>
+<div>
+<p>This section explains the TKPROF output.</p>
+</div>
+<a id="TGSQL831"></a>
+<div class="sect5"><a id="GUID-F7AF11DB-252F-47EB-88C2-E660E8EB8E40"></a>
+<h5 id="TGSQL-GUID-F7AF11DB-252F-47EB-88C2-E660E8EB8E40" class="sect5">Identification of User Issuing the SQL Statement in TKPROF</h5>
+<div>
+<p><code class="codeph">TKPROF</code> lists the user ID of the user issuing each SQL statement. If the SQL Trace input file contained statistics from multiple users, and if the statement was issued by multiple users, then <code class="codeph">TKPROF</code> lists the ID of the last user to parse the statement. The user ID of all database users appears in the data dictionary in the column <code class="codeph">ALL_USERS</code>.<code class="codeph">USER_ID</code>.</p>
+</div>
+</div>
+<a id="TGSQL822"></a><a id="TGSQL823"></a><a id="TGSQL821"></a>
+<div class="sect5"><a id="GUID-B6EE4109-5946-415D-9B75-EC1B73D16B87"></a>
+<h5 id="TGSQL-GUID-B6EE4109-5946-415D-9B75-EC1B73D16B87" class="sect5">Tabular Statistics in TKPROF</h5>
+<div>
+<p><code class="codeph">TKPROF</code> lists the statistics for a SQL statement returned by the SQL Trace facility in rows and columns. Each row corresponds to one of three steps of SQL statement processing. Statistics are identified by the value of the <code class="codeph">CALL</code> column. See <a href="tgsql_trace.htm#GUID-B6EE4109-5946-415D-9B75-EC1B73D16B87__CHDHIIHC" title="This table explains the meaning of the CALL column values.">Table 18-4</a>.</p>
+<div class="tblformal" id="GUID-B6EE4109-5946-415D-9B75-EC1B73D16B87__CHDHIIHC">
+<p class="titleintable">Table 18-4 CALL Column Values</p>
+<table class="cellalignment4808" title="CALL Column Values" summary="This table explains the meaning of the CALL column values.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4874" id="d99857e5830">CALL Value</th>
+<th class="cellalignment4884" id="d99857e5833">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5838" headers="d99857e5830">
+<p><code class="codeph">PARSE</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5838 d99857e5833">
+<p>Translates the SQL statement into an execution plan, including checks for proper security authorization and checks for the existence of tables, columns, and other referenced objects.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5847" headers="d99857e5830">
+<p><code class="codeph">EXECUTE</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5847 d99857e5833">
+<p>Actual execution of the statement by Oracle Database. For <code class="codeph">INSERT</code>, <code class="codeph">UPDATE</code>, and <code class="codeph">DELETE</code> statements, this modifies the data. For <code class="codeph">SELECT</code> statements, this identifies the selected rows.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5868" headers="d99857e5830">
+<p><code class="codeph">FETCH</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5868 d99857e5833">
+<p>Retrieves rows returned by a query. Fetches are only performed for <code class="codeph">SELECT</code> statements.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p><a id="d99857e5880" class="indexterm-anchor"></a>The other columns of the SQL Trace facility output are combined statistics for all parses, executions, and fetches of a statement. The sum of <code class="codeph">query</code> and <code class="codeph">current</code> is the total number of buffers accessed, also called Logical I/Os (LIOs). See <a href="tgsql_trace.htm#GUID-B6EE4109-5946-415D-9B75-EC1B73D16B87__CHDDADGG" title="This table explains the meaning of the the trace statistics for parses, executes, and fetches.">Table 18-5</a>.</p>
+<div class="tblformal" id="GUID-B6EE4109-5946-415D-9B75-EC1B73D16B87__CHDDADGG">
+<p class="titleintable">Table 18-5 SQL Trace Statistics for Parses, Executes, and Fetches.</p>
+<table class="cellalignment4808" title="SQL Trace Statistics for Parses, Executes, and Fetches." summary="This table explains the meaning of the the trace statistics for parses, executes, and fetches.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4874" id="d99857e5906">SQL Trace Statistic</th>
+<th class="cellalignment4884" id="d99857e5909">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5914" headers="d99857e5906">
+<p><code class="codeph">COUNT</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5914 d99857e5909">
+<p>Number of times a statement was parsed, executed, or fetched.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5922" headers="d99857e5906">
+<p><code class="codeph">CPU</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5922 d99857e5909">
+<p>Total CPU time in seconds for all parse, execute, or fetch calls for the statement. This value is zero (0) if <code class="codeph">TIMED_STATISTICS</code> is not enabled.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5933" headers="d99857e5906">
+<p><code class="codeph">ELAPSED</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5933 d99857e5909">
+<p>Total elapsed time in seconds for all parse, execute, or fetch calls for the statement. This value is zero (0) if <code class="codeph">TIMED_STATISTICS</code> is not enabled.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5944" headers="d99857e5906">
+<p><code class="codeph">DISK</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5944 d99857e5909">
+<p>Total number of data blocks physically read from the data files on disk for all parse, execute, or fetch calls.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5952" headers="d99857e5906">
+<p><code class="codeph">QUERY</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5952 d99857e5909">
+<p>Total number of buffers retrieved in consistent mode for all parse, execute, or fetch calls. Usually, buffers are retrieved in <a id="d99857e5959" class="indexterm-anchor"></a>consistent mode for queries.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4878" id="d99857e5965" headers="d99857e5906">
+<p><code class="codeph">CURRENT</code></p>
+</td>
+<td class="cellalignment4885" headers="d99857e5965 d99857e5909">
+<p>Total number of buffers retrieved in <a id="d99857e5972" class="indexterm-anchor"></a>current mode. Buffers are retrieved in current mode for statements such as <code class="codeph">INSERT</code>, <code class="codeph">UPDATE</code>, and <code class="codeph">DELETE</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Statistics about the processed rows appear in the <code class="codeph">ROWS</code> column. The column shows the number of rows processed by the SQL statement. This total does not include rows processed by subqueries of the SQL statement. For <code class="codeph">SELECT</code> statements, the number of rows returned appears for the fetch step. For <code class="codeph">UPDATE</code>, <code class="codeph">DELETE</code>, and <code class="codeph">INSERT</code> statements, the number of rows processed appears for the execute step.</p>
+<div class="infobox-note" id="GUID-B6EE4109-5946-415D-9B75-EC1B73D16B87__GUID-1E1D26C6-AD3E-429A-B5CB-BA610A1AEC7B">
+<p class="notep1">Note:</p>
+<p>The row source counts are displayed when a cursor is closed. In SQL*Plus, there is only one user cursor, so each statement executed causes the previous cursor to be closed; therefore, the row source counts are displayed. PL/SQL has its own cursor handling and does not close child cursors when the parent cursor is closed. Exiting (or reconnecting) causes the counts to be displayed.</p>
+</div>
+</div>
+</div>
+<a id="TGSQL829"></a>
+<div class="sect5"><a id="GUID-CB9869D2-B175-47A9-AC01-FA18FA780120"></a>
+<h5 id="TGSQL-GUID-CB9869D2-B175-47A9-AC01-FA18FA780120" class="sect5">Library Cache Misses in TKPROF</h5>
+<div>
+<p><code class="codeph">TKPROF</code> also lists the number of library cache misses resulting from parse and execute steps for each SQL statement. These statistics appear on separate lines following the tabular statistics. If the statement resulted in no library cache misses, then <code class="codeph">TKPROF</code> does not list the statistic. In <span class="q">&#34;<a href="tgsql_trace.htm#GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6">Examples</a>&#34;</span>, the statement resulted in one library cache miss for the parse step and no misses for the execute step.</p>
+</div>
+</div>
+<a id="TGSQL95383"></a><a id="TGSQL825"></a>
+<div class="sect5"><a id="GUID-77906451-193D-4D73-BA49-95A64445C673"></a>
+<h5 id="TGSQL-GUID-77906451-193D-4D73-BA49-95A64445C673" class="sect5">Row Source Operations in TKPROF</h5>
+<div>
+<p><a id="d99857e6173" class="indexterm-anchor"></a>In the TKPROF output, row source operations show the number of rows processed for each operation executed on the rows, and additional row source information, such as physical reads and writes.</p>
+<div class="tblformal" id="GUID-77906451-193D-4D73-BA49-95A64445C673__GUID-2A98F5F3-C9AB-4FA8-8F53-1E3DC5551F99">
+<p class="titleintable">Table 18-6 Row Source Operations</p>
+<table class="cellalignment4808" title="Row Source Operations" summary="This table explains the meaning of the CALL column values.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4930" id="d99857e6188">Row Source Operation</th>
+<th class="cellalignment4931" id="d99857e6191">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4932" id="d99857e6196" headers="d99857e6188">
+<p><code class="codeph">cr</code></p>
+</td>
+<td class="cellalignment4933" headers="d99857e6196 d99857e6191">
+<p>Consistent reads performed by the row source.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4932" id="d99857e6205" headers="d99857e6188">
+<p><code class="codeph">r</code></p>
+</td>
+<td class="cellalignment4933" headers="d99857e6205 d99857e6191">
+<p>Physical reads performed by the row source</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4932" id="d99857e6214" headers="d99857e6188">
+<p><code class="codeph">w</code></p>
+</td>
+<td class="cellalignment4933" headers="d99857e6214 d99857e6191">
+<p>Physical writes performed by the row source</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4932" id="d99857e6223" headers="d99857e6188">
+<p><code class="codeph">time</code></p>
+</td>
+<td class="cellalignment4933" headers="d99857e6223 d99857e6191">
+<p>Time in microseconds</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>In the following sample <code class="codeph">TKPROF</code> output, note the <code class="codeph">cr</code>, <code class="codeph">r</code>, <code class="codeph">w</code>, and <code class="codeph">time</code> values under the Row Source Operation column:</p>
+<pre dir="ltr">Rows     Row Source Operation
+-------  ---------------------------------------------------
+      0  DELETE  (cr=43141 r=266947 w=25854 time=60235565 us)
+  28144   HASH JOIN ANTI (cr=43057 r=262332 w=25854 time=48830056 us)
+  51427    TABLE ACCESS FULL STATS$SQLTEXT (cr=3465 r=3463 w=0 time=865083 us)
+ 647529    INDEX FAST FULL SCAN STATS$SQL_SUMMARY_PK 
+                      (cr=39592 r=39325 w=0 time=10522877 us) (object id 7409)
+</pre></div>
+</div>
+<a id="TGSQL95384"></a>
+<div class="sect5"><a id="GUID-D6CF31D4-33A6-4F85-A79E-3CE3B5779682"></a>
+<h5 id="TGSQL-GUID-D6CF31D4-33A6-4F85-A79E-3CE3B5779682" class="sect5">Wait Event Information in TKPROF</h5>
+<div>
+<p><a id="d99857e6327" class="indexterm-anchor"></a>If wait event information exists, then the <code class="codeph">TKPROF</code> output includes a section similar to the following:</p>
+<pre dir="ltr">Elapsed times include waiting on following events:
+  Event waited on                             Times   Max. Wait  Total Waited
+  ----------------------------------------   Waited  ----------  ------------
+  db file sequential read                      8084        0.12          5.34
+  direct path write                             834        0.00          0.00
+  direct path write temp                        834        0.00          0.05
+  db file parallel read                           8        1.53          5.51
+  db file scattered read                       4180        0.07          1.45
+  direct path read                             7082        0.00          0.05
+  direct path read temp                        7082        0.00          0.44
+  rdbms ipc reply                                20        0.00          0.01
+  SQL*Net message to client                       1        0.00          0.00
+  SQL*Net message from client                     1        0.00          0.00
+</pre>
+<p>In addition, wait events are summed for the entire trace file at the end of the file.</p>
+<p>To ensure that wait events information is written to the trace file for the session, run the following SQL statement:</p>
+<pre dir="ltr">ALTER SESSION SET EVENTS &#39;10046 trace name context forever, level 8&#39;;
+</pre></div>
+</div>
+</div>
+<a id="TGSQL95385"></a><a id="TGSQL95386"></a><a id="TGSQL95387"></a><a id="TGSQL95388"></a><a id="TGSQL95389"></a><a id="TGSQL844"></a>
+<div class="sect4"><a id="GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6"></a>
+<h4 id="TGSQL-GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6" class="sect4">Examples</h4>
+<div>
+<div class="example" id="GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6__CHDEICAF">
+<p class="titleinexample">Example 18-4 Printing the Most Resource-Intensive Statements</p>
+<p>If you are processing a large trace file using a combination of <code class="codeph">SORT</code> parameters and the <code class="codeph">PRINT</code> parameter, then you can produce a <code class="codeph">TKPROF</code> output file containing only the highest resource-intensive statements. The following statement prints the 10 statements in the trace file that have generated the most physical I/O:</p>
+<pre dir="ltr">TKPROF ora53269.trc ora53269.prf SORT = (PRSDSK, EXEDSK, FCHDSK) PRINT = 10
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6__GUID-35208F0A-B7D9-43BC-B219-FE5C36B65D61">
+<p class="titleinexample">Example 18-5 Generating a SQL Script</p>
+<p>This example runs <code class="codeph">TKPROF</code>, accepts a trace file named <code class="codeph">examp12_jane_fg_sqlplus_007</code>.<code class="codeph">trc</code>, and writes a formatted output file named <code class="codeph">outputa</code>.<code class="codeph">prf</code>:</p>
+<pre dir="ltr">TKPROF examp12_jane_fg_sqlplus_007.trc OUTPUTA.PRF EXPLAIN=hr TABLE=hr.temp_plan_table_a INSERT=STOREA.SQL SYS=NO
+SORT=(EXECPU,FCHCPU)
+</pre>
+<p>This example is likely to be longer than a single line on the screen, and you might need to use continuation characters, depending on the operating system.</p>
+<p>Note the other parameters in this example:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">EXPLAIN</code> value causes <code class="codeph">TKPROF</code> to connect as the user <code class="codeph">hr</code> and use the <code class="codeph">EXPLAIN</code> <code class="codeph">PLAN</code> statement to generate the execution plan for each traced SQL statement. You can use this to get access paths and row source counts.</p>
+<div class="infobox-note" id="GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6__GUID-1D68DF65-AD1D-4678-9ED6-0D4D33677A3B">
+<p class="notep1">Note:</p>
+<p>If the cursor for a SQL statement is not closed, then <code class="codeph">TKPROF</code> output does not automatically include the actual execution plan of the SQL statement. In this situation, you can use the <code class="codeph">EXPLAIN</code> option with <code class="codeph">TKPROF</code> to generate an execution plan.</p>
+</div>
+</li>
+<li>
+<p>The <code class="codeph">TABLE</code> value causes <code class="codeph">TKPROF</code> to use the table <code class="codeph">temp_plan_table_a</code> in the schema <code class="codeph">scott</code> as a temporary plan table.</p>
+</li>
+<li>
+<p>The <code class="codeph">INSERT</code> value causes <code class="codeph">TKPROF</code> to generate a SQL script named <code class="codeph">STOREA</code>.<code class="codeph">SQL</code> that stores statistics for all traced SQL statements in the database.</p>
+</li>
+<li>
+<p>The <code class="codeph">SYS</code> parameter with the value of <code class="codeph">NO</code> causes <code class="codeph">TKPROF</code> to omit recursive SQL statements from the output file. In this way, you can ignore internal Oracle Database statements such as temporary table operations.</p>
+</li>
+<li>
+<p>The <code class="codeph">SORT</code> value causes <code class="codeph">TKPROF</code> to sort the SQL statements in order of the sum of the CPU time spent executing and the CPU time spent fetching rows before writing them to the output file. For greatest efficiency, always use <code class="codeph">SORT</code> parameters.</p>
+</li>
+</ul>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6__GUID-DCE10479-EF11-4B22-B787-7CF0BDFA598B">
+<p class="titleinexample">Example 18-6 TKPROF Header</p>
+<p>This example shows a sample header for the TKPROF report.</p>
+<pre dir="ltr">TKPROF: Release 12.1.0.0.2
+ 
+Copyright (c) 1982, 2012, Oracle and/or its affiliates.  All rights reserved.
+ 
+Trace file: /disk1/oracle/log/diag/rdbms/orcla/orcla/trace/orcla_ora_917.trc
+Sort options: default
+ 
+********************************************************************************
+count    = number of times OCI procedure was executed
+cpu      = cpu time in seconds executing
+elapsed  = elapsed time in seconds executing
+disk     = number of physical reads of buffers from disk
+query    = number of buffers gotten for consistent read
+current  = number of buffers gotten in current mode (usually for update)
+rows     = number of rows processed by the fetch or execute call
+********************************************************************************
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6__CHDDBHAD">
+<p class="titleinexample">Example 18-7 TKPROF Body</p>
+<p>This example shows a sample body for a TKPROF report.</p>
+<pre dir="ltr">call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.01       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        0      0.00       0.00          0          0          0           0
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        2      0.01       0.00          0          0          0           0
+
+Misses in library cache during parse: 1
+Optimizer mode: FIRST_ROWS
+Parsing user id: 44  
+
+Elapsed times include waiting on following events:
+  Event waited on                             Times   Max. Wait  Total Waited
+  ----------------------------------------   Waited  ----------  ------------
+  SQL*Net message to client                       1        0.00          0.00
+  SQL*Net message from client                     1       28.59         28.59
+********************************************************************************
+
+select condition 
+from
+ cdef$ where rowid=:1
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        1      0.00       0.00          0          2          0           1
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        3      0.00       0.00          0          2          0           1
+
+Misses in library cache during parse: 1
+Optimizer mode: CHOOSE
+Parsing user id: SYS   (recursive depth: 1)
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      1  TABLE ACCESS BY USER ROWID OBJ#(31) (cr=1 r=0 w=0 time=151 us)
+
+********************************************************************************
+
+SELECT last_name, job_id, salary
+  FROM employees
+WHERE salary =
+  (SELECT max(salary) FROM employees)
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.02       0.01          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        2      0.00       0.00          0         15          0           1
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        4      0.02       0.01          0         15          0           1
+
+Misses in library cache during parse: 1
+Optimizer mode: FIRST_ROWS
+Parsing user id: 44  
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      1  TABLE ACCESS FULL EMPLOYEES (cr=15 r=0 w=0 time=1743 us)
+      1   SORT AGGREGATE (cr=7 r=0 w=0 time=777 us)
+    107    TABLE ACCESS FULL EMPLOYEES (cr=7 r=0 w=0 time=655 us)
+
+Elapsed times include waiting on following events:
+  Event waited on                             Times   Max. Wait  Total Waited
+  ----------------------------------------   Waited  ----------  ------------
+  SQL*Net message to client                       2        0.00          0.00
+  SQL*Net message from client                     2        9.62          9.62
+********************************************************************************
+
+********************************************************************************
+ delete
+         from stats$sqltext st
+        where (hash_value, text_subset) not in
+             (select --+ hash_aj
+                     hash_value, text_subset
+                from stats$sql_summary ss
+               where (   (   snap_id     &lt; :lo_snap
+                          or snap_id     &gt; :hi_snap
+                         )
+                         and dbid            = :dbid
+                         and instance_number = :inst_num
+                     )
+                  or (   dbid            != :dbid
+                      or instance_number != :inst_num)
+              )
+
+call     count       cpu    elapsed       disk      query    current rows
+------- ------  -------- ---------- ---------- ---------- ---------- ----------
+Parse        1      0.00       0.00          0          0          0          0
+Execute      1     29.60      60.68     266984      43776     131172      28144
+Fetch        0      0.00       0.00          0          0          0          0
+------- ------  -------- ---------- ---------- ---------- ---------- ----------
+total        2     29.60      60.68     266984      43776     131172      28144
+
+Misses in library cache during parse: 1
+Misses in library cache during execute: 1
+Optimizer mode: CHOOSE
+Parsing user id: 22
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      0  DELETE  (cr=43141 r=266947 w=25854 time=60235565 us)
+  28144   HASH JOIN ANTI (cr=43057 r=262332 w=25854 time=48830056 us)
+  51427    TABLE ACCESS FULL STATS$SQLTEXT (cr=3465 r=3463 w=0 time=865083 us)
+ 647529    INDEX FAST FULL SCAN STATS$SQL_SUMMARY_PK 
+                      (cr=39592 r=39325 w=0 time=10522877 us) (object id 7409)
+
+Elapsed times include waiting on following events:
+  Event waited on                             Times   Max. Wait  Total Waited
+  ----------------------------------------   Waited  ----------  ------------
+  db file sequential read                      8084        0.12          5.34
+  direct path write                             834        0.00          0.00
+  direct path write temp                        834        0.00          0.05
+  db file parallel read                           8        1.53          5.51
+  db file scattered read                       4180        0.07          1.45
+  direct path read                             7082        0.00          0.05
+  direct path read temp                        7082        0.00          0.44
+  rdbms ipc reply                                20        0.00          0.01
+  SQL*Net message to client                       1        0.00          0.00
+  SQL*Net message from client                     1        0.00          0.00
+********************************************************************************
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-71A1BF7C-8353-4B8B-94E6-FB7A62C121B6__GUID-CEEF6684-8C1E-4B2B-B224-6B623029666E">
+<p class="titleinexample">Example 18-8 TKPROF Summary</p>
+<p>This example that shows a summary for the TKPROF report.</p>
+<pre dir="ltr">OVERALL TOTALS FOR ALL NON-RECURSIVE STATEMENTS
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        4      0.04       0.01          0          0          0           0
+Execute      5      0.00       0.04          0          0          0           0
+Fetch        2      0.00       0.00          0         15          0           1
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total       11      0.04       0.06          0         15          0           1
+
+Misses in library cache during parse: 4
+Misses in library cache during execute: 1
+Elapsed times include waiting on following events:
+  Event waited on                             Times   Max. Wait  Total Waited
+  ----------------------------------------   Waited  ----------  ------------
+  SQL*Net message to client                       6        0.00          0.00
+  SQL*Net message from client                     5       77.77        128.88
+
+OVERALL TOTALS FOR ALL RECURSIVE STATEMENTS
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        1      0.00       0.00          0          2          0           1
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        3      0.00       0.00          0          2          0           1
+
+Misses in library cache during parse: 1
+    5  user  SQL statements in session.
+    1  internal SQL statements in session.
+    6  SQL statements in session.
+********************************************************************************
+Trace file: main_ora_27621.trc
+Trace file compatibility: 9.00.01
+Sort options: default
+       1  session in tracefile.
+       5  user  SQL statements in trace file.
+       1  internal SQL statements in trace file.
+       6  SQL statements in trace file.
+       6  unique SQL statements in trace file.
+      76  lines in trace file.
+     128  elapsed seconds in trace file.
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL95390"></a>
+<div class="sect2"><a id="GUID-DED467E4-4890-47B7-84DB-FAB180E9E780"></a>
+<h2 id="TGSQL-GUID-DED467E4-4890-47B7-84DB-FAB180E9E780" class="sect2">Views for Application Tracing</h2>
+<div>
+<p>This section includes the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_trace.htm#GUID-93ACB9CC-9937-479E-8995-FEABD854C900" title="You can display the statistics that have been gathered with the following V$ and data dictionary views.">Views Relevant for Trace Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_trace.htm#GUID-59FA7520-BAAA-478C-925D-DD43A527CF01" title="A Cloud Control report or the DBA_ENABLED_TRACES view can display outstanding traces.">Views Related to Enabling Tracing</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL796"></a>
+<div class="sect3"><a id="GUID-93ACB9CC-9937-479E-8995-FEABD854C900"></a>
+<h3 id="TGSQL-GUID-93ACB9CC-9937-479E-8995-FEABD854C900" class="sect3">Views Relevant for Trace Statistics</h3>
+<div>
+<p>You can display the statistics that have been gathered with the following <code class="codeph">V$</code> and data dictionary views.</p>
+<p>You can display the statistics that have been gathered with the following <code class="codeph">V$</code> views:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">DBA_ENABLED_AGGREGATIONS</code> view displays the accumulated global statistics for the currently enabled statistics.</p>
+</li>
+<li>
+<p>The <code class="codeph">V$CLIENT_STATS</code> view displays the accumulated statistics for a specified client identifier.</p>
+</li>
+<li>
+<p>The <code class="codeph">V$SERVICE_STATS</code> view displays accumulated statistics for a specified service.</p>
+</li>
+<li>
+<p>The <code class="codeph">V$SERV_MOD_ACT_STATS</code> view displays accumulated statistics for a combination of specified service, module, and action.</p>
+</li>
+<li>
+<p>The <code class="codeph">V$SERVICEMETRIC</code> view displays accumulated statistics for elapsed time of database calls and for CPU use.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-93ACB9CC-9937-479E-8995-FEABD854C900__GUID-D9BC50C3-85FE-48F7-AC2F-FAF3D9FD160F">
+<p class="notep1">See Also:</p>
+<p><a class="olink GUID-B200B2D6-08D4-49B0-9FD9-8AF6AED37202" target="_blank" href="../REFRN/GUID-B200B2D6-08D4-49B0-9FD9-8AF6AED37202.htm#GUID-B200B2D6-08D4-49B0-9FD9-8AF6AED37202"><span><cite>Oracle Database Reference</cite></span></a> for information about <code class="codeph">V$</code> and data dictionary views</p>
+</div>
+</div>
+</div>
+<a id="TGSQL802"></a>
+<div class="sect3"><a id="GUID-59FA7520-BAAA-478C-925D-DD43A527CF01"></a>
+<h3 id="TGSQL-GUID-59FA7520-BAAA-478C-925D-DD43A527CF01" class="sect3">Views Related to Enabling Tracing</h3>
+<div>
+<p>A Cloud Control report or the <code class="codeph">DBA_ENABLED_TRACES</code> view can display outstanding traces.</p>
+<p>In the <code class="codeph">DBA_ENABLED_TRACES</code> view, you can determine detailed information about how a trace was enabled, including the trace type. The trace type specifies whether the trace is enabled for client identifier, session, service, database, or a combination of service, module, and action.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_stcb.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_pt_sqltune.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

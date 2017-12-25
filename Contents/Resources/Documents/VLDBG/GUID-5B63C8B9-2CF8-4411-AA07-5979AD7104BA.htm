@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114312"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Partial%20Partition-Wise%20Joins%3A%20Composite"></a><title>Partial Partition-Wise Joins: Composite</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-8D44D783-651D-41BA-87B4-2021676C7F3F.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-569F94D0-E6E5-45BB-9626-5506DE18FF00.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-5B63C8B9-2CF8-4411-AA07-5979AD7104BA"></a> <span id="PAGE" style="display:none;">76/481</span> <!-- End Header --><a id="VLDBG1250"></a>
+<h1 id="VLDBG-GUID-5B63C8B9-2CF8-4411-AA07-5979AD7104BA" class="sect1">Partial Partition-Wise Joins: Composite</h1>
+<div>
+<p><a id="d16138e61" class="indexterm-anchor"></a>As with full partition-wise joins, the prime partitioning method for the <code>sales</code> table is to use the range method on column <code>time_id</code>. This is because <code>sales</code> is a typical example of a table that stores historical data. To enable a partial partition-wise join while preserving this range partitioning, subpartition <code>sales</code> by hash on column <code>cust_id</code> using 16 subpartitions for each partition. Both pruning and partial partition-wise joins can be used if a query joins <code>customers</code> and <code>sales</code> and if the query has a selection predicate on <code>time_id</code>.</p>
+<p>When the <code>sales</code> table is composite partitioned, the granule of parallelism for a partial partition-wise join is a hash partition and not a subpartition. Refer to <a href="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC.htm#GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC__i1006952">Figure 3-2</a> for an illustration of a hash partition in a composite table. Again, the number of hash partitions should be a multiple of the degree of parallelism. Also, on an MPP system, ensure that each hash partition has affinity to a single node. In the previous example, the eight subpartitions composing a hash partition should have affinity to the same node.</p>
+<div class="infobox-note" id="GUID-5B63C8B9-2CF8-4411-AA07-5979AD7104BA__GUID-15D8F2BA-1B6F-49E1-8FE1-4A2ABA36B3AF">
+<p class="notep1">Note:</p>
+<p>This section is based on range-hash, but it also applies for all other combinations of composite partial partition-wise joins.</p>
+</div>
+<p>The following example shows the execution plan for the query between <code>sales</code> and <code>customers</code> with sales range partitioned by <code>time_id</code> and subpartitioned by hash on <code>cust_id</code>.</p>
+<pre dir="ltr">---------------------------------------------------------------------------------------------
+| Id  | Operation                           | Name      | Pstart| Pstop |IN-OUT| PQ Distrib |
+---------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                    |           |       |       |      |            |
+|   1 |  PX COORDINATOR                     |           |       |       |      |            |
+|   2 |   PX SEND QC (RANDOM)               | :TQ10002  |       |       | P-&gt;S | QC (RAND)  |
+|*  3 |    FILTER                           |           |       |       | PCWC |            |
+|   4 |     HASH GROUP BY                   |           |       |       | PCWP |            |
+|   5 |      PX RECEIVE                     |           |       |       | PCWP |            |
+|   6 |       PX SEND HASH                  | :TQ10001  |       |       | P-&gt;P | HASH       |
+|   7 |        HASH GROUP BY                |           |       |       | PCWP |            |
+|*  8 |         HASH JOIN                   |           |       |       | PCWP |            |
+|   9 |          PART JOIN FILTER CREATE    | :BF0000   |       |       | PCWP |            |
+|  10 |           PX RECEIVE                |           |       |       | PCWP |            |
+|  11 |            PX SEND PARTITION (KEY)  | :TQ10000  |       |       | P-&gt;P | PART (KEY) |
+|  12 |             PX BLOCK ITERATOR       |           |       |       | PCWC |            |
+|  13 |              TABLE ACCESS FULL      | CUSTOMERS |       |       | PCWP |            |
+|  14 |          PX PARTITION RANGE ITERATOR|           |     8 |     9 | PCWC |            |
+|  15 |           PX PARTITION HASH ALL     |           |     1 |    16 | PCWC |            |
+|* 16 |            TABLE ACCESS FULL        | SALES     |   113 |   144 | PCWP |            |
+---------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - filter(COUNT(SYS_OP_CSR(SYS_OP_MSR(COUNT(*)),0))&gt;100)
+   8 - access(&#34;S&#34;.&#34;CUST_ID&#34;=&#34;C&#34;.&#34;CUST_ID&#34;)
+  16 - filter(&#34;S&#34;.&#34;TIME_ID&#34;&lt;=TO_DATE(&#39; 1999-10-01 00:00:00&#39;, &#39;syyyy-mm-dd hh24:mi:ss&#39;) AND 
+&#34;S&#34;.&#34;TIME_ID&#34;&gt;=TO_DATE(&#39; 1999-07-01
+              00:00:00&#39;, &#39;syyyy-mm-dd hh24:mi:ss&#39;))
+</pre>
+<div class="infobox-note" id="GUID-5B63C8B9-2CF8-4411-AA07-5979AD7104BA__GUID-6FD7A0E9-45B0-411C-8F98-7126D11E36A5">
+<p class="notep1">Note:</p>
+<p>The <code>Rows</code>, <code>Cost (%CPU)</code>, <code>Time</code>, and <code>TQ</code> columns were removed from the plan table output in this example.</p>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-8D44D783-651D-41BA-87B4-2021676C7F3F.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-569F94D0-E6E5-45BB-9626-5506DE18FF00.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

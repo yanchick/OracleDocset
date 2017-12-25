@@ -1,0 +1,371 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-86338"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Advanced%20Aggregations"></a><title>Advanced Aggregations</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="dcterms.created" content="2014-06-27T10:40:5Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="OLAP User&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E53237-01"/>
+<meta name="dcterms.isVersionOf" content="OLAUG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2003, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="awgloss.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="security.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="global.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E53237-01.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">13/17</span> <!-- End Header -->
+<div id="OLAUG900" class="chapter"><a id="CIAGHBCH"></a>
+<h1 class="chapter"><span class="secnum">9</span> Advanced Aggregations</h1>
+<p>A cube always returns summary data to a query as needed. While the cube may store data at the day level, for example, it can return a result at the quarter or year level without requiring a calculation in the query. This chapter explains how to optimize the unique aggregation subsystem of Oracle OLAP to provide the best performance for both data maintenance and querying.</p>
+<p>This chapter contains the following topics:</p>
+<ul>
+<li>
+<p><a href="#CIADCJAA">What Is Aggregation?</a></p>
+</li>
+<li>
+<p><a href="#CIAIIDBF">Aggregation Operators</a></p>
+</li>
+<li>
+<p><a href="#CIAFEJBA">When Does Aggregation Order Matter?</a></p>
+</li>
+<li>
+<p><a href="#CIAIFBCF">Example: Aggregating the Units Cube</a></p>
+</li>
+</ul>
+<a id="CIADCJAA"></a>
+<div id="OLAUG9281" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">What Is Aggregation?</h2>
+<p><a id="sthref662"></a>Aggregation is the process of consolidating multiple values into a single value. For example, data can be collected on a daily basis and aggregated into a value for the week, the weekly data can be aggregated into a value for the month, and so on. Aggregation allows patterns in the data to emerge, and these patterns are the basis for analysis and decision making. When you define a data model with hierarchical dimensions, you are providing the framework in which aggregate data can be calculated.</p>
+<p>Aggregation is frequently called summarization, and aggregate data is called summary data. While the most frequently used aggregation operator is Sum, there are many other operators, such as Average, First, Last, Minimum, and Maximum. Oracle OLAP also supports weighted and hierarchical methods. Following are some simple diagrams showing how the basic types of operators work. For descriptions of all the operators, refer to <a href="#CIAIIDBF">&#34;Aggregation Operators&#34;</a> .</p>
+<p><a href="#CIADCJFB">Figure 9-1</a> shows a simple hierarchy with four children and one parent value. Three of the children have values, while the fourth is empty. This empty cell has a null or <code>NA</code> value. The Sum operator calculates a value of (2 + 4 + 6)=12 for the parent value.</p>
+<div id="OLAUG9544" class="figure">
+<p class="titleinfigure"><a id="CIADCJFB"></a>Figure 9-1 <a id="sthref663"></a><a id="sthref664"></a>Summary Aggregation in a Simple Hierarchy</p>
+<img width="459" height="267" src="img/agg_sum.gif" alt="Description of Figure 9-1 follows"/><br/>
+<a id="sthref665" href="img_text/agg_sum.htm">Description of &#34;Figure 9-1 Summary Aggregation in a Simple Hierarchy&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p><a id="sthref666"></a><a id="sthref667"></a>The Average operator calculates the average of all real data, producing an aggregate value of ((2 + 4 + 6)/3)=4, as shown in <a href="#CIADAHIB">Figure 9-2</a>.</p>
+<div id="OLAUG9545" class="figure">
+<p class="titleinfigure"><a id="CIADAHIB"></a>Figure 9-2 Average Aggregation in a Simple Hierarchy</p>
+<img width="459" height="267" src="img/agg_average.gif" alt="Description of Figure 9-2 follows"/><br/>
+<a id="sthref668" href="img_text/agg_average.htm">Description of &#34;Figure 9-2 Average Aggregation in a Simple Hierarchy&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p><a id="sthref669"></a><a id="sthref670"></a>The hierarchical operators include null values in the count of cells. In <a href="#CIADIFII">Figure 9-3</a>, the Hierarchical Average operator produces an aggregate value of ((2 + 4 + 6 +NA)/4)=3.</p>
+<div id="OLAUG9546" class="figure">
+<p class="titleinfigure"><a id="CIADIFII"></a>Figure 9-3 Hierarchical Average Aggregation in a Simple Hierarchy</p>
+<img width="459" height="267" src="img/agg_haverage.gif" alt="Description of Figure 9-3 follows"/><br/>
+<a id="sthref671" href="img_text/agg_haverage.htm">Description of &#34;Figure 9-3 Hierarchical Average Aggregation in a Simple Hierarchy&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p><a id="sthref672"></a><a id="sthref673"></a>The weighted operators use the values in another measure to generate weighted values before performing the aggregation. <a href="#CIAEEBDI">Figure 9-4</a> shows how the simple sum of 12 in <a href="#CIADCJFB">Figure 9-1</a> changes to 20 by using weights ((3*2) + (2*4) + (NA*6) +(4*NA)).</p>
+<div id="OLAUG9547" class="figure">
+<p class="titleinfigure"><a id="CIAEEBDI"></a>Figure 9-4 Weighted Sum Aggregation in a Simple Hierarchy</p>
+<img width="459" height="411" src="img/agg_wsum.gif" alt="Description of Figure 9-4 follows"/><br/>
+<a id="sthref674" href="img_text/agg_wsum.htm">Description of &#34;Figure 9-4 Weighted Sum Aggregation in a Simple Hierarchy&#34;</a><br/>
+<br/></div>
+<!-- class="figure" --></div>
+<!-- class="sect1" -->
+<a id="CIAIIDBF"></a>
+<div id="OLAUG9282" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Aggregation Operators</h2>
+<p><a id="sthref675"></a>Analytic workspaces provide an extensive list of aggregation methods, including weighted, hierarchical, and weighted hierarchical methods.</p>
+<div id="OLAUG9283" class="sect2"><a id="sthref676"></a>
+<h3 class="sect2">Basic Operators</h3>
+<p>The following are descriptions of the basic aggregation operators:</p>
+<ul>
+<li>
+<p><span class="bold">Average</span>: Adds non-null data values, then divides the sum by the number of data values.</p>
+</li>
+<li>
+<p><span class="bold">First Non-NA Data Value</span>: Returns the first real data value.</p>
+</li>
+<li>
+<p><span class="bold">Last Non-NA Data Value</span>: Returns the last real data value.</p>
+</li>
+<li>
+<p><span class="bold">Maximum</span>: Returns the largest data value among the children of each parent.</p>
+</li>
+<li>
+<p><span class="bold">Minimum</span>: Returns the smallest non-null data value among the children of each parent.</p>
+</li>
+<li>
+<p><span class="bold">Nonadditive</span>: Does not aggregate the data.</p>
+</li>
+<li>
+<p><span class="bold">Sum</span>: Adds data values.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<div id="OLAUG9284" class="sect2"><a id="sthref677"></a>
+<h3 class="sect2">Scaled and Weighted Operators</h3>
+<p>These operators require a measure providing the weight or scale values in the same cube. In a weight measure, an NA (null) is calculated like a <code>1</code>. In a scale measure, an NA is calculated like a <code>0</code>.</p>
+<p>The weighted operators use outer joins, as described in <a href="#CIAFEJBA">&#34;When Does Aggregation Order Matter?&#34;</a>.<a id="sthref678"></a><a id="sthref679"></a></p>
+<p>These are the scaled and weighted aggregation operators:</p>
+<ul>
+<li>
+<p><span class="bold">Scaled Sum</span>: Adds the value of a weight object to each data value, then adds the data values.</p>
+</li>
+<li>
+<p><span class="bold">Weighted Average</span>: Multiplies each data value by a weight factor, adds the data values, and then divides that result by the sum of the weight factors.</p>
+</li>
+<li>
+<p><span class="bold">Weighted First</span>: Multiplies the first non-null data value by its corresponding weight value.</p>
+</li>
+<li>
+<p><span class="bold">Weighted Last</span>: Multiplies the last non-null data value by its corresponding weight value.</p>
+</li>
+<li>
+<p><span class="bold">Weighted Sum</span>: Multiplies each data value by a weight factor, then adds the data values.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<div id="OLAUG9285" class="sect2"><a id="sthref680"></a>
+<h3 class="sect2">Hierarchical Operators</h3>
+<p>The following are descriptions of the <a id="sthref681"></a>hierarchical operators. They include all cells identified by the hierarchy in the calculations, whether or not the cells contain data.</p>
+<p>Hierarchical Average and the Hierarchical Weighted operators use outer joins.</p>
+<ul>
+<li>
+<p><span class="bold">Hierarchical Average</span>: Adds data values, then divides the sum by the number of the children in the dimension hierarchy. Unlike Average, which counts only non-null children, hierarchical average counts all of the children of a parent, regardless of whether each child does or does not have a value.</p>
+</li>
+<li>
+<p><span class="bold">Hierarchical First Member</span>: Returns the first data value in the hierarchy, even when that value is null.</p>
+</li>
+<li>
+<p><span class="bold">Hierarchical Last Member</span>: Returns the last data value in the hierarchy, even when that value is null.</p>
+</li>
+<li>
+<p><span class="bold">Hierarchical Weighted Average</span>: Multiplies non-null child data values by their corresponding weight values, then divides the result by the sum of the weight values. Unlike Weighted Average, Hierarchical Weighted Average includes weight values in the denominator sum even when the corresponding child values are null.</p>
+</li>
+<li>
+<p><span class="bold">Hierarchical Weighted First</span>: Multiplies the first data value in the hierarchy by its corresponding weight value, even when that value is null.</p>
+</li>
+<li>
+<p><span class="bold">Hierarchical Weighted Last</span>: Multiplies the last data value in the hierarchy by its corresponding weight value, even when that value is null.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CIAFEJBA"></a>
+<div id="OLAUG9286" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">When Does Aggregation Order Matter?</h2>
+<p><a id="sthref682"></a>The OLAP engine aggregates a cube across one dimension at a time. When the aggregation operators are the same for all dimensions, the order in which they are aggregated may or may not make a difference in the calculated aggregate values, depending on the operator.</p>
+<p>You should specify the order of aggregation when a cube uses multiple aggregation methods. The only exceptions are that you can combine Sum and Weighted Sum, or Average and Weighted Average, when the weight measure is only aggregated over the same dimension. For example, a weight measure used to calculate weighted averages across Customer is itself only aggregated across Customer.</p>
+<p>The weight operators are incompressible for the specified dimension and all preceding dimensions. For a compressed cube, you should list the weighted operators as early as possible to minimize the number of outer joins. For example, suppose that a cube uses Weighted Sum across Customer, and Sum across all other dimensions. Performance is best if Customer is aggregated first.</p>
+<div id="OLAUG9287" class="sect2"><a id="sthref683"></a>
+<h3 class="sect2">Using the Same Operator for All Dimensions of a Cube</h3>
+<p><a id="sthref684"></a>The following information provides guidelines for when you must specify the order of the dimensions as part of defining the aggregation rules for a cube.</p>
+<div id="OLAUG9288" class="sect3"><a id="sthref685"></a>
+<h4 class="sect3">Order Has No Effect</h4>
+<p>When these operators are used for all dimension of a cube, the order does not affect the results:</p>
+<ul>
+<li>
+<p>Maximum</p>
+</li>
+<li>
+<p>Minimum</p>
+</li>
+<li>
+<p>Sum</p>
+</li>
+<li>
+<p>Hierarchical First Member</p>
+</li>
+<li>
+<p>Hierarchical Last Member</p>
+</li>
+<li>
+<p>Hierarchical Average</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" -->
+<div id="OLAUG9289" class="sect3"><a id="sthref686"></a>
+<h4 class="sect3">Order Changes the Aggregation Results</h4>
+<p>Even when these operators are used for all dimensions of a cube, the order can affect the results:</p>
+<ul>
+<li>
+<p>Average</p>
+</li>
+<li>
+<p>First Non-NA Data Value</p>
+</li>
+<li>
+<p>Last Non-NA Data Value</p>
+</li>
+<li>
+<p>Weighted First</p>
+</li>
+<li>
+<p>Weighted Last</p>
+</li>
+<li>
+<p>Hierarchical Weighted First</p>
+</li>
+<li>
+<p>Hierarchical Weighted Last</p>
+</li>
+<li>
+<p>Scaled Sum</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" -->
+<div id="OLAUG9290" class="sect3"><a id="sthref687"></a>
+<h4 class="sect3">Order May Be Important</h4>
+<p>When the following weighted operators are used for all dimensions of a cube, the order affects the results only if the weight measure is aggregated over multiple dimensions:</p>
+<ul>
+<li>
+<p>Weighted Average</p>
+</li>
+<li>
+<p>Weighted Sum</p>
+</li>
+<li>
+<p>Hierarchical Weighted Average</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<div id="OLAUG9291" class="sect2"><a id="sthref688"></a>
+<h3 class="sect2">Example: Mixing Aggregation Operators</h3>
+<p>Even though you can use the Sum and Maximum operators alone without ordering the dimensions, you cannot use them together without specifying the order. The following figures show how they calculate different results depending on the order of aggregation. <a href="#CIAIHHAG">Figure 9-5</a> shows a cube with two dimensions. Sum is calculated first across one dimension of the cube, then Maximum is calculated down the other dimension.</p>
+<div id="OLAUG9548" class="figure">
+<p class="titleinfigure"><a id="CIAIHHAG"></a>Figure 9-5 Sum Method Followed by Maximum Method</p>
+<img width="494" height="230" src="img/sumfirst.gif" alt="Description of Figure 9-5 follows"/><br/>
+<a id="sthref689" href="img_text/sumfirst.htm">Description of &#34;Figure 9-5 Sum Method Followed by Maximum Method&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p><a href="#CIAEJDFC">Figure 9-6</a> shows the same cube, except Maximum is calculated first down one dimension of the cube, then Sum is calculated across the other dimension. The maximum value of the sums in <a href="#CIAIHHAG">Figure 9-5</a> is 15, while the sum of the maximum values in <a href="#CIAEJDFC">Figure 9-6</a> is 19.</p>
+<div id="OLAUG9549" class="figure">
+<p class="titleinfigure"><a id="CIAEJDFC"></a>Figure 9-6 Max Method Followed by Sum Method</p>
+<img width="494" height="229" src="img/maxfirst.gif" alt="Description of Figure 9-6 follows"/><br/>
+<a id="sthref690" href="img_text/maxfirst.htm">Description of &#34;Figure 9-6 Max Method Followed by Sum Method&#34;</a><br/>
+<br/></div>
+<!-- class="figure" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CIAIFBCF"></a>
+<div id="OLAUG9292" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Example: Aggregating the Units Cube</h2>
+<p>This example describes changes to the default aggregation of the Units cube in the <code>GLOBAL</code> analytic workspace. These changes take effect in the next data refresh.</p>
+<div id="OLAUG9293" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref691"></a>
+<h3 class="sect2">Selecting the Aggregation Operators and Hierarchies</h3>
+<p>Analytic Workspace Manager initially sets all dimensions to use the Sum operator and aggregates all levels of all dimensions. To change these default settings, use the Rules subtab of the Aggregation tab.</p>
+<p><a href="#CIAHCJBA">Figure 9-7</a> shows the operators for the Units Cube. Time is now set to Last Non-NA Data Value, and it is aggregated after the other dimensions. For operators like First and Last, the order in which the dimensions are aggregated can change the results.</p>
+<p>Another change is that only the Shipments hierarchy of the Customer dimension is aggregated during data maintenance. Because the Market hierarchy is seldom queried, to save maintenance time and storage space the Global DBA chose not to calculate those aggregate values. However, response time is slower for queries that request Market aggregations.</p>
+<div id="OLAUG9550" class="figure">
+<p class="titleinfigure"><a id="CIAHCJBA"></a>Figure 9-7 Selecting the Aggregation Operators</p>
+<img width="583" height="522" src="img/agg_rules_adv.gif" alt="Description of Figure 9-7 follows"/><br/>
+<a id="sthref692" href="img_text/agg_rules_adv.htm">Description of &#34;Figure 9-7 Selecting the Aggregation Operators&#34;</a><br/>
+<br/></div>
+<!-- class="figure" --></div>
+<!-- class="sect2" -->
+<div id="OLAUG9294" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref693"></a>
+<h3 class="sect2">Choosing the Percentage of Precomputed Values</h3>
+<p><a id="sthref694"></a>Analytic Workspace Manager initially chooses cost-based aggregation with 35% precomputed values for the bottom partitions and 0% for the top partition. An unpartitioned cube is also set to 35%. This setting means that 35% of the aggregate values is calculated and stored during data maintenance, and 65% is calculated in response to a query. These settings optimize data maintenance.</p>
+<p>Increasing the materialization of the bottom partitions improves querying of both the bottom and the top partitions. Increasing the materialization of the top partition improves querying of the most aggregate data and any other hierarchies of the partitioned dimension.</p>
+<p><a href="#CIAFDGGE">Figure 9-8</a> shows the settings for the Units Cube. In this case, the Global DBA chose to keep the top partition at 0%, and to increase the bottom partitions from 35 to 50%. This change increases maintenance costs in time and storage space, but improves run-time performance of all partitions.</p>
+<div id="OLAUG9551" class="figure">
+<p class="titleinfigure"><a id="CIAFDGGE"></a>Figure 9-8 Setting Cost-Based Presummarization</p>
+<img width="372" height="169" src="img/cube_precompute.gif" alt="Description of Figure 9-8 follows"/><br/>
+<a id="sthref695" href="img_text/cube_precompute.htm">Description of &#34;Figure 9-8 Setting Cost-Based Presummarization&#34;</a><br/>
+<br/></div>
+<!-- class="figure" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment3623">
+<tr>
+<td class="cellalignment3630">
+<table class="cellalignment3628">
+<tr>
+<td class="cellalignment3627"><a href="security.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment3627"><a href="global.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2003, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment3632">
+<table class="cellalignment3626">
+<tr>
+<td class="cellalignment3627"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment3627"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment3627"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment3627"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment3627"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment3627"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

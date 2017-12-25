@@ -1,0 +1,1612 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-2649"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Performing%20User-Managed%20Database%20Flashback%20and%20Recovery"></a><title>Performing User-Managed Database Flashback and Recovery</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="redo logs, naming, initialization parameters, LOG_ARCHIVE_FORMAT, LOG_ARCHIVE_FORMAT initialization parameter, recovery, using third-party snapshots, using storage snapshots, storage snapshots, recovering, third-party snapshots, specifying recovery time, example, examples, recovering using third-party snapshots, CDBs, crash recovery, instance recovery, of CDBs, incomplete recovery, time-based, time-based recovery, restoring, database, to default location"/>
+<meta name="dcterms.created" content="2017-06-07T23:52:16Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Backup and Recovery User&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E50658-09"/>
+<meta name="dcterms.isVersionOf" content="BRADV"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2003, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="osbackup.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="osadvsce.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E50658-09.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-704F6AB0-04C4-4345-913B-B316DD06D05E"></a> <span id="PAGE" style="display:none;">45/48</span> <!-- End Header -->
+<a id="BRADV017"></a>
+<h1 id="BRADV-GUID-704F6AB0-04C4-4345-913B-B316DD06D05E" class="sect1"><span class="enumeration_chapter">30</span> Performing User-Managed Database Flashback and Recovery</h1>
+<div>
+<p><a id="d121979e67" class="indexterm-anchor"></a><a id="d121979e71" class="indexterm-anchor"></a>This chapter describes how to restore and recover a database and use the flashback features of Oracle Database in a user-managed backup and recovery strategy. A user-managed backup and recovery strategy means a method that does not depend on RMAN.</p>
+<p>This chapter contains the following topics:<a id="d121979e78" class="indexterm-anchor"></a><a id="d121979e82" class="indexterm-anchor"></a></p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="osrecvry.htm#GUID-56FD20D8-0BC2-45F2-BD98-683210ABD413">Performing Flashback Database with SQL*Plus</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-4F81CE72-B1B3-4444-B7E9-7DC97C65836B">Overview of User-Managed Media Recovery</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-66D07694-533F-4E3A-BA83-DD461B68DB56">Performing Complete Database Recovery</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-2BF2BE5E-3D1B-4F0C-9F10-25D5342F6DB3">Performing Incomplete Database Recovery</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-3A4C59D7-C91D-4A4E-A803-5C02FE58858A">Recovering a Database in NOARCHIVELOG Mode</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-36D3AEB2-CAB5-491D-8AAC-7E08ABC842A6">Troubleshooting Media Recovery</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV99982"></a>
+<div class="props_rev_3"><a id="GUID-56FD20D8-0BC2-45F2-BD98-683210ABD413"></a>
+<h2 id="BRADV-GUID-56FD20D8-0BC2-45F2-BD98-683210ABD413" class="sect2">Performing Flashback Database with SQL*Plus</h2>
+<div>
+<div class="section">
+<p>Oracle Flashback Database returns your entire database to a previous state without requiring you to restore files from backup. The SQL*Plus <code class="codeph">FLASHBACK DATABASE</code> command performs the same function as the RMAN <code class="codeph">FLASHBACK DATABASE</code> command: it returns the database to a prior state.</p>
+<p>Flashback Database requires you to create a fast recovery area for your database and enable the collection of flashback logs. See <a href="rcmflash.htm#GUID-5463669A-DC89-4FF4-ACCE-136A72DF687B">Performing Flashback and Database Point-in-Time Recovery</a> for more details about how the Flashback Database feature works, requirements for using Flashback Database, and how to enable the collection of flashback logs required for Flashback Database. The requirements and preparations are the same whether you use RMAN or SQL*Plus.</p>
+<p><span class="bold">To perform a flashback of the database with SQL*Plus:</span></p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Query the target database to determine the range of possible flashback SCNs. The following SQL*Plus queries show you the latest and earliest SCN in the flashback window:</span>
+<div>
+<pre dir="ltr">SELECT CURRENT_SCN FROM V$DATABASE;
+
+SELECT OLDEST_FLASHBACK_SCN, OLDEST_FLASHBACK_TIME 
+FROM   V$FLASHBACK_DATABASE_LOG;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Use other flashback features if necessary to identify the SCN or time of the unwanted changes to your database.</span></li>
+<li class="stepexpand"><span>Ensure that the target database is mounted.</span>
+<div>
+<p>The following commands start the database in <code class="codeph">MOUNT</code> mode.</p>
+<pre dir="ltr">SHUTDOWN IMMEDIATE;
+STARTUP MOUNT;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Start SQL*Plus with administrator privileges and run the <code class="codeph">FLASHBACK DATABASE</code> statement to return the database to a prior <code class="codeph">TIMESTAMP</code> or <code class="codeph">SCN</code>. For example:</span>
+<div>
+<pre dir="ltr">FLASHBACK DATABASE TO SCN 46963;
+FLASHBACK DATABASE TO TIMESTAMP &#39;2013-11-05 14:00:00&#39;;
+FLASHBACK DATABASE 
+  TO TIMESTAMP to_timestamp(&#39;2013-11-11 16:00:00&#39;, &#39;YYYY-MM-DD HH24:MI:SS&#39;);
+</pre></div>
+</li>
+<li class="stepexpand"><span>When the operation completes, open the database read-only and perform queries to verify that you have recovered the data you need.</span>
+<div>
+<p>If your chosen target time was not far enough in the past, then use another <code class="codeph">FLASHBACK DATABASE</code> statement. Otherwise, you can use <code class="codeph">RECOVER DATABASE</code> to return the database to the present time and then try another <code class="codeph">FLASHBACK DATABASE</code> statement.</p>
+</div>
+</li>
+<li class="stepexpand"><span>When satisfied with the results, open the database with the <code class="codeph">RESETLOGS</code> option.</span>
+<div>
+<p>If appropriate, you can also use Data Pump Export to save lost data, use <code class="codeph">RECOVER DATABASE</code> to return the database to the present, and reimport the lost object.</p>
+</div>
+</li>
+</ol>
+<div class="section">
+<div class="infoboxnotealso" id="GUID-56FD20D8-0BC2-45F2-BD98-683210ABD413__GUID-831BABF2-87FD-41FD-97FB-D90ABD44AE8E">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADFNS1008" target="_blank" href="../ADFNS/adfns_flashback.htm#ADFNS1008"><span class="italic">Oracle Database Development Guide</span></a> to learn how to use related flashback features such as Oracle Flashback Query and Oracle Flashback Transaction Query</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV215"></a>
+<div class="props_rev_3"><a id="GUID-4F81CE72-B1B3-4444-B7E9-7DC97C65836B"></a>
+<h2 id="BRADV-GUID-4F81CE72-B1B3-4444-B7E9-7DC97C65836B" class="sect2">Overview of User-Managed Media Recovery</h2>
+<div>
+<p>This section provides an overview of recovery with SQL*Plus. This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="osrecvry.htm#GUID-D71F3FF3-84E5-4D81-9307-E2AD5CB51833">About User-Managed Restore and Recovery</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-54B59888-8683-4CD9-B144-B0BB68887572">Automatic Recovery with the RECOVER Command</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-E7F2B57F-3731-4BC1-9E4D-AC4A99A1C2D2">Recovery When Archived Logs Are in the Default Location</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-F66C6B19-0960-4231-92C1-400C625F66D7">Recovery When Archived Logs Are in a Nondefault Location</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-5A3BB8EE-291F-41C6-976C-1F304069FF0B">Recovery Using Storage Snapshot Optimization</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-8EC901EA-2281-49EF-89ED-D0595E46DFCB">Recovery Cancellation</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-9174945F-96FA-477F-AEC2-046A3FE5ACAA">Parallel Media Recovery</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV502"></a><a id="BRADV210"></a>
+<div class="props_rev_3"><a id="GUID-D71F3FF3-84E5-4D81-9307-E2AD5CB51833"></a>
+<h3 id="BRADV-GUID-D71F3FF3-84E5-4D81-9307-E2AD5CB51833" class="sect3">About User-Managed Restore and Recovery</h3>
+<div>
+<p>Typically, you restore a file when a media failure or user error has damaged or deleted one or more data files. <a id="d121979e451" class="indexterm-anchor"></a><a id="d121979e453" class="indexterm-anchor"></a><a id="d121979e457" class="indexterm-anchor"></a>In a user-managed restore operation, you use an operating system utility to restore a backup of the file.</p>
+<p><a id="d121979e463" class="indexterm-anchor"></a><a id="d121979e469" class="indexterm-anchor"></a><a id="d121979e473" class="indexterm-anchor"></a><a id="d121979e479" class="indexterm-anchor"></a><a id="d121979e483" class="indexterm-anchor"></a>If a media failure affects data files, then the recovery procedure depends on:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The archiving mode of the database: <code class="codeph">ARCHIVELOG</code> or <code class="codeph">NOARCHIVELOG</code></p>
+</li>
+<li>
+<p>The type of media failure</p>
+</li>
+<li>
+<p>The files affected by the media failure (data files, control files, archived redo logs, and the server parameter file are all candidates for restore operations)</p>
+</li>
+</ul>
+<p>If either a permanent or temporary media failure affects any data files of a database operating in <code class="codeph">NOARCHIVELOG</code> mode, then the database automatically shuts down. If the media failure is temporary, then correct the underlying problem and restart the database. Usually, crash recovery recovers all committed transactions from the online redo log. If the media failure is permanent, then recover the database as described in <span class="q">&#34;<a href="osrecvry.htm#GUID-3A4C59D7-C91D-4A4E-A803-5C02FE58858A">Recovering a Database in NOARCHIVELOG Mode</a>&#34;</span>.</p>
+<p><a href="osrecvry.htm#GUID-D71F3FF3-84E5-4D81-9307-E2AD5CB51833__CHDFCFGE" title="user-managed restore techniques">Table 30-1</a> explains the implications for media recovery when you lose files in a database that runs in <code class="codeph">ARCHIVELOG</code> mode.</p>
+<div class="tblformalwide" id="GUID-D71F3FF3-84E5-4D81-9307-E2AD5CB51833__CHDFCFGE">
+<p class="titleintable">Table 30-1 User-Managed Restore Operations</p>
+<table class="cellalignment553" title="User-Managed Restore Operations" summary="user-managed restore techniques">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment532" id="d121979e532">If You Lose...</th>
+<th class="cellalignment543" id="d121979e535">Then...</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e540" headers="d121979e532">
+<p>Data files in the <code class="codeph">SYSTEM</code> tablespace or data files with active undo segments</p>
+</td>
+<td class="cellalignment544" headers="d121979e540 d121979e535">
+<p>The database automatically shuts down. If the hardware problem is temporary, then fix it and restart the database. Usually, crash recovery recovers lost transactions. If the hardware problem is permanent, then restore the data files from backups and recover the database as described in <span class="q">&#34;<a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8">Performing Closed Database Recovery</a>&#34;</span>.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e555" headers="d121979e532">
+<p>Data files not in the <code class="codeph">SYSTEM</code> tablespace or data files that do not contain active rollback or undo segments</p>
+</td>
+<td class="cellalignment544" headers="d121979e555 d121979e535">
+<p>Affected data files are taken offline, but the database stays open. If the unaffected portions of the database must remain available, then do not shut down the database. Take tablespaces containing problem data files offline using the temporary option, then recover them as described in <span class="q">&#34;<a href="osrecvry.htm#GUID-56EBDCEE-0C55-4556-A732-82EF42834D58">Performing Open Database Recovery</a>&#34;</span>.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e570" headers="d121979e532">
+<p>All copies of the current control file</p>
+</td>
+<td class="cellalignment544" headers="d121979e570 d121979e535">
+<p>You must restore a backup control file and then open the database with the <code class="codeph">RESETLOGS</code> option.</p>
+<p>If you do not have a backup, then you can attempt to re-create the control file. If possible, use the script included in the <code class="codeph">ALTER</code> <code class="codeph">DATABASE</code> <code class="codeph">BACKUP</code> <code class="codeph">CONTROLFILE</code> <code class="codeph">TO</code> <code class="codeph">TRACE</code> output. Additional work may be required to match the control file structure with the current database structure.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e601" headers="d121979e532">
+<p>One copy of a multiplexed control file</p>
+</td>
+<td class="cellalignment544" headers="d121979e601 d121979e535">
+<p><a id="d121979e606" class="indexterm-anchor"></a><a id="d121979e610" class="indexterm-anchor"></a>Copy an intact multiplexed control file into the location of the damaged or missing control file and open the database. If you cannot copy the control file to its original location, then edit the initialization parameter file to reflect a new location or remove the damaged control file. Then, open the database.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e614" headers="d121979e532">
+<p>One or more archived logs required for media recovery</p>
+</td>
+<td class="cellalignment544" headers="d121979e614 d121979e535">
+<p>You must restore backups of these archived logs for recovery to proceed. You can restore either to the default or nondefault location. If you do not have backups, then you must perform incomplete recovery up to an SCN before the first missing redo log and open <code class="codeph">RESETLOGS</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e624" headers="d121979e532">
+<p>The server parameter file (SPFILE)</p>
+</td>
+<td class="cellalignment544" headers="d121979e624 d121979e535">
+<p>If you have a backup of the server parameter file, then restore it. Alternatively, if you have a backup of the client-side initialization parameter file, then you can restore a backup of this file, start the instance, and then re-create the server parameter file.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infobox-note" id="GUID-D71F3FF3-84E5-4D81-9307-E2AD5CB51833__GUID-488FC76D-AC7E-4277-8077-565B9EB146D6">
+<p class="notep1">Note:</p>
+<p>Restore and recovery of Oracle Managed Files is no different from restore and recovery of user-named files.</p>
+</div>
+<p><a id="d121979e634" class="indexterm-anchor"></a><a id="d121979e638" class="indexterm-anchor"></a><a id="d121979e642" class="indexterm-anchor"></a><a id="d121979e646" class="indexterm-anchor"></a><a id="d121979e650" class="indexterm-anchor"></a>To <a id="d121979e655" class="indexterm-anchor"></a>perform media recovery, Oracle recommends that you use the <code class="codeph">RECOVER</code> statement in SQL*Plus. You can also use the SQL statement <code class="codeph">ALTER</code> <code class="codeph">DATABASE</code> <code class="codeph">RECOVER</code>, but the <code class="codeph">RECOVER</code> statement is often simpler. To start any type of media recovery, you must adhere to the following restrictions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You must have administrator privileges.</p>
+</li>
+<li>
+<p>All recovery sessions must be compatible.</p>
+</li>
+<li>
+<p>One session cannot start complete media recovery while another performs incomplete media recovery.</p>
+</li>
+<li>
+<p>You cannot start media recovery if you are connected to the database through a shared server process.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="BRADV90025"></a>
+<div class="props_rev_3"><a id="GUID-54B59888-8683-4CD9-B144-B0BB68887572"></a>
+<h3 id="BRADV-GUID-54B59888-8683-4CD9-B144-B0BB68887572" class="sect3">Automatic Recovery with the RECOVER Command</h3>
+<div>
+<div class="section">
+<p>When using SQL*Plus to perform media recovery, the easiest strategy is to perform automatic recovery with the SQL*Plus <code class="codeph">RECOVER</code> command. Automatic recovery initiates recovery without manually prompting SQL*Plus to apply each individual archived redo log.</p>
+<p><a id="d121979e762" class="indexterm-anchor"></a><a id="d121979e766" class="indexterm-anchor"></a><a id="d121979e770" class="indexterm-anchor"></a><a id="d121979e774" class="indexterm-anchor"></a>When using SQL*Plus, you have the following options for automating the application of the default file names of archived redo logs needed during recovery:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Issuing <code class="codeph">SET</code> <code class="codeph">AUTORECOVERY</code> <code class="codeph">ON</code> before issuing the <code class="codeph">RECOVER</code> command. If you perform recovery with <code class="codeph">SET</code> <code class="codeph">AUTORECOVERY</code> <code class="codeph">OFF</code>, which is the default, then you must enter file names manually or accept the suggested file name by pressing Enter.</p>
+</li>
+<li>
+<p>Specifying the <code class="codeph">AUTOMATIC</code> keyword as an option of the <code class="codeph">RECOVER</code> command.</p>
+</li>
+</ul>
+<p>In either case, no interaction is required when you issue the <code class="codeph">RECOVER</code> command if the necessary files are in the correct locations with the correct names. When the database successfully applies a redo log file, the following message is returned:</p>
+<pre dir="ltr">Log applied.
+</pre>
+<p>You are then prompted for the next redo log in the sequence. If the most recently applied log is the last required log, then recovery is terminated.</p>
+<p>The file names used for automatic recovery are derived from the concatenated values of <code class="codeph">LOG_ARCHIVE_FORMAT</code> <a id="d121979e829" class="indexterm-anchor"></a>with <code class="codeph">LOG_ARCHIVE_DEST_</code><span class="italic"><code class="codeph">n</code></span>, where <span class="italic"><code class="codeph">n</code></span> is the highest value among all enabled, local destinations. For example, assume that the following initialization parameter settings are in effect in the database instance:</p>
+<pre dir="ltr">LOG_ARCHIVE_DEST_1 = &#34;LOCATION=/arc_dest/loc1/&#34; 
+LOG_ARCHIVE_DEST_2 = &#34;LOCATION=/arc_dest/loc2/&#34;
+LOG_ARCHIVE_DEST_STATE_1 = DEFER 
+LOG_ARCHIVE_DEST_STATE_2 = ENABLE 
+LOG_ARCHIVE_FORMAT = arch_%t_%s_%r.arc
+</pre>
+<p>In this example, SQL*Plus automatically suggests the file name <code class="codeph">/arc_dest/loc2/arch_%t_%s_%r.arc</code> (where <code class="codeph">%t</code> is the thread, <code class="codeph">%s</code> is the sequence and <code class="codeph">%r</code> is the resetlogs ID).</p>
+<div class="infoboxnotealso" id="GUID-54B59888-8683-4CD9-B144-B0BB68887572__GUID-6CE0F846-E4E6-44D9-B4A2-FEC51EDADA6C">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="osrecvry.htm#GUID-D32B0E81-6341-4790-BFAD-E78A63B8E8B9">Automatic Recovery with SET AUTORECOVERY</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-68DDE32D-C6A7-43EF-A2BC-9F6287474996">Automatic Recovery with the AUTOMATIC Option of the RECOVER Command</a></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+<a id="BRADV90026"></a>
+<div class="props_rev_3"><a id="GUID-D32B0E81-6341-4790-BFAD-E78A63B8E8B9"></a>
+<h4 id="BRADV-GUID-D32B0E81-6341-4790-BFAD-E78A63B8E8B9" class="sect4">Automatic Recovery with SET AUTORECOVERY</h4>
+<div>
+<p>After restoring data file backups, you can run the <code class="codeph">SET</code> <code class="codeph">AUTORECOVERY</code> <code class="codeph">ON</code> command to enable automatic recovery. For example, you could enter the following commands in SQL*Plus to perform automatic recovery and open the database:</p>
+<pre dir="ltr">STARTUP MOUNT
+SET AUTORECOVERY ON
+RECOVER DATABASE
+ALTER DATABASE OPEN;
+</pre>
+<div class="infobox-note" id="GUID-D32B0E81-6341-4790-BFAD-E78A63B8E8B9__GUID-294F1C5C-561C-47DA-B43B-BE127A6A629B">
+<p class="notep1">Note:</p>
+<p>After issuing the SQL*Plus <code class="codeph">RECOVER</code> command, you can view all files that have been considered for recovery in the <code class="codeph">V$RECOVERY_FILE_STATUS</code> view. You can access status information for each file in the <code class="codeph">V$RECOVERY_STATUS</code> view. These views are not accessible after you terminate the recovery session.</p>
+</div>
+</div>
+</div>
+<a id="BRADV90027"></a>
+<div class="props_rev_3"><a id="GUID-68DDE32D-C6A7-43EF-A2BC-9F6287474996"></a>
+<h4 id="BRADV-GUID-68DDE32D-C6A7-43EF-A2BC-9F6287474996" class="sect4">Automatic Recovery with the AUTOMATIC Option of the RECOVER Command</h4>
+<div>
+<p>Besides using <code class="codeph">SET</code> <code class="codeph">AUTORECOVERY</code> to turn on automatic recovery, you can also simply specify the <code class="codeph">AUTOMATIC</code> keyword in the <code class="codeph">RECOVER</code> command. For example, you could enter the following commands in SQL*Plus to perform automatic recovery and open the database:</p>
+<pre dir="ltr">STARTUP MOUNT
+RECOVER AUTOMATIC DATABASE
+ALTER DATABASE OPEN;
+</pre>
+<p><a id="d121979e1048" class="indexterm-anchor"></a><a id="d121979e1052" class="indexterm-anchor"></a><a id="d121979e1056" class="indexterm-anchor"></a>If you use an Oracle Real Application Clusters configuration, and if you are performing incomplete recovery or using a backup control file, then the database can only compute the name of the first archived redo log file from the <span class="italic">first</span> redo thread. You may have to manually apply the first log file from the other redo threads. After the first log file in a given thread has been supplied, the database can suggest the names of the subsequent logs in this thread.</p>
+</div>
+</div>
+</div>
+<a id="BRADV90028"></a>
+<div class="props_rev_3"><a id="GUID-E7F2B57F-3731-4BC1-9E4D-AC4A99A1C2D2"></a>
+<h3 id="BRADV-GUID-E7F2B57F-3731-4BC1-9E4D-AC4A99A1C2D2" class="sect3">Recovery When Archived Logs Are in the Default Location</h3>
+<div>
+<p><a id="d121979e1146" class="indexterm-anchor"></a><a id="d121979e1150" class="indexterm-anchor"></a>Recovering when the archived logs are in their default location is the simplest case. As a log is needed, the database suggests the file name. If you run nonautomatic media recovery with SQL*Plus, then the output is displayed in the format shown by this example:</p>
+<pre dir="ltr">ORA-00279: change 53577 generated at 11/26/02 19:20:58 needed for thread 1
+ORA-00289: suggestion : /oracle/oradata/trgt/arch/arcr_1_802.arc
+ORA-00280: change 53577 for thread 1 is in sequence #802
+Specify log: [&lt;RET&gt; for suggested | AUTO | FROM logsource | CANCEL ]
+</pre>
+<p>Similar messages are returned when you use an <code class="codeph">ALTER</code> <code class="codeph">DATABASE</code> <code class="codeph">...</code> <code class="codeph">RECOVER</code> statement. However, no prompt is displayed.</p>
+<p>The database constructs suggested archived log file names by concatenating the current values of the initialization parameters <a id="d121979e1174" class="indexterm-anchor"></a><a id="d121979e1178" class="indexterm-anchor"></a><code class="codeph">LOG_ARCHIVE_DEST_</code><span class="italic"><code class="codeph">n</code></span> (where <span class="italic"><code class="codeph">n</code></span> is the highest value among all enabled, local destinations) and <code class="codeph">LOG_ARCHIVE_FORMAT</code> and using log history data from the control file. The following are possible settings:</p>
+<pre dir="ltr">LOG_ARCHIVE_DEST_1 = &#39;LOCATION = /oracle/oradata/trgt/arch/&#39;
+LOG_ARCHIVE_FORMAT = arcr_%t_%s.arc
+
+SELECT NAME FROM V$ARCHIVED_LOG;
+
+NAME
+----------------------------------------
+/oracle/oradata/trgt/arch/arcr_1_467.arc
+/oracle/oradata/trgt/arch/arcr_1_468.arc
+/oracle/oradata/trgt/arch/arcr_1_469.arc
+</pre>
+<p>Thus, if all the required archived log files are mounted at <a id="d121979e1197" class="indexterm-anchor"></a>the <code class="codeph">LOG_ARCHIVE_DEST_1</code> destination, and if the value for <code class="codeph">LOG_ARCHIVE_FORMAT</code> is never altered, then the database can suggest and apply log files to complete media recovery automatically.</p>
+</div>
+</div>
+<a id="BRADV90029"></a>
+<div class="props_rev_3"><a id="GUID-F66C6B19-0960-4231-92C1-400C625F66D7"></a>
+<h3 id="BRADV-GUID-F66C6B19-0960-4231-92C1-400C625F66D7" class="sect3">Recovery When Archived Logs Are in a Nondefault Location</h3>
+<div>
+<p>Performing media recovery when archived logs are not in their default location adds an extra step. You have the following mutually exclusive options:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Edit the <code class="codeph">LOG_ARCHIVE_DEST_</code><span class="italic"><code class="codeph">n</code></span> parameter that specifies the location of the archived redo logs, then recover as usual.</p>
+<p>This task is described in <a href="osrecvry.htm#GUID-4822CA38-EC09-474B-8F72-AB6599EC17D1">Resetting the Archived Log Destination</a>.</p>
+</li>
+<li>
+<p>Use the <code class="codeph">SET</code> statement in SQL*Plus to specify the nondefault log location before recovery, or the <code class="codeph">LOGFILE</code> parameter of the <code class="codeph">RECOVER</code> command.</p>
+<p>This task is described in <a href="osrecvry.htm#GUID-28E902A1-D069-43BD-8730-8F85FD746FA9">Overriding the Archived Log Destination</a>.</p>
+</li>
+</ul>
+</div>
+<a id="BRADV90030"></a>
+<div class="props_rev_3"><a id="GUID-4822CA38-EC09-474B-8F72-AB6599EC17D1"></a>
+<h4 id="BRADV-GUID-4822CA38-EC09-474B-8F72-AB6599EC17D1" class="sect4">Resetting the Archived Log Destination</h4>
+<div>
+<div class="section">
+<p><a id="d121979e1380" class="indexterm-anchor"></a><a id="d121979e1384" class="indexterm-anchor"></a>You can edit the initialization parameter file or issue <code class="codeph">ALTER</code> <code class="codeph">SYSTEM</code> statements to change the default location of the archived redo logs.</p>
+<p><span class="bold">To change the default archived log location before recovery:</span></p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Use an operating system utility to restore the archived logs to a nondefault location. For example, enter:</span>
+<div>
+<pre dir="ltr">% cp /backup/arch/* /tmp/
+</pre></div>
+</li>
+<li class="stepexpand"><span>Change the value for the archive log parameter to the nondefault location. You can issue <code class="codeph">ALTER</code> <code class="codeph">SYSTEM</code> statements while the instance is started, or edit the initialization parameter file and then start the database instance. For example, while the instance is shut down edit the parameter file as follows:</span>
+<div>
+<pre dir="ltr">LOG_ARCHIVE_DEST_1 = &#39;LOCATION=/tmp/&#39;
+LOG_ARCHIVE_FORMAT = arcr_%t_%s.arc
+</pre></div>
+</li>
+<li class="stepexpand"><span>Using SQL*Plus, start a new instance by specifying the edited initialization parameter file, and then mount the database. For example, enter:</span>
+<div>
+<pre dir="ltr">STARTUP MOUNT
+</pre></div>
+</li>
+<li class="stepexpand"><span>Begin media recovery as usual. For example, enter:</span>
+<div>
+<pre dir="ltr">RECOVER DATABASE
+</pre></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV90031"></a>
+<div class="props_rev_3"><a id="GUID-28E902A1-D069-43BD-8730-8F85FD746FA9"></a>
+<h4 id="BRADV-GUID-28E902A1-D069-43BD-8730-8F85FD746FA9" class="sect4">Overriding the Archived Log Destination</h4>
+<div>
+<div class="section">
+<p>In some cases, you may want to override the current setting for the archiving destination parameter as a source for archived log files.</p>
+<p><span class="bold">To recover archived logs in a nondefault location with SET LOGSOURCE:</span></p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span><a id="d121979e1506" class="indexterm-anchor"></a><a id="d121979e1510" class="indexterm-anchor"></a>Using an operating system utility, copy the archived redo logs to an alternative location. For example, enter:</span>
+<div>
+<pre dir="ltr">% cp $ORACLE_HOME/oradata/trgt/arch/* /tmp
+</pre></div>
+</li>
+<li class="stepexpand"><span>Specify the alternative location within SQL*Plus for the recovery operation. Use the<a id="d121979e1521" class="indexterm-anchor"></a><a id="d121979e1525" class="indexterm-anchor"></a><a id="d121979e1529" class="indexterm-anchor"></a><a id="d121979e1533" class="indexterm-anchor"></a><a id="d121979e1537" class="indexterm-anchor"></a><a id="d121979e1541" class="indexterm-anchor"></a> <code class="codeph">LOGSOURCE</code> parameter of the <code class="codeph">SET</code> statement. For example, start SQL*Plus and run:</span>
+<div>
+<pre dir="ltr">SET LOGSOURCE &#34;/tmp&#34;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Recover the offline tablespace. For example, to recover the offline tablespace <code class="codeph">users</code> do the following:</span>
+<div>
+<pre dir="ltr">RECOVER AUTOMATIC TABLESPACE users
+</pre></div>
+</li>
+<li class="stepexpand"><span>Alternatively, you can avoid running <code class="codeph">SET</code> <code class="codeph">LOGSOURCE</code> and simply run:</span>
+<div>
+<pre dir="ltr">RECOVER AUTOMATIC TABLESPACE users FROM &#34;/tmp&#34;
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<div class="infobox-note" id="GUID-28E902A1-D069-43BD-8730-8F85FD746FA9__GUID-D2F9FB73-7228-45F6-8DFA-FF48D73A9C84">
+<p class="notep1">Note:</p>
+<p>Overriding the redo log source does not affect the archive redo log destination for online redo log groups being archived.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="BRADV816"></a><a id="BRADV817"></a><a id="BRADV727"></a>
+<div class="props_rev_3"><a id="GUID-5A3BB8EE-291F-41C6-976C-1F304069FF0B"></a>
+<h3 id="BRADV-GUID-5A3BB8EE-291F-41C6-976C-1F304069FF0B" class="sect3">Recovery Using Storage Snapshot Optimization</h3>
+<div>
+<p>Storage Snapshot Optimization enables you to use third-party snapshots of the database, taken when the database is not in backup mode, to recover the database either to the current time or to a specified point in time after the snapshot was created. If the database was not placed in backup mode when the storage snapshot was created, then you can perform recovery using this snapshot only if the snapshot conforms to Oracle requirements described in <span class="q">&#34;<a href="osbackup.htm#GUID-A1112F2C-D0ED-4C2F-BA24-A614F99F0FCA">Making Backups with Third-Party Snapshot Technologies</a>&#34;</span>. In this case, you can take the same basic recovery steps as any other backup method, either using RMAN or SQL*Plus.</p>
+<div class="p">If the database is in backup mode when the storage snapshot is taken, then you can use this snapshot to perform complete or incomplete database recovery as described in <a href="osrecvry.htm#GUID-66D07694-533F-4E3A-BA83-DD461B68DB56">Performing Complete Database Recovery Using SQL*Plus</a> or <a href="osrecvry.htm#GUID-2BF2BE5E-3D1B-4F0C-9F10-25D5342F6DB3">Performing Incomplete Database Recovery</a>.
+<div class="infobox-note" id="GUID-5A3BB8EE-291F-41C6-976C-1F304069FF0B__GUID-E8F04D04-5BAF-4CC9-AAD3-B4027D383C14">
+<p class="notep1">Note:</p>
+<p>If a storage snapshot is created when the database is not in backup mode and the Oracle-specific requirements for snapshots are not met, then this snapshot cannot be used to recover the database.</p>
+</div>
+</div>
+<div class="section">
+<p class="subhead3">Specifying the Time for Snapshot Recovery</p>
+</div>
+<!-- class="section" -->
+<p>If a storage snapshot was created when the database was not in backup mode, you must specify the <code class="codeph">SNAPSHOT TIME</code> option while using this snapshot to recover the database. The <code class="codeph">SNAPSHOT TIME</code> option can be used in both the RMAN or SQL*Plus <code class="codeph">RECOVER</code> command. The time specified using the <code class="codeph">SNAPSHOT TIME</code> option must be a time that is immediately after the snapshot is complete. If you specify an incorrect time, then the database may be corrupt in a way that is not repairable.</p>
+<p>Because the time clocks in the storage array, where the snapshot takes place, and the machine hosting the Oracle Database may not be perfectly synchronized, it is recommended that you add a few seconds to the time that you specify in the <code class="codeph">SNAPSHOT TIME</code> option. This helps you avoid any possibility of leaving the files in an inconsistent state by recovering to a point before the snapshot was taken.</p>
+<p>All times specified in the <code class="codeph">RECOVER</code> command, including in the <code class="codeph">SNAPSHOT TIME</code> clause, are assumed to be in the time zone of the Oracle Database host. However, the time clocks in the storage array may be in a different time zone from the Oracle Database host. If the storage array reports its snapshot times in a different time zone, then you must take that difference into account when specifying the time in the <code class="codeph">SNAPSHOT TIME</code> option.</p>
+<div class="infobox-note" id="GUID-5A3BB8EE-291F-41C6-976C-1F304069FF0B__GUID-0A3A9BAE-5721-40FC-A70E-49FE4C358B3B">
+<p class="notep1">Note:</p>
+<p>The recovery point, specified by the <code class="codeph">UNTIL</code> option, cannot be earlier than the specified <code class="codeph">SNAPSHOT TIME</code>.</p>
+</div>
+<div class="section">
+<p class="subhead3">Examples: Recovery Using Storage Snapshots</p>
+</div>
+<!-- class="section" -->
+<p>The examples in this section use the <code class="codeph">RECOVER DATABASE</code> command to perform recovery using snapshots. You can use the <code class="codeph">RECOVER DATABASE</code> command from RMAN or SQL*Plus. However, the <code class="codeph">UNTIL CANCEL</code> clause is valid only in SQL*Plus.</p>
+<p><span class="bold">To completely recover a database:</span></p>
+<pre dir="ltr">RECOVER DATABASE;
+</pre>
+<p><span class="bold">To recover a database using a particular snapshot:</span></p>
+<p>This example recovers uses a snapshot taken on August 15 at 2:00 P.M. to recover the database. The <code class="codeph">UNTIL TIME</code> clause can specify any time after the snapshot.</p>
+<pre dir="ltr">RECOVER DATABASE UNTIL TIME &#39;10/15/2012 15:00:00&#39; SNAPSHOT TIME &#39;10/15/2012 14:00:00&#39;;
+</pre>
+<p><span class="bold">To perform a partial recovery using archived redo log files:</span></p>
+<p>This example uses the log files from a snapshot taken on August 15 at 2:00 P.M.</p>
+<pre dir="ltr">RECOVER DATABASE UNTIL CANCEL SNAPSHOT TIME &#39;10/15/2012 14:00:00&#39;;
+</pre></div>
+</div>
+<a id="BRADV99983"></a>
+<div class="props_rev_3"><a id="GUID-8EC901EA-2281-49EF-89ED-D0595E46DFCB"></a>
+<h3 id="BRADV-GUID-8EC901EA-2281-49EF-89ED-D0595E46DFCB" class="sect3">Recovery Cancellation During User-Managed Recovery</h3>
+<div>
+<p><a id="d121979e1847" class="indexterm-anchor"></a><a id="d121979e1849" class="indexterm-anchor"></a><a id="d121979e1853" class="indexterm-anchor"></a><a id="d121979e1857" class="indexterm-anchor"></a><a id="d121979e1859" class="indexterm-anchor"></a><a id="d121979e1863" class="indexterm-anchor"></a><a id="d121979e1867" class="indexterm-anchor"></a>If you start media recovery and must then interrupt it, then either enter <code class="codeph">CANCEL</code> when prompted for a redo log file, or use your operating system&#39;s interrupt signal if you must terminate when recovering an individual data file, or when automated recovery is in progress. After recovery is canceled, you can resume it later with the <code class="codeph">RECOVER</code> command. Recovery resumes where it left off when it was canceled.</p>
+</div>
+</div>
+<a id="BRADV221"></a>
+<div class="props_rev_3"><a id="GUID-9174945F-96FA-477F-AEC2-046A3FE5ACAA"></a>
+<h3 id="BRADV-GUID-9174945F-96FA-477F-AEC2-046A3FE5ACAA" class="sect3">Parallel Media Recovery</h3>
+<div>
+<p><a id="d121979e1947" class="indexterm-anchor"></a><a id="d121979e1951" class="indexterm-anchor"></a>By default, Oracle Database uses <strong class="term">parallel media recovery</strong> to improve performance of the roll forward phase of media recovery. In parallel recovery of media, the database uses a &#34;division of labor&#34; approach to allocate different processes to different data blocks while rolling forward, thereby making the procedure more efficient. The number of processes used is derived from the <code class="codeph">CPU_COUNT</code> initialization parameter, which by default equals the number of CPUs on the system. For example, if parallel recovery is performed on a system where <code class="codeph">CPU_COUNT</code> is <code class="codeph">4</code>, and only one data file is recovered, then four spawned processes read blocks from the archive logs and apply redo.</p>
+<p>Typically, media recovery is limited by data block reads and writes. Parallel recovery attempts to use all of the available I/O bandwidth of the system to improve performance. Unless there is a system I/O bottleneck or poor asynchronous I/O support, parallel recovery is likely to improve performance of recovery.</p>
+<p>To override the default behavior of performing parallel recovery, use the SQL*Plus <a id="d121979e1972" class="indexterm-anchor"></a><code class="codeph">RECOVER</code> command with the <code class="codeph">NOPARALLEL</code> option, or <code class="codeph">RECOVER</code> <code class="codeph">PARALLEL</code> <code class="codeph">0</code>. The <code class="codeph">RECOVERY_PARALLELISM</code> initialization parameter controls instance or crash recovery <span class="italic">only</span>. Media recovery is not affected by the value used for <code class="codeph">RECOVERY_PARALLELISM</code>.</p>
+<div class="infoboxnotealso" id="GUID-9174945F-96FA-477F-AEC2-046A3FE5ACAA__GUID-C7FA49CA-87BA-4185-BB69-8CDCB3BCC937">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQPUG" target="_blank" href="../SQPUG/toc.htm"><span class="italic">SQL*Plus User&#39;s Guide and Reference</span></a> for more information about the SQL*Plus <code class="codeph">RECOVER</code> <code class="codeph">...</code> <code class="codeph">PARALLEL</code> and <code class="codeph">NOPARALLEL</code> commands</p>
+</div>
+</div>
+</div>
+</div>
+<a id="BRADV216"></a>
+<div class="props_rev_3"><a id="GUID-66D07694-533F-4E3A-BA83-DD461B68DB56"></a>
+<h2 id="BRADV-GUID-66D07694-533F-4E3A-BA83-DD461B68DB56" class="sect2">Performing Complete Database Recovery Using SQL*Plus</h2>
+<div>
+<p><a id="d121979e2090" class="indexterm-anchor"></a><a id="d121979e2094" class="indexterm-anchor"></a><a id="d121979e2098" class="indexterm-anchor"></a><a id="d121979e2102" class="indexterm-anchor"></a>Typically, you perform complete recovery of the database when a media failure has made one or more data files inaccessible. The <code class="codeph">V$RECOVER_FILE</code> view indicates which files need recovery. When <a id="d121979e2110" class="indexterm-anchor"></a>you perform complete database recovery, you use all available redo to recover the database to the current SCN.</p>
+<p>Depending on the circumstances, you can either recover the whole database or recover individual tablespaces or data files. Because you do not have to open the database with the <code class="codeph">RESETLOGS</code> option after complete recovery, you have the option of recovering some data files at one time and the remaining data files later.</p>
+<p>The procedures in this section assume the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The current control file is available. If you must restore or re-create the control file, then see <span class="q">&#34;<a href="osadvsce.htm#GUID-3913B513-ECF0-469A-A50A-A5A573C85DC0">Recovering After the Loss of All Current Control Files</a>&#34;</span> and <span class="q">&#34;<a href="osadvsce.htm#GUID-9152B9A8-308A-4871-B835-53AF7593E65D">Re-Creating a Control File</a>&#34;</span>.</p>
+</li>
+<li>
+<p>You have backups of all needed data files. If you are missing data file backups, then see <span class="q">&#34;<a href="osadvsce.htm#GUID-E0032019-E245-4EBD-B275-1343AA175239">Re-Creating Data Files When Backups Are Unavailable</a>&#34;</span>.</p>
+</li>
+<li>
+<p>All necessary archived redo logs are available. If you are missing redo required to completely recover the database, then you must perform database point-in-time recovery. See <span class="q">&#34;<a href="osrecvry.htm#GUID-2BF2BE5E-3D1B-4F0C-9F10-25D5342F6DB3">Performing Incomplete Database Recovery</a>&#34;</span>.</p>
+</li>
+</ul>
+<p><a id="d121979e2153" class="indexterm-anchor"></a><a id="d121979e2157" class="indexterm-anchor"></a><a id="d121979e2161" class="indexterm-anchor"></a>This section describes the steps necessary to complete media recovery operations, and includes the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8">Performing Closed Database Recovery</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-56EBDCEE-0C55-4556-A732-82EF42834D58">Performing Open Database Recovery</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV90032"></a>
+<div class="props_rev_3"><a id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8"></a>
+<h3 id="BRADV-GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8" class="sect3">Performing Closed Database Recovery</h3>
+<div>
+<div class="section">
+<p><a id="d121979e2247" class="indexterm-anchor"></a><a id="d121979e2253" class="indexterm-anchor"></a>This section describes steps to perform complete recovery while the database is not open. You can recover either all damaged data files in one operation or perform individual recovery of each damaged data file in separate operations.</p>
+<p><span class="bold">To restore and recover damaged or missing data files:</span></p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand" id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDJEDGI"><span>If the database is open, query <a id="d121979e2267" class="indexterm-anchor"></a><code class="codeph">V$RECOVER_FILE</code> to determine which data files must be recovered and why they must be recovered.</span>
+<div>
+<p>If you are planning to perform complete recovery rather than point-in-time recovery, then you can recover only those data files that require recovery, rather than the whole database. For point-in-time recovery, you must restore and recover all data files, unless you perform TSPITR as described in <a href="rcmtspit.htm#GUID-CAACDB53-7C3A-45B4-8249-C5D855D47571">Performing RMAN Tablespace Point-in-Time Recovery (TSPITR)</a> . You can also use Flashback Database, but this procedure affects all data files and returns the entire database to a past time.</p>
+<p>You can query the <code class="codeph">V$RECOVER_FILE</code> view to list data files requiring recovery by data file number with their status and error information.</p>
+<pre dir="ltr">SELECT FILE#, ERROR, ONLINE_STATUS, CHANGE#, TIME 
+FROM   V$RECOVER_FILE;
+</pre>
+<div class="infobox-note" id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__GUID-D54004A0-C25F-4F3B-AAB8-50F6A1F0927B">
+<p class="notep1">Note:</p>
+<p>You cannot use <code class="codeph">V$RECOVER_FILE</code> with a control file restored from backup or a control file that was re-created after the time of the media failure affecting the data files. A restored or re-created control file does not contain the information needed to update <code class="codeph">V$RECOVER_FILE</code> accurately.</p>
+</div>
+<p>You can also perform useful joins by using the data file number and the <code class="codeph">V$DATAFILE</code> and <code class="codeph">V$TABLESPACE</code> views to get the data file and tablespace names.</p>
+<p>The <code class="codeph">ERROR</code> column identifies the problem for each file requiring recovery.</p>
+</div>
+</li>
+<li class="stepexpand"><span><a id="d121979e2310" class="indexterm-anchor"></a><a id="d121979e2314" class="indexterm-anchor"></a>Query the <code class="codeph">V$ARCHIVED_LOG</code> and <code class="codeph">V$RECOVERY_LOG</code> views to determine which archived redo log files are needed.</span>
+<div>
+<p><code class="codeph">V$ARCHIVED_LOG</code> lists file names for all archived redo logs, whereas <code class="codeph">V$RECOVERY_LOG</code> lists only the archived redo logs that the database needs to perform media recovery. The latter view also includes the probable names of the files based on the naming convention specified by using the <code class="codeph">LOG_ARCHIVE_FORMAT</code> parameter.</p>
+<div class="infobox-note" id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__GUID-F41AA6CB-E67A-4DAB-93CF-0E88F00C0F66">
+<p class="notep1">Note:</p>
+<p><code class="codeph">V$RECOVERY_LOG</code> is only populated when media recovery is required for a data file. Thus, this view is not useful for a planned recovery, such as recovery from a user error.</p>
+<p>If a data file requires recovery, but no backup of the data file exists, then you need all redo generated starting from the time when the data file was added to the database.</p>
+</div>
+</div>
+</li>
+<li class="stepexpand" id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDGADJF"><span>If all archived logs are available in the default location, then skip to the Step 4.</span>
+<div>
+<p>If some archived logs must be restored, and if sufficient space is available, then restore the required archived redo log files to the location specified <a id="d121979e2349" class="indexterm-anchor"></a>by <code class="codeph">LOG_ARCHIVE_DEST_1</code>. The database locates the correct log automatically when required during media recovery. For example, you might enter a command such as the following on Linux or UNIX:</p>
+<pre dir="ltr">% cp /disk2/arch/* $ORACLE_HOME/oradata/trgt/arch
+</pre>
+<p>If sufficient space is not available, then restore some or all of the required archived redo log files to an alternative location.</p>
+</div>
+</li>
+<li class="stepexpand"><span>If the database is open, then shut it down. For example:</span>
+<div>
+<pre dir="ltr">SHUTDOWN IMMEDIATE
+</pre></div>
+</li>
+<li class="stepexpand"><span>Inspect the media to determine the source of the problem.</span>
+<div>
+<p>If the hardware problem that caused the media failure was temporary, and if the data was undamaged (for example, a disk or controller power failure occurred), then no media recovery is required: start the database and resume normal operations.</p>
+<p>If you cannot repair the problem, then proceed to the Step 6.</p>
+</div>
+</li>
+<li class="stepexpand"><span>If the files are permanently damaged, then identify the most recent backups for the damaged files. Restore <span class="italic">only</span> the data files damaged by the media failure: do not restore undamaged data files or any online redo log files.</span>
+<div>
+<p>For example, if <span class="italic"><code class="codeph">ORACLE_HOME/</code></span><code class="codeph">oradata/trgt/users01.dbf</code> is the only damaged file, then you may find that <code class="codeph">/backup/users01_10_24_02.dbf</code> is the most recent backup of this file. If you do not have a backup of a specific data file, then you may be able to create an empty replacement file that can be recovered.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Use an operating system utility to restore the data files to their default location or to a new location. For example, a Linux or UNIX user restoring <code class="codeph">users01.dbf</code> to its default location might enter:</span>
+<div>
+<pre dir="ltr">% cp /backup/users01_10_24_06.dbf $ORACLE_HOME/oradata/trgt/users01.dbf
+</pre>
+<p>Use the following guidelines when determining where to restore data file backups:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the hardware problem is repaired and you can restore the data files to their default locations, then restore the data files to their default locations and begin media recovery.</p>
+</li>
+<li>
+<p>If the hardware problem persists and you cannot restore data files to their original locations, then restore the data files to an alternative storage device. Indicate the new location of these files in the control file with the <code class="codeph">ALTER DATABASE RENAME FILE</code> statement. See <a class="olink ADMIN11430" target="_blank" href="../ADMIN/dfiles.htm#ADMIN11430"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a>.</p>
+</li>
+<li>
+<p>If you are restoring a data file to a raw disk or partition, then the technique is basically the same as when you are restoring to a file on a file system. Be aware of the naming conventions for files on raw devices (which differ depending on the operating system), and use an operating system utility that supports raw devices.</p>
+</li>
+</ul>
+</div>
+</li>
+<li class="stepexpand" id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDGACIB"><span>Connect to the database with administrator privileges. Then start a new instance and mount, but do not open, the database. For example, enter:</span>
+<div>
+<pre dir="ltr">STARTUP MOUNT
+</pre></div>
+</li>
+<li class="stepexpand"><span>If you restored one or more damaged data files to alternative locations, then update the control file of the database to reflect the new data file names. For example, to change the file name of the data file in tablespace <code class="codeph">users</code> you might enter:</span>
+<div>
+<pre dir="ltr">ALTER DATABASE RENAME FILE &#39;?/oradata/trgt/users01.dbf&#39; TO
+                           &#39;/disk2/users01.dbf&#39;;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Obtain the data file names and statuses of all data files by checking the list of data files that normally accompanies the current control file or by querying the <code class="codeph">V$DATAFILE</code> view. For example, enter:</span>
+<div>
+<pre dir="ltr">SELECT NAME,STATUS FROM V$DATAFILE;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Ensure that all data files requiring recovery are online. The only exceptions are data files in an offline tablespace that was taken offline normally or data files in a read-only tablespace. For example, to guarantee that a data file named <code class="codeph">/oracle/dbs/tbs_10.f</code> is online, enter the following:</span>
+<div>
+<pre dir="ltr">ALTER DATABASE DATAFILE &#39;/oracle/dbs/tbs_10.f&#39; ONLINE;
+</pre>
+<p>If a specified data file is already online, then the database ignores the statement. If you prefer, create a script to bring all data files online simultaneously, as in the following example:</p>
+<pre dir="ltr">SPOOL onlineall.sql
+SELECT &#39;ALTER DATABASE DATAFILE &#39;&#39;&#39;||name||&#39;&#39;&#39; ONLINE;&#39; FROM V$DATAFILE;
+SPOOL OFF
+
+SQL&gt; @onlineall
+</pre></div>
+</li>
+<li class="stepexpand"><span>If you restored archived redo logs to an alternative location, then you can specify the location before media recovery with the<a id="d121979e2461" class="indexterm-anchor"></a><a id="d121979e2465" class="indexterm-anchor"></a><a id="d121979e2469" class="indexterm-anchor"></a><a id="d121979e2473" class="indexterm-anchor"></a><a id="d121979e2477" class="indexterm-anchor"></a><a id="d121979e2481" class="indexterm-anchor"></a> <code class="codeph">LOGSOURCE</code> parameter of the <code class="codeph">SET</code> command in SQL*Plus. For example, if the logs are staged in <code class="codeph">/tmp</code>, you can enter the following command:</span>
+<div>
+<pre dir="ltr">SET LOGSOURCE /tmp
+</pre>
+<p>Alternatively, you can skip Step 12 and use the <code class="codeph">FROM</code> parameter on the <code class="codeph">RECOVER</code> command as in Step 13. For example, if the logs are staged in <code class="codeph">/tmp</code>, you can enter the following command:</p>
+<pre dir="ltr">RECOVER AUTOMATIC FROM &#39;/tmp&#39; DATABASE
+</pre>
+<div class="infobox-note" id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__GUID-8FD49360-138F-473B-B3BF-F2FCE5BEA7D1">
+<p class="notep1">Note:</p>
+<p>Overriding the redo log source does not affect the archive redo log destination for online redo log groups being archived.</p>
+</div>
+</div>
+</li>
+<li class="stepexpand"><span>Issue a statement to recover the database, tablespace, or data file. For example, enter one of the following <code class="codeph">RECOVER</code> commands:</span>
+<div>
+<pre dir="ltr">RECOVER AUTOMATIC DATABASE   # whole database
+RECOVER AUTOMATIC TABLESPACE users   # specific tablespace
+RECOVER AUTOMATIC DATAFILE &#39;?/oradata/trgt/users01.dbf&#39;; # specific data file
+</pre>
+<p>If you choose not to automate the application of archived redo logs, then you must accept or reject each prompted log. If you automate recovery, then the database applies the logs automatically. Recovery continues until all required archived and online redo logs have been applied to the restored data files. The database notifies you when media recovery is complete:</p>
+<pre dir="ltr">Media recovery complete.
+</pre>
+<p>If no archived redo logs are required for complete media recovery, then the database applies all necessary online redo log files and terminates recovery.</p>
+</div>
+</li>
+<li class="stepexpand"><span>After recovery terminates, open the database for use:</span>
+<div>
+<pre dir="ltr">ALTER DATABASE OPEN;
+</pre>
+<div class="infoboxnotealso" id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__GUID-628E2742-89F1-4741-82ED-055974884E90">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="osrecvry.htm#GUID-4F81CE72-B1B3-4444-B7E9-7DC97C65836B">Overview of User-Managed Media Recovery</a>&#34;</span> for more information about applying redo log files<a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a></p>
+</div>
+</div>
+</li>
+<li class="stepexpand"><span>After archived logs are applied, and after making sure that a copy of each archived log group still exists in offline storage, delete the restored copy of the archived redo log file to free disk space. For example:<a id="d121979e2550" class="indexterm-anchor"></a></span>
+<div>
+<pre dir="ltr">% rm /tmp/*.arc
+</pre>
+<div class="infoboxnotealso" id="GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__GUID-063E585B-A45E-4110-9DEB-1784C04A1231">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="osrecvry.htm#GUID-4F81CE72-B1B3-4444-B7E9-7DC97C65836B">Overview of User-Managed Media Recovery</a>&#34;</span> for an overview of log application during media recovery</p>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV619"></a><a id="BRADV90033"></a>
+<div class="props_rev_3"><a id="GUID-56EBDCEE-0C55-4556-A732-82EF42834D58"></a>
+<h3 id="BRADV-GUID-56EBDCEE-0C55-4556-A732-82EF42834D58" class="sect3">Performing Open Database Recovery</h3>
+<div>
+<div class="section">
+<p><a id="d121979e2635" class="indexterm-anchor"></a><a id="d121979e2641" class="indexterm-anchor"></a><a id="d121979e2645" class="indexterm-anchor"></a>It is possible for a media failure to occur while the database remains open, leaving the undamaged data files online and available for use. Damaged data files&mdash;but not the tablespaces that contain them&mdash;are automatically taken offline if the database writer cannot write to them. If the database writer cannot open a data file, an error is still returned. Queries that cannot read damaged files return errors, but the data files are not taken offline because of the failed queries. For example, you may run a SQL query and see output such as:</p>
+<pre dir="ltr">ERROR at line 1:
+ORA-01116: error in opening database file 3
+ORA-01110: data file 11: &#39;/oracle/oradata/trgt/cwmlite02.dbf&#39;
+ORA-27041: unable to open file
+SVR4 Error: 2: No such file or directory
+Additional information: 3
+</pre>
+<p>You cannot use the procedure in this section to perform complete media recovery on the <code class="codeph">SYSTEM</code> tablespace while the database is open. If the media failure damages data files of the <code class="codeph">SYSTEM</code> tablespace, then the database automatically shuts down.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To restore data files in an open database:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Follow Step <a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDJEDGI">1</a> through Step <a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDGADJF">3</a> in <span class="q">&#34;<a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8">Performing Closed Database Recovery</a>&#34;</span>.</span></li>
+<li class="stepexpand"><span>If the database is open, then take all tablespaces containing damaged data files offline. For example, if the tablespaces <code class="codeph">USERS</code> and <code class="codeph">TOOLS</code> contain damaged data files, then execute the following SQL statements:</span>
+<div>
+<pre dir="ltr">ALTER TABLESPACE users OFFLINE TEMPORARY;
+ALTER TABLESPACE tools OFFLINE TEMPORARY;
+</pre>
+<p>If you specify <code class="codeph">TEMPORARY</code>, then Oracle Database creates a <a href="glossary.htm#GUID-5FE755DB-A906-465A-A3E4-D067A77DA15C"><span class="xrefglossterm">checkpoint</span></a> for all online data files in the tablespace. Files that are offline when you issue this statement may require media recovery before you bring the tablespace back online. If you specify <code class="codeph">IMMEDIATE</code>, then you must perform media recovery on the tablespace before bringing it back online.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Inspect the media to determine the source of the problem.</span>
+<div>
+<p>As explained in <span class="q">&#34;<a href="osbackup.htm#GUID-F8F10F74-107C-4D8F-86A8-18140FE8484D">Running the DBVERIFY Utility</a>&#34;</span>, you can use the DBVERIFY utility to run an integrity check on offline data files.</p>
+<p>If the hardware problem that caused the media failure was temporary, and if the data was undamaged, then no media recovery is required. You can bring the offline tablespaces online and resume normal operations. If you cannot repair the problem, or if DBVERIFY reports corrupt blocks, then proceed to the Step 4.</p>
+</div>
+</li>
+<li class="stepexpand"><span>If files are permanently damaged, then use operating system commands to restore the most recent backup files of <span class="italic">only</span> the data files damaged by the media failure. For example, to restore <code class="codeph">users01.dbf</code> you might use the <code class="codeph">cp</code> command on Linux or UNIX as follows:</span>
+<div>
+<pre dir="ltr">% cp /disk2/backup/users01.dbf $ORACLE_HOME/oradata/trgt/users01.dbf
+</pre>
+<p>If the hardware problem is fixed and the data files can be restored to their original locations, then do so. Otherwise, restore the data files to an alternative storage device. Do not restore undamaged data files, online redo logs, or control files.</p>
+<div class="infobox-note" id="GUID-56EBDCEE-0C55-4556-A732-82EF42834D58__GUID-54F2A92B-7E04-4D37-AAA0-268350F6C597">
+<p class="notep1">Note:</p>
+<p>In some circumstances, if you do not have a backup of a specific data file, you can use the <code class="codeph">ALTER</code> <code class="codeph">DATABASE</code> <code class="codeph">CREATE</code> <code class="codeph">DATAFILE</code> statement to create an empty replacement file that is recoverable.</p>
+</div>
+</div>
+</li>
+<li class="stepexpand"><span>If you restored one or more damaged data files to alternative locations, then update the control file of the database to reflect the new data file names. For example, to change the file name of the data file in tablespace <code class="codeph">users</code> you might enter:</span>
+<div>
+<pre dir="ltr">ALTER DATABASE RENAME FILE &#39;?/oradata/trgt/users01.dbf&#39; TO
+                           &#39;/disk2/users01.dbf&#39;;
+</pre></div>
+</li>
+<li class="stepexpand"><span>If you restored archived redo logs to an alternative location, then you can specify the location before media recovery with the<a id="d121979e2762" class="indexterm-anchor"></a><a id="d121979e2766" class="indexterm-anchor"></a><a id="d121979e2770" class="indexterm-anchor"></a><a id="d121979e2774" class="indexterm-anchor"></a><a id="d121979e2778" class="indexterm-anchor"></a><a id="d121979e2782" class="indexterm-anchor"></a> <code class="codeph">LOGSOURCE</code> parameter of the <code class="codeph">SET</code> command in SQL*Plus. For example, if the logs are staged in <code class="codeph">/tmp</code>, you can enter the following command:</span>
+<div>
+<pre dir="ltr">SET LOGSOURCE /tmp
+</pre>
+<p>Alternatively, you can skip Step 6 and use the <code class="codeph">FROM</code> parameter on the <code class="codeph">RECOVER</code> command as in Step 7. For example, if the logs are staged in <code class="codeph">/tmp</code>, you can enter the following command:</p>
+<pre dir="ltr">RECOVER AUTOMATIC FROM &#39;/tmp&#39; TABLESPACE users, tools;
+</pre>
+<div class="infobox-note" id="GUID-56EBDCEE-0C55-4556-A732-82EF42834D58__GUID-14E8DBEA-A529-49CF-84D9-D5C59D46298F">
+<p class="notep1">Note:</p>
+<p>Overriding the redo log source does not affect the archive redo log destination for online redo log groups being archived.</p>
+</div>
+</div>
+</li>
+<li class="stepexpand"><span>Connect to the database with administrator privileges, and start offline tablespace recovery of all damaged data files in one or more offline tablespaces using one step. For example, recover <code class="codeph">users</code> and <code class="codeph">tools</code> as follows:</span>
+<div>
+<pre dir="ltr">RECOVER AUTOMATIC TABLESPACE users, tools;
+</pre>
+<p>The database begins the roll forward phase of media recovery by applying the necessary archived and online redo logs to reconstruct the restored data files. Unless the application of files is automated with the <code class="codeph">RECOVER</code> <code class="codeph">AUTOMATIC</code> or <code class="codeph">SET</code> <code class="codeph">AUTORECOVERY</code> <code class="codeph">ON</code> commands, the database prompts for each required redo log file.</p>
+<p>Recovery continues until all required archived logs have been applied to the data files. The online redo logs are then automatically applied to the restored data files to complete media recovery. If no archived redo logs are required for complete media recovery, then the database does not prompt for any. Instead, all necessary online redo logs are applied, and media recovery is complete.</p>
+</div>
+</li>
+<li class="stepexpand"><span>When the damaged tablespaces are recovered up to the moment that media failure occurred, bring the offline tablespaces online. For example, to bring tablespaces <code class="codeph">USERS</code> and <code class="codeph">TOOLS</code> online, issue the following statements:</span>
+<div>
+<pre dir="ltr">ALTER TABLESPACE users ONLINE;
+ALTER TABLESPACE tools ONLINE;
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<div class="infoboxnotealso" id="GUID-56EBDCEE-0C55-4556-A732-82EF42834D58__GUID-46C12003-8B1A-43A5-AEDA-032EC4C3D979">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADMIN012" target="_blank" href="../ADMIN/dfiles.htm#ADMIN012"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to learn about creating data files and <a class="olink SQLRF00802" target="_blank" href="../SQLRF/statements_1006.htm#SQLRF00802"><span class="italic">Oracle Database SQL Language Reference</span></a> to learn about <code class="codeph">ALTER</code> <code class="codeph">DATABASE</code> <code class="codeph">RENAME</code> <code class="codeph">FILE</code></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV656"></a><a id="BRADV655"></a>
+<div class="props_rev_3"><a id="GUID-68CD62A9-F56E-4617-A010-F632708AECC3"></a>
+<h3 id="BRADV-GUID-68CD62A9-F56E-4617-A010-F632708AECC3" class="sect3">Performing Crash and Instance Recovery of CDBs</h3>
+<div>
+<div class="section">
+<p>Oracle Database performs crash and instance recovery for the entire <a href="glossary.htm#GUID-3E156A59-F6CC-4A2A-9749-DB7D1CE25F13"><span class="xrefglossterm">multitenant container database (CDB)</span></a>. You cannot recover individual pluggable databases (<a href="glossary.htm#GUID-993BFB3F-3305-481C-999D-26132095DEC9"><span class="xrefglossterm">PDB</span></a>s).</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To perform crash and instance recovery for a CDB:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Open a SQL client such as SQL*Plus.</span></li>
+<li class="stepexpand"><span>Connect to the <a href="glossary.htm#GUID-EA3DB8F4-F68E-4FC5-A599-32A4886FFF8A"><span class="xrefglossterm">root</span></a> as a user with the <code class="codeph">ALTER PLUGGABLE DATABASE</code> system privilege.</span></li>
+<li class="stepexpand"><span>Follow the procedures in <span class="q">&#34;<a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8">Performing Closed Database Recovery</a>&#34;</span>.</span>
+<div>
+<p>If you do not want to recover a particular PDB, take its files offline.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="BRADV503"></a><a id="BRADV217"></a>
+<div class="props_rev_3"><a id="GUID-2BF2BE5E-3D1B-4F0C-9F10-25D5342F6DB3"></a>
+<h2 id="BRADV-GUID-2BF2BE5E-3D1B-4F0C-9F10-25D5342F6DB3" class="sect2">Performing Incomplete Database Recovery</h2>
+<div>
+<p><a id="d121979e3080" class="indexterm-anchor"></a><a id="d121979e3084" class="indexterm-anchor"></a><a id="d121979e3088" class="indexterm-anchor"></a><a id="d121979e3090" class="indexterm-anchor"></a><a id="d121979e3094" class="indexterm-anchor"></a><a id="d121979e3096" class="indexterm-anchor"></a><a id="d121979e3098" class="indexterm-anchor"></a><a id="d121979e3102" class="indexterm-anchor"></a>Typically, you perform <a href="glossary.htm#GUID-FCC8BB91-79B6-4AF1-974A-43E75CD161E3"><span class="xrefglossterm">database point-in-time recovery (DBPITR)</span></a> in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to recover the database to an SCN before a user or administrative error.</p>
+</li>
+<li>
+<p>The database contains corrupt blocks.</p>
+</li>
+<li>
+<p>Complete database recovery failed because all necessary archived redo logs were not available.</p>
+</li>
+<li>
+<p>You are creating a test database or a reporting database from production database backups.</p>
+</li>
+</ul>
+<p><a id="d121979e3125" class="indexterm-anchor"></a><a id="d121979e3131" class="indexterm-anchor"></a><a id="d121979e3135" class="indexterm-anchor"></a>If the database is operating in <code class="codeph">ARCHIVELOG</code> mode, and if the only copy of an archived redo log file is damaged, then the damaged file does not affect the present operation of the database. <a href="osrecvry.htm#GUID-2BF2BE5E-3D1B-4F0C-9F10-25D5342F6DB3__CHDEHHEI" title="Loss of archived redo logs">Table 30-2</a> describes situations that can arise depending on when the redo log was written and when you backed up the data file.</p>
+<div class="tblformal" id="GUID-2BF2BE5E-3D1B-4F0C-9F10-25D5342F6DB3__CHDEHHEI">
+<p class="titleintable">Table 30-2 Loss of Archived Redo Logs</p>
+<table class="cellalignment515" title="Loss of Archived Redo Logs" summary="Loss of archived redo logs">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment545" id="d121979e3158">If You Backed Up...</th>
+<th class="cellalignment546" id="d121979e3161">Then...</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment547" id="d121979e3166" headers="d121979e3158">
+<p>All data files after the filled online redo log group (which is now archived) was written</p>
+</td>
+<td class="cellalignment548" headers="d121979e3166 d121979e3161">
+<p>The archived version of the filled online redo log group is not required for complete media recovery.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment547" id="d121979e3173" headers="d121979e3158">
+<p>A specific data file before the filled online redo log group was written</p>
+</td>
+<td class="cellalignment548" headers="d121979e3173 d121979e3161">
+<p>If the corresponding data file is damaged by a permanent media failure, then use the most recent backup of the damaged data file and perform tablespace point-in-time recovery of the damaged data file, up to the damaged archived redo log file.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infobox-note" id="GUID-2BF2BE5E-3D1B-4F0C-9F10-25D5342F6DB3__GUID-4804C30C-7E21-4CB9-B233-1A000BD7E8C9">
+<p class="notep1">Caution:</p>
+<p>If you know that an archived redo log group has been damaged, then immediately back up all data files so that you have a whole database backup that does not require the damaged archived redo log.</p>
+</div>
+<p>The technique for DBPITR is very similar to the technique described in <span class="q">&#34;<a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8">Performing Closed Database Recovery</a>&#34;</span>, except that you terminate DBPITR by specifying a particular time or SCN or entering <code class="codeph">CANCEL</code>. Cancel-based recovery prompts you with the suggested file names of archived redo logs. Recovery stops when you specify <code class="codeph">CANCEL</code> instead of a file name or when all redo has been applied to the data files. Cancel-based recovery is the best technique to control which archived log terminates recovery.</p>
+<p>The procedures in this section assume the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The current control file is available. If you must restore or re-create the control file, then see <span class="q">&#34;<a href="osadvsce.htm#GUID-3913B513-ECF0-469A-A50A-A5A573C85DC0">Recovering After the Loss of All Current Control Files</a>&#34;</span>.</p>
+</li>
+<li>
+<p>You have backups of all needed data files. If you are missing data file backups, then see <span class="q">&#34;<a href="osadvsce.htm#GUID-E0032019-E245-4EBD-B275-1343AA175239">Re-Creating Data Files When Backups Are Unavailable</a>&#34;</span>.</p>
+</li>
+</ul>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="osrecvry.htm#GUID-110AD275-650D-4A87-9790-B785D4618C9B">Performing Cancel-Based Incomplete Recovery</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-CEC8AD66-CB59-4065-A972-DFB77A93C0AD">Performing Time-Based or Change-Based Incomplete Recovery</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV620"></a><a id="BRADV504"></a><a id="BRADV90034"></a>
+<div class="props_rev_3"><a id="GUID-110AD275-650D-4A87-9790-B785D4618C9B"></a>
+<h3 id="BRADV-GUID-110AD275-650D-4A87-9790-B785D4618C9B" class="sect3">Performing Cancel-Based Incomplete Recovery</h3>
+<div>
+<div class="section">
+<p>In cancel-based recovery, recovery proceeds by prompting you with the suggested file names of archived redo log files. Recovery stops when you specify <code class="codeph">CANCEL</code> instead of a file name or when all redo has been applied to the data files.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To perform cancel-based recovery:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Follow Step<a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDJEDGI">1</a> through Step <a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDGACIB">8</a> in <span class="q">&#34;<a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8">Performing Closed Database Recovery</a>&#34;</span>.</span></li>
+<li class="stepexpand"><span>Begin cancel-based recovery by issuing the following command in SQL*Plus:</span>
+<div>
+<pre dir="ltr">RECOVER DATABASE UNTIL CANCEL
+</pre>
+<div class="infobox-note" id="GUID-110AD275-650D-4A87-9790-B785D4618C9B__GUID-B7D0B118-DBFA-495F-8DD5-09EE2AA7C0E1">
+<p class="notep1">Note:</p>
+<p>If you fail to specify the <code class="codeph">UNTIL</code> clause on the <code class="codeph">RECOVER</code> command, then the database assumes a complete recovery and does not open until all redo is applied.</p>
+</div>
+<p>The database applies the necessary redo log files to reconstruct the restored data files. The database supplies the name it expects to find <a id="d121979e3338" class="indexterm-anchor"></a>from <code class="codeph">LOG_ARCHIVE_DEST_1</code> and requests you to stop or proceed with applying the log file. If the control file is a backup, then you must supply the names of the online redo logs if you want to apply the changes in these logs.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Continue applying redo log files until the last log has been applied to the restored data files, then cancel recovery by executing the following command:</span>
+<div>
+<pre dir="ltr">CANCEL
+</pre>
+<p>The database indicates whether recovery is successful. If you cancel before all the data files have been recovered to a consistent SCN and then try to open the database, then you get an <code class="codeph">ORA-1113</code> error if more recovery is necessary. You can query <code class="codeph">V$RECOVER_FILE</code> to determine whether more recovery is needed, or if a backup of a data file was not restored before starting incomplete recovery.</p>
+</div>
+</li>
+<li class="stepexpand" id="GUID-110AD275-650D-4A87-9790-B785D4618C9B__CHDGJGGF"><span>Open the database with the <code class="codeph">RESETLOGS</code> option. You must always reset the logs after incomplete recovery or recovery with a backup control file. For example:</span>
+<div>
+<pre dir="ltr">ALTER DATABASE OPEN RESETLOGS;
+</pre>
+<p>If you attempt to use <code class="codeph">OPEN</code> <code class="codeph">RESETLOGS</code> when you should not, or if you neglect to reset the log when you should, then the database returns an error and does not open the database. Correct the problem and try again.</p>
+<div class="infoboxnotealso" id="GUID-110AD275-650D-4A87-9790-B785D4618C9B__GUID-A2BD1C66-C076-4FAF-AC15-6A9AA44C6551">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="osrecvry.htm#GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B">About User-Managed Media Recovery Problems</a>&#34;</span> for descriptions of situations that can cause <code class="codeph">ALTER</code> <code class="codeph">DATABASE</code> <code class="codeph">OPEN</code> <code class="codeph">RESETLOGS</code> to fail</p>
+</div>
+</div>
+</li>
+<li class="stepexpand" id="GUID-110AD275-650D-4A87-9790-B785D4618C9B__CHDDFBBJ"><span>After opening the database with the <code class="codeph">RESETLOGS</code> option, check the alert log.</span>
+<div>
+<div class="infobox-note" id="GUID-110AD275-650D-4A87-9790-B785D4618C9B__GUID-5D2B534E-DDE5-4B0B-85E7-80025C92A590">
+<p class="notep1">Note:</p>
+<p>The easiest way to locate trace files and the alert log is to run the following SQL query: <code class="codeph">SELECT NAME, VALUE FROM V$DIAG_INFO</code>.</p>
+</div>
+<p>When you open with the <code class="codeph">RESETLOGS</code> option, the database returns different messages depending on whether recovery was complete or incomplete. If the recovery was complete, then the following message appears in the alert log:</p>
+<pre dir="ltr">RESETLOGS after complete recovery through change <span class="italic">scn</span>
+</pre>
+<p>If the recovery was incomplete, then this message is reported in the alert log, where <span class="italic"><code class="codeph">scn</code></span> refers to the end point of incomplete recovery:</p>
+<pre dir="ltr">RESETLOGS after incomplete recovery UNTIL CHANGE <span class="italic">scn</span>
+</pre>
+<p>Also check the alert log to determine whether the database detected inconsistencies between the data dictionary and the control file. <a href="osrecvry.htm#GUID-110AD275-650D-4A87-9790-B785D4618C9B__CHDIBHDI" title="Describes inconsistencies in datafile records">Table 30-3</a> describes two possible scenarios.</p>
+<div class="tblformal" id="GUID-110AD275-650D-4A87-9790-B785D4618C9B__CHDIBHDI">
+<p class="titleintable">Table 30-3 Inconsistencies Between Data Dictionary and Control File</p>
+<table class="cellalignment507" title="Inconsistencies Between Data Dictionary and Control File" summary="Describes inconsistencies in datafile records">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment516" id="d121979e3446">Data File Listed in Control File</th>
+<th class="cellalignment516" id="d121979e3449">Data File Listed in the Data Dictionary</th>
+<th class="cellalignment517" id="d121979e3452">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment518" id="d121979e3457" headers="d121979e3446">
+<p>Yes</p>
+</td>
+<td class="cellalignment518" headers="d121979e3457 d121979e3449">
+<p>No</p>
+</td>
+<td class="cellalignment519" headers="d121979e3457 d121979e3452">
+<p>References to the unlisted data file are removed from the control file. A message in the alert log indicates what was found.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment518" id="d121979e3467" headers="d121979e3446">
+<p>No</p>
+</td>
+<td class="cellalignment518" headers="d121979e3467 d121979e3449">
+<p>Yes</p>
+</td>
+<td class="cellalignment519" headers="d121979e3467 d121979e3452">
+<p>The database creates a placeholder entry in the control file under <code class="codeph">MISSING</code><code class="codeph">nnnnn</code> (where <code class="codeph">nnnnn</code> is the file number in decimal). <code class="codeph">MISSING</code><code class="codeph">nnnnn</code> is flagged in the control file as offline and requiring media recovery. You can make the data file corresponding to <code class="codeph">MISSING</code><code class="codeph">nnnnn</code> accessible by using <code class="codeph">ALTER</code> <code class="codeph">DATABASE</code> <code class="codeph">RENAME</code> <code class="codeph">FILE</code> for <code class="codeph">MISSING</code><code class="codeph">nnnnn</code> so that it points to the data file. If you do not have a backup of this data file, then drop the tablespace.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV621"></a><a id="BRADV90035"></a>
+<div class="props_rev_3"><a id="GUID-CEC8AD66-CB59-4065-A972-DFB77A93C0AD"></a>
+<h3 id="BRADV-GUID-CEC8AD66-CB59-4065-A972-DFB77A93C0AD" class="sect3">Performing Time-Based or Change-Based Incomplete Recovery</h3>
+<div>
+<div class="section">
+<p><a id="d121979e3595" class="indexterm-anchor"></a><a id="d121979e3599" class="indexterm-anchor"></a><a id="d121979e3601" class="indexterm-anchor"></a>This section describes how to specify an SCN or time for the end point of recovery. If your database is affected by seasonal time changes (for example, daylight savings time), then you may experience a problem if a time appears twice in the redo log and you want to recover to the second, or later time. To handle time changes, perform cancel-based or change-based recovery.<a id="d121979e3606" class="indexterm-anchor"></a></p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To perform change-based or time-based recovery:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Follows Step <a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDJEDGI">1</a> through Step <a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8__CHDGACIB">8</a> in <span class="q">&#34;<a href="osrecvry.htm#GUID-4F83FD6F-01A3-4680-AD41-EF391EEBB0D8">Performing Closed Database Recovery</a>&#34;</span>.</span></li>
+<li class="stepexpand"><span>I<a id="d121979e3633" class="indexterm-anchor"></a><a id="d121979e3637" class="indexterm-anchor"></a><a id="d121979e3641" class="indexterm-anchor"></a><a id="d121979e3647" class="indexterm-anchor"></a>ssue the <code class="codeph">RECOVER</code> <code class="codeph">DATABASE</code> <code class="codeph">UNTIL</code> statement to begin recovery. If recovering to an SCN, then specify as a decimal number without quotation marks. For example, to recover through SCN 10034 issue:</span>
+<div>
+<pre dir="ltr">RECOVER DATABASE UNTIL CHANGE 10034;
+</pre>
+<p>If recovering to a time, then the time is always specified using the following format, delimited by single quotation marks: <code class="codeph">&#39;YYYY-MM-DD:HH24:MI:SS&#39;</code>. The following statement recovers the database up to a specified time:</p>
+<pre dir="ltr">RECOVER DATABASE UNTIL TIME &#39;2000-12-31:12:47:30&#39;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Apply the necessary redo log files to recover the restored data files. The database automatically terminates the recovery when it reaches the correct time, and returns a message indicating whether recovery is successful.</span>
+<div>
+<div class="infobox-note" id="GUID-CEC8AD66-CB59-4065-A972-DFB77A93C0AD__GUID-5F45CA17-E938-4C93-8509-F5D96A81B9DE">
+<p class="notep1">Note:</p>
+<p>Unless recovery is automated, the database supplies the name <a id="d121979e3678" class="indexterm-anchor"></a>from <code class="codeph">LOG_ARCHIVE_DEST_1</code> and asks you to stop or proceed with after each log. If the control file is a backup, then after the archived logs are applied you must supply the names of the online logs.</p>
+</div>
+</div>
+</li>
+<li class="stepexpand"><span>Follow Steps <a href="osrecvry.htm#GUID-110AD275-650D-4A87-9790-B785D4618C9B__CHDGJGGF">4</a> and <a href="osrecvry.htm#GUID-110AD275-650D-4A87-9790-B785D4618C9B__CHDDFBBJ">5</a> in <span class="q">&#34;<a href="osrecvry.htm#GUID-110AD275-650D-4A87-9790-B785D4618C9B">Performing Cancel-Based Incomplete Recovery</a>&#34;</span>.</span></li>
+</ol>
+</div>
+</div>
+</div>
+<a id="BRADV622"></a><a id="BRADV219"></a>
+<div class="props_rev_3"><a id="GUID-3A4C59D7-C91D-4A4E-A803-5C02FE58858A"></a>
+<h2 id="BRADV-GUID-3A4C59D7-C91D-4A4E-A803-5C02FE58858A" class="sect2">Recovering a Database in NOARCHIVELOG Mode</h2>
+<div>
+<div class="section">
+<p><a id="d121979e3777" class="indexterm-anchor"></a><a id="d121979e3783" class="indexterm-anchor"></a><a id="d121979e3787" class="indexterm-anchor"></a><a id="d121979e3791" class="indexterm-anchor"></a><a id="d121979e3795" class="indexterm-anchor"></a><a id="d121979e3799" class="indexterm-anchor"></a>If a media failure damages data files in a <code class="codeph">NOARCHIVELOG</code> database, then the only option for recovery is usually to restore a consistent whole database backup. If you are using logical backups created by Oracle Data Pump Export to supplement regular physical backups, then you can also attempt to restore the database by importing an exported backup of the database into a re-created database or a database restored from an old backup.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To restore and recover the most recent whole database backup:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>I<a id="d121979e3814" class="indexterm-anchor"></a><a id="d121979e3818" class="indexterm-anchor"></a>f the database is open, then shut down the database. For example, enter:</span>
+<div>
+<pre dir="ltr">SHUTDOWN IMMEDIATE
+</pre></div>
+</li>
+<li class="stepexpand"><span>If possible, correct the media problem so that the backup database files can be restored to their original locations.</span></li>
+<li class="stepexpand"><span>Restore the most recent whole database backup with operating system commands. Restore all of the data files and control files of the whole database backup, not just the damaged files. If the hardware problem has not been corrected and some or all of the database files must be restored to alternative locations, then restore the whole database backup to a new location. The following example restores a whole database backup to its default location:</span>
+<div>
+<pre dir="ltr">% cp /backup/*.dbf $ORACLE_HOME/oradata/trgt/ 
+</pre></div>
+</li>
+<li class="stepexpand"><span>If necessary, edit the restored initialization parameter file to indicate the new location of the control files. For example:</span>
+<div>
+<pre dir="ltr">CONTROL_FILES = &#34;/new_disk/oradata/trgt/control01.dbf&#34;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Start an instance using the restored and edited parameter file and mount, but do not open, the database. For example:</span>
+<div>
+<pre dir="ltr">STARTUP MOUNT
+</pre></div>
+</li>
+<li class="stepexpand"><span>If the restored data file names are different (such as when you restore to a different file system or directory, on the same node or a different node), then update the control file to reflect the new data file locations. For example, to rename data file <code class="codeph">1</code> you might enter:</span>
+<div>
+<pre dir="ltr">ALTER DATABASE RENAME FILE &#39;?/oradata/trgt/system01.dbf&#39; TO
+                           &#39;/new_disk/oradata/system01.dbf&#39;;
+</pre></div>
+</li>
+<li class="stepexpand"><span>If the online redo logs were located on a damaged disk, and the hardware problem is not corrected, then specify a new location for each affected online log. For example, enter:</span>
+<div>
+<pre dir="ltr">ALTER DATABASE RENAME FILE &#39;?/oradata/trgt/redo01.log&#39; TO
+                           &#39;/new_disk/oradata/redo_01.log&#39;;
+ALTER DATABASE RENAME FILE &#39;?/oradata/trgt/redo02.log&#39; TO
+                           &#39;/new_disk/oradata/redo_02.log&#39;;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Because online redo logs are never backed up, you cannot restore them with the data files and control files. To enable the database to reset the online redo logs, you must first mimic incomplete recovery:</span>
+<div>
+<pre dir="ltr">RECOVER DATABASE UNTIL CANCEL
+CANCEL
+</pre></div>
+</li>
+<li class="stepexpand"><span><a id="d121979e3870" class="indexterm-anchor"></a><a id="d121979e3874" class="indexterm-anchor"></a>Open the database in <code class="codeph">RESETLOGS</code> mode. This command clears the online redo logs and resets the log sequence to 1:</span>
+<div>
+<pre dir="ltr">ALTER DATABASE OPEN RESETLOGS;
+</pre>
+<p>If you restore a <code class="codeph">NOARCHIVELOG</code> database backup and then reset the log, the action discards all changes to the database made from the time the backup was taken to the time of the failure.</p>
+</div>
+</li>
+</ol>
+<div class="section">
+<div class="infoboxnotealso" id="GUID-3A4C59D7-C91D-4A4E-A803-5C02FE58858A__GUID-31400F96-8322-4DE8-B416-BD6CE14D8CFE">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADMIN012" target="_blank" href="../ADMIN/dfiles.htm#ADMIN012"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for more information about renaming and relocating data files, and <a class="olink SQLRF00802" target="_blank" href="../SQLRF/statements_1006.htm#SQLRF00802"><span class="italic">Oracle Database SQL Language Reference</span></a> to learn about <code class="codeph">ALTER</code> <code class="codeph">DATABASE</code> <code class="codeph">RENAME</code> <code class="codeph">FILE</code></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV90036"></a>
+<div class="props_rev_3"><a id="GUID-36D3AEB2-CAB5-491D-8AAC-7E08ABC842A6"></a>
+<h2 id="BRADV-GUID-36D3AEB2-CAB5-491D-8AAC-7E08ABC842A6" class="sect2">Troubleshooting Media Recovery</h2>
+<div>
+<p>This section describes how to troubleshoot user-managed media recovery, that is, media recovery performed without using Recovery Manager (RMAN). This section includes the following topics:<a id="d121979e3985" class="indexterm-anchor"></a><a id="d121979e3989" class="indexterm-anchor"></a></p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="osrecvry.htm#GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B">About User-Managed Media Recovery Problems</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-5A3274A9-D725-46D6-A0CC-2560D6AA6102">Investigating the Media Recovery Problem: Phase 1</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41">Trying to Fix the Recovery Problem Without Corrupting Blocks: Phase 2</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-0017FED3-FCC3-47D3-97A3-A0DF7C8C6F7A">Deciding Whether to Allow Recovery to Mark as Corrupt Blocks: Phase 3</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-89B0F402-06E7-4030-A4E8-A9E16E7592EE">Allowing Recovery to Corrupt Blocks: Phase 4</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-DB9A54B9-F404-4D8A-894C-D17A1DF8A684">Performing Trial Recovery</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV505"></a><a id="BRADV241"></a>
+<div class="props_rev_3"><a id="GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B"></a>
+<h3 id="BRADV-GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B" class="sect3">About User-Managed Media Recovery Problems</h3>
+<div>
+<p><a id="d121979e4094" class="indexterm-anchor"></a><a id="d121979e4098" class="indexterm-anchor"></a><a id="d121979e4102" class="indexterm-anchor"></a><a id="d121979e4106" class="indexterm-anchor"></a><a href="osrecvry.htm#GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B__CIHBAIGH" title="This table describes possible problems encountered in media recovery.">Table 30-4</a> describes potential problems that can occur during media recovery.</p>
+<div class="tblformalwide" id="GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B__CIHBAIGH">
+<p class="titleintable">Table 30-4 Media Recovery Problems</p>
+<table class="cellalignment553" title="Media Recovery Problems " summary="This table describes possible problems encountered in media recovery.">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment532" id="d121979e4125">Problem</th>
+<th class="cellalignment543" id="d121979e4128">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4133" headers="d121979e4125">
+<p>Missing or misnamed archived log</p>
+</td>
+<td class="cellalignment544" headers="d121979e4133 d121979e4128">
+<p>Recovery stops because the database cannot find the archived log recorded in the control file.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4140" headers="d121979e4125">
+<p>When you attempt to open the database, error <code class="codeph">ORA-1113</code> indicates that a data file needs media recovery.</p>
+</td>
+<td class="cellalignment544" headers="d121979e4140 d121979e4128">
+<p>This error commonly occurs because:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You are performing incomplete recovery but failed to restore all needed data file backups.</p>
+</li>
+<li>
+<p>Incomplete recovery stopped before data files reached a consistent SCN.</p>
+</li>
+<li>
+<p>You are recovering data files from an online backup, but not enough redo was applied to make the data files consistent.</p>
+</li>
+<li>
+<p>You are performing recovery with a backup control file, and did not specify the location of a needed online redo log.</p>
+</li>
+<li>
+<p>A data file is undergoing media recovery when you attempt to open the database.</p>
+</li>
+<li>
+<p>Data files needing recovery were not brought online before you execute the <code class="codeph">RECOVER</code> <code class="codeph">DATABASE</code> command, and so were not recovered.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4175" headers="d121979e4125">
+<p><a id="d121979e4177" class="indexterm-anchor"></a>Redo record problems</p>
+</td>
+<td class="cellalignment544" headers="d121979e4175 d121979e4128">
+<p>Two possible cases are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Recovery stops because of failed consistency checks, a problem called <a id="d121979e4189" class="indexterm-anchor"></a><a id="d121979e4193" class="indexterm-anchor"></a><strong class="term">stuck recovery</strong>. Stuck recovery can occur when an underlying operating system or storage system loses a write issued by the database during normal operation.</p>
+</li>
+<li>
+<p>The database signals an internal error when applying the redo. This problem can be caused by an Oracle Database bug. If <a href="glossary.htm#GUID-36837841-FB21-45C7-A99A-FFC35D04FB0B"><span class="xrefglossterm">checksum</span></a> verification is not being used, then the errors can also be caused by corruptions to the redo or data blocks.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4206" headers="d121979e4125">
+<p><a id="d121979e4208" class="indexterm-anchor"></a>Corrupted archived logs</p>
+</td>
+<td class="cellalignment544" headers="d121979e4206 d121979e4128">
+<p>Logs may be corrupted while they are stored on or copied between storage systems. If <code class="codeph">DB_BLOCK_CHECKSUM</code> is enabled, then the database usually signals a checksum error. If checksum checking is disabled, then log corruption may appear as a problem with redo.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4220" headers="d121979e4125">
+<p><a id="d121979e4222" class="indexterm-anchor"></a><a id="d121979e4226" class="indexterm-anchor"></a><a id="d121979e4230" class="indexterm-anchor"></a>Archived logs with incompatible parallel redo format</p>
+</td>
+<td class="cellalignment544" headers="d121979e4220 d121979e4128">
+<p>If you enable the parallel redo feature, then the database generates redo logs in a new format. Prior releases of Oracle are unable to apply parallel redo logs. However, releases before Oracle9<span class="italic">i</span> Database Release 2 (9.2) can detect the parallel redo format and indicate the inconsistency with the following error message: <code class="codeph">External</code> <code class="codeph">error</code> <code class="codeph">00303,</code> <code class="codeph">00000,</code> <code class="codeph">&#34;cannot</code> <code class="codeph">process</code> <code class="codeph">Parallel</code> <code class="codeph">Redo&#34;</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4267" headers="d121979e4125">
+<p><a id="d121979e4269" class="indexterm-anchor"></a><a id="d121979e4271" class="indexterm-anchor"></a>Corrupted data blocks</p>
+</td>
+<td class="cellalignment544" headers="d121979e4267 d121979e4128">
+<p>A data file backup may have contained a corrupted data block, or the data block may become corrupted either during recovery or when it is copied to the backup. If <code class="codeph">DB_BLOCK_CHECKSUM</code> is enabled, then the database computes a checksum for each block during normal operations and stores it in the block before writing it to disk. When the database reads the block from disk later, it recomputes the checksum and compares it to the stored value. If they do not match, then the database signals a checksum error. If checksum checking is disabled, then the problem may also appear as a redo corruption.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4281" headers="d121979e4125">
+<p>Random problems</p>
+</td>
+<td class="cellalignment544" headers="d121979e4281 d121979e4128">
+<p>Memory corruptions and other transient problems can occur during recovery.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p><a id="d121979e4288" class="indexterm-anchor"></a><a id="d121979e4292" class="indexterm-anchor"></a><a id="d121979e4296" class="indexterm-anchor"></a>The symptoms of media recovery problems are usually external or internal errors signaled during recovery. For example, an external error indicates that a redo block or a data block has failed checksum verification checks. Internal errors can be caused by either bugs in the database or errors arising from the underlying operating system and hardware.</p>
+<p>If media recovery encounters a problem while recovering a database backup, then whether it is a stuck recovery problem or a problem during redo application, the database always stops and leaves the data files undergoing recovery in a consistent state, that is, at a consistent SCN preceding the failure. You can then do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Open the database read-only to investigate the problem.</p>
+</li>
+<li>
+<p>Open the database with the <code class="codeph">RESETLOGS</code> option, if the requirements for opening <code class="codeph">RESETLOGS</code> have been met. The <code class="codeph">RESETLOGS</code> restrictions apply to opening the <a href="glossary.htm#GUID-009B3F56-8C1E-4CF6-AF0F-A9D2C2E4B9C2"><span class="xrefglossterm">physical standby database</span></a> as well, because a standby database is updated by a form of media recovery.</p>
+</li>
+</ul>
+<p>In general, opening the database read-only or opening with the <code class="codeph">RESETLOGS</code> option requires all online data files to be recovered to the same SCN. If this requirement is not met, then the database may signal <code class="codeph">ORA-1113</code> or other errors when you attempt to open it. Some common causes of <code class="codeph">ORA-1113</code> are described in <a href="osrecvry.htm#GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B__CIHBAIGH" title="This table describes possible problems encountered in media recovery.">Table 30-4</a>.</p>
+<p><a id="d121979e4340" class="indexterm-anchor"></a>The basic methodology for responding to media recovery problems occurs in the following phases:</p>
+<ol>
+<li>
+<p>Try to identify the cause of the problem. Run a trial recovery if needed.</p>
+</li>
+<li>
+<p>If the problem is related to missing redo logs or if you suspect that there is a redo log, memory, or data block corruption, then try to resolve the problem using the methods described in <a href="osrecvry.htm#GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41__g1007463" title="This table describes causes for a media recovery problem, and causes for and responses to each.">Table 30-5</a>.</p>
+</li>
+<li>
+<p>If you cannot resolve the problem using the methods described in <a href="osrecvry.htm#GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41__g1007463" title="This table describes causes for a media recovery problem, and causes for and responses to each.">Table 30-5</a>, then do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Open the database with the <code class="codeph">RESETLOGS</code> option if you are recovering a whole database backup. If you have performed serial media recovery, then the database contains all the changes up to but not including the changes at the SCN where the corruption occurred. No changes from this SCN onward are in the recovered part of the database. If you have restored online backups, then opening <code class="codeph">RESETLOGS</code> succeeds only if you have recovered through all the <code class="codeph">ALTER</code> <code class="codeph">...</code> <code class="codeph">END</code> <code class="codeph">BACKUP</code> operations in the redo stream.</p>
+</li>
+<li>
+<p>Proceed with recovery by allowing media recovery to corrupt <a id="d121979e4391" class="indexterm-anchor"></a>data blocks. After media recovery completes, try performing <a href="glossary.htm#GUID-923A509A-1C36-4EA4-91C8-6E4F372722C0"><span class="xrefglossterm">block media recovery</span></a> using RMAN.</p>
+</li>
+<li>
+<p>Call Oracle Support Services as a last resort.</p>
+<div class="infoboxnotealso" id="GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B__GUID-55B81938-5EC4-41AE-8894-D09273B5ED10">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="rcmadvre.htm#GUID-195E30B2-6077-446D-A255-089D3341268A">Performing Disaster Recovery</a>&#34;</span> to learn about block media recovery</p>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV242"></a>
+<div class="props_rev_3"><a id="GUID-5A3274A9-D725-46D6-A0CC-2560D6AA6102"></a>
+<h3 id="BRADV-GUID-5A3274A9-D725-46D6-A0CC-2560D6AA6102" class="sect3">Investigating the Media Recovery Problem: Phase 1</h3>
+<div>
+<div class="section">
+<p><a id="d121979e4481" class="indexterm-anchor"></a><a id="d121979e4487" class="indexterm-anchor"></a>If media recovery encounters a problem, then obtain as much information as possible after recovery halts. You do not want to waste time fixing the wrong problem, which may make matters worse.</p>
+<p>The goal of this initial investigation is to determine whether the problem is caused by incorrect setup, corrupted redo logs, corrupted data blocks, memory corruption, or other problems. If you see a <a href="glossary.htm#GUID-36837841-FB21-45C7-A99A-FFC35D04FB0B"><span class="xrefglossterm">checksum</span></a> error on a data block, then the data block is corrupted. If you see a checksum error on a redo log block, then the redo log is corrupted.</p>
+<p>Sometimes the cause of a recovery problem can be difficult to determine. Nevertheless, the methods in this section enable you to quickly recover a database even when you do not completely understand the cause of the problem.</p>
+<p>To investigate media recovery problems:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li><span>Examine the <code class="codeph">alert.log</code> to see whether the error messages give general information about the nature of the problem. For example, does the <code class="codeph">alert_</code><span class="italic"><code class="codeph">SID</code></span><code class="codeph">.log</code> indicate any checksum failures? Does the <code class="codeph">alert_</code><span class="italic"><code class="codeph">SID</code></span><code class="codeph">.log</code> indicate that media recovery may have to corrupt data blocks to continue?</span></li>
+<li><span>Check the trace file generated by the Oracle Database during recovery. It may contain additional error information.</span></li>
+</ol>
+</div>
+</div>
+<a id="BRADV506"></a><a id="BRADV24383"></a>
+<div class="props_rev_3"><a id="GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41"></a>
+<h3 id="BRADV-GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41" class="sect3">Trying to Fix the Recovery Problem Without Corrupting Blocks: Phase 2</h3>
+<div>
+<div class="section">
+<p><a id="d121979e4600" class="indexterm-anchor"></a><a id="d121979e4606" class="indexterm-anchor"></a>Depending on the type of media recovery problem you suspect, you have different solutions at your disposal. You can try one or a combination of the techniques described in <a href="osrecvry.htm#GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41__g1007463" title="This table describes causes for a media recovery problem, and causes for and responses to each.">Table 30-5</a>. These solutions are common repair techniques and fairly safe for resolving most media recovery issues.</p>
+<div class="tblformalwide" id="GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41__g1007463">
+<p class="titleintable">Table 30-5 Media Recovery Solutions</p>
+<table class="cellalignment553" title="Media Recovery Solutions" summary="This table describes causes for a media recovery problem, and causes for and responses to each.">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment532" id="d121979e4626">If You Suspect...</th>
+<th class="cellalignment543" id="d121979e4629">Then...</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4634" headers="d121979e4626">
+<p>Missing or misnamed archived redo logs</p>
+</td>
+<td class="cellalignment544" headers="d121979e4634 d121979e4629">
+<p>Determine whether you entered the correct file name. If you did, then check whether the log is missing from the operating system. If it is missing, and if you have a backup, then restore the backup and apply the log. If you do not have a backup, then if possible perform incomplete recovery up to the point of the missing log.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4641" headers="d121979e4626">
+<p><code class="codeph">ORA-1113</code> for <code class="codeph">ALTER DATABASE OPEN</code></p>
+</td>
+<td class="cellalignment544" headers="d121979e4641 d121979e4629">
+<p>Review the causes of this error in <a href="osrecvry.htm#GUID-739E7EDD-3142-41C0-AC4B-80E7F000D39B__CIHBAIGH" title="This table describes possible problems encountered in media recovery.">Table 30-4</a>. Ensure that all read/write data files requiring recovery are online.</p>
+<p>If you use a backup control file for recovery, then the control file and data files must be at a consistent SCN for the database to be opened. If you do not have the necessary redo, then you must re-create the control file.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4659" headers="d121979e4626">
+<p>Corrupt archived logs</p>
+</td>
+<td class="cellalignment544" headers="d121979e4659 d121979e4629">
+<p>The log is corrupted if the checksum verification on the log redo block fails. If <code class="codeph">DB_BLOCK_CHECKSUM</code> was not enabled either during the recovery session or when the database generated the redo, then recovery problems may be caused by corrupted logs. If the log is corrupt and an alternate copy of the corrupt log is available, then try to apply it and see whether this tactic fixes the problem.</p>
+<p>The <code class="codeph">DB_BLOCK_CHECKSUM</code> initialization parameter determines whether checksums are computed for redo log and data blocks.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4674" headers="d121979e4626">
+<p>Archived logs with incompatible parallel redo format</p>
+</td>
+<td class="cellalignment544" headers="d121979e4674 d121979e4629">
+<p>If you run an Oracle Database release before Oracle9<span class="italic">i</span> Database Release 2, and if you attempt to apply redo logs created with the parallel redo format, then you must do the following steps:</p>
+<ol>
+<li>
+<p>Upgrade the database to a later release.</p>
+</li>
+<li>
+<p>Perform media recovery.</p>
+</li>
+<li>
+<p>Shut down the database consistently and back up the database.</p>
+</li>
+<li>
+<p>Downgrade the database to the original release.</p>
+</li>
+</ol>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4697" headers="d121979e4626">
+<p>Memory corruption or transient problems</p>
+</td>
+<td class="cellalignment544" headers="d121979e4697 d121979e4629">
+<p>You may be able to fix the problem by shutting down the database and restarting recovery. The database should be left in a consistent state if the second attempt also fails.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment535" id="d121979e4704" headers="d121979e4626">
+<p>Corrupt data blocks</p>
+</td>
+<td class="cellalignment544" headers="d121979e4704 d121979e4629">
+<p>Restore and recover the data file again with user-managed methods, or restore and recover individual data blocks with the RMAN <code class="codeph">RECOVER ... BLOCK</code> command. This technique may fix the problem.</p>
+<p>A data block is corrupted if the checksum verification on the block fails. If <code class="codeph">DB_BLOCK_CHECKING</code> is disabled, then a corrupted data block problem may appear as a redo problem. If you must proceed with media recovery, then you may want to allow media recovery to mark the block as corrupt for now, continue recovery, and then use RMAN to perform block media recovery later.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>If you cannot fix the problem with the methods described in <a href="osrecvry.htm#GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41__g1007463" title="This table describes causes for a media recovery problem, and causes for and responses to each.">Table 30-5</a>, then there may be no easy way to fix the problem without losing data. You have these options:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Open the database with the <code class="codeph">RESETLOGS</code> option (for whole database recovery).</p>
+<p>This solution discards all changes after the point where the redo problem occurred, but guarantees a logically consistent database.</p>
+</li>
+<li>
+<p>Allow media recovery to corrupt one or more data blocks and then proceed.</p>
+<p>This option only succeeds if the alert log indicates that recovery can continue if it is allowed to corrupt a data block, which is the case for most recovery problems. This option is best if you must bring up the database quickly and recover all changes. If you are considering this option, then proceed to <span class="q">&#34;<a href="osrecvry.htm#GUID-0017FED3-FCC3-47D3-97A3-A0DF7C8C6F7A">Deciding Whether to Allow Recovery to Mark as Corrupt Blocks: Phase 3</a>&#34;</span>.</p>
+<div class="infoboxnotealso" id="GUID-54CE55B1-BAC2-4D35-877C-9C07CAAAAF41__GUID-DC32CB10-2A48-46F2-9B7D-092DE14D4D6B">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34; <a href="rcmblock.htm#GUID-1E226393-17D0-4AB0-A05D-91210255D8FF">Performing Block Media Recovery</a> &#34;</span>to learn how to perform block media recovery with the <code class="codeph">RECOVER ... BLOCK</code> command</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV507"></a><a id="BRADV99984"></a>
+<div class="props_rev_3"><a id="GUID-0017FED3-FCC3-47D3-97A3-A0DF7C8C6F7A"></a>
+<h3 id="BRADV-GUID-0017FED3-FCC3-47D3-97A3-A0DF7C8C6F7A" class="sect3">Deciding Whether to Allow Recovery to Mark as Corrupt Blocks: Phase 3</h3>
+<div>
+<div class="section">
+<p><a id="d121979e4826" class="indexterm-anchor"></a><a id="d121979e4832" class="indexterm-anchor"></a>When media recovery encounters a problem, the alert log may indicate that recovery can continue if it is allowed to mark as corrupt the data block causing the problem. The alert log contains information about the block: its block type, block address, the tablespace it belongs to, and so forth. For blocks containing user data, the alert log may also report the data object number.</p>
+<p>In this case, the database can proceed with recovery if it is allowed to mark the problem block as corrupt. Nevertheless, this response is not always advisable. For example, if the block is an important block in the <code class="codeph">SYSTEM</code> tablespace, marking the block as corrupt can eventually prevent you from opening the recovered database. Another consideration is whether the recovery problem is isolated. If this problem is followed immediately by many other problems in the redo stream, then you may want to open the database with the <code class="codeph">RESETLOGS</code> option.</p>
+<p>For a block containing user data, you can usually query the database to discover which object or table owns this block. If the database is not open, then you can open the database read-only, even if you are recovering a whole database backup. The following example cancels recovery and opens the database read-only:</p>
+<pre dir="ltr">CANCEL
+ALTER DATABASE OPEN READ ONLY;
+</pre>
+<p>Assume that the data object number reported in the <code class="codeph">alert_</code><span class="italic"><code class="codeph">SID</code></span><code class="codeph">.log</code> is <code class="codeph">8031</code>. You can determine the owner, object name, and object type by issuing this query:</p>
+<pre dir="ltr">SELECT OWNER, OBJECT_NAME, SUBOBJECT_NAME, OBJECT_TYPE
+FROM DBA_OBJECTS
+WHERE DATA_OBJECT_ID = 8031;
+</pre>
+<p>To determine whether a recovery problem is isolated, you can run a diagnostic <strong class="term">trial recovery</strong>, which scans the redo stream for problems but does not actually make any changes to the recovered database. If a trial recovery discovers any recovery problems, then it reports them in the <code class="codeph">alert_</code><span class="italic"><code class="codeph">SID</code></span><code class="codeph">.log</code>. You can use the <code class="codeph">RECOVER</code> <code class="codeph">...</code> <code class="codeph">TEST</code> statement to invoke trial recovery, as described in <span class="q">&#34;<a href="osrecvry.htm#GUID-6338386C-B03A-4124-8F4E-8949F14A3FFD">Executing the RECOVER... TEST Statement</a>&#34;</span>.</p>
+<p>After you have done these investigations, you can follow the guidelines in <a href="osrecvry.htm#GUID-0017FED3-FCC3-47D3-97A3-A0DF7C8C6F7A__g1007496" title="This table provides guidelines for allowing media recovery to permit corruption.">Table 30-6</a> to decide whether to allow recovery to permit corrupt blocks.</p>
+<div class="tblformal" id="GUID-0017FED3-FCC3-47D3-97A3-A0DF7C8C6F7A__g1007496">
+<p class="titleintable">Table 30-6 Guidelines for Allowing Recovery to Permit Corrupt Blocks</p>
+<table class="cellalignment515" title="Guidelines for Allowing Recovery to Permit Corrupt Blocks " summary="This table provides guidelines for allowing media recovery to permit corruption.">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment527" id="d121979e4912">If the Problem Is...</th>
+<th class="cellalignment527" id="d121979e4915">and the Block Is...</th>
+<th class="cellalignment550" id="d121979e4918">Then...</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d121979e4923" headers="d121979e4912">
+<p>Not isolated</p>
+</td>
+<td class="cellalignment529" headers="d121979e4923 d121979e4915">&nbsp;</td>
+<td class="cellalignment552" headers="d121979e4923 d121979e4918">
+<p>You can open the database with the <code class="codeph">RESETLOGS</code> option. This response is important for stuck recovery problems, because stuck recovery can be caused by the operating system or a storage system losing writes. If an operating system or storage system suddenly fails, then it can cause stuck recovery problems on several blocks.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d121979e4934" headers="d121979e4912">
+<p>Isolated</p>
+</td>
+<td class="cellalignment529" headers="d121979e4934 d121979e4915">
+<p>In the <code class="codeph">SYSTEM</code> tablespace</p>
+</td>
+<td class="cellalignment552" headers="d121979e4934 d121979e4918">
+<p>Do not corrupt the block, because it may eventually prevent you from opening the database. However, sometimes data in the <code class="codeph">SYSTEM</code> tablespace is unimportant. If you must corrupt a <code class="codeph">SYSTEM</code> block and recover all changes, then contact Oracle Support Services.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d121979e4953" headers="d121979e4912">
+<p>Isolated</p>
+</td>
+<td class="cellalignment529" headers="d121979e4953 d121979e4915">
+<p>Index data</p>
+</td>
+<td class="cellalignment552" headers="d121979e4953 d121979e4918">
+<p>Consider corrupting index blocks because the index can be rebuilt later after the database has been recovered.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d121979e4963" headers="d121979e4912">
+<p>Isolated</p>
+</td>
+<td class="cellalignment529" headers="d121979e4963 d121979e4915">
+<p>User data</p>
+</td>
+<td class="cellalignment552" headers="d121979e4963 d121979e4918">
+<p>Decide based on the importance of the data. If you continue with data file recovery and corrupt a block, then you lose data in the block. However, you can use RMAN to perform block media recovery later, after data file recovery completes. If you open <code class="codeph">RESETLOGS</code>, then the database is consistent but loses any changes made after the point where recovery was stopped.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d121979e4976" headers="d121979e4912">
+<p>Isolated</p>
+</td>
+<td class="cellalignment529" headers="d121979e4976 d121979e4915">
+<p>Rollback or undo data</p>
+</td>
+<td class="cellalignment552" headers="d121979e4976 d121979e4918">
+<p>If all of the transactions are committed, then consider corrupting the rollback or undo block. The database is not harmed if the transactions that generated the undo are never rolled back. However, if those transactions are rolled back, then corrupting the undo block can cause problems. If you are unsure, then contact Oracle Support Services.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-0017FED3-FCC3-47D3-97A3-A0DF7C8C6F7A__GUID-4414DFB9-5286-4D96-98B1-759F19764112">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="osrecvry.htm#GUID-DB9A54B9-F404-4D8A-894C-D17A1DF8A684">Performing Trial Recovery</a>&#34;</span> to learn how to perform trial recovery, and <span class="q">&#34;<a href="osrecvry.htm#GUID-89B0F402-06E7-4030-A4E8-A9E16E7592EE">Allowing Recovery to Corrupt Blocks: Phase 4</a>&#34;</span> if you decide to allow recovery to permit corrupt blocks</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV244"></a>
+<div class="props_rev_3"><a id="GUID-89B0F402-06E7-4030-A4E8-A9E16E7592EE"></a>
+<h3 id="BRADV-GUID-89B0F402-06E7-4030-A4E8-A9E16E7592EE" class="sect3">Allowing Recovery to Corrupt Blocks: Phase 4</h3>
+<div>
+<div class="section">
+<p><a id="d121979e5067" class="indexterm-anchor"></a>If you decide to allow recovery to proceed despite block corruptions, then run the <code class="codeph">RECOVER</code> command with the <code class="codeph">ALLOW</code> <span class="italic"><code class="codeph">n</code></span> <code class="codeph">CORRUPTION</code> clause, where <span class="italic"><code class="codeph">n</code></span> is the number of allowable corrupt blocks.</p>
+<p><span class="bold">To allow recovery to corrupt blocks:</span></p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Ensure that all normal recovery preconditions are met. For example, if the database is open, then take tablespaces offline before attempting recovery.</span></li>
+<li class="stepexpand"><span>Run the <code class="codeph">RECOVER</code> command as in the following example:</span>
+<div>
+<pre dir="ltr">RECOVER DATABASE ALLOW 5 CORRUPTION
+</pre></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV245"></a>
+<div class="props_rev_3"><a id="GUID-DB9A54B9-F404-4D8A-894C-D17A1DF8A684"></a>
+<h3 id="BRADV-GUID-DB9A54B9-F404-4D8A-894C-D17A1DF8A684" class="sect3">Performing Trial Recovery</h3>
+<div>
+<p><a id="d121979e5173" class="indexterm-anchor"></a><a id="d121979e5177" class="indexterm-anchor"></a><a id="d121979e5181" class="indexterm-anchor"></a><a id="d121979e5185" class="indexterm-anchor"></a><a id="d121979e5187" class="indexterm-anchor"></a>When problems such as stuck recovery occur, you have a difficult choice. If the block is relatively unimportant, and if the problem is isolated, then it is better to corrupt the block. But if the problem is not isolated, then it may be better to open the database with the <code class="codeph">RESETLOGS</code> option.</p>
+<p>Because of this situation, Oracle Database supports <a href="glossary.htm#GUID-20FF4FE0-3ABD-4773-A857-6CF062C7D028"><span class="xrefglossterm">trial recovery</span></a>. A trial recovery applies redo in a way similar to normal media recovery, but it never writes its changes to disk and it always rolls back its changes. Trial recovery occurs only in memory.</p>
+<div class="p">This section contains the following topics:
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="osrecvry.htm#GUID-5880EC19-0967-47FD-96BA-CBEAB83CAA69">How Trial Recovery Works</a></p>
+</li>
+<li>
+<p><a href="osrecvry.htm#GUID-6338386C-B03A-4124-8F4E-8949F14A3FFD">Executing the RECOVER... TEST Statement</a></p>
+</li>
+</ul>
+</div>
+<div class="infoboxnotealso" id="GUID-DB9A54B9-F404-4D8A-894C-D17A1DF8A684__GUID-223767C7-B14F-4458-8B88-8707171E1B85">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="osrecvry.htm#GUID-89B0F402-06E7-4030-A4E8-A9E16E7592EE">Allowing Recovery to Corrupt Blocks: Phase 4</a>&#34;</span></p>
+</div>
+</div>
+<a id="BRADV90037"></a>
+<div class="props_rev_3"><a id="GUID-5880EC19-0967-47FD-96BA-CBEAB83CAA69"></a>
+<h4 id="BRADV-GUID-5880EC19-0967-47FD-96BA-CBEAB83CAA69" class="sect4">How Trial Recovery Works</h4>
+<div>
+<p><a id="d121979e5291" class="indexterm-anchor"></a><a id="d121979e5295" class="indexterm-anchor"></a><a id="d121979e5297" class="indexterm-anchor"></a>By default, if a trial recovery encounters a stuck recovery or similar problem, then it always marks the data block as corrupt in memory when this action can allow recovery to proceed. The database writes errors generated during trial recovery to alert files. These errors are clearly marked as test run errors.</p>
+<p>Like normal media recovery, trial recovery can prompt you for archived log file names and ask you to apply them. Trial recovery ends when:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The database runs out of the maximum number of buffers in memory that trial recovery is permitted to use</p>
+</li>
+<li>
+<p>An unrecoverable error is signaled, that is, an error that cannot be resolved by corrupting a data block</p>
+</li>
+<li>
+<p>You cancel or interrupt the recovery session</p>
+</li>
+<li>
+<p>The next redo record in the redo stream changes the control file</p>
+</li>
+<li>
+<p>All requested redo has been applied</p>
+</li>
+</ul>
+<p>When trial recovery ends, the database removes all effects of the test run from the system&mdash;except the possible error messages in the alert files. If the instance fails during trial recovery, then the database removes all effects of trial recovery from the system, because trial recovery never writes changes to disk.</p>
+<p>Trial recovery lets you foresee what problems might occur if you were to continue with normal recovery. For problems caused by ongoing memory corruption, trial recovery and normal recovery can encounter different errors.</p>
+</div>
+</div>
+<a id="BRADV90038"></a>
+<div class="props_rev_3"><a id="GUID-6338386C-B03A-4124-8F4E-8949F14A3FFD"></a>
+<h4 id="BRADV-GUID-6338386C-B03A-4124-8F4E-8949F14A3FFD" class="sect4">Executing the RECOVER... TEST Statement</h4>
+<div>
+<div class="section">
+<p>You can use the <code class="codeph">TEST</code> option for any <code class="codeph">RECOVER</code> command. For example, you can start SQL*Plus and then issue any of the following commands:</p>
+<pre dir="ltr">RECOVER DATABASE TEST
+RECOVER DATABASE USING BACKUP CONTROLFILE UNTIL CANCEL TEST
+RECOVER TABLESPACE users TEST
+RECOVER DATABASE UNTIL CANCEL TEST
+</pre>
+<p>By default, trial recovery always attempts to corrupt blocks in memory if this action allows trial recovery to proceed. Trial recovery by default can corrupt an unlimited number of data blocks. You can specify the <code class="codeph">ALLOW</code> <span class="italic"><code class="codeph">n</code></span> <code class="codeph">CORRUPTION</code> clause on the <code class="codeph">RECOVER</code> <code class="codeph">...</code> <code class="codeph">TEST</code> statement to limit the number of data blocks that trial recovery can corrupt in memory.</p>
+<p>A trial recovery command is usable in any scenario in which a normal recovery command is usable. Nevertheless, you only need to run trial recovery when recovery runs into problems.</p>
+<div class="infoboxnotealso" id="GUID-6338386C-B03A-4124-8F4E-8949F14A3FFD__GUID-CC05D2A4-23C5-4790-B6B7-760798152BB9">
+<p class="notep1">See Also:</p>
+<p><a href="osrecvry.htm#GUID-5880EC19-0967-47FD-96BA-CBEAB83CAA69">How Trial Recovery Works</a></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment500">
+<tr>
+<td class="cellalignment512">
+<table class="cellalignment505">
+<tr>
+<td class="cellalignment504"><a href="osbackup.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment504"><a href="osadvsce.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2003, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment514">
+<table class="cellalignment503">
+<tr>
+<td class="cellalignment504"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment504"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment504"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment504"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment504"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment504"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

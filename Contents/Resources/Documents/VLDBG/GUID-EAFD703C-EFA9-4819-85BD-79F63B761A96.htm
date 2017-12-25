@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114590"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/When%20to%20Use%20Range%20or%20Interval%20Partitioning"></a><title>When to Use Range or Interval Partitioning</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-9F7809B6-E68A-4425-AC99-BE00C7805408.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-EAFD703C-EFA9-4819-85BD-79F63B761A96"></a> <span id="PAGE" style="display:none;">94/481</span> <!-- End Header --><a id="VLDBG14029"></a><a id="VLDBG1269"></a>
+<h1 id="VLDBG-GUID-EAFD703C-EFA9-4819-85BD-79F63B761A96" class="sect1">When to Use Range or Interval Partitioning</h1>
+<div>
+<p><a id="d19455e62" class="indexterm-anchor"></a><a id="d19455e66" class="indexterm-anchor"></a>Range partitioning is a convenient method for partitioning historical data. The boundaries of range partitions define the ordering of the partitions in the tables or indexes.</p>
+<p>Interval partitioning is an extension to range partitioning in which, beyond a point in time, partitions are defined by an interval. Interval partitions are automatically created by the database when data is inserted into the partition.</p>
+<p>Range or interval partitioning is often used to organize data by time intervals on a column of type <code>DATE</code>. Thus, most SQL statements accessing range partitions focus on time frames. An example of this is a SQL statement similar to &#34;select data from a particular period in time&#34;. In such a scenario, if each partition represents data for one month, the query &#34;find data of month 06-DEC&#34; must access only the December partition of year 2006. This reduces the amount of data scanned to a fraction of the total data available, an optimization method called partition pruning.</p>
+<p>Range partitioning is also ideal when you periodically load new data and purge old data, because it is easy to add or drop partitions. For example, it is common to keep a rolling window of data, keeping the past 36 months&#39; worth of data online. Range partitioning simplifies this process. To add data from a new month, you load it into a separate table, clean it, index it, and then add it to the range-partitioned table using the <code>EXCHANGE</code> <code>PARTITION</code> statement, all while the original table remains online. After you add the new partition, you can drop the trailing month with the <code>DROP</code> <code>PARTITION</code> statement. The alternative to using the <code>DROP</code> <code>PARTITION</code> statement can be to archive the partition and make it read only, but this works only when your partitions are in separate tablespaces. You can also implement a rolling window of data using inserts into the partitioned table.</p>
+<p>Interval partitioning provides an easy way for interval partitions to be automatically created as data arrives. Interval partitions can also be used for all other partition maintenance operations. Refer to <a href="GUID-F2C99CFA-1090-4A62-B452-D4E116A40A34.htm">Partition Administration</a> for more information about the partition maintenance operations on interval partitions.</p>
+<p>In conclusion, consider using <a id="d19455e107" class="indexterm-anchor"></a><a id="d19455e111" class="indexterm-anchor"></a>range or interval partitioning when:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Very large tables are frequently scanned by a range predicate on a good partitioning column, such as <code>ORDER_DATE</code> or <code>PURCHASE_DATE</code>. Partitioning the table on that column enables partition pruning.</p>
+</li>
+<li>
+<p>You want to maintain a rolling window of data.</p>
+</li>
+<li>
+<p>You cannot complete administrative operations, such as backup and restore, on large tables in an allotted time frame, but you can divide them into smaller logical pieces based on the partition range column.</p>
+</li>
+</ul>
+<p><a href="GUID-EAFD703C-EFA9-4819-85BD-79F63B761A96.htm#GUID-EAFD703C-EFA9-4819-85BD-79F63B761A96__BABJHDBE">Example 3-5</a> creates the table <code>salestable</code> for a period of two years, 2005 and 2006, and partitions it by range according to the column <code>s_salesdate</code> to separate the data into eight quarters, each corresponding to a partition. Future partitions are created automatically through the monthly interval definition. Interval partitions are created in the provided list of tablespaces in a round-robin manner. Analysis of sales figures by a short interval can take advantage of partition pruning. The sales table also supports a rolling window approach.</p>
+<div class="example" id="GUID-EAFD703C-EFA9-4819-85BD-79F63B761A96__BABJHDBE">
+<p class="titleinexample">Example 3-5 Creating a table with range and interval partitioning</p>
+<pre dir="ltr">CREATE TABLE salestable
+  (s_productid  NUMBER,
+   s_saledate   DATE,
+   s_custid     NUMBER,
+   s_totalprice NUMBER)
+PARTITION BY RANGE(s_saledate)
+INTERVAL(NUMTOYMINTERVAL(1,&#39;MONTH&#39;)) STORE IN (tbs1,tbs2,tbs3,tbs4)
+ (PARTITION sal05q1 VALUES LESS THAN (TO_DATE(&#39;01-APR-2005&#39;, &#39;DD-MON-YYYY&#39;)) TABLESPACE tbs1,
+  PARTITION sal05q2 VALUES LESS THAN (TO_DATE(&#39;01-JUL-2005&#39;, &#39;DD-MON-YYYY&#39;)) TABLESPACE tbs2,
+  PARTITION sal05q3 VALUES LESS THAN (TO_DATE(&#39;01-OCT-2005&#39;, &#39;DD-MON-YYYY&#39;)) TABLESPACE tbs3,
+  PARTITION sal05q4 VALUES LESS THAN (TO_DATE(&#39;01-JAN-2006&#39;, &#39;DD-MON-YYYY&#39;)) TABLESPACE tbs4,
+  PARTITION sal06q1 VALUES LESS THAN (TO_DATE(&#39;01-APR-2006&#39;, &#39;DD-MON-YYYY&#39;)) TABLESPACE tbs1,
+  PARTITION sal06q2 VALUES LESS THAN (TO_DATE(&#39;01-JUL-2006&#39;, &#39;DD-MON-YYYY&#39;)) TABLESPACE tbs2,
+  PARTITION sal06q3 VALUES LESS THAN (TO_DATE(&#39;01-OCT-2006&#39;, &#39;DD-MON-YYYY&#39;)) TABLESPACE tbs3,
+  PARTITION sal06q4 VALUES LESS THAN (TO_DATE(&#39;01-JAN-2007&#39;, &#39;DD-MON-YYYY&#39;)) TABLESPACE tbs4);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-9F7809B6-E68A-4425-AC99-BE00C7805408.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

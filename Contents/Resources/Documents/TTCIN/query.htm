@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-107511"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Query%20Optimization"></a><title>Query Optimization</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 726"/>
+<meta name="dcterms.created" content="2014-06-06T13:40:25Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen Application-Tier Database Cache Introduction"/>
+<meta name="dcterms.identifier" content="E21631-06"/>
+<meta name="dcterms.isVersionOf" content="TTCIN"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="concurrent.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="availability.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21631-06.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">9/14</span> <!-- End Header -->
+<div id="TTCIN181" class="chapter"><a id="BGBCGDCA"></a>
+<h1 class="chapter"><span class="secnum">5</span> Query Optimization</h1>
+<p>TimesTen and TimesTen Cache have a cost-based <a id="sthref103"></a><a id="sthref104"></a>query optimizer that ensures efficient data access by automatically searching for the best way to answer queries. Optimization is performed in the third stage of the compilation process. The stages of compilation are shown in <a href="#BAAFIABI">Figure 5-1</a>.</p>
+<div id="TTCIN182" class="figure">
+<p class="titleinfigure"><a id="BAAFIABI"></a>Figure 5-1 Compilation stages</p>
+<img width="123" height="285" src="img/compilesteps.gif" alt="Description of Figure 5-1 follows"/><br/>
+<a id="sthref105" href="img_text/compilesteps.htm">Description of &#34;Figure 5-1 Compilation stages&#34;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>The role of the optimizer is to determine the lowest cost plan for executing queries. By &#34;lowest cost plan,&#34; we mean an access path to the data that takes the least amount of time. TimesTen invokes the optimizer for SQL statements when more than one execution plan is possible. The optimizer chooses what it thinks is the optimum plan. This plan persists until the statement is either invalidated or dropped by the application.</p>
+<p>The optimizer determines the cost of a plan based on:</p>
+<ul>
+<li>
+<p>Table and column statistics</p>
+</li>
+<li>
+<p>Metadata information (such as referential integrity, primary key)</p>
+</li>
+<li>
+<p>Index choices (including automatic creation of temporary indexes)</p>
+</li>
+<li>
+<p>Scan methods (full table scan, rowid lookup, range index scan, bitmap index lookup, hash index lookup)</p>
+</li>
+<li>
+<p>Join algorithm choice (nested loop joins, nested loop joins with indexes, or merge join)</p>
+</li>
+</ul>
+<p>This chapter includes the following topics:</p>
+<ul>
+<li>
+<p><a href="#BAAEEGAD">Optimization time and memory usage</a></p>
+</li>
+<li>
+<p><a href="#BAAJEAGG">Statistics</a></p>
+</li>
+<li>
+<p><a href="#BAAHDCBA">Optimizer hints</a></p>
+</li>
+<li>
+<p><a href="#BAAFAAED">Indexes</a></p>
+</li>
+<li>
+<p><a href="#BAACCAEA">Scan methods</a></p>
+</li>
+<li>
+<p><a href="#BAAIGBIB">Join methods</a></p>
+</li>
+<li>
+<p><a href="#BAAHBHAF">Optimizer plan</a></p>
+</li>
+</ul>
+<a id="BAAEEGAD"></a>
+<div id="TTCIN183" class="sect1">
+<h2 class="sect1">Optimization time and memory usage<a id="sthref106"></a><a id="sthref107"></a></h2>
+<p>The optimizer is designed to generate the best possible plan within reasonable time and memory constraints. No optimizer always chooses the optimal plan for every query. Instead, the goal of the optimizer is to choose the best plan from among a set of plans generated by using strategies for finding the most promising areas within the search-space of plans. Because optimization usually happens only once for each query while the query itself may be executed many times, the optimizer is designed to give precedence to execution time over optimization time.</p>
+<p>The plans generated by the optimizer emphasize performance over memory usage. The optimizer may designate the use of significant amounts of temporary memory space in order to speed up execution time. In memory-constrained environments, applications can use the optimizer hints described in <a href="#BAAHDCBA">&#34;Optimizer hints&#34;</a> to disable the use of temporary indexes and tables in order to create plans that trade maximum performance for reduced memory usage.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BAAJEAGG"></a>
+<div id="TTCIN184" class="sect1">
+<h2 class="sect1">Statistics<a id="sthref108"></a><a id="sthref109"></a></h2>
+<p>When determining the execution path for a query, the optimizer examines statistics about the data referenced by the query, such as the number of rows in the tables, the minimum and maximum values and the number of unique values in interval statistics of columns used in predicates, the existence of primary keys within a table, the size and configuration of any existing indexes. These statistics are stored in the <code>SYS.TBL_STATS</code> and <code>SYS.COL_STATS</code> tables, which are populated when an application calls the <code>ttIsql</code> <code>statsupdate</code> command, <code>ttOptUpdateStats</code>, or <a id="sthref110"></a><a id="sthref111"></a><a id="sthref112"></a><code>ttOptEstimateStats</code> built-in procedures.</p>
+<p>The optimizer uses the statistics for each table to calculate the <span class="italic">selectivity</span> of predicates, such as <code>t1.a=4</code>, or a combination of predicates, such as <code>t1.a=4 AND t1.b&lt;10</code>. <span class="italic">Selectivity</span> is an estimate of the number of rows in a table. If a predicate selects a small percentage of rows, it is said to have <span class="italic">high</span> selectivity, while a predicate that selects a large percentage of rows has <span class="italic">low</span> selectivity.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BAAHDCBA"></a>
+<div id="TTCIN185" class="sect1">
+<h2 class="sect1">Optimizer hints<a id="sthref113"></a><a id="sthref114"></a></h2>
+<p>You can apply <span class="italic">hints</span> to pass instructions to the TimesTen query optimizer. The optimizer considers these hints when choosing the best execution plan for your query. You can apply hints as follows:</p>
+<ul>
+<li>
+<p>To apply a hint only for a particular SQL statement, use a statement level optimizer hint.</p>
+</li>
+<li>
+<p>To apply a hint for an entire transaction, use a transaction level optimizer hint with the appropriate TimesTen built-in procedure.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect1" -->
+<a id="BAAFAAED"></a>
+<div id="TTCIN186" class="sect1">
+<h2 class="sect1">Indexes<a id="sthref115"></a><a id="sthref116"></a></h2>
+<p>The query optimizer uses indexes to speed up the execution of a query. The optimizer uses existing indexes or creates temporary indexes to generate an execution plan. An index is a map of keys to row locations in a table. Strategic use of indexes is essential to obtain maximum performance from a TimesTen system.</p>
+<p>TimesTen uses these types of indexes:</p>
+<ul>
+<li>
+<p><span class="italic">Hash index</span>: Hash <a id="sthref117"></a><a id="sthref118"></a>indexes are useful for finding rows with an <a id="sthref119"></a><a id="sthref120"></a>exact match on one or more columns. They can be designated as unique or not unique. In general, hash indexes are faster than range indexes for exact match lookups and equijoins. However, hash indexes cannot be used for lookups involving ranges or the prefix of a key and can require more space than range indexes and bitmap indexes.</p>
+</li>
+<li>
+<p><span class="italic">Range index</span>: <a id="sthref121"></a><a id="sthref122"></a>Range indexes are useful for finding rows with column values within a range specified as an equality or inequality. Range indexes can be created over one or more columns of a table. They can be designated as unique or not unique. When you create an index using the <code>CREATE INDEX</code> SQL statement and do not specify the index type, TimesTen creates a range index.</p>
+</li>
+<li>
+<p><span class="italic">Bitmap index</span>: <a id="sthref123"></a><a id="sthref124"></a>Bitmap indexes encode information about a unique value in a row in a bitmap. Each bit in the bitmap corresponds to a row in the table. Use a bitmap index for columns that do not have many unique values. An example of such a column is a column that records gender as one of two values. Bitmap indexes are widely used in data warehousing environments. The environments typically have large amounts of data and ad hoc queries, but a low level of concurrent DML transactions. Bitmap indexes are compressed and have smaller storage requirements than other indexing techniques.</p>
+</li>
+</ul>
+<p>The <a id="sthref125"></a><a id="sthref126"></a>Index Advisor tool can be used to recommend a set of indexes that could improve the performance of a specific SQL workload. For more details, see <a class="olink TTOPR740" href="../TTOPR/comp.htm#TTOPR740">&#34;Using the Index Advisor to recommend indexes&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Operations Guide</span>.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BAACCAEA"></a>
+<div id="TTCIN187" class="sect1">
+<h2 class="sect1">Scan methods<a id="sthref127"></a><a id="sthref128"></a></h2>
+<p>The optimizer can select from multiple types of scan methods. The most common scan methods are:</p>
+<ul>
+<li>
+<p>Full table scan</p>
+</li>
+<li>
+<p>Rowid lookup</p>
+</li>
+<li>
+<p>Range index scan (on either a permanent or temporary index)</p>
+</li>
+<li>
+<p>Hash index lookup (on either a permanent or temporary index)</p>
+</li>
+<li>
+<p>Bitmap index lookup (on a permanent index)</p>
+</li>
+</ul>
+<p>TimesTen and TimesTen Cache perform fast exact matches through hash indexes, bitmap indexes and rowid lookups. They perform range matches through range indexes. Optimizer hints can be used to allow or disallow the optimizer from considering certain scan methods when choosing a query plan.</p>
+<p>A <span class="italic">full table scan</span> examines every row in a table. Because it is the least efficient way to evaluate a query predicate, a full scan is only used when no other method is available.</p>
+<p>TimesTen assigns a unique ID, called a rowid, to each row stored in a table. A <span class="italic">rowid lookup</span> is applicable if, for example, an application has previously selected a rowid and then uses a <code>WHERE ROWID=</code> clause to fetch that same row. Rowid lookups are faster than index lookups.</p>
+<p>A <span class="italic">range index scan</span> uses a range index to access a table. Such a scan is applicable to exact match predicates such as <code>t1.a=2</code> or to range predicates such as <code>t1.a&gt;2</code> and <code>t1.a&lt;10</code> as long as the column used in the predicate has a range index defined over it. If a range index is defined over multiple columns, it can be used for multiple column predicates. For example, the predicates <code>t1.b=100</code> and <code>t1.c&gt;&#39;ABC&#39;</code> result in a range index scan if a range index is defined over columns <code>t1.b</code> and <code>t1.c</code>. The index can be used if it is defined over more columns. For example, if a range index is defined over <code>t1.b</code>, <code>t1.c</code> and <code>t1.d</code>, the optimizer uses the index prefix over columns <code>b</code> and <code>c</code> and returns all the values for column <code>d</code> that match the stated predicate over columns <code>b</code> and <code>c</code>.</p>
+<p>A <span class="italic">hash index lookup</span> uses a hash index to find rows with an exact match on one or more columns. Such lookups are applicable for equality searches over one or more specified columns.</p>
+<p>A <span class="italic">bitmap index lookup</span> uses a bitmap index to find rows that satisfy an equality predicate such as <code>customer.gender=&#39;male&#39;</code>. Bitmap indexes are appropriate for columns with few unique values. They are particularly useful in evaluating several predicates each of which can use a bitmap index lookup because the combined predicates can be efficiently evaluated through bit operations on the indexes themselves. For example, if table <code>customer</code> has a bitmap index on the column <code>gender</code> and if table <code>sweater</code> has a bitmap index on the column <code>color</code>, the predicates <code>customer.gender=&#39;male&#39;</code> and <code>sweater.color =&#39;pink&#39;</code> could rapidly find all male customers who purchased pink sweaters by performing a logical <code>AND</code> operation on the two bitmap indexes.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BAAIGBIB"></a>
+<div id="TTCIN188" class="sect1">
+<h2 class="sect1">Join methods<a id="sthref129"></a></h2>
+<p>The optimizer can select from multiple join methods. When the rows from two tables are joined, one table is designated the <span class="italic">outer table</span> and the other the <span class="italic">inner table</span>. The optimizer decides which of the tables should be the outer table and which should be the inner table. During a join, the optimizer scans the rows in the outer and inner tables to locate the rows that match the join condition.</p>
+<p>The optimizer analyzes the statistics for each table and, for example, might identify the smallest table or the table with the best selectivity for the query as outer table. If indexes exist for one or more of the tables to be joined, the optimizer takes them into account when selecting the outer and inner tables.</p>
+<p>If more than two tables are to be joined, the optimizer analyzes the various combinations of joins on table pairs to determine which pair to join first, which table to join with the result of the join, and so on for the optimum sequence of joins.</p>
+<p>The cost of a join is largely influenced by the method in which the inner and outer tables are accessed to locate the rows that match the join condition. The optimizer selects from two join methods when determining the query optimizer plan:</p>
+<ul>
+<li>
+<p><a href="#BAABBBCF">Nested loop join</a></p>
+</li>
+<li>
+<p><a href="#BAAGAGEG">Merge join</a></p>
+</li>
+</ul>
+<a id="BAABBBCF"></a>
+<div id="TTCIN189" class="sect2">
+<h3 class="sect2">Nested loop join<a id="sthref130"></a></h3>
+<p>In a nested loop join with no indexes, a row in the outer table is selected one at a time and matched against every row in the inner table. All of the rows in the inner table are scanned as many times as the number of rows in the outer table. If the inner table has an index on the join column, that index is used to select the rows that meet the join condition. The rows from each table that satisfy the join condition are returned. Indexes may be created on the fly for inner tables in nested loops, and the results from inner scans may be materialized before the join.</p>
+<p><a href="#BAABGJJG">Figure 5-2</a> shows an example of a nested loop join. The join condition is:</p>
+<pre>WHERE t1.a=t2.a
+</pre>
+<p>For this example, the optimizer has decided that <code>t1</code> is the outer table and <code>t2</code> is the inner table. Values in column <code>a</code> in table <code>t1</code> that match values in column <code>a</code> in table <code>t2</code> are 1 and 7. The join results concatenate the rows from <code>t1</code> and <code>t2</code>. For example, the first join result is the following row:</p>
+<p>7 50 43.54 21 13.69</p>
+<p>It concatenates a row from <code>t1</code>:</p>
+<p>7 50 43.54</p>
+<p>with the first row from <code>t2</code> in which the values in column <code>a</code> match:</p>
+<p>7 21 13.69</p>
+<div id="TTCIN190" class="figure">
+<p class="titleinfigure"><a id="BAABGJJG"></a>Figure 5-2 Nested loop join</p>
+<img width="245" height="263" src="img/nestedloop.gif" alt="Description of Figure 5-2 follows"/><br/>
+<a id="sthref131" href="img_text/nestedloop.htm">Description of &#34;Figure 5-2 Nested loop join&#34;</a><br/>
+<br/></div>
+<!-- class="figure" --></div>
+<!-- class="sect2" -->
+<a id="BAAGAGEG"></a>
+<div id="TTCIN191" class="sect2">
+<h3 class="sect2">Merge join<a id="sthref132"></a></h3>
+<p>A merge join is used only when the join columns are sorted by range indexes. In a merge join, a cursor advances through each index one row at a time. Because the rows are already sorted on the join columns in each index, a simple formula is applied to efficiently advance the cursors through each row in a single scan. The formula looks something like:</p>
+<ul>
+<li>
+<p>If Inner.JoinColumn &lt; Outer.JoinColumn, then advance inner cursor</p>
+</li>
+<li>
+<p>If Inner.JoinColumn = Outer.JoinColumn, then read match</p>
+</li>
+<li>
+<p>If Inner.JoinColumn &gt; Outer.JoinColumn, then advance outer cursor</p>
+</li>
+</ul>
+<p>Unlike a nested loop join, there is no need to scan the entire inner table for each row in the outer table. A merge join can be used when range indexes have been created for the tables before preparing the query. If no range indexes exist for the tables being joined before preparing the query, the optimizer may in some situations create temporary range indexes in order to use a merge join.</p>
+<p><a href="#BAADDIHG">Figure 5-3</a> shows an example of a merge join. The join condition is:</p>
+<pre>WHERE t1.a=t2.a
+</pre>
+<p><code>x1</code> is the index on table <code>t1</code>, sorting on column <code>a</code>. <code>x2</code> is the index on table <code>t2</code>, sorting on column <code>a</code>. The merge join results concatenate the rows in <code>x1</code> with rows in <code>x2</code> in which the values in column <code>a</code> match. For example, the first merge join result is:</p>
+<p>1 20 23.09 20 43.59</p>
+<p>It concatenates a row in <code>x1</code>:</p>
+<p>1 20 23.09</p>
+<p>with the first row in <code>x2</code> in which the values in column <code>a</code> match:</p>
+<p>1 20 43.59</p>
+<div id="TTCIN192" class="figure">
+<p class="titleinfigure"><a id="BAADDIHG"></a>Figure 5-3 Merge join</p>
+<img width="299" height="365" src="img/mergejoin.gif" alt="Description of Figure 5-3 follows"/><br/>
+<a id="sthref133" href="img_text/mergejoin.htm">Description of &#34;Figure 5-3 Merge join&#34;</a><br/>
+<br/></div>
+<!-- class="figure" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BAAHBHAF"></a>
+<div id="TTCIN193" class="sect1">
+<h2 class="sect1">Optimizer plan<a id="sthref134"></a><a id="sthref135"></a></h2>
+<p>Like most database optimizers, the query optimizer stores the details on how to most efficiently perform SQL operations in a query execution plan, which can be examined and customized by application developers and administrators.</p>
+<p>The execution plan data is stored in the TimesTen <code>SYS.PLAN</code> table and includes information about which tables are to be accessed and in what order, which tables are to be joined, and which indexes are to be used. You can use either the <code>ttSqlCmdQueryPlan</code> built-in procedure or the <code>ttIsql</code> <code>explain</code> command to display the query plans for recently executed SQL statements. Users can direct the query optimizer to enable or disable the creation of an execution plan in the <code>SYS.PLAN</code> table with the generate plan optimizer hint. (For transaction level hints, use the <code>GenPlan</code> optimizer flag in the <code>ttOptSetFlag</code> built-in procedure; for statement level hints, use the <code>TT_GenPlan</code> hint in the SQL statement.)</p>
+<p>The execution plan designates a separate step for each database operation to be performed to execute the query. The steps in the plan are organized into levels that designate which steps must be completed to generate the results required by the step or steps at the next level.</p>
+<p>Consider this query:</p>
+<pre>SELECT COUNT(*)
+  FROM t1, t2, t3
+    WHERE t3.b/t1.b &gt; 1
+      AND t2.b &lt;&gt; 0
+      AND t1.a = -t2.a
+      AND t2.a = t3.a;
+</pre>
+<p>In this example, the optimizer breaks down the query into its individual operations and generates a 5-step execution plan to be performed at three levels, as shown in <a href="#BAAIJJCB">Figure 5-4</a>.</p>
+<div id="TTCIN194" class="figure">
+<p class="titleinfigure"><a id="BAAIJJCB"></a>Figure 5-4 Example execution plan</p>
+<img width="474" height="348" src="img/optimize1.gif" alt="Description of Figure 5-4 follows"/><br/>
+<a id="sthref136" href="img_text/optimize1.htm">Description of &#34;Figure 5-4 Example execution plan&#34;</a><br/>
+<br/></div>
+<!-- class="figure" --></div>
+<!-- class="sect1" -->
+<div id="TTCIN195" class="sect1"><a id="sthref137"></a>
+<h2 class="sect1">For more information</h2>
+<p>For more information about the query optimizer, see <a class="olink TTOPR512" href="../TTOPR/query.htm#TTOPR512">&#34;The TimesTen Query Optimizer&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Operations Guide</span>.</p>
+<p>For more information about indexing, see <a class="olink TTOPR379" href="../TTOPR/comp.htm#TTOPR379">&#34;Understanding indexes&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Operations Guide</span>.</p>
+<p>Also, see descriptions for the &#34;<a class="olink TTSQL302" href="../TTSQL/state.htm#TTSQL302">CREATE TABLE&#34;</a> and &#34;<a class="olink TTSQL292" href="../TTSQL/state.htm#TTSQL292">CREATE INDEX</a>&#34; statements in <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2928">
+<tr>
+<td class="cellalignment2937">
+<table class="cellalignment2933">
+<tr>
+<td class="cellalignment2932"><a href="concurrent.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2932"><a href="availability.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2939">
+<table class="cellalignment2931">
+<tr>
+<td class="cellalignment2932"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2932"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2932"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2932"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2932"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2932"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

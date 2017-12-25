@@ -1,0 +1,477 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-59"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/User-Managed%20Local%20Domain%20Indexes"></a><title>User-Managed Local Domain Indexes</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-06-09T01:57:02Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Data Cartridge Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E15882-06"/>
+<meta name="dcterms.isVersionOf" content="ADDCI"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="pipe_paral_tbl_ref.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="index.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E15882-06.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-D6B24522-6E9F-421D-92A9-8416E25BF04F"></a> <span id="PAGE" style="display:none;">32/33</span> <!-- End Header -->
+<a id="ADDCI5162"></a>
+<h1 id="ADDCI-GUID-D6B24522-6E9F-421D-92A9-8416E25BF04F" class="sect1"><span class="enumeration_appendix">A</span> User-Managed Local Domain Indexes</h1>
+<div>
+<p>The user-managed approach for partitioning domain indexes has been the only method available until Oracle Database 11g Release 1, when system-managed partitioning was introduced. The user-managed approach has three significant limitations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Because the extensible indexing framework does not store information about the domain index related objects in the kernel, you must maintain tables and partitions by invoking user-supplied routines.</p>
+</li>
+<li>
+<p>Because the kernel does not support equipartitioned tables, each partition has to have a set of tables and dependent schema objects, which must be managed programmatically in the user-managed indexing code.</p>
+<p>As the number of partitions increases, the proliferation of domain index storage objects can become an obstacle to efficient operation. To use a table that contains images and has 1,000 partitions, an indexing schema that creates 64 bitmap indexes on its storage table (after it is extended to support local domain indexes) would need create and manage 1,000 domain index storage tables and 64,000 bitmap indexes.</p>
+</li>
+<li>
+<p>During DML and query processing with local domain indexes, you would need a separate set of cursors for each partition; this is required because each partition has its own set of tables. As a consequence, applications that use a large number of partitions and require access to several partitions simultaneously must compile new SQL cursors at run-time, which impacts performance.</p>
+</li>
+</ul>
+<p>Oracle recommends that you use the system-managed approach, as described in <a href="dom_idx.htm#GUID-E370B5E4-BAC0-49C6-B17D-830B3A507FB4">Building Domain Indexes</a> .</p>
+<p>Oracle plans to deprecate the user-managed approach in a future release. Information provided in this appendix documents the specific differences between the user-managed and system managed processes and APIs.</p>
+</div>
+<a id="ADDCI5163"></a>
+<div class="props_rev_3"><a id="GUID-7462D3EA-85BD-4B5B-A5E2-1AF36293842E"></a>
+<h2 id="ADDCI-GUID-7462D3EA-85BD-4B5B-A5E2-1AF36293842E" class="sect2">Comparing User-Managed and System-Managed Domain Indexes</h2>
+<div>
+<p>An alternative approach would be to use system-managed domain indexes. It addresses these limitations and has the following benefits:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Because the kernel performs many more maintenance tasks on behalf of the user, there is no need for programmatic support for table and partition maintenance operations. These operations can be implemented by taking actions in the server and by using a very minimal set of interface routines. The cartridge code can then be relatively unaware of partition issues.</p>
+</li>
+<li>
+<p>The number of objects that must be managed to support local partitioned domain indexes is identical to the number for non-partitioned domain indexes. For local partitioned indexes, the domain index storage tables are equipartitioned with respect to the base tables; therefore, the number of domain index storage tables does not increase with an increase in the number of partitions.</p>
+</li>
+<li>
+<p>A single set of query and DML statements can now access and manipulate the system-partitioned storage tables, facilitating cursor sharing and enhancing performance.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADDCI5164"></a>
+<div class="props_rev_3"><a id="GUID-E6EB8460-05DD-4445-9D26-166C660FBC8C"></a>
+<h2 id="ADDCI-GUID-E6EB8460-05DD-4445-9D26-166C660FBC8C" class="sect2">Truncating Domain Indexes</h2>
+<div>
+<p>There is no explicit statement for truncating a domain index. However, when the corresponding table is truncated, your indextype&#39;s truncate method is invoked. For example:</p>
+<pre dir="ltr">TRUNCATE TABLE MyEmployees;
+</pre>
+<p>truncates <code class="codeph">ResumeTextIndex</code> by calling your <a href="user_man_idx_apnd.htm#GUID-52636350-B528-4A8D-B455-9A505177FF49">ODCIIndexTruncate()</a> method.</p>
+</div>
+</div>
+<a id="ADDCI5165"></a>
+<div class="props_rev_3"><a id="GUID-FB9C0CED-44DB-4BEA-A3EA-FCDDBCA633F1"></a>
+<h2 id="ADDCI-GUID-FB9C0CED-44DB-4BEA-A3EA-FCDDBCA633F1" class="sect2">Creating Indextypes</h2>
+<div>
+<p>Use the following syntax to create indextypes for the user-managed domain indexes.</p>
+<pre dir="ltr">CREATE INDEXTYPE TextIndexType
+FOR Contains (VARCHAR2, VARCHAR2)
+USING TextIndexMethods;
+</pre></div>
+</div>
+<a id="ADDCI5166"></a>
+<div class="props_rev_3"><a id="GUID-5FF6D703-95DE-4B2B-8DDD-B81B033B9C13"></a>
+<h2 id="ADDCI-GUID-5FF6D703-95DE-4B2B-8DDD-B81B033B9C13" class="sect2">Using Domain Indexes for the Indextype</h2>
+<div>
+<p>In order for the indextype to be able to use local domain indexes, the methods have to be declared when the indextype is created:</p>
+<pre dir="ltr">CREATE INDEXTYPE TextIndexType
+  FOR Contains (VARCHAR2, VARCHAR2)
+  USING TextIndexMethods
+  WITH LOCAL RANGE PARTITION;
+</pre></div>
+</div>
+<a id="ADDCI5167"></a>
+<div class="props_rev_3"><a id="GUID-8DC3EBAE-14A3-4756-8597-3B9FED1F6B52"></a>
+<h2 id="ADDCI-GUID-8DC3EBAE-14A3-4756-8597-3B9FED1F6B52" class="sect2">Partitioning Domain Indexes</h2>
+<div>
+<p>The user-managed approach uses the methods <a href="user_man_idx_apnd.htm#GUID-EAD6AFA0-C6CE-4460-9356-58B83326D6FF">ODCIIndexMergePartition()</a> and <a href="user_man_idx_apnd.htm#GUID-EC508CB7-DD22-4A67-8E09-E7F43D16BE79">ODCIIndexSplitPartition()</a> to support local domain indexes.</p>
+</div>
+</div>
+<a id="ADDCI5168"></a>
+<div class="props_rev_3"><a id="GUID-DD53986C-530C-47F3-989F-3A625A84423D"></a>
+<h2 id="ADDCI-GUID-DD53986C-530C-47F3-989F-3A625A84423D" class="sect2">APIs for User-Managed Domain Indexes</h2>
+<div>
+<p>The following methods are used only in the user-managed implementation of domain indexes.</p>
+</div>
+<a id="ADDCI5170"></a><a id="ADDCI5171"></a><a id="ADDCI5172"></a><a id="ADDCI5169"></a>
+<div class="props_rev_3"><a id="GUID-52636350-B528-4A8D-B455-9A505177FF49"></a>
+<h3 id="ADDCI-GUID-52636350-B528-4A8D-B455-9A505177FF49" class="sect3">ODCIIndexTruncate()</h3>
+<div>
+<p>This is an index definition method. When a user issues a <code class="codeph">TRUNCATE</code> statement against a table that contains a column or object type attribute indexed by your indextype, Oracle calls your <a href="user_man_idx_apnd.htm#GUID-52636350-B528-4A8D-B455-9A505177FF49">ODCIIndexTruncate()</a> method. This method should leave the domain index empty.</p>
+<div class="section">
+<p class="subhead3">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<pre dir="ltr">FUNCTION ODCIIndexTruncate(
+   ia ODCIIndexInfo, 
+   env ODCIEnv) 
+RETURN NUMBER
+</pre>
+<div class="tblformal" id="GUID-52636350-B528-4A8D-B455-9A505177FF49__GUID-3D55A019-D055-4858-B5B7-D79E8781A6DD">
+<table class="cellalignment5987" summary="Parameters and their descriptions">
+<thead>
+<tr class="cellalignment5978">
+<th class="cellalignment6023" id="d83060e501">Parameter</th>
+<th class="cellalignment6084" id="d83060e504">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e509" headers="d83060e501">
+<pre dir="ltr">ia
+</pre></td>
+<td class="cellalignment6085" headers="d83060e509 d83060e504">
+<p>Contains information about the indexed column</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e516" headers="d83060e501">
+<pre dir="ltr">env
+</pre></td>
+<td class="cellalignment6085" headers="d83060e516 d83060e504">
+<p>The environment handle passed to the routine</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Returns</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p><code class="codeph">ODCIConst.Success</code> on success, or <code class="codeph">ODCIConst.Error</code> on error, or <code class="codeph">ODCIConst.Warning</code>.</p>
+<p>While truncating a local domain index, the first <span class="italic">N</span>+1 calls can return <code class="codeph">ODCIConst.ErrContinue</code> too.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>This function should be implemented as a static type method.</p>
+</li>
+<li>
+<p>After this function executes, the domain index should be empty (corresponding to the empty base table).</p>
+</li>
+<li>
+<p>While the <a href="user_man_idx_apnd.htm#GUID-52636350-B528-4A8D-B455-9A505177FF49">ODCIIndexTruncate()</a> routine is being executed, the domain index is marked <code class="codeph">LOADING</code>. If the <a href="user_man_idx_apnd.htm#GUID-52636350-B528-4A8D-B455-9A505177FF49">ODCIIndexTruncate()</a> routine returns with an <code class="codeph">ODCIConst</code>.<code class="codeph">Error</code> (or exception), the domain index is marked <code class="codeph">FAILED</code>. The only operation permitted on <code class="codeph">FAILED</code> domain indexes is <code class="codeph">DROP</code> <code class="codeph">INDEX</code>, <code class="codeph">TRUNCATE</code> <code class="codeph">TABLE</code> or <code class="codeph">ALTER</code> <code class="codeph">INDEX</code> <code class="codeph">REBUILD</code>. If <a href="user_man_idx_apnd.htm#GUID-52636350-B528-4A8D-B455-9A505177FF49">ODCIIndexTruncate()</a> returns with <code class="codeph">ODCIConst</code>.<code class="codeph">Warning</code>, the operation succeeds but a warning message is returned to the user.</p>
+</li>
+<li>
+<p>Every SQL statement executed by <a href="user_man_idx_apnd.htm#GUID-52636350-B528-4A8D-B455-9A505177FF49">ODCIIndexTruncate()</a> is treated as an independent operation. The changes made by <a href="user_man_idx_apnd.htm#GUID-52636350-B528-4A8D-B455-9A505177FF49">ODCIIndexTruncate()</a> are not guaranteed to be atomic.</p>
+</li>
+<li>
+<p>This method is invoked for truncating a non-partitioned index, truncating a local domain index, and also for truncating a single index partition during <code class="codeph">ALTER TABLE TRUNCATE PARTITION</code>.</p>
+<p>For truncating a non-partitioned index, the <a href="user_man_idx_apnd.htm#GUID-52636350-B528-4A8D-B455-9A505177FF49">ODCIIndexTruncate()</a> is invoked with the <code class="codeph">IndexPartition</code>, <code class="codeph">TablePartition</code> and <code class="codeph">callProperty</code> set to <code class="codeph">NULL</code>.</p>
+<p>For truncating a local domain index, the routine is invoked <span class="italic">N</span>+2 times, where <span class="italic">N</span> is the number of partitions.</p>
+<p>For truncating a single index partition during <code class="codeph">ALTER TABLE TRUNCATE PARTITION</code>, this routine is invoked with the <code class="codeph">IndexPartition</code> and the <code class="codeph">TablePartition</code> filled in and the <code class="codeph">callProperty</code> set to <code class="codeph">NULL</code>.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADDCI5174"></a><a id="ADDCI5175"></a><a id="ADDCI5176"></a><a id="ADDCI5173"></a>
+<div class="props_rev_3"><a id="GUID-EAD6AFA0-C6CE-4460-9356-58B83326D6FF"></a>
+<h3 id="ADDCI-GUID-EAD6AFA0-C6CE-4460-9356-58B83326D6FF" class="sect3">ODCIIndexMergePartition()</h3>
+<div>
+<p>Invoked when a <code class="codeph">ALTER TABLE MERGE PARTITION</code> is issued on range partitioned table on which a domain index is defined.</p>
+<div class="section">
+<p class="subhead3">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<pre dir="ltr">FUNCTION ODCIIndexMergePartition(
+   ia ODCIIndexInfo, 
+   part_name1 ODCIPartInfo, 
+   part_name2 ODCIPartInfo, 
+   parms VARCHAR2, 
+   env ODCIEnv) 
+RETURN NUMBER
+</pre>
+<div class="tblformal" id="GUID-EAD6AFA0-C6CE-4460-9356-58B83326D6FF__GUID-5B2A7F43-DD08-4836-BCF3-8FDCE731F959">
+<table class="cellalignment5987" summary="Parameters and their descriptions">
+<thead>
+<tr class="cellalignment5978">
+<th class="cellalignment6023" id="d83060e747">Parameter</th>
+<th class="cellalignment6084" id="d83060e750">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e755" headers="d83060e747">
+<pre dir="ltr">ia
+</pre></td>
+<td class="cellalignment6085" headers="d83060e755 d83060e750">
+<p>Contains index and table partition name for one of the partitions to be merged</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e762" headers="d83060e747">
+<pre dir="ltr">part_name1
+</pre></td>
+<td class="cellalignment6085" headers="d83060e762 d83060e750">
+<p>Contains index and table partition name for the second partition to be merged</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e769" headers="d83060e747">
+<pre dir="ltr">part_name2
+</pre></td>
+<td class="cellalignment6085" headers="d83060e769 d83060e750">
+<p>Holds index and table partition name for the new merged partition</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e776" headers="d83060e747">
+<pre dir="ltr">parms
+</pre></td>
+<td class="cellalignment6085" headers="d83060e776 d83060e750">
+<p>Contains the parameter string for the resultant merged partition, essentially the default parameter string associated with the index.</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e783" headers="d83060e747">
+<pre dir="ltr">env
+</pre></td>
+<td class="cellalignment6085" headers="d83060e783 d83060e750">
+<p>The environment handle passed to the routine</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Returns</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p><code class="codeph">ODCIConst.Success</code> on success, or <code class="codeph">ODCIConst.Error</code> on error, or <code class="codeph">ODCIConst.Warning</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The function should be implemented as a static type method.</p>
+</li>
+<li>
+<p>You should create a new table representing the resultant merged partition and populate it with data from the merged partitions. Then drop the tables corresponding to the merged index partitions.</p>
+</li>
+<li>
+<p>The newly created partition should pick the default parameter string associated with the index level. Resulting local index partitions are marked <code class="codeph">UNUSABLE</code>; you should not attempt to populate the data in the new partition until after an <code class="codeph">ALTER INDEX REBUILD PARTITION</code> call.</p>
+</li>
+<li>
+<p>The old table and the dictionary entries for the old index partitions are deleted before the call to <a href="user_man_idx_apnd.htm#GUID-EAD6AFA0-C6CE-4460-9356-58B83326D6FF">ODCIIndexMergePartition()</a>, so the cartridge code for this routine should not rely on the existence of this data in the views.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADDCI5178"></a><a id="ADDCI5179"></a><a id="ADDCI5180"></a><a id="ADDCI5177"></a>
+<div class="props_rev_3"><a id="GUID-EC508CB7-DD22-4A67-8E09-E7F43D16BE79"></a>
+<h3 id="ADDCI-GUID-EC508CB7-DD22-4A67-8E09-E7F43D16BE79" class="sect3">ODCIIndexSplitPartition()</h3>
+<div>
+<p>Invoked when an <code class="codeph">ALTER TABLE SPLIT PARTITION</code> is invoked on a partitioned table where a domain index is defined.</p>
+<div class="section">
+<p class="subhead3">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<pre dir="ltr">FUNCTION ODCIIndexSplitPartition(
+   ia ODCIIndexInfo, 
+   part_name1 ODCIPartInfo, 
+   part_name2 ODCIPartInfo, 
+   parms VARCHAR2, 
+   env ODCIEnv) 
+RETURN NUMBER
+</pre>
+<div class="tblformal" id="GUID-EC508CB7-DD22-4A67-8E09-E7F43D16BE79__GUID-DB2FD348-D814-4142-9E1D-0849A49BFD4C">
+<table class="cellalignment5987" summary="Parameters and their descriptions">
+<thead>
+<tr class="cellalignment5978">
+<th class="cellalignment6023" id="d83060e904">Parameter</th>
+<th class="cellalignment6084" id="d83060e907">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e912" headers="d83060e904">
+<pre dir="ltr">ia
+</pre></td>
+<td class="cellalignment6085" headers="d83060e912 d83060e907">
+<p>Contains the information about the partition to be split</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e919" headers="d83060e904">
+<pre dir="ltr">part_name1
+</pre></td>
+<td class="cellalignment6085" headers="d83060e919 d83060e907">
+<p>Holds the index and table partition names for one of the new partitions</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e926" headers="d83060e904">
+<pre dir="ltr">part_name2
+</pre></td>
+<td class="cellalignment6085" headers="d83060e926 d83060e907">
+<p>Holds the index and table partition names for the other new partition</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e933" headers="d83060e904">
+<pre dir="ltr">parms
+</pre></td>
+<td class="cellalignment6085" headers="d83060e933 d83060e907">
+<p>Contains the parameter string for the new partitions, the string associated with the index partition that is being split.</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6026" id="d83060e940" headers="d83060e904">
+<pre dir="ltr">env
+</pre></td>
+<td class="cellalignment6085" headers="d83060e940 d83060e907">
+<p>The environment handle passed to the routine</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Returns</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p><code class="codeph">ODCIConst.Success</code> on success, or <code class="codeph">ODCIConst.Error</code> on error, or <code class="codeph">ODCIConst.Warning</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The function should be implemented as a static type method.</p>
+</li>
+<li>
+<p>You must to drop the metadata corresponding to the partition that is split, and create metadata for the two newly created partitions.</p>
+</li>
+<li>
+<p>The new tables should pick up the default parameter string associated with the split partition.</p>
+</li>
+<li>
+<p>The index data corresponding to these partitions need not be computed since the indexes are marked <code class="codeph">UNUSABLE</code>. The indexes can be built after an <code class="codeph">ALTER INDEX REBUILD PARTITION</code> call makes the indexes usable again.</p>
+</li>
+<li>
+<p>The old table and the old index partition&#39;s dictionary entries are deleted before the call to <a href="user_man_idx_apnd.htm#GUID-EC508CB7-DD22-4A67-8E09-E7F43D16BE79">ODCIIndexSplitPartition()</a>, so the cartridge code for this routine should not rely on the existence of this data in the views.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5977">
+<tr>
+<td class="cellalignment5984">
+<table class="cellalignment5982">
+<tr>
+<td class="cellalignment5981"><a href="pipe_paral_tbl_ref.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5981"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5986">
+<table class="cellalignment5980">
+<tr>
+<td class="cellalignment5981"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5981"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5981"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5981"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5981"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5981"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-106349"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Error%20handling"></a><title>Error handling</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 743"/>
+<meta name="dcterms.created" content="2014-02-04T21:52:15Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database 2 Day + PHP Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E18554-05"/>
+<meta name="dcterms.isVersionOf" content="TDPPH"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2010, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="ch_six_ref_cur.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="ch_eight_query.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E18554-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">10/18</span> <!-- End Header -->
+<div id="TDPPH165" class="chapter"><a id="sthref243"></a>
+<h1 class="chapter"><span class="secnum">7</span> Error handling</h1>
+<p>Error handling in web applications should occur at many levels, protecting against everything from invalid user input right through to database errors. To make the user experience smooth, PHP errors should never be displayed to the web user. They should be captured in mid-tier log files and the user should instead be given the chance to retry or do another task. In a production system the php.ini <code>display_errors</code> setting should be <code>Off</code>.</p>
+<p>This chapter contains the following topics:</p>
+<ul>
+<li>
+<p><a href="#BABBGCIE">Database Errors</a></p>
+</li>
+<li>
+<p><a href="#BABCDEIH">Displaying a Custom Error Message</a></p>
+</li>
+</ul>
+<a id="BABBGCIE"></a>
+<div id="TDPPH166" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Database Errors</h2>
+<p>At the database level, it is recommended to check all PHP OCI8 errors.</p>
+<p>In <code>ac_db.inc.php</code>, currently the only error checking occurs at connection time in <code>__construct()</code>:</p>
+<pre>        ...
+        if (!$this-&gt;conn) {
+            $m = oci_error();
+            throw new \Exception(&#39;Cannot connect to database: &#39; . $m[&#39;message&#39;]);
+        }
+        ...
+</pre>
+<p>The <code>oci_error()</code> function returns an associative array, one element of which includes the text of the Oracle error message.</p>
+<p>Left as an extra exercise for the reader is to improve the error handling in the <code>Db</code> class. The rest of this tutorial is not dependent on any changes in this regard. Evaluate each PHP OCI8 call and decide where to check return values. Call <code>oci_error()</code> to get the text of the message. For a connection error, do not pass an argument to <code>oci_error()</code>, as shown above. Unlike connection errors where <code>oci_error()</code> takes no argument, to check errors from <code>oci_parse()</code> pass the connection resource to <code>oci_error()</code>:</p>
+<pre>$stid = oci_parse($conn, $sql);
+if (!$stid) {
+    $m = oci_error($conn)
+    ...
+}
+</pre>
+<p>For <code>oci_execute()</code> errors pass the statement handle:</p>
+<pre>$r = oci_execute($stid);
+if (!$r) {
+    $m = oci_error($stid)
+    ...
+}
+</pre></div>
+<!-- class="sect1" -->
+<a id="BABCDEIH"></a>
+<div id="TDPPH167" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Displaying a Custom Error Message</h2>
+<p>Simulate an error in <code>ac_show_equip.php</code> by editing <code>getempname()</code> and throwing an exception in <code>printcontent()</code>. PHP will give a run time error when it reaches that call:</p>
+<pre>function printcontent($sess, $empid) {
+    echo &#34;&lt;div id=&#39;content&#39;&gt;\n&#34;;
+    $db = new \Oracle\Db(&#34;Equipment&#34;, $sess-&gt;username);
+    $empname = htmlspecialchars(getempname($db, $empid), ENT_NOQUOTES, &#39;UTF-8&#39;);
+    echo &#34;$empname has: &#34;;
+ 
+    <span class="bold">throw new Exception;</span>
+ 
+    $sql = &#34;BEGIN get_equip(:id, :rc); END;&#34;;
+ 
+    ...
+</pre>
+<p>Run the application in a browser and click the <span class="bold">Show</span> link for <span class="bold">Steven King</span>. Because <span class="bold">display_errors</span> is set to <span class="bold">On</span> for development purposes, the error is displayed in the content area:</p>
+<img width="766" height="170" src="img/chap7_error_msg1.png" alt="A nice error message"/><br/>
+<p>The error is printed after the initial part of the page showing the user name is printed. In a production site with <code>display_errors</code> set to <code>Off</code>, the user would see just this partial section content being displayed, which is not ideal. To prevent this, PHP&#39;s output buffering can be used.</p>
+<p>Edit <code>ac_show_equip.php</code> and modify where <code>printcontent()</code> is called. Wrap the call in a PHP try-catch block, changing it to:</p>
+<pre>...
+$page-&gt;printMenu($sess-&gt;username, $sess-&gt;isPrivilegedUser());
+<span class="bold">ob_start();</span>
+<span class="bold">try {</span>
+    <span class="bold">printcontent($sess, $empid);</span>
+<span class="bold">} catch (Exception $e) {</span>
+    <span class="bold">ob_end_clean();</span>
+    <span class="bold">echo &#34;&lt;div id=&#39;content&#39;&gt;\n&#34;;</span>
+    <span class="bold">echo &#34;Sorry, an error occurred&#34;</span>;
+    <span class="bold">echo &#34;&lt;/div&gt;&#34;;</span>
+<span class="bold">}</span>
+<span class="bold">ob_end_flush();</span>
+$page-&gt;printFooter();
+...
+</pre>
+<p>The <code>ob_start()</code> function captures all subsequently generated output in a buffer. Other PHP <code>ob_*</code> functions allow that buffer to be discarded or flushed to the browser. In the code above, the <code>ob_end_clean()</code> call in the exception handler will discard the &#34;Steven King has:&#34; message so a custom error message can be printed.</p>
+<p>Run the application again to see the following error:</p>
+<img width="766" height="170" src="img/chap7_error_msg_2.png" alt="A nice error message"/><br/>
+<p>If you do not like using object-oriented code, an alternative to throwing and catching an exception would be to return a boolean from <code>printcontent()</code> and handle the error manually. If you want to stop execution you can use PHP&#39;s <code>trigger_error()</code>.</p>
+<p>Edit the <code>printcontent()</code> function in <code>ac_show_equip.php</code> and change the temporary line:</p>
+<pre>    throw new Exception;
+</pre>
+<p>to</p>
+<pre>    trigger_error(&#39;Whoops!&#39;, E_USER_ERROR);
+</pre>
+<p>To catch and handle PHP errors like <code>E_USER_ERROR</code>, you can use PHP&#39;s <code>set_error_handler()</code> function which allows an error handler function to be registered.</p>
+<p>At the top of <code>ac_show_equip.php</code> add a call to <code>set_error_handler()</code>:</p>
+<pre>...
+session_start();
+<span class="bold">set_error_handler(&#34;ac_error_handler&#34;);</span>
+ 
+require(&#39;ac_db.inc.php&#39;);
+require(&#39;ac_equip.inc.php&#39;);
+...
+</pre>
+<p>Also add the called function:</p>
+<pre>/**
+ * Error Handler
+ *
+ * @param integer $errno Error level raised
+ * @param string $errstr Error text
+ * @param string $errfile File name that the error occurred in
+ * @param integer $errline File line where the error occurred
+ */
+function ac_error_handler($errno, $errstr, $errfile, $errline) {
+    error_log(sprintf(&#34;PHP AnyCo Corp.: %d:  %s in %s on line %d&#34;,
+            $errno, $errstr, $errfile, $errline));
+    header(&#39;Location: ac_error.html&#39;);
+    exit;
+}
+</pre>
+<p>This records the message in the Apache log file and redirects to an error page. Create that error page in a new HTML file <code>ac_error.html</code>:</p>
+<pre>&lt;!DOCTYPE HTML PUBLIC &#34;-//W3C//DTD HTML 4.01 Transitional//EN&#34;
+       &#34;http://www.w3.org/TR/html4/loose.dtd&#34;&gt;
+&lt;html&gt;
+&lt;!-- ac_error.html: a catch-all error page --&gt;
+&lt;head&gt;
+&lt;meta http-equiv=&#34;Content-Type&#34; content=&#34;text/html; charset=utf-8&#34;&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+ 
+&lt;body bgcolor=&#34;#ffffff&#34;&gt;
+&lt;h1&gt;AnyCo Corp. Error Page&lt;/h1&gt;
+&lt;p&gt;We&#39;re sorry an error occurred.&lt;p&gt;
+&lt;p&gt;&lt;a href=&#34;index.php&#34;&gt;Login&lt;/a&gt;&lt;/p&gt;
+ 
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<p>Run the application and login. Click <span class="bold">Show</span> to see an employee&#39;s equipment. The error page is shown:</p>
+<img width="367" height="143" src="img/chap7_error_msg_3.png" alt="A nice error message"/><br/>
+<p>Locate the Apache error log on your system, for example in <code>/var/log/httpd/error_log</code> on Oracle Linux. The log will contain message generated by PHP:</p>
+<pre>[Wed Apr 27 13:06:09 2011] [error] [client 127.0.0.1] PHP AnyCo Corp.: 256:
+Whoops! in /home/chris/public_html/ACXE/ac_show_equip.php on line 71, referer:
+http://localhost/~chris/ACXE/ac_emp_list.php
+</pre>
+<p>Remove or comment out the temporary <code>trigger_error()</code> call in <code>printcontent()</code> before continuing with the next chapter.</p>
+<pre>...
+// trigger_error(&#39;Whoops!&#39;, E_USER_ERROR);
+...
+</pre></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4949">
+<tr>
+<td class="cellalignment4956">
+<table class="cellalignment4954">
+<tr>
+<td class="cellalignment4953"><a href="ch_six_ref_cur.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4953"><a href="ch_eight_query.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2010, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4958">
+<table class="cellalignment4952">
+<tr>
+<td class="cellalignment4953"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4953"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4953"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4953"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4953"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4953"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,18 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Oracle Grid Infrastructure Installation Checklist", anchor: "CWLIN444", file: "chklist.htm" },
+  { topic: "chapter", section: "2", title: "Configuring Servers for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWLIN460", file: "servers.htm" },
+  { topic: "chapter", section: "3", title: "Automatically Configuring Oracle Linux with Oracle Preinstallation RPM", anchor: "CHDJAFIJ", file: "olinrpm.htm" },
+  { topic: "chapter", section: "4", title: "Configuring Operating Systems for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWLIN168", file: "prelinux.htm" },
+  { topic: "chapter", section: "5", title: "Configuring Networks for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWLIN473", file: "networks.htm" },
+  { topic: "chapter", section: "6", title: "Configuring Users, Groups and Environments for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWLIN483", file: "usrgrps.htm" },
+  { topic: "chapter", section: "7", title: "Configuring Storage for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWLIN003", file: "storage.htm" },
+  { topic: "chapter", section: "8", title: "Installing Oracle Grid Infrastructure for a Cluster", anchor: "CWLIN315", file: "crsunix.htm" },
+  { topic: "chapter", section: "9", title: "Oracle Grid Infrastructure Postinstallation Procedures", anchor: "CWLIN326", file: "postinst.htm" },
+  { topic: "chapter", section: "10", title: "How to Modify or Deinstall Oracle Grid Infrastructure", anchor: "CWLIN345", file: "rem_orcl.htm" },
+  { topic: "appendix", section: "A", title: "Troubleshooting the Oracle Grid Infrastructure Installation Process", anchor: "CWLIN354", file: "trouble.htm" },
+  { topic: "appendix", section: "B", title: "How to Upgrade to Oracle Grid Infrastructure 12c Release 1", anchor: "CWLIN10001", file: "procstop.htm" },
+  { topic: "appendix", section: "C", title: "Installing and Configuring Oracle Database Using Response Files", anchor: "CWLIN505", file: "app_nonint.htm" },
+  { topic: "appendix", section: "D", title: "Configuring Large Memory Optimization", anchor: "CWLIN382", file: "memry.htm" },
+  { topic: "appendix", section: "E", title: "Oracle Grid Infrastructure for a Cluster Installation Concepts", anchor: "CWLIN506", file: "concepts.htm" },
+  { topic: "appendix", section: "F", title: "How to Complete Preinstallation Tasks Manually", anchor: "CWLIN515", file: "manpreins.htm" },
+  { } ];

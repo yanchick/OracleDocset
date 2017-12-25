@@ -1,0 +1,201 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-114054"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Improving%20Replication%20Performance"></a><title>Improving Replication Performance</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 726"/>
+<meta name="dcterms.created" content="2014-09-29T11:11:56Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen In-Memory Database Replication Guide"/>
+<meta name="dcterms.identifier" content="E21635-11"/>
+<meta name="dcterms.isVersionOf" content="TTREP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="conflict.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="failure.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21635-11.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">18/21</span> <!-- End Header -->
+<div id="TTREP673" class="chapter"><a id="sthref816"></a>
+<h1 class="chapter"><span class="secnum">14</span> Improving Replication Performance</h1>
+<p><a id="sthref817"></a>The following describes methods for increasing replication performance:</p>
+<ul>
+<li>
+<p>Configure parallel replication. See <a href="setup.htm#CHDGDCFF">&#34;Configuring parallel replication&#34;</a>.</p>
+</li>
+<li>
+<p>Use asynchronous replication, which is the default. For more information, see <a href="design.htm#CACDAGDH">&#34;Making decisions about performance and recovery tradeoffs&#34;</a>. However, if you are using active standby pairs, return twosafe (synchronous replication) has better performance than return receipt (semi-synchronous replication).</p>
+</li>
+<li>
+<p>Set the <code>LogFileSize</code> and <code>LogBufMB</code> first connection attributes to their maximum values. For more information, see <a href="setup.htm#CEGGAFHB">&#34;Setting connection attributes for logging&#34;</a>.</p>
+</li>
+<li>
+<p>If the workload is heavy enough that replication sometimes falls behind, replicated changes must be captured from the transaction logs on disk rather than from the in-memory log buffer. Using the fastest possible storage for the TimesTen transaction logs reduces I/O contention between transaction log flushing and replication capture and helps replication to catch up more quickly during periods of reduced workload. Consider using a high performance, cached disk array using a RAID-0 stripe across multiple fast disks or solid state storage.</p>
+</li>
+<li>
+<p>Experiment with the number of connections to the database where the updates are applied. If you need more than 64 concurrent connections, set the <code>Connections</code> first connection attribute to a higher value. See <a class="olink TTREF140" href="../TTREF/attribute.htm#TTREF140">&#34;Connections&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</li>
+<li>
+<p>Adjust the transaction log buffer size and CPU power and resources. See <a href="#CFHBFJEE">&#34;Adjust transaction log buffer size and CPU&#34;</a>.</p>
+</li>
+<li>
+<p>There can be performance issues after altering tables with multiple partitions and extraneous space. For more information, see <a href="#CFHFIGDA">&#34;Performance considerations when altering tables that are replicated&#34;</a>.</p>
+</li>
+<li>
+<p>Increase the number of threads that apply changes from the active master database to the standby master database by altering the <code>RecoveryThreads</code> first connection attribute. For details, see <a href="#CFHFAFFE">&#34;Increase replication throughput for active standby pairs&#34;</a>.</p>
+</li>
+<li>
+<p>Replication and XLA operations have significant overhead with transaction logging. Replication scales best when there are a limited number of transmitters or receivers. For more information, see <a href="#CFHFEEHD">&#34;Limit replication transmitters, receivers, and XLA readers&#34;</a>.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Additional recommendations can be found in <a class="olink TTTRB316" href="../TTTRB/rep_trouble.htm#TTTRB316">&#34;Poor replication or XLA performance&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Troubleshooting Guide</span>.</div>
+<a id="CFHBFJEE"></a>
+<div id="TTREP761" class="sect1">
+<h2 class="sect1">Adjust transaction log buffer size and CPU</h2>
+<p>If you are planning a replication scheme, ensure the following:</p>
+<ul>
+<li>
+<p>The transaction log setting for <code>LogBufMB</code> should result in the value of <code>LOG_FS_READS</code> in the <code>SYS.MONITOR</code> table being 0 or close to 0. This ensures that the replication agent does not have to read any transaction log records from disk. If the value of <code>LOG_FS_READS</code> is increasing, then increase the transaction log buffer size.</p>
+</li>
+<li>
+<p>CPU resources are adequate. The replication agent on the master database spawns a thread for every subscriber database. Each thread reads and processes the transaction log independently and needs adequate CPU resources to make progress.</p>
+</li>
+<li>
+<p>If the sending side and receiving side of the replication scheme are mismatched in CPU power, place the replication receiver on the faster system.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect1" -->
+<a id="CFHFIGDA"></a>
+<div id="TTREP762" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Performance considerations when altering tables that are replicated<a id="sthref818"></a><a id="sthref819"></a><a id="sthref820"></a><a id="sthref821"></a><a id="sthref822"></a><a id="sthref823"></a><a id="sthref824"></a></h2>
+<p>Altering a table to add or remove columns may lead to performance degradation or poor space utilization.</p>
+<ul>
+<li>
+<p>When you alter a table to add one or more columns, the table is allocated a new partition for the additional columns. The additional partition causes extra processing when retrieving the data, resulting in reduced performance. See <a class="olink TTSQL286" href="../TTSQL/state.htm#TTSQL286">&#34;ALTER TABLE&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span> for more information on understanding how partitions are added when using <code>ALTER TABLE</code>.</p>
+</li>
+<li>
+<p>When you alter a table to drop a column, the space is not always freed resulting in poor space utilization.</p>
+</li>
+</ul>
+<p>Any replication scheme defined with the <code>TABLE DEFINITION CHECKING EXACT</code> attribute requires that the physical structure of the table be identical on both master databases in order to be able to replicate operations between them. When using the <code>EXACT</code> table definition checking attribute, the only method to free the extraneous space resulted from dropped columns or eliminate extra partitions resulting from added columns is to drop and re-create the table, and then reload the data into the table.</p>
+<p>However, if you create the tables with the <code>TABLE DEFINITION CHECKING RELAXED</code> attribute, then (while they must have the same key definition, number of columns, and column data types) the physical structure does not need to be identical on both master databases. The <code>TABLE DEFINITION CHECKING RELAXED</code> attribute can result in slightly slower performance, but only if the tables on both masters are not identical. The change in performance depends on the workload and the number of partitions and columns in the tables.</p>
+<p>To improve performance for databases set with <code>RELAXED</code>, you can <a id="sthref825"></a>use <code>ttMigrate -r -relaxedUpgrade</code> to coalesce tables eliminating extraneous space from dropped columns or multiple partitions that were created when adding columns. This can be performed on one database, while the other database is still up and accepting requests on behalf of the application. You do not have to take both databases involved in replication down at the same time, but can perform <code>ttMigrate -r -relaxedUpgrade</code> on each one individually one after the other. This is optimal for databases where the tables are altered often and where the database can only perform online upgrades.</p>
+<p>You can only coalesce partitions and eliminate extraneous space with <code>ttMigrate -r -relaxedUpgrade</code> on replicated tables when the table definition checking to <code>RELAXED</code>. However, if your tables have been using the <code>EXACT</code> attribute, then you can temporarily set table definition checking to <code>RELAXED</code>, consolidate the partitions and space for your tables, and then reset it to <code>EXACT</code>.</p>
+<p>For more information on the <code>TABLE DEFINITION CHECKING RELAXED</code> attribute, see <a href="attrib.htm#CHDFABDJ">&#34;Column definition options for replicated tables&#34;</a>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can check if the table has multiple partitions. For details, see the instructions in both the &#34;Understanding partitions when using ALTER TABLE&#34; section detailed within <a class="olink TTSQL286" href="../TTSQL/state.htm#TTSQL286">&#34;ALTER TABLE&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span> and <a class="olink TTTRB196" href="../TTTRB/datastore_trouble.htm#TTTRB196">&#34;Check partition counts for the tables&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Troubleshooting Guide</span>.</div>
+</div>
+<!-- class="sect1" -->
+<a id="CFHFAFFE"></a>
+<div id="TTREP763" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Increase replication <a id="sthref826"></a><a id="sthref827"></a><a id="sthref828"></a>throughput for active standby pairs</h2>
+<p>You can increase replication throughput for active standby pairs by configuring parallel replication. By default, replication is performed with a single thread where the nodes in a replication scheme have one log reader, or transmitter thread, on the source database, and one applier, or receiving thread, on the target database. Parallel replication instantiates multiple threads to transmit updates from the source database to the target database and to apply these updates on the target database. For more informtion, see <a href="setup.htm#CHDGDCFF">&#34;Configuring parallel replication&#34;</a>.</p>
+<p>Alternatively, you can use the <code>ReceiverThreads</code> first connection attribute to increase the number of threads that apply changes from the active master database to the standby master database from 1 to 2. If you set <code>ReceiverThreads</code> to 2 on the standby, you should also set it to 2 on the active to maintain increased throughput if there is a failover.</p>
+<p>You can also set <code>ReceiverThreads</code> to 2 on one or more read-only subscribers in an active standby pair to increase replication throughput from the standby master database.</p>
+<p>Databases must be hosted on systems that are 2-way or larger to take advantage of setting this attribute to 2.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more details, see <a class="olink TTREF152" href="../TTREF/attribute.htm#TTREF152">&#34;ReceiverThreads&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+</div>
+<!-- class="sect1" -->
+<a id="CFHFEEHD"></a>
+<div id="TTREP764" class="sect1">
+<h2 class="sect1">Limit replication transmitters, receivers, and XLA readers</h2>
+<p>Replication and XLA operations have significant overhead with transaction logging. Replication scales best when there are a limited number of transmitters or receivers. Check your replication topology and see if you can simplify it. Generally, XLA scales best when there are a limited number of readers. If your application has numerous readers, see if you can reduce the number.</p>
+<p>Monitor XLA and replication to ensure they are reading from the transaction log buffer rather than from the disk. With a lot of concurrent updates, replication may not keep up. Updates are single-threaded at the subscriber. You can achieve better XLA throughput if the frequency of acknowledgements is reduced.</p>
+<p>Estimate the number of readers and transmitters required by checking the values in the <code>LOG_FS_READS</code> and <code>LOG_BUFFER_WAITS</code> columns in the <code>SYS.MONITOR</code> table. The system updates this information each time a connection is made or released and each time a transaction is committed or rolled back.</p>
+<p>Setting <code>LogFlushMethod</code>=<span class="bold">2</span> can improve performance of <code>RETURN TWOSAFE</code> replication operations and <code>RETURN RECEIPT</code> with <code>DURABLE TRANSMIT</code> operations.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5803">
+<tr>
+<td class="cellalignment5812">
+<table class="cellalignment5808">
+<tr>
+<td class="cellalignment5807"><a href="conflict.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5807"><a href="failure.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5814">
+<table class="cellalignment5806">
+<tr>
+<td class="cellalignment5807"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5807"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5807"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5807"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5807"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5807"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

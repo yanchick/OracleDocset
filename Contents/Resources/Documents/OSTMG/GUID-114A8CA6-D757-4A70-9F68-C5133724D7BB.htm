@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-86595"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Understanding%20Oracle%20ASM%20Striping"></a><title>Understanding Oracle ASM Striping</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-07-10T10:06:05Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Automatic Storage Management Administrator&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E41058-12"/>
+<meta name="dcterms.isVersionOf" content="OSTMG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2007, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-1E5C4FAD-087F-4598-B959-E66670804C4F.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-B06B993D-0339-468C-9FAF-85AF5D8E1B1B.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41058-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB"></a> <span id="PAGE" style="display:none;">20/612</span> <!-- End Header -->
+<a id="OSTMG94065"></a><a id="OSTMG94066"></a><a id="OSTMG94064"></a>
+<h1 id="OSTMG-GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB" class="sect1">Understanding Oracle ASM Striping</h1>
+<div>
+<p><a id="d12189e132" class="indexterm-anchor"></a><a id="d12189e136" class="indexterm-anchor"></a><a id="d12189e140" class="indexterm-anchor"></a>Oracle ASM striping has two primary purposes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To balance loads across all of the disks in a disk group</p>
+</li>
+<li>
+<p>To reduce I/O latency</p>
+</li>
+</ul>
+<p>Coarse-grained striping provides load balancing for disk groups while fine-grained striping reduces latency for certain file types by spreading the load more widely.</p>
+<p>To stripe data, Oracle ASM separates files into stripes and spreads data evenly across all of the disks in a disk group. The fine-grained stripe size always equals 128 KB in any configuration; this provides lower I/O latency for small I/O operations. The coarse-grained stripe size is always equal to the AU size (not the data extent size).</p>
+<p><a href="GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB.htm#GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB__BABJFCCF">Figure 1-5</a> and <a href="GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB.htm#GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB__BABDFCBI">Figure 1-6</a> are illustrations of Oracle ASM file striping. In both illustrations, the allocation unit size has been set to 1 M (<code class="codeph">AU_SIZE</code> = <code class="codeph">1M</code>) for the disk group which consists of 8 disks. The instance is Oracle ASM 11<span class="italic">g</span> Release 2 (11.2) and the disk group compatibility attributes for ASM and RDBMS have been set to <code class="codeph">11.2</code>, so variable extents are shown in the graphic after the first 20,000 extents. For the first 20,000 extents, the extent size is 1 M and equals one allocation unit (AU). For the next 20,000 extents, the extent size is 4 M and equals 4 AUs.</p>
+<p>To identify the stripe chunks of the file, they have been labeled A..X (24 letters) using different fonts for successive series of A..X until all the chunks have been identified.</p>
+<p>In <a href="GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB.htm#GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB__BABJFCCF">Figure 1-5</a>, the file is striped in 128 K chunks (labeled A..X) with each 128 K chunk stored in an extent, starting at the first extent in disk 1, then the first extent in disk 2, and then continuing in a round-robin pattern through all the disks until the entire file has been striped. As shown in this example, the striping chunks first fill up the first extent of each disk, then the second extent of each disk, and so on until the entire file has been striped.</p>
+<div class="figure" id="GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB__BABJFCCF">
+<p class="titleinfigure">Figure 1-5 Oracle ASM Fine-Grained Striping</p>
+<img width="651" height="305" src="img/GUID-563D3C25-AD93-423A-9DB7-607C5BCE6EB4-default.gif" alt="Description of Figure 1-5 follows" title="Description of Figure 1-5 follows"/><br/>
+<a href="img_text/GUID-563D3C25-AD93-423A-9DB7-607C5BCE6EB4-print.htm">Description of &#34;Figure 1-5 Oracle ASM Fine-Grained Striping&#34;</a></div>
+<!-- class="figure" -->
+<p>In <a href="GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB.htm#GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB__BABDFCBI">Figure 1-6</a>, the file is striped in 1 M chunks (labeled A..X) with each 1 M chunk stored uniquely in an extent, starting at the first extent in disk 1, then the first extent in disk 2, and then continuing in a round-robin pattern through all the disks until the entire file has been striped. For the first 20,000 extents where the AU equals the extent size (1 M), the stripe equals the extent size and allocation unit size.For the variable extents, where an extent is composed of multiple allocation units, the file stripe is located in an AU of the extent. The striping chunks are placed in the allocation units of the first extents of all the disks before the striping continues to the next extent.</p>
+<div class="figure" id="GUID-114A8CA6-D757-4A70-9F68-C5133724D7BB__BABDFCBI">
+<p class="titleinfigure">Figure 1-6 Oracle ASM Coarse-Grained Striping</p>
+<img width="651" height="305" src="img/GUID-CC36614D-7D11-45F9-9622-BD14D6394309-default.gif" alt="Description of Figure 1-6 follows" title="Description of Figure 1-6 follows"/><br/>
+<a href="img_text/GUID-CC36614D-7D11-45F9-9622-BD14D6394309-print.htm">Description of &#34;Figure 1-6 Oracle ASM Coarse-Grained Striping&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1687">
+<tr>
+<td class="cellalignment1694">
+<table class="cellalignment1692">
+<tr>
+<td class="cellalignment1691"><a href="GUID-1E5C4FAD-087F-4598-B959-E66670804C4F.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1691"><a href="GUID-B06B993D-0339-468C-9FAF-85AF5D8E1B1B.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2007, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1696">
+<table class="cellalignment1690">
+<tr>
+<td class="cellalignment1691"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1691"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1691"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1691"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1691"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1691"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

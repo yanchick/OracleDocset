@@ -1,0 +1,1732 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-134"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Creating%20Your%20Own%20DBFS%20Store"></a><title>Creating Your Own DBFS Store</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="DBFS, store creation, DBFS SPI (DBMS_DBFS_CONTENT_SPI), DBMS_DBFS_CONTENT_SPI, Content SPI (Store Provider Interface), creating a custom provider, TaBleFileSystem Store Provider ("/>
+<meta name="dcterms.created" content="2017-03-16T22:27:47Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SecureFiles and Large Objects Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E17605-12"/>
+<meta name="dcterms.isVersionOf" content="ADLOB"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2015, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="adlob_cont.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="adlob_client.htm" title="Next" type="text/html"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-01819696-9FE0-41AB-9388-A0ECA1F72E52"></a> <span id="PAGE" style="display:none;">15/34</span> <!-- End Header -->
+<a id="ADLOB0079"></a>
+<h1 id="ADLOB-GUID-01819696-9FE0-41AB-9388-A0ECA1F72E52" class="sect1"><span class="enumeration_chapter">9</span> Creating Your Own DBFS Store</h1>
+<div>
+<p>You can create your own DBFS Store using DBFS Content SPI (<code class="codeph">DBMS_DBFS_CONTENT_SPI)</code>.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_dbstore.htm#GUID-15A25729-A83D-4B0B-8858-E9DEDA9C4554" title="In order to customize a DBFS store, you must implement the DBFS Content SPI (DBMS_DBFS_CONTENT_SPI). It is the basis for existing stores such as the DBFS SecureFiles Store and the DFFS Hierarchical Store, as well as any user-defined DBFS stores that you create.">Overview of DBFS Store Creation and Use</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-5EA68AD7-404E-47CC-86DE-EDB2EBA68119" title="The DBFS Content SPI (Store Provider Interface) is a specification only and has no package body.">DBFS Content Store Provider Interface (DBFS Content SPI)</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-FC7FD421-751A-4D8C-927C-A046AFDFD492" title="You can use this example store provider for DBFS, TaBleFileSystem Store Provider (&#34;tbfs&#34;), as a skeleton for custom providers or as a learning tool, to become familiar with the DBFS and its SPI.">Creating a Custom Provider</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB46227"></a><a id="ADLOB46210"></a>
+<div class="props_rev_3"><a id="GUID-15A25729-A83D-4B0B-8858-E9DEDA9C4554"></a>
+<h2 id="ADLOB-GUID-15A25729-A83D-4B0B-8858-E9DEDA9C4554" class="sect2">Overview of DBFS Store Creation and Use</h2>
+<div>
+<p>In order to customize a DBFS store, you must implement the DBFS Content SPI (<code class="codeph">DBMS_DBFS_CONTENT_SPI)</code>. It is the basis for existing stores such as the DBFS SecureFiles Store and the DFFS Hierarchical Store, as well as any user-defined DBFS stores that you create.</p>
+<p>Client-side applications, such the PL/SQL interface, invoke functions and procedures in the DBFS Content API. The DBFS Content API then invokes corresponding subprograms in the DBFS Content SPI to create stores and perform other related functions. See <a href="adlob_cont.htm#GUID-630BE6DB-0178-4EE4-8D7D-824BA886F68E" title="You can enable applications to use the Database File System (DBFS) in several different programming environments.">DBFS Content API</a>.</p>
+<p>Once you create your DBFS store, you run it much the same way that you would a SecureFiles Store, as described in <a href="adlob_sfstore.htm#GUID-F71C0B85-F08D-4CD0-9EB3-AB84C9B355AE" title="There are certain procedures for setting up and using a DBFS SecureFiles Store.">DBFS SecureFiles Store</a> .</p>
+<div class="figure" id="GUID-15A25729-A83D-4B0B-8858-E9DEDA9C4554__GUID-EAF65659-C9F9-4198-B8A1-D1AD3748F171">
+<p class="titleinfigure">Figure 9-1 Database File System (DBFS)</p>
+<img width="416" height="489" src="img/GUID-5E2B22F9-F87A-4A95-BD1B-AAC76C9F8462-default.gif" alt="Description of Figure 9-1 follows" title="Description of Figure 9-1 follows"/><br/>
+<a href="img_text/GUID-5E2B22F9-F87A-4A95-BD1B-AAC76C9F8462-print.htm">Description of &#34;Figure 9-1 Database File System (DBFS)&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="ADLOB46102"></a>
+<div class="props_rev_3"><a id="GUID-5EA68AD7-404E-47CC-86DE-EDB2EBA68119"></a>
+<h2 id="ADLOB-GUID-5EA68AD7-404E-47CC-86DE-EDB2EBA68119" class="sect2">DBFS Content Store Provider Interface (DBFS Content SPI)</h2>
+<div>
+<p>The DBFS Content SPI (Store Provider Interface) is a specification only and has no package body.</p>
+<p>You must implement the package body in order to respond to calls from the DBFS Content API. In other words, DBFS Content SPI is a collection of required program specifications which you must implement using the method signatures and semantics indicated.</p>
+<p>You may add additional functions and procedures to the DBFS Content SPI package body as needed. Your implementation may implement other methods and expose other interfaces, but the DBFS Content API will not use these interfaces.</p>
+<p>The DBFS Content SPI references various elements such as constants, types, and exceptions defined by the DBFS Content API (package <code class="codeph">DBMS_DBFS_CONTENT</code>).</p>
+<p>Note that all path name references must be store-qualified, that is, the notion of mount points and full absolute path names has been normalized and converted to store-qualified path names by the DBFS Content API before it invokes any of the Provider SPI methods.</p>
+<p>Because the DBFS Content API and Provider SPI is a one-to-many pluggable architecture, the DBFS Content API uses dynamic SQL to invoke methods in the Provider SPI; this may lead to run time errors if your Provider SPI implementation does not follow the Provider SPI specification in this document.</p>
+<p>There are no explicit initial or final methods to indicate when the DBFS Content API plugs and unplugs a particular Provider SPI. Provider SPIs must be able to auto-initialize themselves at any SPI entry wpoint.</p>
+<div class="infoboxnotealso" id="GUID-5EA68AD7-404E-47CC-86DE-EDB2EBA68119__GUID-A8FF224C-9DCD-4126-8B7D-2C448D560D61">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS72231" target="_blank" href="../ARPLS/d_dbfs_content_spi.htm#ARPLS72231"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for syntax of the <code class="codeph">DBMS_DBFS_CONTENT_SPI</code> package</p>
+</li>
+<li>
+<p>See the file <code class="codeph">$ORACLE_HOME/rdbms/admin/dbmscapi.sql</code> for more information</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="ADLOB46211"></a>
+<div class="sect2"><a id="GUID-FC7FD421-751A-4D8C-927C-A046AFDFD492"></a>
+<h2 id="ADLOB-GUID-FC7FD421-751A-4D8C-927C-A046AFDFD492" class="sect2">Creating a Custom Provider</h2>
+<div>
+<p>You can use this example store provider for DBFS, TaBleFileSystem Store Provider (&#34;tbfs&#34;), as a skeleton for custom providers or as a learning tool, to become familiar with the DBFS and its SPI.</p>
+<p>This example store provider for DBFS, exposes a relational table containing a <code class="codeph">BLOB</code> column as a flat, non-hierarchical filesystem, that is, a collection of named files.</p>
+<p>To use this example, it is assumed that you have installed the Oracle Database 12<span class="italic">c</span> and are familiar with DBFS concepts, and have installed and used <code class="codeph">dbfs_client</code> and <code class="codeph">FUSE</code> to mount and access filesystems backed by the standard SFS store provider.</p>
+<p>The TaBleFileSystem Store Provider (&#34;tbfs&#34;) does not aim to be feature-rich or even complete, it does however provide a sufficient demonstration of what it takes for users of DBFS to write their own custom providers that expose their table(s) through <code class="codeph">dbfs_client</code> to traditional filesystem programs.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_dbstore.htm#GUID-FC31EEE0-061F-49CC-A02B-687086E5D10C" title="These are the mechanics of the example store provider for DBFS, TaBleFileSystem Store Provider (&#34;tbfs&#34;).">Mechanics</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-E2E72747-14A0-4334-A3AE-AC4EEDE9FD45" title="The TBFS.SQL script is the top level driver script.">TBFS.SQL</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-2ADF05F4-1FB5-4B18-9B4B-06B344B806E9" title="The TBL.SQL script creates a test user, a tablespace, the table that backs the filesystem and so on.">TBL.SQL</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-6EBE7625-C688-4346-A4C6-891772A8D821" title="The spec.sql script provide the SPI specification of the tbfs.">spec.sql</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-BEE83BB9-C2FE-448B-AF91-5AC9392E13C8" title="The body.sql script provides the SPI implementation of the tbfs.">body.sql</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-33C05C50-B474-47F8-AE49-242837A24D3F" title="The capi.sql script registers and mounts the DBFS.">capi.sql</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB46228"></a>
+<div class="props_rev_3"><a id="GUID-FC31EEE0-061F-49CC-A02B-687086E5D10C"></a>
+<h3 id="ADLOB-GUID-FC31EEE0-061F-49CC-A02B-687086E5D10C" class="sect3">Mechanics</h3>
+<div>
+<p>These are the mechanics of the example store provider for DBFS, TaBleFileSystem Store Provider (&#34;tbfs&#34;).</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_dbstore.htm#GUID-B9323C55-9154-4519-B925-A8B7A6DC2D8B" title="You will need certain files for installation and setup of the DBFS TaBleFileSystem Store Provider (&#34;tbfs&#34;).">Installation and Setup</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-99EBB22D-9D7A-419E-9C97-5A53A3079308" title="Once the example store provider for DBFS, TaBleFileSystem Store Provider (&#34;tbfs&#34;) is installed, files can be added or removed in several different ways and other changes can be made to the TBFS.">TBFS Use</a></p>
+</li>
+<li>
+<p><a href="adlob_dbstore.htm#GUID-034FE169-7B56-452F-92E7-2A7CC9236E7B" title="The TBFS is simple because its primary purpose is to serve as a teaching and learning example.">TBFS Internals</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB46229"></a>
+<div class="props_rev_3"><a id="GUID-B9323C55-9154-4519-B925-A8B7A6DC2D8B"></a>
+<h4 id="ADLOB-GUID-B9323C55-9154-4519-B925-A8B7A6DC2D8B" class="sect4">Installation and Setup</h4>
+<div>
+<p>You will need certain files for installation and setup of the DBFS TaBleFileSystem Store Provider (&#34;tbfs&#34;).</p>
+<p>The TBFS consists of the following SQL files:</p>
+<p><code class="codeph">tbfs.sql</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;top-level driver script</p>
+<p><code class="codeph">tbl.sql</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;script to create a test user, tablespace, the table backing the filesystem, and so on.</p>
+<p><code class="codeph">spec.sql</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the SPI specification of the tbfs</p>
+<p><code class="codeph">body.sql</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the SPI implementation of the tbfs</p>
+<p><code class="codeph">capi.sql</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DBFS register/mount script</p>
+<p>To install the TBFS, just run <code class="codeph">tbfs.sql</code> as <code class="codeph">SYSDBA</code>, in the directory that contains all of the above files. <code class="codeph">tbfs.sql</code> will load the other SQL files in the proper sequence.</p>
+<p>Ignoring any name conflicts, all of the SQL files should load without any compilation errors. All SQL files should also load without any run time errors, depending on the value of the &#34;plsql_warnings&#34; init.ora parameter, you may see various innocuous warnings.</p>
+<p>If there are any name conflicts (tablespace name TBFS, datafile name&#34;tbfs.f&#34;, user name TBFS, package name TBFS), the appropriate references in the various SQL files must be changed consistently.</p>
+</div>
+</div>
+<a id="ADLOB46230"></a>
+<div class="props_rev_3"><a id="GUID-99EBB22D-9D7A-419E-9C97-5A53A3079308"></a>
+<h4 id="ADLOB-GUID-99EBB22D-9D7A-419E-9C97-5A53A3079308" class="sect4">TBFS Use</h4>
+<div>
+<p>Once the example store provider for DBFS, TaBleFileSystem Store Provider (&#34;tbfs&#34;) is installed, files can be added or removed in several different ways and other changes can be made to the TBFS.</p>
+<p>A <code class="codeph">dbfs_client</code> connected as user TBFS will see a simple, non-hierarchical, filesystem backed by an RDBMS table (TBFS.TBFST).</p>
+<p>Files can be added or removed from this filesystem through SQL (that is, through DML on the underlying table), through Unix utilities (mediated by <code class="codeph">dbfs_client</code>), or through PL/SQL (using the DBFS APIs).</p>
+<p>Changes to the filesystem made through any of the access methods will be visible, in a transactionally consistent manner (that is, at commit/rollback boundaries) to all of the other access methods.</p>
+</div>
+</div>
+<a id="ADLOB46231"></a>
+<div class="props_rev_3"><a id="GUID-034FE169-7B56-452F-92E7-2A7CC9236E7B"></a>
+<h4 id="ADLOB-GUID-034FE169-7B56-452F-92E7-2A7CC9236E7B" class="sect4">TBFS Internals</h4>
+<div>
+<p>The TBFS is simple because its primary purpose is to serve as a teaching and learning example.</p>
+<p>However, the implementation shows the path towards a robust, production-quality custom SPI that can plug into the DBFS, and expose existing relational data as Unix filesystems.</p>
+<p>The TBFS makes various simplifications in order to remain concise (however, these should not be taken as inviolable limitations of DBFS or the SPI):</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The TBFS SPI package handles only a single table with a hard-coded name (TBFS.TBFST). It is possible to use dynamic SQL and additional configuration information to have a single SPI package support multiple tables, each as a separate filesystem (or even to unify data in multiple tables into a single filesystem).</p>
+</li>
+<li>
+<p>The TBFS does not support filesystem hierarchies; it imposes a flat namespace: a collection of files, identified by a simple item name, under a virtual &#34;/&#34; root directory. Implementing directory hierarchies is significantly more complex because it requires the store provider to manage parent/child relationships in a consistent manner.</p>
+<p>Moreover, existing relational data (the kind of data that TBFS is attempting to expose as a filesystem) does not typically have inter-row relationships that form a natural directory/file hierarchy.</p>
+</li>
+<li>
+<p>Because the TBFS supports only a flat namespace, most methods in the SPI are unimplemented, and the method bodies raise a <code class="codeph">dbms_dbfs_content.unsupported_operation</code> exception. This exception is also a good starting point for you to write your own custom SPI. You can start with a simple SPI skeleton cloned from the <code class="codeph">DBMS_DBFS_CONTENT_SPI</code> package, default all method bodies to ones that raise this exception, and subsequently fill in more realistic implementations incrementally.</p>
+</li>
+<li>
+<p>The table underlying the TBFS is close to being the simplest possible structure (a key/name column and a LOB column). This means that various properties used or expected by DBFS and <code class="codeph">dbfs_client</code> must be generated dynamically (the TBFS implementation shows how this is done for the <code class="codeph">std:guid</code> property).</p>
+<p>Other properties (such as Unix-style timestamps) are not implemented at all. This still allows a surprisingly functional filesystem to be implemented, but when you write your own custom SPIs, you can easily incorporate support for additional DBFS properties by expanding the structure of their underlying table(s) to include additional columns as needed, or by using existing columns in their existing tables to provide the values for these DBFS properties.</p>
+</li>
+<li>
+<p>The TBFS does not implement a rename/move method; adding support for this (a suitable <code class="codeph">UPDATE</code> statement in the <code class="codeph">renamePath</code> method) is left as an exercise for the user.</p>
+</li>
+<li>
+<p>The TBFS example uses the string &#34;tbfs&#34; in multiple places (tablespace, datafile, user, package, and even filesystem name). All these uses of &#34;tbfs&#34; belong in different namespaces&mdash;identifying which namespace corresponds to a specific occurrence of the string. &#34;tbfs&#34; in these examples is also a good learning exercise to make sure that the DBFS concepts are clear in your mind.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="ADLOB46232"></a>
+<div class="props_rev_3"><a id="GUID-E2E72747-14A0-4334-A3AE-AC4EEDE9FD45"></a>
+<h3 id="ADLOB-GUID-E2E72747-14A0-4334-A3AE-AC4EEDE9FD45" class="sect3">TBFS.SQL</h3>
+<div>
+<p>The TBFS.SQL script is the top level driver script.</p>
+<p>The TBFS.SQL script:</p>
+<pre dir="ltr">set echo on;
+ 
+@tbl
+@spec
+@body
+@capi
+ 
+quit;
+</pre></div>
+</div>
+<a id="ADLOB46233"></a>
+<div class="props_rev_3"><a id="GUID-2ADF05F4-1FB5-4B18-9B4B-06B344B806E9"></a>
+<h3 id="ADLOB-GUID-2ADF05F4-1FB5-4B18-9B4B-06B344B806E9" class="sect3">TBL.SQL</h3>
+<div>
+<p>The TBL.SQL script creates a test user, a tablespace, the table that backs the filesystem and so on.</p>
+<p>The TBL.SQL script :</p>
+<pre dir="ltr">connect / as sysdba
+ 
+create tablespace tbfs datafile &#39;tbfs.f&#39; size 100m
+    reuse autoextend on
+    extent management local
+    segment space management auto;
+ 
+create user tbfs identified by tbfs;
+alter user tbfs default tablespace tbfs;
+grant connect, resource, dbfs_role to tbfs;
+ 
+ 
+connect tbfs/tbfs;
+ 
+drop table tbfst;
+purge recyclebin;
+ 
+create table tbfst(
+    key     varchar2(256)
+            primary key
+            check           (instr(key, &#39;/&#39;) = 0),
+    data    blob)
+        tablespace tbfs
+    lob(data)
+        store as securefile
+            (tablespace tbfs);
+ 
+grant select on tbfst to dbfs_role;
+grant insert on tbfst to dbfs_role;
+grant delete on tbfst to dbfs_role;
+grant update on tbfst to dbfs_role;
+</pre></div>
+</div>
+<a id="ADLOB46234"></a>
+<div class="props_rev_3"><a id="GUID-6EBE7625-C688-4346-A4C6-891772A8D821"></a>
+<h3 id="ADLOB-GUID-6EBE7625-C688-4346-A4C6-891772A8D821" class="sect3">spec.sql</h3>
+<div>
+<p>The <code class="codeph">spec.sql</code> script provide the SPI specification of the tbfs.</p>
+<p>The <code class="codeph">spec.sql</code> script:</p>
+<pre dir="ltr">connect / as sysdba;
+ 
+create or replace package tbfs
+    authid current_user
+as
+ 
+ 
+ 
+    /*
+     * Lookup store features (see dbms_dbfs_content.feature_XXX). Lookup
+     * store id.
+     *
+     * A store ID identifies a provider-specific store, across
+     * registrations and mounts, but independent of changes to the store
+     * contents.
+     *
+     * I.e. changes to the store table(s) should be reflected in the
+     * store ID, but re-initialization of the same store table(s) should
+     * preserve the store ID.
+     *
+     * Providers should also return a &#34;version&#34; (either specific to a
+     * provider package, or to an individual store) based on a standard
+     * &lt;a.b.c&gt; naming convention (for &lt;major&gt;, &lt;minor&gt;, and &lt;patch&gt;
+     * components).
+     *
+     */
+ 
+    function    getFeatures(
+        store_name          in      varchar2)
+            return  integer;
+ 
+    function    getStoreId(
+        store_name          in      varchar2)
+            return  number;
+ 
+    function    getVersion(
+        store_name          in      varchar2)
+            return  varchar2;
+ 
+ 
+ 
+    /*
+     * Lookup pathnames by (store_name, std_guid) or (store_mount,
+     * std_guid) tuples.
+     *
+     * If the underlying &#34;std_guid&#34; is found in the underlying store,
+     * this function returns the store-qualified pathname.
+     *
+     * If the &#34;std_guid&#34; is unknown, a &#34;null&#34; value is returned. Clients
+     * are expected to handle this as appropriate.
+     *
+     */
+ 
+    function    getPathByStoreId(
+        store_name          in      varchar2,
+        guid                in      integer)
+            return  varchar2;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: space usage.
+     *
+     * Clients can query filesystem space usage statistics via the
+     * &#34;spaceUsage()&#34; method. Providers are expected to support this
+     * method for their stores (and to make a best effort determination
+     * of space usage---esp. if the store consists of multiple
+     * tables/indexes/lobs, etc.).
+     *
+     * &#34;blksize&#34; is the natural tablespace blocksize that holds the
+     * store---if multiple tablespaces with different blocksizes are
+     * used, any valid blocksize is acceptable.
+     *
+     * &#34;tbytes&#34; is the total size of the store in bytes, and &#34;fbytes&#34; is
+     * the free/unused size of the store in bytes. These values are
+     * computed over all segments that comprise the store.
+     *
+     * &#34;nfile&#34;, &#34;ndir&#34;, &#34;nlink&#34;, and &#34;nref&#34; count the number of
+     * currently available files, directories, links, and references in
+     * the store.
+     *
+     * Since database objects are dynamically growable, it is not easy
+     * to estimate the division between &#34;free&#34; space and &#34;used&#34; space.
+     *
+     */
+ 
+    procedure   spaceUsage(
+        store_name  in              varchar2,
+        blksize     out             integer,
+        tbytes      out             integer,
+        fbytes      out             integer,
+        nfile       out             integer,
+        ndir        out             integer,
+        nlink       out             integer,
+        nref        out             integer);
+ 
+ 
+ 
+    /*
+     * DBFS SPI: notes on pathnames.
+     *
+     * All pathnames used in the SPI are store-qualified, i.e. a 2-tuple
+     * of the form (store_name, pathname) (where the pathname is rooted
+     * within the store namespace).
+     *
+     *
+     * Stores/providers that support contentID-based access (see
+     * &#34;feature_content_id&#34;) also support a form of addressing that is
+     * not based on pathnames. Items are identified by an explicit store
+     * name, a &#34;null&#34; pathname, and possibly a contentID specified as a
+     * parameter or via the &#34;opt_content_id&#34; property.
+     *
+     * Not all operations are supported with contentID-based access, and
+     * applications should depend only on the simplest create/delete
+     * functionality being available.
+     *
+     */
+ 
+ 
+ 
+    /*
+     * DBFS SPI: creation operations
+     *
+     * The SPI must allow the DBFS API to create directory, file, link,
+     * and reference elements (subject to store feature support).
+     *
+     *
+     * All of the creation methods require a valid pathname (see the
+     * special exemption for contentID-based access below), and can
+     * optionally specify properties to be associated with the pathname
+     * as it is created. It is also possible for clients to fetch-back
+     * item properties after the creation completes (so that
+     * automatically generated properties (e.g. &#34;std_creation_time&#34;) are
+     * immediately available to clients (the exact set of properties
+     * fetched back is controlled by the various &#34;prop_xxx&#34; bitmasks in
+     * &#34;prop_flags&#34;).
+     *
+     *
+     * Links and references require an additional pathname to associate
+     * with the primary pathname.
+     *
+     * File pathnames can optionally specify a BLOB value to use to
+     * initially populate the underlying file content (the provided BLOB
+     * may be any valid lob: temporary or permanent). On creation, the
+     * underlying lob is returned to the client (if &#34;prop_data&#34; is
+     * specified in &#34;prop_flags&#34;).
+     *
+     * Non-directory pathnames require that their parent directory be
+     * created first. Directory pathnames themselves can be recursively
+     * created (i.e. the pathname hierarchy leading up to a directory
+     * can be created in one call).
+     *
+     *
+     * Attempts to create paths that already exist is an error; the one
+     * exception is pathnames that are &#34;soft-deleted&#34; (see below for
+     * delete operations)---in these cases, the soft-deleted item is
+     * implicitly purged, and the new item creation is attempted.
+     *
+     *
+     * Stores/providers that support contentID-based access accept an
+     * explicit store name and a &#34;null&#34; path to create a new element.
+     * The contentID generated for this element is available via the
+     * &#34;opt_content_id&#34; property (contentID-based creation automatically
+     * implies &#34;prop_opt&#34; in &#34;prop_flags&#34;).
+     *
+     * The newly created element may also have an internally generated
+     * pathname (if &#34;feature_lazy_path&#34; is not supported) and this path
+     * is available via the &#34;std_canonical_path&#34; property.
+     *
+     * Only file elements are candidates for contentID-based access.
+     *
+     */
+ 
+    procedure   createFile(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        content     in out nocopy   blob,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   createLink(
+        store_name  in              varchar2,
+        srcPath     in              varchar2,
+        dstPath     in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   createReference(
+        store_name  in              varchar2,
+        srcPath     in              varchar2,
+        dstPath     in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   createDirectory(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        prop_flags  in              integer,
+        recurse     in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+ 
+ 
+    /*
+     * DBFS SPI: deletion operations
+     *
+     * The SPI must allow the DBFS API to delete directory, file, link,
+     * and reference elements (subject to store feature support).
+     *
+     *
+     * By default, the deletions are &#34;permanent&#34; (get rid of the
+     * successfully deleted items on transaction commit), but stores may
+     * also support &#34;soft-delete&#34; features. If requested by the client,
+     * soft-deleted items are retained by the store (but not typically
+     * visible in normal listings or searches).
+     *
+     * Soft-deleted items can be &#34;restore&#34;d, or explicitly purged.
+     *
+     *
+     * Directory pathnames can be recursively deleted (i.e. the pathname
+     * hierarchy below a directory can be deleted in one call).
+     * Non-recursive deletions can be performed only on empty
+     * directories. Recursive soft-deletions apply the soft-delete to
+     * all of the items being deleted.
+     *
+     *
+     * Individual pathnames (or all soft-deleted pathnames under a
+     * directory) can be restored or purged via the restore and purge
+     * methods.
+     *
+     *
+     * Providers that support filtering can use the provider &#34;filter&#34; to
+     * identify subsets of items to delete---this makes most sense for
+     * bulk operations (deleteDirectory, restoreAll, purgeAll), but all
+     * of the deletion-related operations accept a &#34;filter&#34; argument.
+     *
+     *
+     * Stores/providers that support contentID-based access can also
+     * allow file items to be deleted by specifying their contentID.
+     *
+     */
+ 
+    procedure   deleteFile(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        soft_delete in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   deleteContent(
+        store_name  in              varchar2,
+        contentID   in              raw,
+        filter      in              varchar2,
+        soft_delete in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   deleteDirectory(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        soft_delete in              integer,
+        recurse     in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   restorePath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   purgePath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   restoreAll(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   purgeAll(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+ 
+ 
+    /*
+     * DBFS SPI: path get/put operations.
+     *
+     * Existing path items can be accessed (for query or for update) and
+     * modified via simple get/put methods.
+     *
+     * All pathnames allow their metadata (i.e. properties) to be
+     * read/modified. On completion of the call, the client can request
+     * (via &#34;prop_flags&#34;) specific properties to be fetched as well.
+     *
+     * File pathnames allow their data (i.e. content) to be
+     * read/modified. On completion of the call, the client can request
+     * (via the &#34;prop_data&#34; bitmaks in &#34;prop_flags&#34;) a new BLOB locator
+     * that can be used to continue data access.
+     *
+     * Files can also be read/written without using BLOB locators, by
+     * explicitly specifying logical offsets/buffer-amounts and a
+     * suitably sized buffer.
+     *
+     *
+     * Update accesses must specify the &#34;forUpdate&#34; flag. Access to link
+     * pathnames can be implicitly and internally deferenced by stores
+     * (subject to feature support) if the &#34;deref&#34; flag is
+     * specified---however, this is dangerous since symbolic links are
+     * not always resolvable.
+     *
+     *
+     * The read methods (i.e. &#34;getPath&#34; where &#34;forUpdate&#34; is &#34;false&#34;
+     * also accepts a valid &#34;asof&#34; timestamp parameter that can be used
+     * by stores to implement &#34;as of&#34; style flashback queries. Mutating
+     * versions of the &#34;getPath&#34; and the &#34;putPath&#34; methods do not
+     * support as-of modes of operation.
+     *
+     *
+     * &#34;getPathNowait&#34; implies a &#34;forUpdate&#34;, and, if implemented (see
+     * &#34;feature_nowait&#34;), allows providers to return an exception
+     * (ORA-54) rather than wait for row locks.
+     *
+     */
+ 
+    procedure   getPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        content     out    nocopy   blob,
+        item_type   out             integer,
+        prop_flags  in              integer,
+        forUpdate   in              integer,
+        deref       in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   getPathNowait(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        content     out    nocopy   blob,
+        item_type   out             integer,
+        prop_flags  in              integer,
+        deref       in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   getPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        amount      in out          number,
+        offset      in              number,
+        buffer      out    nocopy   raw,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   getPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        amount      in out          number,
+        offset      in              number,
+        buffers     out    nocopy   dbms_dbfs_content_raw_t,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   putPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        content     in out nocopy   blob,
+        item_type   out             integer,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   putPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        amount      in              number,
+        offset      in              number,
+        buffer      in              raw,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   putPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        written     out             number,
+        offset      in              number,
+        buffers     in              dbms_dbfs_content_raw_t,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+ 
+ 
+    /*
+     * DBFS SPI: rename/move operations.
+     *
+     * Pathnames can be renamed or moved, possibly across directory
+     * hierarchies and mount-points, but within the same store.
+     *
+     *
+     * Non-directory pathnames previously accessible via &#34;oldPath&#34; are
+     * renamed as a single item subsequently accessible via &#34;newPath&#34;;
+     * assuming that &#34;newPath&#34; does not already exist.
+     *
+     * If &#34;newPath&#34; exists and is not a directory, the rename implicitly
+     * deletes the existing item before renaming &#34;oldPath&#34;. If &#34;newPath&#34;
+     * exists and is a directory, &#34;oldPath&#34; is moved into the target
+     * directory.
+     *
+     *
+     * Directory pathnames previously accessible via &#34;oldPath&#34; are
+     * renamed by moving the directory and all of its children to
+     * &#34;newPath&#34; (if it does not already exist) or as children of
+     * &#34;newPath&#34; (if it exists and is a directory).
+     *
+     *
+     * Stores/providers that support contentID-based access and lazy
+     * pathname binding also support the &#34;setPath&#34; method that
+     * associates an existing &#34;contentID&#34; with a new &#34;path&#34;.
+     *
+     */
+ 
+    procedure   renamePath(
+        store_name  in              varchar2,
+        oldPath     in              varchar2,
+        newPath     in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   setPath(
+        store_name  in              varchar2,
+        contentID   in              raw,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+ 
+ 
+    /*
+     * DBFS SPI: directory navigation and search.
+     *
+     * The DBFS API can list or search the contents of directory
+     * pathnames, optionally recursing into sub-directories, optionally
+     * seeing soft-deleted items, optionally using flashback &#34;as of&#34; a
+     * provided timestamp, and optionally filtering items in/out within
+     * the store based on list/search predicates.
+     *
+     */
+ 
+    function    list(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        recurse     in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+            return  dbms_dbfs_content_list_items_t
+                pipelined;
+ 
+    function    search(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        recurse     in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+            return  dbms_dbfs_content_list_items_t
+                pipelined;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: locking operations.
+     *
+     * Clients of the DBFS API can apply user-level locks to any valid
+     * pathname (subject to store feature support), associate the lock
+     * with user-data, and subsequently unlock these pathnames.
+     *
+     * The status of locked items is available via various optional
+     * properties (see &#34;opt_lock*&#34; above).
+     *
+     *
+     * It is the responsibility of the store (assuming it supports
+     * user-defined lock checking) to ensure that lock/unlock operations
+     * are performed in a consistent manner.
+     *
+     */
+ 
+    procedure   lockPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        lock_type   in              integer,
+        lock_data   in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+    procedure   unlockPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t);
+ 
+ 
+ 
+    /*
+     * DBFS SPI: access checks.
+     *
+     * Check if a given pathname (store_name, path, pathtype) can be
+     * manipulated by &#34;operation (see the various
+     * &#34;dbms_dbfs_content.op_xxx&#34; opcodes) by &#34;principal&#34;.
+     *
+     * This is a convenience function for the DBFS API; a store that
+     * supports access control still internally performs these checks to
+     * guarantee security.
+     *
+     */
+ 
+    function    checkAccess(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        pathtype    in              integer,
+        operation   in              varchar2,
+        principal   in              varchar2)
+            return  integer;
+end;
+/
+show errors;
+ 
+create or replace public synonym tbfs
+    for sys.tbfs;
+ 
+grant execute on tbfs
+    to dbfs_role;
+</pre></div>
+</div>
+<a id="ADLOB46235"></a>
+<div class="props_rev_3"><a id="GUID-BEE83BB9-C2FE-448B-AF91-5AC9392E13C8"></a>
+<h3 id="ADLOB-GUID-BEE83BB9-C2FE-448B-AF91-5AC9392E13C8" class="sect3">body.sql</h3>
+<div>
+<p>The <code class="codeph">body.sql</code> script provides the SPI implementation of the tbfs.</p>
+<p>The <code class="codeph">body.sql</code> script:</p>
+<pre dir="ltr">connect / as sysdba;
+ 
+create or replace package body tbfs
+as
+ 
+ 
+ 
+    /*
+     * Lookup store features (see dbms_dbfs_content.feature_XXX). Lookup
+     * store id.
+     *
+     * A store ID identifies a provider-specific store, across
+     * registrations and mounts, but independent of changes to the store
+     * contents.
+     *
+     * I.e. changes to the store table(s) should be reflected in the
+     * store ID, but re-initialization of the same store table(s) should
+     * preserve the store ID.
+     *
+     * Providers should also return a &#34;version&#34; (either specific to a
+     * provider package, or to an individual store) based on a standard
+     * &lt;a.b.c&gt; naming convention (for &lt;major&gt;, &lt;minor&gt;, and &lt;patch&gt;
+     * components).
+     *
+     */
+ 
+    function    getFeatures(
+        store_name          in      varchar2)
+            return  integer
+    is
+    begin
+        return dbms_dbfs_content.feature_locator;
+    end;
+ 
+    function    getStoreId(
+        store_name          in      varchar2)
+            return  number
+    is
+    begin
+        return 1;
+    end;
+ 
+    function    getVersion(
+        store_name          in      varchar2)
+            return  varchar2
+    is
+    begin
+        return &#39;1.0.0&#39;;
+    end;
+ 
+ 
+ 
+    /*
+     * Lookup pathnames by (store_name, std_guid) or (store_mount,
+     * std_guid) tuples.
+     *
+     * If the underlying &#34;std_guid&#34; is found in the underlying store,
+     * this function returns the store-qualified pathname.
+     *
+     * If the &#34;std_guid&#34; is unknown, a &#34;null&#34; value is returned. Clients
+     * are expected to handle this as appropriate.
+     *
+     */
+ 
+    function    getPathByStoreId(
+        store_name          in      varchar2,
+        guid                in      integer)
+            return  varchar2
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: space usage.
+     *
+     * Clients can query filesystem space usage statistics via the
+     * &#34;spaceUsage()&#34; method. Providers are expected to support this
+     * method for their stores (and to make a best effort determination
+     * of space usage---esp. if the store consists of multiple
+     * tables/indexes/lobs, etc.).
+     *
+     * &#34;blksize&#34; is the natural tablespace blocksize that holds the
+     * store---if multiple tablespaces with different blocksizes are
+     * used, any valid blocksize is acceptable.
+     *
+     * &#34;tbytes&#34; is the total size of the store in bytes, and &#34;fbytes&#34; is
+     * the free/unused size of the store in bytes. These values are
+     * computed over all segments that comprise the store.
+     *
+     * &#34;nfile&#34;, &#34;ndir&#34;, &#34;nlink&#34;, and &#34;nref&#34; count the number of
+     * currently available files, directories, links, and references in
+     * the store.
+     *
+     * Since database objects are dynamically growable, it is not easy
+     * to estimate the division between &#34;free&#34; space and &#34;used&#34; space.
+     *
+     */
+ 
+    procedure   spaceUsage(
+        store_name  in              varchar2,
+        blksize     out             integer,
+        tbytes      out             integer,
+        fbytes      out             integer,
+        nfile       out             integer,
+        ndir        out             integer,
+        nlink       out             integer,
+        nref        out             integer)
+    is
+        nblks       number;
+    begin
+        select count(*) into nfile
+            from tbfs.tbfst;
+        ndir  := 0;
+        nlink := 0;
+        nref  := 0;
+ 
+        select sum(bytes) into tbytes
+            from user_segments;
+        select sum(blocks) into nblks
+            from user_segments;
+        blksize := tbytes/nblks;
+        fbytes  := 0;                                    /* change as needed */
+    end;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: notes on pathnames.
+     *
+     * All pathnames used in the SPI are store-qualified, i.e. a 2-tuple
+     * of the form (store_name, pathname) (where the pathname is rooted
+     * within the store namespace).
+     *
+     *
+     * Stores/providers that support contentID-based access (see
+     * &#34;feature_content_id&#34;) also support a form of addressing that is
+     * not based on pathnames. Items are identified by an explicit store
+     * name, a &#34;null&#34; pathname, and possibly a contentID specified as a
+     * parameter or via the &#34;opt_content_id&#34; property.
+     *
+     * Not all operations are supported with contentID-based access, and
+     * applications should depend only on the simplest create/delete
+     * functionality being available.
+     *
+     */
+ 
+ 
+ 
+    /*
+     * DBFS SPI: creation operations
+     *
+     * The SPI must allow the DBFS API to create directory, file, link,
+     * and reference elements (subject to store feature support).
+     *
+     *
+     * All of the creation methods require a valid pathname (see the
+     * special exemption for contentID-based access below), and can
+     * optionally specify properties to be associated with the pathname
+     * as it is created. It is also possible for clients to fetch-back
+     * item properties after the creation completes (so that
+     * automatically generated properties (e.g. &#34;std_creation_time&#34;) are
+     * immediately available to clients (the exact set of properties
+     * fetched back is controlled by the various &#34;prop_xxx&#34; bitmasks in
+     * &#34;prop_flags&#34;).
+     *
+     *
+     * Links and references require an additional pathname to associate
+     * with the primary pathname.
+     *
+     * File pathnames can optionally specify a BLOB value to use to
+     * initially populate the underlying file content (the provided BLOB
+     * may be any valid lob: temporary or permanent). On creation, the
+     * underlying lob is returned to the client (if &#34;prop_data&#34; is
+     * specified in &#34;prop_flags&#34;).
+     *
+     * Non-directory pathnames require that their parent directory be
+     * created first. Directory pathnames themselves can be recursively
+     * created (i.e. the pathname hierarchy leading up to a directory
+     * can be created in one call).
+     *
+     *
+     * Attempts to create paths that already exist is an error; the one
+     * exception is pathnames that are &#34;soft-deleted&#34; (see below for
+     * delete operations)---in these cases, the soft-deleted item is
+     * implicitly purged, and the new item creation is attempted.
+     *
+     *
+     * Stores/providers that support contentID-based access accept an
+     * explicit store name and a &#34;null&#34; path to create a new element.
+     * The contentID generated for this element is available via the
+     * &#34;opt_content_id&#34; property (contentID-based creation automatically
+     * implies &#34;prop_opt&#34; in &#34;prop_flags&#34;).
+     *
+     * The newly created element may also have an internally generated
+     * pathname (if &#34;feature_lazy_path&#34; is not supported) and this path
+     * is available via the &#34;std_canonical_path&#34; property.
+     *
+     * Only file elements are candidates for contentID-based access.
+     *
+     */
+ 
+    procedure   createFile(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        content     in out nocopy   blob,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+        guid        number;
+    begin
+        if (path = &#39;/&#39;) then
+            raise dbms_dbfs_content.invalid_path;
+        end if;
+ 
+        if content is null then
+            content := empty_blob();
+        end if;
+ 
+        begin
+            insert into tbfs.tbfst values (substr(path,2), content)
+                returning data into content;
+        exception
+            when dup_val_on_index then
+                raise dbms_dbfs_content.path_exists;
+        end;
+ 
+        select ora_hash(path) into guid from dual;
+ 
+        properties := dbms_dbfs_content_properties_t(
+            dbms_dbfs_content_property_t(
+                &#39;std:length&#39;,
+                to_char(dbms_lob.getlength(content)),
+                dbms_types.TYPECODE_NUMBER),
+            dbms_dbfs_content_property_t(
+                &#39;std:guid&#39;,
+                to_char(guid),
+                dbms_types.TYPECODE_NUMBER));
+    end;
+ 
+    procedure   createLink(
+        store_name  in              varchar2,
+        srcPath     in              varchar2,
+        dstPath     in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   createReference(
+        store_name  in              varchar2,
+        srcPath     in              varchar2,
+        dstPath     in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   createDirectory(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        prop_flags  in              integer,
+        recurse     in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: deletion operations
+     *
+     * The SPI must allow the DBFS API to delete directory, file, link,
+     * and reference elements (subject to store feature support).
+     *
+     *
+     * By default, the deletions are &#34;permanent&#34; (get rid of the
+     * successfully deleted items on transaction commit), but stores may
+     * also support &#34;soft-delete&#34; features. If requested by the client,
+     * soft-deleted items are retained by the store (but not typically
+     * visible in normal listings or searches).
+     *
+     * Soft-deleted items can be &#34;restore&#34;d, or explicitly purged.
+     *
+     *
+     * Directory pathnames can be recursively deleted (i.e. the pathname
+     * hierarchy below a directory can be deleted in one call).
+     * Non-recursive deletions can be performed only on empty
+     * directories. Recursive soft-deletions apply the soft-delete to
+     * all of the items being deleted.
+     *
+     *
+     * Individual pathnames (or all soft-deleted pathnames under a
+     * directory) can be restored or purged via the restore and purge
+     * methods.
+     *
+     *
+     * Providers that support filtering can use the provider &#34;filter&#34; to
+     * identify subsets of items to delete---this makes most sense for
+     * bulk operations (deleteDirectory, restoreAll, purgeAll), but all
+     * of the deletion-related operations accept a &#34;filter&#34; argument.
+     *
+     *
+     * Stores/providers that support contentID-based access can also
+     * allow file items to be deleted by specifying their contentID.
+     *
+     */
+ 
+    procedure   deleteFile(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        soft_delete in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        if (path = &#39;/&#39;) then
+            raise dbms_dbfs_content.invalid_path;
+        end if;
+ 
+        if ((soft_delete &lt;&gt; 0)      or
+            (filter is not null))   then
+            raise dbms_dbfs_content.unsupported_operation;
+        end if;
+ 
+        delete from tbfs.tbfst t
+            where (&#39;/&#39; || t.key) = path;
+ 
+        if sql%rowcount &lt;&gt; 1 then
+            raise dbms_dbfs_content.invalid_path;
+        end if;
+    end;
+ 
+    procedure   deleteContent(
+        store_name  in              varchar2,
+        contentID   in              raw,
+        filter      in              varchar2,
+        soft_delete in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   deleteDirectory(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        soft_delete in              integer,
+        recurse     in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   restorePath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   purgePath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   restoreAll(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   purgeAll(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: path get/put operations.
+     *
+     * Existing path items can be accessed (for query or for update) and
+     * modified via simple get/put methods.
+     *
+     * All pathnames allow their metadata (i.e. properties) to be
+     * read/modified. On completion of the call, the client can request
+     * (via &#34;prop_flags&#34;) specific properties to be fetched as well.
+     *
+     * File pathnames allow their data (i.e. content) to be
+     * read/modified. On completion of the call, the client can request
+     * (via the &#34;prop_data&#34; bitmaks in &#34;prop_flags&#34;) a new BLOB locator
+     * that can be used to continue data access.
+     *
+     * Files can also be read/written without using BLOB locators, by
+     * explicitly specifying logical offsets/buffer-amounts and a
+     * suitably sized buffer.
+     *
+     *
+     * Update accesses must specify the &#34;forUpdate&#34; flag. Access to link
+     * pathnames can be implicitly and internally deferenced by stores
+     * (subject to feature support) if the &#34;deref&#34; flag is
+     * specified---however, this is dangerous since symbolic links are
+     * not always resolvable.
+     *
+     *
+     * The read methods (i.e. &#34;getPath&#34; where &#34;forUpdate&#34; is &#34;false&#34;
+     * also accepts a valid &#34;asof&#34; timestamp parameter that can be used
+     * by stores to implement &#34;as of&#34; style flashback queries. Mutating
+     * versions of the &#34;getPath&#34; and the &#34;putPath&#34; methods do not
+     * support as-of modes of operation.
+     *
+     *
+     * &#34;getPathNowait&#34; implies a &#34;forUpdate&#34;, and, if implemented (see
+     * &#34;feature_nowait&#34;), allows providers to return an exception
+     * (ORA-54) rather than wait for row locks.
+     *
+     */
+ 
+    procedure   getPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        content     out    nocopy   blob,
+        item_type   out             integer,
+        prop_flags  in              integer,
+        forUpdate   in              integer,
+        deref       in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+        guid        number;
+    begin
+        if (deref &lt;&gt; 0) then
+            raise dbms_dbfs_content.unsupported_operation;
+        end if;
+ 
+        select ora_hash(path) into guid from dual;
+ 
+        if (path = &#39;/&#39;) then
+            if (forUpdate &lt;&gt; 0) then
+                raise dbms_dbfs_content.unsupported_operation;
+            end if;
+ 
+            content    := null;
+            item_type  := dbms_dbfs_content.type_directory;
+            properties := dbms_dbfs_content_properties_t(
+            dbms_dbfs_content_property_t(
+                &#39;std:guid&#39;,
+                to_char(guid),
+                dbms_types.TYPECODE_NUMBER));
+ 
+            return;
+        end if;
+ 
+        begin
+            if (forUpdate &lt;&gt; 0) then
+                select t.data into content from tbfs.tbfst t
+                    where (&#39;/&#39; || t.key) = path
+                    for update;
+            else
+                select t.data into content from tbfs.tbfst t
+                    where (&#39;/&#39; || t.key) = path;
+            end if;
+        exception
+            when no_data_found then
+                raise dbms_dbfs_content.invalid_path;
+        end;
+ 
+        item_type  := dbms_dbfs_content.type_file;
+        properties := dbms_dbfs_content_properties_t(
+            dbms_dbfs_content_property_t(
+                &#39;std:length&#39;,
+                to_char(dbms_lob.getlength(content)),
+                dbms_types.TYPECODE_NUMBER),
+            dbms_dbfs_content_property_t(
+                &#39;std:guid&#39;,
+                to_char(guid),
+                dbms_types.TYPECODE_NUMBER));
+    end;
+ 
+    procedure   getPathNowait(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        content     out    nocopy   blob,
+        item_type   out             integer,
+        prop_flags  in              integer,
+        deref       in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   getPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        amount      in out          number,
+        offset      in              number,
+        buffer      out    nocopy   raw,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+        content     blob;
+        guid        number;
+    begin
+        if (path = &#39;/&#39;) then
+            raise dbms_dbfs_content.unsupported_operation;
+        end if;
+ 
+        begin
+            select t.data into content from tbfs.tbfst t
+                where (&#39;/&#39; || t.key) = path;
+        exception
+            when no_data_found then
+                raise dbms_dbfs_content.invalid_path;
+        end;
+ 
+        select ora_hash(path) into guid from dual;
+        dbms_lob.read(content, amount, offset, buffer);
+ 
+        properties := dbms_dbfs_content_properties_t(
+            dbms_dbfs_content_property_t(
+                &#39;std:length&#39;,
+                to_char(dbms_lob.getlength(content)),
+                dbms_types.TYPECODE_NUMBER),
+            dbms_dbfs_content_property_t(
+                &#39;std:guid&#39;,
+                to_char(guid),
+                dbms_types.TYPECODE_NUMBER));
+    end;
+ 
+    procedure   getPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        amount      in out          number,
+        offset      in              number,
+        buffers     out    nocopy   dbms_dbfs_content_raw_t,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   putPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        content     in out nocopy   blob,
+        item_type   out             integer,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+        guid        number;
+    begin
+        if (path = &#39;/&#39;) then
+            raise dbms_dbfs_content.unsupported_operation;
+        end if;
+ 
+        if content is null then
+            content := empty_blob();
+        end if;
+ 
+        update tbfs.tbfst t
+            set t.data = content
+            where (&#39;/&#39; || t.key) = path
+            returning t.data into content;
+ 
+        if sql%rowcount &lt;&gt; 1 then
+            raise dbms_dbfs_content.invalid_path;
+        end if;
+ 
+        select ora_hash(path) into guid from dual;
+ 
+        item_type  := dbms_dbfs_content.type_file;
+        properties := dbms_dbfs_content_properties_t(
+            dbms_dbfs_content_property_t(
+                &#39;std:length&#39;,
+                to_char(dbms_lob.getlength(content)),
+                dbms_types.TYPECODE_NUMBER),
+            dbms_dbfs_content_property_t(
+                &#39;std:guid&#39;,
+                to_char(guid),
+                dbms_types.TYPECODE_NUMBER));
+    end;
+ 
+    procedure   putPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        amount      in              number,
+        offset      in              number,
+        buffer      in              raw,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+        content     blob;
+        guid        number;
+    begin
+        if (path = &#39;/&#39;) then
+            raise dbms_dbfs_content.unsupported_operation;
+        end if;
+ 
+        begin
+            select t.data into content from tbfs.tbfst t
+                where (&#39;/&#39; || t.key) = path
+                for update;
+        exception
+            when no_data_found then
+                raise dbms_dbfs_content.invalid_path;
+        end;
+ 
+        select ora_hash(path) into guid from dual;
+        dbms_lob.write(content, amount, offset, buffer);
+ 
+        properties := dbms_dbfs_content_properties_t(
+            dbms_dbfs_content_property_t(
+                &#39;std:length&#39;,
+                to_char(dbms_lob.getlength(content)),
+                dbms_types.TYPECODE_NUMBER),
+            dbms_dbfs_content_property_t(
+                &#39;std:guid&#39;,
+                to_char(guid),
+                dbms_types.TYPECODE_NUMBER));
+    end;
+ 
+    procedure   putPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        written     out             number,
+        offset      in              number,
+        buffers     in              dbms_dbfs_content_raw_t,
+        prop_flags  in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: rename/move operations.
+     *
+     * Pathnames can be renamed or moved, possibly across directory
+     * hierarchies and mount-points, but within the same store.
+     *
+     *
+     * Non-directory pathnames previously accessible via &#34;oldPath&#34; are
+     * renamed as a single item subsequently accessible via &#34;newPath&#34;;
+     * assuming that &#34;newPath&#34; does not already exist.
+     *
+     * If &#34;newPath&#34; exists and is not a directory, the rename implicitly
+     * deletes the existing item before renaming &#34;oldPath&#34;. If &#34;newPath&#34;
+     * exists and is a directory, &#34;oldPath&#34; is moved into the target
+     * directory.
+     *
+     *
+     * Directory pathnames previously accessible via &#34;oldPath&#34; are
+     * renamed by moving the directory and all of its children to
+     * &#34;newPath&#34; (if it does not already exist) or as children of
+     * &#34;newPath&#34; (if it exists and is a directory).
+     *
+     *
+     * Stores/providers that support contentID-based access and lazy
+     * pathname binding also support the &#34;setPath&#34; method that
+     * associates an existing &#34;contentID&#34; with a new &#34;path&#34;.
+     *
+     */
+ 
+    procedure   renamePath(
+        store_name  in              varchar2,
+        oldPath     in              varchar2,
+        newPath     in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   setPath(
+        store_name  in              varchar2,
+        contentID   in              raw,
+        path        in              varchar2,
+        properties  in out nocopy   dbms_dbfs_content_properties_t,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: directory navigation and search.
+     *
+     * The DBFS API can list or search the contents of directory
+     * pathnames, optionally recursing into sub-directories, optionally
+     * seeing soft-deleted items, optionally using flashback &#34;as of&#34; a
+     * provided timestamp, and optionally filtering items in/out within
+     * the store based on list/search predicates.
+     *
+     */
+ 
+    function    list(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        recurse     in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+            return  dbms_dbfs_content_list_items_t
+                pipelined
+    is
+    begin
+        for rws in (select * from tbfs.tbfst)
+        loop
+            pipe row(dbms_dbfs_content_list_item_t(
+                &#39;/&#39; || rws.key, rws.key, dbms_dbfs_content.type_file));
+        end loop;
+    end;
+ 
+    function    search(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        filter      in              varchar2,
+        recurse     in              integer,
+        ctx         in              dbms_dbfs_content_context_t)
+            return  dbms_dbfs_content_list_items_t
+                pipelined
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: locking operations.
+     *
+     * Clients of the DBFS API can apply user-level locks to any valid
+     * pathname (subject to store feature support), associate the lock
+     * with user-data, and subsequently unlock these pathnames.
+     *
+     * The status of locked items is available via various optional
+     * properties (see &#34;opt_lock*&#34; above).
+     *
+     *
+     * It is the responsibility of the store (assuming it supports
+     * user-defined lock checking) to ensure that lock/unlock operations
+     * are performed in a consistent manner.
+     *
+     */
+ 
+    procedure   lockPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        lock_type   in              integer,
+        lock_data   in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+    procedure   unlockPath(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        ctx         in              dbms_dbfs_content_context_t)
+    is
+    begin
+        raise dbms_dbfs_content.unsupported_operation;
+    end;
+ 
+ 
+ 
+    /*
+     * DBFS SPI: access checks.
+     *
+     * Check if a given pathname (store_name, path, pathtype) can be
+     * manipulated by &#34;operation (see the various
+     * &#34;dbms_dbfs_content.op_xxx&#34; opcodes) by &#34;principal&#34;.
+     *
+     * This is a convenience function for the DBFS API; a store that
+     * supports access control still internally performs these checks to
+     * guarantee security.
+     *
+     */
+ 
+    function    checkAccess(
+        store_name  in              varchar2,
+        path        in              varchar2,
+        pathtype    in              integer,
+        operation   in              varchar2,
+        principal   in              varchar2)
+            return  integer
+    is
+    begin
+        return 1;
+    end;
+end;
+/
+show errors;
+</pre></div>
+</div>
+<a id="ADLOB46236"></a>
+<div class="props_rev_3"><a id="GUID-33C05C50-B474-47F8-AE49-242837A24D3F"></a>
+<h3 id="ADLOB-GUID-33C05C50-B474-47F8-AE49-242837A24D3F" class="sect3">capi.sql</h3>
+<div>
+<p>The <code class="codeph">capi.sql</code> script registers and mounts the DBFS.</p>
+<p>The <code class="codeph">capi.sql</code> script:</p>
+<pre dir="ltr">connect tbfs/tbfs;
+ 
+exec dbms_dbfs_content.registerStore(&#39;MY_TBFS&#39;, &#39;table&#39;, &#39;TBFS&#39;);
+exec dbms_dbfs_content.mountStore(&#39;MY_TBFS&#39;, singleton =&gt; true);
+commit;
+</pre></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2782">
+<tr>
+<td class="cellalignment2794">
+<table class="cellalignment2787">
+<tr>
+<td class="cellalignment2786"><a href="adlob_cont.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2786"><a href="adlob_client.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2015, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2796">
+<table class="cellalignment2785">
+<tr>
+<td class="cellalignment2786"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2786"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2786"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2786"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2786"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2786"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

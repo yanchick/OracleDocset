@@ -1,0 +1,655 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-87"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20Transaction%20Guard"></a><title>Using Transaction Guard</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1080"/>
+<meta name="dcterms.created" content="2016-05-05T16:23:36Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Development Guide"/>
+<meta name="dcterms.identifier" content="E41452-07"/>
+<meta name="dcterms.isVersionOf" content="ADFNS"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2016,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="adfns_editions.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="adfns_app_continuity.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41452-07.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">36/38</span> <!-- End Header -->
+<div id="ADFNS8000" class="chapter"><a id="BABFBHEH"></a>
+<h1 class="chapter"><span class="secnum">25</span> <a id="sthref1273"></a>Using Transaction Guard</h1>
+<p><span class="bold">Transaction Guard</span> provides a generic tool for applications to use for at-most-once execution in case of planned and unplanned outages. Applications use the logical transaction ID to determine the outcome of the last transaction open in a database session following an outage. Without Transaction Guard, applications that attempt to replay operations following outages can cause logical corruption by committing duplicate transactions.</p>
+<p>Transaction Guard provides these benefits:</p>
+<ul>
+<li>
+<p>Preserves the commit outcome</p>
+</li>
+<li>
+<p>Ensures a known outcome for every transaction</p>
+</li>
+<li>
+<p>Can be used to provide at-most-once transaction execution</p>
+</li>
+</ul>
+<p>This chapter assumes that you are familiar with the major relevant concepts and techniques of the technology or product environment in which you are using Transaction Guard.</p>
+<p class="subhead2"><a id="ADFNS318"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BABFADFB">Problem that Transaction Guard Solves</a></p>
+</li>
+<li>
+<p><a href="#BABCGCCB">Solution that Transaction Guard Provides</a></p>
+</li>
+<li>
+<p><a href="#BABHIIAG">Transaction Guard Concepts and Scope</a></p>
+</li>
+<li>
+<p><a href="#BABCHJDD">Database Configuration for Transaction Guard</a></p>
+</li>
+<li>
+<p><a href="#BABICIGG">Developing Applications that Use Transaction Guard</a></p>
+</li>
+<li>
+<p><a href="#BABJCIJA">Transaction Guard and Its Relationship to Application Continuity</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink JJDBC29121" href="../JJDBC/transactionguard.htm#JJDBC29121"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> for more information about using Transaction Guard with Oracle Java Database Connectivity (JDBC)</p>
+</li>
+<li>
+<p><a class="olink LNOCI80660" href="../LNOCI/oci09adv.htm#LNOCI80660"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> for more information about using Transaction Guard with OCI</p>
+</li>
+</ul>
+</div>
+<a id="BABFADFB"></a>
+<div id="ADFNS319" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">25.1</span> Problem that Transaction Guard Solves</h2>
+<p>In applications without Transaction Guard, a fundamental problem for recovering applications after an outage is that the commit message that is sent back to the client is not durable. If there is a break between the client and the server, the client sees an error message indicating that the communication failed. This error does not inform the application if the submission executed any commit operations, if a procedural call completed and executed all expected commits and session state changes, or if a call failed part way through or, yet worse, is still running disconnected from the client.</p>
+<p>Without Transaction Guard, it is impossible or extremely difficult to determine the outcome of the last commit operation, in a guaranteed and scalable manner, after a communication failure to the server. If an application must determine whether the submission to the database was committed, the application must add custom exception code to query the outcome for every possible commit point in the application. Given that a system can fail anywhere, this is almost impractical because the query must be specific to each submission. After an application is built and is in production, this is completely impractical. Moreover, a query cannot give the correct answer because the transaction could commit immediately after that query executed. Indeed, after a communication failure the server may still be running the submission not yet aware that the client has disconnected. For PL/SQL or Java in the database, for a procedural submission, there is also no record as to whether that submission ran to completion or was aborted part way through. While such a procedure may have committed, subsequent work may not have been done for the procedure.</p>
+<p>Failing to recognize that the last submission has committed, or will commit sometime soon or has not run to completion, can lead applications that attempt to replay, thus causing duplicate transaction submissions and other forms of &#34;logical corruption&#34; because the software might try to reissue already persisted changes.</p>
+<p>Without Transaction Guard, if a transaction has been started and commit has been issued, the commit message that is sent back to the client is not durable. The client is left not knowing whether the transaction committed. The transaction cannot be validly resubmitted if the nontransactional state is incorrect or if it already committed. In the absence of guaranteed commit and completion information, resubmission can lead to transactions applied more than once and in a session with the incorrect state.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABCGCCB"></a>
+<div id="ADFNS320" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">25.2</span> Solution that Transaction Guard Provides</h2>
+<p>Effective with Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.1), Transaction Guard provides new, integrated tools for applications to use to achieve idempotence automatically and transparently, and in a manner that scales. Its key features are the following:</p>
+<ul>
+<li>
+<p>Durability of <code dir="ltr">COMMIT</code> outcome by saving a logical transaction identifier (LTXID) at commit for all supported transaction types against the database (Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.1) or later). This includes idempotence for transactions executed using autocommit, from inside PL/SQL, from remote transactions, and from callouts that cannot otherwise be identified using generic means.</p>
+</li>
+<li>
+<p>Use of the LTXID to support at-most-once execution semantics, such that database transactions protected by logical transaction identifiers cannot be duplicated when there are multiple copies of that transaction in flight identified by the LTXID.</p>
+</li>
+<li>
+<p>Blocking of a commit of in-flight work to ensure that regardless of the outage situation, another submission of the same transaction protected by that LTXID cannot commit.</p>
+</li>
+<li>
+<p>Identification of whether work committed at an LTXID was committed as part of a top-level call (client to server), or was embedded in a procedure (such as PL/SQL) at the server. An embedded commit state indicates that while a commit completed, the entire procedure in which the commit executed has not yet run to completion. Any work beyond the commit cannot be guaranteed to have completed until that procedure itself returns to the database engine.</p>
+</li>
+<li>
+<p>Identification of whether the database to which the commit resolution is directed is ahead of, in sync with, or behind the original submission, and rejection when there are gaps in the submission sequence of transactions from a client. It is considered an error to attempt to obtain an outcome if the server or client are not in sync on an LTXID sequence.</p>
+</li>
+<li>
+<p>A callback on the JDBC Thin client driver that fires when the LTXID changes. This can be used by higher layer applications such as WebLogic Server and third parties to maintain the current LTXID ready to use if needed.</p>
+</li>
+<li>
+<p>Namespace uniqueness across globally disparate databases and across databases that are consolidated into a container (pluggable) infrastructure. This includes Oracle Real Application Clusters (Oracle RAC), Data Guard, and pluggable databases.</p>
+</li>
+<li>
+<p>Service name uniqueness across global databases and across databases that are consolidated into a container (pluggable databases) infrastructure. This ensures that connections are properly directed to the transaction information.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect1" -->
+<a id="BABHIIAG"></a>
+<div id="ADFNS322" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">25.3</span> Transaction Guard Concepts and Scope</h2>
+<p>This section explains some key concepts for Transaction Guard, and what Transaction Guard covers and does not cover.</p>
+<p class="subhead2"><a id="ADFNS323"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BABFEGEB">Logical Transaction Identifier (LTXID)</a></p>
+</li>
+<li>
+<p><a href="#BABCJBGB">At-Most-Once Execution</a></p>
+</li>
+<li>
+<p><a href="#BABEFIBC">Transaction Guard Coverage</a></p>
+</li>
+<li>
+<p><a href="#BABEEBDC">Transaction Guard Exclusions</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink CNCPT89217" href="../CNCPT/transact.htm#CNCPT89217"><span class="italic">Oracle Database Concepts</span></a> for more information about how Transaction Guard works</p>
+</li>
+<li>
+<p><a class="olink JJDBC29121" href="../JJDBC/transactionguard.htm#JJDBC29121"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> for more information about using Transaction Guard with Oracle Java Database Connectivity (JDBC)</p>
+</li>
+</ul>
+</div>
+<a id="BABFEGEB"></a>
+<div id="ADFNS324" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.3.1</span> Logical Transaction Identifier (LTXID)</h3>
+<p>Applications use a concept called the <span class="bold">logical transaction identifier (LTXID)</span> to determine the outcome of the last transaction open in a database session following an outage. The logical transaction ID is stored in the OCI session handle and in a connection object for the JDBC Thin and ODP.Net drivers. The logical transaction ID is the foundation of the at-most-once semantics.</p>
+<p>The Transaction Guard protocol ensures that:</p>
+<ul>
+<li>
+<p>Execution of each logical transaction is unique.</p>
+</li>
+<li>
+<p>Duplication is detected at supported commit time to ensure that for all commit points, the protocol must not be circumvented.</p>
+</li>
+<li>
+<p>When the transaction is committed, the logical transaction ID is persisted for the duration of the retention period for retries (default = 24 hours, maximum = 30 days).</p>
+</li>
+<li>
+<p>When obtaining the outcome, an LTXID is blocked to ensure that an earlier in-flight version of that LTXID cannot commit, by enforcing the uncommitted status. If the earlier version with the same LTXID was already committed or forced, then blocking the LTXID returns the same result.</p>
+</li>
+</ul>
+<p>The logical session number is automatically assigned at session establishment. It is an opaque structure that cannot be read by an application. For scalability, each LTXID carries a running number called the commit number, which is increased when a database transaction is committed for each round trip to the database. This running commit number is zero-based.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABCJBGB"></a>
+<div id="ADFNS325" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.3.2</span> At-Most-Once Execution</h3>
+<p>Transaction Guard uses the logical transaction identifier (LTXID) to avoid duplicate transactions. This ability to ensure at most one execution of a transaction is referred to as <span class="italic">transaction idempotence</span>. The LTXID is persisted on commit and is reused following a rollback. During normal runtime, an LTXID is automatically held in the session at both the client and server for each database transaction. At commit, the LTXID is persisted as part of committing the transaction.</p>
+<p>The at-most-once protocol requires that the database maintain the LTXID for the retention period agreed for replay. The default retention period is 24 hours, although you might need a shorter or longer period, conceivably even a week or longer. The longer the retention period, the longer the at-most-once check blocks an old transaction using an old LTXID from replay. The setting is available on each service. When multiple databases are involved, as is the case when using Data Guard and Active Data Guard, the LTXID is replicated to each database involved through the use of redo.</p>
+<p>The <code dir="ltr">getLTXID</code> API, provided for Oracle JDBC Thin (with similar APIs for OCI, OCCI, and ODP.Net clients), lets an application retrieve the logical transaction identifier that was in use on the dead session. This is needed to determine the status of this last transaction.</p>
+<p>The <code dir="ltr">DBMS_APP_CONT.GET_LTXID_OUTCOME</code> PL/SQL subprogram (described in <a class="olink ARPLS74292" href="../ARPLS/d_app_cont.htm#ARPLS74292"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a>) lets an application find the outcome of an action for a specified logical transaction identifier. Calling <code dir="ltr">DBMS_APP_CONT.GET_LTXID_OUTCOME</code> may involve the server blocking the LTXID from committing so that the outcome is known. This is a requirement if a transaction using that LTXID is in flight or is about to commit. An application using Transaction Guard obtains the LTXID following a recoverable error, and then calls <code dir="ltr">DBMS_APP_CONT.GET_LTXID_OUTCOME</code> before attempting a replay.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABEFIBC"></a>
+<div id="ADFNS326" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.3.3</span> Transaction Guard Coverage</h3>
+<p>Transaction Guard supports commits from these sources:</p>
+<ul>
+<li>
+<p>Local transactions</p>
+</li>
+<li>
+<p>Data definition language (DDL) transactions</p>
+</li>
+<li>
+<p>Data control language (DCL) transactions</p>
+</li>
+<li>
+<p>Distributed transactions</p>
+</li>
+<li>
+<p>Remote transactions</p>
+</li>
+<li>
+<p>Parallel transactions</p>
+</li>
+<li>
+<p>Commit on success (auto-commit)</p>
+</li>
+<li>
+<p>PL/SQL with embedded commit-supported client drivers</p>
+</li>
+<li>
+<p>Supported client drivers:</p>
+<ul>
+<li>
+<p>12<span class="italic">c</span> JDBC type 4 driver</p>
+</li>
+<li>
+<p>12<span class="italic">c</span> OCI and OCCI client drivers</p>
+</li>
+<li>
+<p>12<span class="italic">c</span> Oracle Data Provider for .NET (ODP.NET) client driver</p>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="BABEEBDC"></a>
+<div id="ADFNS331" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.3.4</span> Transaction Guard Exclusions</h3>
+<p>Transaction Guard intentionally excludes recursive transactions and autonomous transactions so that they can be replayed.</p>
+<p>As of Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.1), Transaction Guard also excludes:</p>
+<ul>
+<li>
+<p>XA transactions</p>
+</li>
+<li>
+<p>Active Data Guard with read/write database links for forwarding transactions</p>
+</li>
+<li>
+<p>Golden Gate and Logical Standby</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABCHJDD"></a>
+<div id="ADFNS332" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">25.4</span> Database Configuration for Transaction Guard</h2>
+<p>This section contains information relevant to configuring the database for using Transaction Guard.</p>
+<p class="subhead2"><a id="ADFNS334"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BABEJEGI">Configuration Checklist</a></p>
+</li>
+<li>
+<p><a href="#BABFIAJJ">Transaction History Table</a></p>
+</li>
+<li>
+<p><a href="#BABDCEIB">Service Parameters</a></p>
+</li>
+</ul>
+<a id="BABEJEGI"></a>
+<div id="ADFNS335" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.4.1</span> Configuration Checklist</h3>
+<p>To use Transaction Guard with an application, you must do the following:</p>
+<ul>
+<li>
+<p>Use Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.1) or later.</p>
+</li>
+<li>
+<p>Use an application service for all database work. Create the service using the <code dir="ltr">srvctl</code> command if you are using Oracle RAC, or using the <code dir="ltr">DBMS_SERVICE.CREATE_SERVICE</code> PL/SQL subprogram if you are not using Oracle RAC.</p>
+<p>Do <span class="bolditalic">not</span> use the default database services, because these services are for administration purposes and cannot be manipulated. That is, do not use a service name that is set to <span class="italic">db_name</span> or <span class="italic">db_unique_name</span>.</p>
+</li>
+<li>
+<p>Grant permission on the <code dir="ltr">DBMS_APP_CONT</code> package to the database users who will call <code dir="ltr">GET_LTXID_OUTCOME</code>:</p>
+<pre dir="ltr">GRANT EXECUTE ON DBMS_APP_CONT TO <span class="italic">&lt;user-name&gt;</span>;
+</pre></li>
+</ul>
+<p>To use Transaction Guard with an application, Oracle recommends that you do the following:</p>
+<ul>
+<li>
+<p>Locate and define the transaction history table for optimal performance. (The transaction history table is described in <a href="#BABFIAJJ">Section 25.4.2</a>.)</p>
+</li>
+<li>
+<p>If you are using Oracle RAC or Oracle Data Guard, ensure that FAN is configured to communicate to interrupt clients fast on error.</p>
+</li>
+<li>
+<p>Set the following parameter: <code dir="ltr">AQ_HA_NOTIFICATIONS = TRUE</code> (if using OCI FAN).</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="BABFIAJJ"></a>
+<div id="ADFNS337" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.4.2</span> Transaction History Table</h3>
+<p><a id="sthref1274"></a>The transaction history table maintains the mapping of logical transaction identifiers (LTXIDs) to database transaction. This table can be accessed only by databases users with DBA privileges. It is maintained automatically by Oracle Database, and users must not issue DDL or DML statements directly against the transaction history table.</p>
+<p>The transaction history table (LTXID_TRANS) is created by default in the SYSAUX tablespace at database creation and upgrade. New partitions are added when instances are added, using the storage of the last partition. However, if the location of this tablespace is not optimal for performance, the DBA can move partitions to another tablespace. For example, the following statement alters the transaction history table to move it to a tablespace named <code dir="ltr">FastPace</code>:</p>
+<pre dir="ltr">ALTER TABLE LTXID_TRANS move partition LTXID_TRANS_4
+ tablespace FastPace
+ storage ( initial 10G next 10G
+ minextents 1 maxextents 121 );
+</pre>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink SQLRF01001" href="../SQLRF/statements_3001.htm#SQLRF01001"><span class="italic">Oracle Database SQL Language Reference</span></a> for information about the <code dir="ltr">ALTER TABLE</code> statement</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" -->
+<a id="BABDCEIB"></a>
+<div id="ADFNS338" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.4.3</span> Service Parameters</h3>
+<p>Configure the services for commit outcome and retention. For example:</p>
+<pre dir="ltr">COMMIT_OUTCOME = TRUE
+RETENTION_TIMEOUT = <span class="italic">&lt;retention-value&gt;</span>
+</pre>
+<p><code dir="ltr">COMMIT_OUTCOME</code> determines whether transaction commit outcome is accessible after the commit has executed. This feature makes the outcome of the commit durable, and it is used by applications to enforce the status of the last transaction executed before an outage. The feature is used internally by the Oracle replay driver and by WebLogic Server, and it is available for use by other applications to determine an outcome. The <code dir="ltr">COMMIT_OUTCOME</code> possible values are <code dir="ltr">FALSE</code> (the default) and <code dir="ltr">TRUE</code>, and the value must be <code dir="ltr">TRUE</code> for Transaction Guard to be in effect.</p>
+<p>The following considerations apply to <code dir="ltr">COMMIT_OUTCOME</code>:</p>
+<ul>
+<li>
+<p>Using the <a class="olink ARPLS73456" href="../ARPLS/d_app_cont.htm#ARPLS73456"><code dir="ltr">DBMS_APP_CONT.GET_LTXID_OUTCOME</code></a> PL/SQL procedure requires that <code dir="ltr">COMMIT_OUTCOME</code> be <code dir="ltr">TRUE</code>.</p>
+</li>
+<li>
+<p><code dir="ltr">COMMIT_OUTCOME</code> has no effect on Active Data Guard and read-only databases. Using Transaction Guard with read/write Active Data Guard combined with DML forwarding is not supported.</p>
+</li>
+<li>
+<p><code dir="ltr">COMMIT_OUTCOME</code> is allowed on user-defined database services. Use on the database service is excluded because this service does not switch across Data Guard and cannot be started, stopped, or disabled for planned outages at the primary database.</p>
+</li>
+</ul>
+<p><code dir="ltr">RETENTION_TIMEOUT</code> is used in conjunction with <code dir="ltr">COMMIT_OUTCOME</code> to set the amount of time that the commit outcome is retained. The retention timeout value is specified in seconds; the default is 86400 (24 hours), and the maximum is 2592000 (30 days). You can use the srvctl command or the <code dir="ltr">DBMS_SERVICE</code> PL/SQL package to specify the retention timeout value.</p>
+<p>If you are using Oracle RAC or Oracle RAC One, use the <code dir="ltr">srvctl</code> command to create and modify services. <a href="#BABFDBGJ">Example 25-1</a> and <a href="#BABECCJJ">Example 25-2</a> show the use of <code dir="ltr">srvctl</code>. You can also use Global Data Services (GDSCTL).</p>
+<div id="ADFNS339" class="example">
+<p class="titleinexample"><a id="BABFDBGJ"></a>Example 25-1 Adding and Modifying a Service for a Server Pool</p>
+<pre dir="ltr">srvctl add service -database orcl -service GOLD -poolname ora.Srvpool  -commit_outcome TRUE  -retention 604800
+srvctl modify service -database orcl -service GOLD -commit_outcome TRUE  -retention 604800
+</pre></div>
+<!-- class="example" -->
+<div id="ADFNS340" class="example">
+<p class="titleinexample"><a id="BABECCJJ"></a>Example 25-2 Adding an Administrator-Managed Service</p>
+<pre dir="ltr">srvctl add service -database codedb -service GOLD -prefer serv1 -available serv2 -commit_outcome TRUE  -retention 604800
+</pre></div>
+<!-- class="example" -->
+<p>If you are using a single-instance database, use the <code dir="ltr">DBMS_SERVICE.MODIFY_SERVICE</code> PL/SQL procedure to modify services and use FAN. <a href="#BABIGBHI">Example 25-3</a> modifies a service (but substitute the actual service name for &lt;service-name&gt;).</p>
+<div id="ADFNS342" class="example">
+<p class="titleinexample"><a id="BABIGBHI"></a>Example 25-3 Modifying a Service (PL/SQL)</p>
+<pre dir="ltr">DECLARE
+  params dbms_service.svc_parameter_array;
+BEGIN
+  params(&#39;COMMIT_OUTCOME&#39;):=&#39;true&#39;;
+  params(&#39;RETENTION_TIMEOUT&#39;):=604800;
+  dbms_service.modify_service(&#39;<span class="italic">&lt;service-name&gt;</span>&#39;,params);
+END;
+/
+</pre></div>
+<!-- class="example" -->
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><span class="italic">Oracle Database Administrator&#39;s Guide</span> for information about the <a class="olink ADMIN5013" href="../ADMIN/restart.htm#ADMIN5013"><code dir="ltr">srvctl add service</code></a> and <a class="olink ADMIN5047" href="../ADMIN/restart.htm#ADMIN5047"><code dir="ltr">srvctl modify service</code></a> commands</p>
+</li>
+<li>
+<p><a class="olink ARPLS092" href="../ARPLS/d_serv.htm#ARPLS092"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for information about the <code dir="ltr">DBMS_SERVICE</code> package.</p>
+</li>
+<li>
+<p><a class="olink TDPRC317" href="../TDPRC/configwlm.htm#TDPRC317"><span class="italic">Oracle Database 2 Day + Real Application Clusters Guide</span></a> for information about configuring OCI clients for high availability</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABICIGG"></a>
+<div id="ADFNS344" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">25.5</span> Developing Applications that Use Transaction Guard</h2>
+<p>To use Transaction Guard, review the requirements and recommendations in <a href="#BABEJEGI">Section 25.4.1, &#34;Configuration Checklist&#34;</a>, and follow these steps in the error handling when a recoverable error occurs:</p>
+<ol>
+<li>
+<p>Check that the error is a recoverable error that has made the database session unavailable.</p>
+</li>
+<li>
+<p>Acquire the LTXID from the previous failed session using the client driver provided APIs (<code dir="ltr">getLTXID</code> for JDBC, <code dir="ltr">OCI_ATTR_GET</code> with LTXID for OCI, and <code dir="ltr">LogicalTransactionId</code> for ODP.net).</p>
+</li>
+<li>
+<p>Acquire a new session with that sessions&#39; own LTXID.</p>
+</li>
+<li>
+<p>Invoke the <code dir="ltr">DBMS_APP_CONT.GET_LTXID_OUTCOME</code> PL/SQL procedure with the LTXID obtained from the API. The return state tells the driver if the last transaction was <code dir="ltr">COMMITTED (TRUE/FALSE)</code> and <code dir="ltr">USER_CALL_COMPLETED (TRUE/FALSE)</code>. This PL/SQL function returns an error if the client and database are out of sync (for example, not the same database or restored database).</p>
+</li>
+<li>
+<p>The application can return the result to the user to decide. An application can replay itself. If the replay itself incurs an outage, then the LTXID for the replaying session is used for the <code dir="ltr">DBMS_APP_CONT.GET_LTXID_OUTCOME</code> procedure.</p>
+</li>
+</ol>
+<p class="subhead2"><a id="ADFNS351"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BABEHAAG">Typical Transaction Guard Usage</a></p>
+</li>
+<li>
+<p><a href="#BABIFCAF">Details for Using the LTXID</a></p>
+</li>
+<li>
+<p><a href="#BABEHAEC">Connection-Pool LTXID Usage</a></p>
+</li>
+</ul>
+<a id="BABEHAAG"></a>
+<div id="ADFNS376" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.5.1</span> Typical Transaction Guard Usage</h3>
+<p>The following pseudocode shows a typical usage of Transaction Guard:</p>
+<pre dir="ltr">Receive a FAN down event (or recoverable error)
+ 
+FAN aborts the dead session
+ 
+If recoverable error  (new OCI_ATTRIBUTE for OCI, isRecoverable for JDBC)
+     Get last LTXID from dead session using getLTXID or from your callback
+     Obtain a new session 
+     Call GET_LTXID_OUTCOME with last LTXID to obtain COMMITTED and USER_CALL_COMPLETED status
+ 
+If COMMITTED and USER_CALL_COMPLETED  
+     Then return result
+ 
+ELSEIF COMMITTED and NOT USER_CALL_COMPLETED   
+     Then return result with a warning (that details such as out binds or row count were not returned)
+ 
+ELSEIF NOT COMMITTED 
+     Cleanup and resubmit request, or return uncommitted result to the client
+</pre></div>
+<!-- class="sect2" -->
+<a id="BABIFCAF"></a>
+<div id="ADFNS1030" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.5.2</span> Details for Using the LTXID</h3>
+<p>For replay and returning results, the application or third party container needs access to the next LTXID to be committed at the server for each session. The LTXID can be obtained using APIs (<code dir="ltr">getLTXID</code> for JDBC and <code dir="ltr">OCI_ATTR_GET</code> with LTXID for OCI) from a failed session after a recoverable outage.</p>
+<p>The JDBC Thin driver also provides a callback that executes on each commit number change received from the database. A third party container can use this callback to save the current LTXID in preparation to use if failover is needed. Within each session, the current LTXID is in use, so the callback can override earlier ones.</p>
+<p>If failovers cascade without completing (that is, if during recovery from one failure, another failure occurs), the application <span class="bolditalic">must</span> obtain and then pass the LTXID in effect on the current session into <code dir="ltr">GET_LTXID_OUTCOME</code>.</p>
+<p><a href="#BABIABIB">Table 25-1</a> shows several conditions or situations that require some LTXID-related action, and for each the application action and next LTXID to use.</p>
+<div id="ADFNS1031" class="tblformal">
+<p class="titleintable"><a id="sthref1275"></a><a id="BABIABIB"></a>Table 25-1 LTXID Condition or Situation, Application Actions, and Next LTXID to Use</p>
+<table class="cellalignment293" title="LTXID Condition or Situation, Application Actions, and Next LTXID to Use" summary="LTXID Conditions or Situations, Application Actions, and Next LTXID to Use" dir="ltr">
+<thead>
+<tr class="cellalignment287">
+<th class="cellalignment294" id="r1c1-t6">Condition or Situation</th>
+<th class="cellalignment294" id="r1c2-t6">Application Action</th>
+<th class="cellalignment294" id="r1c3-t6">Next LTXID to Use (Callback on LTXID Change for Containers - JDBC Thin Only)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r2c1-t6" headers="r1c1-t6">
+<p>Application receives a recoverable error and calls <code dir="ltr">GET_LTXID_OUTCOME</code> to determine the transaction status.</p>
+</td>
+<td class="cellalignment295" headers="r2c1-t6 r1c2-t6">
+<p>Application takes a new connection (with its own LTXID-B 0) and calls <code dir="ltr">GET_LTXID_OUTCOME</code> with the LTXID of the last failed session (LTXID-A ).</p>
+</td>
+<td class="cellalignment295" headers="r2c1-t6 r1c3-t6">
+<p>New LTXID-B 0</p>
+<p>Also set using the JDBC callback when registered</p>
+</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r3c1-t6" headers="r1c1-t6">
+<p>Application finds that the last session transaction status is <code dir="ltr">COMMITTED</code> and <code dir="ltr">USER_CALL_COMPLETED</code>.</p>
+</td>
+<td class="cellalignment295" headers="r3c1-t6 r1c2-t6">
+<p>Returns committed status to client; the application may be able to continue.</p>
+</td>
+<td class="cellalignment295" headers="r3c1-t6 r1c3-t6">
+<p>(Not applicable)</p>
+</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r4c1-t6" headers="r1c1-t6">
+<p>Application finds that the last session transaction status is <code dir="ltr">COMMITTED</code> and NOT <code dir="ltr">USER_CALL_COMPLETED</code>.</p>
+</td>
+<td class="cellalignment295" headers="r4c1-t6 r1c2-t6">
+<p>Returns committed status to client and exits - some applications cannot progress as the work in the call is not complete. (for example, an out bind or row count was not returned). Whether the application can continue is application dependent.</p>
+</td>
+<td class="cellalignment295" headers="r4c1-t6 r1c3-t6">
+<p>(Not applicable)</p>
+</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r5c1-t6" headers="r1c1-t6">
+<p>Application finds that the last session transaction status is <code dir="ltr">NOT COMMITTED</code>.</p>
+</td>
+<td class="cellalignment295" headers="r5c1-t6 r1c2-t6">
+<p>Application returns the result to the user, or cleans up if needed, and resubmits with the LTXID on the new session in effect, LTXID-B 0.</p>
+<p>If the new request executes any commits, server returns commit messages with LTXID-B 2 and increasing.</p>
+</td>
+<td class="cellalignment295" headers="r5c1-t6 r1c3-t6">
+<p>New LTXID-B 2 .. N</p>
+<p>Also set using the JDBC callback when registered</p>
+</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r6c1-t6" headers="r1c1-t6">
+<p>Application receives a recoverable error if it has decided to replay.</p>
+</td>
+<td class="cellalignment295" headers="r6c1-t6 r1c2-t6">
+<p>Application takes a new connection (with LTXID-C 0) and calls <code dir="ltr">GET_LTXID_OUTCOME</code> with the LTXID of LAST session (LTXID-B N).</p>
+</td>
+<td class="cellalignment295" headers="r6c1-t6 r1c3-t6">
+<p>LTXID-C 0 on the new session.</p>
+<p>Also set using the JDBC callback when registered</p>
+</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r7c1-t6" headers="r1c1-t6">
+<p>Application receives another recoverable error if it has decided to replay.</p>
+</td>
+<td class="cellalignment295" headers="r7c1-t6 r1c2-t6">
+<p>Application takes a new connection (with LTXID-D 0) and calls <code dir="ltr">GET_LTXID_OUTCOME</code> again with the LTXID of LAST session (LTXID-C N).</p>
+</td>
+<td class="cellalignment295" headers="r7c1-t6 r1c3-t6">
+<p>LTXID-D 0 on the new session.</p>
+<p>Also set using the JDBC callback when registered</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="sect2" -->
+<a id="BABEHAEC"></a>
+<div id="ADFNS1086" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">25.5.3</span> Connection-Pool LTXID Usage</h3>
+<p>Connection pools create a different use case for managing LTXIDs because connections and sessions are preestablished and shared. In the simplest model for connection pools and middle tiers, an LTXID exists on each session handle. It is associated with an application request at check-out from the connection pool, and is disassociated from the application request at check-in back to the pool. Between check-out and check-in, the LTXID on the session is exclusively held by that application request. After check-in, the LTXID belongs to an idle, pooled session. It is associated with the next application request that checks-out that connection.</p>
+<p>Using Transaction Guard in this way:</p>
+<ul>
+<li>
+<p>Can support duplicate detection and failover for the present HTTP request</p>
+</li>
+<li>
+<p>Might support basic replay by a third party container &ndash; replaying the last request following a nonrecoverable outage</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<div id="ADFNS365" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref1276"></a>
+<h3 class="sect2"><span class="secnum">25.5.4</span> Additional Requirements for Transaction Guard Development</h3>
+<p>Transaction Guard is a tool for developers to use after recoverable errors to provide a known outcome. It must be used when an error is returned indicating that the last session is dead.</p>
+<p>The Transaction Guard APIs must <span class="italic">not</span> be used in the following cases:</p>
+<ul>
+<li>
+<p>Do not use <code dir="ltr">GET_LTXID_OUTCOME</code> on the current session. It will return an error.</p>
+</li>
+<li>
+<p>Do not use <code dir="ltr">GET_LTXID_OUTCOME</code> against a session that did not receive a recoverable error&mdash;that is, a live session. It will block that session from committing.</p>
+</li>
+<li>
+<p>Do not use <code dir="ltr">GET_LTXID_OUTCOME</code> from a different user or to a different database. It will return an error.</p>
+</li>
+<li>
+<p>Do not obtain the LTXID and save it for use later, as opposed to using it immediately. The result of <code dir="ltr">GET_LTXID_OUTCOME</code> is valid only for the last open or completed transaction. If it is used with an earlier transaction on the same session, it will return an error.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABJCIJA"></a>
+<div id="ADFNS1062" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">25.6</span> Transaction Guard and Its Relationship to Application Continuity</h2>
+<p>Transaction Guard provides a unique identifier (LTXID) for each database transaction. This identifier can be used to query the commit outcome of the transaction, and can also be used to ensure that the transaction is applied only once. Transaction Guard is used by Application Continuity and automatically enabled by it, but it can also be enabled independently. Transaction Guard prevents the transaction being replayed by Application Continuity from being applied more than once. If the application has implemented an application-level replay, then it requires the application to be integrated with transaction guard to provide idempotence.</p>
+<p>For pre-packaged replay, your application is able to use Application Continuity.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a href="adfns_app_continuity.htm#BABDJGDI">Chapter 26, &#34;Ensuring Application Continuity&#34;</a></p>
+</li>
+<li>
+<p><a class="olink TDPRC289" href="../TDPRC/configwlm.htm#TDPRC289"><span class="italic">Oracle Database 2 Day + Real Application Clusters Guide</span></a> for information about Transaction Guard and Application Continuity with Oracle RAC</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment286">
+<tr>
+<td class="cellalignment295">
+<table class="cellalignment291">
+<tr>
+<td class="cellalignment290"><a href="adfns_editions.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment290"><a href="adfns_app_continuity.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2016,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment298">
+<table class="cellalignment289">
+<tr>
+<td class="cellalignment290"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment290"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment290"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment290"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment290"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment290"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

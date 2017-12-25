@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114542"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Granules%20of%20Parallelism"></a><title>Granules of Parallelism</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-CF5F8609-5ECF-4A92-89A3-FBCB242BB3BF.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-EFF3E2A2-5C18-43BE-9646-B9F8B00919F7.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-D28717E4-0F77-44F5-BB4E-234C31D4E4BA"></a> <span id="PAGE" style="display:none;">371/481</span> <!-- End Header --><a id="VLDBG0105"></a>
+<h1 id="VLDBG-GUID-D28717E4-0F77-44F5-BB4E-234C31D4E4BA" class="sect1">Granules of Parallelism</h1>
+<div>
+<p>The basic unit of work in parallelism is a called a<a id="d59059e62" class="indexterm-anchor"></a> granule. Oracle Database divides the operation executed in parallel (for example, a table scan, table update, or index creation) into granules. Parallel execution processes execute the operation one granule at a time. The number of granules and their sizes correlate with the degree of parallelism (DOP). The number of granules also affect how well the work is balanced across query server processes.</p>
+</div>
+<a id="VLDBG1399"></a>
+<div class="props_rev_3"><a id="GUID-48C2A3DF-80CB-4607-BBD5-50059E672366"></a>
+<h2 id="VLDBG-GUID-48C2A3DF-80CB-4607-BBD5-50059E672366" class="sect2">Block Range Granules</h2>
+<div>
+<p>Block range granules are the basic unit of most parallel operations, even on partitioned tables. Therefore, from Oracle Database perspective, the degree of parallelism is not related to the number of partitions.</p>
+<p>Block range granules are ranges of physical blocks from a table. Oracle Database computes the number and the size of the granules during run-time to optimize and balance the work distribution for all affected parallel execution servers. The number and size of granules are dependent upon the size of the object and the DOP. Block range granules do not depend on static preallocation of tables or indexes. During the computation of the granules, Oracle Database takes the DOP into account and tries to assign granules from different data files to each of the parallel execution servers to avoid contention whenever possible. Additionally, Oracle Database considers the disk affinity of the granules on massive parallel processing (MPP) systems to take advantage of the physical proximity between parallel execution servers and disks.</p>
+</div>
+</div>
+<a id="VLDBG1400"></a>
+<div class="props_rev_3"><a id="GUID-C4EF1FEF-B7D1-4CFA-85F2-B1345E936277"></a>
+<h2 id="VLDBG-GUID-C4EF1FEF-B7D1-4CFA-85F2-B1345E936277" class="sect2">Partition Granules</h2>
+<div>
+<p>When partition granules are used, a parallel server process works on an entire partition or subpartition of a table or index. Because partition granules are statically determined by the structure of the table or index when a table or index is created, partition granules do not give you the flexibility in executing an operation in parallel that block granules do. The maximum allowable DOP is the number of partitions. This might limit the utilization of the system and the load balancing across parallel execution servers.</p>
+<p>When partition granules are used for parallel access to a table or index, you should use a relatively large number of partitions (ideally, three times the DOP), so that Oracle Database can effectively balance work across the query server processes.</p>
+<p>Partition granules are the basic unit of parallel index range scans, joins between two equipartitioned tables where the query optimizer has chosen to use partition-wise joins, and parallel operations that modify multiple partitions of a partitioned object. These operations include parallel creation of partitioned indexes, and parallel creation of partitioned tables.</p>
+<p>You can tell which types of granules were used by looking at the execution plan of a statement. The line <code>PX</code> <code>BLOCK</code> <code>ITERATOR</code> above the table or index access indicates that block range granules have been used. In the following example, you can see this on line 7 of the explain plan output just above the <code>TABLE</code> <code>FULL</code> <code>ACCESS</code> on the <code>SALES</code> table.</p>
+<pre dir="ltr">-------------------------------------------------------------------------------------------------
+|Id|      Operation          |  Name  |Rows|Bytes|Cost%CPU|  Time  |Pst|Pst|  TQ |INOUT|PQDistri|
+-------------------------------------------------------------------------------------------------
+| 0|SELECT STATEMENT         |        |  17| 153 |565(100)|00:00:07|   |   |     |     |        |
+| 1| PX COORDINATOR          |        |    |     |        |        |   |   |     |     |        |
+| 2|  PX SEND QC(RANDOM)     |:TQ10001|  17| 153 |565(100)|00:00:07|   |   |Q1,01|P-&gt;S |QC(RAND)|
+| 3|   HASH GROUP BY         |        |  17| 153 |565(100)|00:00:07|   |   |Q1,01|PCWP |        |
+| 4|    PX RECEIVE           |        |  17| 153 |565(100)|00:00:07|   |   |Q1,01|PCWP |        |
+| 5|     PX SEND HASH        |:TQ10000|  17| 153 |565(100)|00:00:07|   |   |Q1,00|P-&gt;P | HASH   |
+| 6|      HASH GROUP BY      |        |  17| 153 |565(100)|00:00:07|   |   |Q1,00|PCWP |        |
+| 7|       PX BLOCK ITERATOR |        | 10M| 85M | 60(97) |00:00:01| 1 | 16|Q1,00|PCWC |        |
+|*8|        TABLE ACCESS FULL|  SALES | 10M| 85M | 60(97) |00:00:01| 1 | 16|Q1,00|PCWP |        |
+-------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+8 - filter(&#34;CUST_ID&#34;&lt;=22810 AND &#34;CUST_ID&#34;&gt;=22300)
+</pre>
+<p>When partition granules are used, you see the line <code>PX</code> <code>PARTITION</code> <code>RANGE</code> above the table or index access in the explain plan output. On line 6 of the example that follows, the plan has <code>PX</code> <code>PARTITION</code> <code>RANGE</code> <code>ALL</code> because this statement accesses all of the 16 partitions in the table. If not all of the partitions are accessed, it simply shows <code>PX</code> <code>PARTITION</code> <code>RANGE</code>.</p>
+<pre dir="ltr">---------------------------------------------------------------------------------------------------
+|Id|      Operation                |  Name  |Rows|Byte|Cost%CPU|  Time  |Ps|Ps|  TQ |INOU|PQDistri|
+---------------------------------------------------------------------------------------------------
+| 0|SELECT STATEMENT               |        |  17| 153|   2(50)|00:00:01|  |  |     |    |        |
+| 1| PX COORDINATOR                |        |    |    |        |        |  |  |     |    |        |
+| 2|  PX SEND QC(RANDOM)           |:TQ10001|  17| 153|   2(50)|00:00:01|  |  |Q1,01|P-&gt;S|QC(RAND)|
+| 3|   HASH GROUP BY               |        |  17| 153|   2(50)|00:00:01|  |  |Q1,01|PCWP|        |
+| 4|    PX RECEIVE                 |        |  26| 234|    1(0)|00:00:01|  |  |Q1,01|PCWP|        |
+| 5|     PX SEND HASH              |:TQ10000|  26| 234|    1(0)|00:00:01|  |  |Q1,00|P-&gt;P| HASH   |
+| 6|      PX PARTITION RANGE ALL   |        |  26| 234|    1(0)|00:00:01|  |  |Q1,00|PCWP|        |
+| 7|       TABLEACCESSLOCAL INDEX ROWID|SALES| 26| 234|    1(0)|00:00:01| 1|16|Q1,00|PCWC|        |
+|*8|        INDEX RANGE SCAN       |SALES_CUST|26|    |    1(0)|00:00:01| 1|16|Q1,00|PCWP|        |
+---------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+8 - access(&#34;CUST_ID&#34;&lt;=22810 AND &#34;CUST_ID&#34;&gt;=22300)
+</pre></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-CF5F8609-5ECF-4A92-89A3-FBCB242BB3BF.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-EFF3E2A2-5C18-43BE-9646-B9F8B00919F7.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

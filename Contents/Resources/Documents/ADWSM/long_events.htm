@@ -1,0 +1,621 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-1081"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Workspace%20Manager%20Events"></a><title>Workspace Manager Events</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="Provides usage and reference information about Oracle Workspace Manager, which enables applications to create workspaces and group different versions of table row values in different workspaces."/>
+<meta name="dcterms.created" content="2014-06-30T13:47:16Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Workspace Manager Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49170-01"/>
+<meta name="dcterms.isVersionOf" content="ADWSM"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2000, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="long_intro.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="long_vt.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49170-01.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">10/21</span> <!-- End Header -->
+<div id="ADWSM040" class="chapter"><a id="g1023698"></a>
+<h1 class="chapter"><span class="secnum">2</span> Workspace Manager <a id="sthref231"></a>Events</h1>
+<p>Certain applications may be interested in knowing what Workspace Manager operations are being performed and may want to take some actions based on that. Several types of Workspace Manager operations can be captured as events. Workspace Manager provides a framework for communicating these events asynchronously to the interested applications. The applications can then take some actions based on the event. Some scenarios in which events can be used include the following:</p>
+<ul>
+<li>
+<p>An application wants to be notified whenever a workspace is merged to LIVE so that it can refresh its data.</p>
+</li>
+<li>
+<p>Workspace data needs to be archived whenever a new savepoint is created.</p>
+</li>
+</ul>
+<p><a id="sthref232"></a>The Workspace Manager event framework is built on the Oracle Advanced Queuing (AQ) capability. Messaging features provided by AQ, such as asynchronous notification, persistence, propagation, access control, history, and rule-based subscription, can be used for Workspace Manager events.</p>
+<p>Workspace Manager creates a multiconsumer queue where events are enqueued. The relevant information about the event, such as the type of event, the user and workspace that triggered the event, and the name of the versioned table, is initialized in the event payload and enqueued. Applications can subscribe to these events, optionally specifying a rule for their subscriptions. Only the events that satisfy the rule will be applicable to the subscriber. Subscribers can get event notification in variety of ways, such as listening for the events in the queue, registering a callback for notification, or explicitly dequeuing events from the queue.</p>
+<p>Because events are communicated asynchronously to the other applications, the performance of the workspace operation generating the event is not affected.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+To use Workspace Manager events in an application, you must understand the relevant AQ concepts and techniques described in <a class="olink ADQUE" href="../ADQUE/toc.htm"><span class="italic">Oracle Database Advanced Queuing User&#39;s Guide</span></a>.</div>
+<p>This chapter contains the following major sections:</p>
+<ul>
+<li>
+<p><a href="#i1021333">Section 2.1, &#34;List of Workspace Manager Events&#34;</a></p>
+</li>
+<li>
+<p><a href="#BABDJABH">Section 2.2, &#34;Event Parameters&#34;</a></p>
+</li>
+<li>
+<p><a href="#BABJFGHC">Section 2.3, &#34;ALLOW_CAPTURE_EVENTS System Parameter&#34;</a></p>
+</li>
+<li>
+<p><a href="#BABHGCAJ">Section 2.4, &#34;AQ Operations and Workspace Manager Events&#34;</a></p>
+</li>
+</ul>
+<a id="i1021333"></a>
+<div id="ADWSM99181" class="sect1">
+<h2 class="sect1"><span class="secnum">2.1</span> List of <a id="sthref233"></a>Workspace Manager Events</h2>
+<p><a href="#g1021522">Table 2-1</a> lists the Workspace Manager events and when each occurs.</p>
+<div id="ADWSM99182" class="tblformal">
+<p class="titleintable"><a id="sthref234"></a><a id="g1021522"></a>Table 2-1 Workspace Manager Events</p>
+<table class="cellalignment5786" title="Workspace Manager Events" summary="Workspace Manager Events" dir="ltr">
+<thead>
+<tr class="cellalignment5780">
+<th class="cellalignment5787" id="r1c1-t3">Event</th>
+<th class="cellalignment5787" id="r1c2-t3">Occurs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r2c1-t3" headers="r1c1-t3">
+<p>TABLE_MERGE_W_REMOVE_DATA</p>
+</td>
+<td class="cellalignment5788" headers="r2c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i90863">MergeTable</a> is invoked with <code>remove_data</code> set to <code>TRUE</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r3c1-t3" headers="r1c1-t3">
+<p>TABLE_MERGE_WO_REMOVE_DATA</p>
+</td>
+<td class="cellalignment5788" headers="r3c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i90863">MergeTable</a> is invoked with <code>remove_data</code> set to <code>FALSE</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r4c1-t3" headers="r1c1-t3">
+<p>TABLE_REFRESH</p>
+</td>
+<td class="cellalignment5788" headers="r4c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i91234">RefreshTable</a> is invoked.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r5c1-t3" headers="r1c1-t3">
+<p>TABLE_ROLLBACK</p>
+</td>
+<td class="cellalignment5788" headers="r5c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i87881">RollbackTable</a> is invoked.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r6c1-t3" headers="r1c1-t3">
+<p>WORKSPACE_COMPRESS</p>
+</td>
+<td class="cellalignment5788" headers="r6c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i86067">CompressWorkspace</a> or <a href="long_ref.htm#i86068">CompressWorkspaceTree</a> is invoked.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r7c1-t3" headers="r1c1-t3">
+<p>WORKSPACE_CREATE</p>
+</td>
+<td class="cellalignment5788" headers="r7c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i78729">CreateWorkspace</a> is invoked.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r8c1-t3" headers="r1c1-t3">
+<p>WORKSPACE_MERGE_W_REMOVE</p>
+</td>
+<td class="cellalignment5788" headers="r8c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i89452">MergeWorkspace</a> is invoked with <code>remove_workspace</code> set to <code>TRUE</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r9c1-t3" headers="r1c1-t3">
+<p>WORKSPACE_MERGE_WO_REMOVE</p>
+</td>
+<td class="cellalignment5788" headers="r9c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i89452">MergeWorkspace</a> is invoked with <code>remove_workspace</code> set to <code>FALSE</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r10c1-t3" headers="r1c1-t3">
+<p>WORKSPACE_REFRESH</p>
+</td>
+<td class="cellalignment5788" headers="r10c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i83811">RefreshWorkspace</a> is invoked.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r11c1-t3" headers="r1c1-t3">
+<p>WORKSPACE_REMOVE</p>
+</td>
+<td class="cellalignment5788" headers="r11c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i108854">RemoveWorkspace</a> or <a href="long_ref.htm#i89286">RemoveWorkspaceTree</a> is invoked.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r12c1-t3" headers="r1c1-t3">
+<p>WORKSPACE_ROLLBACK</p>
+</td>
+<td class="cellalignment5788" headers="r12c1-t3 r1c2-t3">
+<p>When <a href="long_ref.htm#i89943">RollbackWorkspace</a> is invoked.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r13c1-t3" headers="r1c1-t3">
+<p>WORKSPACE_VERSION</p>
+</td>
+<td class="cellalignment5788" headers="r13c1-t3 r1c2-t3">
+<p>When a new version is created in the workspace as a result of the creation of an explicit or implicit savepoint. (Savepoints are described in <a href="long_intro.htm#i1012409">Section 1.1.2</a>.)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="sect1" -->
+<a id="BABDJABH"></a>
+<div id="ADWSM99183" class="sect1">
+<h2 class="sect1"><span class="secnum">2.2</span> <a id="sthref235"></a><a id="sthref236"></a>Event Parameters</h2>
+<p>When an event occurs, information is stored in parameters that are bundled into an object type called <code>WMSYS.WM$EVENT_TYPE</code> and enqueued into the event queue. A subscriber can dequeue the event object on receiving notification. <a href="#g1021565">Table 2-2</a> describes the Workspace Manager event parameters.</p>
+<div id="ADWSM99184" class="tblformal">
+<p class="titleintable"><a id="sthref237"></a><a id="g1021565"></a>Table 2-2 Workspace Manager Event Parameters</p>
+<table class="cellalignment5786" title="Workspace Manager Event Parameters" summary="Workspace Manager Event Parameters" dir="ltr">
+<thead>
+<tr class="cellalignment5780">
+<th class="cellalignment5787" id="r1c1-t4">Event Parameter</th>
+<th class="cellalignment5787" id="r1c2-t4">Data Type</th>
+<th class="cellalignment5787" id="r1c3-t4">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r2c1-t4" headers="r1c1-t4">
+<p>event_name</p>
+</td>
+<td class="cellalignment5788" headers="r2c1-t4 r1c2-t4">
+<p><code>VARCHAR2(100)</code></p>
+</td>
+<td class="cellalignment5788" headers="r2c1-t4 r1c3-t4">
+<p>Name indicating the type of event.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r3c1-t4" headers="r1c1-t4">
+<p>workspace_name</p>
+</td>
+<td class="cellalignment5788" headers="r3c1-t4 r1c2-t4">
+<p><code>VARCHAR2(30)</code></p>
+</td>
+<td class="cellalignment5788" headers="r3c1-t4 r1c3-t4">
+<p>Workspace that caused the event to occur.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r4c1-t4" headers="r1c1-t4">
+<p>parent_workspace_name</p>
+</td>
+<td class="cellalignment5788" headers="r4c1-t4 r1c2-t4">
+<p><code>VARCHAR2(30)</code></p>
+</td>
+<td class="cellalignment5788" headers="r4c1-t4 r1c3-t4">
+<p>Parent workspace of the workspace that caused the event to occur.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r5c1-t4" headers="r1c1-t4">
+<p>user_name</p>
+</td>
+<td class="cellalignment5788" headers="r5c1-t4 r1c2-t4">
+<p><code>VARCHAR2(30)</code></p>
+</td>
+<td class="cellalignment5788" headers="r5c1-t4 r1c3-t4">
+<p>User that caused the event to occur.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r6c1-t4" headers="r1c1-t4">
+<p>table_name</p>
+</td>
+<td class="cellalignment5788" headers="r6c1-t4 r1c2-t4">
+<p><code>VARCHAR2(60)</code></p>
+</td>
+<td class="cellalignment5788" headers="r6c1-t4 r1c3-t4">
+<p>Version-enabled table on which the event occurred. If this parameter does not apply to an event, it is null.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r7c1-t4" headers="r1c1-t4">
+<p>aux_params</p>
+</td>
+<td class="cellalignment5788" headers="r7c1-t4 r1c2-t4">
+<p><code>WMSYS.WM$NV_PAIR_NT_TYPE</code> (which is table of <code>WMSYS.WM$NV_PAIR_TYPE</code>)</p>
+</td>
+<td class="cellalignment5788" headers="r7c1-t4 r1c3-t4">
+<p>A nested table of (name,value) pairs that can contain additional information about the event.</p>
+<p>For <code>TABLE_</code><span class="italic">xxx</span> events, it has one row containing the <code>WHERE</code> clause string used for the operation.</p>
+<p>For <code>WORKSPACE_VERSION</code> events, it has one row containing the savepoint name associated with the newly created version.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="sect1" -->
+<a id="BABJFGHC"></a>
+<div id="ADWSM99185" class="sect1">
+<h2 class="sect1"><span class="secnum">2.3</span> <a id="sthref238"></a><a id="sthref239"></a>ALLOW_CAPTURE_EVENTS System Parameter</h2>
+<p>Before you can capture any Workspace Manager events, you must use the <a href="long_ref.htm#i108545">SetSystemParameter</a> procedure to set the Workspace Manager system parameter <code>ALLOW_CAPTURE_EVENTS</code> to the value <code>ON</code>. This does not, however, cause any events to be captured; to capture events, you must use the <a href="long_ref.htm#i113021">SetCaptureEvent</a> procedure.</p>
+<p>You can later disallow the capture of Workspace Manager events by using the <a href="long_ref.htm#i108545">SetSystemParameter</a> procedure to set <code>ALLOW_CAPTURE_EVENTS</code> to the value <code>OFF</code>, but you must first ensure that no events are currently being captured. <a href="#i1021298">Example 2-1</a> shows the sequence of procedure calls for enabling and disabling the capture of all events, and starting and stopping the capture all events.</p>
+<div id="ADWSM99186" class="example">
+<p class="titleinexample"><a id="i1021298"></a>Example 2-1 Capturing Workspace Manager Events</p>
+<pre>-- Allow Workspace Manager events to be captured. (Required for SetCaptureEvent)
+EXECUTE DBMS_WM.SetSystemParameter (&#39;ALLOW_CAPTURE_EVENTS&#39;, &#39;ON&#39;);
+-- Start capturing all Workspace Manager events.
+EXECUTE DBMS_WM.SetCaptureEvent (&#39;ALL_EVENTS&#39;,&#39;ON&#39;);
+   .
+   .
+   .
+-- Stop capturing all Workspace Manager events.
+EXECUTE DBMS_WM.SetCaptureEvent (&#39;ALL_EVENTS&#39;,&#39;OFF&#39;);
+-- Disallow capture of Workspace Manager events.
+EXECUTE DBMS_WM.SetSystemParameter (&#39;ALLOW_CAPTURE_EVENTS&#39;, &#39;OFF&#39;);
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect1" -->
+<a id="BABHGCAJ"></a>
+<div id="ADWSM99187" class="sect1">
+<h2 class="sect1"><span class="secnum">2.4</span> AQ Operations and Workspace Manager Events</h2>
+<p>This section describes Advanced Queuing objects and techniques relevant to developers of applications that work with captured Workspace Manager events.</p>
+<div id="ADWSM99188" class="sect2"><a id="sthref240"></a>
+<h3 class="sect2"><span class="secnum">2.4.1</span> Workspace Manager Event Queue Administration</h3>
+<p>Workspace Manager creates a multiconsumer queue named <code>WMSYS.WM$EVENT_QUEUE</code> based on a queue table named <code>WMSYS.WM$EVENT_QUEUE_TABLE</code>. The queue payload type is <code>WMSYS.WM$EVENT_TYPE</code>, which is an object type.</p>
+<p>AQ creates some views for the queue that can be used for administrative purposes. <a href="#g1021601">Table 2-3</a> describes the views of interest to developers of Workspace Manager applications.</p>
+<div id="ADWSM99189" class="tblformal">
+<p class="titleintable"><a id="sthref241"></a><a id="g1021601"></a>Table 2-3 AQ Administrative Views for Workspace Manager</p>
+<table class="cellalignment5786" title="AQ Administrative Views for Workspace Manager" summary="AQ Administrative Views for Workspace Manager" dir="ltr">
+<thead>
+<tr class="cellalignment5780">
+<th class="cellalignment5787" id="r1c1-t5">View Name</th>
+<th class="cellalignment5787" id="r1c2-t5">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r2c1-t5" headers="r1c1-t5">
+<p>WMSYS.AQ$WM$EVENT_QUEUE_TABLE</p>
+</td>
+<td class="cellalignment5788" headers="r2c1-t5 r1c2-t5">
+<p>Describes the queue table in which events are stored. This view can be used for querying the events. The <code>AQ_ADMINISTRATOR_ROLE</code> role and the <code>WM_ADMIN</code> system privilege are granted select privileges on this view.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r3c1-t5" headers="r1c1-t5">
+<p>WMSYS.AQ$WM$EVENT_QUEUE_TABLE_S</p>
+</td>
+<td class="cellalignment5788" headers="r3c1-t5 r1c2-t5">
+<p>Displays all the subscribers for the event queue; also displays the transformation for the subscriber if it was created with one. The <code>AQ_ADMINISTRATOR_ROLE</code> role and the <code>WM_ADMIN</code> system privilege are granted select privileges on this view.</p>
+</td>
+</tr>
+<tr class="cellalignment5780">
+<td class="cellalignment5788" id="r4c1-t5" headers="r1c1-t5">
+<p>WMSYS.AQ$WM$EVENT_QUEUE_TABLE_R</p>
+</td>
+<td class="cellalignment5788" headers="r4c1-t5 r1c2-t5">
+<p>Displays only the rule-based subscribers for all queues in a given queue table, as well as the text of the rule defined by each subscriber. Also displays the transformation for the subscriber if one was specified. The <code>AQ_ADMINISTRATOR_ROLE</code> role and the <code>WM_ADMIN</code> system privilege are granted select privileges on this view.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="sect2" -->
+<div id="ADWSM99190" class="sect2"><a id="sthref242"></a>
+<h3 class="sect2"><span class="secnum">2.4.2</span> Privileges and Access Control for Queues</h3>
+<p>The database administrator has several options for granting privileges and access to queues. Some possible scenarios include:</p>
+<ul>
+<li>
+<p>Grant the system privileges <code>ENQUEUE ANY QUEUE</code> and <code>DEQUEUE ANY QUEUE</code> directly to a database user by using the <code>DBMS_AQADM.GRANT_SYSTEM_PRIVILEGE</code> procedure, and optionally later revoke privileges by using the <code>DBMS_AQADM.REVOKE_SYSTEM_PRIVILEGE</code> procedure.</p>
+</li>
+<li>
+<p>Grant the queue privileges <code>ENQUEUE</code> and <code>DEQUEUE</code> to the event queue <code>WMSYS.WM$EVENT_QUEUE</code> to a database user by using the <code>DBMS_AQADM.GRANT_QUEUE_PRIVILEGE</code> procedure, and optionally later revoke privileges by using the <code>DBMS_AQADM.REVOKE_QUEUE_PRIVILEGE</code> procedure.</p>
+</li>
+<li>
+<p>Grant the role <code>AQ_ADMINISTRATOR_ROLE</code> to a database user to give that user administrative privileges on any queue.</p>
+</li>
+</ul>
+<p><a href="#i1021283">Example 2-2</a> shows privileges being granted for a user to subscribe to the event queue and dequeue events.</p>
+<div id="ADWSM99191" class="example">
+<p class="titleinexample"><a id="i1021283"></a>Example 2-2 Granting Privileges for Queue Access</p>
+<pre>-- Do the following while connected as SYSDBA.
+-- These privileges are required for the user to execute AQ packages.
+grant execute on DBMS_AQ to SCOTT ;
+grant execute on DBMS_AQADM to SCOTT ;
+
+-- Grant privilege to SCOTT for subscribing to the event queue.
+exec DBMS_AQADM.GRANT_SYSTEM_PRIVILEGE(&#39;MANAGE_ANY&#39;,&#39;SCOTT&#39;) ;
+
+-- Grant privilege to SCOTT to dequeue events. (As an alternative, you could use
+-- DBMS_AQADM.GRANT_QUEUE_PRIVILEGE to grant the DEQUEUE privilege on
+-- WMSYS.WM$EVENT_QUEUE.)
+exec DBMS_AQADM.GRANT_SYSTEM_PRIVILEGE(&#39;DEQUEUE_ANY&#39;,&#39;SCOTT&#39;) ;
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<div id="ADWSM99192" class="sect2"><a id="sthref243"></a>
+<h3 class="sect2"><span class="secnum">2.4.3</span> <a id="sthref244"></a><a id="sthref245"></a>Rule-Based Subscription</h3>
+<p>An event can be delivered to multiple recipients based on event parameters. You can define a rule-based subscription for the event queue as the mechanism for specifying interest in receiving events. Subscriber rules are then used to evaluate recipients for event delivery. A null rule indicates that the subscriber wishes to receive all events.</p>
+<p><a href="#i1021306">Example 2-3</a> creates a rule-based subscription for user SCOTT to deliver WORKSPACE_MERGE_WO_REMOVE events when the parent workspace is the <code>LIVE</code> workspace.</p>
+<div id="ADWSM99193" class="example">
+<p class="titleinexample"><a id="i1021306"></a>Example 2-3 Rule-Based Subscription for Workspace Manager Events</p>
+<pre>rem =================================================
+rem Create queue subscribers
+rem Register for MergeWorkspace event when
+rem a workspace is merged to LIVE
+rem =================================================
+
+connect scott
+-- Enter password when prompted.
+
+DECLARE
+    subscriber sys.aq$_agent;
+BEGIN
+    subscriber := sys.aq$_agent(&#39;MERGE_LISTENER&#39;, NULL, NULL);
+    dbms_aqadm.add_subscriber(
+      queue_name =&gt; &#39;WMSYS.WM$EVENT_QUEUE&#39;,
+      subscriber =&gt; subscriber,
+      rule =&gt; &#39;tab.user_data.event_name = &#39;&#39;WORKSPACE_MERGE_WO_REMOVE&#39;&#39;
+               and tab.user_data.parent_workspace_name = &#39;&#39;LIVE&#39;&#39;&#39;);
+END;
+/
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<div id="ADWSM99194" class="sect2"><a id="sthref246"></a>
+<h3 class="sect2"><span class="secnum">2.4.4</span> <a id="sthref247"></a>Listening for Events</h3>
+<p>The listen call is a blocking call that can be used to wait for events on a queue or a list of subscriptions. If the listen returns successfully, a dequeue must be used to retrieve the event.</p>
+<p><a href="#i1021314">Example 2-4</a> listens for events on an event queue.</p>
+<div id="ADWSM99195" class="example">
+<p class="titleinexample"><a id="i1021314"></a>Example 2-4 Listening for a Workspace Manager Event</p>
+<pre>rem ==============================================================
+rem The following example shows how an application can listen for
+rem an event. Explicit dequeue must be performed to get the actual
+rem event parameters. The user SCOTT must have sufficient privileges 
+rem as described in the &#34;Access Control&#34; section.
+rem ==============================================================
+
+connect scott
+-- Enter password when prompted.
+
+set serveroutput on
+
+DECLARE
+ qlist dbms_aq.aq$_agent_list_t;
+ agent_w_msg sys.aq$_agent;
+ listen_timeout exception;
+ pragma exception_init(listen_timeout, -25254);
+BEGIN
+ qlist(0) := sys.aq$_agent(&#39;MERGE_LISTENER&#39;, &#39;WMSYS.WM$EVENT_QUEUE&#39;, NULL);
+
+ dbms_output.put_line (&#39;Listening on event queue.&#39;);
+
+ BEGIN
+
+ DBMS_AQ.LISTEN(
+         agent_list =&gt; qlist,
+         wait =&gt; 30,
+         agent =&gt;  agent_w_msg);
+
+         dbms_output.put_line(agent_w_msg.name) ;
+
+         /* The event can be dequeued here to get the event data */
+
+ EXCEPTION
+        when listen_timeout THEN
+                null;
+ END;
+
+END;
+/
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<div id="ADWSM99196" class="sect2"><a id="sthref248"></a>
+<h3 class="sect2"><span class="secnum">2.4.5</span> <a id="sthref249"></a><a id="sthref250"></a>Asynchronous Notification</h3>
+<p>Asynchronous notification allows clients to receive notification of an event of interest. The client can use it to monitor multiple subscriptions. The client does not have to be connected to the database to receive notifications regarding its subscriptions.</p>
+<p>If an application registers for asynchronous notification of Workspace Manager events using callbacks, the minimum values for the following <code>init.ora</code> parameters should be:</p>
+<ul>
+<li>
+<p><code>aq_tm_processes</code> = 1</p>
+</li>
+<li>
+<p><code>job_queue_processes</code> = 2</p>
+</li>
+</ul>
+<p><a href="#i1021329">Example 2-5</a> registers for a callback to receive asynchronous notification of events.</p>
+<div id="ADWSM99197" class="example">
+<p class="titleinexample"><a id="i1021329"></a>Example 2-5 Receiving Asynchronous Notification of Events</p>
+<pre>rem =====================================================
+rem Example of how to register for a callback to the event
+rem queue on behalf of a subscriber. Subscriber has already
+rem been defined in previous section. The callback is
+rem invoked by the AQ framework whenever an event satisfying the
+rem rule for the subscriber occurs. The minimum values for
+rem the following init.ora parameters should be set as follows.
+rem   aq_tm_processes = 1
+rem   job_queue_processes = 2
+rem The user SCOTT must have sufficient privileges.
+rem ===========================================================
+
+CONNECT scott
+-- Enter password when prompted.
+
+CREATE TABLE merge_log
+(
+  event_name      varchar2(30),
+  workspace_name  varchar2(30),
+  parent_workspace_name varchar2(30),
+  user_name       varchar2(30)
+);
+
+CREATE OR REPLACE PROCEDURE scott.event_callback(
+   context RAW , reginfo sys.aq$_reg_info, descr sys.aq$_descriptor, 
+   payload VARCHAR2,  payloadl NUMBER)
+AS
+    deq_msgid           RAW(16);
+    dopt                dbms_aq.dequeue_options_t;
+    mprop               dbms_aq.message_properties_t;
+    event               WMSYS.WM$EVENT_TYPE;
+    no_messages         exception;
+    pragma exception_init(no_messages, -25228);
+
+BEGIN
+    dopt.consumer_name := &#39;MERGE_LISTENER&#39;;
+    dopt.wait := 30;
+    dopt.msgid := descr.msg_id;
+
+    dbms_aq.dequeue(
+        queue_name =&gt; &#39;WMSYS.WM$EVENT_QUEUE&#39;,
+        dequeue_options =&gt; dopt,
+        message_properties =&gt; mprop,
+        payload =&gt; event,
+        msgid =&gt; deq_msgid);
+
+    INSERT INTO merge_log VALUES (event.event_name, event.workspace_name,
+      event.parent_workspace_name, event.user_name);
+
+    /* Note: If there are additional parameters stored in
+       &#34;aux_params&#34; attribute, it can be accessed using 
+       event.aux_params(1).name, event.aux_params(1).value, 
+       event.aux_params(2).name &hellip; and so on. The number of 
+       parameters can be accessed using event.aux_params.count 
+       when aux_params is not null.
+     */
+END;
+/
+
+grant execute on scott.event_callback to public ;
+
+rem ==================================================
+rem Register a callback for the event
+rem Queue name and subscriber name have to be specified
+rem while registering for a callback
+rem ==================================================
+
+DECLARE
+  reginfo1            sys.aq$_reg_info;
+  reginfolist         sys.aq$_reg_info_list;
+BEGIN
+  reginfo1 := sys.aq$_reg_info(&#39;WMSYS.WM$EVENT_QUEUE:MERGE_LISTENER&#39;,1,&#39;plsql://scott.event_callback?PR=1&#39;,HEXTORAW(&#39;FF&#39;));
+
+  reginfolist := sys.aq$_reg_info_list(reginfo1);
+
+  sys.dbms_aq.register(reginfolist, 1);
+
+  COMMIT;
+
+END;
+/
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5779">
+<tr>
+<td class="cellalignment5788">
+<table class="cellalignment5784">
+<tr>
+<td class="cellalignment5783"><a href="long_intro.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5783"><a href="long_vt.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2000, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5790">
+<table class="cellalignment5782">
+<tr>
+<td class="cellalignment5783"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5783"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5783"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5783"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5783"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5783"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

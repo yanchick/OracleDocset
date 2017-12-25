@@ -1,0 +1,810 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-92008"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20SQL%20Apply%20to%20Upgrade%20the%20Oracle%20Database"></a><title>Using SQL Apply to Upgrade the Oracle Database</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="rolling upgrades, benefits, benefits, of a rolling upgrade, SQL Apply, performing a rolling upgrade, upgrading, Oracle Database software, Oracle Database software, upgrading with SQL Apply, requirements, requirements, requirements for rolling upgrades, requirements for upgrading with SQL Apply"/>
+<meta name="dcterms.created" content="2017-07-21T12:09:00Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Data Guard Concepts and Administration"/>
+<meta name="dcterms.identifier" content="E48552-08"/>
+<meta name="dcterms.isVersionOf" content="SBYDB"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="rman.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="dbms_rolling_upgrades.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E48552-08.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-290F632F-5295-47F3-AEF1-2D37C69C00D7"></a> <span id="PAGE" style="display:none;">19/35</span> <!-- End Header -->
+<a id="SBYDB00830"></a>
+<h1 id="SBYDB-GUID-290F632F-5295-47F3-AEF1-2D37C69C00D7" class="sect1"><span class="enumeration_chapter">13</span> Using SQL Apply to Upgrade the Oracle Database</h1>
+<div>
+<p>You can use a logical standby database to perform a <span class="italic">rolling upgrade</span> of Oracle Database software. During a rolling upgrade, you can run different releases of Oracle Database on the primary and logical standby databases while you upgrade them, one at a time, incurring minimal downtime on the primary database.</p>
+<p>For databases originating with the first patch set of Oracle Database 12<span class="italic">c</span> Release 1 (12.1), the preferred method for performing a rolling upgrade with an existing physical standby database is to use the <code class="codeph">DBMS_ROLLING</code> PL/SQL package, as described in <a href="dbms_rolling_upgrades.htm#GUID-70C09F5B-90BE-4C8C-96A5-45A52E05D380">Using DBMS_ROLLING to Perform a Rolling Upgrade</a> .</p>
+<p>The following topics describe how to minimize downtime while upgrading an Oracle database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rollup.htm#GUID-701A35C5-B545-43DD-8854-F6948E0BB32A">Benefits of a Rolling Upgrade Using SQL Apply</a></p>
+</li>
+<li>
+<p><a href="rollup.htm#GUID-2CF3E283-2EC3-4B55-A71B-9D25DDF52156">Requirements to Perform a Rolling Upgrade Using SQL Apply</a></p>
+</li>
+<li>
+<p><a href="rollup.htm#GUID-9DE40A97-7AB4-4444-B762-2238AB298BF0">Figures and Conventions Used in the Upgrade Instructions</a></p>
+</li>
+<li>
+<p><a href="rollup.htm#GUID-5D2CD1E2-7A24-46EA-BA16-8854BFFE501E">Performing a Rolling Upgrade By Creating a New Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC">Performing a Rolling Upgrade With an Existing Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="rollup.htm#GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4">Performing a Rolling Upgrade With an Existing Physical Standby Database</a></p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-290F632F-5295-47F3-AEF1-2D37C69C00D7__GUID-D20221A6-38BD-4AD9-90AD-BBC14D413B6C">
+<p class="notep1">Note:</p>
+<p>These topics describe an alternative to the usual upgrade procedure involving longer downtime, as described in <a href="upgrades.htm#GUID-A4FBE490-7E7E-4998-B80E-01C93C77AE2F">Upgrading and Downgrading Databases in an Oracle Data Guard Configuration</a>. Do not attempt to combine steps from the two procedures.</p>
+</div>
+</div>
+<a id="SBYDB4879"></a>
+<div class="props_rev_3"><a id="GUID-701A35C5-B545-43DD-8854-F6948E0BB32A"></a>
+<h2 id="SBYDB-GUID-701A35C5-B545-43DD-8854-F6948E0BB32A" class="sect2"><span class="enumeration_section">13.1</span> Benefits of a Rolling Upgrade Using SQL Apply</h2>
+<div>
+<p>Performing a rolling upgrade<a id="d31278e215" class="indexterm-anchor"></a><a id="d31278e219" class="indexterm-anchor"></a> with SQL Apply has the following advantages:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Your production database will incur very little downtime. The overall downtime can be as little as the time it takes to perform a switchover.</p>
+</li>
+<li>
+<p>You eliminate application downtime due to PL/SQL recompilation.</p>
+</li>
+<li>
+<p>You can validate the upgraded database release without affecting the primary database.</p>
+</li>
+<li>
+<p>A logical standby accepts archived logs while the upgrade is taking place, which provides an added level of disaster protection.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-701A35C5-B545-43DD-8854-F6948E0BB32A__GUID-4AA33818-1090-4137-BDFB-BBDFF84BA161">
+<p class="notep1">Note:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>As of Oracle Database 12<span class="italic">c</span> Release 1 (12.1), Oracle XML DB Repository supports Oracle Data Guard rolling upgrades. See <a class="olink ADXDB5703" target="_blank" href="../ADXDB/appaman.htm#ADXDB5703"><span class="italic">Oracle XML DB Developer&#39;s Guide</span></a> for more information about considerations and restrictions to keep in mind with regard to this support.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="SBYDB4880"></a>
+<div class="props_rev_3"><a id="GUID-2CF3E283-2EC3-4B55-A71B-9D25DDF52156"></a>
+<h2 id="SBYDB-GUID-2CF3E283-2EC3-4B55-A71B-9D25DDF52156" class="sect2"><span class="enumeration_section">13.2</span> Requirements to Perform a Rolling Upgrade Using SQL Apply</h2>
+<div>
+<div class="section">
+<p>The rolling upgrade procedure requires the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the database is part of an Oracle Data Guard broker configuration, then disable the broker configuration before the rolling upgrade. See <a class="olink DGBKR630" target="_blank" href="../DGBKR/dgmgrl.htm#DGBKR630"><span class="italic">Oracle Data Guard Broker</span></a> for information about disabling a broker configuration.</p>
+</li>
+<li>
+<p>The Oracle Data Guard protection mode must be set to either maximum availability or maximum performance. Query the <code class="codeph">PROTECTION_LEVEL</code> column in the <code class="codeph">V$DATABASE</code> view to find out the current protection mode setting.</p>
+</li>
+<li>
+<p>To ensure the primary database can proceed while the logical standby database is being upgraded, the <code class="codeph">LOG_ARCHIVE_DEST_</code><span class="italic"><code class="codeph">n</code></span> initialization parameter for the logical standby database destination must <span class="italic">not</span> be set to <code class="codeph">MANDATORY</code>.</p>
+</li>
+<li>
+<p>The <code class="codeph">COMPATIBLE</code> initialization parameter set on the primary database must match the software release prior to the upgrade. Therefore, a rolling upgrade from release <span class="italic">x</span> to release <span class="italic">y</span> requires that the <code class="codeph">COMPATIBLE</code> initialization parameter be set to release <span class="italic">x</span> on the primary database.&nbsp;The rolling upgrade standby database must have its <code class="codeph">COMPATIBLE</code> initialization parameter set to <span class="italic">x</span> or higher.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB5064"></a><a id="SBYDB4881"></a>
+<div class="props_rev_3"><a id="GUID-9DE40A97-7AB4-4444-B762-2238AB298BF0"></a>
+<h2 id="SBYDB-GUID-9DE40A97-7AB4-4444-B762-2238AB298BF0" class="sect2"><span class="enumeration_section">13.3</span> Figures and Conventions Used in the Upgrade Instructions</h2>
+<div>
+<p><a href="rollup.htm#GUID-9DE40A97-7AB4-4444-B762-2238AB298BF0__I1029537">Figure 13-1</a> shows an Oracle Data Guard configuration before the upgrade begins, with the primary and logical standby databases both running the same Oracle Database software release.</p>
+<div class="figure" id="GUID-9DE40A97-7AB4-4444-B762-2238AB298BF0__I1029537">
+<p class="titleinfigure">Figure 13-1 Oracle Data Guard Configuration Before Upgrade</p>
+<img width="374" height="248" src="img/GUID-E16C59C8-DE79-49ED-B4D2-407D8D568072-default.gif" alt="Description of Figure 13-1 follows" title="Description of Figure 13-1 follows"/><br/>
+<a href="img_text/GUID-E16C59C8-DE79-49ED-B4D2-407D8D568072-print.htm">Description of &#34;Figure 13-1 Oracle Data Guard Configuration Before Upgrade&#34;</a></div>
+<!-- class="figure" -->
+<p>During the upgrade process, the Oracle Data Guard configuration operates with mixed database releases at several points in this process. Data protection is not available across releases. During these steps, consider having a second standby database in the Oracle Data Guard configuration to provide data protection.</p>
+<p>The steps and figures describing the upgrade procedure refer to the databases as Database A and Database B rather than as the primary database and standby database. This is because the databases switch roles during the upgrade procedure. Initially, Database A is the primary database and Database B is the logical standby database, as shown in <a href="rollup.htm#GUID-9DE40A97-7AB4-4444-B762-2238AB298BF0__I1029537">Figure 13-1</a>.</p>
+<p>The following sections describe scenarios in which you can use the SQL Apply rolling upgrade procedure:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rollup.htm#GUID-5D2CD1E2-7A24-46EA-BA16-8854BFFE501E">Performing a Rolling Upgrade By Creating a New Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC">Performing a Rolling Upgrade With an Existing Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="rollup.htm#GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4">Performing a Rolling Upgrade With an Existing Physical Standby Database</a></p>
+</li>
+</ul>
+</div>
+</div>
+<a id="SBYDB5065"></a><a id="SBYDB4882"></a>
+<div class="props_rev_3"><a id="GUID-5D2CD1E2-7A24-46EA-BA16-8854BFFE501E"></a>
+<h2 id="SBYDB-GUID-5D2CD1E2-7A24-46EA-BA16-8854BFFE501E" class="sect2"><span class="enumeration_section">13.4</span> Performing a Rolling Upgrade By Creating a New Logical Standby Database</h2>
+<div>
+<div class="section">
+<p>This scenario assumes that you do not have an existing Oracle Data Guard configuration, but you are going to create a logical standby database solely for the purpose of performing a rolling upgrade of the Oracle Database.</p>
+<p><a href="rollup.htm#GUID-5D2CD1E2-7A24-46EA-BA16-8854BFFE501E__BABBFDIG" title="This 2 column tables lists the steps to perform a rolling upgrade by creating a new logical standby. Column 1 is the step. Column 2 is the step description.">Table 13-1</a> lists the steps to prepare the primary and standby databases for upgrading.</p>
+<div class="tblformal" id="GUID-5D2CD1E2-7A24-46EA-BA16-8854BFFE501E__BABBFDIG">
+<p class="titleintable">Table 13-1 Steps to Perform a Rolling Upgrade by Creating a New Logical Standby</p>
+<table class="cellalignment2269" title="Steps to Perform a Rolling Upgrade by Creating a New Logical Standby" summary="This 2 column tables lists the steps to perform a rolling upgrade by creating a new logical standby. Column 1 is the step. Column 2 is the step description.">
+<thead>
+<tr class="cellalignment2253">
+<th class="cellalignment2327" id="d31278e587">Step</th>
+<th class="cellalignment2328" id="d31278e590">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2253">
+<td class="cellalignment2329" id="d31278e595" headers="d31278e587">
+<p>Step 1</p>
+</td>
+<td class="cellalignment2330" headers="d31278e595 d31278e590">
+<p>Identify unsupported data types and storage attributes</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2329" id="d31278e602" headers="d31278e587">
+<p>Step 2</p>
+</td>
+<td class="cellalignment2330" headers="d31278e602 d31278e590">
+<p>Create a logical standby database</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2329" id="d31278e609" headers="d31278e587">
+<p>Step 3</p>
+</td>
+<td class="cellalignment2330" headers="d31278e609 d31278e590">
+<p>Perform a rolling upgrade</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Identify unsupported database objects on the primary database and decide how to handle them by doing the following:</span>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>Review the list of supported data types and storage attributes provided in <a href="data_support.htm#GUID-340BA6D6-74D5-4684-AF39-08890D5CD9D4">Data Type and DDL Support on a Logical Standby Database</a> .</p>
+</li>
+<li>
+<p>Query the <code class="codeph">DBA_LOGSTDBY_UNSUPPORTED</code> and <code class="codeph">DBA_LOGSTDBY_SKIP</code> views on the primary database. Changes that are made to the listed tables and schemas on the primary database are not applied on the logical standby database. Use the following query to see a list of unsupported tables:</p>
+<pre dir="ltr">SQL&gt; SELECT DISTINCT OWNER, TABLE_NAME FROM DBA_LOGSTDBY_UNSUPPORTED;
+</pre>
+<p>Use the following query to see a list of unsupported internal schemas:</p>
+<pre dir="ltr">SQL&gt; SELECT OWNER FROM DBA_LOGSTDBY_SKIP -
+&gt;  WHERE STATEMENT_OPT = &#39;INTERNAL SCHEMA&#39;;
+</pre></li>
+</ul>
+</div>
+</li>
+<li class="stepexpand"><span>Create a logical standby database, following the instructions in <a href="create_ls.htm#GUID-3666CA35-D993-44B6-8D70-A2B8B9EC8B2E">Creating a Logical Standby Database</a> .</span>
+<div>
+<div class="infobox-note" id="GUID-5D2CD1E2-7A24-46EA-BA16-8854BFFE501E__GUID-7C861C01-890E-4C30-BD9F-229CBA3BC3F0">
+<p class="notep1">Note:</p>
+<p>Before you start SQL Apply for the first time, make sure you capture information about transactions running on the primary database that will not be supported by a logical standby database. Run the following procedures to capture and record the information as events in the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view:</p>
+<pre dir="ltr">EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;MAX_EVENTS_RECORDED&#39;,
+ DBMS_LOGSTDBY.MAX_EVENTS);
+
+EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;RECORD_UNSUPPORTED_OPERATIONS&#39;,
+ &#39;TRUE&#39;);
+</pre></div>
+<p>Oracle recommends configuring a standby redo log on the logical standby database to minimize downtime.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Perform a rolling upgrade now that you have created a logical standby database. Follow the procedure described in <a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC">Performing a Rolling Upgrade With an Existing Logical Standby Database</a> , which assumes that you have a logical standby running the same Oracle software.</span></li>
+</ol>
+</div>
+</div>
+<a id="SBYDB5066"></a><a id="SBYDB5114"></a><a id="SBYDB5068"></a><a id="SBYDB5070"></a><a id="SBYDB5071"></a><a id="SBYDB4883"></a>
+<div class="props_rev_3"><a id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC"></a>
+<h2 id="SBYDB-GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC" class="sect2"><span class="enumeration_section">13.5</span> Performing a Rolling Upgrade With an Existing Logical Standby Database</h2>
+<div>
+<div class="section">
+<p>This section provides a step-by-step procedure for upgrading the logical standby database and the primary database. <a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__CHDDGEEF" title="This 2 column table lists the steps you perform to do a rolling upgrade of the Oracle Database software.">Table 13-2</a> lists the steps.</p>
+<div class="tblformal" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__CHDDGEEF">
+<p class="titleintable">Table 13-2 Steps to Perform a Rolling Upgrade With an Existing Logical Standby</p>
+<table class="cellalignment2269" title="Steps to Perform a Rolling Upgrade With an Existing Logical Standby" summary="This 2 column table lists the steps you perform to do a rolling upgrade of the Oracle Database software.">
+<thead>
+<tr class="cellalignment2253">
+<th class="cellalignment2331" id="d31278e759">Step</th>
+<th class="cellalignment2332" id="d31278e762">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e767" headers="d31278e759">
+<p>Step 1</p>
+</td>
+<td class="cellalignment2334" headers="d31278e767 d31278e762">
+<p>Prepare for rolling upgrade</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e774" headers="d31278e759">
+<p>Step 2</p>
+</td>
+<td class="cellalignment2334" headers="d31278e774 d31278e762">
+<p>Upgrade the logical standby database</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e781" headers="d31278e759">
+<p>Step 3</p>
+</td>
+<td class="cellalignment2334" headers="d31278e781 d31278e762">
+<p>Restart SQL Apply on the upgraded logical standby database</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e788" headers="d31278e759">
+<p>Step 4</p>
+</td>
+<td class="cellalignment2334" headers="d31278e788 d31278e762">
+<p>Monitor events on the upgraded standby database</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e795" headers="d31278e759">
+<p>Step 5</p>
+</td>
+<td class="cellalignment2334" headers="d31278e795 d31278e762">
+<p>Begin a switchover</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e802" headers="d31278e759">
+<p>Step 6</p>
+</td>
+<td class="cellalignment2334" headers="d31278e802 d31278e762">
+<p>Import any tables that were modified during the upgrade</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e809" headers="d31278e759">
+<p>Step 7</p>
+</td>
+<td class="cellalignment2334" headers="d31278e809 d31278e762">
+<p>Complete the switchover and activate user applications</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e816" headers="d31278e759">
+<p>Step 8</p>
+</td>
+<td class="cellalignment2334" headers="d31278e816 d31278e762">
+<p>Upgrade the old primary database</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e823" headers="d31278e759">
+<p>Step 9</p>
+</td>
+<td class="cellalignment2334" headers="d31278e823 d31278e762">
+<p>Start SQL Apply on the old primary database</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e830" headers="d31278e759">
+<p>Step 10</p>
+</td>
+<td class="cellalignment2334" headers="d31278e830 d31278e762">
+<p>Optionally, raise the compatibility level on both databases</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e837" headers="d31278e759">
+<p>Step 11</p>
+</td>
+<td class="cellalignment2334" headers="d31278e837 d31278e762">
+<p>Monitor events on the new logical standby database</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2333" id="d31278e845" headers="d31278e759">
+<p>Step 12</p>
+</td>
+<td class="cellalignment2334" headers="d31278e845 d31278e762">
+<p>Optionally, perform another switchover</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<ol>
+<li>
+<p>Follow these steps to prepare to perform a rolling upgrade of Oracle Software:</p>
+<ol>
+<li>
+<p>Stop SQL Apply by issuing the following statement on the logical standby database (Database B):</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+</pre></li>
+<li>
+<p>Set compatibility, if needed, to the highest value.</p>
+<p>Ensure the <code class="codeph">COMPATIBLE</code> initialization parameter specifies the release number for the Oracle Database software running on the primary database prior to the upgrade.</p>
+<p>For example, if the primary database is running release 11.1, then set the <code class="codeph">COMPATIBLE</code> initialization parameter to 11.1 on both databases. Be sure to set the <code class="codeph">COMPATIBLE</code> initialization parameter on the standby database first <span class="italic">before</span> you set it on the primary database.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Upgrade Oracle database software on the logical standby database (Database B) to release <span class="italic">y</span>. While the logical standby database is being upgraded, it does not accept redo data from the primary database.</p>
+<p>To upgrade Oracle Database software, refer to the <span class="italic">Oracle Database Upgrade Guide</span> for the applicable Oracle Database release.</p>
+<p><a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__BABDHEFA">Figure 13-2</a> shows Database A running release <span class="italic">x</span>, and Database B running release <span class="italic">y</span>. During the upgrade, redo data accumulates on the primary system.</p>
+<div class="figure" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__BABDHEFA">
+<p class="titleinfigure">Figure 13-2 Upgrade the Logical Standby Database Release</p>
+<img width="374" height="245" src="img/GUID-C951A015-5D93-467A-80C8-426F45805FB7-default.gif" alt="Description of Figure 13-2 follows" title="Description of Figure 13-2 follows"/><br/>
+<a href="img_text/GUID-C951A015-5D93-467A-80C8-426F45805FB7-print.htm">Description of &#34;Figure 13-2 Upgrade the Logical Standby Database Release&#34;</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Restart SQL Apply and operate with release <span class="italic">x</span> on Database A and release <span class="italic">y</span> on Database B. To start SQL Apply, issue the following statement on Database B:</p>
+<pre dir="ltr">SQL&gt; <a id="d31278e916" class="indexterm-anchor"></a><a id="d31278e920" class="indexterm-anchor"></a>ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre>
+<p>The redo data that was accumulating on the primary system is automatically transmitted and applied on the newly upgraded logical standby database. The Oracle Data Guard configuration can run the mixed releases shown in <a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__I1036424">Figure 13-3</a> for an arbitrary period while you verify that the upgraded Oracle Database software release is running properly in the production environment.</p>
+<div class="figure" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__I1036424">
+<p class="titleinfigure">Figure 13-3 Running Mixed Releases</p>
+<img width="374" height="243" src="img/GUID-5F312FBC-5AD3-4555-A34C-8AC6568F6128-default.gif" alt="Description of Figure 13-3 follows" title="Description of Figure 13-3 follows"/><br/>
+<a href="img_text/GUID-5F312FBC-5AD3-4555-A34C-8AC6568F6128-print.htm">Description of &#34;Figure 13-3 Running Mixed Releases&#34;</a></div>
+<!-- class="figure" -->
+<p>To monitor how quickly Database B is catching up to Database A, query the <code class="codeph">V$LOGSTDBY_PROGRESS</code> view on Database B. For example:</p>
+<pre dir="ltr">SQL&gt; ALTER SESSION SET NLS_DATE_FORMAT = &#39;DD-MON-YY HH24:MI:SS&#39;;
+Session altered.
+
+SQL&gt; SELECT SYSDATE, APPLIED_TIME FROM V$LOGSTDBY_PROGRESS;
+
+SYSDATE            APPLIED_TIME
+------------------ ------------------
+27-JUN-05 17:07:06 27-JUN-05 17:06:50
+</pre></li>
+<li>
+<p>It is recommended that you frequently query the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view to learn if there are any DDL and DML statements that have not been applied on Database B. The examples at the end of this section demonstrate how monitoring events can alert you to potential differences in the two databases.</p>
+<pre dir="ltr">SQL&gt; SET LONG 1000
+SQL&gt; SET PAGESIZE 180
+SQL&gt; SET LINESIZE 79
+SQL&gt; SELECT EVENT_TIMESTAMP, EVENT, STATUS FROM DBA_LOGSTDBY_EVENTS -
+&gt; ORDER BY EVENT_TIMESTAMP;
+
+EVENT_TIMESTAMP
+---------------------------------------------------------------------------
+EVENT
+--------------------------------------------------------------------------------
+STATUS
+--------------------------------------------------------------------------------
+&hellip;
+24-MAY-05 05.18.29.318912 PM
+CREATE TABLE SYSTEM.TST (one number)
+ORA-16226: DDL skipped due to lack of support
+ 
+24-MAY-05 05.18.29.379990 PM
+&#34;SYSTEM&#34;.&#34;TST&#34;
+ORA-16129: unsupported dml encountered
+</pre>
+<p>In the preceding example:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">ORA-16226</code> error shows a DDL statement that could not be supported. In this case, it could not be supported because it belongs to an internal schema.</p>
+</li>
+<li>
+<p>The <code class="codeph">ORA-16129</code> error shows that a DML statement was not applied.</p>
+</li>
+</ul>
+<p>These types of errors indicate that not all of the changes that occurred on Database A have been applied to Database B. At this point, you must decide whether or not to continue with the upgrade procedure. If you are certain that this difference between the logical standby database and the primary database is acceptable, then continue with the upgrade procedure. If not, discontinue and reinstantiate Database B and perform the upgrade procedure at another time.</p>
+</li>
+<li>
+<p>When you are satisfied that the upgraded database software is operating properly, perform a switchover to reverse the database roles by issuing the following statement on Database A:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE COMMIT TO SWITCHOVER TO LOGICAL STANDBY;
+</pre>
+<p>This statement must wait for existing transactions to complete. To minimize the time it takes to complete the switchover, users still connected to Database A should log off immediately and reconnect to Database B.</p>
+<div class="infobox-note" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__GUID-212130BB-C420-4F07-9002-76A0D97F46F8">
+<p class="notep1">Note:</p>
+<p>The usual two-phased prepared switchover described in <a href="role_management.htm#GUID-42B8B448-90E0-4D7D-82A3-AAA273E6E49B">Performing a Switchover to a Logical Standby Database</a> cannot be used because it requires both primary and standby databases to be running the same version of the Oracle software and at this point, the primary database is running a lower version of the Oracle software. Instead, the single-phased unprepared switchover procedure documented above is used. The unprepared switchover should only be used in the context of a rolling upgrade using a logical standby database.</p>
+</div>
+<div class="infobox-note" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__GUID-E90FE16C-2ABD-4650-82BA-601AA7704EAD">
+<p class="notep1">Note:</p>
+<p>If you suspended activity to unsupported tables or packages on Database A when it was the primary database, you must continue to suspend the same activities on Database B while it is the primary database if you eventually plan to switch back to Database A.</p>
+</div>
+</li>
+<li>
+<p>Step 4 described how to list unsupported tables that are being modified. If unsupported DML statements were issued on the primary database, then import the latest version of those tables using an import utility such as Oracle Data Pump.</p>
+<p>For example, the following import command truncates the <code class="codeph">scott.emp</code> table and populates it with data matching the former primary database (A):</p>
+<pre dir="ltr">impdp SYSTEM NETWORK_LINK=databasea TABLES=scott.emp TABLE_EXISTS_ACTION=TRUNCATE
+</pre>
+<p>This command prompts you for the <code class="codeph">impdp</code> password before executing.</p>
+</li>
+<li>
+<p>When you are satisfied that the upgraded database software is operating properly, complete the switchover to reverse the database roles:</p>
+<ol>
+<li>
+<p>On Database B, query the <code class="codeph">SWITCHOVER_STATUS</code> column of the <code class="codeph">V$DATABASE</code> view, as follows:</p>
+<pre dir="ltr">SQL&gt; SELECT SWITCHOVER_STATUS FROM V$DATABASE;
+
+SWITCHOVER_STATUS
+--------------------
+TO PRIMARY
+</pre></li>
+<li>
+<p>When the <code class="codeph">SWITCHOVER_STATUS</code> column displays <code class="codeph">TO PRIMARY</code>, complete the switchover by issuing the following statement on Database B:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE COMMIT TO SWITCHOVER TO PRIMARY;
+</pre>
+<div class="infobox-note" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__GUID-E9F69D28-F57A-412C-B269-A8C4D423B1AB">
+<p class="notep1">Note:</p>
+<p>The usual two-phased prepared switchover described in <a href="role_management.htm#GUID-42B8B448-90E0-4D7D-82A3-AAA273E6E49B">Performing a Switchover to a Logical Standby Database</a> cannot be used because it requires both primary and standby databases to be running the same version of the Oracle software and at this point, the primary database is running a lower version of the Oracle software. Instead, the single-phased unprepared switchover procedure documented above is used. The unprepared switchover should only be used in the context of a rolling upgrade using a logical standby database.</p>
+</div>
+</li>
+<li>
+<p>Activate the user applications and services on Database B, which is now running in the primary database role.</p>
+</li>
+</ol>
+<p>After the switchover, you cannot send redo data from the new primary database (B) that is running the new database software release to the new standby database (A) that is running an older software release. This means the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Redo data is accumulating on the new primary database.</p>
+</li>
+<li>
+<p>The new primary database is unprotected at this time.</p>
+</li>
+</ul>
+<p><a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__CHDDIJEB">Figure 13-4</a> shows Database B, the former standby database (running release <span class="italic">y</span>), is now the primary database, and Database A, the former primary database (running release <span class="variable">x</span>), is now the standby database. The users are connected to Database B.</p>
+<p>If Database B can adequately serve as the primary database and your business does not require a logical standby database to support the primary database, then you have completed the rolling upgrade process. Allow users to log in to Database B and begin working there, and discard Database A when it is convenient. Otherwise, continue with Step 8.</p>
+<div class="figure" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__CHDDIJEB">
+<p class="titleinfigure">Figure 13-4 After a Switchover</p>
+<img width="393" height="245" src="img/GUID-D8DE47C1-E4B2-4C80-AA16-1A60B53B87CE-default.gif" alt="Description of Figure 13-4 follows" title="Description of Figure 13-4 follows"/><br/>
+<a href="img_text/GUID-D8DE47C1-E4B2-4C80-AA16-1A60B53B87CE-print.htm">Description of &#34;Figure 13-4 After a Switchover&#34;</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Database A is still running release <span class="italic">x</span> and cannot apply redo data from Database B until you upgrade it and start SQL Apply.</p>
+<p>For more information about upgrading Oracle Database software, see the <a class="olink UPGRD003" target="_blank" href="../UPGRD/upgrade.htm#UPGRD003"><span class="italic">Oracle Database Upgrade Guide</span></a>.</p>
+<p><a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__I1037856">Figure 13-5</a> shows the system after both databases have been upgraded.</p>
+<div class="figure" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__I1037856">
+<p class="titleinfigure">Figure 13-5 Both Databases Upgraded</p>
+<img width="395" height="245" src="img/GUID-E14B2A0E-BC96-4CA6-9A1A-3AFE2A2B178A-default.gif" alt="Description of Figure 13-5 follows" title="Description of Figure 13-5 follows"/><br/>
+<a href="img_text/GUID-E14B2A0E-BC96-4CA6-9A1A-3AFE2A2B178A-print.htm">Description of &#34;Figure 13-5 Both Databases Upgraded&#34;</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Issue the following statement to start SQL Apply on Database A and, if necessary, create a database link to Database B:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE NEW PRIMARY <span class="variable">db_link_to_b</span>;
+</pre>
+<div class="infobox-note" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__GUID-FCBF7EF4-8605-45F2-A512-2504CCC7B54D">
+<p class="notep1">Note:</p>
+<p>You must create a database link (if one has not already been set up) and to use the <code class="codeph">NEW PRIMARY</code> clause, because in Step 4 the single-phased unprepared switchover was used to turn Database A into a standby database.</p>
+<p>You must connect as user <code class="codeph">SYSTEM</code> or with an account with a similar level of privileges.</p>
+</div>
+<p>When you start SQL Apply on Database A, the redo data that is accumulating on the primary database (B) is sent to the logical standby database (A). The primary database is protected against data loss once all the redo data is available on the standby database.</p>
+</li>
+<li>
+<p>Raise the compatibility level of both databases by setting the <code class="codeph">COMPATIBLE</code><a id="d31278e1106" class="indexterm-anchor"></a><a id="d31278e1110" class="indexterm-anchor"></a> initialization parameter. You must raise the compatibility level at the logical standby database before you raise it at the primary database. Set the <code class="codeph">COMPATIBLE</code> parameter on the standby database before you set it on the primary database. See <a class="olink REFRN10019" target="_blank" href="../REFRN/GUID-6C57EE11-BD06-4BB8-A0F7-D6CDDD086FA9.htm#REFRN10019"><span class="italic">Oracle Database Reference</span></a> for more information about the <code class="codeph">COMPATIBLE</code> initialization parameter.</p>
+</li>
+<li>
+<p>To ensure that all changes performed on Database B are properly applied to the logical standby database (A), you should frequently query the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view, as you did for Database A in step 4.</p>
+<p>If changes were made that invalidate Database A as a copy of your existing primary database, you can discard Database A and create a new logical standby database in its place. See <a href="create_ls.htm#GUID-3666CA35-D993-44B6-8D70-A2B8B9EC8B2E">Creating a Logical Standby Database</a> for complete information.</p>
+</li>
+<li>
+<p>Optionally, perform another switchover of the databases so Database A is once again running in the primary database role (as shown in <a href="rollup.htm#GUID-9DE40A97-7AB4-4444-B762-2238AB298BF0__I1029537">Figure 13-1</a>).</p>
+<div class="infobox-note" id="GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC__GUID-98B77601-1F7E-4F0C-BF3C-5D95E36DE4CB">
+<p class="notep1">Note:</p>
+<p>You use the two-phased prepared switchover described in <a href="role_management.htm#GUID-42B8B448-90E0-4D7D-82A3-AAA273E6E49B">Performing a Switchover to a Logical Standby Database</a> since at this time, both Database A and Database B are running the same version of the Oracle software.</p>
+</div>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB5072"></a><a id="SBYDB4884"></a>
+<div class="props_rev_3"><a id="GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4"></a>
+<h2 id="SBYDB-GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4" class="sect2"><span class="enumeration_section">13.6</span> Performing a Rolling Upgrade With an Existing Physical Standby Database</h2>
+<div>
+<div class="section">
+<p>The steps in this section show you how to perform a rolling upgrade of Oracle software and then get back to your original configuration in which A is the primary database and B is the physical standby database, and both of them are running the upgraded Oracle software.</p>
+<div class="infobox-note" id="GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4__GUID-6C2B0D3B-D3D1-484B-9C2E-01E089399D41">
+<p class="notep1">Note:</p>
+<p>The steps in this section assume that you have a primary database (A) and a physical standby database (B) already set up and using Oracle Database release 11.1 or later.</p>
+</div>
+<p><a href="rollup.htm#GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4__BABEIDGI" title="This 2 column table summarizes the steps to perform rolling upgrade with physical standby database. Column 1 is the step number. Column 2 describes the step.">Table 13-3</a> summarizes the steps involved.</p>
+<div class="tblformal" id="GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4__BABEIDGI">
+<p class="titleintable">Table 13-3 Steps to Perform a Rolling Upgrade With an Existing Physical Standby</p>
+<table class="cellalignment2269" title="Steps to Perform a Rolling Upgrade With an Existing Physical Standby" summary="This 2 column table summarizes the steps to perform rolling upgrade with physical standby database. Column 1 is the step number. Column 2 describes the step.">
+<thead>
+<tr class="cellalignment2253">
+<th class="cellalignment2335" id="d31278e1243">Step</th>
+<th class="cellalignment2336" id="d31278e1246">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1251" headers="d31278e1243">
+<p>Step 1</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1251 d31278e1246">
+<p>Prepare the primary database for a rolling upgrade (perform these steps on Database A)</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1258" headers="d31278e1243">
+<p>Step 2</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1258 d31278e1246">
+<p>Convert the physical standby database into a logical standby database (perform these steps on Database B)</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1265" headers="d31278e1243">
+<p>Step 3</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1265 d31278e1246">
+<p>Upgrade the logical standby database and catch up with the primary database (perform these steps on Database B)</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1272" headers="d31278e1243">
+<p>Step 4</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1272 d31278e1246">
+<p>Flashback Database A to the guaranteed restore point (perform these steps on Database A)</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1279" headers="d31278e1243">
+<p>Step 5</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1279 d31278e1246">
+<p>Mount Database A using the new version of Oracle software</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1286" headers="d31278e1243">
+<p>Step 6</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1286 d31278e1246">
+<p>Convert Database A to a physical standby</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1293" headers="d31278e1243">
+<p>Step 7</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1293 d31278e1246">
+<p>Start managed recovery on Database A</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1300" headers="d31278e1243">
+<p>Step 8</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1300 d31278e1246">
+<p>Perform a switchover to make Database A the primary database</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d31278e1307" headers="d31278e1243">
+<p>Step 9</p>
+</td>
+<td class="cellalignment2338" headers="d31278e1307 d31278e1246">
+<p>Clean up the guaranteed restore point created in Database A</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<ol>
+<li>
+<p>Prepare the primary database for a rolling upgrade (perform these steps on Database A)</p>
+<ol>
+<li>
+<p>Enable Flashback Database, if it is not already enabled:</p>
+<pre dir="ltr">SQL&gt; SHUTDOWN IMMEDIATE;
+SQL&gt; STARTUP MOUNT;
+SQL&gt; ALTER DATABASE FLASHBACK ON;
+SQL&gt; ALTER DATABASE OPEN;
+</pre></li>
+<li>
+<p>Create a guaranteed restore point:</p>
+<pre dir="ltr">SQL&gt; CREATE RESTORE POINT pre_upgrade GUARANTEE FLASHBACK DATABASE;
+</pre></li>
+<li>
+<p>(Optional) Identify unsupported data types by performing the following SQL query on the primary database:</p>
+<pre dir="ltr">SELECT * FROM DBA_LOGSTDBY_EDS_SUPPORTED;
+</pre>
+<p>For any tables returned that have unsupported data types, you can use the Extended Datatype Support (EDS) feature to replicate them. To do so, execute the following PL/SQL procedure for each table to be replicated using EDS:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.EDS_ADD_TABLE(<span class="italic">schema_name</span>, <span class="italic">table_name</span>);
+</pre>
+<p>Because these steps are done on the primary, there is no need to invoke the procedure on the physical standby because the EDS objects created by <code class="codeph">EDS_ADD_TABLE</code> are replicated to the physical standby. Once the physical standby is converted to a logical standby, EDS replication is enabled automatically and the tables are maintained by SQL Apply.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Convert the physical standby database into a logical standby database (perform these steps on Database B).</p>
+<ol>
+<li>
+<p>Follow the steps outlined in <a href="create_ls.htm#GUID-3666CA35-D993-44B6-8D70-A2B8B9EC8B2E">Creating a Logical Standby Database</a> except for the following difference. In <a href="create_ls.htm#GUID-715EBEC1-21B9-4DA9-80A5-ED58033F94C8">Convert to a Logical Standby Database</a> you must use a different command to convert the logical standby database. Instead of <code class="codeph">ALTER DATABASE RECOVER TO LOGICAL STANDBY db_name</code>, issue the following command:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE RECOVER TO LOGICAL STANDBY KEEP IDENTITY;
+SQL&gt; ALTER DATABASE OPEN;
+</pre></li>
+<li>
+<p>You must take the following actions before you start SQL Apply for the first time:</p>
+<ol>
+<li>
+<p>Disable automatic deletion of foreign archived logs at the logical standby, as follows:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;LOG_AUTO_DELETE&#39;, &#39;FALSE&#39;);
+</pre>
+<div class="infobox-note" id="GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4__GUID-C9A8391C-A4B9-4526-885E-30E99238FA81">
+<p class="notep1">Note:</p>
+<p>Do not delete any remote archived logs processed by the logical standby database (Database B). These remote archived logs are required later during the rolling upgrade process. If you are using the recovery area to store the remote archived logs, you must ensure that it has enough space to accommodate these logs without interfering with the normal operation of the logical standby database.</p>
+</div>
+</li>
+<li>
+<p>Make sure you capture information about transactions running on the primary database that will not be supported by a logical standby database. Run the following procedures to capture and record the information as events in the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> table:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;MAX_EVENTS_RECORDED&#39;, -
+&gt; DBMS_LOGSTDBY.MAX_EVENTS);
+ 
+SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;RECORD_UNSUPPORTED_OPERATIONS&#39;, &#39;TRUE&#39;);
+</pre></li>
+<li>
+<p>Start SQL Apply for the first time, as follows:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre></li>
+</ol>
+<div class="infoboxnotealso" id="GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4__GUID-F343AF1C-F77B-4A50-B8A4-56501F52B0A5">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-D6EEF87A-211C-476C-9CBC-126858F7026A">Customizing Logging of Events in the DBA_LOGSTDBY_EVENTS View</a> for more information about the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view</p>
+</li>
+<li>
+<p><a class="olink ARPLS363" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS363"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for complete information about the <code class="codeph">DBMS_LOGSTDBY</code> package</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</li>
+<li>
+<p>You can now follow Steps 1 through 7 as described in <a href="rollup.htm#GUID-5995DF99-5268-43BE-BD63-D0DEAA8241EC">Performing a Rolling Upgrade With an Existing Logical Standby Database</a> . At the end of these steps, Database B is your primary database running the upgraded version of the Oracle software, and Database A becomes your logical standby database.</p>
+<p>If you executed <code class="codeph">DBMS_LOGSTDBY.EDS_ADD_TABLE</code> in step 1, you can now execute <code class="codeph">DBMS_LOGSTDBY.EDS_REMOVE_TABLE</code> at the current primary database (Database B).</p>
+<p>Move on to the next step to turn Database A into the physical standby for Database B.</p>
+</li>
+<li>
+<p>Flashback Database A to the guaranteed restore point (perform these steps on Database A).</p>
+<pre dir="ltr">SQL&gt; SHUTDOWN IMMEDIATE;
+SQL&gt; STARTUP MOUNT;
+SQL&gt; FLASHBACK DATABASE TO RESTORE POINT pre_upgrade;
+SQL&gt; SHUTDOWN IMMEDIATE;
+</pre></li>
+<li>
+<p>At this point, switch Database A to use the higher version of the Oracle software. You do not run the upgrade scripts, since Database A is turned into a physical standby, and upgraded automatically as it applies the redo data generated by Database B.</p>
+<p>Mount Database A, as follows:</p>
+<pre dir="ltr">SQL&gt; STARTUP MOUNT;
+</pre></li>
+<li>
+<p>Convert Database A to a physical standby.</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE CONVERT TO PHYSICAL STANDBY;
+SQL&gt; SHUTDOWN IMMEDIATE;
+</pre></li>
+<li>
+<p>Start managed recovery on Database A.</p>
+<p>Database A is upgraded automatically as it applies the redo data generated by Database B. Managed recovery waits until the new incarnation branch from the primary is registered before it starts applying redo.</p>
+<pre dir="ltr">SQL&gt; STARTUP MOUNT;
+SQL&gt; ALTER DATABASE RECOVER MANAGED STANDBY DATABASE - 
+&gt;  DISCONNECT FROM SESSION;
+</pre>
+<div class="infobox-note" id="GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4__GUID-57BAD25D-DDD8-4574-9868-59006A87C841">
+<p class="notep1">Note:</p>
+<p>When Redo Apply restarts, it waits for a new incarnation from the current primary database (Database B) to be registered.</p>
+</div>
+</li>
+<li>
+<p>At this point, Database B is your primary database and Database A is your physical standby, both running the higher version of the Oracle software. To make Database A the primary database, follow the steps described in <span class="q">&#34;<a href="role_management.htm#GUID-AAD70601-D248-4309-B8DD-F461EE31A5FF">Performing a Switchover to a Physical Standby Database</a>&#34;</span>.</p>
+</li>
+<li>
+<p>To preserve disk space, drop the existing guaranteed restore point created in Database A:</p>
+<pre dir="ltr">SQL&gt; DROP RESTORE POINT PRE_UPGRADE;
+</pre></li>
+</ol>
+<div class="infoboxnotealso" id="GUID-C5DF6148-C1E9-4ADF-A975-AC95FC64E0C4__GUID-0D1597E4-D902-4E8A-8FB2-718254BA81C7">
+<p class="notep1">See Also:</p>
+<p>The &#34;Database Rolling Upgrade Using Transient Logical Standby: Oracle Data Guard 11<span class="italic">g</span>&#34; best practices white paper available on the Oracle Maximum Availability Architecture (MAA) home page at:</p>
+<p><a href="http://www.oracle.com/goto/maa/" target="_blank"><code class="codeph">http://www.oracle.com/goto/maa</code></a></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2252">
+<tr>
+<td class="cellalignment2259">
+<table class="cellalignment2257">
+<tr>
+<td class="cellalignment2256"><a href="rman.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2256"><a href="dbms_rolling_upgrades.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2261">
+<table class="cellalignment2255">
+<tr>
+<td class="cellalignment2256"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2256"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2256"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2256"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2256"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2256"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

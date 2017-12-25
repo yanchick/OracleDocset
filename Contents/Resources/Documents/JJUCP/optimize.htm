@@ -1,0 +1,350 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-72353"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Optimizing%20Universal%20Connection%20Pool%20Behavior"></a><title>Optimizing Universal Connection Pool Behavior</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="This guide provides instructions for using Oracle Universal Connection Pooling API. The API is JDBC driver agnostic."/>
+<meta name="dcterms.created" content="2014-06-29T23:47:52Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Universal Connection Pool for JDBC Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49541-01"/>
+<meta name="dcterms.isVersionOf" content="JJUCP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="connect.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="label.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49541-01.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">8/16</span> <!-- End Header -->
+<div id="JJUCP8142" class="chapter"><a id="CFHDDFCI"></a>
+<h1 class="chapter"><span class="secnum">4</span> Optimizing Universal Connection Pool Behavior</h1>
+<p>The following sections are included in this chapter:</p>
+<ul>
+<li>
+<p><a href="#CHDEHFHE">Overview of Optimizing Connection Pools</a></p>
+</li>
+<li>
+<p><a href="#CFHCHHDE">Controlling the Pool Size in UCP</a></p>
+</li>
+<li>
+<p><a href="#CFHHCICE">Controlling Stale Connections in UCP</a></p>
+</li>
+<li>
+<p><a href="#CFHDGJGG">Harvesting Connections in UCP</a></p>
+</li>
+<li>
+<p><a href="#CFHEDJDC">Caching SQL Statements in UCP</a></p>
+</li>
+</ul>
+<a id="CHDEHFHE"></a>
+<div id="JJUCP8143" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Overview of Optimizing Connection Pools</h2>
+<p><a id="sthref134"></a><a id="sthref135"></a><a id="sthref136"></a><a id="sthref137"></a>This chapter provides instructions for setting connection pool properties in order to optimize pooling behavior. Upon creation, UCP JDBC connection pools are pre-configured with a default setup. The default setup provides a general, all-purpose connection pool. However, different applications may have different database connection requirements and may want to modify the default behavior of the connection pool. Behaviors, such as pool size and connection timeouts can be configured and can improve overall connection pool performance as well as connection availability. In many cases, the best way to tune a connection pool for a specific application is to try different property combinations using different values until optimal performance and throughput is achieved.</p>
+<p class="subhead2"><a id="JJUCP8144"></a>Setting Connection Pool Properties</p>
+<p><a id="sthref138"></a>Connection pool properties are set either when getting a connection through a pool-enabled data source or when creating a connection pool using the connection pool manager.</p>
+<p>The following example demonstrates setting connection pool properties though a pool-enabled data source:</p>
+<pre>PoolDataSource  pds = PoolDataSourceFactory.getPoolDataSource();
+
+pds.setConnectionPoolName(&#34;JDBC_UCP&#34;);
+pds.setMinPoolSize(4);pds.setMaxPoolSize(20);
+...
+</pre>
+<p>The following example demonstrates setting connection pool properties when creating a connection pool using the connection pool manager:</p>
+<pre>UniversalConnectionPoolManager mgr = UniversalConnectionPoolManagerImpl.
+getUniversalConnectionPoolManager();
+
+pds.setConnectionPoolName(&#34;JDBC_UCP&#34;);
+pds.setMinPoolSize(4);pds.setMaxPoolSize(20);
+...
+
+mgr.createConnectionPool(pds);
+</pre></div>
+<!-- class="sect1" -->
+<a id="CFHCHHDE"></a>
+<div id="JJUCP8145" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Controlling the Pool Size in UCP</h2>
+<p>UCP JDBC connection pools include a set of properties that are used to control the size of the pool. The properties allow the number of connections in the pool to increase and decrease as demand increases and decreases. This dynamic behavior helps conserve system resources that are otherwise lost on maintaining unnecessary connections.</p>
+<div id="JJUCP8146" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref139"></a>
+<h3 class="sect2">Setting the Initial Pool Size</h3>
+<p><a id="sthref140"></a><a id="sthref141"></a><a id="sthref142"></a><a id="sthref143"></a>The initial pool size property specifies the number of available connections that are created when the connection pool is initially created or re-initialized. This property is typically used to reduce the ramp-up time incurred by priming the pool to its optimal size.</p>
+<p>A value of <code>0</code> indicates that no connections are pre-created. The default value is <code>0</code>. The following example demonstrates configuring an initial pool size:</p>
+<pre>pds.setInitialPoolSize(5);
+</pre>
+<p>If the initial pool size property is greater than the maximum pool size property, then only the maximum number of connections are initialized.</p>
+<p>If the initial pool size property is less than the minimum pool size property, then only the initial number of connections are initialized and maintained until enough connections are created to meet the minimum pool size value.</p>
+</div>
+<!-- class="sect2" -->
+<div id="JJUCP8147" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref144"></a>
+<h3 class="sect2">Setting the Minimum Pool Size</h3>
+<p><a id="sthref145"></a><a id="sthref146"></a><a id="sthref147"></a><a id="sthref148"></a>The minimum pool size property specifies the minimum amount of available connections and borrowed connections that a pool maintains. A connection pool always tries to return to the minimum pool size specified unless the minimum amount is yet to be reached. For example, if the minimum limit is set to <code>10</code> and only 2 connections are ever created and borrowed, then the number of connections maintained by the pool remains at <code>2</code> because this number is less than the minimum pool size.</p>
+<p>This property allows the number of connections in the pool to decrease as demand decreases. At the same time, the property ensures that system resources are not wasted on maintaining connections that are unnecessary.</p>
+<p>The default value is <code>0</code>. The following example demonstrates configuring a minimum pool size:</p>
+<pre>pds.setMinPoolSize(2);
+</pre></div>
+<!-- class="sect2" -->
+<div id="JJUCP8148" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref149"></a>
+<h3 class="sect2">Setting the Maximum Pool Size</h3>
+<p><a id="sthref150"></a><a id="sthref151"></a><a id="sthref152"></a><a id="sthref153"></a>The maximum pool size property specifies the maximum number of available and borrowed (in use) connections that a pool maintains. If the maximum number of connections are borrowed, no connections will be available until a connection is returned to the pool.</p>
+<p>This property allows the number of connections in the pool to increase as demand increases. At the same time, the property ensures that the pool does not grow to the point of exhausting the resources of a system, which ultimately affects the performance and availability of an application.</p>
+<p>A value of <code>0</code> indicates that no connections are maintained by the pool. An attempt to get a connection results in an exception. The default value is to allow the pool to continue to create connections up to <code>Integer.MAX_VALUE</code> (2147483647 by default). The following example demonstrates configuring a maximum pool size:</p>
+<pre>pds.setMaxPoolSize(100);
+</pre></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CFHHCICE"></a>
+<div id="JJUCP8149" class="sect1">
+<h2 class="sect1">Controlling Stale Connections in UCP</h2>
+<p><a id="sthref154"></a><a id="sthref155"></a>Stale connections are connections that remain either available or borrowed, but are no longer being used. Stale connections that remain borrowed may affect connection availability. In addition, stale connections may impact system resources that are otherwise wasted on maintaining unused connections for extended periods of time. The pool properties discussed in this section are used to control stale connections.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+It is good practice to close all connections that are no longer required by an application. Closing connections helps minimize the number of stale connections that remain borrowed.</div>
+<div id="JJUCP8150" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref156"></a>
+<h3 class="sect2">Setting Connection Reuse</h3>
+<p><a id="sthref157"></a>The connection reuse feature allows connections to be gracefully closed and removed from a connection pool after a specific amount of time or after the connection has been used a specific number of times. This feature saves system resources that are otherwise wasted on maintaining unusable connections.</p>
+<div id="JJUCP8151" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref158"></a>
+<h4 class="sect3">Setting the Maximum Connection Reuse Time</h4>
+<p><a id="sthref159"></a><a id="sthref160"></a><a id="sthref161"></a><a id="sthref162"></a>The maximum connection reuse time allows connections to be gracefully closed and removed from the pool after a connection has been in use for a specific amount of time. The timer for this property starts when a connection is physically created. Borrowed connections are closed only after they are returned to the pool and the reuse time is exceeded.</p>
+<p>This feature is typically used when a firewall exists between the pool tier and the database tier and is setup to block connections based on time restrictions. The blocked connections remain in the pool even though they are unusable. In such scenarios, the connection reuse time is set to a smaller value than the firewall timeout policy.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The maximum connection reuse time is different from the time-to-live connection timeout. The time-to-live connection timeout starts when a connection is borrowed from the pool; while, the maximum connection reuse time starts when the connection is physically created. In addition, with a time-to-live timeout, a connection is closed and returned to the pool for reuse if the timeout expires during the borrowed period. With maximum connection reuse time, a connection is closed and discarded from the pool after the timeout expires. See <a href="#CFHBJBCI">Setting the Time-To-Live Connection Timeout</a>.</div>
+<p>The maximum connection reuse time value represents seconds. A value of <code>0</code> indicates that this feature is disabled. The default value is <code>0</code>. The following example demonstrates configuring a maximum connection reuse time:</p>
+<pre>pds.setMaxConnectionReuseTime(300);
+</pre></div>
+<!-- class="sect3" -->
+<div id="JJUCP8152" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref163"></a>
+<h4 class="sect3">Setting the Maximum Connection Reuse Count</h4>
+<p><a id="sthref164"></a><a id="sthref165"></a><a id="sthref166"></a><a id="sthref167"></a>The maximum connection reuse count allows connections to be gracefully closed and removed from the connection pool after a connection has been borrowed a specific number of times. This property is typically used to periodically recycle connections in order to eliminate issues such as memory leaks.</p>
+<p>A value of <code>0</code> indicates that this feature is disabled. The default value is <code>0</code>. The following example demonstrates configuring a maximum connection reuse count:</p>
+<pre>pds.setMaxConnectionReuseCount(100);
+</pre></div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<div id="JJUCP8153" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref168"></a>
+<h3 class="sect2">Setting the Abandon Connection Timeout</h3>
+<p><a id="sthref169"></a><a id="sthref170"></a><a id="sthref171"></a><a id="sthref172"></a>The abandoned connection timeout (ACT) enables borrowed connections to be reclaimed back into the connection pool after a connection has not been used for a specific amount of time. Abandonment is determined by monitoring calls to the database. This timeout feature helps maximize connection reuse and conserves system resources that are otherwise lost on maintaining borrowed connections that are no longer in use.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+UCP for JDBC either cancels or rolls back connections that have local transactions pending before reclaiming connections for reuse.</div>
+<p>The ACT value represents seconds. A value of <code>0</code> indicates that the feature is disabled. The default value is set to <code>0</code>. The following example demonstrates configuring an abandoned connection timeout:</p>
+<pre>pds.setAbandonConnectionTimeout(10);
+</pre>
+<p>Every connection is reaped after a specific period of time. Either it is reaped when ACT expires, or, if it is immune from ACT, then it is reaped after the immunity expires. If you set ACT on a pool, then:</p>
+<ul>
+<li>
+<p>If a statement is executed without calling the <code>Statement.setQueryTimeout</code> method on that statement, then the connection is reaped if ACT is exceeded, even though the connection is waiting for the server to respond to the query.</p>
+</li>
+<li>
+<p>If a statement is executed with calling the <code>Statement.setQueryTimeout</code> method, then the connection is reaped after the query timeout and ACT have expired. The connection is not reaped while waiting on the query timeout. The expiration of the query timeout is an event that resets the ACT timer. If the ACT expires while waiting for the <code>cancel</code> action that occurs at the expiration of the query time out, then the connection is reaped.</p>
+</li>
+<li>
+<p>If a connection has two statements: s1 with a query timeout and s2 without a query timeout, then ACT does not reap the connection while s1 waits for the query timeout, but reaps the connection if s2 hangs.</p>
+<p>Note that the two statements execute sequentially based on JDBC requirement.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="CFHBJBCI"></a>
+<div id="JJUCP8154" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Setting the Time-To-Live Connection Timeout</h3>
+<p><a id="sthref173"></a><a id="sthref174"></a><a id="sthref175"></a><a id="sthref176"></a>The time-to-live connection timeout enables borrowed connections to remain borrowed for a specific amount of time before the connection is reclaimed by the pool. This timeout feature helps maximize connection reuse and helps conserve systems resources that are otherwise lost on maintaining connections longer than their expected usage.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+UCP for JDBC either cancels or rolls back connections that have local transactions pending before reclaiming connections for reuse.</div>
+<p>The time-to-live connection timeout value represents seconds. A value of <code>0</code> indicates that the feature is disabled. The default value is set to <code>0</code>. The following example demonstrates configuring a time-to-live connection timeout:</p>
+<pre>pds.setTimeToLiveConnectionTimeout(18000)
+</pre></div>
+<!-- class="sect2" -->
+<div id="JJUCP8155" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref177"></a>
+<h3 class="sect2">Setting the Connection Wait Timeout</h3>
+<p><a id="sthref178"></a><a id="sthref179"></a><a id="sthref180"></a><a id="sthref181"></a>The connection wait timeout specifies how long an application request waits to obtain a connection if there are no longer any connections in the pool. A connection pool runs out of connections if all connections in the pool are being used (borrowed) and if the pool size has reached it&#39;s maximum connection capacity as specified by the maximum pool size property. The request receives an SQL exception if the timeout value is reached. The application can then retry getting a connection. This timeout feature improves overall application usability by minimizing the amount of time an application is blocked and provides the ability to implement a graceful recovery.</p>
+<p>The connection wait timeout value represents seconds. A value of <code>0</code> indicates that the feature is disabled. The default value is set to <code>3</code> seconds. The following example demonstrates configuring a connection wait timeout:</p>
+<pre>pds.setConnectionWaitTimeout(10);
+</pre></div>
+<!-- class="sect2" -->
+<div id="JJUCP8156" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref182"></a>
+<h3 class="sect2">Setting the Inactive Connection Timeout</h3>
+<p><a id="sthref183"></a><a id="sthref184"></a><a id="sthref185"></a><a id="sthref186"></a>The inactive connection timeout specifies how long an available connection can remain idle before it is closed and removed from the pool. This timeout property is only applicable to available connections and does not affect borrowed connections. This property helps conserve resources that are otherwise lost on maintaining connections that are no longer being used. The inactive connection timeout (together with the maximum pool size) allows a connection pool to grow and shrink as application load changes.</p>
+<p>The inactive connection timeout value represents seconds. A value of <code>0</code> indicates that the feature is disabled. The default value is set to <code>0</code>. The following example demonstrates configuring an inactive connection timeout:</p>
+<pre>pds.setInactiveConnectionTimeout(60);
+</pre></div>
+<!-- class="sect2" -->
+<div id="JJUCP8157" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref187"></a>
+<h3 class="sect2">Setting the Timeout Check Interval</h3>
+<p><a id="sthref188"></a><a id="sthref189"></a><a id="sthref190"></a><a id="sthref191"></a>The timeout check interval property controls how frequently the timeout properties (abandoned connection timeout, time-to-live connection timeout, and inactive connection timeout) are enforced. Connections that have timed-out are reclaimed when the timeout check cycle runs. This means that a connection may not actually be reclaimed by the pool at the moment that the connection times-out. The lag time between the connection timeout and actually reclaiming the connection may be considerable depending on the size of the timeout check interval.</p>
+<p>The timeout check interval property represents seconds. The default value is set to <code>30</code>. The following example demonstrates configuring a property check interval:</p>
+<pre>pds.setTimoutCheckInterval(60);
+</pre>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink NETRF" href="../NETRF/toc.htm"><span class="italic">Oracle Database Net Services Reference</span></a> and <a class="olink NETAG" href="../NETAG/toc.htm"><span class="italic">Oracle Database Net Services Administrator&#39;s Guide</span></a> for more information about timeouts and Oracle Net Services</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CFHDGJGG"></a>
+<div id="JJUCP8158" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Harvesting Connections in UCP</h2>
+<p><a id="sthref192"></a><a id="sthref193"></a>The connection harvesting feature allows a specified number of borrowed connections to be reclaimed when the connection pool reaches a specified number of available connections. This feature helps ensure that a certain number of connections are always available in the pool and helps maximize performance. The feature is particularly useful if an application caches connection handles. Caching is typically performed for performance reasons because it minimizes re-initialization of state necessary for connections to participate in a transaction.</p>
+<p>For example, a connection is borrowed from the pool, initialized with necessary session state, and then held in a context object. Holding connections in this manner may cause the connection pool to run out of available connections. The connection harvest feature reclaims the borrowed connections, if appropriate, and allows the connections to be reused.</p>
+<p>Connection harvesting is controlled using the <code>HarvestableConnection</code> interface and configured or enabled using two pool properties: Connection Harvest Trigger Count and Connection Harvest Maximum Count. The interface and properties are used together when implementing the connection harvest feature.</p>
+<div id="JJUCP8159" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref194"></a>
+<h3 class="sect2">Setting Whether a Connection is Harvestable</h3>
+<p><a id="sthref195"></a><a id="sthref196"></a>The <code>setConnectionHarvestable(boolean)</code> method of the <code>oracle.ucp.jdbc.HarvestableConnection</code> interface controls whether or not a connection will be harvested. This method is used as a locking mechanism when connection harvesting is enabled. For example, the method is set to <code>false</code> on a connection when the connection is being used within a transaction and must not be harvested. After the transaction completes, the method is set to <code>true</code> on the connection and the connection can be harvested if required.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+All connections are harvestable, by default, when the connection harvest feature is enabled. If the feature is enabled, the <code>setConnectionHarvestable</code> method should always be used to explicitly control whether a connection is harvestable.</div>
+<p>The following example demonstrates using the <code>setConnectionHarvestable</code> method to indicate that a connection is not harvestable when the connection harvest feature attempts to harvest connections:</p>
+<pre>Connection conn = pds.getConnection();
+
+((HarvestableConnection) conn).setConnectionHarvestable(false);
+</pre></div>
+<!-- class="sect2" -->
+<div id="JJUCP8160" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref197"></a>
+<h3 class="sect2">Setting the Harvest Trigger Count</h3>
+<p><a id="sthref198"></a><a id="sthref199"></a><a id="sthref200"></a>The connection harvest trigger count specifies the available connection threshold that triggers connection harvesting. For example, if the connection harvest trigger count is set to 10, then connection harvesting is triggered when the number of available connections in the pool drops to 10.</p>
+<p>A value of <code>Integer.MAX_VALUE</code> (2147483647 by default) indicates that connection harvesting is disabled. The default value is <code>Integer.MAX_VALUE</code>.</p>
+<p>The following example demonstrates enabling connection harvesting by configuring a connection harvest trigger count.</p>
+<pre>pds.setConnectionHarvestTriggerCount(2);
+</pre></div>
+<!-- class="sect2" -->
+<div id="JJUCP8161" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref201"></a>
+<h3 class="sect2">Setting the Harvest Maximum Count</h3>
+<p><a id="sthref202"></a><a id="sthref203"></a><a id="sthref204"></a>The connection harvest maximum count property specifies how many borrowed connections should be returned to the pool once the harvest trigger count has been reached. The number of connections actually harvested may be anywhere from 0 to the connection harvest maximum count value. Least recently used connections are harvested first which allows very active user sessions to keep their connections the most.</p>
+<p>The harvest maximum count value can range from <code>0</code> to the maximum connection property value. The default value is <code>1</code>. An SQLException is thrown if an out-of-range value is specified.</p>
+<p>The following example demonstrates configuring a connection harvest maximum count.</p>
+<pre>pds.setConnectionHarvestMaxCount(5);
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<ul>
+<li>
+<p>If connection harvesting and abandoned connection timeout features are enabled at the same time, then the timeout processing does not reclaim the connections that are designated as nonharvestable.</p>
+</li>
+<li>
+<p>If connection harvesting and time-to-live connection timeout features are enabled at the same time, then the timeout processing reclaims the connections that are designated as nonharvestable.</p>
+</li>
+</ul>
+<p>For more information about abandoned connection timeout feature and time-to-live connection timeout feature, refer to <a href="con_behv.htm#CHDIFDDI">Chapter 6</a>.</p>
+</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CFHEDJDC"></a>
+<div id="JJUCP8162" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Caching SQL Statements in UCP</h2>
+<p><a id="sthref205"></a><a id="sthref206"></a><a id="sthref207"></a>Statement caching makes working with statements more efficient. Statement caching improves performance by caching executable statements that are used repeatedly and makes it unnecessary for programmers to explicitly reuse prepared statements. Statement caching eliminates overhead due to repeated cursor creation, repeated statement parsing and creation and reduces overhead of communication between applications and the database. Statement caching and reuse is transparent to an application. Each statement cache is associated with a physical connection. That is, each physical connection will have its own statement cache.</p>
+<p>The match criteria for cached statements are as follows:</p>
+<ul>
+<li>
+<p>The SQL string in the statement must be the same (case-sensitive) to one in the cache.</p>
+</li>
+<li>
+<p>The statement type must be the same (<code>prepared</code> or <code>callable</code>) to the one in the cache.</p>
+</li>
+<li>
+<p>The scrollable type of result sets produced by the statement must be the same (<code>forward-only</code> or <code>scrollable</code>) as the one in the cache.</p>
+</li>
+</ul>
+<p>Statement caching is implemented and enabled differently depending on the JDBC driver vendor. The instructions in this section are specific to Oracle&#39;s JDBC driver. Statement caching on other vendors&#39; drivers can be configured by setting a connection property on a connection factory. See <a href="connect.htm#CHDBBEJJ">&#34;Setting Connection Properties&#34;</a> for information on setting connection properties. In addition, refer to the JDBC vendor&#39;s documentation to determine whether statement caching is supported and if it can be set as a connection property. UCP for JDBC does support JDBC 4.0 (JDK16) APIs to enable statement pooling if a JDBC vendor supports it.</p>
+<div id="JJUCP8163" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref208"></a>
+<h3 class="sect2">Enabling Statement Caching</h3>
+<p><a id="sthref209"></a><a id="sthref210"></a><a id="sthref211"></a>The maximum number of statements property specifies the number of statements to cache for each connection. The property only applies to the Oracle JDBC driver. If the property is not set, or if it is set to <code>0</code>, then statement caching is disabled. By default, statement caching is disabled. When statement caching is enabled, a statement cache is associated with each physical connection maintained by the connection pool. A single statement cache is not shared across all physical connections.</p>
+<p>The following example demonstrates enabling statement caching:</p>
+<pre>pds.setMaxStatements(10);
+</pre>
+<p class="subhead2"><a id="JJUCP8164"></a>Determining the Statement Cache Size</p>
+<p>The cache size should be set to the number of distinct statements the application issues to the database. If the number of statements that an application issues to the database is unknown, use the JDBC performance metrics to assist with determining the statement cache size.</p>
+<p class="subhead2"><a id="JJUCP8165"></a>Statement Cache Size Resource Issues</p>
+<p>Each connection is associated with its own statement cache. Statements held in a connection&#39;s statement cache may hold on to database resources. It is possible that the number of opened connections combined with the number of cached statements for each connection could exceed the limit of open cursors allowed for the database. This issue may be avoided by reducing the number of statements allowed in the cache, or by increasing the limit of open cursors allowed by the database.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4234">
+<tr>
+<td class="cellalignment4243">
+<table class="cellalignment4239">
+<tr>
+<td class="cellalignment4238"><a href="connect.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4238"><a href="label.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4246">
+<table class="cellalignment4237">
+<tr>
+<td class="cellalignment4238"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4238"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4238"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4238"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4238"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4238"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

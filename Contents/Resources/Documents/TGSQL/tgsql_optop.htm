@@ -1,0 +1,2664 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106790"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Optimizer%20Access%20Paths"></a><title>Optimizer Access Paths</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="An access path is a technique used by a query to retrieve rows from a row source."/>
+<meta name="keywords" content=", SQL, stages of processing, access paths, full table scans, DB_FILE_MULTIBLOCK_READ_COUNT initialization parameter, rows, rowids used to locate, rowids, table access by, sample table scans, scans, sample table, SAMPLE clause, SAMPLE BLOCK clause, SELECT statement, in-memory table scans, in-memory, example, EXPLAIN PLAN statement, indexes, BOOLEAN data type, data types, BOOLEAN, cardinality"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_pt_ops.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_join.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-00711237-35D3-4CFC-A234-59B3EC53DCD1"></a> <span id="PAGE" style="display:none;">16/40</span> <!-- End Header -->
+<a id="TGSQL228"></a>
+<h1 id="TGSQL-GUID-00711237-35D3-4CFC-A234-59B3EC53DCD1" class="sect1"><span class="enumeration_chapter">8</span> Optimizer Access Paths</h1>
+<div>
+<p>An <span class="bold">access path</span> is a technique used by a query to retrieve rows from a row source.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optop.htm#GUID-CDC8B946-2375-4E5F-B50E-DE1E79EAE4CD" title="A row source is a set of rows returned by a step in an execution plan. A row source can be a table, view, or result of a join or grouping operation.">Introduction to Access Paths</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-5594AB70-F3C1-49BA-88ED-0B2011791365" title="A table is the basic unit of data organization in an Oracle database.">Table Access Paths</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-B33945C3-CCC0-4D35-AF62-DB80FD4256A6" title="An index is an optional structure, associated with a table or table cluster, that can sometimes speed data access. By creating an index on one or more columns of a table, you gain the ability in some cases to retrieve a small set of randomly distributed rows from the table. Indexes are one of many means of reducing disk I/O.">B-Tree Index Access Paths</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-B5E41901-933E-4A31-B5D6-9771FD435EC0" title="Bitmap indexes combine the indexed data with a rowid range.">Bitmap Index Access Paths</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-4D114CC6-15A8-4CE0-A826-4E53DFD184CA" title="A table cluster is a group of tables that share common columns and store related data in the same blocks. When tables are clustered, a single data block can contain rows from multiple tables.">Table Cluster Access Paths</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL94943"></a><a id="TGSQL229"></a>
+<div class="props_rev_3"><a id="GUID-CDC8B946-2375-4E5F-B50E-DE1E79EAE4CD"></a>
+<h2 id="TGSQL-GUID-CDC8B946-2375-4E5F-B50E-DE1E79EAE4CD" class="sect2">Introduction to Access Paths</h2>
+<div>
+<p>A <span class="bold">row source</span> is a set of rows returned by a step in an execution plan. A row source can be a table, view, or result of a join or grouping operation.</p>
+<p>A unary operation such as an <a href="glossary.htm#GUID-22DF198C-4310-4307-BF29-DCE765725BD4"><span class="xrefglossterm">access path</span></a>, which is a technique used by a query to retrieve rows from a row source, accepts a single row source as input. For example, a full table scan is the retrieval of rows of a single row source. In contrast, a join operation is binary and receives inputs from two row sources</p>
+<p>The database uses different access paths for different relational data structures. The following table summarizes common access paths for the major data structures.</p>
+<div class="tblformalwide" id="GUID-CDC8B946-2375-4E5F-B50E-DE1E79EAE4CD__CHDBEIFB">
+<p class="titleintable">Table 8-1 Data Structures and Access Paths</p>
+<table class="cellalignment4813" title="Data Structures and Access Paths" summary="Access paths">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4886" id="d48765e232">Access Path</th>
+<th class="cellalignment4887" id="d48765e235">Heap-Organized Tables</th>
+<th class="cellalignment4887" id="d48765e238">B-Tree Indexes and IOTs</th>
+<th class="cellalignment4887" id="d48765e241">Bitmap Indexes</th>
+<th class="cellalignment4887" id="d48765e244">Table Clusters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e249" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-461E7071-2229-4F60-82E6-BC4F6FC8D23B" title="A full table scan reads all rows from a table, and then filters out those rows that do not meet the selection criteria.">Full Table Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e249 d48765e235">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e249 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e249 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e249 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e269" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-4180BA97-3E2C-41F9-B282-4FB3FF9532CB" title="A rowid is an internal representation of the storage location of data.">Table Access by Rowid</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e269 d48765e235">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e269 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e269 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e269 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e289" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-720EA54F-AB65-4379-99A3-CAE166590127" title="A sample table scan retrieves a random sample of data from a simple table or a complex SELECT statement, such as a statement involving joins and views.">Sample Table Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e289 d48765e235">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e289 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e289 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e289 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e312" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-273588A7-A8E9-4E1E-BE35-060073533B47" title="An index unique scan returns at most 1 rowid.">Index Unique Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e312 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e312 d48765e238">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e312 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e312 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e332" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-E2353939-DFBD-444A-94BC-2497E2A418D1" title="An index range scan is an ordered scan of values.">Index Range Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e332 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e332 d48765e238">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e332 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e332 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e352" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-3D9D3DBD-CF89-4320-8C5E-6BE6A127AC39" title="An index full scan reads the entire index in order. An index full scan can eliminate a separate sorting operation because the data in the index is ordered by index key.">Index Full Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e352 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e352 d48765e238">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e352 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e352 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e372" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-A2F2A81F-4626-45A1-B2A6-D46107E74C3C" title="An index fast full scan reads the index blocks in unsorted order, as they exist on disk. This scan does not use the index to probe the table, but reads the index instead of the table, essentially using the index itself as a table.">Index Fast Full Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e372 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e372 d48765e238">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e372 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e372 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e392" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-B7C62F0F-EB7C-422C-919D-D86456A74A60" title="An index skip scan occurs when the initial column of a composite index is &#34;skipped&#34; or not specified in the query.">Index Skip Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e392 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e392 d48765e238">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e392 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e392 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e412" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-21258F63-7506-4019-9FB4-323E9D2DE087" title="An index join scan is a hash join of multiple indexes that together return all columns requested by a query. The database does not need to access the table because all data is retrieved from the indexes.">Index Join Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e412 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e412 d48765e238">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e412 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e412 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e429" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-E8F4A411-10BE-4D5E-9207-0D5F8E61A8E0" title="This type of access path uses a bitmap index to look up a single key value.">Bitmap Index Single Value</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e429 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e429 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e429 d48765e241">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e429 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e446" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-9123D7CE-90DC-4C96-AB4F-49FD0227C40B" title="This type of access path uses a bitmap index to look up a range of values.">Bitmap Index Range Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e446 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e446 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e446 d48765e241">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e446 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e464" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-2FDE5904-B0BC-44DA-829B-94C89FA77D71" title="This access path merges multiple bitmaps, and returns a single bitmap as a result.">Bitmap Merge</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e464 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e464 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e464 d48765e241">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e464 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e481" headers="d48765e232">
+<p>Bitmap Index Range Scans</p>
+</td>
+<td class="cellalignment4889" headers="d48765e481 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e481 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e481 d48765e241">
+<p>x</p>
+</td>
+<td class="cellalignment4889" headers="d48765e481 d48765e244">&nbsp;</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e494" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-DB9438B3-6FA1-4EE9-A782-3DD271A59285" title="An index cluster is a table cluster that uses an index to locate data.">Cluster Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e494 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e494 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e494 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e494 d48765e244">
+<p>x</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4888" id="d48765e514" headers="d48765e232">
+<p><a href="tgsql_optop.htm#GUID-8CBC58C9-A82E-4A2A-B2C1-5A728C4F4726" title="A hash cluster is like an indexed cluster, except the index key is replaced with a hash function. No separate cluster index exists.">Hash Scans</a></p>
+</td>
+<td class="cellalignment4889" headers="d48765e514 d48765e235">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e514 d48765e238">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e514 d48765e241">&nbsp;</td>
+<td class="cellalignment4889" headers="d48765e514 d48765e244">
+<p>x</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The optimizer considers different possible execution plans, and then assigns each plan a <a href="glossary.htm#GUID-7FCF0F80-65B5-4F76-A521-91ABD109DA17"><span class="xrefglossterm">cost</span></a>. The optimizer chooses the plan with the lowest cost. In general, index access paths are more efficient for statements that retrieve a small subset of table rows, whereas full table scans are more efficient when accessing a large portion of a table.</p>
+<div class="infoboxnotealso" id="GUID-CDC8B946-2375-4E5F-B50E-DE1E79EAE4CD__GUID-D7E0ABDA-3F46-4FA9-912F-1A82B9DF0B7E">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_join.htm#GUID-BD96F1B4-76D4-43DF-98B6-D07F46838C4A" title="Oracle Database provides several optimizations for joining row sets.">Joins</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-B743F9BE-9971-4CD1-8C0C-0EAF7C80E5F2" title="Query optimization is the overall process of choosing the most efficient means of executing a SQL statement. SQL is a nonprocedural language, so the optimizer is free to merge, reorganize, and process in any order.">Cost-Based Optimization</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink CNCPT88798" target="_blank" href="../CNCPT/part_datst.htm#CNCPT88798"><span><cite>Oracle Database Concepts</cite></span></a> for an overview of these structures</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL230"></a>
+<div class="props_rev_3"><a id="GUID-5594AB70-F3C1-49BA-88ED-0B2011791365"></a>
+<h2 id="TGSQL-GUID-5594AB70-F3C1-49BA-88ED-0B2011791365" class="sect2">Table Access Paths</h2>
+<div>
+<p>A table is the basic unit of data organization in an Oracle database.</p>
+<p>Relational tables are the most common table type. Relational tables have with the following organizational characteristics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A <a href="glossary.htm#GUID-04AD2CD1-66B1-4CFF-93EA-4ACAABAF18F3"><span class="xrefglossterm">heap-organized table</span></a> does not store rows in any particular order.</p>
+</li>
+<li>
+<p>An <a href="glossary.htm#GUID-B4FADC41-B1BD-48E6-BCB6-D0D3E34928B1"><span class="xrefglossterm">index-organized table</span></a> orders rows according to the primary key values.</p>
+</li>
+<li>
+<p>An <a href="glossary.htm#GUID-02DC6035-1B32-4E92-8961-9DA5457A9EC8"><span class="xrefglossterm">external table</span></a> is a read-only table whose metadata is stored in the database but whose data is stored outside the database.</p>
+</li>
+</ul>
+<p>This section explains optimizer access paths for heap-organized tables, and contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optop.htm#GUID-53905BCD-3EAD-4B44-8CCC-C442A80647E8" title="By default, a table is organized as a heap, which means that the database places rows where they fit best rather than in a user-specified order.">About Heap-Organized Table Access</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-461E7071-2229-4F60-82E6-BC4F6FC8D23B" title="A full table scan reads all rows from a table, and then filters out those rows that do not meet the selection criteria.">Full Table Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-4180BA97-3E2C-41F9-B282-4FB3FF9532CB" title="A rowid is an internal representation of the storage location of data.">Table Access by Rowid</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-720EA54F-AB65-4379-99A3-CAE166590127" title="A sample table scan retrieves a random sample of data from a simple table or a complex SELECT statement, such as a statement involving joins and views.">Sample Table Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-E699E03C-2689-4B56-B303-8E8529C5D99E" title="Starting in Oracle Database 12c Release 1 (12.1.0.2), an In-Memory scan retrieves some or all rows from the In-Memory Column Store (IM column store). The IM column store is an optional SGA area that stores copies of tables and partitions in a special columnar format optimized for rapid scans.">In-Memory Table Scans</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-5594AB70-F3C1-49BA-88ED-0B2011791365__GUID-9C775604-EBBA-4AAF-88AB-A4B677BEC52D">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT211" target="_blank" href="../CNCPT/tablecls.htm#CNCPT211"><span><cite>Oracle Database Concepts</cite></span></a> for an overview of tables</p>
+</li>
+<li>
+<p><a class="olink ADMIN015" target="_blank" href="../ADMIN/tables.htm#ADMIN015"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn how to manage tables</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95143"></a>
+<div class="props_rev_3"><a id="GUID-53905BCD-3EAD-4B44-8CCC-C442A80647E8"></a>
+<h3 id="TGSQL-GUID-53905BCD-3EAD-4B44-8CCC-C442A80647E8" class="sect3">About Heap-Organized Table Access</h3>
+<div>
+<p>By default, a table is organized as a heap, which means that the database places rows where they fit best rather than in a user-specified order.</p>
+<p>As users add rows, the database places the rows in the first available free space in the data segment. Rows are not guaranteed to be retrieved in the order in which they were inserted.</p>
+</div>
+<a id="TGSQL95144"></a>
+<div class="props_rev_3"><a id="GUID-EA472E2B-C155-4510-80AA-3E033C7C74AA"></a>
+<h4 id="TGSQL-GUID-EA472E2B-C155-4510-80AA-3E033C7C74AA" class="sect4">Row Storage in Data Blocks and Segments: A Primer</h4>
+<div>
+<p>The database stores rows in data blocks. In tables, the database can write a row anywhere in the bottom part of the block. Oracle Database uses the block overhead, which contains the row directory and table directory, to manage the block itself.</p>
+<p>An extent is made up of logically contiguous data blocks. The blocks may not be physically contiguous on disk. A segment is a set of extents that contains all the data for a logical storage structure within a tablespace. For example, Oracle Database allocates one or more extents to form the data segment for a table. The database also allocates one or more extents to form the index segment for a table.</p>
+<p>By default, the database uses automatic segment space management (ASSM) for permanent, locally managed tablespaces. When a session first inserts data into a table, the database formats a bitmap block. The bitmap tracks the blocks in the segment. The database uses the bitmap to find free blocks and then formats each block before writing to it. ASSM spread out inserts among blocks to avoid concurrency issues.</p>
+<p>The high water mark (HWM) is the point in a segment beyond which data blocks are unformatted and have never been used. Below the HWM, a block may be formatted and written to, formatted and empty, or unformatted. The low high water mark (low HWM) marks the point below which all blocks are known to be formatted because they either contain data or formerly contained data.</p>
+<p>During a full table scan, the database reads all blocks up to the low HWM, which are known to be formatted, and then reads the segment bitmap to determine which blocks between the HWM and low HWM are formatted and safe to read. The database knows not to read past the HWM because these blocks are unformatted.</p>
+<div class="infoboxnotealso" id="GUID-EA472E2B-C155-4510-80AA-3E033C7C74AA__GUID-F33A8345-E61E-4739-BDB0-C19185340131">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT302" target="_blank" href="../CNCPT/logical.htm#CNCPT302"><span><cite>Oracle Database Concepts</cite></span></a> to learn about data block storage</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95145"></a>
+<div class="props_rev_3"><a id="GUID-4D0E9BF1-2A89-4CB4-A165-936C656BD48E"></a>
+<h4 id="TGSQL-GUID-4D0E9BF1-2A89-4CB4-A165-936C656BD48E" class="sect4">Importance of Rowids for Row Access</h4>
+<div>
+<p>Every row in a heap-organized table has a rowid unique to this table that corresponds to the physical address of a row piece. A rowid is a 10-byte physical address of a row.</p>
+<p>The rowid points to a specific file, block, and row number. For example, in the rowid <code class="codeph">AAAPecAAFAAAABSAAA</code>, the final <code class="codeph">AAA</code> represents the row number. The row number is an index into a row directory entry. The row directory entry contains a pointer to the location of the row on the block.</p>
+<p>The database can sometimes move a row in the bottom part of the block. For example, if row movement is enabled, then the row can move because of partition key updates, Flashback Table operations, shrink table operations, and so on. If the database moves a row within a block, then the database updates the row directory entry to modify the pointer. The rowid stays constant.</p>
+<p>Oracle Database uses rowids internally for the construction of indexes. For example, each key in a B-tree index is associated with a rowid that points to the address of the associated row. Physical rowids provide the fastest possible access to a table row, enabling the database to retrieve a row in as little as a single I/O.</p>
+<div class="infoboxnotealso" id="GUID-4D0E9BF1-2A89-4CB4-A165-936C656BD48E__GUID-E04D4DBA-8362-4E07-A538-C177E0E8CDD8">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT1130" target="_blank" href="../CNCPT/tablecls.htm#CNCPT1130"><span><cite>Oracle Database Concepts</cite></span></a> to learn about rowids</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95147"></a><a id="TGSQL95146"></a>
+<div class="props_rev_3"><a id="GUID-1F4CDA9A-7419-44F6-89E0-395C92285015"></a>
+<h4 id="TGSQL-GUID-1F4CDA9A-7419-44F6-89E0-395C92285015" class="sect4">Direct Path Reads</h4>
+<div>
+<p>In a <span class="bold">direct path read</span>, the database reads buffers from disk directly into the PGA, bypassing the SGA entirely.</p>
+<p>The following figure shows the difference between scattered and sequential reads, which store buffers in the SGA, and direct path reads.</p>
+<div class="figure" id="GUID-1F4CDA9A-7419-44F6-89E0-395C92285015__CHDBIAGB">
+<p class="titleinfigure">Figure 8-1 Direct Path Reads</p>
+<img width="638" height="410" src="img/GUID-94E3B79C-1D9F-4D34-B0D5-EBE9C44B17EF-default.png" alt="Description of Figure 8-1 follows" title="Description of Figure 8-1 follows"/><br/>
+<a href="img_text/GUID-94E3B79C-1D9F-4D34-B0D5-EBE9C44B17EF-print.htm">Description of &#34;Figure 8-1 Direct Path Reads&#34;</a></div>
+<!-- class="figure" -->
+<p>Situations in which Oracle Database may perform direct path reads include:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Execution of a <code class="codeph">CREATE TABLE AS SELECT</code> statement</p>
+</li>
+<li>
+<p>Execution of an <code class="codeph">ALTER REBUILD</code> or <code class="codeph">ALTER MOVE</code> statement</p>
+</li>
+<li>
+<p>Reads from a temporary tablespace</p>
+</li>
+<li>
+<p>Parallel queries</p>
+</li>
+<li>
+<p>Reads from a LOB segment</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-1F4CDA9A-7419-44F6-89E0-395C92285015__GUID-6DE2D59E-00C7-435C-8B62-4653039FA16C">
+<p class="notep1">See Also:</p>
+<p><a class="olink TGDBA94486" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=TGDBA94486"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn about wait events for direct path reads</p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL231"></a>
+<div class="props_rev_3"><a id="GUID-461E7071-2229-4F60-82E6-BC4F6FC8D23B"></a>
+<h3 id="TGSQL-GUID-461E7071-2229-4F60-82E6-BC4F6FC8D23B" class="sect3">Full Table Scans</h3>
+<div>
+<p>A <span class="bold">full table scan</span> reads all rows from a table, and then filters out those rows that do not meet the selection criteria.</p>
+</div>
+<a id="TGSQL94944"></a>
+<div class="props_rev_3"><a id="GUID-0AC1AB0B-D0E6-4F77-823A-7CB56E375C32"></a>
+<h4 id="TGSQL-GUID-0AC1AB0B-D0E6-4F77-823A-7CB56E375C32" class="sect4">When the Optimizer Considers a Full Table Scan</h4>
+<div>
+<p>In general, the optimizer chooses a full table scan when it cannot use a different access path, or another usable access path is higher cost.</p>
+<p>The following table shows typical reasons for choosing a full table scan.</p>
+<div class="tblformal" id="GUID-0AC1AB0B-D0E6-4F77-823A-7CB56E375C32__GUID-249DD13F-8CFA-4F2A-A330-1DD717F6D2EC">
+<p class="titleintable">Table 8-2 Typical Reasons for a Full Table Scan</p>
+<table class="cellalignment4890" title="Typical Reasons for a Full Table Scan" summary="This table lists some of the reasons for a full table scan. The table contains links for more information.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d48765e1333">Reason</th>
+<th class="cellalignment4870" id="d48765e1335">Explanation</th>
+<th class="cellalignment4870" id="d48765e1337">To Learn More</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1341" headers="d48765e1333">
+<p>No index exists.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1341 d48765e1335">
+<p>If no index exists, then the optimizer uses a full table scan.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1341 d48765e1337">
+<p><a class="olink CNCPT-GUID-DE7A95BC-6E4A-47EA-9FC5-B85B54F8CF41" target="_blank" href="../CNCPT/indexiot.htm#CNCPT-GUID-DE7A95BC-6E4A-47EA-9FC5-B85B54F8CF41"><span><cite>Oracle Database Concepts</cite></span></a></p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1355" headers="d48765e1333">
+<p>The query predicate applies a function to the indexed column.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1355 d48765e1335">
+<p>Unless the index is a function-based index, the database indexes the values of the column, not the values of the column with the function applied. A typical application-level mistake is to index a character column, such as <code class="codeph">char_col</code>, and then query the column using syntax such as <code class="codeph">WHERE char_col=1</code>. The database implicitly applies a <code class="codeph">TO_NUMBER</code> function to the constant number <code class="codeph">1</code>, which prevents use of the index.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1355 d48765e1337"><span class="q">&#34;<a href="tgsql_indc.htm#GUID-F4481059-3D32-4E37-831C-9706DAE06452" title="A function-based index includes columns that are either transformed by a function, such as the UPPER function, or included in an expression, such as col1 + col2.">Guidelines for Using Function-Based Indexes for Performance</a>&#34;</span></td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1391" headers="d48765e1333">
+<p>A <code class="codeph">SELECT COUNT(*)</code> query is issued, and an index exists, but the indexed column contains nulls.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1391 d48765e1335">
+<p>The optimizer cannot use the index to count the number of table rows because the index cannot contain null entries.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1391 d48765e1337"><span class="q">&#34;<a href="tgsql_optop.htm#GUID-AD533A0C-E46F-4FB0-8C34-881A0E30E93A" title="B-tree indexes never store completely null keys, which is important for how the optimizer chooses access paths. A consequence of this rule is that single-column B-tree indexes never store nulls.">B-Tree Indexes and Nulls</a>&#34;</span></td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1408" headers="d48765e1333">
+<p>The query predicate does not use the leading edge of a B-tree index.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1408 d48765e1335">
+<p>For example, an index might exist on <code class="codeph">employees(first_name,last_name)</code>. If a user issues a query with the predicate <code class="codeph">WHERE last_name=&#39;KING&#39;</code>, then the optimizer may not choose an index because column <code class="codeph">first_name</code> is not in the predicate. However, in this situation the optimizer may choose to use an index skip scan.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1408 d48765e1337"><span class="q">&#34;<a href="tgsql_optop.htm#GUID-B7C62F0F-EB7C-422C-919D-D86456A74A60" title="An index skip scan occurs when the initial column of a composite index is &#34;skipped&#34; or not specified in the query.">Index Skip Scans</a>&#34;</span></td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1434" headers="d48765e1333">
+<p>The query is <a href="glossary.htm#GUID-EFB55786-83D3-4DFF-A534-052B0BF3BA62"><span class="xrefglossterm">unselective</span></a>.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1434 d48765e1335">
+<p>If the optimizer determines that the query requires most of the blocks in the table, then it uses a full table scan, even though indexes are available. Full table scans can use larger I/O calls. Making fewer large I/O calls is cheaper than making many smaller calls.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1434 d48765e1337">
+<p><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-60B12417-9E06-4F3F-B796-DF86549A5B21" title="The selectivity represents a fraction of rows from a row set.">Selectivity</a>&#34;</span></p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1455" headers="d48765e1333">
+<p>The table statistics are stale.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1455 d48765e1335">
+<p>For example, a table was small, but now has grown large. If the table statistics are stale and do not reflect the current size of the table, then the optimizer does not know that an index is now most efficient than a full table scan.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1455 d48765e1337"><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E" title="The optimizer cost model relies on statistics collected about the objects involved in a query, and the database and host where the query runs.">Introduction to Optimizer Statistics</a>&#34;</span></td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1472" headers="d48765e1333">
+<p>The table is small.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1472 d48765e1335">
+<p>If a table contains fewer than <span class="italic">n</span> blocks under the high water mark, where <span class="italic">n</span> equals the setting for the <code class="codeph">DB_FILE_MULTIBLOCK_READ_COUNT</code> initialization parameter, then a full table scan may be cheaper than an index range scan. The scan may be less expensive regardless of the fraction of tables being accessed or indexes present.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1472 d48765e1337">
+<p><a class="olink REFRN-GUID-69E45087-14DF-492B-B55A-8F2E936947A5" target="_blank" href="../REFRN/GUID-69E45087-14DF-492B-B55A-8F2E936947A5.htm#REFRN-GUID-69E45087-14DF-492B-B55A-8F2E936947A5"><span><cite>Oracle Database Reference</cite></span></a></p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1496" headers="d48765e1333">
+<p>The table has a high degree of parallelism.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1496 d48765e1335">
+<p>A high degree of parallelism for a table skews the optimizer toward full table scans over range scans. Query the value in the <code class="codeph">ALL_TABLES.DEGREE</code> column to determine the degree of parallelism.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1496 d48765e1337">
+<p><a class="olink REFRN-GUID-6823CD28-0681-468E-950B-966C6F71325D" target="_blank" href="../REFRN/GUID-6823CD28-0681-468E-950B-966C6F71325D.htm#REFRN-GUID-6823CD28-0681-468E-950B-966C6F71325D"><span><cite>Oracle Database Reference</cite></span></a></p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d48765e1513" headers="d48765e1333">
+<p>The query uses a full table scan hint.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1513 d48765e1335">
+<p>The hint <code class="codeph">FULL(<span class="codeinlineitalic"><code class="codeph">table</code></span> <span class="codeinlineitalic"><code class="codeph">alias</code></span>)</code> instructs the optimizer to use a full table scan.</p>
+</td>
+<td class="cellalignment4871" headers="d48765e1513 d48765e1337">
+<p><a class="olink SQLRF-GUID-581F6C91-1395-4ED0-81DE-59AE168FE183" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=SQLRF-GUID-581F6C91-1395-4ED0-81DE-59AE168FE183"><span><cite>Oracle Database SQL Language Reference</cite></span></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="TGSQL94945"></a>
+<div class="props_rev_3"><a id="GUID-EA237A0C-5C39-4797-89F9-2F38566B10D8"></a>
+<h4 id="TGSQL-GUID-EA237A0C-5C39-4797-89F9-2F38566B10D8" class="sect4">How a Full Table Scan Works</h4>
+<div>
+<p>In a full table scan, the database sequentially reads every formatted block under the high water mark. The database reads each block only once.</p>
+<p>The following graphic depicts a scan of a table segment, showing how the scan skips unformatted blocks below the high water mark.</p>
+<div class="figure" id="GUID-EA237A0C-5C39-4797-89F9-2F38566B10D8__GUID-90C91871-1DAC-49F4-B385-66955E3CB781">
+<p class="titleinfigure">Figure 8-2 High Water Mark</p>
+<img width="422" height="282" src="img/GUID-5D9563AF-23D5-4172-B346-2E584EA6CCD7-default.png" alt="Description of Figure 8-2 follows" title="Description of Figure 8-2 follows"/><br/>
+<a href="img_text/GUID-5D9563AF-23D5-4172-B346-2E584EA6CCD7-print.htm">Description of &#34;Figure 8-2 High Water Mark&#34;</a></div>
+<!-- class="figure" -->
+<p>Because the blocks are adjacent, the database can speed up the scan by making I/O calls larger than a single block, known as a <a href="glossary.htm#GUID-D02974BC-8CD2-4BEC-8B9A-3C7D44D90324"><span class="xrefglossterm">multiblock read</span></a>. The size of a read call ranges from one block to the number of blocks specified by the <code class="codeph">DB_FILE_MULTIBLOCK_READ_COUNT</code> initialization parameter. For example, setting this parameter to <code class="codeph">4</code> instructs the database to read up to 4 blocks in a single call.</p>
+<p>The algorithms for caching blocks during full table scans are complex. For example, the database caches blocks differently depending on whether tables are small or large.</p>
+<div class="infoboxnotealso" id="GUID-EA237A0C-5C39-4797-89F9-2F38566B10D8__GUID-7E023923-3585-4111-9DCE-FA63202646F6">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-C1C85DEA-3583-40FE-B5BB-6AC8F76FFE34__BBAIEADC" title="This table describes parameters that control optimizer behavior.">Table 14-1</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink CNCPT1224" target="_blank" href="../CNCPT/memory.htm#CNCPT1224"><span><cite>Oracle Database Concepts</cite></span></a> for an overview of the default caching mode</p>
+</li>
+<li>
+<p><a class="olink REFRN10037" target="_blank" href="../REFRN/GUID-69E45087-14DF-492B-B55A-8F2E936947A5.htm#REFRN10037"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">DB_FILE_MULTIBLOCK_READ_COUNT</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL94947"></a><a id="TGSQL94946"></a>
+<div class="props_rev_3"><a id="GUID-56D159A8-DA06-4777-8407-625AC9ED1122"></a>
+<h4 id="TGSQL-GUID-56D159A8-DA06-4777-8407-625AC9ED1122" class="sect4">Full Table Scan: Example</h4>
+<div>
+<p>The following statement queries salaries over 4000 in the <code class="codeph">hr.employees</code> table:</p>
+<pre dir="ltr">SELECT salary 
+FROM   hr.employees 
+WHERE  salary &gt; 4000;
+</pre>
+<div class="example" id="GUID-56D159A8-DA06-4777-8407-625AC9ED1122__CHDEHBCE">
+<p class="titleinexample">Example 8-1 Full Table Scan</p>
+<p>The following plan was retrieved using the <code class="codeph">DBMS_XPLAN.DISPLAY_CURSOR</code> function. Because no index exists on the <code class="codeph">salary</code> column, the optimizer cannot use an index range scan, and so uses a full table scan.</p>
+<pre dir="ltr">SQL_ID  54c20f3udfnws, child number 0
+-------------------------------------
+select salary from hr.employees where salary &gt; 4000
+ 
+Plan hash value: 3476115102
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |       |       |     3 (100)|          |
+|*  1 |  <span class="bold">TABLE ACCESS FULL</span>| EMPLOYEES |    98 |  6762 |     3   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter(&#34;SALARY&#34;&gt;4000)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL232"></a>
+<div class="props_rev_3"><a id="GUID-4180BA97-3E2C-41F9-B282-4FB3FF9532CB"></a>
+<h3 id="TGSQL-GUID-4180BA97-3E2C-41F9-B282-4FB3FF9532CB" class="sect3">Table Access by Rowid</h3>
+<div>
+<p>A <span class="bold">rowid</span> is an internal representation of the storage location of data.</p>
+<p>The rowid of a row specifies the data file and data block containing the row and the location of the row in that block. Locating a row by specifying its rowid is the fastest way to retrieve a single row because it specifies the exact location of the row in the database.</p>
+<div class="infobox-note" id="GUID-4180BA97-3E2C-41F9-B282-4FB3FF9532CB__GUID-13A8A764-EC23-43C9-A26B-33F23EEF82C8">
+<p class="notep1">Note:</p>
+<p>Rowids can change between versions. Accessing data based on position is not recommended because rows can move.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-4180BA97-3E2C-41F9-B282-4FB3FF9532CB__GUID-6F8A8AB2-A4CD-42A6-A6A4-E8815B52A9F9">
+<p class="notep1">See Also:</p>
+<p><a class="olink GUID-E8E35A33-F4CF-49CB-B2F2-45754F1082DA" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=GUID-E8E35A33-F4CF-49CB-B2F2-45754F1082DA"><span><cite>Oracle Database Development Guide</cite></span></a> to learn more about rowids</p>
+</div>
+</div>
+<a id="TGSQL95148"></a>
+<div class="props_rev_3"><a id="GUID-7A2735CC-278A-44AE-A643-670EC859466F"></a>
+<h4 id="TGSQL-GUID-7A2735CC-278A-44AE-A643-670EC859466F" class="sect4">When the Optimizer Chooses Table Access by Rowid</h4>
+<div>
+<p>In most cases, the database accesses a table by rowid after a scan of one or more indexes. However, table access by rowid need not follow every index scan. If the index contains all needed columns, then access by rowid might not occur (see <span class="q">&#34;<a href="tgsql_optop.htm#GUID-A2F2A81F-4626-45A1-B2A6-D46107E74C3C" title="An index fast full scan reads the index blocks in unsorted order, as they exist on disk. This scan does not use the index to probe the table, but reads the index instead of the table, essentially using the index itself as a table.">Index Fast Full Scans</a>&#34;</span>).</p>
+</div>
+</div>
+<a id="TGSQL95149"></a>
+<div class="props_rev_3"><a id="GUID-1E815B8C-990A-4FAE-B87A-0A62D1CA2D32"></a>
+<h4 id="TGSQL-GUID-1E815B8C-990A-4FAE-B87A-0A62D1CA2D32" class="sect4">How Table Access by Rowid Works</h4>
+<div>
+<p>To access a table by rowid, the database performs the following steps:</p>
+<ol>
+<li>
+<p>Obtains the rowids of the selected rows, either from the statement <code class="codeph">WHERE</code> clause or through an index scan of one or more indexes</p>
+<p>Table access may be needed for columns in the statement not present in the index.</p>
+</li>
+<li>
+<p>Locates each selected row in the table based on its rowid</p>
+</li>
+</ol>
+</div>
+</div>
+<a id="TGSQL95150"></a>
+<div class="props_rev_3"><a id="GUID-7953EB83-0BBA-4700-993A-49C9B5FD254A"></a>
+<h4 id="TGSQL-GUID-7953EB83-0BBA-4700-993A-49C9B5FD254A" class="sect4">Table Access by Rowid: Example</h4>
+<div>
+<p>Assume run the following query:</p>
+<pre dir="ltr">SELECT * 
+FROM   employees 
+WHERE  employee_id &gt; 190;
+</pre>
+<p>Step 2 of the following plan shows a range scan of the <code class="codeph">emp_emp_id_pk</code> index on the <code class="codeph">hr.employees</code> table. The database uses the rowids obtained from the index to find the corresponding rows from the <code class="codeph">employees</code> table, and then retrieve them. The <code class="codeph">BATCHED</code> access shown in Step 1 means that the database retrieves a few rowids from the index, and then attempts to access rows in block order to improve the clustering and reduce the number of times that the database must access a block.</p>
+<pre dir="ltr">--------------------------------------------------------------------------------
+|Id| Operation                           | Name     |Rows|Bytes|Cost(%CPU)|Time|
+--------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                    |             |  |    |2(100)|        |
+| 1|  <span class="bold">TABLE ACCESS BY INDEX ROWID</span> <span class="bold">BATCHED</span>|EMPLOYEES    |16|1104|2  (0)|00:00:01|
+|*2|   INDEX RANGE SCAN                  |EMP_EMP_ID_PK|16|    |1  (0)|00:00:01|
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access(&#34;EMPLOYEE_ID&#34;&gt;190)
+</pre></div>
+</div>
+</div>
+<a id="TGSQL233"></a>
+<div class="props_rev_3"><a id="GUID-720EA54F-AB65-4379-99A3-CAE166590127"></a>
+<h3 id="TGSQL-GUID-720EA54F-AB65-4379-99A3-CAE166590127" class="sect3">Sample Table Scans</h3>
+<div>
+<p>A <span class="bold">sample table scan</span> retrieves a random sample of data from a simple table or a complex <code class="codeph">SELECT</code> statement, such as a statement involving joins and views.</p>
+</div>
+<a id="TGSQL95151"></a>
+<div class="props_rev_3"><a id="GUID-45CFAC71-059A-4F01-ADE4-DA1D6335519C"></a>
+<h4 id="TGSQL-GUID-45CFAC71-059A-4F01-ADE4-DA1D6335519C" class="sect4">When the Optimizer Chooses a Sample Table Scan</h4>
+<div>
+<p>The database uses a sample table scan when a statement <code class="codeph">FROM</code> clause includes the <code class="codeph">SAMPLE</code> keyword.</p>
+<p>The <code class="codeph">SAMPLE</code> clause has the following forms:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">SAMPLE</code> <code class="codeph">(</code><span class="italic"><code class="codeph">sample_percent</code></span><code class="codeph">)</code></p>
+<p>The database reads a specified percentage of rows in the table to perform a sample table scan.</p>
+</li>
+<li>
+<p><code class="codeph">SAMPLE BLOCK</code> <code class="codeph">(</code><span class="italic"><code class="codeph">sample_percent</code></span><code class="codeph">)</code></p>
+<p>The database reads a specified percentage of table blocks to perform a sample table scan.</p>
+</li>
+</ul>
+<p>The <span class="italic">sample_percent</span> specifies the percentage of the total row or block count to include in the sample. The value must be in the range <code class="codeph">.000001</code> up to, but not including, <code class="codeph">100</code>. This percentage indicates the probability of each row, or each cluster of rows in block sampling, being selected for the sample. It does not mean that the database retrieves exactly <span class="italic">sample_percent</span> of the rows.</p>
+<div class="infobox-note" id="GUID-45CFAC71-059A-4F01-ADE4-DA1D6335519C__GUID-ABE26BAF-7F15-4228-B4D8-A2BA5062202C">
+<p class="notep1">Note:</p>
+<p>Block sampling is possible only during full table scans or index fast full scans. If a more efficient execution path exists, then the database does not sample blocks. To guarantee block sampling for a specific table or index, use the <code class="codeph">FULL</code> or <code class="codeph">INDEX_FFS</code> hint.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-45CFAC71-059A-4F01-ADE4-DA1D6335519C__GUID-B0C84EF2-C915-4560-BF4B-6687BCA1B8DC">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-C558F7CF-446E-4078-B045-0B3BB026CB3C">Influencing the Optimizer with Hints</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink SQLRF55293" target="_blank" href="../SQLRF/statements_10002.htm#SQLRF55293"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about the <code class="codeph">SAMPLE</code> clause</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL94668"></a><a id="TGSQL95152"></a>
+<div class="props_rev_3"><a id="GUID-6A457780-7495-472A-8DA1-9151370D2E64"></a>
+<h4 id="TGSQL-GUID-6A457780-7495-472A-8DA1-9151370D2E64" class="sect4">Sample Table Scans: Example</h4>
+<div>
+<p><a href="tgsql_optop.htm#GUID-6A457780-7495-472A-8DA1-9151370D2E64__CHDDGGEF">Example 8-2</a> uses a sample table scan to access 1% of the <code class="codeph">employees</code> table, sampling by blocks instead of rows.</p>
+<div class="example" id="GUID-6A457780-7495-472A-8DA1-9151370D2E64__CHDDGGEF">
+<p class="titleinexample">Example 8-2 Sample Table Scan</p>
+<pre dir="ltr">SELECT * FROM hr.employees SAMPLE BLOCK (1); 
+</pre>
+<p><a id="d48765e2508" class="indexterm-anchor"></a>The <code class="codeph">EXPLAIN</code> <code class="codeph">PLAN</code> output for this statement might look as follows:</p>
+<pre dir="ltr">-------------------------------------------------------------------------
+| Id  | Operation            |  Name       | Rows  | Bytes | Cost (%CPU)|
+-------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |             |     1 |    68 |     3  (34)|
+|   1 |  TABLE ACCESS SAMPLE | EMPLOYEES   |     1 |    68 |     3  (34)|
+-------------------------------------------------------------------------
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL95355"></a>
+<div class="props_rev_3"><a id="GUID-E699E03C-2689-4B56-B303-8E8529C5D99E"></a>
+<h3 id="TGSQL-GUID-E699E03C-2689-4B56-B303-8E8529C5D99E" class="sect3">In-Memory Table Scans</h3>
+<div>
+<p>Starting in Oracle Database 12c Release 1 (12.1.0.2), an <span class="bold">In-Memory scan</span> retrieves some or all rows from the In-Memory Column Store (IM column store). The IM column store is an optional SGA area that stores copies of tables and partitions in a special columnar format optimized for rapid scans.</p>
+<div class="infoboxnotealso" id="GUID-E699E03C-2689-4B56-B303-8E8529C5D99E__GUID-AE3608EF-11BB-4293-B6B8-7DD07F65929F">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT89659" target="_blank" href="../CNCPT/memory.htm#CNCPT89659"><span><cite>Oracle Database Concepts</cite></span></a> for an overview of the IM column store</p>
+</li>
+<li>
+<p><a class="olink ADMIN14257" target="_blank" href="../ADMIN/memory.htm#ADMIN14257"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn how to enable the IM column store</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95356"></a>
+<div class="props_rev_3"><a id="GUID-ED1C6A45-3417-4BD1-AA4F-E6434C96FD9C"></a>
+<h4 id="TGSQL-GUID-ED1C6A45-3417-4BD1-AA4F-E6434C96FD9C" class="sect4">When the Optimizer Chooses an In-Memory Table Scan</h4>
+<div>
+<p><a id="d48765e2706" class="indexterm-anchor"></a>Starting in Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2), the optimizer cost model is fully aware of the content of the IM column store. When a user executes a query that references a table in the IM column store, the optimizer calculates the cost of all possible access methods&mdash;including the in-memory table scan&mdash;and selects the access method with the lowest cost.</p>
+</div>
+</div>
+<a id="TGSQL95357"></a>
+<div class="props_rev_3"><a id="GUID-3A5C7459-14CB-4558-914D-4C1279A34648"></a>
+<h4 id="TGSQL-GUID-3A5C7459-14CB-4558-914D-4C1279A34648" class="sect4">In-Memory Query Controls</h4>
+<div>
+<p><a id="d48765e2792" class="indexterm-anchor"></a>The following database initialization parameters affect the in-memory features:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">INMEMORY_QUERY</code></p>
+<p>This parameter enables or disables in-memory queries for the database at the session or system level. This parameter is helpful when you want to test workloads with and without the use of the IM column store.</p>
+</li>
+<li>
+<p><code class="codeph">OPTIMIZER_INMEMORY_AWARE</code></p>
+<p>This parameter enables (<code class="codeph">TRUE</code>) or disables (<code class="codeph">FALSE</code>) all of the in-memory enhancements made to the optimizer cost model, table expansion, bloom filters, and so on. Setting the parameter to <code class="codeph">FALSE</code> causes the optimizer to ignore the in-memory property of tables during the optimization of SQL statements.</p>
+</li>
+<li>
+<p><code class="codeph">OPTIMIZER_FEATURES_ENABLE</code></p>
+<p>When set to values lower than <code class="codeph">12.1.0.2</code>, this parameter has the same effect as setting <code class="codeph">OPTIMIZER_INMEMORY_AWARE</code> to <code class="codeph">FALSE</code>.</p>
+</li>
+</ul>
+<p>To enable or disable in-memory queries, you can specify the <code class="codeph">INMEMORY</code> or <code class="codeph">NO_INMEMORY</code> hints, which are the per-query equivalent of the <code class="codeph">INMEMORY_QUERY</code> initialization parameter. If a SQL statement uses the <code class="codeph">INMEMORY</code> hint, but the object it references is not already loaded in the IM column store, then the database does not wait for the object to be populated in the IM column store before executing the statement. However, initial access of the object triggers the object population in the IM column store.</p>
+<div class="infoboxnotealso" id="GUID-3A5C7459-14CB-4558-914D-4C1279A34648__GUID-51B104BF-4927-4799-B015-C2F0B493DD21">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink REFRN10351" target="_blank" href="../REFRN/GUID-5B9BDBE2-6835-4598-9717-64D2C9D622AB.htm#REFRN10351"><span class="italic">Oracle Database Reference</span></a> to learn more about the <code class="codeph">INMEMORY_QUERY</code>, <code class="codeph">OPTIMIZER_INMEMORY_AWARE</code>, and <code class="codeph">OPTIMIZER_FEATURES_ENABLE</code> initialization parameters</p>
+</li>
+<li>
+<p><a class="olink SQLRF56788" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF56788"><span class="italic">Oracle Database SQL Language Reference</span></a> to learn more about the <code class="codeph">INMEMORY</code> hints</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95359"></a><a id="TGSQL95358"></a>
+<div class="props_rev_3"><a id="GUID-3175639B-34B2-4441-A9A6-33996ED6D1C6"></a>
+<h4 id="TGSQL-GUID-3175639B-34B2-4441-A9A6-33996ED6D1C6" class="sect4">In-Memory Table Scans: Example</h4>
+<div>
+<p>The following example shows a query of the <code class="codeph">oe.product_information</code> table, which has been altered with the <code class="codeph">INMEMORY HIGH</code> option.</p>
+<div class="example" id="GUID-3175639B-34B2-4441-A9A6-33996ED6D1C6__CHDEHBHD">
+<p class="titleinexample">Example 8-3 In-Memory Table Scan</p>
+<pre dir="ltr">SELECT * 
+FROM   oe.product_information
+WHERE  list_price &gt; 10 
+ORDER BY product_id
+</pre>
+<p>The plan for this statement might look as follows, with the <code class="codeph">INMEMORY</code> keyword in Step 2 indicating that some or all of the object was accessed from the IM column store:</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR);
+
+SQL_ID  2mb4h57x8pabw, child number 0
+-------------------------------------
+select * from oe.product_information where list_price &gt; 10 order byproduct_id
+
+Plan hash value: 2256295385
+--------------------------------------------------------------------------------------------
+|Id| Operation                   | Name                |Rows|Bytes |TempSpc|Cost(%CPU)|Time|
+--------------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT            |                     |    |      |     |21 (100)|        |
+| 1|  SORT ORDER BY              |                     | 285| 62415|82000|21   (5)|00:00:01|
+|*2|   <span class="bold">TABLE ACCESS INMEMORY FULL</span>| PRODUCT_INFORMATION | 285| 62415|     | 5   (0)|00:00:01|
+--------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   2 - inmemory(&#34;LIST_PRICE&#34;&gt;10)
+       filter(&#34;LIST_PRICE&#34;&gt;10)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL234"></a>
+<div class="props_rev_3"><a id="GUID-B33945C3-CCC0-4D35-AF62-DB80FD4256A6"></a>
+<h2 id="TGSQL-GUID-B33945C3-CCC0-4D35-AF62-DB80FD4256A6" class="sect2">B-Tree Index Access Paths</h2>
+<div>
+<p>An <span class="bold">index</span> is an optional structure, associated with a table or table cluster, that can sometimes speed data access. By creating an index on one or more columns of a table, you gain the ability in some cases to retrieve a small set of randomly distributed rows from the table. Indexes are one of many means of reducing disk I/O.</p>
+<p><a id="d48765e3069" class="indexterm-anchor"></a>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optop.htm#GUID-8BE7E6B2-C8C2-494C-9AE8-8EA252622F7C" title="B-trees, short for balanced trees, are the most common type of database index.">About B-Tree Index Access</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-273588A7-A8E9-4E1E-BE35-060073533B47" title="An index unique scan returns at most 1 rowid.">Index Unique Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-E2353939-DFBD-444A-94BC-2497E2A418D1" title="An index range scan is an ordered scan of values.">Index Range Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-3D9D3DBD-CF89-4320-8C5E-6BE6A127AC39" title="An index full scan reads the entire index in order. An index full scan can eliminate a separate sorting operation because the data in the index is ordered by index key.">Index Full Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-A2F2A81F-4626-45A1-B2A6-D46107E74C3C" title="An index fast full scan reads the index blocks in unsorted order, as they exist on disk. This scan does not use the index to probe the table, but reads the index instead of the table, essentially using the index itself as a table.">Index Fast Full Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-B7C62F0F-EB7C-422C-919D-D86456A74A60" title="An index skip scan occurs when the initial column of a composite index is &#34;skipped&#34; or not specified in the query.">Index Skip Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-21258F63-7506-4019-9FB4-323E9D2DE087" title="An index join scan is a hash join of multiple indexes that together return all columns requested by a query. The database does not need to access the table because all data is retrieved from the indexes.">Index Join Scans</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-B33945C3-CCC0-4D35-AF62-DB80FD4256A6__GUID-C8024B4D-F55F-4F8B-ACFE-EF6953A6C4DA">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT1170" target="_blank" href="../CNCPT/indexiot.htm#CNCPT1170"><span class="italic">Oracle Database Concepts</span></a> for an overview of indexes</p>
+</li>
+<li>
+<p><a class="olink ADMIN016" target="_blank" href="../ADMIN/indexes.htm#ADMIN016"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to learn how to manage indexes</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95153"></a>
+<div class="props_rev_3"><a id="GUID-8BE7E6B2-C8C2-494C-9AE8-8EA252622F7C"></a>
+<h3 id="TGSQL-GUID-8BE7E6B2-C8C2-494C-9AE8-8EA252622F7C" class="sect3">About B-Tree Index Access</h3>
+<div>
+<p>B-trees, short for <span class="italic">balanced trees</span>, are the most common type of database index.</p>
+<p>A <a href="glossary.htm#GUID-17862722-BD0C-42A4-A669-1FC18F0EA0C9"><span class="xrefglossterm">B-tree index</span></a> is an ordered list of values divided into ranges. By associating a key with a row or range of rows, B-trees provide excellent retrieval performance for a wide range of queries, including exact match and range searches.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optop.htm#GUID-D25B037E-044A-4172-9305-EC06DB0ED30C" title="A B-tree index has two types of blocks: branch blocks for searching and leaf blocks that store values.">B-Tree Index Structure</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-A5337544-10FC-42A4-99E7-988493E21688" title="Bitmap index blocks can appear anywhere in the index segment.">How Index Storage Affects Index Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-17F4E96E-B649-4A55-9A7C-87D8B57A557C" title="In a nonunique index, the database stores the rowid by appending it to the key as an extra column. The entry adds a length byte to make the key unique.">Unique and Nonunique Indexes</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-AD533A0C-E46F-4FB0-8C34-881A0E30E93A" title="B-tree indexes never store completely null keys, which is important for how the optimizer chooses access paths. A consequence of this rule is that single-column B-tree indexes never store nulls.">B-Tree Indexes and Nulls</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95154"></a>
+<div class="props_rev_3"><a id="GUID-D25B037E-044A-4172-9305-EC06DB0ED30C"></a>
+<h4 id="TGSQL-GUID-D25B037E-044A-4172-9305-EC06DB0ED30C" class="sect4">B-Tree Index Structure</h4>
+<div>
+<p>A B-tree index has two types of blocks: branch blocks for searching and leaf blocks that store values.</p>
+<p>The following graphic illustrates the logical structure of a B-tree index. Branch blocks store the minimum key prefix needed to make a branching decision between two keys. The leaf blocks contain every indexed data value and a corresponding rowid used to locate the actual row. Each index entry is sorted by (key, rowid). The leaf blocks are doubly linked.</p>
+<div class="figure" id="GUID-D25B037E-044A-4172-9305-EC06DB0ED30C__CHDJJDIG">
+<p class="titleinfigure">Figure 8-3 B-Tree Index Structure</p>
+<img width="662" height="474" src="img/GUID-A4C15694-3DB6-43D6-B2C6-9A40905DF972-default.gif" alt="Description of Figure 8-3 follows" title="Description of Figure 8-3 follows"/><br/>
+<a href="img_text/GUID-A4C15694-3DB6-43D6-B2C6-9A40905DF972-print.htm">Description of &#34;Figure 8-3 B-Tree Index Structure&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TGSQL95155"></a>
+<div class="props_rev_3"><a id="GUID-A5337544-10FC-42A4-99E7-988493E21688"></a>
+<h4 id="TGSQL-GUID-A5337544-10FC-42A4-99E7-988493E21688" class="sect4">How Index Storage Affects Index Scans</h4>
+<div>
+<p>Bitmap index blocks can appear anywhere in the index segment.</p>
+<p><a href="tgsql_optop.htm#GUID-D25B037E-044A-4172-9305-EC06DB0ED30C__CHDJJDIG">Figure 8-3</a> shows the leaf blocks as adjacent to each other. For example, the <code class="codeph">1-10</code> block is next to and before the <code class="codeph">11-19</code> block. This sequencing illustrates the linked lists that connect the index entries. However, index blocks need not be stored in order within an <span class="italic">index segment</span>. For example, the <code class="codeph">246-250</code> block could appear anywhere in the segment, including directly before the <code class="codeph">1-10</code> block. For this reason, ordered index scans must perform single-block I/O. The database must read an index block to determine which index block it must read next.</p>
+<p>The index block body stores the index entries in a heap, just like table rows. For example, if the value <code class="codeph">10</code> is inserted first into a table, then the index entry with key <code class="codeph">10</code> might be inserted at the bottom of the index block. If <code class="codeph">0</code> is inserted next into the table, then the index entry for key <code class="codeph">0</code> might be inserted on top of the entry for <code class="codeph">10</code>. Thus, the index entries in the block <span class="italic">body</span> are not stored in key order. However, within the index block, the row header stores records in key order. For example, the first record in the header points to the index entry with key <code class="codeph">0</code>, and so on sequentially up to the record that points to the index entry with key <code class="codeph">10</code>. Thus, index scans can read the row header to determine where to begin and end range scans, avoiding the necessity of reading every entry in the block.</p>
+<div class="infoboxnotealso" id="GUID-A5337544-10FC-42A4-99E7-988493E21688__GUID-62381F81-A5C7-40CA-9733-3B10B4730931">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT89223" target="_blank" href="../CNCPT/logical.htm#CNCPT89223"><span><cite>Oracle Database Concepts</cite></span></a> to learn about index blocks</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95156"></a>
+<div class="props_rev_3"><a id="GUID-17F4E96E-B649-4A55-9A7C-87D8B57A557C"></a>
+<h4 id="TGSQL-GUID-17F4E96E-B649-4A55-9A7C-87D8B57A557C" class="sect4">Unique and Nonunique Indexes</h4>
+<div>
+<p>In a nonunique index, the database stores the rowid by appending it to the key as an extra column. The entry adds a length byte to make the key unique.</p>
+<p>For example, the first index key in the nonunique index shown in <a href="tgsql_optop.htm#GUID-D25B037E-044A-4172-9305-EC06DB0ED30C__CHDJJDIG">Figure 8-3</a> is the pair <code class="codeph">0<span class="codeinlineitalic">,rowid</span></code> and not simply <code class="codeph">0</code>. The database sorts the data by index key values and then by rowid ascending. For example, the entries are sorted as follows:</p>
+<pre dir="ltr">0,AAAPvCAAFAAAAFaAA<span class="bold">a</span>
+0,AAAPvCAAFAAAAFaAA<span class="bold">g</span>
+0,AAAPvCAAFAAAAFaAA<span class="bold">l</span>
+2,AAAPvCAAFAAAAFaAA<span class="bold">m</span>
+</pre>
+<p>In a unique index, the index key does not include the rowid. The database sorts the data only by the index key values, such as <code class="codeph">0</code>, <code class="codeph">1</code>, <code class="codeph">2</code>, and so on.</p>
+<div class="infoboxnotealso" id="GUID-17F4E96E-B649-4A55-9A7C-87D8B57A557C__GUID-6D8540D0-5BDE-4F69-A884-A91413C01967">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT1157" target="_blank" href="../CNCPT/indexiot.htm#CNCPT1157"><span><cite>Oracle Database Concepts</cite></span></a> for an overview of unique and nonunique indexes</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95157"></a>
+<div class="props_rev_3"><a id="GUID-AD533A0C-E46F-4FB0-8C34-881A0E30E93A"></a>
+<h4 id="TGSQL-GUID-AD533A0C-E46F-4FB0-8C34-881A0E30E93A" class="sect4">B-Tree Indexes and Nulls</h4>
+<div>
+<p>B-tree indexes never store completely null keys, which is important for how the optimizer chooses access paths. A consequence of this rule is that single-column B-tree indexes never store nulls.</p>
+<p>An example helps illustrate. The <code class="codeph">hr.employees</code> table has a primary key index on <code class="codeph">employee_id</code>, and a unique index on <code class="codeph">department_id</code>. The <code class="codeph">department_id</code> column can contain nulls, making it a <span class="italic">nullable column</span>, but the <code class="codeph">employee_id</code> column cannot.</p>
+<pre dir="ltr">SQL&gt; SELECT COUNT(*) FROM employees WHERE department_id IS NULL;
+ 
+  COUNT(*)
+----------
+         1
+ 
+SQL&gt; SELECT COUNT(*) FROM employees WHERE employee_id IS NULL;
+ 
+  COUNT(*)
+----------
+         0
+</pre>
+<p>The following example shows that the optimizer chooses a full table scan for a query of all department IDs in <code class="codeph">hr.employees</code>. The optimizer cannot use the index on <code class="codeph">employees.department_id</code> because the index is not guaranteed to include entries for every row in the table.</p>
+<pre dir="ltr">SQL&gt; EXPLAIN PLAN FOR SELECT department_id FROM employees;
+ 
+Explained.
+ 
+SQL&gt; SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+Plan hash value: 3476115102
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |   107 |   321 |     2   (0)| 00:00:01 |
+|   1 |  TABLE ACCESS FULL| EMPLOYEES |   107 |   321 |     2   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+8 rows selected.
+</pre>
+<p>The following example shows the optimizer can use the index on <code class="codeph">department_id</code> for a query of a specific department ID because all non-null rows are indexed.</p>
+<pre dir="ltr">SQL&gt; EXPLAIN PLAN FOR SELECT department_id FROM employees WHERE department_id=10;
+ 
+Explained.
+ 
+SQL&gt; SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+Plan hash value: 67425611
+ 
+--------------------------------------------------------------------------------
+| Id| Operation        | Name              | Rows |Bytes| Cost (%CPU)| Time    |
+--------------------------------------------------------------------------------
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT |                   |   1 |   3 |     1   (0)| 00:0 0:01|
+|*1 |  INDEX RANGE SCAN| EMP_DEPARTMENT_IX |   1 |   3 |     1   (0)| 00:0 0:01|
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+ 
+PLAN_TABLE_OUTPUT
+-------------------------------------------------------------------------------- 
+   1 - access(&#34;DEPARTMENT_ID&#34;=10)
+</pre>
+<p>The following example shows that the optimizer chooses an index scan when the predicate excludes null values:</p>
+<pre dir="ltr">SQL&gt; EXPLAIN PLAN FOR SELECT department_id FROM employees 
+WHERE department_id IS NOT NULL;
+
+Explained.
+
+SQL&gt; SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+Plan hash value: 1590637672
+ 
+--------------------------------------------------------------------------------
+| Id| Operation        | Name              | Rows|Bytes| Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------- 
+| 0 | SELECT STATEMENT |                   | 106 | 318 |    1   (0)| 00:0 0:01 |
+|*1 |  INDEX FULL SCAN | EMP_DEPARTMENT_IX | 106 | 318 |    1   (0)| 00:0 0:01 |
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+ 
+   1 - filter(&#34;DEPARTMENT_ID&#34; IS NOT NULL)
+</pre></div>
+</div>
+</div>
+<a id="TGSQL235"></a>
+<div class="props_rev_3"><a id="GUID-273588A7-A8E9-4E1E-BE35-060073533B47"></a>
+<h3 id="TGSQL-GUID-273588A7-A8E9-4E1E-BE35-060073533B47" class="sect3">Index Unique Scans</h3>
+<div>
+<p>An <span class="bold">index unique scan</span> returns at most 1 rowid.</p>
+</div>
+<a id="TGSQL94669"></a>
+<div class="props_rev_3"><a id="GUID-EB831554-3F2E-4538-91DC-90FF27DF054E"></a>
+<h4 id="TGSQL-GUID-EB831554-3F2E-4538-91DC-90FF27DF054E" class="sect4">When the Optimizer Considers Index Unique Scans</h4>
+<div>
+<p>An index unique scan requires an equality predicate.</p>
+<p>Specifically, the database performs a unique scan only when the following conditions apply:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A query predicate references all columns in a unique index key using an equality operator, such as <code class="codeph">WHERE prod_id=10</code>.</p>
+</li>
+<li>
+<p>A SQL statement contains an equality predicate on a column, which is referenced by an index created with the <code class="codeph">CREATE UNIQUE INDEX</code> statement.</p>
+</li>
+</ul>
+<p>A unique or primary key constraint is insufficient by itself to produce an index unique scan. Consider the following example, which creates a primary key constraint on a column with a non-unique index, resulting in an index range scan rather than an index unique scan:</p>
+<pre dir="ltr">CREATE TABLE t_table(numcol INT);
+CREATE INDEX t_table_idx ON t_table(numcol);
+ALTER TABLE t_table ADD CONSTRAINT t_table_pk PRIMARY KEY(numcol);
+SET AUTOTRACE TRACEONLY EXPLAIN
+SELECT * FROM t_table WHERE numcol = 1;
+ 
+Execution Plan
+----------------------------------------------------------
+Plan hash value: 868081059
+ 
+--------------------------------------------------------------------------------
+| Id  | Operation        | Name        | Rows  | Bytes | Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT |             |     1 |    13 |     1   (0)| 00:00:01 |
+|*  1 |  <span class="bold">INDEX RANGE SCAN</span>| T_TABLE_IDX |     1 |    13 |     1   (0)| 00:00:01 |
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+    1 - access(&#34;NUMCOL&#34;=1)
+ 
+</pre>
+<p>You can use the <code class="codeph">INDEX(</code><span class="italic"><code class="codeph">alias index_name</code></span><code class="codeph">)</code> hint to specify the index to use, but not a specific type of index access path.</p>
+<div class="infoboxnotealso" id="GUID-EB831554-3F2E-4538-91DC-90FF27DF054E__GUID-D499F130-647A-4E26-8359-11A25DCA65B4">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT010" target="_blank" href="../CNCPT/tablecls.htm#CNCPT010"><span><cite>Oracle Database Concepts</cite></span></a> for more details on index structures and for detailed information on how a B-tree is searched</p>
+</li>
+<li>
+<p><a class="olink SQLRF50409" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50409"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn more about the <code class="codeph">INDEX</code> hint</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95159"></a><a id="TGSQL95158"></a>
+<div class="props_rev_3"><a id="GUID-CF0FFA06-7599-4293-8F7D-A9F12647218D"></a>
+<h4 id="TGSQL-GUID-CF0FFA06-7599-4293-8F7D-A9F12647218D" class="sect4">How Index Unique Scans Work</h4>
+<div>
+<p>The scan searches the index in order for the specified key. An index unique scan stops processing as soon as it finds the first record because no second record is possible. The database obtains the rowid from the index entry, and then retrieves the row specified by the rowid.</p>
+<p>The following figure illustrates an index unique scan. The statement requests the record for product ID <code class="codeph">19</code> in the <code class="codeph">prod_id</code> column, which has a primary key index.</p>
+<div class="figure" id="GUID-CF0FFA06-7599-4293-8F7D-A9F12647218D__CHDBGECB">
+<p class="titleinfigure">Figure 8-4 Index Unique Scan</p>
+<img width="668" height="485" src="img/GUID-EA766B71-8C8D-42CF-BCC3-240B1CBF43DE-default.png" alt="Description of Figure 8-4 follows" title="Description of Figure 8-4 follows"/><br/>
+<a href="img_text/GUID-EA766B71-8C8D-42CF-BCC3-240B1CBF43DE-print.htm">Description of &#34;Figure 8-4 Index Unique Scan&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TGSQL95160"></a><a id="TGSQL94670"></a>
+<div class="props_rev_3"><a id="GUID-D7A22ABD-88A4-4B9F-BAEA-D47E5DA8AA56"></a>
+<h4 id="TGSQL-GUID-D7A22ABD-88A4-4B9F-BAEA-D47E5DA8AA56" class="sect4">Index Unique Scans: Example</h4>
+<div>
+<p>This example uses a unique scan to retrieve a row from the <code class="codeph">products</code> table.</p>
+<div class="example" id="GUID-D7A22ABD-88A4-4B9F-BAEA-D47E5DA8AA56__CHDHFIEG">
+<p>The following statement queries the record for product <code class="codeph">19</code> in the <code class="codeph">sh.products</code> table:</p>
+<pre dir="ltr">SELECT * 
+FROM   sh.products 
+WHERE  prod_id = 19;
+</pre>
+<p>Because a primary key index exists on the <code class="codeph">products.prod_id</code> column, and the <code class="codeph">WHERE</code> clause references all of the columns using an equality operator, the optimizer chooses a unique scan:</p>
+<pre dir="ltr">SQL_ID  3ptq5tsd5vb3d, child number 0
+-------------------------------------
+select * from sh.products where prod_id = 19
+ 
+Plan hash value: 4047888317
+ 
+--------------------------------------------------------------------------------
+| Id| Operation                   | Name        |Rows|Bytes|Cost (%CPU)|Time   |
+--------------------------------------------------------------------------------
+|  0| SELECT STATEMENT            |             |    |     |  1 (100)|         |
+|  1|  TABLE ACCESS BY INDEX ROWID| PRODUCTS    |  1 | 173 |  1   (0)| 00:00:01|
+|* 2|   <span class="bold">INDEX UNIQUE SCAN</span>         | PRODUCTS_PK |  1 |     |  0   (0)|         |
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access(&#34;PROD_ID&#34;=19)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL236"></a>
+<div class="props_rev_3"><a id="GUID-E2353939-DFBD-444A-94BC-2497E2A418D1"></a>
+<h3 id="TGSQL-GUID-E2353939-DFBD-444A-94BC-2497E2A418D1" class="sect3">Index Range Scans</h3>
+<div>
+<p>An <span class="bold">index range scan</span> is an ordered scan of values.</p>
+<p>The range in the scan can be bounded on both sides, or unbounded on one or both sides. The optimizer typically chooses a range scan for selective queries.</p>
+<p>By default, the database stores indexes in ascending order, and scans them in the same order. For example, a query with the predicate <code class="codeph">department_id &gt;= 20</code> uses a range scan to return rows sorted by index keys <code class="codeph">20</code>, <code class="codeph">30</code>, <code class="codeph">40</code>, and so on. If multiple index entries have identical keys, then the database returns them in ascending order by rowid, so that <code class="codeph">0,AAAPvCAAFAAAAFaAAa</code> is followed by <code class="codeph">0,AAAPvCAAFAAAAFaAAg</code>, and so on.</p>
+<p>An <a href="glossary.htm#GUID-9F69618A-2844-4912-A972-B42D2DC01DE5"><span class="xrefglossterm">index range scan descending</span></a> is identical to an index range scan except that the database returns rows in descending order. Usually, the database uses a descending scan when ordering data in a descending order, or when seeking a value less than a specified value.</p>
+<div class="infoboxnotealso" id="GUID-E2353939-DFBD-444A-94BC-2497E2A418D1__GUID-DD19FBB1-4BBB-4DB6-BE99-3DD0819DA3A0">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-60B12417-9E06-4F3F-B796-DF86549A5B21" title="The selectivity represents a fraction of rows from a row set.">Selectivity</a>&#34;</span></p>
+</div>
+</div>
+<a id="TGSQL94672"></a>
+<div class="props_rev_3"><a id="GUID-C385AF64-F467-499B-95C8-0E3AB5681D5F"></a>
+<h4 id="TGSQL-GUID-C385AF64-F467-499B-95C8-0E3AB5681D5F" class="sect4">When the Optimizer Considers Index Range Scans</h4>
+<div>
+<p>For an index range scan, multiple values must be possible for the index key.</p>
+<p>Specifically, the optimizer considers index range scans in the following circumstances:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>One or more leading columns of an index are specified in conditions.</p>
+<p>A condition specifies a combination of one or more expressions and logical (Boolean) operators and returns a value of <code class="codeph">TRUE</code>, <code class="codeph">FALSE</code>, or <code class="codeph">UNKNOWN</code>. Examples of conditions include:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">department_id = :id</code></p>
+</li>
+<li>
+<p><code class="codeph">department_id &lt; :id</code></p>
+</li>
+<li>
+<p><code class="codeph">department_id &gt; :id</code></p>
+</li>
+<li>
+<p><code class="codeph">AND</code> combination of the preceding conditions for leading columns in the index, such as <code class="codeph">department_id &gt; :low AND department_id &lt; :hi</code>.</p>
+<div class="infobox-note" id="GUID-C385AF64-F467-499B-95C8-0E3AB5681D5F__GUID-182C7C9D-3469-40C0-AE75-23FF9175DE22">
+<p class="notep1">Note:</p>
+<p>For the optimizer to consider a range scan, wild-card searches of the form <code class="codeph">col1 LIKE &#39;%ASD&#39;</code> must not be in a leading position.</p>
+</div>
+</li>
+</ul>
+</li>
+<li>
+<p>0, 1, or more values are possible for an index key.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-C385AF64-F467-499B-95C8-0E3AB5681D5F__GUID-7F126297-53DE-4238-B495-9F8FE767CA86">
+<p class="notep1">Tip:</p>
+<p>If you require sorted data, then use the <code class="codeph">ORDER</code> <code class="codeph">BY</code> clause, and do not rely on an index. If an index can satisfy an <code class="codeph">ORDER</code> <code class="codeph">BY</code> clause, then the optimizer uses this option and thereby avoids a sort.</p>
+</div>
+<p>The optimizer considers an index range scan descending when an index can satisfy an <code class="codeph">ORDER BY DESCENDING</code> clause.</p>
+<p>If the optimizer chooses a full table scan or another index, then a hint may be required to force this access path. The <code class="codeph">INDEX(</code><span class="italic"><code class="codeph">tbl_alias</code></span> <span class="italic"><code class="codeph">ix_name</code></span><code class="codeph">)</code> and <code class="codeph">INDEX_DESC(</code><span class="italic"><code class="codeph">tbl_alias</code></span> <span class="italic"><code class="codeph">ix_name</code></span><code class="codeph">)</code> hints instruct the optimizer to use a specific index.</p>
+<div class="infoboxnotealso" id="GUID-C385AF64-F467-499B-95C8-0E3AB5681D5F__GUID-A2602786-0A40-4184-9BED-677D1D74F2AA">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF50405" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50405"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn more about the <code class="codeph">INDEX</code> and <code class="codeph">INDEX_DESC</code> hints</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95162"></a><a id="TGSQL95161"></a>
+<div class="props_rev_3"><a id="GUID-47C03736-2240-47DE-A78A-E21A8DABAC45"></a>
+<h4 id="TGSQL-GUID-47C03736-2240-47DE-A78A-E21A8DABAC45" class="sect4">How Index Range Scans Work</h4>
+<div>
+<p>During an index range scan, Oracle Database proceeds from root to branch.</p>
+<p>In general, the scan algorithm is as follows:</p>
+<ol>
+<li>
+<p>Read the root block.</p>
+</li>
+<li>
+<p>Read the branch block.</p>
+</li>
+<li>
+<p>Alternate the following steps until all data is retrieved:</p>
+<ol>
+<li>
+<p>Read a leaf block to obtain a rowid.</p>
+</li>
+<li>
+<p>Read a table block to retrieve a row.</p>
+</li>
+</ol>
+<div class="infobox-note" id="GUID-47C03736-2240-47DE-A78A-E21A8DABAC45__GUID-F8CFEBB2-393F-42CA-B17D-7C903F3A4E06">
+<p class="notep1">Note:</p>
+<p>In some cases, an index scan reads a set of index blocks, sorts the rowids, and then reads a set of table blocks.</p>
+</div>
+</li>
+</ol>
+<p>Thus, to scan the index, the database moves backward or forward through the leaf blocks. For example, a scan for IDs between 20 and 40 locates the first leaf block that has the lowest key value that is 20 or greater. The scan proceeds horizontally through the linked list of leaf nodes until it finds a value greater than 40, and then stops.</p>
+<p>The following figure illustrates an index range scan using ascending order. A statement requests the <code class="codeph">employees</code> records with the value <code class="codeph">20</code> in the <code class="codeph">department_id</code> column, which has a nonunique index. In this example, 2 index entries for department <code class="codeph">20</code> exist.</p>
+<div class="figure" id="GUID-47C03736-2240-47DE-A78A-E21A8DABAC45__CHDGAAJA">
+<p class="titleinfigure">Figure 8-5 Index Range Scan</p>
+<img width="672" height="482" src="img/GUID-22743B64-5FBF-498A-BCD4-4F73342BA0EE-default.png" alt="Description of Figure 8-5 follows" title="Description of Figure 8-5 follows"/><br/>
+<a href="img_text/GUID-22743B64-5FBF-498A-BCD4-4F73342BA0EE-print.htm">Description of &#34;Figure 8-5 Index Range Scan&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TGSQL94671"></a><a id="TGSQL95163"></a>
+<div class="props_rev_3"><a id="GUID-603B2A7A-5EED-47B1-A407-128E2E80979D"></a>
+<h4 id="TGSQL-GUID-603B2A7A-5EED-47B1-A407-128E2E80979D" class="sect4">Index Range Scan: Example</h4>
+<div>
+<p>This example retrieves a set of values from the <code class="codeph">employees</code> table using an index range scan.</p>
+<div class="example" id="GUID-603B2A7A-5EED-47B1-A407-128E2E80979D__CHDEJAED">
+<p>The following statement queries the records for employees in department <code class="codeph">20</code> with salaries greater than <code class="codeph">1000</code>:</p>
+<pre dir="ltr">SELECT * 
+FROM   employees 
+WHERE  department_id = 20
+AND    salary &gt; 1000;
+</pre>
+<p>The preceding query has low cardinality (returns few rows), so the query uses the index on the <code class="codeph">department_id</code> column. The database scans the index, fetches the records from the employees table, and then applies the <code class="codeph">salary &gt; 1000</code> filter to these fetched records to generate the result.</p>
+<pre dir="ltr">SQL_ID  brt5abvbxw9tq, child number 0
+-------------------------------------
+SELECT * FROM   employees WHERE  department_id = 20 AND    salary &gt; 1000
+ 
+Plan hash value: 2799965532
+ 
+-------------------------------------------------------------------------------------------
+|Id | Operation                           | Name             |Rows|Bytes|Cost(%CPU)| Time |
+-------------------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT                    |                  |    |     | 2 (100)|        |
+|*1 |  TABLE ACCESS BY INDEX ROWID BATCHED| EMPLOYEES        |  2 | 138 | 2   (0)|00:00:01|
+|*2 |   <span class="bold">INDEX RANGE SCAN</span>                  | EMP_DEPARTMENT_IX|  2 |     | 1   (0)|00:00:01|
+-------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter(&#34;SALARY&#34;&gt;1000)
+   2 - access(&#34;DEPARTMENT_ID&#34;=20)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL95165"></a><a id="TGSQL95164"></a>
+<div class="props_rev_3"><a id="GUID-1853B7EE-53A0-484F-8290-BEF4E299CDA7"></a>
+<h4 id="TGSQL-GUID-1853B7EE-53A0-484F-8290-BEF4E299CDA7" class="sect4">Index Range Scan Descending: Example</h4>
+<div>
+<p>This example uses an index to retrieve rows from the <code class="codeph">employees</code> table in sorted order.</p>
+<div class="example" id="GUID-1853B7EE-53A0-484F-8290-BEF4E299CDA7__CHDDADJG">
+<p>The following statement queries the records for employees in department <code class="codeph">20</code> in descending order:</p>
+<pre dir="ltr">SELECT *
+FROM   employees
+WHERE  department_id &lt; 20
+ORDER BY department_id DESC;
+</pre>
+<p>This preceding query has low cardinality, so the query uses the index on the <code class="codeph">department_id</code> column.</p>
+<pre dir="ltr">SQL_ID  8182ndfj1ttj6, child number 0
+-------------------------------------
+SELECT * FROM   employees WHERE  department_id &lt; 20 ORDER BY department_id DESC
+ 
+Plan hash value: 1681890450
+--------------------------------------------------------------------------------
+|Id| Operation                    | Name           |Rows|Bytes|Cost(%CPU)|Time |
+--------------------------------------------------------------------------------
+| 0| SELECT STATEMENT             |                   |  |   | 2 (100)|        |
+| 1|  TABLE ACCESS BY INDEX ROWID | EMPLOYEES         | 2|138| 2   (0)|00:00:01|
+|*2|   <span class="bold">INDEX RANGE SCAN DESCENDING</span>| EMP_DEPARTMENT_IX | 2|   | 1   (0)|00:00:01|
+--------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access(&#34;DEPARTMENT_ID&#34;&lt;20)
+</pre>
+<p>The database locates the first index leaf block that contains the highest key value that is <code class="codeph">20</code> or less. The scan then proceeds horizontally to the left through the linked list of leaf nodes. The database obtains the rowid from each index entry, and then retrieves the row specified by the rowid.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL237"></a>
+<div class="props_rev_3"><a id="GUID-3D9D3DBD-CF89-4320-8C5E-6BE6A127AC39"></a>
+<h3 id="TGSQL-GUID-3D9D3DBD-CF89-4320-8C5E-6BE6A127AC39" class="sect3">Index Full Scans</h3>
+<div>
+<p>An <span class="bold">index full scan</span> reads the entire index in order. An index full scan can eliminate a separate sorting operation because the data in the index is ordered by index key.</p>
+</div>
+<a id="TGSQL95166"></a>
+<div class="props_rev_3"><a id="GUID-52A41C2C-8E99-4375-9C0F-D80472C041E5"></a>
+<h4 id="TGSQL-GUID-52A41C2C-8E99-4375-9C0F-D80472C041E5" class="sect4">When the Optimizer Considers Index Full Scans</h4>
+<div>
+<p>The optimizer considers an index full scan in a variety of situations.</p>
+<p>The situations include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A predicate references a column in the index. This column need not be the leading column.</p>
+</li>
+<li>
+<p>No predicate is specified, but all of the following conditions are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>All columns in the table and in the query are in the index.</p>
+</li>
+<li>
+<p>At least one indexed column is not null.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>A query includes an <code class="codeph">ORDER BY</code> on indexed non-nullable columns.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95168"></a><a id="TGSQL95167"></a>
+<div class="props_rev_3"><a id="GUID-0C1D3987-9F2B-4C40-A66B-76DF05B3EBD5"></a>
+<h4 id="TGSQL-GUID-0C1D3987-9F2B-4C40-A66B-76DF05B3EBD5" class="sect4">How Index Full Scans Work</h4>
+<div>
+<p>The database reads the root block, and then navigates down the left hand side of the index (or right if doing a descending full scan) until it reaches a leaf block.</p>
+<p>Then the database reaches a leaf block, the scan proceeds across the bottom of the index, one block at a time, in sorted order. The database uses single-block I/O rather than multiblock I/O.</p>
+<p>The following graphic illustrates an index full scan. A statement requests the <code class="codeph">departments</code> records ordered by <code class="codeph">department_id</code>.</p>
+<div class="figure" id="GUID-0C1D3987-9F2B-4C40-A66B-76DF05B3EBD5__CHDGJBJD">
+<p class="titleinfigure">Figure 8-6 Index Full Scan</p>
+<img width="677" height="489" src="img/GUID-2C7E0C86-A1B8-47E3-BF9E-91B9F768A667-default.png" alt="Description of Figure 8-6 follows" title="Description of Figure 8-6 follows"/><br/>
+<a href="img_text/GUID-2C7E0C86-A1B8-47E3-BF9E-91B9F768A667-print.htm">Description of &#34;Figure 8-6 Index Full Scan&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TGSQL95170"></a><a id="TGSQL95169"></a>
+<div class="props_rev_3"><a id="GUID-12DF3C19-E795-447B-8E06-7DC2258F9586"></a>
+<h4 id="TGSQL-GUID-12DF3C19-E795-447B-8E06-7DC2258F9586" class="sect4">Index Full Scans: Example</h4>
+<div>
+<p>This example uses an index full scan to satisfy a query with an <code class="codeph">ORDER BY</code> clause.</p>
+<div class="example" id="GUID-12DF3C19-E795-447B-8E06-7DC2258F9586__CHDDADAG">
+<p>The following statement queries the ID and name for departments in order of department ID:</p>
+<pre dir="ltr">SELECT department_id, department_name
+FROM   departments
+ORDER BY department_id;
+</pre>
+<p>The following plan shows that the optimizer chose an index full scan:</p>
+<pre dir="ltr">SQL_ID  94t4a20h8what, child number 0
+-------------------------------------
+select department_id, department_name from departments order by department_id
+
+Plan hash value: 4179022242
+
+--------------------------------------------------------------------------------
+|Id | Operation                   | Name        |Rows|Bytes|Cost(%CPU)|Time    |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT            |             |    |     | 2 (100)|          |
+| 1 |  TABLE ACCESS BY INDEX ROWID| DEPARTMENTS | 27 | 432 | 2   (0)| 00:00:01 |
+| 2 |   <span class="bold">INDEX FULL SCAN</span>           | DEPT_ID_PK  | 27 |     | 1   (0)| 00:00:01 |
+--------------------------------------------------------------------------------
+</pre>
+<p>The database locates the first index leaf block, and then proceeds horizontally to the right through the linked list of leaf nodes. For each index entry, the database obtains the rowid from the entry, and then retrieves the table row specified by the rowid. Because the index is sorted on <code class="codeph">department_id</code>, the database avoids a separate operation to sort the retrieved rows.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL95171"></a>
+<div class="props_rev_3"><a id="GUID-A2F2A81F-4626-45A1-B2A6-D46107E74C3C"></a>
+<h3 id="TGSQL-GUID-A2F2A81F-4626-45A1-B2A6-D46107E74C3C" class="sect3">Index Fast Full Scans</h3>
+<div>
+<p>An <span class="bold">index fast full scan</span> reads the index blocks in unsorted order, as they exist on disk. This scan does not use the index to probe the table, but reads the index instead of the table, essentially using the index itself as a table.</p>
+</div>
+<a id="TGSQL95172"></a>
+<div class="props_rev_3"><a id="GUID-24D48935-F1B7-4D63-8DE1-0C107A17074F"></a>
+<h4 id="TGSQL-GUID-24D48935-F1B7-4D63-8DE1-0C107A17074F" class="sect4">When the Optimizer Considers Index Fast Full Scans</h4>
+<div>
+<p>The optimizer considers this scan when a query only accesses attributes in the index.</p>
+<div class="infobox-note" id="GUID-24D48935-F1B7-4D63-8DE1-0C107A17074F__GUID-812B9ACE-9A8F-42E8-A7CE-B8777BB03C84">
+<p class="notep1">Note:</p>
+<p>Unlike a full scan, a fast full scan cannot eliminate a sort operation because it does not read the index in order.</p>
+</div>
+<p>The <code class="codeph">INDEX_FFS(<span class="codeinlineitalic">table_name</span> <span class="codeinlineitalic">index_name</span>)</code> hint forces a fast full index scan.</p>
+<div class="infoboxnotealso" id="GUID-24D48935-F1B7-4D63-8DE1-0C107A17074F__GUID-35BCFDE1-FE37-4A1C-AEE7-CD22000A6BC6">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF50409" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50409"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn more about the <code class="codeph">INDEX</code> hint</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95173"></a>
+<div class="props_rev_3"><a id="GUID-9E1210BD-B37E-4255-BBDB-5D533BC2372F"></a>
+<h4 id="TGSQL-GUID-9E1210BD-B37E-4255-BBDB-5D533BC2372F" class="sect4">How Index Fast Full Scans Work</h4>
+<div>
+<p>The database uses multiblock I/O to read the root block and all of the leaf and branch blocks. The databases ignores the branch and root blocks and reads the index entries on the leaf blocks.</p>
+</div>
+</div>
+<a id="TGSQL95175"></a><a id="TGSQL95174"></a>
+<div class="props_rev_3"><a id="GUID-09D080C6-0A1D-4282-AD08-C931B1F7B3B3"></a>
+<h4 id="TGSQL-GUID-09D080C6-0A1D-4282-AD08-C931B1F7B3B3" class="sect4">Index Fast Full Scans: Example</h4>
+<div>
+<p>This examples uses a fast full index scan as a result of an optimizer hint.</p>
+<div class="example" id="GUID-09D080C6-0A1D-4282-AD08-C931B1F7B3B3__CHDGDGJI">
+<p>The following statement queries the ID and name for departments in order of department ID:</p>
+<pre dir="ltr">SELECT /*+ INDEX_FFS(departments dept_id_pk) */ COUNT(*)
+FROM   departments;
+</pre>
+<p>The following plan shows that the optimizer chose a fast full index scan:</p>
+<pre dir="ltr">SQL_ID  fu0k5nvx7sftm, child number 0
+-------------------------------------
+select /*+ index_ffs(departments dept_id_pk) */ count(*) from departments
+
+Plan hash value: 3940160378
+--------------------------------------------------------------------------
+| Id | Operation             | Name       | Rows  |Cost (%CPU)| Time     |
+--------------------------------------------------------------------------
+|  0 | SELECT STATEMENT      |            |       |    2 (100)|          |
+|  1 |  SORT AGGREGATE       |            |     1 |           |          |
+|  2 |   <span class="bold">INDEX FAST FULL SCAN</span>| DEPT_ID_PK |    27 |    2   (0)| 00:00:01 |
+--------------------------------------------------------------------------
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL238"></a>
+<div class="props_rev_3"><a id="GUID-B7C62F0F-EB7C-422C-919D-D86456A74A60"></a>
+<h3 id="TGSQL-GUID-B7C62F0F-EB7C-422C-919D-D86456A74A60" class="sect3">Index Skip Scans</h3>
+<div>
+<p>An <span class="bold">index skip scan</span> occurs when the initial column of a composite index is &#34;skipped&#34; or not specified in the query.</p>
+<div class="infoboxnotealso" id="GUID-B7C62F0F-EB7C-422C-919D-D86456A74A60__GUID-B6019142-B537-495C-83D5-23469C3AF6F8">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT88842" target="_blank" href="../CNCPT/indexiot.htm#CNCPT88842"><span><cite>Oracle Database Concepts</cite></span></a></p>
+</div>
+</div>
+<a id="TGSQL95176"></a>
+<div class="props_rev_3"><a id="GUID-F5ABAAFD-44F7-4BA1-A778-01FCE9816E12"></a>
+<h4 id="TGSQL-GUID-F5ABAAFD-44F7-4BA1-A778-01FCE9816E12" class="sect4">When the Optimizer Considers Index Skips Scans</h4>
+<div>
+<p>Often, skip scanning index blocks is faster than scanning table blocks, and faster than performing full index scans.</p>
+<p>The optimizer considers a skip scan when the following criteria are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The leading column of a composite index is not specified in the query predicate.</p>
+<p>For example, the query predicate does not reference the <code class="codeph">cust_gender</code> column, and the composite index key is <code class="codeph">(cust_gender,cust_email)</code>.</p>
+</li>
+<li>
+<p>Few distinct values exist in the leading column of the composite index, but many distinct values exist in the nonleading key of the index.</p>
+<p>For example, if the composite index key is <code class="codeph">(cust_gender,cust_email)</code>, then the <code class="codeph">cust_gender</code> column has only two distinct values, but <code class="codeph">cust_email</code> has thousands.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95177"></a>
+<div class="props_rev_3"><a id="GUID-C463F5CF-0514-4C51-972A-FA0A5CFA05C8"></a>
+<h4 id="TGSQL-GUID-C463F5CF-0514-4C51-972A-FA0A5CFA05C8" class="sect4">How Index Skip Scans Work</h4>
+<div>
+<p>An index skip scan logically splits a composite index into smaller subindexes.</p>
+<p>The number of distinct values in the leading columns of the index determines the number of logical subindexes. The lower the number, the fewer logical subindexes the optimizer must create, and the more efficient the scan becomes. The scan reads each logical index separately, and &#34;skips&#34; index blocks that do not meet the filter condition on the non-leading column.</p>
+</div>
+</div>
+<a id="TGSQL95179"></a><a id="TGSQL95178"></a>
+<div class="props_rev_3"><a id="GUID-3587E79B-7733-42FC-8A9D-419F5DB1EB4B"></a>
+<h4 id="TGSQL-GUID-3587E79B-7733-42FC-8A9D-419F5DB1EB4B" class="sect4">Index Skip Scans: Example</h4>
+<div>
+<p>This example uses an index skip scan to satisfy a query of the <code class="codeph">customers</code> table.</p>
+<div class="example" id="GUID-3587E79B-7733-42FC-8A9D-419F5DB1EB4B__GUID-39E305BD-26C0-46BB-9378-8F584A97EAF1">
+<p>The <code class="codeph">customers</code> table contains a column <code class="codeph">cust_gender</code> whose values are either <code class="codeph">M</code> or <code class="codeph">F</code>. You create a composite index on the columns (<code class="codeph">cust_gender, cust_email</code>) as follows:</p>
+<pre dir="ltr">CREATE INDEX cust_gender_email_ix
+  ON sh.customers (cust_gender, cust_email);
+</pre>
+<p>Conceptually, a portion of the index might look as follows, with the gender value of <code class="codeph">F</code> or <code class="codeph">M</code> as the leading edge of the index.</p>
+<pre dir="ltr">F,Wolf@company.example.com,rowid
+F,Wolsey@company.example.com,rowid
+F,Wood@company.example.com,rowid
+F,Woodman@company.example.com,rowid
+F,Yang@company.example.com,rowid
+F,Zimmerman@company.example.com,rowid
+M,Abbassi@company.example.com,rowid
+M,Abbey@company.example.com,rowid
+</pre>
+<p>You run the following query for a customer in the <code class="codeph">sh.customers</code> table:</p>
+<pre dir="ltr">SELECT * 
+FROM   sh.customers 
+WHERE  cust_email = &#39;Abbey@company.example.com&#39;;
+</pre>
+<p>The database can use a skip scan of the <code class="codeph">customers_gender_email</code> index even though <code class="codeph">cust_gender</code> is not specified in the <code class="codeph">WHERE</code> clause. In the sample index, the leading column <code class="codeph">cust_gender</code> has two possible values: <code class="codeph">F</code> and <code class="codeph">M</code>. The database logically splits the index into two. One subindex has the key <code class="codeph">F</code>, with entries in the following form:</p>
+<pre dir="ltr">F,Wolf@company.example.com,rowid
+F,Wolsey@company.example.com,rowid
+F,Wood@company.example.com,rowid
+F,Woodman@company.example.com,rowid
+F,Yang@company.example.com,rowid
+F,Zimmerman@company.example.com,rowid
+</pre>
+<p>The second subindex has the key <code class="codeph">M</code>, with entries in the following form:</p>
+<pre dir="ltr">M,Abbassi@company.example.com,rowid
+M,Abbey@company.example.com,rowid
+</pre>
+<p>When searching for the record for the customer whose email is <code class="codeph">Abbey@company.com</code>, the database searches the subindex with the leading value <code class="codeph">F</code> first, and then searches the subindex with the leading value <code class="codeph">M</code>. Conceptually, the database processes the query as follows:</p>
+<pre dir="ltr">( SELECT * 
+  FROM   sh.customers 
+  WHERE  cust_gender = &#39;<span class="bold">F</span>&#39; 
+  AND    cust_email = &#39;Abbey@company.com&#39; )
+UNION ALL
+( SELECT * 
+  FROM   sh.customers 
+  WHERE  cust_gender = &#39;<span class="bold">M</span>&#39;
+  AND    cust_email = &#39;Abbey@company.com&#39; )
+</pre>
+<p>The plan for the query is as follows:</p>
+<pre dir="ltr">SQL_ID  d7a6xurcnx2dj, child number 0
+-------------------------------------
+SELECT * FROM   sh.customers WHERE  cust_email = &#39;Abbey@company.example.com&#39;
+ 
+Plan hash value: 797907791
+ 
+-----------------------------------------------------------------------------------------
+|Id| Operation                          | Name               |Rows|Bytes|Cost(%CPU)|Time|
+-----------------------------------------------------------------------------------------
+| 0|SELECT STATEMENT                    |                      |  |    |10(100)|        |
+| 1| TABLE ACCESS BY INDEX ROWID BATCHED| CUSTOMERS            |33|6237|  10(0)|00:00:01|
+|*2|  <span class="bold">INDEX SKIP SCAN</span>                   | CUST_GENDER_EMAIL_IX |33|    |   4(0)|00:00:01|
+-----------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access(&#34;CUST_EMAIL&#34;=&#39;Abbey@company.example.com&#39;)
+       filter(&#34;CUST_EMAIL&#34;=&#39;Abbey@company.example.com&#39;)
+</pre>
+<div class="infoboxnotealso" id="GUID-3587E79B-7733-42FC-8A9D-419F5DB1EB4B__GUID-0C8F7940-0687-489D-A6D9-884D6C130B74">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT88842" target="_blank" href="../CNCPT/indexiot.htm#CNCPT88842"><span><cite>Oracle Database Concepts</cite></span></a> to learn more about skip scans</p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL95180"></a>
+<div class="props_rev_3"><a id="GUID-21258F63-7506-4019-9FB4-323E9D2DE087"></a>
+<h3 id="TGSQL-GUID-21258F63-7506-4019-9FB4-323E9D2DE087" class="sect3">Index Join Scans</h3>
+<div>
+<p>An index join scan is a hash join of multiple indexes that together return all columns requested by a query. The database does not need to access the table because all data is retrieved from the indexes.</p>
+</div>
+<a id="TGSQL95181"></a>
+<div class="props_rev_3"><a id="GUID-EA936820-BBAC-4DB1-A3F8-050AC81A24E6"></a>
+<h4 id="TGSQL-GUID-EA936820-BBAC-4DB1-A3F8-050AC81A24E6" class="sect4">When the Optimizer Considers Index Join Scans</h4>
+<div>
+<p>In some cases, avoiding table access is the most cost efficient option.</p>
+<p>The optimizer considers an index join in the following circumstances:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A hash join of multiple indexes retrieves all data requested by the query, without requiring table access.</p>
+</li>
+<li>
+<p>The cost of retrieving rows from the table is higher than reading the indexes without retrieving rows from the table. An index join is often expensive. For example, when scanning two indexes and joining them, it is often less costly to choose the most selective index, and then probe the table.</p>
+</li>
+</ul>
+<p>You can specify an index join with the <code class="codeph">INDEX_JOIN(<span class="codeinlineitalic">table_name</span>)</code> hint.</p>
+<div class="infoboxnotealso" id="GUID-EA936820-BBAC-4DB1-A3F8-050AC81A24E6__GUID-4DAC1F16-8846-49F5-8AFE-B3670B3A8DDF">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF50408" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50408"><span><cite>Oracle Database SQL Language Reference</cite></span></a></p>
+</div>
+</div>
+</div>
+<a id="TGSQL95182"></a>
+<div class="props_rev_3"><a id="GUID-0F989C52-262C-4237-9DE1-E14D7CF8EE1D"></a>
+<h4 id="TGSQL-GUID-0F989C52-262C-4237-9DE1-E14D7CF8EE1D" class="sect4">How Index Join Scans Work</h4>
+<div>
+<p>An index join involves scanning multiple indexes, and then using a hash join on the rowids obtained from these scans to return the rows.</p>
+<p>In an index join scan, table access is always avoided. For example, the process for joining two indexes on a single table is as follows:</p>
+<ol>
+<li>
+<p>Scan the first index to retrieve rowids.</p>
+</li>
+<li>
+<p>Scan the second index to retrieve rowids.</p>
+</li>
+<li>
+<p>Perform a hash join by rowid to obtain the rows.</p>
+</li>
+</ol>
+</div>
+</div>
+<a id="TGSQL95184"></a><a id="TGSQL95183"></a>
+<div class="props_rev_3"><a id="GUID-5472D2AD-8141-4017-B828-EE1050BA24CF"></a>
+<h4 id="TGSQL-GUID-5472D2AD-8141-4017-B828-EE1050BA24CF" class="sect4">Index Join Scans: Example</h4>
+<div>
+<p>The following statement queries the last name and email for employees whose last name begins with <code class="codeph">A</code>, specifying an index join:</p>
+<pre dir="ltr">SELECT /*+ INDEX_JOIN(employees) */ last_name, email
+FROM   employees
+WHERE  last_name like &#39;A%&#39;;
+</pre>
+<p>Separate indexes exist on the <code class="codeph">(</code><code class="codeph">last_name</code><code class="codeph">,first_name)</code> and <code class="codeph">email</code> columns. Part of the <code class="codeph">emp_name_ix</code> index might look as follows:</p>
+<pre dir="ltr">Banda,Amit,AAAVgdAALAAAABSABD
+Bates,Elizabeth,AAAVgdAALAAAABSABI
+Bell,Sarah,AAAVgdAALAAAABSABc
+Bernstein,David,AAAVgdAALAAAABSAAz
+Bissot,Laura,AAAVgdAALAAAABSAAd
+Bloom,Harrison,AAAVgdAALAAAABSABF
+Bull,Alexis,AAAVgdAALAAAABSABV
+</pre>
+<p>The first part of the <code class="codeph">emp_email_uk</code> index might look as follows:</p>
+<pre dir="ltr">ABANDA,AAAVgdAALAAAABSABD
+ABULL,AAAVgdAALAAAABSABV
+ACABRIO,AAAVgdAALAAAABSABX
+AERRAZUR,AAAVgdAALAAAABSAAv
+AFRIPP,AAAVgdAALAAAABSAAV
+AHUNOLD,AAAVgdAALAAAABSAAD
+AHUTTON,AAAVgdAALAAAABSABL
+</pre>
+<p><a href="tgsql_optop.htm#GUID-5472D2AD-8141-4017-B828-EE1050BA24CF__CHDDFCIB">Example 8-4</a> retrieves the plan using the <code class="codeph">DBMS_XPLAN.DISPLAY_CURSOR</code> function. The database retrieves all rowids in the <code class="codeph">emp_email_uk</code> index, and then retrieves rowids in <code class="codeph">emp_name_ix</code> for last names that begin with <code class="codeph">A</code>. The database uses a hash join to search both sets of rowids for matches. For example, rowid <code class="codeph">AAAVgdAALAAAABSABD</code> occurs in both sets of rowids, so the database probes the <code class="codeph">employees</code> table for the record corresponding to this rowid.</p>
+<div class="example" id="GUID-5472D2AD-8141-4017-B828-EE1050BA24CF__CHDDFCIB">
+<p class="titleinexample">Example 8-4 Index Join Scan</p>
+<pre dir="ltr">SQL_ID  d2djchyc9hmrz, child number 0
+-------------------------------------
+SELECT /*+ INDEX_JOIN(employees) */ last_name, email FROM   employees
+WHERE  last_name like &#39;A%&#39;
+
+Plan hash value: 3719800892
+-------------------------------------------------------------------------------------------
+| Id  | Operation              | Name             | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT       |                  |       |       |     3 (100)|          |
+|*  1 |  VIEW                  | index$_join$_001 |     3 |    48 |     3  (34)| 00:00:01 |
+|*  2 |   <span class="bold">HASH JOIN</span>            |                  |       |       |            |          |
+|*  3 |    <span class="bold">INDEX RANGE SCAN</span>    | EMP_NAME_IX      |     3 |    48 |     1   (0)| 00:00:01 |
+|   4 |    <span class="bold">INDEX FAST FULL SCAN</span>| EMP_EMAIL_UK     |     3 |    48 |     1   (0)| 00:00:01 |
+-------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   1 - filter(&#34;LAST_NAME&#34; LIKE &#39;A%&#39;)
+   2 - access(ROWID=ROWID)
+   3 - access(&#34;LAST_NAME&#34; LIKE &#39;A%&#39;)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL240"></a>
+<div class="props_rev_3"><a id="GUID-B5E41901-933E-4A31-B5D6-9771FD435EC0"></a>
+<h2 id="TGSQL-GUID-B5E41901-933E-4A31-B5D6-9771FD435EC0" class="sect2">Bitmap Index Access Paths</h2>
+<div>
+<p>Bitmap indexes combine the indexed data with a rowid range.</p>
+<p>This section explains how bitmap indexes, and describes some of the more common bitmap index access paths:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optop.htm#GUID-CD3D7579-3E44-4383-8056-B11B805A437F" title="In a conventional B-tree index, one index entry points to a single row. In a bitmap index, the key is the combination of the indexed data and the rowid range.">About Bitmap Index Access</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-2939D4FD-ECC4-48FB-9AD7-CD844CC71786" title="A bitmap conversion translates between an entry in the bitmap and a row in a table. The conversion can go from entry to row (TO ROWID), or from row to entry (FROM ROWID).">Bitmap Conversion to Rowid</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-E8F4A411-10BE-4D5E-9207-0D5F8E61A8E0" title="This type of access path uses a bitmap index to look up a single key value.">Bitmap Index Single Value</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-9123D7CE-90DC-4C96-AB4F-49FD0227C40B" title="This type of access path uses a bitmap index to look up a range of values.">Bitmap Index Range Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-2FDE5904-B0BC-44DA-829B-94C89FA77D71" title="This access path merges multiple bitmaps, and returns a single bitmap as a result.">Bitmap Merge</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL95195"></a>
+<div class="props_rev_3"><a id="GUID-CD3D7579-3E44-4383-8056-B11B805A437F"></a>
+<h3 id="TGSQL-GUID-CD3D7579-3E44-4383-8056-B11B805A437F" class="sect3">About Bitmap Index Access</h3>
+<div>
+<p>In a conventional B-tree index, one index entry points to a single row. In a bitmap index, the key is the combination of the indexed data and the rowid range.</p>
+<p>The database stores at least one bitmap for each index key. Each value in the bitmap, which is a series of <code class="codeph">1</code> and <code class="codeph">0</code> values, points to a row within a rowid range. Thus, in a bitmap index, one index entry points to a set of rows rather than a single row.</p>
+</div>
+<a id="TGSQL95196"></a>
+<div class="props_rev_3"><a id="GUID-610AE791-0125-4927-A795-2730541C1D06"></a>
+<h4 id="TGSQL-GUID-610AE791-0125-4927-A795-2730541C1D06" class="sect4">Differences Between Bitmap and B-Tree Indexes</h4>
+<div>
+<p>A bitmap index uses a different key from a B-tree index, but is stored in a B-tree structure.</p>
+<p>The following table shows the differences among types of index entries.</p>
+<div class="tblformalwide" id="GUID-610AE791-0125-4927-A795-2730541C1D06__CHDEEGHB">
+<p class="titleintable">Table 8-3 Index Entries for B-Trees and Bitmaps</p>
+<table class="cellalignment4813" title="Index Entries for B-Trees and Bitmaps" summary="Entries for Bitmap Indexes">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4872" id="d48765e6723">Index Entry</th>
+<th class="cellalignment4891" id="d48765e6726">Key</th>
+<th class="cellalignment4892" id="d48765e6729">Data</th>
+<th class="cellalignment4893" id="d48765e6732">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4876" id="d48765e6737" headers="d48765e6723">
+<p>Unique B-tree</p>
+</td>
+<td class="cellalignment4894" headers="d48765e6737 d48765e6726">
+<p>Indexed data only</p>
+</td>
+<td class="cellalignment4895" headers="d48765e6737 d48765e6729">
+<p>Rowid</p>
+</td>
+<td class="cellalignment4896" headers="d48765e6737 d48765e6732">
+<p>In an entry of the index on the <code class="codeph">employees.employee_id</code> column, employee ID <code class="codeph">101</code> is the key, and the rowid <code class="codeph">AAAPvCAAFAAAAFaAAa</code> is the data:</p>
+<pre dir="ltr">101,AAAPvCAAFAAAAFaAAa
+</pre></td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4876" id="d48765e6761" headers="d48765e6723">
+<p>Nonunique B-tree</p>
+</td>
+<td class="cellalignment4894" headers="d48765e6761 d48765e6726">
+<p>Indexed data combined with rowid</p>
+</td>
+<td class="cellalignment4895" headers="d48765e6761 d48765e6729">
+<p>None</p>
+</td>
+<td class="cellalignment4896" headers="d48765e6761 d48765e6732">
+<p>In an entry of the index on the <code class="codeph">employees.last_name</code> column, the name and rowid combination <code class="codeph">Smith,AAAPvCAAFAAAAFaAAa</code> is the key, and there is no data:</p>
+<pre dir="ltr">Smith,AAAPvCAAFAAAAFaAAa
+</pre></td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4876" id="d48765e6782" headers="d48765e6723">
+<p>Bitmap</p>
+</td>
+<td class="cellalignment4894" headers="d48765e6782 d48765e6726">
+<p>Indexed data combined with rowid range</p>
+</td>
+<td class="cellalignment4895" headers="d48765e6782 d48765e6729">
+<p>Bitmap</p>
+</td>
+<td class="cellalignment4896" headers="d48765e6782 d48765e6732">
+<p>In an entry of the index on the <code class="codeph">customers.cust_gender</code> column, the <code class="codeph">M,</code><span class="italic"><code class="codeph">low-rowid,high-rowid</code></span> part is the key, and the series of <code class="codeph">1</code> and <code class="codeph">0</code> values is the data:</p>
+<pre dir="ltr">M,<span class="italic">low-rowid</span>,<span class="italic">high-rowid</span>,1000101010101010
+</pre></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>The database stores a bitmap index in a B-tree structure. The database can search the B-tree quickly on the first part of the key, which is the set of attributes on which the index is defined, and then obtain the corresponding rowid range and bitmap.</p>
+<div class="infoboxnotealso" id="GUID-610AE791-0125-4927-A795-2730541C1D06__GUID-6C1D765C-4454-4C79-B37A-5B638919744A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_optop.htm#GUID-BD3F4C5B-E1A6-4444-AA74-87BE752B096E" title="A bitmap index resides in a B-tree structure, using branch blocks and leaf blocks just as in a B-tree.">Bitmap Storage</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink CNCPT1182" target="_blank" href="../CNCPT/indexiot.htm#CNCPT1182"><span><cite>Oracle Database Concepts</cite></span></a> for an overview of bitmap indexes</p>
+</li>
+<li>
+<p><a class="olink GUID-76BAA645-A219-4FF5-AFD4-B6FA8C1473FB" target="_blank" href="../DWHSG/schemas.htm#GUID-76BAA645-A219-4FF5-AFD4-B6FA8C1473FB"><span><cite>Oracle Database Data Warehousing Guide</cite></span></a> for more information about bitmap indexes</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95197"></a>
+<div class="props_rev_3"><a id="GUID-90B6A8AF-BB62-454B-92AF-AB9E01D93C4D"></a>
+<h4 id="TGSQL-GUID-90B6A8AF-BB62-454B-92AF-AB9E01D93C4D" class="sect4">Purpose of Bitmap Indexes</h4>
+<div>
+<p>Bitmap indexes are suitable for low distinct <span class="bold">cardinality</span> data that is infrequently modified. Data has low cardinality when the number of distinct values in a column is low in relation to the total number of rows.</p>
+<p>In general, B-tree indexes are suitable for high cardinality data. The optimizer might choose a B-tree index for a query that returns few rows. In contrast, a bitmap index is suitable for low distinct cardinality data. The <code class="codeph">customers.cust_gender</code> column is a candidate for a bitmap index because it has only two distinct values (<code class="codeph">M</code> and <code class="codeph">F</code>) and null. If the table contains 100 million rows, then a query for all female customers is unselective, and therefore a candidate for bitmap index access. Through compression techniques, bitmap indexes can generate many rowids with minimal I/O.</p>
+<p>Bitmap indexes are a useful way to speed ad hoc queries in a data warehouse. Specifically, bitmap indexes are useful access paths in queries that contain the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Multiple conditions in the <code class="codeph">WHERE</code> clause</p>
+<p>Before the table itself is accessed, the database filters out rows that satisfy some, but not all, conditions.</p>
+</li>
+<li>
+<p><code class="codeph">AND</code>, <code class="codeph">OR</code>, and <code class="codeph">NOT</code> operations on low cardinality columns</p>
+<p>Combining bitmap indexes on low cardinality columns makes these operations more efficient. The database can merge bitmaps from bitmap indexes very quickly. For example, if bitmap indexes exist on the <code class="codeph">cust_gender</code> and <code class="codeph">cust_marital_status</code> columns of <code class="codeph">customers</code>, then these indexes can enormously improve the performance of the following query:</p>
+<pre dir="ltr">SELECT * 
+FROM   customers 
+WHERE  cust_gender = &#39;M&#39; 
+AND    cust_marital_status = &#39;single&#39;
+</pre>
+<p>The database can convert <code class="codeph">1</code> values in the merged bitmap into rowids efficiently.</p>
+</li>
+<li>
+<p>The <code class="codeph">COUNT</code> function</p>
+<p>The database can scan the bitmap index without needing to scan the table.</p>
+</li>
+<li>
+<p>Predicates that select for null values</p>
+<p>Unlike B-tree indexes, bitmap indexes can contain nulls. Queries that count the number of nulls in a column can use the bitmap index without scanning the table.</p>
+</li>
+</ul>
+<p>Bitmap indexes are <span class="italic">not</span> useful for tables that experience heavy DML. The reason is that one index key points to many rows. If a session modifies the indexed data, then the database cannot lock a single bit in the bitmap: rather, the database locks the entire index entry, which in practice locks the rows pointed to by the bitmap. For example, if the marital status of a specific customer changes from <code class="codeph">single</code> to <code class="codeph">married</code>, then the database must get exclusive access to the <code class="codeph">single</code> index entry and <code class="codeph">married</code> index entry in the bitmap. Rows containing these two values cannot be modified until <code class="codeph">COMMIT</code>.</p>
+<div class="infoboxnotealso" id="GUID-90B6A8AF-BB62-454B-92AF-AB9E01D93C4D__GUID-6D7F343E-4B8E-43A3-98E6-D2B4862F37CC">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF00624" target="_blank" href="../SQLRF/functions046.htm#SQLRF00624"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about the <code class="codeph">COUNT</code> function</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95199"></a><a id="TGSQL95198"></a>
+<div class="props_rev_3"><a id="GUID-0604FCDA-473B-432F-B1B2-8F766D377D63"></a>
+<h4 id="TGSQL-GUID-0604FCDA-473B-432F-B1B2-8F766D377D63" class="sect4">Bitmaps and Rowids</h4>
+<div>
+<p>For a particular value in a bitmap, the value is <code class="codeph">1</code> if the row values match the bitmap condition, and <code class="codeph">0</code> if it does not. Based on these values, the database uses an internal algorithm to map bitmaps onto rowids.</p>
+<p>The bitmap entry contains the indexed value, the rowid range (start and end rowids), and a bitmap. Each <code class="codeph">0</code> or <code class="codeph">1</code> value in the bitmap is an offset into the rowid range, and maps to a potential row in the table, even if the row does not exist. Because the number of possible rows in a block is predetermined, the database can use the range endpoints to determine the rowid of an arbitrary row in the range.</p>
+<div class="infobox-note" id="GUID-0604FCDA-473B-432F-B1B2-8F766D377D63__GUID-21088835-E1F4-4DE4-9D9D-60F96974B9CA">
+<p class="notep1">Note:</p>
+<p>The Hakan factor is an optimization used by the bitmap index algorithms to limit the number of rows that Oracle Database assumes can be stored in a single block. By artificially limiting the number of rows, the database reduces the size of the bitmaps.</p>
+</div>
+<p><a href="tgsql_optop.htm#GUID-0604FCDA-473B-432F-B1B2-8F766D377D63__CHDJHDHC" title="Sample bitmap for bitmap index">Table 8-4</a> shows part of a sample bitmap for the <code class="codeph">sh.customers.cust_marital_status</code> column, which is nullable. The actual index has 12 distinct values. Only 3 are shown in the sample: null, <code class="codeph">married</code>, and <code class="codeph">single</code>.</p>
+<div class="tblformal" id="GUID-0604FCDA-473B-432F-B1B2-8F766D377D63__CHDJHDHC">
+<p class="titleintable">Table 8-4 Bitmap Index Entries</p>
+<table class="cellalignment4808" title="Bitmap Index Entries" summary="Sample bitmap for bitmap index">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4897" id="d48765e7155">Column Value for cust_marital_status</th>
+<th class="cellalignment4875" id="d48765e7158">Start Rowid in Range</th>
+<th class="cellalignment4875" id="d48765e7161">End Rowid in Range</th>
+<th class="cellalignment4892" id="d48765e7164">1st Row in Range</th>
+<th class="cellalignment4892" id="d48765e7167">2nd Row in Range</th>
+<th class="cellalignment4892" id="d48765e7170">3rd Row in Range</th>
+<th class="cellalignment4892" id="d48765e7173">4th Row in Range</th>
+<th class="cellalignment4892" id="d48765e7176">5th Row in Range</th>
+<th class="cellalignment4892" id="d48765e7179">6th Row in Range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d48765e7184" headers="d48765e7155">
+<p>(null)</p>
+</td>
+<td class="cellalignment4879" headers="d48765e7184 d48765e7158">
+<p><code class="codeph">AAA ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e7184 d48765e7161">
+<p><code class="codeph">CCC ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e7184 d48765e7164">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7184 d48765e7167">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7184 d48765e7170">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7184 d48765e7173">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7184 d48765e7176">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7184 d48765e7179">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d48765e7214" headers="d48765e7155">
+<p><code class="codeph">married</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e7214 d48765e7158">
+<p><code class="codeph">AAA ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e7214 d48765e7161">
+<p><code class="codeph">CCC ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e7214 d48765e7164">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7214 d48765e7167">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7214 d48765e7170">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7214 d48765e7173">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7214 d48765e7176">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7214 d48765e7179">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d48765e7245" headers="d48765e7155">
+<p><code class="codeph">single</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e7245 d48765e7158">
+<p><code class="codeph">AAA ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e7245 d48765e7161">
+<p><code class="codeph">CCC ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e7245 d48765e7164">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7245 d48765e7167">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7245 d48765e7170">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7245 d48765e7173">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7245 d48765e7176">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7245 d48765e7179">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4898" id="d48765e7276" headers="d48765e7155">
+<p><code class="codeph">single</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e7276 d48765e7158">
+<p><code class="codeph">DDD ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e7276 d48765e7161">
+<p><code class="codeph">EEE ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e7276 d48765e7164">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7276 d48765e7167">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7276 d48765e7170">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7276 d48765e7173">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7276 d48765e7176">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e7276 d48765e7179">
+<p>1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>As shown in <a href="tgsql_optop.htm#GUID-0604FCDA-473B-432F-B1B2-8F766D377D63__CHDJHDHC" title="Sample bitmap for bitmap index">Table 8-4</a>, bitmap indexes can include keys that consist entirely of null values, unlike B-tree indexes. In <a href="tgsql_optop.htm#GUID-0604FCDA-473B-432F-B1B2-8F766D377D63__CHDJHDHC" title="Sample bitmap for bitmap index">Table 8-4</a>, the null has a value of <code class="codeph">1</code> for the 6th row in the range, which means that the <code class="codeph">cust_marital_status</code> value is null for the 6th row in the range. Indexing nulls can be useful for some SQL statements, such as queries with the aggregate function <code class="codeph">COUNT</code>.</p>
+<div class="infoboxnotealso" id="GUID-0604FCDA-473B-432F-B1B2-8F766D377D63__GUID-41AE5B01-1926-4AA8-875C-6CD172F4D6A7">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT89008" target="_blank" href="../CNCPT/logical.htm#CNCPT89008"><span class="italic">Oracle Database Concepts</span></a> to learn about rowid formats</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95200"></a>
+<div class="props_rev_3"><a id="GUID-1F859889-14BC-4F0B-90CE-8682737FB46F"></a>
+<h4 id="TGSQL-GUID-1F859889-14BC-4F0B-90CE-8682737FB46F" class="sect4">Bitmap Join Indexes</h4>
+<div>
+<p>A <span class="bold">bitmap join index</span> is a bitmap index for the join of two or more tables.</p>
+<p>The optimizer can use a bitmap join index to reduce or eliminate the volume of data that must be joined during plan execution. Bitmap join indexes can be much more efficient in storage than materialized join views.</p>
+<p>The following example creates a bitmap index on the <code class="codeph">sh.sales</code> and <code class="codeph">sh.customers</code> tables:</p>
+<pre dir="ltr">CREATE BITMAP INDEX cust_sales_bji ON sales(c.cust_city) 
+  FROM sales s, customers c 
+  WHERE c.cust_id = s.cust_id LOCAL;
+</pre>
+<p>The <code class="codeph">FROM</code> and <code class="codeph">WHERE</code> clause in the preceding <code class="codeph">CREATE</code> statement represent the join condition between the tables. The <code class="codeph">customers.cust_city</code> column is the index key.</p>
+<p>Each key value in the index represents a possible city in the <code class="codeph">customers</code> table. Conceptually, key values for the index might look as follows, with one bitmap associated with each key value:</p>
+<pre dir="ltr">San Francisco   0 0 0 1 0 1 0 0 0 1 0 0 0 0 0 . . .
+San Mateo       0 1 0 0 0 0 0 0 1 0 0 0 0 0 1 . . .
+Smithville      1 0 0 0 1 0 0 1 0 0 1 0 1 0 0 . . .
+.
+.
+.
+</pre>
+<p>Each bit in a bitmap corresponds to one row in the <code class="codeph">sales</code> table. In the <code class="codeph">Smithville</code> key, the value <code class="codeph">1</code> means that the first row in the <code class="codeph">sales</code> table corresponds to a product sold to a Smithville customer, whereas the value <code class="codeph">0</code> means that the second row corresponds to a product not sold to a Smithville customer.</p>
+<p>Consider the following query of the number of separate sales to Smithville customers:</p>
+<pre dir="ltr">SELECT COUNT (*)
+FROM   sales s, customers c
+WHERE  c.cust_id = s.cust_id
+AND    c.cust_city = &#39;Smithville&#39;;
+</pre>
+<p>The following plan shows that the database reads the <code class="codeph">Smithville</code> bitmap to derive the number of Smithville sales (Step 4), thereby avoiding a join of the <code class="codeph">customers</code> and <code class="codeph">sales</code> tables.</p>
+<pre dir="ltr">SQL_ID  57s100mh142wy, child number 0
+-------------------------------------
+SELECT COUNT (*) FROM sales s, customers c WHERE c.cust_id = s.cust_id 
+AND c.cust_city = &#39;Smithville&#39;
+ 
+Plan hash value: 3663491772
+ 
+------------------------------------------------------------------------------------
+|Id| Operation                    | Name |Rows|Bytes|Cost (%CPU)| Time|Pstart|Pstop|
+------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT             |              |     |    |29 (100)|        | |  |
+| 1|  SORT AGGREGATE              |              |   1 |   5|        |        | |  |
+| 2|   PARTITION RANGE ALL        |              | 1708|8540|29   (0)|00:00:01|1|28|
+| 3|    BITMAP CONVERSION COUNT   |              | 1708|8540|29   (0)|00:00:01| |  |
+|*4|     <span class="bold">BITMAP INDEX SINGLE VALUE</span>|CUST_SALES_BJI|     |    |        |        |1|28|
+------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   4 - access(&#34;S&#34;.&#34;SYS_NC00008$&#34;=&#39;Smithville&#39;)
+</pre>
+<div class="infoboxnotealso" id="GUID-1F859889-14BC-4F0B-90CE-8682737FB46F__GUID-C7EE0996-76FF-4B00-9B4B-DF7FC6232398">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF01209" target="_blank" href="../SQLRF/statements_5013.htm#SQLRF01209"><span><cite>Oracle Database Concepts</cite></span></a> to learn about the <code class="codeph">CREATE INDEX</code> statement</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95201"></a>
+<div class="props_rev_3"><a id="GUID-BD3F4C5B-E1A6-4444-AA74-87BE752B096E"></a>
+<h4 id="TGSQL-GUID-BD3F4C5B-E1A6-4444-AA74-87BE752B096E" class="sect4">Bitmap Storage</h4>
+<div>
+<p>A bitmap index resides in a B-tree structure, using branch blocks and leaf blocks just as in a B-tree.</p>
+<p>For example, if the <code class="codeph">customers.cust_marital_status</code> column has 12 distinct values, then one branch block might point to the keys <code class="codeph">married,<span class="codeinlineitalic">rowid-range</span></code> and <code class="codeph">single,<span class="codeinlineitalic">rowid-range</span></code>, another branch block might point to the <code class="codeph">widowed,<span class="codeinlineitalic">rowid-range</span></code> key, and so on. Alternatively, a single branch block could point to a leaf block containing all 12 distinct keys.</p>
+<p>Each indexed column value may have one or more bitmap pieces, each with its own rowid range occupying a contiguous set of rows in one or more extents. The database can use a <a href="glossary.htm#GUID-45DDE193-8222-4A79-B126-151C2D640A3E"><span class="xrefglossterm">bitmap piece</span></a> to break up an index entry that is large relative to the size of a block. For example, the database could break a single index entry into three pieces, with the first two pieces in separate blocks in the same extent, and the last piece in a separate block in a different extent.</p>
+<p>To conserve space, Oracle Database can compression consecutive ranges of <code class="codeph">0</code> values.</p>
+</div>
+</div>
+</div>
+<a id="TGSQL95202"></a>
+<div class="props_rev_3"><a id="GUID-2939D4FD-ECC4-48FB-9AD7-CD844CC71786"></a>
+<h3 id="TGSQL-GUID-2939D4FD-ECC4-48FB-9AD7-CD844CC71786" class="sect3">Bitmap Conversion to Rowid</h3>
+<div>
+<p>A bitmap conversion translates between an entry in the bitmap and a row in a table. The conversion can go from entry to row (<code class="codeph">TO ROWID</code>), or from row to entry (<code class="codeph">FROM ROWID</code>).</p>
+</div>
+<a id="TGSQL95203"></a>
+<div class="props_rev_3"><a id="GUID-E66932B7-A092-49AB-ADAE-66B24A32B222"></a>
+<h4 id="TGSQL-GUID-E66932B7-A092-49AB-ADAE-66B24A32B222" class="sect4">When the Optimizer Chooses Bitmap Conversion to Rowid</h4>
+<div>
+<p>The optimizer uses a conversion whenever it retrieves a row from a table using a bitmap index entry.</p>
+</div>
+</div>
+<a id="TGSQL95204"></a>
+<div class="props_rev_3"><a id="GUID-44784FBB-AE07-4A57-B5C3-E558F05EDCFB"></a>
+<h4 id="TGSQL-GUID-44784FBB-AE07-4A57-B5C3-E558F05EDCFB" class="sect4">How Bitmap Conversion to Rowid Works</h4>
+<div>
+<p>Conceptually, a bitmap can be represented as table.</p>
+<p>For example, <a href="tgsql_optop.htm#GUID-0604FCDA-473B-432F-B1B2-8F766D377D63__CHDJHDHC" title="Sample bitmap for bitmap index">Table 8-4</a> represents the bitmap as a table with <code class="codeph">customers</code> row numbers as columns and <code class="codeph">cust_marital_status</code> values as rows. Each field in <a href="tgsql_optop.htm#GUID-0604FCDA-473B-432F-B1B2-8F766D377D63__CHDJHDHC" title="Sample bitmap for bitmap index">Table 8-4</a> has the value <code class="codeph">1</code> or <code class="codeph">0</code>, and represents a column value in a row. Conceptually, the bitmap conversion uses an internal algorithm that says, &#34;Field <span class="italic">F</span> in the bitmap corresponds to the <span class="italic">N</span>th row of the <span class="italic">M</span>th block of the table,&#34; or &#34;The <span class="italic">N</span>th row of the <span class="italic">M</span>th block in the table corresponds to field <span class="italic">F</span> in the bitmap.&#34;</p>
+</div>
+</div>
+<a id="TGSQL95205"></a>
+<div class="props_rev_3"><a id="GUID-3F77355A-BF28-46CF-85A8-6F694348958A"></a>
+<h4 id="TGSQL-GUID-3F77355A-BF28-46CF-85A8-6F694348958A" class="sect4">Bitmap Conversion to Rowid: Example</h4>
+<div>
+<p>In this example, the optimizer chooses a bitmap conversion operation to satisfy a query using a range predicate.</p>
+<p>A query of the <code class="codeph">sh.customers</code> table selects the names of all customers born before 1918:</p>
+<pre dir="ltr">SELECT cust_last_name, cust_first_name
+FROM   customers
+WHERE  cust_year_of_birth &lt; 1918;
+</pre>
+<p>The following plan shows that the database uses a range scan to find all key values less than <code class="codeph">1918</code> (Step 3), converts the <code class="codeph">1</code> values in the bitmap to rowids (Step 2), and then uses the rowids to obtain the rows from the <code class="codeph">customers</code> table (Step 1):</p>
+<pre dir="ltr">---------------------------------------------------------------------------------------------
+|Id| Operation                           | Name             |Rows|Bytes|Cost(%CPU)| Time    |
+---------------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                    |                  |    |     |421 (100)|          |
+| 1|  TABLE ACCESS BY INDEX ROWID BATCHED| CUSTOMERS        |3604|68476|421   (1)| 00:00:01 |
+| 2|   <span class="bold">BITMAP CONVERSION TO ROWIDS</span>       |                  |    |     |         |          |
+|*3|    BITMAP INDEX RANGE SCAN          | CUSTOMERS_YOB_BIX|    |     |         |          |
+---------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   3 - access(&#34;CUST_YEAR_OF_BIRTH&#34;&lt;1918)
+       filter(&#34;CUST_YEAR_OF_BIRTH&#34;&lt;1918)
+</pre></div>
+</div>
+</div>
+<a id="TGSQL95206"></a>
+<div class="props_rev_3"><a id="GUID-E8F4A411-10BE-4D5E-9207-0D5F8E61A8E0"></a>
+<h3 id="TGSQL-GUID-E8F4A411-10BE-4D5E-9207-0D5F8E61A8E0" class="sect3">Bitmap Index Single Value</h3>
+<div>
+<p>This type of access path uses a bitmap index to look up a single key value.</p>
+</div>
+<a id="TGSQL95207"></a>
+<div class="props_rev_3"><a id="GUID-86B195AF-AC56-4694-B015-D12D24B66927"></a>
+<h4 id="TGSQL-GUID-86B195AF-AC56-4694-B015-D12D24B66927" class="sect4">When the Optimizer Considers Bitmap Index Single Value</h4>
+<div>
+<p>The optimizer considers this access path when the predicate contains an equality operator.</p>
+</div>
+</div>
+<a id="TGSQL95208"></a>
+<div class="props_rev_3"><a id="GUID-FFD27025-9841-4ECC-8E07-46380340CA45"></a>
+<h4 id="TGSQL-GUID-FFD27025-9841-4ECC-8E07-46380340CA45" class="sect4">How Bitmap Index Single Value Works</h4>
+<div>
+<p>The query scans a single bitmap for positions containing a <code class="codeph">1</code> value. The database converts the <code class="codeph">1</code> values into rowids, and then uses the rowids to find the rows.</p>
+<p>The database only needs to process a single bitmap. For example, the following table represents the bitmap index (in two bitmap pieces) for the value <code class="codeph">widowed</code> in the <code class="codeph">sh.customers.cust_marital_status</code> column. To satisfy a query of customers with the status <code class="codeph">widowed</code>, the database can search for each <code class="codeph">1</code> value in the <code class="codeph">widowed</code> bitmap and find the rowid of the corresponding row.</p>
+<div class="tblformal" id="GUID-FFD27025-9841-4ECC-8E07-46380340CA45__GUID-EE599145-CB9F-4A23-B61C-EC903C5F7F71">
+<p class="titleintable">Table 8-5 Bitmap Index Entries</p>
+<table class="cellalignment4808" title="Bitmap Index Entries" summary="Sample bitmap for bitmap index">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4899" id="d48765e8280">Column Value</th>
+<th class="cellalignment4899" id="d48765e8283">Start Rowid in Range</th>
+<th class="cellalignment4875" id="d48765e8286">End Rowid in Range</th>
+<th class="cellalignment4892" id="d48765e8289">1st Row in Range</th>
+<th class="cellalignment4892" id="d48765e8292">2nd Row in Range</th>
+<th class="cellalignment4892" id="d48765e8295">3rd Row in Range</th>
+<th class="cellalignment4892" id="d48765e8298">4th Row in Range</th>
+<th class="cellalignment4892" id="d48765e8301">5th Row in Range</th>
+<th class="cellalignment4892" id="d48765e8304">6th Row in Range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d48765e8309" headers="d48765e8280">
+<p><code class="codeph">widowed</code></p>
+</td>
+<td class="cellalignment4900" headers="d48765e8309 d48765e8283">
+<p><code class="codeph">AAA ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e8309 d48765e8286">
+<p><code class="codeph">CCC ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e8309 d48765e8289">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8309 d48765e8292">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8309 d48765e8295">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8309 d48765e8298">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8309 d48765e8301">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8309 d48765e8304">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d48765e8340" headers="d48765e8280">
+<p><code class="codeph">widowed</code></p>
+</td>
+<td class="cellalignment4900" headers="d48765e8340 d48765e8283">
+<p><code class="codeph">DDD ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e8340 d48765e8286">
+<p><code class="codeph">EEE ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e8340 d48765e8289">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8340 d48765e8292">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8340 d48765e8295">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8340 d48765e8298">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8340 d48765e8301">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8340 d48765e8304">
+<p>1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="TGSQL95209"></a>
+<div class="props_rev_3"><a id="GUID-CE4D999C-F694-4E5C-B54C-1919F80734B8"></a>
+<h4 id="TGSQL-GUID-CE4D999C-F694-4E5C-B54C-1919F80734B8" class="sect4">Bitmap Index Single Value: Example</h4>
+<div>
+<p>In this example, the optimizer chooses a bitmap index single value operation to satisfy a query that uses an equality predicate.</p>
+<p>A query of the <code class="codeph">sh.customers</code> table selects all widowed customers:</p>
+<pre dir="ltr">SELECT * 
+FROM   customers 
+WHERE  cust_marital_status = &#39;Widowed&#39;;
+</pre>
+<p>The following plan shows that the database reads the entry with the <code class="codeph">Widowed</code> key in the <code class="codeph">customers</code> bitmap index (Step 3), converts the <code class="codeph">1</code> values in the bitmap to rowids (Step 2), and then uses the rowids to obtain the rows from the <code class="codeph">customers</code> table (Step 1):</p>
+<pre dir="ltr">SQL_ID  ff5an2xsn086h, child number 0
+-------------------------------------
+SELECT * FROM customers WHERE cust_marital_status = &#39;Widowed&#39;
+ 
+Plan hash value: 2579015045
+---------------------------------------------------------------------------------------------
+|Id| Operation                           | Name                |Rows|Bytes|Cost (%CPU)| Time|
+---------------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                    |                     |    |    |412 (100)|        |
+| 1|  TABLE ACCESS BY INDEX ROWID BATCHED|CUSTOMERS            |3461|638K|412   (2)|00:00:01|
+| 2|   BITMAP CONVERSION TO ROWIDS       |                     |    |    |         |        |
+|*3|    <span class="bold">BITMAP INDEX SINGLE VALUE</span>        |CUSTOMERS_MARITAL_BIX|    |    |         |        |
+---------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - access(&#34;CUST_MARITAL_STATUS&#34;=&#39;Widowed&#39;)
+</pre></div>
+</div>
+</div>
+<a id="TGSQL95210"></a>
+<div class="props_rev_3"><a id="GUID-9123D7CE-90DC-4C96-AB4F-49FD0227C40B"></a>
+<h3 id="TGSQL-GUID-9123D7CE-90DC-4C96-AB4F-49FD0227C40B" class="sect3">Bitmap Index Range Scans</h3>
+<div>
+<p>This type of access path uses a bitmap index to look up a range of values.</p>
+</div>
+<a id="TGSQL95211"></a>
+<div class="props_rev_3"><a id="GUID-4F1E2861-F76D-4760-B43E-C12252017D8C"></a>
+<h4 id="TGSQL-GUID-4F1E2861-F76D-4760-B43E-C12252017D8C" class="sect4">When the Optimizer Considers Bitmap Index Range Scans</h4>
+<div>
+<p>The optimizer considers this access path when the predicate selects a range of values.</p>
+<p>The range in the scan can be bounded on both sides, or unbounded on one or both sides. The optimizer typically chooses a range scan for selective queries.</p>
+<div class="infoboxnotealso" id="GUID-4F1E2861-F76D-4760-B43E-C12252017D8C__GUID-CE2AE938-47E7-422D-8BFA-E5FBAF94F75A">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_optop.htm#GUID-E2353939-DFBD-444A-94BC-2497E2A418D1" title="An index range scan is an ordered scan of values.">Index Range Scans</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="TGSQL95212"></a>
+<div class="props_rev_3"><a id="GUID-B3D5EDB0-CD7B-4FE7-93B6-C348743CE95C"></a>
+<h4 id="TGSQL-GUID-B3D5EDB0-CD7B-4FE7-93B6-C348743CE95C" class="sect4">How Bitmap Index Range Scans Work</h4>
+<div>
+<p>This scan works similarly to a B-tree range scan.</p>
+<p>For example, the following table represents three values in the bitmap index for the <code class="codeph">sh.customers.cust_year_of_birth</code> column. If a query requests all customers born before 1917, then the database can scan this index for values lower than <code class="codeph">1917</code>, and then obtain the rowids for rows that have a <code class="codeph">1</code>.</p>
+<div class="tblformal" id="GUID-B3D5EDB0-CD7B-4FE7-93B6-C348743CE95C__GUID-E7AF2B63-9386-4F3D-9325-726F8A285944">
+<p class="titleintable">Table 8-6 Bitmap Index Entries</p>
+<table class="cellalignment4808" title="Bitmap Index Entries" summary="Sample bitmap for bitmap index">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4899" id="d48765e8756">Column Value</th>
+<th class="cellalignment4899" id="d48765e8759">Start Rowid in Range</th>
+<th class="cellalignment4875" id="d48765e8762">End Rowid in Range</th>
+<th class="cellalignment4892" id="d48765e8765">1st Row in Range</th>
+<th class="cellalignment4892" id="d48765e8768">2nd Row in Range</th>
+<th class="cellalignment4892" id="d48765e8771">3rd Row in Range</th>
+<th class="cellalignment4892" id="d48765e8774">4th Row in Range</th>
+<th class="cellalignment4892" id="d48765e8777">5th Row in Range</th>
+<th class="cellalignment4892" id="d48765e8780">6th Row in Range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d48765e8785" headers="d48765e8756">
+<p><code class="codeph">1913</code></p>
+</td>
+<td class="cellalignment4900" headers="d48765e8785 d48765e8759">
+<p><code class="codeph">AAA ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e8785 d48765e8762">
+<p><code class="codeph">CCC ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e8785 d48765e8765">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8785 d48765e8768">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8785 d48765e8771">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8785 d48765e8774">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8785 d48765e8777">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8785 d48765e8780">
+<p>1</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d48765e8816" headers="d48765e8756">
+<p><code class="codeph">1917</code></p>
+</td>
+<td class="cellalignment4900" headers="d48765e8816 d48765e8759">
+<p><code class="codeph">AAA ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e8816 d48765e8762">
+<p><code class="codeph">CCC ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e8816 d48765e8765">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8816 d48765e8768">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8816 d48765e8771">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8816 d48765e8774">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8816 d48765e8777">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8816 d48765e8780">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d48765e8847" headers="d48765e8756">
+<p><code class="codeph">1918</code></p>
+</td>
+<td class="cellalignment4900" headers="d48765e8847 d48765e8759">
+<p><code class="codeph">AAA ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e8847 d48765e8762">
+<p><code class="codeph">CCC ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e8847 d48765e8765">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8847 d48765e8768">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8847 d48765e8771">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8847 d48765e8774">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8847 d48765e8777">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8847 d48765e8780">
+<p>0</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4900" id="d48765e8878" headers="d48765e8756">
+<p><code class="codeph">1918</code></p>
+</td>
+<td class="cellalignment4900" headers="d48765e8878 d48765e8759">
+<p><code class="codeph">DDD ...</code></p>
+</td>
+<td class="cellalignment4879" headers="d48765e8878 d48765e8762">
+<p><code class="codeph">EEE ...</code></p>
+</td>
+<td class="cellalignment4895" headers="d48765e8878 d48765e8765">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8878 d48765e8768">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8878 d48765e8771">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8878 d48765e8774">
+<p>0</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8878 d48765e8777">
+<p>1</p>
+</td>
+<td class="cellalignment4895" headers="d48765e8878 d48765e8780">
+<p>1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-B3D5EDB0-CD7B-4FE7-93B6-C348743CE95C__GUID-11E57EB9-3050-483B-81F5-E8F4BF935E24">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_optop.htm#GUID-E2353939-DFBD-444A-94BC-2497E2A418D1" title="An index range scan is an ordered scan of values.">Index Range Scans</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="TGSQL95213"></a>
+<div class="props_rev_3"><a id="GUID-CE4551F6-D694-4C4A-8606-9544278D3867"></a>
+<h4 id="TGSQL-GUID-CE4551F6-D694-4C4A-8606-9544278D3867" class="sect4">Bitmap Index Range Scans: Example</h4>
+<div>
+<p>This example uses a range scan to select customers born before a single year.</p>
+<p>A query of the <code class="codeph">sh.customers</code> table selects the names of customers born before 1918:</p>
+<pre dir="ltr">SELECT cust_last_name, cust_first_name
+FROM   customers
+WHERE  cust_year_of_birth &lt; 1918
+</pre>
+<p>The following plan shows that the database obtains all bitmaps for <code class="codeph">cust_year_of_birth</code> keys lower than <code class="codeph">1918</code> (Step 3), converts the bitmaps to rowids (Step 2), and then fetches the rows (Step 1):</p>
+<pre dir="ltr">SQL_ID  672z2h9rawyjg, child number 0
+-------------------------------------
+SELECT cust_last_name, cust_first_name FROM   customers WHERE
+cust_year_of_birth &lt; 1918
+
+Plan hash value: 4198466611
+---------------------------------------------------------------------------------------------
+|Id| Operation                           | Name              |Rows|Bytes|Cost(%CPU)|Time    |
+---------------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                    |                   |    |     |421 (100)|         |
+| 1|  TABLE ACCESS BY INDEX ROWID BATCHED| CUSTOMERS         |3604|68476|421   (1)|00:00:01 |
+| 2|   BITMAP CONVERSION TO ROWIDS       |                   |    |     |         |         |
+|*3|    <span class="bold">BITMAP INDEX RANGE SCAN</span>          | CUSTOMERS_YOB_BIX |    |     |         |         |
+---------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   3 - access(&#34;CUST_YEAR_OF_BIRTH&#34;&lt;1918)
+       filter(&#34;CUST_YEAR_OF_BIRTH&#34;&lt;1918)
+</pre></div>
+</div>
+</div>
+<a id="TGSQL95214"></a>
+<div class="props_rev_3"><a id="GUID-2FDE5904-B0BC-44DA-829B-94C89FA77D71"></a>
+<h3 id="TGSQL-GUID-2FDE5904-B0BC-44DA-829B-94C89FA77D71" class="sect3">Bitmap Merge</h3>
+<div>
+<p>This access path merges multiple bitmaps, and returns a single bitmap as a result.</p>
+<p>A bitmap merge is indicated by the <code class="codeph">BITMAP MERGE</code> operation in an execution plan.</p>
+</div>
+<a id="TGSQL95215"></a>
+<div class="props_rev_3"><a id="GUID-BAFC38D5-C3A8-4100-A0E0-E4E0BF0413BA"></a>
+<h4 id="TGSQL-GUID-BAFC38D5-C3A8-4100-A0E0-E4E0BF0413BA" class="sect4">When the Optimizer Considers Bitmap Merge</h4>
+<div>
+<p>The optimizer typically uses a bitmap merge to combine bitmaps generated from a bitmap index range scan.</p>
+</div>
+</div>
+<a id="TGSQL95216"></a>
+<div class="props_rev_3"><a id="GUID-2B852AE5-DB31-42F6-A39D-DF058D5A8204"></a>
+<h4 id="TGSQL-GUID-2B852AE5-DB31-42F6-A39D-DF058D5A8204" class="sect4">How Bitmap Merge Works</h4>
+<div>
+<p>A merge uses a Boolean <code class="codeph">OR</code> operation between two bitmaps. The resulting bitmap selects all rows from the first bitmap, plus all rows from every subsequent bitmap.</p>
+<p>A query might select all customers born before 1918. The following example shows sample bitmaps for three <code class="codeph">customers.cust_year_of_birth</code> keys: <code class="codeph">1917</code>, <code class="codeph">1916</code>, and <code class="codeph">1915</code>. If any position in any bitmap has a <code class="codeph">1</code>, then the merged bitmap has a <code class="codeph">1</code> in the same position. Otherwise, the merged bitmap has a <code class="codeph">0</code>.</p>
+<pre dir="ltr">1917     1 0 1 0 0 0 0 0 0 0 0 0 0 1
+1916     0 1 0 0 0 0 0 0 0 0 0 0 0 0
+1915     0 0 0 0 0 0 0 0 1 0 0 0 0 0
+------------------------------------
+merged:  1 1 1 0 0 0 0 0 1 0 0 0 0 1
+</pre>
+<p>The <code class="codeph">1</code> values in resulting bitmap correspond to rows that contain the values <code class="codeph">1915</code>, <code class="codeph">1916</code>, or <code class="codeph">1917</code>.</p>
+</div>
+</div>
+<a id="TGSQL95217"></a>
+<div class="props_rev_3"><a id="GUID-8CB7829F-D612-41D0-9870-1C40DF73C71B"></a>
+<h4 id="TGSQL-GUID-8CB7829F-D612-41D0-9870-1C40DF73C71B" class="sect4">Bitmap Merge: Example</h4>
+<div>
+<p>This example shows how the database merges bitmaps to optimize a query using a range predicate.</p>
+<p>A query of the <code class="codeph">sh.customers</code> table selects the names of female customers born before 1918:</p>
+<pre dir="ltr">SELECT cust_last_name, cust_first_name
+FROM   customers
+WHERE  cust_gender = &#39;F&#39;
+AND    cust_year_of_birth &lt; 1918
+</pre>
+<p>The following plan shows that the database obtains all bitmaps for <code class="codeph">cust_year_of_birth</code> keys lower than <code class="codeph">1918</code> (Step 6), and then merges these bitmaps using <code class="codeph">OR</code> logic to create a single bitmap (Step 5). The database obtains a single bitmap for the <code class="codeph">cust_gender</code> key of <code class="codeph">F</code> (Step 4), and then performs an <code class="codeph">AND</code> operation on these two bitmaps. The result is a single bitmap that contains <code class="codeph">1</code> values for the requested rows (Step 3).</p>
+<pre dir="ltr">SQL_ID  1xf59h179zdg2, child number 0
+-------------------------------------
+select cust_last_name, cust_first_name from customers where cust_gender
+= &#39;F&#39; and cust_year_of_birth &lt; 1918
+
+Plan hash value: 49820847
+---------------------------------------------------------------------------------------------
+|Id| Operation                           | Name               |Rows|Bytes|Cost(%CPU)| Time  |
+---------------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT                    |                    |    |     |288 (100)|        |
+| 1|  TABLE ACCESS BY INDEX ROWID BATCHED|CUSTOMERS           |1802|37842|288   (1)|00:00:01|
+| 2|   BITMAP CONVERSION TO ROWIDS       |                    |    |     |         |        |
+| 3|    BITMAP AND                       |                    |    |     |         |        |
+|*4|     BITMAP INDEX SINGLE VALUE       |CUSTOMERS_GENDER_BIX|    |     |         |        |
+| 5|     <span class="bold">BITMAP MERGE</span>                    |                    |    |     |         |        |
+|*6|      BITMAP INDEX RANGE SCAN        |CUSTOMERS_YOB_BIX   |    |     |         |        |
+---------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+   4 - access(&#34;CUST_GENDER&#34;=&#39;F&#39;)
+   6 - access(&#34;CUST_YEAR_OF_BIRTH&#34;&lt;1918)
+       filter(&#34;CUST_YEAR_OF_BIRTH&#34;&lt;1918)
+</pre></div>
+</div>
+</div>
+</div>
+<a id="TGSQL241"></a>
+<div class="props_rev_3"><a id="GUID-4D114CC6-15A8-4CE0-A826-4E53DFD184CA"></a>
+<h2 id="TGSQL-GUID-4D114CC6-15A8-4CE0-A826-4E53DFD184CA" class="sect2">Table Cluster Access Paths</h2>
+<div>
+<p>A <span class="bold">table cluster</span> is a group of tables that share common columns and store related data in the same blocks. When tables are clustered, a single data block can contain rows from multiple tables.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_optop.htm#GUID-DB9438B3-6FA1-4EE9-A782-3DD271A59285" title="An index cluster is a table cluster that uses an index to locate data.">Cluster Scans</a></p>
+</li>
+<li>
+<p><a href="tgsql_optop.htm#GUID-8CBC58C9-A82E-4A2A-B2C1-5A728C4F4726" title="A hash cluster is like an indexed cluster, except the index key is replaced with a hash function. No separate cluster index exists.">Hash Scans</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-4D114CC6-15A8-4CE0-A826-4E53DFD184CA__GUID-F322E91E-7FAB-4F14-BDAC-CC6DBFE3712D">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT608" target="_blank" href="../CNCPT/tablecls.htm#CNCPT608"><span><cite>Oracle Database Concepts</cite></span></a> for an overview of table clusters</p>
+</div>
+</div>
+<a id="TGSQL94952"></a>
+<div class="props_rev_3"><a id="GUID-DB9438B3-6FA1-4EE9-A782-3DD271A59285"></a>
+<h3 id="TGSQL-GUID-DB9438B3-6FA1-4EE9-A782-3DD271A59285" class="sect3">Cluster Scans</h3>
+<div>
+<p>An <span class="bold">index cluster</span> is a table cluster that uses an index to locate data.</p>
+<p>The cluster index is a B-tree index on the cluster key. A <a href="glossary.htm#GUID-301F9394-3C59-4DCB-94F2-3DC2B2E0508A"><span class="xrefglossterm">cluster scan</span></a> retrieves all rows that have the same cluster key value from a table stored in an indexed cluster.</p>
+</div>
+<a id="TGSQL95218"></a>
+<div class="props_rev_3"><a id="GUID-9B933E68-BBA0-49B7-9AC4-F58868E5180D"></a>
+<h4 id="TGSQL-GUID-9B933E68-BBA0-49B7-9AC4-F58868E5180D" class="sect4">When the Optimizer Considers Cluster Scans</h4>
+<div>
+<p>The database considers a cluster scan when a query accesses a table in an indexed cluster.</p>
+</div>
+</div>
+<a id="TGSQL95219"></a>
+<div class="props_rev_3"><a id="GUID-859E935C-C9B0-43C7-A955-6A943037D533"></a>
+<h4 id="TGSQL-GUID-859E935C-C9B0-43C7-A955-6A943037D533" class="sect4">How a Cluster Scan Works</h4>
+<div>
+<p>In an indexed cluster, the database stores all rows with the same cluster key value in the same data block.</p>
+<p>For example, if the <code class="codeph">hr.employees2</code> and <code class="codeph">hr.departments2</code> tables are clustered in <code class="codeph">emp_dept_cluster</code>, and if the cluster key is <code class="codeph">department_id</code>, then the database stores all employees in department <code class="codeph">10</code> in the same block, all employees in department <code class="codeph">20</code> in the same block, and so on.</p>
+<p>The B-tree cluster index associates the cluster key value with the database block address (DBA) of the block containing the data. For example, the index entry for key <code class="codeph">30</code> shows the address of the block that contains rows for employees in department <code class="codeph">30</code>:</p>
+<pre dir="ltr">30,AADAAAA9d
+</pre>
+<p>When a user requests rows in the cluster, the database scans the index to obtain the DBAs of the blocks containing the rows. Oracle Database then locates the rows based on these DBAs.</p>
+</div>
+</div>
+<a id="TGSQL95220"></a>
+<div class="props_rev_3"><a id="GUID-332A32EF-65E6-4BB0-AB2D-4F0EEEE73C85"></a>
+<h4 id="TGSQL-GUID-332A32EF-65E6-4BB0-AB2D-4F0EEEE73C85" class="sect4">Cluster Scans: Example</h4>
+<div>
+<p>This example clusters the <code class="codeph">employees</code> and <code class="codeph">departments</code> tables on the <code class="codeph">department_id</code> column, and then queries the cluster for a single department.</p>
+<div class="example" id="GUID-332A32EF-65E6-4BB0-AB2D-4F0EEEE73C85__GUID-7E093173-F973-4E5F-8538-DDEA47F8673E">
+<p>As user <code class="codeph">hr</code>, you create a table cluster, cluster index, and tables in the cluster as follows:</p>
+<pre dir="ltr">CREATE CLUSTER employees_departments_cluster
+   (department_id NUMBER(4)) SIZE 512;
+
+CREATE INDEX idx_emp_dept_cluster
+   ON CLUSTER employees_departments_cluster;
+
+CREATE TABLE employees2
+   CLUSTER employees_departments_cluster (department_id)
+   AS SELECT * FROM employees;
+ CREATE TABLE departments2
+   CLUSTER employees_departments_cluster (department_id)
+   AS SELECT * FROM departments;
+</pre>
+<p>You query the employees in department <code class="codeph">30</code> as follows:</p>
+<pre dir="ltr">SELECT * 
+FROM   employees2 
+WHERE  department_id = 30;
+</pre>
+<p>To perform the scan, Oracle Database first obtains the rowid of the row describing department 30 by scanning the cluster index (Step 2). Oracle Database then locates the rows in <code class="codeph">employees2</code> using this rowid (Step 1).</p>
+<pre dir="ltr">SQL_ID  b7xk1jzuwdc6t, child number 0
+-------------------------------------
+SELECT * FROM employees2 WHERE department_id = 30
+
+Plan hash value: 49826199
+
+--------------------------------------------------------------------------------
+|Id| Operation            | Name               |Rows|Bytes|Cost(%CPU)| Time    |
+--------------------------------------------------------------------------------
+| 0| SELECT STATEMENT     |                    |    |     |   2 (100)|         |
+| 1|  <span class="bold">TABLE ACCESS CLUSTER</span>| EMPLOYEES2         |  6 | 798 |   2   (0)| 00:00:01|
+|*2|   INDEX UNIQUE SCAN  |IDX_EMP_DEPT_CLUSTER|  1 |     |   1   (0)| 00:00:01|
+--------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - access(&#34;DEPARTMENT_ID&#34;=30)
+</pre>
+<div class="infoboxnotealso" id="GUID-332A32EF-65E6-4BB0-AB2D-4F0EEEE73C85__GUID-89394692-C8BA-487E-82F9-601D0ACB0E2E">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT88825" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=CNCPT88825"><span><cite>Oracle Database Concepts</cite></span></a> to learn about indexed clusters</p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL94953"></a>
+<div class="props_rev_3"><a id="GUID-8CBC58C9-A82E-4A2A-B2C1-5A728C4F4726"></a>
+<h3 id="TGSQL-GUID-8CBC58C9-A82E-4A2A-B2C1-5A728C4F4726" class="sect3">Hash Scans</h3>
+<div>
+<p>A <span class="bold">hash cluster</span> is like an indexed cluster, except the index key is replaced with a hash function. No separate cluster index exists.</p>
+<p>In a hash cluster, the data <span class="italic">is</span> the index. The database uses a <a href="glossary.htm#GUID-E5F097BA-06BA-403C-B2AE-34523D906F54"><span class="xrefglossterm">hash scan</span></a> to locate rows in a hash cluster based on a hash value.</p>
+</div>
+<a id="TGSQL95221"></a>
+<div class="props_rev_3"><a id="GUID-FC77D13B-2B4B-49E3-9410-663E74CE447E"></a>
+<h4 id="TGSQL-GUID-FC77D13B-2B4B-49E3-9410-663E74CE447E" class="sect4">When the Optimizer Considers a Hash Scan</h4>
+<div>
+<p>The database considers a hash scan when a query accesses a table in a hash cluster.</p>
+</div>
+</div>
+<a id="TGSQL95222"></a>
+<div class="props_rev_3"><a id="GUID-02CB3D17-75A4-4371-BB1D-C9921C185365"></a>
+<h4 id="TGSQL-GUID-02CB3D17-75A4-4371-BB1D-C9921C185365" class="sect4">How a Hash Scan Works</h4>
+<div>
+<p>In a hash cluster, all rows with the same hash value are stored in the same data block.</p>
+<p>To perform a hash scan of the cluster, Oracle Database first obtains the hash value by applying a hash function to a cluster key value specified by the statement. Oracle Database then scans the data blocks containing rows with this hash value.</p>
+</div>
+</div>
+<a id="TGSQL95223"></a>
+<div class="props_rev_3"><a id="GUID-55B33C65-DE90-4943-9F17-5CC372FF6387"></a>
+<h4 id="TGSQL-GUID-55B33C65-DE90-4943-9F17-5CC372FF6387" class="sect4">Hash Scans: Example</h4>
+<div>
+<p>This example hashes the <code class="codeph">employees</code> and <code class="codeph">departments</code> tables on the <code class="codeph">department_id</code> column, and then queries the cluster for a single department.</p>
+<div class="example" id="GUID-55B33C65-DE90-4943-9F17-5CC372FF6387__GUID-9B480918-3DC5-40DD-88AF-88AEC39C554A">
+<p>You create a hash cluster and tables in the cluster as follows:</p>
+<pre dir="ltr">CREATE CLUSTER employees_departments_cluster
+   (department_id NUMBER(4)) SIZE 8192 HASHKEYS 100;
+ 
+CREATE TABLE employees2
+   CLUSTER employees_departments_cluster (department_id) 
+   AS SELECT * FROM employees;
+ 
+CREATE TABLE departments2 
+   CLUSTER employees_departments_cluster (department_id) 
+   AS SELECT * FROM departments;
+</pre>
+<p>You query the employees in department <code class="codeph">30</code> as follows:</p>
+<pre dir="ltr">SELECT *
+FROM   employees2
+WHERE  department_id = 30
+</pre>
+<p>To perform a hash scan, Oracle Database first obtains the hash value by applying a hash function to the key value <code class="codeph">30</code>, and then uses this hash value to scan the data blocks and retrieve the rows (Step 1).</p>
+<pre dir="ltr">SQL_ID  919x7hyyxr6p4, child number 0
+-------------------------------------
+SELECT * FROM employees2 WHERE department_id = 30
+
+Plan hash value: 2399378016
+
+----------------------------------------------------------------
+| Id  | Operation         | Name       | Rows  | Bytes | Cost  |
+----------------------------------------------------------------
+|   0 | SELECT STATEMENT  |            |       |       |     1 |
+|*  1 |  <span class="bold">TABLE ACCESS HASH</span>| EMPLOYEES2 |    10 |  1330 |       |
+----------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - access(&#34;DEPARTMENT_ID&#34;=30)
+</pre>
+<div class="infoboxnotealso" id="GUID-55B33C65-DE90-4943-9F17-5CC372FF6387__GUID-65718A84-FFAE-4F21-904A-296D78454964">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT609" target="_blank" href="../CNCPT/tablecls.htm#CNCPT609"><span><cite>Oracle Database Concepts</cite></span></a> to learn about hash clusters</p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_pt_ops.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_join.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

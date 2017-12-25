@@ -1,0 +1,2228 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-91995"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Managing%20a%20Logical%20Standby%20Database"></a><title>Managing a Logical Standby Database</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="transaction size considerations, SQL Apply, SQL Apply, transaction size considerations, logical standby databases, chunking, transactions, pageouts, pageout considerations, restart considerations, restart considerations, DML transactions, applying to a logical standby database, applying DML transactions, DDL transactions, applying DDL transactions, V$LOGSTDBY_STATS view, failover characteristics, failovers, viewing characteristics for logical standby databases, failovers, viewing characteristics with V$LOGSTDBY_STATS, V$LOGSTDBY_PROCESS view, views, V$LOGSTDBY_PROCESS, V$LOGSTDBY_PROGRESS view, V$LOGSTDBY_PROGRESS, V$LOGSTDBY_STATE view, V$LOGSTDBY_STATE, V$LOGSTDBY_STATS, INITIALIZING state, states, initializing, applying state, applying, idle state, idle, DBA_LOGMNR_PURGED_LOG view, list archived redo log files that can be deleted, deleting, archived redo log files, indicated by the DBA_LOGMNR_PURGED_LOG view, archived redo log files, deleting unneeded, not needed by SQL Apply, deleting archived redo log files, skip handler, setting up on a logical standby database, setting up a skip handler, modifying, a logical standby database, adding, tables, tables, adding on, triggers, handled on a logical standby database, constraints, recovering, through resetlogs"/>
+<meta name="dcterms.created" content="2017-07-21T12:09:00Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Data Guard Concepts and Administration"/>
+<meta name="dcterms.identifier" content="E48552-08"/>
+<meta name="dcterms.isVersionOf" content="SBYDB"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="manage_ps.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="rman.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E48552-08.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-4177C717-4244-4E33-ACE7-15D53EAB2443"></a> <span id="PAGE" style="display:none;">17/35</span> <!-- End Header -->
+<a id="SBYDB00800"></a>
+<h1 id="SBYDB-GUID-4177C717-4244-4E33-ACE7-15D53EAB2443" class="sect1"><span class="enumeration_chapter">11</span> Managing a Logical Standby Database</h1>
+<div>
+<p>See the following topics for information about how to manage a logical standby database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-735EED44-DFDB-43B8-ADBC-F1A3A62E7D93">Overview of the SQL Apply Architecture</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-572B9755-69F5-4BD7-9DFF-1F7EB1DE3771">Controlling User Access to Tables in a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-D6636F76-CD66-49A8-B052-503991190FBF">Views Related to Managing and Monitoring a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-B0181E97-7A79-4E92-9B84-42DF8AF24FE0">Monitoring a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-88211E8E-28BF-45AC-9230-F85B606D8987">Customizing a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-6B8A9BA8-AEF5-4F87-9B1D-67D1A32955D0">Managing Specific Workloads In the Context of a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-6438EB33-8A6D-4D5A-B3B5-740F8B1144D5">Using Extended Datatype Support During Replication</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-8808747E-825D-4E0C-BD26-4E18F40574F8">Tuning a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-4A691CE0-7424-4547-800E-0C9D606F0607">Backup and Recovery in the Context of a Logical Standby Database</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB5042"></a><a id="SBYDB4804"></a>
+<div class="props_rev_3"><a id="GUID-735EED44-DFDB-43B8-ADBC-F1A3A62E7D93"></a>
+<h2 id="SBYDB-GUID-735EED44-DFDB-43B8-ADBC-F1A3A62E7D93" class="sect2"><span class="enumeration_section">11.1</span> Overview of the SQL Apply Architecture</h2>
+<div>
+<p><a id="d23825e184" class="indexterm-anchor"></a><a id="d23825e188" class="indexterm-anchor"></a>SQL Apply uses a collection of background processes to apply changes from the primary database to the logical standby database.</p>
+<p><a href="manage_ls.htm#GUID-735EED44-DFDB-43B8-ADBC-F1A3A62E7D93__I1039995">Figure 11-1</a> shows the flow of information and the role that each process performs.</p>
+<div class="figure" id="GUID-735EED44-DFDB-43B8-ADBC-F1A3A62E7D93__I1039995">
+<p class="titleinfigure">Figure 11-1 SQL Apply Processing</p>
+<img width="672" height="383" src="img/GUID-215D2701-986B-4D19-BBCE-F8C08A5E3A15-default.gif" alt="Description of Figure 11-1 follows" title="Description of Figure 11-1 follows"/><br/>
+<a href="img_text/GUID-215D2701-986B-4D19-BBCE-F8C08A5E3A15-print.htm">Description of &#34;Figure 11-1 SQL Apply Processing&#34;</a></div>
+<!-- class="figure" -->
+<p>The different processes involved and their functions during log mining and apply processing are as follows:</p>
+<p>During log mining:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">READER</code> process reads redo records from the archived redo log files or standby redo log files.</p>
+</li>
+<li>
+<p>The <code class="codeph">PREPARER</code> process converts block changes contained in redo records into logical change records (LCRs). Multiple <code class="codeph">PREPARER</code> processes can be active for a given redo log file. The LCRs are staged in the <a id="d23825e221" class="indexterm-anchor"></a><a id="d23825e225" class="indexterm-anchor"></a><a id="d23825e229" class="indexterm-anchor"></a>system global area (SGA), known as the <span class="italic">LCR cache</span>.</p>
+</li>
+<li>
+<p>The <code class="codeph">BUILDER</code> process groups LCRs into transactions, and performs other tasks, such as memory management in the LCR cache, checkpointing related to SQL Apply restart and filtering out of uninteresting changes.</p>
+</li>
+</ul>
+<p>During apply processing:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">ANALYZER</code> process identifies dependencies between different transactions.</p>
+</li>
+<li>
+<p>The <code class="codeph">COORDINATOR</code> process <a id="d23825e258" class="indexterm-anchor"></a><a id="d23825e262" class="indexterm-anchor"></a><a id="d23825e266" class="indexterm-anchor"></a><a id="d23825e270" class="indexterm-anchor"></a>(LSP) assigns transactions to different appliers and coordinates among them to ensure that dependencies between transactions are honored.</p>
+</li>
+<li>
+<p>The <code class="codeph">APPLIER</code> processes applies transactions to the logical standby database under the supervision of the coordinator process.</p>
+</li>
+</ul>
+<p>You can query the <code class="codeph">V$LOGSTDBY_PROCESS</code> view to examine the activity of the SQL Apply processes. Another view that provides information about current activity is the <code class="codeph">V$LOGSTDBY_STATS</code> view that displays statistics, current state, and status information for the logical standby database during SQL Apply activities. These and other relevant views are discussed in more detail in <a href="manage_ls.htm#GUID-D6636F76-CD66-49A8-B052-503991190FBF">Views Related to Managing and Monitoring a Logical Standby Database</a>.</p>
+<div class="infobox-note" id="GUID-735EED44-DFDB-43B8-ADBC-F1A3A62E7D93__GUID-80960FAF-B556-4C59-A028-32D125305B5B">
+<p class="notep1">Note:</p>
+<p>All SQL Apply processes (including the coordinator process <code class="codeph">lsp0</code>) are true background processes. They are not regulated by resource manager. Therefore, creating resource groups at the logical standby database does not affect the SQL Apply processes.</p>
+</div>
+</div>
+<a id="SBYDB4805"></a>
+<div class="props_rev_3"><a id="GUID-81ABDF55-F808-4E41-ACBF-694DBE40E68C"></a>
+<h3 id="SBYDB-GUID-81ABDF55-F808-4E41-ACBF-694DBE40E68C" class="sect3"><span class="enumeration_section">11.1.1</span> Various Considerations for SQL Apply</h3>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-344AF03D-88A6-4DE1-8650-D5F1B9781FC3">Transaction Size Considerations</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-E3ADF4B7-F08A-4F2B-A1CD-FB897ECCF534">Pageout Considerations</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-F0FDEEF3-B4EA-40F3-BF7B-2167D33D91C8">Restart Considerations</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-97797605-D5BB-49B7-8E9D-D3E7C56A767C">DML Apply Considerations</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-1BBCF0C2-E189-47EF-B7D1-805BF552E4DB">DDL Apply Considerations</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-1F7593FA-8EDD-4DF2-8CE0-1EDCDAA81402">Password Verification Functions</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB4806"></a>
+<div class="props_rev_3"><a id="GUID-344AF03D-88A6-4DE1-8650-D5F1B9781FC3"></a>
+<h4 id="SBYDB-GUID-344AF03D-88A6-4DE1-8650-D5F1B9781FC3" class="sect4"><span class="enumeration_section">11.1.1.1</span> Transaction Size Considerations</h4>
+<div>
+<p>SQL Apply categorizes transactions into two classes: small and large:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Small transactions&mdash;SQL Apply starts applying LCRs belonging to a small transaction once it has encountered the commit record for the transaction in the redo log files.</p>
+</li>
+<li>
+<p>Large transactions&mdash;SQL Apply breaks large transactions into smaller pieces called <span class="italic">transaction chunks</span>, and starts applying the chunks before the commit record for the large transaction is seen in the redo log files. This is done to reduce memory pressure on the LCR cache and to reduce the overall failover time.</p>
+<p>For example, without breaking into smaller pieces, a SQL*Loader load of ten million rows, each 100 bytes in size, would use more than 1 GB of memory in the LCR cache. If the memory allocated to the LCR cache was less than 1 GB, it would result in pageouts from the LCR cache.</p>
+<p>Apart from the memory considerations, if SQL Apply did not start applying the changes related to the ten million row SQL*Loader load until it encountered the <code class="codeph">COMMIT</code> record for the transaction, it could stall a role transition. A switchover or a failover that is initiated after the transaction commit cannot finish until SQL Apply has applied the transaction on the logical standby database.</p>
+<p>Despite the use of transaction chunks, SQL Apply performance may degrade when processing transactions that modify more than eight million rows. For transactions larger than 8 million rows, SQL Apply uses the temporary segment to stage some of the internal metadata required to process the transaction. Be sure to allocate enough space in your temporary segment for SQL Apply to successfully process transactions larger than 8 million rows.</p>
+</li>
+</ul>
+<p>All transactions start out categorized as small transactions. Depending on the amount of memory available for the LCR cache and the amount of memory consumed by LCRs belonging to a transaction, SQL Apply determines when to recategorize a transaction as a large transaction.</p>
+</div>
+</div>
+<a id="SBYDB4807"></a>
+<div class="props_rev_3"><a id="GUID-E3ADF4B7-F08A-4F2B-A1CD-FB897ECCF534"></a>
+<h4 id="SBYDB-GUID-E3ADF4B7-F08A-4F2B-A1CD-FB897ECCF534" class="sect4"><span class="enumeration_section">11.1.1.2</span> Pageout Considerations</h4>
+<div>
+<p>Pageouts occur in the context of SQL Apply when memory in the <a id="d23825e591" class="indexterm-anchor"></a><a id="d23825e595" class="indexterm-anchor"></a>LCR cache is exhausted and space needs to be released for SQL Apply to make progress.</p>
+<p>For example, assume the memory allocated to the LCR cache is 100 MB and SQL Apply encounters an <code class="codeph">INSERT</code> transaction to a table with a <code class="codeph">LONG</code> column of size 300 MB. In this case, the log-mining component pages out the first part of the <code class="codeph">LONG</code> data to read the later part of the column modification. In a well-tuned logical standby database, pageout activities occur occasionally and should not effect the overall throughput of the system.</p>
+<div class="infoboxnotealso" id="GUID-E3ADF4B7-F08A-4F2B-A1CD-FB897ECCF534__GUID-57EEDF29-F86F-4BB0-90EF-4B30CAC038A1">
+<p class="notep1">See Also:</p>
+<p>See <a href="manage_ls.htm#GUID-88211E8E-28BF-45AC-9230-F85B606D8987">Customizing a Logical Standby Database</a> for more information about how to identify problematic pageouts and perform corrective actions</p>
+</div>
+</div>
+</div>
+<a id="SBYDB4808"></a>
+<div class="props_rev_3"><a id="GUID-F0FDEEF3-B4EA-40F3-BF7B-2167D33D91C8"></a>
+<h4 id="SBYDB-GUID-F0FDEEF3-B4EA-40F3-BF7B-2167D33D91C8" class="sect4"><span class="enumeration_section">11.1.1.3</span> Restart Considerations</h4>
+<div>
+<p>Modifications made to the logical standby database do not become persistent until the commit record of the transaction is mined from the redo log files and applied to the logical standby database. Thus, every time SQL Apply is stopped, whether as a result of a user directive or because of a system failure, SQL Apply must go back and mine the earliest uncommitted transaction again.</p>
+<p>In cases where a transaction does little work but remains open for a long period of time, restarting SQL Apply from the start could be prohibitively costly because SQL Apply would have to mine a large number of archived redo log files again, just to read the redo data for a few uncommitted transactions. To mitigate this, SQL Apply periodically checkpoints old uncommitted data. The SCN at which the checkpoint is taken is reflected in the <code class="codeph">RESTART_SCN</code> column of <a id="d23825e704" class="indexterm-anchor"></a><a id="d23825e708" class="indexterm-anchor"></a><code class="codeph">V$LOGSTDBY_PROGRESS</code> view. Upon restarting, SQL Apply starts mining redo records that are generated at an SCN greater than value shown by the <code class="codeph">RESTART_SCN</code> column. Archived redo log files that are not needed for restart are automatically deleted by SQL Apply.</p>
+<p>Certain workloads, such as large DDL transactions, parallel DML statements (PDML)<a id="d23825e720" class="indexterm-anchor"></a><a id="d23825e724" class="indexterm-anchor"></a>, and direct-path loads, prevent the <code class="codeph">RESTART_SCN</code> from advancing for the duration of the workload.</p>
+</div>
+</div>
+<a id="SBYDB4809"></a>
+<div class="props_rev_3"><a id="GUID-97797605-D5BB-49B7-8E9D-D3E7C56A767C"></a>
+<h4 id="SBYDB-GUID-97797605-D5BB-49B7-8E9D-D3E7C56A767C" class="sect4"><span class="enumeration_section">11.1.1.4</span> DML Apply Considerations</h4>
+<div>
+<p>SQL Apply has the following characteristics when applying DML transactions that affect the <a id="d23825e812" class="indexterm-anchor"></a><a id="d23825e816" class="indexterm-anchor"></a><a id="d23825e820" class="indexterm-anchor"></a>throughput and latency on the logical standby database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Batch updates<a id="d23825e829" class="indexterm-anchor"></a><a id="d23825e833" class="indexterm-anchor"></a> or deletes done on the primary database, where a single statement results in multiple rows being modified, are applied as individual row modifications on the logical standby database. Thus, it is imperative for each maintained table to have a unique<a id="d23825e838" class="indexterm-anchor"></a><a id="d23825e842" class="indexterm-anchor"></a><a id="d23825e846" class="indexterm-anchor"></a> index or a primary key. See <a href="create_ls.htm#GUID-C238335E-8383-43F1-B5B1-709A2A619C30">Ensure Table Rows in the Primary Database Can Be Uniquely Identified</a> for more information.</p>
+</li>
+<li>
+<p><a id="d23825e857" class="indexterm-anchor"></a>Direct path inserts performed on the primary database are applied using a conventional <code class="codeph">INSERT</code> statement on the logical standby database.</p>
+</li>
+<li>
+<p><a id="d23825e867" class="indexterm-anchor"></a><a id="d23825e871" class="indexterm-anchor"></a>Parallel DML (PDML) transactions are not executed in parallel on the logical standby database.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="SBYDB4810"></a>
+<div class="props_rev_3"><a id="GUID-1BBCF0C2-E189-47EF-B7D1-805BF552E4DB"></a>
+<h4 id="SBYDB-GUID-1BBCF0C2-E189-47EF-B7D1-805BF552E4DB" class="sect4"><span class="enumeration_section">11.1.1.5</span> DDL Apply Considerations</h4>
+<div>
+<p>SQL Apply has the following characteristics when applying DDL transactions that affect the thr<a id="d23825e957" class="indexterm-anchor"></a><a id="d23825e961" class="indexterm-anchor"></a><a id="d23825e965" class="indexterm-anchor"></a>oughput and latency on the logical standby database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a id="d23825e973" class="indexterm-anchor"></a><a id="d23825e977" class="indexterm-anchor"></a>DDL transactions are applied serially on the logical standby database. Thus, DDL transactions applied concurrently on the primary database are applied one at a time on the logical standby database.</p>
+</li>
+<li>
+<p><a id="d23825e984" class="indexterm-anchor"></a><a id="d23825e988" class="indexterm-anchor"></a><code class="codeph">CREATE TABLE AS SELECT</code> (CTAS) statements are executed such that the DML activities (that are part of the CTAS statement) are suppressed on the logical standby database. The rows inserted in the newly created table as part of the CTAS statement are mined from the redo log files and applied to the logical standby database using <code class="codeph">INSERT</code> statements.</p>
+</li>
+<li>
+<p>SQL Apply reissues the DDL that was performed at the primary database, and ensures that DMLs that occur within the same transaction on the same object that is the target of the DDL operation are not replicated at the logical standby database. Thus, the following two cases cause the primary and standby sites to diverge from each other:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The DDL contains a non-literal value that is derived from the state at the primary database. An example of such a DDL is:</p>
+<pre dir="ltr">ALTER TABLE hr.employees ADD (start_date date default sysdate);
+</pre>
+<p>Because SQL Apply reissues the same DDL at the logical standby, the function <code class="codeph">sysdate()</code> is reevaluated at the logical standby. Thus, the column <code class="codeph">start_date</code> is created with a different default value than at the primary database.</p>
+</li>
+<li>
+<p>The DDL fires DML triggers defined on the target table. Since the triggered DMLs occur in the same transaction as the DDL, and operate on the table that is the target of the DDL, these triggered DMLs are not replicated at the logical standby.</p>
+<p>For example, assume you create a table as follows:</p>
+<pre dir="ltr"> create table HR.TEMP_EMPLOYEES (
+ emp_id       number primary key,
+ first_name   varchar2(64),
+ last_name    varchar2(64),
+ modify_date  timestamp);
+</pre>
+<p>Assume you then create a trigger on the table such that any time the table is updated the <code class="codeph">modify_date</code> is updated to reflect the time of change:</p>
+<pre dir="ltr"> CREATE OR REPLACE TRIGGER TRG_TEST_MOD_DT  BEFORE UPDATE ON HR.TEST_EMPLOYEES
+ REFERENCING  
+ NEW  AS NEW_ROW  FOR EACH ROW
+ BEGIN  
+ :NEW_ROW.MODIFY_DATE:= SYSTIMESTAMP;  
+ END;
+/
+</pre>
+<p>This table is maintained correctly under the usual DML/DDL workload. However if you add a column with the default value to the table, the <code class="codeph">ADD COLUMN</code> DDL fires this update trigger and changes the <code class="codeph">MODIFY_DATE</code> column of all rows in the table to a new timestamp. These changes to the <code class="codeph">MODIFY_DATE</code> column are not replicated at the logical standby database. Subsequent DMLs to the table stop SQL Apply because the <code class="codeph">MODIFY_DATE</code> column data recorded in the redo stream does not match the data that exists at the logical standby database.</p>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<a id="SBYDB4811"></a>
+<div class="props_rev_3"><a id="GUID-1F7593FA-8EDD-4DF2-8CE0-1EDCDAA81402"></a>
+<h4 id="SBYDB-GUID-1F7593FA-8EDD-4DF2-8CE0-1EDCDAA81402" class="sect4"><span class="enumeration_section">11.1.1.6</span> Password Verification Functions</h4>
+<div>
+<p>Password verification functions that check for the complexity of passwords must be created in the <code class="codeph">SYS</code> schema. Because SQL Apply does not replicate objects created in the <code class="codeph">SYS</code> schema, such verification functions are not replicated to the logical standby database. You must create the password verification function manually at the logical standby database, and associate it with the appropriate profiles.</p>
+</div>
+</div>
+</div>
+</div>
+<a id="SBYDB4812"></a>
+<div class="props_rev_3"><a id="GUID-572B9755-69F5-4BD7-9DFF-1F7EB1DE3771"></a>
+<h2 id="SBYDB-GUID-572B9755-69F5-4BD7-9DFF-1F7EB1DE3771" class="sect2"><span class="enumeration_section">11.2</span> Controlling User Access to Tables in a Logical Standby Database</h2>
+<div>
+<div class="section">
+<p>The SQL <code class="codeph">ALTER DATABASE GUARD</code> statement<a id="d23825e1194" class="indexterm-anchor"></a><a id="d23825e1198" class="indexterm-anchor"></a> controls user access to tables in a logical standby database. The database guard is set to <code class="codeph">ALL</code> by default on a logical standby database.</p>
+<p>The <code class="codeph">ALTER DATABASE GUARD</code> statement allows the following keywords:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">ALL</code></p>
+<p>Specify <code class="codeph">ALL</code> to prevent all users, other than <code class="codeph">SYS</code>, from making changes to any data in the logical standby database.</p>
+</li>
+<li>
+<p><code class="codeph">STANDBY</code></p>
+<p>Specify <code class="codeph">STANDBY</code> to prevent all users, other than <code class="codeph">SYS</code>, from making DML and DDL changes to any table or sequence being maintained through SQL Apply.</p>
+</li>
+<li>
+<p><code class="codeph">NONE</code></p>
+<p>Specify <code class="codeph">NONE</code> to use typical security for all data in the database.</p>
+</li>
+</ul>
+<p>For example, use the following statement to enable users to modify tables not maintained by SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE GUARD STANDBY;
+</pre>
+<p>Privileged users can temporarily turn the database guard off and on for the current session using the <code class="codeph">ALTER SESSION DISABLE GUARD</code> and <code class="codeph">ALTER SESSION ENABLE GUARD</code> statements, respectively. This statement replaces the <code class="codeph">DBMS_LOGSTDBY.GUARD_BYPASS</code> PL/SQL procedure that performed the same function in Oracle9i. The <code class="codeph">ALTER SESSION [ENABLE|DISABLE] GUARD</code> statement is useful when you want to temporarily disable the database guard to make changes to the database, as described in <a href="manage_ls.htm#GUID-43971CB9-3337-4575-B4EF-D591878982F1">Modifying a Logical Standby Database</a>.</p>
+<div class="infobox-note" id="GUID-572B9755-69F5-4BD7-9DFF-1F7EB1DE3771__GUID-4C32DDF1-5425-4CF7-9514-925B96119B02">
+<p class="notep1">Note:</p>
+<p>Do not let the primary and logical standby databases diverge while the database guard is disabled.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4813"></a>
+<div class="props_rev_3"><a id="GUID-D6636F76-CD66-49A8-B052-503991190FBF"></a>
+<h2 id="SBYDB-GUID-D6636F76-CD66-49A8-B052-503991190FBF" class="sect2"><span class="enumeration_section">11.3</span> Views Related to Managing and Monitoring a Logical Standby Database</h2>
+<div>
+<p>The following performance views monitor the behavior of SQL Apply maintaining a logical standby database. The following sections describe the key views that can be used to monitor a logical standby database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-BEF12BA7-9397-4156-9ED3-BAC7935D7D96">DBA_LOGSTDBY_EVENTS View</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-646D305C-21C3-4590-8A6B-B2D02F90E8F2">DBA_LOGSTDBY_LOG View</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-76033857-52EC-41B2-B130-CC9083F3FA99">V$DATAGUARD_STATS View</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-7E8E779A-E0EC-4C9D-8B77-1E80A60C077D">V$LOGSTDBY_PROCESS View</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-DAF00126-1FDA-4980-AD24-1360472ADB49">V$LOGSTDBY_PROGRESS View</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-9E8AFFE3-E4C2-46EB-A733-B48793DB4F1F">V$LOGSTDBY_STATE View</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-C72DA5B7-7FDD-46C8-9242-CD7D88DCDDB7">V$LOGSTDBY_STATS View</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-D6636F76-CD66-49A8-B052-503991190FBF__GUID-74814E29-064B-4083-8C3C-89EC7A8574AE">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN002" target="_blank" href="../REFRN/GUID-8865F65B-EF6D-44A5-B0A1-3179EFF0C36A.htm#REFRN002">Oracle Database Reference</a> for complete reference information about views</p>
+</div>
+</div>
+<a id="SBYDB4814"></a>
+<div class="props_rev_3"><a id="GUID-BEF12BA7-9397-4156-9ED3-BAC7935D7D96"></a>
+<h3 id="SBYDB-GUID-BEF12BA7-9397-4156-9ED3-BAC7935D7D96" class="sect3"><span class="enumeration_section">11.3.1</span> DBA_LOGSTDBY_EVENTS View</h3>
+<div>
+<div class="section">
+<p>The <code class="codeph">DBA_LOGSTDBY_EVENTS</code><a id="d23825e1457" class="indexterm-anchor"></a><a id="d23825e1459" class="indexterm-anchor"></a> view records interesting events that occurred during the operation of SQL Apply. By default, the view records the most recent 10,000 events. However, you can change the number of recorded events by calling <code class="codeph">DBMS_LOGSTDBY.APPLY_SET()</code> PL/SQL procedure. If SQL Apply stops unexpectedly, the reason for the problem is also recorded in this view.</p>
+<div class="infobox-note" id="GUID-BEF12BA7-9397-4156-9ED3-BAC7935D7D96__GUID-C576E399-F655-419E-BEB6-A3D56BAA3546">
+<p class="notep1">Note:</p>
+<p>Errors that cause SQL Apply to stop are recorded in the events table These events are put into the <code class="codeph">ALERT.LOG</code> file as well, with the <code class="codeph">LOGSTDBY</code> keyword included in the text. When querying the view, select the columns in order by <code class="codeph">EVENT_TIME_STAMP</code>, <code class="codeph">COMMIT_SCN</code>, and <code class="codeph">CURRENT_SCN</code> to ensure the desired ordering of events.</p>
+</div>
+<p>The view can be customized to contain other information, such as which DDL transactions were applied and which were skipped. For example:</p>
+<pre dir="ltr">SQL&gt; ALTER SESSION SET NLS_DATE_FORMAT  = &#39;DD-MON-YY HH24:MI:SS&#39;;
+Session altered.
+SQL&gt; COLUMN STATUS FORMAT A60
+SQL&gt; SELECT EVENT_TIME, STATUS, EVENT FROM DBA_LOGSTDBY_EVENTS -
+&gt; ORDER BY EVENT_TIMESTAMP, COMMIT_SCN, CURRENT_SCN;
+
+EVENT_TIME         STATUS
+------------------------------------------------------------------------------
+EVENT
+-------------------------------------------------------------------------------
+23-JUL-02 18:20:12 ORA-16111: log mining and apply setting up
+23-JUL-02 18:25:12 ORA-16128: User initiated shut down successfully completed
+23-JUL-02 18:27:12 ORA-16112: log mining and apply stopping
+23-JUL-02 18:55:12 ORA-16128: User initiated shut down successfully completed
+23-JUL-02 18:57:09 ORA-16111: log mining and apply setting up
+23-JUL-02 20:21:47 ORA-16204: DDL successfully applied
+create table hr.test_emp (empno number, ename varchar2(64))
+23-JUL-02 20:22:55 ORA-16205: DDL skipped due to skip setting 
+create database link link_to_boston connect to system identified by change_on_inst
+7 rows selected.
+</pre>
+<p>This query shows that SQL Apply was started and stopped a few times. It also shows what DDL was applied and skipped.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4815"></a>
+<div class="props_rev_3"><a id="GUID-646D305C-21C3-4590-8A6B-B2D02F90E8F2"></a>
+<h3 id="SBYDB-GUID-646D305C-21C3-4590-8A6B-B2D02F90E8F2" class="sect3"><span class="enumeration_section">11.3.2</span> DBA_LOGSTDBY_LOG View</h3>
+<div>
+<div class="section">
+<p>The <code class="codeph">DBA_LOGSTDBY_LOG</code><a id="d23825e1564" class="indexterm-anchor"></a><a id="d23825e1566" class="indexterm-anchor"></a> view provides dynamic information about archived logs being processed by SQL Apply.</p>
+<p>For example:</p>
+<pre dir="ltr">SQL&gt; COLUMN DICT_BEGIN FORMAT A10;
+SQL&gt; SET NUMF 99999999;
+SQL&gt; SELECT FILE_NAME, SEQUENCE# AS SEQ#, FIRST_CHANGE# AS F_SCN#, -
+&gt;  NEXT_CHANGE# AS N_SCN#, TIMESTAMP, -
+&gt;  DICT_BEGIN AS BEG, DICT_END AS END, -
+&gt;  THREAD# AS THR#, APPLIED FROM DBA_LOGSTDBY_LOG -
+&gt;  ORDER BY SEQUENCE#;
+
+FILE_NAME                 SEQ# F_SCN    N_SCN TIMESTAM BEG END THR# APPLIED
+------------------------- ---- ------- ------- -------- --- --- --- ---------
+/oracle/dbs/hq_nyc_2.log  2     101579  101588 11:02:58 NO  NO  1     YES
+/oracle/dbs/hq_nyc_3.log  3     101588  142065 11:02:02 NO  NO  1     YES
+/oracle/dbs/hq_nyc_4.log  4     142065  142307 11:02:10 NO  NO  1     YES
+/oracle/dbs/hq_nyc_5.log  5     142307  142739 11:02:48 YES YES 1     YES
+/oracle/dbs/hq_nyc_6.log  6     142739  143973 12:02:10 NO  NO  1     YES
+/oracle/dbs/hq_nyc_7.log  7     143973  144042 01:02:11 NO  NO  1     YES
+/oracle/dbs/hq_nyc_8.log  8     144042  144051 01:02:01 NO  NO  1     YES
+/oracle/dbs/hq_nyc_9.log  9     144051  144054 01:02:16 NO  NO  1     YES
+/oracle/dbs/hq_nyc_10.log 10    144054  144057 01:02:21 NO  NO  1     YES
+/oracle/dbs/hq_nyc_11.log 11    144057  144060 01:02:26 NO  NO  1  CURRENT
+/oracle/dbs/hq_nyc_12.log 12    144060  144089 01:02:30 NO  NO  1  CURRENT
+/oracle/dbs/hq_nyc_13.log 13    144089  144147 01:02:41 NO  NO  1       NO
+</pre>
+<p>The <code class="codeph">YES</code> entries in the <code class="codeph">BEG</code> and <code class="codeph">END</code> columns indicate that a LogMiner dictionary build starts at log file sequence number 5. The most recent archived redo log file is sequence number 13, and it was received at the logical standby database at 01:02:41.The <code class="codeph">APPLIED</code> column indicates that SQL Apply has applied all redo before SCN 144057. Since transactions can span multiple archived log files, multiple archived log files may show the value <code class="codeph">CURRENT</code> in the <code class="codeph">APPLIED</code> column.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4816"></a>
+<div class="props_rev_3"><a id="GUID-76033857-52EC-41B2-B130-CC9083F3FA99"></a>
+<h3 id="SBYDB-GUID-76033857-52EC-41B2-B130-CC9083F3FA99" class="sect3"><span class="enumeration_section">11.3.3</span> V$DATAGUARD_STATS View</h3>
+<div>
+<div class="section">
+<p>This view provides information related to the failover characteristics of the logical standby database, including:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The time to failover (<code class="codeph">apply finish time</code>)</p>
+</li>
+<li>
+<p>How current is the committed data in the logical standby database (<code class="codeph">apply lag</code>)</p>
+</li>
+<li>
+<p>What the potential data loss will be in the event of a disaster (<code class="codeph">transport lag</code>).</p>
+</li>
+</ul>
+<p>For example:</p>
+<pre dir="ltr">SQL&gt; COL NAME FORMAT A20
+SQL&gt; COL VALUE FORMAT A12
+SQL&gt; COL UNIT FORMAT A30
+SQL&gt; SELECT NAME, VALUE, UNIT FROM V$DATAGUARD_STATS;
+ 
+NAME                 VALUE        UNIT
+-------------------- ------------ ------------------------------
+apply finish time    +00 00:00:00 day(2) to second(1) interval
+apply lag            +00 00:00:00 day(2) to second(0) interval
+transport lag        +00 00:00:00 day(2) to second(0) interval
+</pre>
+<p>This output is from a logical standby database that has received and applied all redo generated from the primary database.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4817"></a>
+<div class="props_rev_3"><a id="GUID-7E8E779A-E0EC-4C9D-8B77-1E80A60C077D"></a>
+<h3 id="SBYDB-GUID-7E8E779A-E0EC-4C9D-8B77-1E80A60C077D" class="sect3"><span class="enumeration_section">11.3.4</span> V$LOGSTDBY_PROCESS View</h3>
+<div>
+<div class="section">
+<p>This view provides information about the current state of the various processes involved with SQL Apply, including;</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Identifying information (<code class="codeph">sid</code> | <code class="codeph">serial#</code> | <code class="codeph">spid</code>)</p>
+</li>
+<li>
+<p>SQL Apply process: <code class="codeph">COORDINATOR</code>, <code class="codeph">READER</code>, <code class="codeph">BUILDER</code>, <code class="codeph">PREPARER</code>, <code class="codeph">ANALYZER</code>, or <code class="codeph">APPLIER</code> (<code class="codeph">type</code>)</p>
+</li>
+<li>
+<p>Status of the process&#39;s current activity (<code class="codeph">status_code</code> | <code class="codeph">status</code>)</p>
+</li>
+<li>
+<p>Highest redo record processed by this process (<code class="codeph">high_scn</code>)</p>
+</li>
+</ul>
+<p>For example:</p>
+<pre dir="ltr">SQL&gt; COLUMN SERIAL# FORMAT 9999
+SQL&gt; COLUMN SID FORMAT 9999
+SQL&gt; SELECT SID, SERIAL#, SPID, TYPE, HIGH_SCN FROM V$LOGSTDBY_PROCESS;
+ 
+  SID   SERIAL#   SPID         TYPE            HIGH_SCN
+  ----- -------   ----------- ---------------- ----------
+   48        6    11074        COORDINATOR     7178242899
+   56       56    10858        READER          7178243497
+   46        1    10860        BUILDER         7178242901
+   45        1    10862        PREPARER        7178243295
+   37        1    10864        ANALYZER        7178242900
+   36        1    10866        APPLIER         7178239467
+   35        3    10868        APPLIER         7178239463
+   34        7    10870        APPLIER         7178239461
+   33        1    10872        APPLIER         7178239472
+ 
+9 rows selected.
+</pre>
+<p>The <code class="codeph">HIGH_SCN</code> column shows that the reader process is ahead of all other processes, and the <code class="codeph">PREPARER</code> and <code class="codeph">BUILDER</code> process ahead of the rest.</p>
+<pre dir="ltr">SQL&gt; COLUMN STATUS FORMAT A40
+SQL&gt; SELECT TYPE, STATUS_CODE, STATUS FROM V$LOGSTDBY_PROCESS<a id="d23825e1860" class="indexterm-anchor"></a>;
+ 
+TYPE             STATUS_CODE STATUS
+---------------- ----------- -----------------------------------------
+COORDINATOR            16117 ORA-16117: processing
+READER                 16127 ORA-16127: stalled waiting for additional
+                             transactions to be applied
+BUILDER                16116 ORA-16116: no work available
+PREPARER               16116 ORA-16117: processing
+ANALYZER               16120 ORA-16120: dependencies being computed for
+                             transaction at SCN 0x0001.abdb440a
+APPLIER                16124 ORA-16124: transaction 1 13 1427 is waiting
+                             on another transaction
+APPLIER                16121 ORA-16121: applying transaction with commit
+                             SCN 0x0001.abdb4390
+APPLIER                16123 ORA-16123: transaction 1 23  1231 is waiting
+                             for commit approval
+APPLIER                16116 ORA-16116: no work available
+</pre>
+<p>The output shows a snapshot of SQL Apply running. On the mining side, the <code class="codeph">READER</code> process is waiting for additional memory to become available before it can read more, the <code class="codeph">PREPARER</code> process is processing redo records, and the <code class="codeph">BUILDER</code> process has no work available. On the apply side, the <code class="codeph">COORDINATOR</code> is assigning more transactions to <code class="codeph">APPLIER</code> processes, the <code class="codeph">ANALYZER</code> is computing dependencies at SCN 7178241034, one <code class="codeph">APPLIER</code> has no work available, while two have outstanding dependencies that are not yet satisfied.</p>
+<div class="infoboxnotealso" id="GUID-7E8E779A-E0EC-4C9D-8B77-1E80A60C077D__GUID-4A8978F2-5224-4AC8-9A29-121AB654019B">
+<p class="notep1">See Also:</p>
+<p><a href="manage_ls.htm#GUID-5BD79860-B3B8-4E0D-9F55-2E9918B93292">Monitoring SQL Apply Progress</a> for example output</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4818"></a>
+<div class="props_rev_3"><a id="GUID-DAF00126-1FDA-4980-AD24-1360472ADB49"></a>
+<h3 id="SBYDB-GUID-DAF00126-1FDA-4980-AD24-1360472ADB49" class="sect3"><span class="enumeration_section">11.3.5</span> V$LOGSTDBY_PROGRESS View</h3>
+<div>
+<div class="section">
+<p>This view provides detailed information regarding progress made by SQL Apply, including:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>SCN and time at which all transactions that have been committed on the primary database have been applied to the logical standby database (<code class="codeph">applied_scn</code>, <code class="codeph">applied_time</code>)</p>
+</li>
+<li>
+<p>SCN and time at which SQL Apply would begin reading redo records (<code class="codeph">restart_scn</code>, <code class="codeph">restart_time</code>) on restart</p>
+</li>
+<li>
+<p>SCN and time of the latest redo record received on the logical standby database (<code class="codeph">latest_scn</code>, <code class="codeph">latest_time</code>)</p>
+</li>
+<li>
+<p>SCN and time of the latest record processed by the <code class="codeph">BUILDER</code> process (<code class="codeph">mining_scn</code>, <code class="codeph">mining_time</code>)</p>
+</li>
+</ul>
+<p>For example:</p>
+<pre dir="ltr">SQL&gt; SELECT APPLIED_SCN, LATEST_SCN, MINING_SCN, RESTART_SCN -
+&gt; FROM V$LOGSTDBY_PROGRESS;
+ 
+APPLIED_SCN  LATEST_SCN MINING_SCN RESTART_SCN
+----------- ----------- ---------- -----------
+ 7178240496  7178240507 7178240507  7178219805
+</pre>
+<p>According to the output:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>SQL Apply has applied all transactions committed on or before SCN of 7178240496</p>
+</li>
+<li>
+<p>The latest redo record received at the logical standby database was generated at SCN 7178240507</p>
+</li>
+<li>
+<p>The mining component has processed all redo records generate on or before SCN 7178240507</p>
+</li>
+<li>
+<p>If SQL Apply stops and restarts for any reason, it will start mining redo records generated on or after SCN 7178219805</p>
+</li>
+</ul>
+<pre dir="ltr">SQL&gt; ALTER SESSION SET NLS_DATE_FORMAT=&#39;yy-mm-dd hh24:mi:ss&#39;;
+Session altered
+ 
+SQL&gt; SELECT APPLIED_TIME, LATEST_TIME, MINING_TIME, RESTART_TIME - 
+&gt; FROM V$LOGSTDBY_PROGRESS;
+ 
+APPLIED_TIME      LATEST_TIME       MINING_TIME       RESTART_TIME     
+----------------- ----------------- ----------------- -----------------
+05-05-12 10:38:21 05-05-12 10:41:53 05-05-12 10:41:21 05-05-12 10:09:30
+</pre>
+<p>According to the output:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>SQL Apply has applied all transactions committed on or before the time 05-05-12 10:38:21 (<code class="codeph">APPLIED_TIME</code>)</p>
+</li>
+<li>
+<p>The last redo was generated at time 05-05-12 10:41:53 at the primary database (<code class="codeph">LATEST_TIME</code>)</p>
+</li>
+<li>
+<p>The mining engine has processed all redo records generated on or before 05-05-12 10:41:21 (<code class="codeph">MINING_TIME</code>)</p>
+</li>
+<li>
+<p>In the event of a restart, SQL Apply will start mining redo records generated after the time 05-05-12 10:09:30</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-DAF00126-1FDA-4980-AD24-1360472ADB49__GUID-35C92B00-0351-4799-9BBF-566D083AFF87">
+<p class="notep1">See Also:</p>
+<p><a href="manage_ls.htm#GUID-5BD79860-B3B8-4E0D-9F55-2E9918B93292">Monitoring SQL Apply Progress</a> for example output</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4819"></a>
+<div class="props_rev_3"><a id="GUID-9E8AFFE3-E4C2-46EB-A733-B48793DB4F1F"></a>
+<h3 id="SBYDB-GUID-9E8AFFE3-E4C2-46EB-A733-B48793DB4F1F" class="sect3"><span class="enumeration_section">11.3.6</span> V$LOGSTDBY_STATE View</h3>
+<div>
+<div class="section">
+<p>This view provides a synopsis of the current state of SQL Apply, including:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The DBID of the primary database (<code class="codeph">primary_dbid</code>).</p>
+</li>
+<li>
+<p>The LogMiner session ID allocated to SQL Apply (<code class="codeph">session_id</code>).</p>
+</li>
+<li>
+<p>Whether or not SQL Apply is applying in real time (<code class="codeph">realtime_apply</code>).</p>
+</li>
+</ul>
+<p>For example:</p>
+<pre dir="ltr">SQL&gt; COLUMN REALTIME_APPLY FORMAT a15
+SQL&gt; COLUMN STATE FORMAT a16
+SQL&gt; SELECT * FROM V$LOGSTDBY_STATE;
+
+PRIMARY_DBID SESSION_ID REALTIME_APPLY  STATE
+------------ ---------- --------------- ----------------
+  1562626987          1 Y               APPLYING
+</pre>
+<p>The output shows that SQL Apply is running in the real-time apply mode and is currently applying redo data received from the primary database, the primary database&#39;s <code class="codeph">DBID</code> is 1562626987 and the LogMiner session identifier associated the SQL Apply session is 1.</p>
+<div class="infoboxnotealso" id="GUID-9E8AFFE3-E4C2-46EB-A733-B48793DB4F1F__GUID-51C3E9CB-A493-41B8-B680-721F9D310CC9">
+<p class="notep1">See Also:</p>
+<p><a href="manage_ls.htm#GUID-5BD79860-B3B8-4E0D-9F55-2E9918B93292">Monitoring SQL Apply Progress</a> for example output</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4820"></a>
+<div class="props_rev_3"><a id="GUID-C72DA5B7-7FDD-46C8-9242-CD7D88DCDDB7"></a>
+<h3 id="SBYDB-GUID-C72DA5B7-7FDD-46C8-9242-CD7D88DCDDB7" class="sect3"><span class="enumeration_section">11.3.7</span> V$LOGSTDBY_STATS View</h3>
+<div>
+<div class="section">
+<p>The <code class="codeph">V$LOGSTDBY_STATS</code> view displays statistics, current state, and status information related to SQL Apply. No rows are returned from this view when SQL Apply is not running. This view is only meaningful in the context of a logical standby database.</p>
+<p>For example:</p>
+<pre dir="ltr"> SQL&gt; ALTER SESSION SET NLS_DATE_FORMAT=&#39;dd-mm-yyyy hh24:mi:ss&#39;;
+ Session altered
+
+ SQL&gt; SELECT SUBSTR(name, 1, 40) AS NAME, SUBSTR(value,1,32) AS VALUE FROM V$LOGSTDBY_STATS;
+ 
+ NAME                                     VALUE
+ ---------------------------------------- --------------------------------
+ logminer session id                      1
+ number of preparers                      1
+ number of appliers                       5
+ server processes in use                  9
+ maximum SGA for LCR cache (MB)           30
+ maximum events recorded                  10000
+ preserve commit order                    TRUE
+ transaction consistency                  FULL
+ record skipped errors                    Y
+ record skipped DDLs                      Y
+ record applied DDLs                      N
+ record unsupported operations            N
+ realtime apply                           Y
+ apply delay (minutes)                    0
+ coordinator state                        APPLYING
+ coordinator startup time                 19-06-2007 09:55:47
+ coordinator uptime (seconds)             3593
+ txns received from logminer              56
+ txns assigned to apply                   23
+ txns applied                             22
+ txns discarded during restart            33
+ large txns waiting to be assigned        2
+ rolled back txns mined                   4
+ DDL txns mined                           40
+ CTAS txns mined                          0
+ bytes of redo mined                      60164040
+ bytes paged out                          0
+ pageout time (seconds)                   0
+ bytes checkpointed                       4845
+ checkpoint time (seconds)                0
+ system idle time (seconds)               2921
+ standby redo logs mined                  0
+ archived logs mined                      5
+ gap fetched logs mined                   0
+ standby redo log reuse detected          1
+ logfile open failures                    0
+ current logfile wait (seconds)           0
+ total logfile wait (seconds)             2910
+ thread enable mined                      0
+ thread disable mined                     0
+ .
+ 40 rows selected. 
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="SBYDB4821"></a>
+<div class="props_rev_3"><a id="GUID-B0181E97-7A79-4E92-9B84-42DF8AF24FE0"></a>
+<h2 id="SBYDB-GUID-B0181E97-7A79-4E92-9B84-42DF8AF24FE0" class="sect2"><span class="enumeration_section">11.4</span> Monitoring a Logical Standby Database</h2>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-5BD79860-B3B8-4E0D-9F55-2E9918B93292">Monitoring SQL Apply Progress</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-893B304C-123F-4DCA-ACA2-96BB74E7A8A6">Automatic Deletion of Log Files</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB5043"></a><a id="SBYDB5044"></a><a id="SBYDB5045"></a><a id="SBYDB5046"></a><a id="SBYDB5047"></a><a id="SBYDB5048"></a><a id="SBYDB5049"></a><a id="SBYDB4822"></a>
+<div class="props_rev_3"><a id="GUID-5BD79860-B3B8-4E0D-9F55-2E9918B93292"></a>
+<h3 id="SBYDB-GUID-5BD79860-B3B8-4E0D-9F55-2E9918B93292" class="sect3"><span class="enumeration_section">11.4.1</span> Monitoring SQL Apply Progress</h3>
+<div>
+<p><a id="d23825e2453" class="indexterm-anchor"></a><a id="d23825e2457" class="indexterm-anchor"></a>SQL Apply can be in any of six states of progress: initializing SQL Apply, waiting for dictionary logs, loading the LogMiner dictionary, applying (redo data), waiting for an archive gap to be resolved, and idle. <a href="manage_ls.htm#GUID-5BD79860-B3B8-4E0D-9F55-2E9918B93292__CHDJFHAG">Figure 11-2</a> shows the flow of these states.</p>
+<div class="figure" id="GUID-5BD79860-B3B8-4E0D-9F55-2E9918B93292__CHDJFHAG">
+<p class="titleinfigure">Figure 11-2 Progress States During SQL Apply Processing</p>
+<img width="242" height="264" src="img/GUID-6CF2074E-98FD-4E3F-BF6F-1A2256B1E096-default.gif" alt="Description of Figure 11-2 follows" title="Description of Figure 11-2 follows"/><br/>
+<a href="img_text/GUID-6CF2074E-98FD-4E3F-BF6F-1A2256B1E096-print.htm">Description of &#34;Figure 11-2 Progress States During SQL Apply Processing&#34;</a></div>
+<!-- class="figure" -->
+<p>The following subsections describe each state in more detail.</p>
+<div class="section">
+<p class="subhead3">Initializing State</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>When you start SQL Apply by issuing an <code class="codeph">ALTER DATABASE START LOGICAL STANDBY APPLY</code> statement, it goes into the <span class="italic">initializing</span> state.</p>
+<p>To determine the current state of SQL Apply, query the <code class="codeph">V$LOGSTDBY_STATE</code> view<a id="d23825e2488" class="indexterm-anchor"></a>. For example:</p>
+<pre dir="ltr">SQL&gt; SELECT SESSION_ID, STATE FROM V$LOGSTDBY_STATE;
+
+SESSION_ID    STATE
+----------    -------------
+1             INITIALIZING
+</pre>
+<p>The <code class="codeph">SESSION_ID</code> column identifies the persistent LogMiner session created by SQL Apply to mine the archived redo log files generated by the primary database.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Waiting for Dictionary Logs</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The first time the SQL Apply is started, it needs to load the LogMiner dictionary captured in the redo log files. SQL Apply stays in the <a id="d23825e2504" class="indexterm-anchor"></a><code class="codeph">WAITING FOR DICTIONARY LOGS</code> state until it has received all redo data required to load the LogMiner dictionary.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Loading Dictionary State</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This <a id="d23825e2515" class="indexterm-anchor"></a><a id="d23825e2517" class="indexterm-anchor"></a><span class="italic">loading dictionary</span> state can persist for a while. Loading the LogMiner dictionary on a large database can take a long time. Querying the <code class="codeph">V$LOGSTDBY_STATE</code> view returns the following output when loading the dictionary:</p>
+<pre dir="ltr">SQL&gt; SELECT SESSION_ID, STATE FROM V$LOGSTDBY_STATE;
+
+SESSION_ID    STATE
+----------    ------------------
+1             LOADING DICTIONARY
+</pre>
+<p>Only the <code class="codeph">COORDINATOR</code> process and the mining processes are spawned until the LogMiner dictionary is fully loaded. Therefore, if you query the <code class="codeph">V$LOGSTDBY_PROCESS</code><a id="d23825e2538" class="indexterm-anchor"></a> at this point, you do not see any of the <code class="codeph">APPLIER</code> processes. For example:</p>
+<pre dir="ltr">SQL&gt; SELECT SID, SERIAL#, SPID, TYPE FROM V$LOGSTDBY_PROCESS;
+
+SID     SERIAL#     SPID       TYPE
+------  ---------   ---------  ---------------------
+47      3           11438      COORDINATOR
+50      7           11334      READER
+45      1           11336      BUILDER
+44      2           11338      PREPARER
+43      2           11340      PREPARER
+</pre>
+<p>You can get more detailed information about the progress in loading the dictionary by querying the <code class="codeph">V$LOGMNR_DICTIONARY_LOAD</code> view. The dictionary load happens in three phases:</p>
+<ol>
+<li>
+<p>The relevant archived redo log files or standby redo logs files are mined to gather the redo changes relevant to load the LogMiner dictionary.</p>
+</li>
+<li>
+<p>The changes are processed and loaded in staging tables inside the database.</p>
+</li>
+<li>
+<p>The LogMiner dictionary tables are loaded by issuing a series of DDL statements.</p>
+</li>
+</ol>
+<p>For example:</p>
+<pre dir="ltr">SQL&gt; SELECT PERCENT_DONE, COMMAND -
+&gt; FROM V$LOGMNR_DICTIONARY_LOAD -
+&gt; WHERE SESSION_ID = (SELECT SESSION_ID FROM V$LOGSTDBY_STATE);
+
+PERCENT_DONE     COMMAND
+-------------    -------------------------------
+40               alter table SYSTEM.LOGMNR_CCOL$ exchange partition 
+                 P101 with table SYS.LOGMNRLT_101_CCOL$ excluding
+                 indexes without validation
+</pre>
+<p>If the <code class="codeph">PERCENT_DONE</code> or the <code class="codeph">COMMAND</code> column does not change for a long time, query the <code class="codeph">V$SESSION_LONGOPS</code> view to monitor the progress of the DDL transaction in question.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Applying State</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>In this state, SQL Apply has successfully loaded the initial snapshot of the LogMiner dictionary, and is currently applying redo data to the logical standby database.</p>
+<p>For detailed information about the SQL Apply progress, query the <code class="codeph">V$LOGSTDBY_PROGRESS</code> view:</p>
+<pre dir="ltr">SQL&gt; ALTER SESSION SET NLS_DATE_FORMAT = &#39;DD-MON-YYYY HH24:MI:SS&#39;;
+SQL&gt; SELECT APPLIED_TIME, APPLIED_SCN, MINING_TIME, MINING_SCN -
+&gt; FROM V$LOGSTDBY_PROGRESS;
+
+APPLIED_TIME            APPLIED_SCN   MINING_TIME           MINING_SCN
+--------------------    -----------   --------------------  -----------
+10-JAN-2005 12:00:05    346791023     10-JAN-2005 12:10:05  3468810134
+</pre>
+<p>All committed transactions seen at or before <code class="codeph">APPLIED_SCN</code> (or <code class="codeph">APPLIED_TIME</code>) on the primary database have been applied to the logical standby database. The mining engine has processed all redo records generated at or before <code class="codeph">MINING_SCN</code> (and <code class="codeph">MINING_TIME</code>) on the primary database. At steady state, the value of <code class="codeph">MINING_SCN</code> (and <code class="codeph">MINING_TIME</code>) is always ahead of <code class="codeph">APPLIED_SCN</code> (and <code class="codeph">APPLIED_TIME</code>).</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Waiting On Gap State</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This state occurs when SQL Apply has mined and applied all available redo records, and is waiting for a new log file (or a missing log file) to be archived by the RFS process.</p>
+<pre dir="ltr">SQL&gt; SELECT STATUS FROM V$LOGSTDBY_PROCESS WHERE TYPE = &#39;READER&#39;;
+
+STATUS
+------------------------------------------------------------------------
+ORA-16240: waiting for log file (thread# 1, sequence# 99)
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Idle State</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>SQL Apply enters this state once it has applied all redo generated by the primary database.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB00810"></a>
+<div class="props_rev_3"><a id="GUID-893B304C-123F-4DCA-ACA2-96BB74E7A8A6"></a>
+<h3 id="SBYDB-GUID-893B304C-123F-4DCA-ACA2-96BB74E7A8A6" class="sect3"><span class="enumeration_section">11.4.2</span> Automatic Deletion of Log Files</h3>
+<div>
+<p>Foreign archived logs contain redo that was shipped from the primary database. There are two ways to store foreign archive logs:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In the fast recovery area</p>
+</li>
+<li>
+<p>In a directory outside of the fast recovery area</p>
+</li>
+</ul>
+<p>Foreign archived logs stored in the fast recovery area are always managed by SQL Apply. After all redo records contained in the log have been applied at the logical standby database, they are retained for the time period specified by the <code class="codeph">DB_FLASHBACK_RETENTION_TARGET</code> parameter (or for 1440 minutes if <code class="codeph">DB_FLASHBACK_RETENTION_TARGET</code> is not specified). You cannot override automatic management of foreign archived logs that are stored in the fast recovery area.</p>
+<p>Foreign archived logs that are not stored in fast recovery area are by default managed by SQL Apply. Under automatic management, foreign archived logs that are not stored in the fast recovery area are retained for the time period specified by the <code class="codeph">LOG_AUTO_DEL_RETENTION_TARGET</code> parameter once all redo records contained in the log have been applied at the logical standby database. You can override automatic management of foreign archived logs not stored in fast recovery area by executing the following PL/SQL procedure:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;LOG_AUTO_DELETE&#39;, &#39;FALSE&#39;);
+</pre>
+<div class="infobox-note" id="GUID-893B304C-123F-4DCA-ACA2-96BB74E7A8A6__GUID-39B195C4-D36B-40ED-BEE7-5F55692F1972">
+<p class="notep1">Note:</p>
+<p>Use the <code class="codeph">DBMS_LOGTSDBY.APPLY_SET</code> procedure to set this parameter. If you do not specify <code class="codeph">LOG_AUTO_DEL_RETENTION_TARGET</code> explicitly, it defaults to <code class="codeph">DB_FLASHBACK_RETENTION_TARGET</code> set in the logical standby database, or to 1440 minutes in case <code class="codeph">DB_FLASHBACK_RETENTION_TARGET</code> is not set.</p>
+</div>
+<p>If you are overriding the default automatic log deletion capability, periodically perform the following steps to identify and delete archived redo log files that are no longer needed by SQL Apply:</p>
+<ol>
+<li>
+<p>To purge the logical standby session of metadata that is no longer needed, enter the following PL/SQL statement:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.PURGE_SESSION;
+</pre>
+<p>This statement also updates the <code class="codeph">DBA_LOGMNR_PURGED_LOG</code> view that displays the archived redo log files that are no longer needed.</p>
+</li>
+<li>
+<p>Query the <code class="codeph">DBA_LOGMNR_PURGED_LOG</code> view to list the archived redo log files that can be removed:</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM DBA_LOGMNR_PURGED_LOG;
+
+   FILE_NAME
+   ------------------------------------
+   /boston/arc_dest/arc_1_40_509538672.log
+   /boston/arc_dest/arc_1_41_509538672.log
+   /boston/arc_dest/arc_1_42_509538672.log
+   /boston/arc_dest/arc_1_43_509538672.log
+   /boston/arc_dest/arc_1_44_509538672.log
+   /boston/arc_dest/arc_1_45_509538672.log
+   /boston/arc_dest/arc_1_46_509538672.log
+   /boston/arc_dest/arc_1_47_509538672.log
+</pre></li>
+<li>
+<p>Use an operating system-specific command to delete the archived redo log files listed by the query.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="SBYDB4823"></a>
+<div class="props_rev_3"><a id="GUID-88211E8E-28BF-45AC-9230-F85B606D8987"></a>
+<h2 id="SBYDB-GUID-88211E8E-28BF-45AC-9230-F85B606D8987" class="sect2"><span class="enumeration_section">11.5</span> Customizing a Logical Standby Database</h2>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-D6EEF87A-211C-476C-9CBC-126858F7026A">Customizing Logging of Events in the DBA_LOGSTDBY_EVENTS View</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-B976F237-1888-46D3-A901-F28FE362ACBC">Using DBMS_LOGSTDBY.SKIP to Prevent Changes to Specific Schema Objects</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-28EB46A0-696D-426E-B596-225443867604">Setting up a Skip Handler for a DDL Statement</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-43971CB9-3337-4575-B4EF-D591878982F1">Modifying a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-DD88E3D6-D6DB-4175-BB59-F048B9A87BAA">Adding or Re-Creating Tables On a Logical Standby Database</a></p>
+<div class="infoboxnotealso" id="GUID-88211E8E-28BF-45AC-9230-F85B606D8987__GUID-C5BD391E-AA41-4485-9BB7-1F66197DC6BF">
+<p class="notep1">See Also:</p>
+<p>The <code class="codeph">DBMS_LOGSTDBY</code> package in <a class="olink ARPLS363" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS363"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a></p>
+</div>
+</li>
+</ul>
+</div>
+<a id="SBYDB5466"></a><a id="SBYDB5467"></a><a id="SBYDB4824"></a>
+<div class="props_rev_3"><a id="GUID-D6EEF87A-211C-476C-9CBC-126858F7026A"></a>
+<h3 id="SBYDB-GUID-D6EEF87A-211C-476C-9CBC-126858F7026A" class="sect3"><span class="enumeration_section">11.5.1</span> Customizing Logging of Events in the DBA_LOGSTDBY_EVENTS View</h3>
+<div>
+<div class="section">
+<p>The <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view can be thought of as a circular log containing the most recent interesting events that occurred in the context of SQL Apply. By default the last 10,000 events are remembered in the event view. You can change the number of events logged by invoking the <code class="codeph">DBMS_LOGSTDBY.APPLY_SET</code> procedure. For example, to ensure that the last 100,000 events are recorded, you can issue the following statement:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET (&#39;MAX_EVENTS_RECORDED&#39;, &#39;100000&#39;);
+</pre>
+<p>Errors that cause SQL Apply to stop are always recorded in the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view (unless there is insufficient space in the <code class="codeph">SYSTEM</code> tablespace). These events are always put into the alert file as well, with the keyword <code class="codeph">LOGSTDBY</code> included in the text. When querying the view, select the columns in order by <code class="codeph">EVENT_TIME</code>, <code class="codeph">COMMIT_SCN</code>, and <code class="codeph">CURRENT_SCN</code>. This ordering ensures a shutdown failure appears last in the view.</p>
+<p>The following examples show <code class="codeph">DBMS_LOGSTDBY</code> subprograms that specify events to be recorded in the view.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Example 1: Determining if DDL Statements Have Been Applied</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>For example, to record applied DDL transactions to the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view, issue the following statement:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET (&#39;RECORD_APPLIED_DDL&#39;, &#39;TRUE&#39;);
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Example 2: Checking the DBA_LOGSTDBY_EVENTS View for Unsupported Operations</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>To capture information about transactions running on the primary database that are not supported by a logical standby database, issue the following statements:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;SQL&gt; EXEC DBMS_LOGSTDBY.APPLY_SET(&#39;RECORD_UNSUPPORTED_OPERATIONS&#39;, &#39;TRUE&#39;);SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE; 
+</pre>
+<p>Then, check the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view for any unsupported operations. Usually, an operation on an unsupported table is silently ignored by SQL Apply. However, during rolling upgrade (while the standby database is at a higher version and mining redo generated by a lower versioned primary database), if you performed an unsupported operation on the primary database, the logical standby database may not be the one to which you want to perform a switchover. Oracle Data Guard logs at least one unsupported operation per table in the <code class="codeph">DBA_LOGSTDBY_EVENTS</code> view. <a href="rollup.htm#GUID-290F632F-5295-47F3-AEF1-2D37C69C00D7">Using SQL Apply to Upgrade the Oracle Database</a> provides detailed information about rolling upgrades.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4825"></a>
+<div class="props_rev_3"><a id="GUID-B976F237-1888-46D3-A901-F28FE362ACBC"></a>
+<h3 id="SBYDB-GUID-B976F237-1888-46D3-A901-F28FE362ACBC" class="sect3"><span class="enumeration_section">11.5.2</span> Using DBMS_LOGSTDBY.SKIP to Prevent Changes to Specific Schema Objects</h3>
+<div>
+<div class="section">
+<p>By default, all supported tables in the primary database are replicated in the logical standby database. You can change the default behavior by specifying rules to skip applying modifications to specific tables. For example, to omit changes to the <code class="codeph">HR.EMPLOYEES</code> table, you can specify rules to prevent application of DML and DDL changes to the specific table. For example:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Stop SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Register the <code class="codeph">SKIP</code> rules:</span>
+<div>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.SKIP (stmt =&gt; &#39;DML&#39;, schema_name =&gt; &#39;HR&#39;, -
+&gt; object_name =&gt; &#39;EMPLOYEES&#39;);
+
+SQL&gt; EXECUTE DBMS_LOGSTDBY.SKIP (stmt =&gt; &#39;SCHEMA_DDL&#39;, schema_name =&gt; &#39;HR&#39;, -
+&gt; object_name =&gt; &#39;EMPLOYEES&#39;);
+</pre></div>
+</li>
+<li class="stepexpand"><span>Start SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="SBYDB4826"></a>
+<div class="props_rev_3"><a id="GUID-28EB46A0-696D-426E-B596-225443867604"></a>
+<h3 id="SBYDB-GUID-28EB46A0-696D-426E-B596-225443867604" class="sect3"><span class="enumeration_section">11.5.3</span> Setting up a Skip Handler for a DDL Statement</h3>
+<div>
+<div class="section">
+<p>You can create a procedure to intercept certain DDL statements and replace the original DDL statement with a different one. For example, if the file system organization in the logical standby database is different than that in the primary database, you can write a <code class="codeph">DBMS_LOGSTDBY.SKIP</code> procedure to transparently handle DDL transactions with <a id="d23825e3213" class="indexterm-anchor"></a><a id="d23825e3217" class="indexterm-anchor"></a>file specifications.</p>
+<p>The following procedure can handle different file system organization between the primary database and standby database, as long as you use a specific naming convention for your file-specification string.</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Create the skip procedure to handle tablespace DDL transactions:</span>
+<div>
+<pre dir="ltr">CREATE OR REPLACE PROCEDURE SYS.HANDLE_TBS_DDL ( 
+  OLD_STMT  IN  VARCHAR2, 
+  STMT_TYP  IN  VARCHAR2, 
+  SCHEMA    IN  VARCHAR2, 
+  NAME      IN  VARCHAR2, 
+  XIDUSN    IN  NUMBER, 
+  XIDSLT    IN  NUMBER, 
+  XIDSQN    IN  NUMBER, 
+  ACTION    OUT NUMBER, 
+  NEW_STMT  OUT VARCHAR2 
+) AS 
+BEGIN 
+  
+-- All primary file specification that contains a directory 
+-- /usr/orcl/primary/dbs 
+-- should go to /usr/orcl/stdby directory specification
+ 
+ 
+  NEW_STMT := REPLACE(OLD_STMT, 
+                     &#39;/usr/orcl/primary/dbs&#39;, 
+                     &#39;/usr/orcl/stdby&#39;);
+ 
+  ACTION := DBMS_LOGSTDBY.SKIP_ACTION_REPLACE;
+ 
+EXCEPTION
+  WHEN OTHERS THEN
+    ACTION := DBMS_LOGSTDBY.SKIP_ACTION_ERROR;
+    NEW_STMT := NULL;
+END HANDLE_TBS_DDL; 
+</pre></div>
+</li>
+<li class="stepexpand"><span>Stop SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Register the skip procedure with SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.SKIP (stmt =&gt; &#39;TABLESPACE&#39;, -
+&gt; proc_name =&gt; &#39;sys.handle_tbs_ddl&#39;);
+</pre></div>
+</li>
+<li class="stepexpand"><span>Start SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="SBYDB4827"></a>
+<div class="props_rev_3"><a id="GUID-43971CB9-3337-4575-B4EF-D591878982F1"></a>
+<h3 id="SBYDB-GUID-43971CB9-3337-4575-B4EF-D591878982F1" class="sect3"><span class="enumeration_section">11.5.4</span> Modifying a Logical Standby Database</h3>
+<div>
+<p>Logical standby databases can be used for reporting activities, even while SQL statements are being applied. The <a id="d23825e3325" class="indexterm-anchor"></a><span class="italic">database guard</span> controls user access to tables in a logical standby database, and the <code class="codeph">ALTER SESSION DISABLE GUARD</code> statement is used to bypass the database guard and allow modifications to the tables in the logical standby database.</p>
+<div class="infobox-note" id="GUID-43971CB9-3337-4575-B4EF-D591878982F1__GUID-34935874-4E98-4B04-BD66-F03E13F8B9B4">
+<p class="notep1">Note:</p>
+<p>To use a logical standby database to host other applications that process data being replicated from the primary database while creating other tables of their own, the database guard must be set to <code class="codeph">STANDBY</code>. For such applications to work seamlessly, make sure that you are running with <code class="codeph">PRESERVE_COMMIT_ORDER</code> set to <code class="codeph">TRUE</code> (the default setting for SQL Apply). (See <a class="olink ARPLS66830" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS66830"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for information about the <code class="codeph">PRESERVE_COMMIT_ORDER</code> parameter in the <code class="codeph">DBMS_LOGSTDBY</code> PL/SQL package.)</p>
+<p>Issue the following SQL statement to set the database guard to <code class="codeph">STANDBY</code>:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE GUARD STANDBY;
+</pre>
+<p>Under this guard setting, tables being replicated from the primary database are protected from user modifications, but tables created on the standby database can be modified by the applications running on the logical standby.</p>
+</div>
+<p>By default, a logical standby database operates with the database guard set to <code class="codeph">ALL</code>, which is its most restrictive setting, and does not allow any user changes to be performed to the database. You can override the <a id="d23825e3371" class="indexterm-anchor"></a><a id="d23825e3375" class="indexterm-anchor"></a><a id="d23825e3379" class="indexterm-anchor"></a>database guard to allow changes to the logical standby database by executing the <code class="codeph">ALTER SESSION DISABLE GUARD</code> statement. Privileged users can issue this statement to turn the database guard off for the current session.</p>
+<p>The following sections provide some examples. The discussions in these sections assume that the database guard is set to <code class="codeph">ALL</code> or <code class="codeph">STANDBY</code>.</p>
+</div>
+<a id="SBYDB4828"></a>
+<div class="props_rev_3"><a id="GUID-FB0ABA4B-4EA4-458E-9223-B3BEE00A581A"></a>
+<h4 id="SBYDB-GUID-FB0ABA4B-4EA4-458E-9223-B3BEE00A581A" class="sect4"><span class="enumeration_section">11.5.4.1</span> Performing DDL on a Logical Standby Database</h4>
+<div>
+<div class="section">
+<p>This section describes how to <a id="d23825e3468" class="indexterm-anchor"></a><a id="d23825e3472" class="indexterm-anchor"></a><a id="d23825e3478" class="indexterm-anchor"></a>add a constraint to a table maintained through SQL Apply.</p>
+<p>By default, only accounts with <code class="codeph">SYS</code> privileges can modify the database while the database guard is set to ALL or STANDBY. If you are logged in as <code class="codeph">SYSDG</code>, <code class="codeph">SYSTEM</code>, or another privileged account, you cannot issue DDL statements on the logical standby database without first bypassing the database guard for the session.</p>
+<p>The following example shows how to stop SQL Apply, bypass the database guard, execute SQL statements on the logical standby database, and then reenable the guard. In this example, a soundex index is added to the surname column of <code class="codeph">SCOTT.EMP</code> to speed up partial match queries. A soundex index could be prohibitive to maintain on the primary server.</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+Database altered.
+
+SQL&gt; ALTER SESSION DISABLE GUARD;
+PL/SQL procedure successfully completed.
+
+SQL&gt; CREATE INDEX EMP_SOUNDEX ON SCOTT.EMP(SOUNDEX(ENAME));
+Table altered.
+
+SQL&gt; ALTER SESSION ENABLE GUARD;
+PL/SQL procedure successfully completed.
+
+SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+Database altered.
+
+SQL&gt; SELECT ENAME,MGR FROM SCOTT.EMP WHERE SOUNDEX(ENAME) = SOUNDEX(&#39;CLARKE&#39;);
+
+ENAME            MGR
+----------       ----------
+CLARK             7839
+</pre>
+<p>Oracle recommends that you do not perform DML operations on tables maintained by SQL Apply while the database guard bypass is enabled. Doing so introduces deviations between the primary and standby databases that make it impossible for the logical standby database to be maintained.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4829"></a>
+<div class="props_rev_3"><a id="GUID-2050159A-C52F-49C2-80D2-457E62879462"></a>
+<h4 id="SBYDB-GUID-2050159A-C52F-49C2-80D2-457E62879462" class="sect4"><span class="enumeration_section">11.5.4.2</span> Modifying Tables That Are Not Maintained by SQL Apply</h4>
+<div>
+<div class="section">
+<p>Sometimes, a reporting application must collect summary results and store them temporarily or track the number of times a report was run. Although the main purpose of the application is to perform reporting activities, the application might need to issue DML (insert, update, and delete) operations on a logical standby database. It might even need to create or drop tables.</p>
+<p>You can set up the database guard to allow reporting operations to modify data as long as the data is not being maintained through SQL Apply. To do this, you must:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Specify the set of tables on the logical standby database to which an application can write data by executing the <code class="codeph">DBMS_LOGSTDBY.SKIP</code> procedure. Skipped tables are not maintained through SQL Apply.</p>
+</li>
+<li>
+<p>Set the database guard to protect only standby tables.</p>
+</li>
+</ul>
+<p>In the following example, it is assumed that the tables to which the report is writing are also on the primary database.</p>
+<p>The example stops SQL Apply, skips the tables, and then restarts SQL Apply. The reporting application writes to <code class="codeph">TESTEMP%</code> in <code class="codeph">HR</code>. The tables are no longer maintained through SQL Apply.</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+Database altered.
+
+SQL&gt; EXECUTE DBMS_LOGSTDBY.SKIP(stmt =&gt; &#39;SCHEMA_DDL&#39;,-
+     schema_name =&gt; &#39;HR&#39;, -
+     object_name =&gt; &#39;TESTEMP%&#39;);
+PL/SQL procedure successfully completed.
+
+SQL&gt; EXECUTE DBMS_LOGSTDBY.SKIP(&#39;DML&#39;,&#39;HR&#39;,&#39;TESTEMP%&#39;);
+PL/SQL procedure successfully completed.
+
+SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+Database altered.
+</pre>
+<p>Once SQL Apply starts, it needs to update metadata on the standby database for the newly specified tables added in the skip rules. Attempts to modify the newly skipped table until SQL Apply has had a chance to update the metadata fail. You can find out if SQL Apply has successfully taken into account the <code class="codeph">SKIP</code> rule you just added by issuing the following query:</p>
+<pre dir="ltr">SQL&gt; SELECT VALUE FROM SYSTEM.LOGSTDBY$PARAMETERS WHERE NAME = &#39;GUARD_STANDBY&#39;;
+
+VALUE
+---------------
+Ready  
+</pre>
+<p>When the <code class="codeph">VALUE</code> column displays <code class="codeph">Ready</code>, SQL Apply has successfully updated all relevant metadata for the skipped table, and it is safe to modify the table.</p>
+<div class="infoboxnotealso" id="GUID-2050159A-C52F-49C2-80D2-457E62879462__GUID-46AC92D3-3103-4D19-AF0D-211A4EDABFF4">
+<p class="notep1">See Also:</p>
+<p><a href="data_support.htm#GUID-1595A660-6790-436A-BB84-D74C9187D8AE">DDL Statements Supported by a Logical Standby Database</a> and the <a class="olink ARPLS363" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS363"><code class="codeph">DBMS_LOGSTDBY</code></a> package in <a class="olink ARPLS363" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS363"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="SBYDB4830"></a>
+<div class="props_rev_3"><a id="GUID-DD88E3D6-D6DB-4175-BB59-F048B9A87BAA"></a>
+<h3 id="SBYDB-GUID-DD88E3D6-D6DB-4175-BB59-F048B9A87BAA" class="sect3"><span class="enumeration_section">11.5.5</span> Adding or Re-Creating Tables On a Logical Standby Database</h3>
+<div>
+<div class="section">
+<p>Typically, you use the <code class="codeph">DBMS_LOGSTDBY.INSTANTIATE_TABLE</code> procedure to <a id="d23825e3717" class="indexterm-anchor"></a><a id="d23825e3723" class="indexterm-anchor"></a>re-create a table after an unrecoverable operation. You can also use this procedure to enable SQL Apply on a table that was formerly skipped.</p>
+<p>Before you can create a table, it must meet the requirements described in <a href="create_ls.htm#GUID-C238335E-8383-43F1-B5B1-709A2A619C30">Ensure Table Rows in the Primary Database Can Be Uniquely Identified</a>. Then, you can use the following steps to re-create a table named <code class="codeph">HR.EMPLOYEES</code> and resume SQL Apply. The directions assume that there is already a database link <code class="codeph">BOSTON</code> defined to access the primary database.</p>
+<p>The following list shows how to re-create a table and restart SQL Apply on that table:</p>
+<ol>
+<li>
+<p>Stop SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+</pre></li>
+<li>
+<p>Ensure no operations are being skipped for the table in question by querying the <code class="codeph">DBA_LOGSTDBY_SKIP</code> view:</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM DBA_LOGSTDBY_SKIP;
+
+ERROR  STATEMENT_OPT        OWNER          NAME                PROC
+-----  -------------------  -------------  ----------------    -----
+N      SCHEMA_DDL           HR             EMPLOYEES
+N      DML                  HR             EMPLOYEES
+N      SCHEMA_DDL           OE             TEST_ORDER
+N      DML                  OE             TEST_ORDER
+</pre>
+<p>Because you already have skip rules associated with the table that you want to re-create on the logical standby database, you must first delete those rules. You can accomplish that by calling the <code class="codeph">DBMS_LOGSTDBY.UNSKIP</code> procedure. For example:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.UNSKIP(stmt =&gt; &#39;DML&#39;, -
+&gt; schema_name =&gt; &#39;HR&#39;, -
+&gt; object_name =&gt; &#39;EMPLOYEES&#39;);
+</pre>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.UNSKIP(stmt =&gt; &#39;SCHEMA_DDL&#39;, -
+&gt; schema_name =&gt; &#39;HR&#39;, -
+&gt; object_name =&gt; &#39;EMPLOYEES&#39;);
+</pre></li>
+<li>
+<p>Re-create the table <code class="codeph">HR.EMPLOYEES</code> with all its data in the logical standby database by using the <code class="codeph">DBMS_LOGSTDBY.INSTANTIATE_TABLE</code><a id="d23825e3773" class="indexterm-anchor"></a><a id="d23825e3777" class="indexterm-anchor"></a> procedure. For example:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.INSTANTIATE_TABLE(schema_name =&gt; &#39;HR&#39;, -
+&gt; table_name =&gt; &#39;EMPLOYEES&#39;, -
+&gt; dblink =&gt; &#39;BOSTON&#39;);
+</pre></li>
+<li>
+<p>Start SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre>
+<div class="infoboxnotealso" id="GUID-DD88E3D6-D6DB-4175-BB59-F048B9A87BAA__GUID-22C93637-3F30-4B1C-A919-4A7945555CD0">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS363" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS363"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for information about the <code class="codeph">DBMS_LOGSTDBY.UNSKIP</code> and the <code class="codeph">DBMS_LOGSTDBY.INSTANTIATE_TABLE</code> procedures</p>
+</div>
+</li>
+</ol>
+<p>To ensure a consistent view across the newly instantiated table and the rest of the database, wait for SQL Apply to catch up with the primary database before querying this table. You can do this by performing the following steps:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>On the primary database, determine the current SCN by querying the <code class="codeph">V$DATABASE</code> view:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT CURRENT_SCN FROM V$DATABASE@BOSTON;
+
+CURRENT_SCN
+---------------------
+345162788
+</pre></div>
+</li>
+<li class="stepexpand"><span>Make sure SQL Apply has applied all transactions committed before the <code class="codeph">CURRENT_SCN</code> returned in the previous query:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT APPLIED_SCN FROM V$LOGSTDBY_PROGRESS;
+
+APPLIED_SCN
+--------------------------
+345161345
+</pre>
+<p>When the <code class="codeph">APPLIED_SCN</code> returned in this query is greater than the <code class="codeph">CURRENT_SCN</code> returned in the first query, it is safe to query the newly re-created table.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="SBYDB4831"></a>
+<div class="props_rev_3"><a id="GUID-6B8A9BA8-AEF5-4F87-9B1D-67D1A32955D0"></a>
+<h2 id="SBYDB-GUID-6B8A9BA8-AEF5-4F87-9B1D-67D1A32955D0" class="sect2"><span class="enumeration_section">11.6</span> Managing Specific Workloads In the Context of a Logical Standby Database</h2>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-9B6FFB16-3A39-48E6-946F-98931D2E4449">Importing a Transportable Tablespace to the Primary Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-37E6E6F2-15F0-4F16-B9E5-5EA7B28D6FB3">Using Materialized Views</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-50903261-075E-44F4-80F2-E5ED7C165F0D">How Triggers and Constraints Are Handled on a Logical Standby Database</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-3DA5C15C-C275-45D5-A6DA-75ED5878D7FB">Using Triggers to Replicate Unsupported Tables</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-44D7C275-A991-4B6F-84A2-D76085E00367">Recovering Through the Point-in-Time Recovery Performed at the Primary</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-DD1C8B1D-0F1A-448E-B193-124DD8FD65E9">Running an Oracle Streams Capture Process on a Logical Standby Database</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB4832"></a>
+<div class="props_rev_3"><a id="GUID-9B6FFB16-3A39-48E6-946F-98931D2E4449"></a>
+<h3 id="SBYDB-GUID-9B6FFB16-3A39-48E6-946F-98931D2E4449" class="sect3"><span class="enumeration_section">11.6.1</span> Importing a Transportable Tablespace to the Primary Database</h3>
+<div>
+<div class="section">
+<p>Perform the following steps to import a tablespace to the primary database.</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Disable the guard setting so that you can modify the logical standby database:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE GUARD STANDBY;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Import the tablespace at the logical standby database.</span></li>
+<li class="stepexpand"><span>Enable the database guard setting:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE GUARD ALL;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Import the tablespace at the primary database.</span></li>
+</ol>
+</div>
+</div>
+<a id="SBYDB4833"></a>
+<div class="props_rev_3"><a id="GUID-37E6E6F2-15F0-4F16-B9E5-5EA7B28D6FB3"></a>
+<h3 id="SBYDB-GUID-37E6E6F2-15F0-4F16-B9E5-5EA7B28D6FB3" class="sect3"><span class="enumeration_section">11.6.2</span> Using Materialized Views</h3>
+<div>
+<p>Logical Standby automatically skips DDL statements related to materialized views:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">CREATE</code>, <code class="codeph">ALTER</code>, or <code class="codeph">DROP MATERIALIZED VIEW</code></p>
+</li>
+<li>
+<p><code class="codeph">CREATE</code>, <code class="codeph">ALTER</code> or <code class="codeph">DROP MATERIALIZED VIEW LOG</code></p>
+</li>
+</ul>
+<p>New materialized views that are created, altered, or dropped on the primary database after the logical standby database has been created are not created on the logical standby database. However, materialized views created on the primary database prior to the logical standby database being created are present on the logical standby database.</p>
+<p>Logical Standby supports the creation and maintenance of new materialized views locally on the logical standby database in addition to other kinds of auxiliary data structure. For example, online transaction processing (OLTP) systems frequently use highly normalized tables for update performance but these can lead to slower response times for complex decision support queries. Materialized views that denormalize the replicated data for more efficient query support on the logical standby database can be created, as follows (connect as user <code class="codeph">SYS</code> before issuing these statements):</p>
+<pre dir="ltr">SQL&gt; ALTER SESSION DISABLE GUARD; 
+ 
+SQL&gt; CREATE MATERIALIZED VIEW LOG ON SCOTT.EMP -
+&gt;  WITH ROWID (EMPNO, ENAME, MGR, DEPTNO) INCLUDING NEW VALUES;
+
+SQL&gt; CREATE MATERIALIZED VIEW LOG ON SCOTT.DEPT -
+&gt;  WITH ROWID (DEPTNO, DNAME) INCLUDING NEW VALUES;
+
+SQL&gt; CREATE MATERIALIZED VIEW SCOTT.MANAGED_BY -
+&gt;  REFRESH ON DEMAND -
+&gt;  ENABLE QUERY REWRITE -
+&gt;  AS SELECT  E.ENAME, M.ENAME AS MANAGER -
+&gt;  FROM SCOTT.EMP E, SCOTT.EMP M WHERE E.MGR=M.EMPNO;
+
+SQL&gt; CREATE MATERIALIZED VIEW SCOTT.IN_DEPT -
+&gt;  REFRESH FAST ON COMMIT -
+&gt;  ENABLE QUERY REWRITE -
+&gt;  AS SELECT E.ROWID AS ERID, D.ROWID AS DRID, E.ENAME, D.DNAME -
+&gt;  FROM SCOTT.EMP E, SCOTT.DEPT D WHERE E.DEPTNO=D.DEPTNO;
+</pre>
+<p>On a logical standby database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>An ON-COMMIT materialized view is refreshed automatically on the logical standby database when the transaction commit occurs.</p>
+</li>
+<li>
+<p>An ON-DEMAND materialized view is not automatically refreshed: the <code class="codeph">DBMS_MVIEW.REFRESH</code> procedure must be executed to refresh it.</p>
+</li>
+</ul>
+<p>For example, issuing the following command would refresh the ON-DEMAND materialized view created in the previous example:</p>
+<pre dir="ltr">SQL&gt; ALTER SESSION DISABLE GUARD; 
+ 
+SQL&gt; EXECUTE DBMS_MVIEW.REFRESH (LIST =&gt; &#39;SCOTT.MANAGED_BY&#39;, METHOD =&gt; &#39;C&#39;);
+</pre>
+<p>If <code class="codeph">DBMS_SCHEDULER</code> jobs are being used to periodically refresh on-demand materialized views, the database guard must be set to <code class="codeph">STANDBY</code>. (It is not possible to use the <code class="codeph">ALTER SESSION DISABLE GUARD</code> statement inside a PL/SQL block and have it take effect.)</p>
+</div>
+</div>
+<a id="SBYDB4834"></a>
+<div class="props_rev_3"><a id="GUID-50903261-075E-44F4-80F2-E5ED7C165F0D"></a>
+<h3 id="SBYDB-GUID-50903261-075E-44F4-80F2-E5ED7C165F0D" class="sect3"><span class="enumeration_section">11.6.3</span> How Triggers and Constraints Are Handled on a Logical Standby Database</h3>
+<div>
+<p>By default, triggers and constraints are automatically enabled and handled on logical standby databases.</p>
+<p>For triggers and constraints on tables <span class="italic">maintained</span> by SQL Apply:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Constraints &mdash; Check constraints are evaluated on the primary database and do not need to be re-evaluated on the logical standby database.</p>
+</li>
+<li>
+<p>Triggers &mdash; The effects of the triggers executed on the primary database are logged and applied on the standby database.</p>
+</li>
+</ul>
+<p>For triggers and constraints on tables <span class="italic">not</span> <span class="italic">maintained</span> by SQL Apply:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Constraints are evaluated</p>
+</li>
+<li>
+<p>Triggers are fired</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="SBYDB4835"></a>
+<div class="props_rev_3"><a id="GUID-3DA5C15C-C275-45D5-A6DA-75ED5878D7FB"></a>
+<h3 id="SBYDB-GUID-3DA5C15C-C275-45D5-A6DA-75ED5878D7FB" class="sect3"><span class="enumeration_section">11.6.4</span> Using Triggers to Replicate Unsupported Tables</h3>
+<div>
+<p>DML triggers created on a table have their <code class="codeph">DBMS_DDL.SET_TRIGGER_FIRING_PROPERTY</code> <code class="codeph">fire_once</code> parameter set to <code class="codeph">TRUE</code> by default. The triggers fire only when the table is modified by a user process. They are automatically disabled inside SQL Apply processes, and thus do not fire when a SQL Apply process modifies the table. There are two ways to fire a trigger as a result of SQL Apply process making a change to a maintained table:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Set the <code class="codeph">fire_once</code> parameter of a trigger to <code class="codeph">FALSE</code>, which allows it to fire in either the context of a user process or a SQL Apply process</p>
+</li>
+<li>
+<p>Set the <code class="codeph">apply_server_only</code> parameter to <code class="codeph">TRUE</code> which results in the trigger firing only in the context of a SQL Apply process and not in the context of a user process</p>
+</li>
+</ul>
+<div class="tblformal" id="GUID-3DA5C15C-C275-45D5-A6DA-75ED5878D7FB__GUID-E51BED5A-8FBE-4840-8D34-45AECD58DA2C">
+<table class="cellalignment2269" summary="This 3 column table shows the effect of DML Triggers. Column 1 is the fire_once parameter setting. Column 1 is the apply_server_only parameter setting. Column 3 describes the effects.">
+<thead>
+<tr class="cellalignment2253">
+<th class="cellalignment2335" id="d23825e4365">fire_once</th>
+<th class="cellalignment2343" id="d23825e4368">apply_server_only</th>
+<th class="cellalignment2298" id="d23825e4371">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d23825e4376" headers="d23825e4365">
+<p><code class="codeph">TRUE</code></p>
+</td>
+<td class="cellalignment2344" headers="d23825e4376 d23825e4368">
+<p><code class="codeph">FALSE</code></p>
+</td>
+<td class="cellalignment2300" headers="d23825e4376 d23825e4371">
+<p>This is the default property setting for a DML trigger. The trigger fires only when a user process modifies the base table.</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d23825e4388" headers="d23825e4365">
+<p><code class="codeph">FALSE</code></p>
+</td>
+<td class="cellalignment2344" headers="d23825e4388 d23825e4368">
+<p><code class="codeph">FALSE</code></p>
+</td>
+<td class="cellalignment2300" headers="d23825e4388 d23825e4371">
+<p>The trigger fires in the context of a user process and in the context of a SQL Apply process modifying the base table. You can distinguish the two contexts by using the <code class="codeph">DBMS_LOGSTDBY.IS_APPLY_SERVER</code> function.</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2337" id="d23825e4403" headers="d23825e4365">
+<p><code class="codeph">TRUE</code>/<code class="codeph">FALSE</code></p>
+</td>
+<td class="cellalignment2344" headers="d23825e4403 d23825e4368">
+<p><code class="codeph">TRUE</code></p>
+</td>
+<td class="cellalignment2300" headers="d23825e4403 d23825e4371">
+<p>The trigger only fires when a SQL Apply process modifies the base table. The trigger does not fire when a user process modifies the base table. Thus, the <code class="codeph">apply_server_only</code> property overrides the <code class="codeph">fire_once</code> parameter of a trigger.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Tables that are unsupported due to simple object type columns can be replicated by creating triggers that fire in the context of a SQL Apply process (either by setting the <code class="codeph">fire_once</code> parameter of such a trigger to <code class="codeph">FALSE</code> or by setting the apply_server_only parameter of such a trigger to <code class="codeph">TRUE</code>). A regular DML trigger can be used on the primary database to flatten the object type into a table that can be supported. The trigger that fires in the context of a SQL Apply process on the logical standby reconstitutes the object type and updates the unsupported table in a transactional manner.</p>
+<div class="infoboxnotealso" id="GUID-3DA5C15C-C275-45D5-A6DA-75ED5878D7FB__GUID-AC849AE5-38AA-4B70-90C4-6F76431D62CA">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS008" target="_blank" href="../ARPLS/d_ddl.htm#ARPLS008"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for descriptions of the <code class="codeph">DBMS_DDL.SET_TRIGGER_FIRING_PROPERTY</code> procedure and the <code class="codeph">DBMS_LOGSTDBY.IS_APPLY_SERVER</code> function</p>
+</li>
+</ul>
+</div>
+<p>The following example shows how a table with a simple object type could be replicated using triggers. This example shows how to handle inserts; the same principle can be applied to updating and deleting. Nested tables and <code class="codeph">VARRAY</code>s can also be replicated using this technique with the additional step of a loop to normalize the nested data.</p>
+<pre dir="ltr">-- simple object type
+create or replace type Person as object
+(
+  FirstName    varchar2(50),
+  LastName     varchar2(50),
+  BirthDate    Date
+)
+ 
+-- unsupported object table
+create table employees
+(
+  IdNumber     varchar2(10) ,
+  Department   varchar2(50),
+  Info         Person
+)
+ 
+-- supported table populated via trigger
+create table employees_transfer
+(
+  t_IdNumber   varchar2(10),
+  t_Department varchar2(50),
+  t_FirstName  varchar2(50),
+  t_LastName   varchar2(50),
+  t_BirthDate  Date
+)
+--
+-- create this trigger to flatten object table on the primary
+-- this trigger will not fire on the standby
+--
+create or replace trigger flatten_employees
+  after insert on employees for each row
+declare
+begin
+  insert into employees_transfer
+    (t_IdNumber, t_Department, t_FirstName, t_LastName, t_BirthDate)
+  values
+    (:new.IdNumber, :new.Department,
+ :new.Info.FirstName,:new.Info.LastName, :new.Info.BirthDate);
+end
+ 
+--
+-- Option#1 (Better Option: Create a trigger and 
+-- set its apply-server-only property to TRUE)
+-- create this trigger at the logical standby database
+-- to populate object table on the standby
+-- this trigger only fires when apply replicates rows 
+-- to the standby
+--
+create or replace trigger reconstruct_employees_aso
+  after insert on employees_transfer for each row
+begin
+  
+    insert into employees (IdNumber, Department, Info)
+    values (:new.t_IdNumber, :new.t_Department,
+Person(:new.t_FirstName, :new.t_LastName,  :new.t_BirthDate));
+  
+end
+ 
+-- set this trigger to fire from the apply server
+execute dbms_ddl.set_trigger_firing_property( -
+trig_owner =&gt; &#39;scott&#39;, -
+trig_name  =&gt; &#39;reconstruct_employees_aso&#39;, 
+property =&gt; dbms_ddl.apply_server_only,
+setting =&gt; TRUE);
+ 
+--
+-- Option#2 (Create a trigger and set 
+--           its fire-once property to FALSE)
+-- create this trigger at the logical standby database
+-- to populate object table on the standby
+-- this trigger will fire when apply replicates rows to -- the standby, but we will need to make sure we are
+-- are executing inside a SQL Apply process by invoking
+-- dbms_logstdby.is_apply_server function
+--
+create or replace trigger reconstruct_employees_nfo
+  after insert on employees_transfer for each row
+begin
+  if dbms_logstdby.is_apply_server() then
+    insert into employees (IdNumber, Department, Info)
+    values (:new.t_IdNumber, :new.t_Department,
+Person(:new.t_FirstName, :new.t_LastName,  :new.t_BirthDate));
+  end if;
+end
+ 
+-- set this trigger to fire from the apply server
+execute dbms_ddl.set_trigger_firing_property( -
+trig_owner =&gt; &#39;scott&#39;, -
+trig_name  =&gt; &#39;reconstruct_employees_nfo&#39;, 
+property =&gt; dbms_ddl.fire_once,
+setting =&gt; FALSE);
+</pre></div>
+</div>
+<a id="SBYDB4836"></a>
+<div class="props_rev_3"><a id="GUID-44D7C275-A991-4B6F-84A2-D76085E00367"></a>
+<h3 id="SBYDB-GUID-44D7C275-A991-4B6F-84A2-D76085E00367" class="sect3"><span class="enumeration_section">11.6.5</span> Recovering Through the Point-in-Time Recovery Performed at the Primary</h3>
+<div>
+<div class="section">
+<p>When a logical standby database receives a new branch of redo data, SQL Apply automatically takes the new branch of redo data. For logical standby databases, no manual intervention is required if the standby database did not apply redo data past the new resetlogs SCN (past the start of the new branch of redo data)</p>
+<p>The following table describes how to <a id="d23825e4535" class="indexterm-anchor"></a><a id="d23825e4539" class="indexterm-anchor"></a><a id="d23825e4545" class="indexterm-anchor"></a><a id="d23825e4549" class="indexterm-anchor"></a>resynchronize the standby database with the primary database branch.</p>
+<div class="tblformalwide" id="GUID-44D7C275-A991-4B6F-84A2-D76085E00367__GUID-7474462F-5AF2-47BF-9E1B-681ED03EC9D7">
+<table class="cellalignment2262" summary="This 3column table describes how to resynchronize the standby database with the primary database branch after you issue an OPEN RESETLOGS statement.">
+<thead>
+<tr class="cellalignment2253">
+<th class="cellalignment2263" id="d23825e4563">If the standby database. . .</th>
+<th class="cellalignment2359" id="d23825e4566">Then. . .</th>
+<th class="cellalignment2360" id="d23825e4569">Perform these steps. . .</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2253">
+<td class="cellalignment2266" id="d23825e4574" headers="d23825e4563">
+<p>Has not applied redo data past the new resetlogs SCN (past the start of the new branch of redo data)</p>
+</td>
+<td class="cellalignment2361" headers="d23825e4574 d23825e4566">
+<p>SQL Apply automatically takes the new branch of redo data.</p>
+</td>
+<td class="cellalignment2362" headers="d23825e4574 d23825e4569">
+<p>No manual intervention is necessary. SQL Apply automatically resynchronizes the standby database with the new branch of redo data.</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2266" id="d23825e4584" headers="d23825e4563">
+<p>Has applied redo data past the new resetlogs SCN (past the start of the new branch of redo data) and Flashback Database is enabled on the standby database</p>
+</td>
+<td class="cellalignment2361" headers="d23825e4584 d23825e4566">
+<p>The standby database is recovered <span class="italic">in the future</span> of the new branch of redo data.</p>
+</td>
+<td class="cellalignment2362" headers="d23825e4584 d23825e4569">
+<ol>
+<li>
+<p>Follow the procedure in <a href="scenarios.htm#GUID-A2191DBB-AA91-4C42-8F01-7B7E9529F465">Flashing Back a Logical Standby Database to a Specific Point-in-Time</a> to flash back a logical standby database.</p>
+</li>
+<li>
+<p>Restart SQL Apply to continue application of redo onto the new reset logs branch.</p>
+</li>
+</ol>
+<p>SQL Apply automatically resynchronizes the standby database with the new branch.</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2266" id="d23825e4608" headers="d23825e4563">
+<p>Has applied redo data past the new resetlogs SCN (past the start of the new branch of redo data) and Flashback Database is not enabled on the standby database</p>
+</td>
+<td class="cellalignment2361" headers="d23825e4608 d23825e4566">
+<p>The primary database has diverged from the standby on the indicated primary database branch.</p>
+</td>
+<td class="cellalignment2362" headers="d23825e4608 d23825e4569">
+<p>Re-create the logical standby database following the procedures in <a href="create_ls.htm#GUID-3666CA35-D993-44B6-8D70-A2B8B9EC8B2E">Creating a Logical Standby Database</a> .</p>
+</td>
+</tr>
+<tr class="cellalignment2253">
+<td class="cellalignment2266" id="d23825e4622" headers="d23825e4563">
+<p>Is missing archived redo log files from the end of the previous branch of redo data</p>
+</td>
+<td class="cellalignment2361" headers="d23825e4622 d23825e4566">
+<p>SQL Apply cannot continue until the missing log files are retrieved.</p>
+</td>
+<td class="cellalignment2362" headers="d23825e4622 d23825e4569">
+<p>Locate and register missing archived redo log files from the previous branch.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>See <a class="olink BRADV89752" target="_blank" href="../BRADV/rcmflash.htm#BRADV89752"><span class="italic">Oracle Database Backup and Recovery User&#39;s Guide</span></a> for more information about database incarnations, recovering through an <code class="codeph">OPEN RESETLOGS</code> operation, and Flashback Database.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4837"></a>
+<div class="props_rev_3"><a id="GUID-DD1C8B1D-0F1A-448E-B193-124DD8FD65E9"></a>
+<h3 id="SBYDB-GUID-DD1C8B1D-0F1A-448E-B193-124DD8FD65E9" class="sect3"><span class="enumeration_section">11.6.6</span> Running an Oracle Streams Capture Process on a Logical Standby Database</h3>
+<div>
+<p>You can run an Oracle Streams capture<a id="d23825e4712" class="indexterm-anchor"></a> process on a logical standby database to capture changes from any table that exists on the logical standby database (whether it is a local table or a maintained table that is being replicated from the primary database). When changes are captured to a maintained table, there is additional latency as compared to running an Oracle Streams capture process at the primary database. The additional latency is because of the fact that when you are running at a logical standby, the Oracle Streams capture process must wait for the changes to be shipped from the primary to the logical standby and applied by SQL Apply. In most cases, if you are running real time apply, it is no more than a few seconds.</p>
+<p>The Oracle Streams capture process is associated with the database where it was created; the role of the database is irrelevant. For example, suppose you have a primary database named <code class="codeph">Boston</code> and a logical standby named <code class="codeph">London</code>. You cannot move the Oracle Streams capture process from one database to the other as you go through role transitions. For instance, if you created an Oracle Streams capture process on <code class="codeph">London</code> when it was a logical standby, then it remains on <code class="codeph">London</code> even when <code class="codeph">London</code> becomes the primary as a result of a role transition operation such as a switchover or failover. For the Oracle Streams capture process to continue working after a role transition, you must write a role transition trigger such as the following:</p>
+<pre dir="ltr">create or replace trigger streams_aq_job_role_change1 
+after DB_ROLE_CHANGE on database 
+declare
+cursor capture_aq_jobs is 
+  select job_name, database_role 
+   from dba_scheduler_job_roles 
+   where job_name like &#39;AQ_JOB%&#39;; 
+u capture_aq_jobs%ROWTYPE; 
+my_db_role  varchar2(16); 
+begin 
+ 
+  if (dbms_logstdby.db_is_logstdby() = 1) then my_db_role := &#39;LOGICAL STANDBY&#39;;
+  else my_db_role := &#39;PRIMARY&#39;;
+  end if; 
+ 
+ open capture_aq_jobs; 
+ loop 
+   fetch capture_aq_jobs into u; 
+   exit when capture_aq_jobs%NOTFOUND; 
+ 
+   if (u.database_role != my_db_role) then 
+     dbms_scheduler.set_attribute(u.job_name, 
+              &#39;database_role&#39;, 
+               my_db_role); 
+ 
+   end if; 
+ end loop; 
+ close capture_aq_jobs; 
+ 
+exception
+ when others then 
+ begin 
+   raise; 
+ end;  
+end;
+</pre></div>
+</div>
+</div>
+<a id="SBYDB5149"></a>
+<div class="props_rev_3"><a id="GUID-6438EB33-8A6D-4D5A-B3B5-740F8B1144D5"></a>
+<h2 id="SBYDB-GUID-6438EB33-8A6D-4D5A-B3B5-740F8B1144D5" class="sect2"><span class="enumeration_section">11.7</span> Using Extended Datatype Support During Replication</h2>
+<div>
+<p>Extended Datatype Support<a id="d23825e4806" class="indexterm-anchor"></a> (EDS) provides a mechanism for logical standbys to support certain data types that lack native redo-based support. For example, a table with a top-level <code class="codeph">VARRAY</code> column can be replicated using EDS.</p>
+<p>You can query the <code class="codeph">DBA_LOGSTDBY_EDS_SUPPORTED</code> view to find out which tables are candidates for EDS.</p>
+<p>EDS-based replication works seamlessly with role transitions. For example, if EDS-based replication is enabled between a primary database and a target logical standby database for a table named <code class="codeph">OE.CUSTOMERS</code>, then after a switchover or failover operation, the <code class="codeph">OE.CUSTOMERS</code> table continues to be replicated using the EDS framework. This is also true when a bystander standby is present and using EDS while replicating a table.</p>
+</div>
+<a id="SBYDB5150"></a>
+<div class="props_rev_3"><a id="GUID-92D6C6D9-1AC3-48BC-A4AC-F4DE9BCCEA82"></a>
+<h3 id="SBYDB-GUID-92D6C6D9-1AC3-48BC-A4AC-F4DE9BCCEA82" class="sect3"><span class="enumeration_section">11.7.1</span> How EDS-Based Replication Works</h3>
+<div>
+<p>The <code class="codeph">DBMS_LOGSTDBY</code> PL/SQL package provides procedures that add, remove, or change EDS. EDS-based replication works through the use of triggers, a shadow table, and in some cases a materialized view.</p>
+<p>The shadow table is created in the same tablespace as the target table. It contains the data from the base table that has been transformed into a format natively supported by logical standby. A shadow table is not partitioned, even if the target table is. A shadow table resides in the same partition as the base table. A shadow table contains data only through the duration of the transaction that is modifying the source table. As a result, shadow table size is minimal and does not depend on source table size.</p>
+<p>A DML trigger is created on the base table and on the shadow table. The triggers are created in the <code class="codeph">SYS</code> schema, which owns them.</p>
+<p>The first trigger (the base trigger) fires whenever a DML operation (<code class="codeph">INSERT</code>, <code class="codeph">UPDATE</code>, or <code class="codeph">DELETE</code>) takes place. The trigger transforms unsupported data types to logical standby supported data types and then captures the transformed row in a shadow table along with information about the type of DML operation.</p>
+<p>The shadow table contains only logical standby supported data types; therefore it is replicated natively. A second trigger (the shadow trigger) fires for any DML operation done to the shadow table by an apply process on the logical standby. The shadow trigger transforms the data back to its original form and applies it to the target table according to whatever DML operation was recorded with the row.</p>
+<div class="infobox-note" id="GUID-92D6C6D9-1AC3-48BC-A4AC-F4DE9BCCEA82__GUID-493FAE0B-D5EB-4DC5-A1EE-484516BA009E">
+<p class="notep1">Note:</p>
+<p>You cannot use SQL*Loader direct path loads for EDS tables. The triggers on EDS tables cause the load to fail. Use conventional path instead.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-92D6C6D9-1AC3-48BC-A4AC-F4DE9BCCEA82__GUID-ADDA779A-A8BC-4CB0-B8C4-F3018C266E65">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS363" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS363"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for more information about EDS-related procedures provided in the <code class="codeph">DBMS_LOGSTDBY</code> PL/SQL package</p>
+</div>
+</div>
+</div>
+<a id="SBYDB5151"></a>
+<div class="props_rev_3"><a id="GUID-D24C8773-4178-43CE-A69B-30DE83C730A9"></a>
+<h3 id="SBYDB-GUID-D24C8773-4178-43CE-A69B-30DE83C730A9" class="sect3"><span class="enumeration_section">11.7.2</span> Enabling EDS-Based Replication At a Logical Standby</h3>
+<div>
+<div class="section">
+<p>The following steps provide an example of how to enable EDS-based replication. The procedure is split between the primary and standby databases. Be sure you are on the correct database for each step.</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>On the primary database, identify which tables are candidates for EDS support by querying the <code class="codeph">DBA_LOGSTDBY_EDS_SUPPORTED</code> view as follows:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT * FROM DBA_LOGSTDBY_EDS_SUPPORTED;
+</pre></div>
+</li>
+<li class="stepexpand"><span>On the primary database, issue calls to the <code class="codeph">DBMS_LOGSTDBY.EDS_ADD_TABLE</code> procedure for any table names returned from the query you just made. For example, suppose there is a table named <code class="codeph">OE.CUSTOMERS</code> and it has an <code class="codeph">SDO_GEOMETRY</code> column which excludes the table from native log-based replication. Execute the following command which would create triggers and a shadow table:</span>
+<div>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.EDS_ADD_TABLE(table_owner =&gt;&#39;OE&#39;, 
+table_name =&gt;&#39;CUSTOMERS&#39;);
+</pre>
+<p>The primary database starts generating extra information in the redo stream.</p>
+</div>
+</li>
+<li class="stepexpand"><span>On the standby database, stop SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+</pre></div>
+</li>
+<li class="stepexpand"><span>On the standby database, issue the same set of calls as in Step 2 to <code class="codeph">DBMS_LOGSTDBY.EDS_ADD_TABLE</code>, but add a database link to the primary:</span>
+<div>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.EDS_ADD_TABLE(table_owner =&gt;&#39;OE&#39;, 
+table_name =&gt;&#39;CUSTOMERS&#39;,p_dblink =&gt; &#39;dblink_to_primary&#39;);
+</pre>
+<p>This statement enables EDS-based replication for the source table at the logical standby and also imports the data associated with the base table (along with all secondary objects such as indexes and constraints) to the standby.</p>
+</div>
+</li>
+<li class="stepexpand"><span>On the standby database, restart SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<p>At this point, the <code class="codeph">OE.CUSTOMERS</code> table is being replicated by the EDS facility.</p>
+<p>If there is more than one logical standby in the configuration, then Steps 3 - 5 must be repeated on each one.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB5152"></a>
+<div class="props_rev_3"><a id="GUID-DFF177E4-6D29-485A-AB5D-E6B96496569D"></a>
+<h3 id="SBYDB-GUID-DFF177E4-6D29-485A-AB5D-E6B96496569D" class="sect3"><span class="enumeration_section">11.7.3</span> Removing EDS-Based Replication From a Logical Standby</h3>
+<div>
+<div class="section">
+<p>Use the <code class="codeph">DBMS_LOGSTDBY.EDS_REMOVE_TABLE</code> procedure to remove EDS-based replication for a particular table at a logical standby.</p>
+<p>If invoked on a standby, then this procedure removes support from only that standby.</p>
+<p>If invoked on the primary, then this procedure removes support for that table on the primary and on all standbys. It also drops all metadata related to EDS-based replication at the primary database. Metadata related to EDS-based replication at logical standby databases is dropped after redo associated with the <code class="codeph">EDS_REMOVE_TABLE</code> procedure is processed. Only EDS-based metadata and supporting objects are dropped; the source table remains unchanged.</p>
+<p>You may want to remove EDS-based replication for a set of tables if you only added the support for the duration of a rolling upgrade.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB5153"></a>
+<div class="props_rev_3"><a id="GUID-883DFD02-5F78-4C8A-AF0C-AC81F46434E9"></a>
+<h3 id="SBYDB-GUID-883DFD02-5F78-4C8A-AF0C-AC81F46434E9" class="sect3"><span class="enumeration_section">11.7.4</span> How EDS-Based Replication Handles Skip Rules</h3>
+<div>
+<p>EDS-based replication handles skip rules as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>EDS-based replication assumes that there are no DDL skip rules associated with the source table. It is expected that DDLs done on the source tables at the primary database are replicated using the native redo-based mechanism.</p>
+</li>
+<li>
+<p>The presence of a DML skip rule on a source table that is being replicated using EDS does not affect EDS-based replication.</p>
+</li>
+<li>
+<p>Attempts to create EDS-based replication on a table that matches a wild card skip rule on a schema fail, as do attempts to add a wild card skip rule that matches an existing message table created for EDS.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="SBYDB5161"></a>
+<div class="props_rev_3"><a id="GUID-5046A917-0E0D-4813-B27E-856378B2D078"></a>
+<h3 id="SBYDB-GUID-5046A917-0E0D-4813-B27E-856378B2D078" class="sect3"><span class="enumeration_section">11.7.5</span> How EDS-Based Replication Handles DDL</h3>
+<div>
+<p>Because EDS-based replication relies on triggers that are generated according to a table&#39;s definition, it is possible that DDL operations might alter the table in such a way that the triggers are no longer valid. They must be regenerated, either automatically or manually, according to the table&#39;s new definition.</p>
+<p>To enable (or disable) automatic DDL handling, you must use the <code class="codeph">DBMS_LOGSTDBY.EDS_EVOLVE_AUTOMATIC</code> procedure. When automatic DDL handling is enabled, an EDS-specific DDL trigger fires after every DDL operation to determine whether the DDL in question affects the viability of EDS-based replication of any of the tables currently enabled for EDS. If it does, then a separate EVOLVING trigger is generated on the table which ensures that no DML operations are allowed on the affected base table until compensating actions are taken to repair the EDS-specific metadata. Once the compensating actions are taken, the EVOLVING trigger is dropped, allowing DDL operations on the table to resume.</p>
+<p>Automatic DDL handling in the presence of EDS-based replication requires a DDL trigger that fires on all DDL operations. In some situations it may be useful to take compensating actions manually. In such cases, you can disable automatic DDL handling and use the <code class="codeph">DBMS_LOGSTDBY.EDS_EVOLVE_MANUAL</code> procedure to handle DDL.</p>
+</div>
+<a id="SBYDB5258"></a>
+<div class="props_rev_3"><a id="GUID-8D3532DE-92B4-4179-9A19-C527480A6FBD"></a>
+<h4 id="SBYDB-GUID-8D3532DE-92B4-4179-9A19-C527480A6FBD" class="sect4"><span class="enumeration_section">11.7.5.1</span> Enabling and Disabling Automatic DDL Handling</h4>
+<div>
+<div class="section">
+<p>To enable automatic DDL handling on all EDS-maintained tables, issue the following statement once at the primary database, prior to the first call to <code class="codeph">DBMS_LOGSTDBY.EDS_ADD_TABLE</code>:</p>
+<pre dir="ltr">EXECUTE DBMS_LOGSTDBY.EDS_EVOLVE_AUTOMATIC(&#39;ENABLE&#39;);
+</pre>
+<p>To disable automatic DDL handling on all EDS-maintained tables, issue the following statement:</p>
+<pre dir="ltr">EXECUTE DBMS_LOGSTDBY.EDS_EVOLVE_AUTOMATIC(&#39;DISABLE&#39;);
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB5259"></a>
+<div class="props_rev_3"><a id="GUID-9223A576-3692-4300-934D-B7FC61B31D7D"></a>
+<h4 id="SBYDB-GUID-9223A576-3692-4300-934D-B7FC61B31D7D" class="sect4"><span class="enumeration_section">11.7.5.2</span> Manually Handling DDL</h4>
+<div>
+<div class="section">
+<p>To manually handle DDL operations, you must call the <code class="codeph">DBMS_LOGSTDBY.EDS_EVOLVE_MANUAL</code> procedure before and after a DDL operation that may affect the base table being replicated with EDS. Take the following steps to handle DDL operations manually:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Call the <code class="codeph">EDS_EVOLVE_MANUAL</code> procedure with the <code class="codeph">START</code> option:</span>
+<div>
+<pre dir="ltr">EXECUTE DBMS_LOGSTDBY.EDS_EVOLVE_MANUAL(&#39;START&#39;);
+</pre></div>
+</li>
+<li class="stepexpand"><span>Perform the DDL operation.</span></li>
+<li class="stepexpand"><span>Call the <code class="codeph">EDS_EVOLVE_MANUAL</code> procedure with the <code class="codeph">FINISH</code> option:</span>
+<div>
+<pre dir="ltr">EXECUTE DBMS_LOGSTDBY.EDS_EVOLVE_MANUAL(&#39;FINISH&#39;);
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<p>Deviating from this order could result in errors and possible data loss.</p>
+<p>If necessary, you can cancel manual DDL handling by invoking the procedure with the <code class="codeph">CANCEL</code> option:</p>
+<pre dir="ltr">EXECUTE DBMS_LOGSTDBY.EDS_EVOLVE_MANUAL(&#39;CANCEL&#39;);
+</pre>
+<div class="infoboxnotealso" id="GUID-9223A576-3692-4300-934D-B7FC61B31D7D__GUID-E1441ED9-E5CC-470F-84C5-E27614492F03">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS363" target="_blank" href="../ARPLS/d_lsbydb.htm#ARPLS363"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for more information about EDS-related procedures in the <code class="codeph">DBMS_LOGSTDBY</code> package</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="SBYDB4838"></a>
+<div class="props_rev_3"><a id="GUID-8808747E-825D-4E0C-BD26-4E18F40574F8"></a>
+<h2 id="SBYDB-GUID-8808747E-825D-4E0C-BD26-4E18F40574F8" class="sect2"><span class="enumeration_section">11.8</span> Tuning a Logical Standby Database</h2>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-10287018-12F8-4727-AB2D-C720571AF4B6">Create a Primary Key RELY Constraint</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-4DDC26F5-29CC-435E-9996-8887DA653032">Gather Statistics for the Cost-Based Optimizer</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-8EFFAC57-9E1A-419E-AEAE-E5931D2845CB">Adjust the Number of Processes</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-E856251B-C6AD-480A-9D9B-278BBF66688F">Adjust the Memory Used for LCR Cache</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-486200D3-C7A5-4B21-9C81-FC654AD405DD">Adjust How Transactions are Applied On the Logical Standby Database</a></p>
+</li>
+</ul>
+</div>
+<a id="SBYDB4839"></a>
+<div class="props_rev_3"><a id="GUID-10287018-12F8-4727-AB2D-C720571AF4B6"></a>
+<h3 id="SBYDB-GUID-10287018-12F8-4727-AB2D-C720571AF4B6" class="sect3"><span class="enumeration_section">11.8.1</span> Create a Primary Key RELY Constraint</h3>
+<div>
+<div class="section">
+<p>On the primary database, if a table does not have a primary key or a unique index and you are certain the rows are unique, then create a primary key <code class="codeph">RELY</code> constraint. On the logical standby database, create an index on the columns that make up the primary key. The following query generates a list of tables with no index information that can be used by a logical standby database to apply to uniquely identify rows. By creating an index on the following tables, performance can be improved significantly.</p>
+<pre dir="ltr">SQL&gt; SELECT OWNER, TABLE_NAME FROM DBA_TABLES -
+&gt; WHERE OWNER NOT IN (SELECT OWNER FROM DBA_LOGSTDBY_SKIP -
+&gt; WHERE STATEMENT_OPT = &#39;INTERNAL SCHEMA&#39;) -
+&gt; MINUS -
+&gt; SELECT DISTINCT TABLE_OWNER, TABLE_NAME FROM DBA_INDEXES -
+&gt; WHERE INDEX_TYPE NOT LIKE (&#39;FUNCTION-BASED%&#39;) -
+&gt; MINUS -
+&gt; SELECT OWNER, TABLE_NAME FROM DBA_LOGSTDBY_UNSUPPORTED;
+</pre>
+<pre dir="ltr"></pre>
+<p>You can add a rely primary key constraint to a table on the primary database, as follows:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Add the primary key rely constraint at the primary database:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER TABLE HR.TEST_EMPLOYEES ADD PRIMARY KEY (EMPNO) RELY DISABLE;
+</pre>
+<p>This ensures that the <code class="codeph">EMPNO</code> column, which can be used to uniquely identify the rows in <code class="codeph">HR.TEST_EMPLOYEES</code> table, is supplementally logged as part of any updates done on that table.</p>
+<p>Note that the <code class="codeph">HR.TEST_EMPLOYEES</code> table still does not have any unique index specified on the logical standby database. This may cause <code class="codeph">UPDATE</code> statements to do full table scans on the logical standby database. You can remedy that by adding a unique index on the <code class="codeph">EMPNO</code> column on the logical standby database.See <a href="create_ls.htm#GUID-C238335E-8383-43F1-B5B1-709A2A619C30">Ensure Table Rows in the Primary Database Can Be Uniquely Identified</a> and <a class="olink SQLRF52223" target="_blank" href="../SQLRF/clauses002.htm#SQLRF52223"><span class="italic">Oracle Database SQL Language Reference</span></a> for more information about <code class="codeph">RELY</code> constraints.</p>
+<p>Perform the remaining steps on the logical standby database.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Stop SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Disable the guard so that you can modify a maintained table on the logical standby database:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER SESSION DISABLE GUARD;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Add a unique index on <code class="codeph">EMPNO</code> column:</span>
+<div>
+<pre dir="ltr">SQL&gt; CREATE UNIQUE INDEX UI_TEST_EMP ON HR.TEST_EMPLOYEES (EMPNO);
+</pre></div>
+</li>
+<li class="stepexpand"><span>Enable the guard:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER SESSION ENABLE GUARD;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Start SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+</pre></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="SBYDB4840"></a>
+<div class="props_rev_3"><a id="GUID-4DDC26F5-29CC-435E-9996-8887DA653032"></a>
+<h3 id="SBYDB-GUID-4DDC26F5-29CC-435E-9996-8887DA653032" class="sect3"><span class="enumeration_section">11.8.2</span> Gather Statistics for the Cost-Based Optimizer</h3>
+<div>
+<p>Statistics should be gathered on the standby database because the cost-based optimizer (CBO) uses them to determine the optimal query execution path. New statistics should be gathered after the data or structure of a schema object is modified in ways that make the previous statistics inaccurate. For example, after inserting or deleting a significant number of rows into a table, collect new statistics on the number of rows.</p>
+<p>Statistics should be gathered on the standby database because DML and DDL operations on the primary database are executed as a function of the workload. While the standby database is logically equivalent to the primary database, SQL Apply might execute the workload in a different way. This is why using the STATS pack on the logical standby database and the <code class="codeph">V$SYSSTAT</code> view can be useful in determining which tables are consuming the most resources and table scans.</p>
+<div class="infoboxnotealso" id="GUID-4DDC26F5-29CC-435E-9996-8887DA653032__GUID-D9C801C3-A87B-4A80-9B27-5F2EC5C3A401">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="create_ls.htm#GUID-C238335E-8383-43F1-B5B1-709A2A619C30">Ensure Table Rows in the Primary Database Can Be Uniquely Identified</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="SBYDB4841"></a>
+<div class="props_rev_3"><a id="GUID-8EFFAC57-9E1A-419E-AEAE-E5931D2845CB"></a>
+<h3 id="SBYDB-GUID-8EFFAC57-9E1A-419E-AEAE-E5931D2845CB" class="sect3"><span class="enumeration_section">11.8.3</span> Adjust the Number of Processes</h3>
+<div>
+<p>The following sections describe:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="manage_ls.htm#GUID-F105E232-364E-4F40-ADCE-E13EB3566A2E">Adjusting the Number of APPLIER Processes</a></p>
+</li>
+<li>
+<p><a href="manage_ls.htm#GUID-97300F48-66C4-4F9E-888D-DEFC0DDC10C8">Adjusting the Number of PREPARER Processes</a></p>
+</li>
+</ul>
+<p>There are three parameters that can be modified to control the number of processes allocated to SQL Apply: MAX_SERVERS, APPLY_SERVERS, and PREPARE_SERVERS. The following relationships must always hold true:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">APPLY_SERVERS + P</code><code class="codeph">REPARE_SERVERS =</code> <code class="codeph">MAX_SERVERS - 3</code></p>
+<p>This is because SQL Apply always allocates one process for the <code class="codeph">READER</code>, <code class="codeph">BUILDER</code>, and <code class="codeph">ANALYZER</code> roles.</p>
+</li>
+<li>
+<p>By default, <code class="codeph">MAX_SERVERS</code> is set to 9, <code class="codeph">PREPARE_SERVERS</code> is set to 1, and <code class="codeph">APPLY_SERVERS</code> is set to 5.</p>
+</li>
+<li>
+<p>Oracle recommends that you only change the <code class="codeph">MAX_SERVERS</code> parameter through the <code class="codeph">DBMS_LOGSTDBY.APPLY_SET</code> procedure, and allow SQL Apply to distribute the server processes appropriately between prepare and apply processes.</p>
+</li>
+<li>
+<p>SQL Apply uses a process allocation algorithm that allocates 1 <code class="codeph">PREPARE_SERVER</code> for every 20 server processes allocated to SQL Apply as specified by <code class="codeph">MAX_SERVER</code> and limits the number of <code class="codeph">PREPARE_SERVERS</code> to 5. Thus, if you set <code class="codeph">MAX_SERVERS</code> to any value between 1 and 20, SQL Apply allocates 1 server process to act as a <code class="codeph">PREPARER</code>, and allocates the rest of the processes as <code class="codeph">APPLIERS</code> while satisfying the relationship previously described. Similarly, if you set <code class="codeph">MAX_SERVERS</code> to a value between 21 and 40, SQL Apply allocates 2 server processes to act as <code class="codeph">PREPARERS</code> and the rest as <code class="codeph">APPLIERS</code>, while satisfying the relationship previously described. You can override this internal process allocation algorithm by setting <code class="codeph">APPLY_SERVERS</code> and <code class="codeph">PREPARE_SERVERS</code> directly, provided that the previously described relationship is satisfied.</p>
+</li>
+</ul>
+</div>
+<a id="SBYDB4842"></a>
+<div class="props_rev_3"><a id="GUID-F105E232-364E-4F40-ADCE-E13EB3566A2E"></a>
+<h4 id="SBYDB-GUID-F105E232-364E-4F40-ADCE-E13EB3566A2E" class="sect4"><span class="enumeration_section">11.8.3.1</span> Adjusting the Number of APPLIER Processes</h4>
+<div>
+<div class="section">
+<p>Perform the following steps to find out whether adjusting the number of <code class="codeph">APPLIER</code> processes will help you achieve greater throughput<a id="d23825e6079" class="indexterm-anchor"></a>:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Determine if <code class="codeph">APPLIER</code> processes are busy by issuing the following query:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT COUNT(*) AS IDLE_APPLIER -
+&gt; FROM V$LOGSTDBY_PROCESS -
+&gt; WHERE TYPE = &#39;APPLIER&#39; and status_code = 16116;
+
+IDLE_APPLIER
+-------------------------
+0
+</pre></div>
+</li>
+<li class="stepexpand"><span>Once you are sure there are no idle <code class="codeph">APPLIER</code> processes, issue the following query to ensure there is enough work available for additional <code class="codeph">APPLIER</code> processes if you choose to adjust the number of <code class="codeph">APPLIERS</code>:</span>
+<div>
+<pre dir="ltr">SELECT NAME, VALUE FROM V$LOGSTDBY_STATS WHERE NAME = &#39;txns applied&#39; OR NAME = &#39;distinct txns in queue&#39;;
+</pre>
+<p>These two statistics keep a cumulative total of transactions that are ready to be applied by the <code class="codeph">APPLIER</code> processes and the number of transactions that have already been applied.</p>
+<p>If the number (<code class="codeph">distinct txns in queue - txns applied</code>) is higher than twice the number of <code class="codeph">APPLIER</code> processes available, an improvement in throughput is possible if you increase the number of <code class="codeph">APPLIER</code> processes.</p>
+<div class="infobox-note" id="GUID-F105E232-364E-4F40-ADCE-E13EB3566A2E__GUID-E26A3F6A-77FA-4CD9-BD1B-CBBCAAF487F7">
+<p class="notep1">Note:</p>
+<p>The number is a rough measure of ready work. The workload may be such that an interdependency between ready transactions prevents additional available <code class="codeph">APPLIER</code> processes from applying them. For instance, if the majority of the transactions that are ready to be applied are DDL transactions, then adding more <code class="codeph">APPLIER</code> processes does not result in a higher throughput.</p>
+</div>
+<p>Suppose you want to adjust the number of <code class="codeph">APPLIER</code> processes to 20 from the default value of 5, while keeping the number of <code class="codeph">PREPARER</code> processes to 1. Because you must satisfy the following equation:</p>
+<pre dir="ltr">APPLY_SERVERS + PREPARE_SERVERS = MAX_SERVERS - 3
+</pre>
+<p>you must first set <code class="codeph">MAX_SERVERS</code> to 24. Once you have done that, you can set the number of <code class="codeph">APPLY_SERVERS</code> to 20, as follows:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;MAX_SERVERS&#39;, 24);
+SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;APPLY_SERVERS&#39;, 20);
+</pre></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="SBYDB4843"></a>
+<div class="props_rev_3"><a id="GUID-97300F48-66C4-4F9E-888D-DEFC0DDC10C8"></a>
+<h4 id="SBYDB-GUID-97300F48-66C4-4F9E-888D-DEFC0DDC10C8" class="sect4"><span class="enumeration_section">11.8.3.2</span> Adjusting the Number of PREPARER Processes</h4>
+<div>
+<div class="section">
+<p>In only rare cases do you need to adjust the number of <code class="codeph">PREPARER</code> processes. Before you decide to increase the number of <code class="codeph">PREPARER</code> processes, ensure the following conditions are true:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>All <code class="codeph">PREPARER</code> processes are busy</p>
+</li>
+<li>
+<p>The number of transactions ready to be applied is less than the number of <code class="codeph">APPLIER</code> processes available</p>
+</li>
+<li>
+<p>There are idle <code class="codeph">APPLIER</code> processes</p>
+</li>
+</ul>
+<p>The following steps show how to determine these conditions are true:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Ensure all <code class="codeph">PREPARER</code> processes are busy<a id="d23825e6258" class="indexterm-anchor"></a>:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT COUNT(*) AS IDLE_PREPARER -
+&gt; FROM V$LOGSTDBY_PROCESS -
+&gt; WHERE TYPE = &#39;PREPARER&#39; and status_code = 16116;
+
+IDLE_PREPARER
+-------------
+0
+</pre></div>
+</li>
+<li class="stepexpand"><span>Ensure the number of transactions ready to be applied is less than the number of <code class="codeph">APPLIER</code> processes:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT NAME, VALUE FROM V$LOGSTDBY_STATS WHERE NAME = &#39;txns applied&#39; OR - &gt; NAME = &#39;distinct txns in queue&#39;;
+
+NAME                          VALUE
+---------------------         -------
+txns applied                   27892
+distinct txns in queue         12896
+</pre>
+<pre dir="ltr">SQL&gt; SELECT COUNT(*) AS APPLIER_COUNT -
+&gt; FROM V$LOGSTDBY_PROCESS WHERE TYPE = &#39;APPLIER&#39;;
+
+APPLIER_COUNT
+-------------
+20
+</pre>
+<p>Note: Issue this query several times to ensure this is not a transient event.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Ensure there are idle <code class="codeph">APPLIER</code> processes:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT COUNT(*) AS IDLE_APPLIER -
+&gt; FROM V$LOGSTDBY_PROCESS -
+&gt; WHERE TYPE = &#39;APPLIER&#39; and status_code = 16116;
+
+IDLE_APPLIER
+-------------------------
+19
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<p>In the example, all three conditions necessary for increasing the number of <code class="codeph">PREPARER</code> processes have been satisfied. Suppose you want to keep the number of <code class="codeph">APPLIER</code> processes set to 20, and increase the number of <code class="codeph">PREPARER</code> processes from 1 to 3. Because you always have to satisfy the following equation:</p>
+<pre dir="ltr">APPLY_SERVERS + PREPARE_SERVERS = MAX_SERVERS - 3
+</pre>
+<p>you first need to increase the number <code class="codeph">MAX_SERVERS</code> from 24 to 26 to accommodate the increased number of preparers. You can then increase the number of <code class="codeph">PREPARER</code> processes, as follows:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;MAX_SERVERS&#39;, 26);
+SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;PREPARE_SERVERS&#39;, 3);
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="SBYDB4844"></a>
+<div class="props_rev_3"><a id="GUID-E856251B-C6AD-480A-9D9B-278BBF66688F"></a>
+<h3 id="SBYDB-GUID-E856251B-C6AD-480A-9D9B-278BBF66688F" class="sect3"><span class="enumeration_section">11.8.4</span> Adjust the Memory Used for LCR Cache</h3>
+<div>
+<div class="section">
+<p>For some workloads, SQL Apply may use a large number of pageout operations, thereby reducing the overall throughput of the system. To find out whether increasing memory allocated to LCR cache would be beneficial, perform the following steps:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Issue the following query to obtain a snapshot of pageout activity:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT NAME, VALUE FROM V$LOGSTDBY_STATS WHERE NAME LIKE &#39;%page%&#39; -
+&gt; OR NAME LIKE &#39;%uptime%&#39; OR NAME LIKE &#39;%idle%&#39;;
+</pre>
+<pre dir="ltr">NAME                             VALUE
+----------------------------     --------------
+coordinator uptime (seconds)             894856
+bytes paged out                           20000
+pageout time (seconds)                        2
+system idle time (seconds)                 1000
+</pre></div>
+</li>
+<li class="stepexpand"><span>Issue the query again in 5 minutes:</span>
+<div>
+<pre dir="ltr">SQL&gt; SELECT NAME, VALUE FROM V$LOGSTDBY_STATS WHERE NAME LIKE &#39;%page%&#39; -
+&gt; OR NAME LIKE &#39;%uptime%&#39; OR NAME LIKE &#39;%idle%&#39;;
+</pre>
+<pre dir="ltr">NAME                             VALUE
+----------------------------     --------------
+coordinator uptime (seconds)             895156
+bytes paged out                         1020000
+pageout time (seconds)                      100
+system idle time (seconds)                 1000
+</pre></div>
+</li>
+<li class="stepexpand"><span>Compute the normalized pageout activity. For example:</span>
+<div>
+<pre dir="ltr">Change in coordinator uptime (C)= (895156 &ndash; 894856) = 300 secs
+Amount of additional idle time (I)= (1000 &ndash; 1000) = 0
+Change in time spent in pageout (P) = (100 &ndash; 2) = 98 secs
+Pageout time in comparison to uptime = P/(C-I) = 98/300 ~ 32.67%
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<p>Ideally, the pageout activity should not consume more than 5 percent of the total uptime. If you continue to take snapshots over an extended interval and you find the pageout activities continue to consume a significant portion of the apply time, increasing the memory size may provide some benefits. You can increase the memory allocated to SQL Apply by setting the memory allocated to LCR cache (for this example, the SGA is set to 1 GB):</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;MAX_SGA&#39;, 1024);
+PL/SQL procedure successfully completed
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="SBYDB4845"></a>
+<div class="props_rev_3"><a id="GUID-486200D3-C7A5-4B21-9C81-FC654AD405DD"></a>
+<h3 id="SBYDB-GUID-486200D3-C7A5-4B21-9C81-FC654AD405DD" class="sect3"><span class="enumeration_section">11.8.5</span> Adjust How Transactions are Applied On the Logical Standby Database</h3>
+<div>
+<div class="section">
+<p>By default transactions are applied on the logical standby database in the exact order in which they were committed on the primary database. The strict default order of committing transactions allow any application to run transparently on the logical standby database.</p>
+<p>However, many applications do not require such strict ordering among all transactions. Such applications do not require transactions containing non-overlapping sets of rows to be committed in the same order that they were committed at the primary database. This less strict ordering typically results in higher apply rates at the logical standby database. You can change the default order of committing transactions by performing the following steps:</p>
+<ol>
+<li>
+<p>Stop SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+Database altered
+</pre></li>
+<li>
+<p>Issue the following to allow transactions to be applied out of order from how they were committed on the primary databases:</p>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_SET(&#39;PRESERVE_COMMIT_ORDER&#39;, &#39;FALSE&#39;);
+PL/SQL procedure successfully completed
+</pre></li>
+<li>
+<p>Start SQL Apply:</p>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+Database altered
+</pre></li>
+</ol>
+<p>You can change back the apply mode as follows:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Stop SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE STOP LOGICAL STANDBY APPLY;
+Database altered
+</pre></div>
+</li>
+<li class="stepexpand"><span>Restore the default value for the <code class="codeph">PRESERVE_COMMIT_ORDER</code> parameter:</span>
+<div>
+<pre dir="ltr">SQL&gt; EXECUTE DBMS_LOGSTDBY.APPLY_UNSET(&#39;PRESERVE_COMMIT_ORDER&#39;);
+PL/SQL procedure successfully completed
+</pre></div>
+</li>
+<li class="stepexpand"><span>Start SQL Apply:</span>
+<div>
+<pre dir="ltr">SQL&gt; ALTER DATABASE START LOGICAL STANDBY APPLY IMMEDIATE;
+Database altered
+</pre>
+<p>For a typical online transaction processing (OLTP) workload, the nondefault mode can provide a 50 percent or better throughput improvement over the default apply mode.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="SBYDB5050"></a><a id="SBYDB5051"></a><a id="SBYDB5052"></a><a id="SBYDB5053"></a><a id="SBYDB4846"></a>
+<div class="props_rev_3"><a id="GUID-4A691CE0-7424-4547-800E-0C9D606F0607"></a>
+<h2 id="SBYDB-GUID-4A691CE0-7424-4547-800E-0C9D606F0607" class="sect2"><span class="enumeration_section">11.9</span> Backup and Recovery in the Context of a Logical Standby Database</h2>
+<div>
+<p>You can back up your logical standby database using the traditional methods available and then recover it by restoring the database backup and performing media recovery on the archived logs, in conjunction with the backup. The following items are relevant in the context of a logical standby database.</p>
+<div class="section">
+<p class="subhead2">Considerations When Creating and Using a Local RMAN Recovery Catalog</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>If you plan to create the RMAN recovery catalog or perform any RMAN activity that modifies the catalog, you must be running with <code class="codeph">GUARD</code> set to <code class="codeph">STANDBY</code> at the logical standby database.</p>
+<p>You can leave <code class="codeph">GUARD</code> set to <code class="codeph">ALL</code>, if the local recovery catalog is kept only in the logical standby control file.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Considerations For Control File Backup</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Oracle recommends that you take a control file backup immediately after instantiating a logical standby database.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Considerations For Point-in-Time Recovery</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>When SQL Apply is started for the first time following point-in-time recovery, it must be able to either find the required archived logs on the local system or to fetch them from the primary database. Use the <code class="codeph">V$LOGSTDBY_PROCESS</code> view to determine if any archived logs need to be restored on the primary database.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Considerations For Tablespace Point-in-Time Recovery</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>If you perform point-in-time recovery for a tablespace in a logical standby database, you must ensure one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The tablespace contains no tables or partitions that are being maintained by the SQL Apply process</p>
+</li>
+<li>
+<p>If the tablespace contains tables or partitions that are being maintained by the SQL Apply process, then either use the <code class="codeph">DBMS_LOGSTDBY.INSTANTIATE_TABL</code>E procedure to reinstantiate all of the maintained tables contained in the recovered tablespace at the logical standby database, or use <code class="codeph">DBMS_LOGSTDBY.SKIP</code> procedure to register all tables contained in the recovered tablespace to be skipped from the maintained table list at the logical standby database.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2252">
+<tr>
+<td class="cellalignment2259">
+<table class="cellalignment2257">
+<tr>
+<td class="cellalignment2256"><a href="manage_ps.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2256"><a href="rman.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2261">
+<table class="cellalignment2255">
+<tr>
+<td class="cellalignment2256"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2256"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2256"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2256"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2256"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2256"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

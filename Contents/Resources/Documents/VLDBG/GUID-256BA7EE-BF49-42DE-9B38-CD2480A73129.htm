@@ -1,0 +1,186 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114220"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Partial%20Indexes%20for%20Partitioned%20Tables"></a><title>Partial Indexes for Partitioned Tables</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-0713E6BC-53D8-4CC4-A358-BF84596D2435.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-641946BC-B8D5-4886-BCC8-6505E5619A70.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-256BA7EE-BF49-42DE-9B38-CD2480A73129"></a> <span id="PAGE" style="display:none;">50/481</span> <!-- End Header --><a id="VLDBG14102"></a>
+<h1 id="VLDBG-GUID-256BA7EE-BF49-42DE-9B38-CD2480A73129" class="sect1">Partial Indexes for Partitioned Tables</h1>
+<div>
+<p><a id="d13103e61" class="indexterm-anchor"></a><a id="d13103e65" class="indexterm-anchor"></a>You can create local and global indexes on a subset of the partitions of a table, enabling more flexibility in index creation. This feature is supported using a default table indexing property. When a table is created or altered, a default indexing property can be specified for the table or its partitions. The table indexing property is only considered for partial indexes.</p>
+<p>When an index is created as <code>PARTIAL</code> on a table:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Local indexes: An index partition is created usable if indexing is turned on for the table partition, and unusable otherwise. You can override this behavior by specifying <code>USABLE</code>/<code>UNUSABLE</code> at the index or index partition level.</p>
+</li>
+<li>
+<p>Global indexes: Includes only those partitions for which indexing is turned on, and exclude the others.</p>
+</li>
+</ul>
+<p>This feature is not supported for unique indexes, or for indexes used for enforcing unique constraints. <code>FULL</code> is the default if neither <code>FULL</code> nor <code>PARTIAL</code> is specified.</p>
+<p>By default, any index is created as <code>FULL</code> index, which decouples the index from the table indexing property.</p>
+<p>The <code>INDEXING</code> clause may also be specified at the partition and subpartition levels.</p>
+<p>The following SQL DDL creates a table with these items:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Partitions <code>ORD_P1</code> and <code>ORD_P3</code> are included in all partial global indexes</p>
+</li>
+<li>
+<p>Local index partitions (for indexes created <code>PARTIAL</code>) corresponding to the above two table partitions are created usable by default.</p>
+</li>
+<li>
+<p>Other partitions are excluded from all partial global indexes, and created unusable in local indexes (for indexes created <code>PARTIAL</code>).</p>
+</li>
+</ul>
+<pre dir="ltr">CREATE TABLE orders (
+  order_id NUMBER(12),
+  order_date DATE CONSTRAINT order_date_nn NOT NULL,
+  order_mode VARCHAR2(8),
+  customer_id NUMBER(6) CONSTRAINT order_customer_id_nn NOT NULL,
+  order_status NUMBER(2),
+  order_total NUMBER(8,2),
+  sales_rep_id NUMBER(6),
+  promotion_id NUMBER(6),
+  CONSTRAINT order_mode_lov CHECK (order_mode in (&#39;direct&#39;,&#39;online&#39;)),
+  CONSTRAINT order_total_min CHECK (order_total &gt;= 0))
+   INDEXING OFF
+   PARTITION BY RANGE (ORDER_DATE)
+   (PARTITION ord_p1 VALUES LESS THAN (TO_DATE(&#39;01-MAR-1999&#39;,&#39;DD-MON-YYYY&#39;)) 
+     INDEXING ON,
+   PARTITION ord_p2 VALUES LESS THAN (TO_DATE(&#39;01-JUL-1999&#39;,&#39;DD-MON-YYYY&#39;)) 
+     INDEXING OFF,
+   PARTITION ord_p3 VALUES LESS THAN (TO_DATE(&#39;01-OCT-1999&#39;,&#39;DD-MON-YYYY&#39;)) 
+     INDEXING ON,
+   PARTITION ord_p4 VALUES LESS THAN (TO_DATE(&#39;01-MAR-2000&#39;,&#39;DD-MON-YYYY&#39;)),
+   PARTITION ord_p5 VALUES LESS THAN (TO_DATE(&#39;01-MAR-2010&#39;,&#39;DD-MON-YYYY&#39;)));
+</pre>
+<p>A local or global partial index, can be created to follow the table indexing properties of the previous SQL example by specification of the <code>INDEXING</code> <code>PARTIAL</code> clause.</p>
+<pre dir="ltr">CREATE INDEX ORDERS_ORDER_TOTAL_GIDX ON ORDERS (ORDER_TOTAL)
+   GLOBAL INDEXING PARTIAL;
+</pre>
+<p>The <code>ORDERS_ORDER_TOTAL_GIDX</code> index is created to index only those partitions that have <code>INDEXING</code> <code>ON</code>, and excludes the remaining partitions.</p>
+<p>Updates to views include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Table Indexing Property - The column <code>INDEXING</code> is added to *<code>_PART_TABLES</code>, *<code>_TAB_PARTITIONS</code>, and *<code>_TAB_SUBPARTITIONS</code> views.</p>
+<p>This column has one of two values <code>ON</code> or <code>OFF</code>, specifying indexing on or indexing off.</p>
+</li>
+<li>
+<p>Partial Global Indexes as an Index Level Property - A new column <code>INDEXING</code> is added to the <code>USER_INDEXES</code> view. This column can be set to <code>FULL</code> or <code>PARTIAL</code>.</p>
+</li>
+<li>
+<p>Partial Global Index Optimization - The column <code>ORPHANED_ENTRIES</code> is added to the dictionary views <code>USER_INDEXES</code> and <code>USER_IND_PARTITIONS</code> to represent if a global index (partition) contains stale entries owing to deferred index maintenance during <code>DROP</code>/<code>TRUNCATE</code> <code>PARTITION</code>, or <code>MODIFY</code> <code>PARTITION</code> <code>INDEXING</code> <code>OFF</code>. The column can have one of three values:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>YES</code> =&gt; the index (partition) contains orphaned entries</p>
+</li>
+<li>
+<p><code>NO</code> =&gt; the index (partition) does not contain any orphaned entries</p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-256BA7EE-BF49-42DE-9B38-CD2480A73129__GUID-88221C33-0143-43DA-ACDD-AEB99F0A755B">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN002" target="_blank" href="../REFRN/GUID-8865F65B-EF6D-44A5-B0A1-3179EFF0C36A.htm#REFRN002"><span class="italic">Oracle Database Reference</span></a> for information about the database views</p>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-0713E6BC-53D8-4CC4-A358-BF84596D2435.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-641946BC-B8D5-4886-BCC8-6505E5619A70.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

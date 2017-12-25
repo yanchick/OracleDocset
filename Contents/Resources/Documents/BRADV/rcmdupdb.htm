@@ -1,0 +1,1728 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-2671"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Duplicating%20a%20Database"></a><title>Duplicating a Database</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="active database duplication, determining technique used, CDBs, duplicating, duplicate databases, PDBs, duplicating tablespaces in, tablespaces in PDBs, active database duplication, encrypting backup sets, compressing backup sets, compressing, backup sets, during active database duplication, creating backup sets in parallel, specifying the state, DUPLICATE command, NOOPEN clause, generating file names, database duplication, initialization parameter file, starting auxiliary instance, backup-based duplication, configuring channels, example, duplicating databases, duplication, restarting after a failure, restarting, duplication after a failure"/>
+<meta name="dcterms.created" content="2017-06-07T23:52:16Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Backup and Recovery User&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E50658-09"/>
+<meta name="dcterms.isVersionOf" content="BRADV"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2003, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="part_tra.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="rcmdupad.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E50658-09.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-94E3F324-33F7-451E-83E1-18523E916CD3"></a> <span id="PAGE" style="display:none;">39/48</span> <!-- End Header -->
+<a id="BRADV010"></a>
+<h1 id="BRADV-GUID-94E3F324-33F7-451E-83E1-18523E916CD3" class="sect1"><span class="enumeration_chapter">25</span> Duplicating a Database</h1>
+<div>
+<p>This chapter describes how to use <a id="d98114e68" class="indexterm-anchor"></a><a id="d98114e70" class="indexterm-anchor"></a>the <code class="codeph">DUPLICATE</code> command to create an independently functioning database copy.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span><a href="rcmdupdb.htm#GUID-93D07199-4031-4161-8896-0433602345CD" title="RMAN enables you to duplicate PDBs with the DUPLICATE command. You can duplicate a single PDB, a set of PDBs, or a set of tablespaces within a PDB.">Overview of RMAN Database Duplication</a></span></p>
+</li>
+<li>
+<p><span><a href="rcmdupdb.htm#GUID-6FE42904-990E-464E-A278-D7059A00BA3C">Preparing to Duplicate a Database</a></span></p>
+</li>
+<li>
+<p><span><a href="rcmdupdb.htm#GUID-C9221113-EC56-40D1-86C9-84F29A20CCD8">Starting RMAN and Connecting to Databases</a></span></p>
+</li>
+<li>
+<p><span><a href="rcmdupdb.htm#GUID-D3DAE858-C6C3-43CA-B728-AFE3E8CA08A4">Configuring RMAN Channels for Use in Duplication</a></span></p>
+</li>
+<li>
+<p><span><a href="rcmdupdb.htm#GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06">Duplicating a Database</a></span></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-D65799A8-0921-4DFE-B407-21715911DA21" title="This example shows how to use a script to automate the process of duplicating a target database.">Example: Script to Duplicate a Database Using Backup-based Duplication</a></p>
+</li>
+<li>
+<p><span><a href="rcmdupdb.htm#GUID-D5673FBE-0070-4266-B13C-E94164DB3CEE">Restarting DUPLICATE After a Failure</a></span></p>
+</li>
+</ul>
+</div>
+<a id="BRADV89927"></a>
+<div class="props_rev_3"><a id="GUID-93D07199-4031-4161-8896-0433602345CD"></a>
+<h2 id="BRADV-GUID-93D07199-4031-4161-8896-0433602345CD" class="sect2">Overview of RMAN Database Duplication</h2>
+<div>
+<p>Database <span class="bold">duplication</span> is the use of the <code class="codeph">DUPLICATE</code> command to copy all or a subset of the data in a source database. The <a href="glossary.htm#GUID-FFB6CFD5-300C-4290-B3C0-BFD930ACA30C"><span class="xrefglossterm">duplicate database</span></a> (the copied database) functions entirely independently from the <a href="glossary.htm#GUID-609A4BFA-A852-4459-AD52-05C49212753A"><span class="xrefglossterm">source database</span></a> (the database being copied).</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmdupdb.htm#GUID-1F3AB2AC-80FB-421D-B44D-48B229655363">Purpose of Database Duplication</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-C890DBA3-A58B-4FA5-A4B1-8FE8DFF8E600">Basic Concepts of Database Duplication</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-5C007067-E891-45AF-9985-50C052889078">Basic Steps of Database Duplication</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-CDAB76DC-2FED-42EC-B9F9-C5898F7048A5">Duplicating CDBs</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-F8A5EEA9-F32E-4CB0-8C97-C9D0A5F942F1" title="RMAN enables you to duplicate PDBs with the DUPLICATE command. You can duplicate a single PDB, a set of PDBs, or a set of tablespaces within a PDB.">Duplicating PDBs</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV89928"></a>
+<div class="props_rev_3"><a id="GUID-1F3AB2AC-80FB-421D-B44D-48B229655363"></a>
+<h3 id="BRADV-GUID-1F3AB2AC-80FB-421D-B44D-48B229655363" class="sect3">Purpose of Database Duplication</h3>
+<div>
+<p>A duplicate database is useful for a variety of purposes, most of which involve testing. You can perform the following tasks in a duplicate database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Test backup and recovery procedures</p>
+</li>
+<li>
+<p>Test an upgrade to a new release of Oracle Database</p>
+</li>
+<li>
+<p>Test the effect of applications on database performance</p>
+</li>
+<li>
+<p>Create a standby database</p>
+</li>
+<li>
+<p>Generate reports</p>
+</li>
+</ul>
+<p>For example, you can duplicate the production database on <code class="codeph">host1</code> to <code class="codeph">host2</code>, and then use the duplicate database on <code class="codeph">host2</code> to practice restoring and recovering this database while the production database on <code class="codeph">host1</code> operates as usual.</p>
+<p>If you copy a database with operating system utilities rather than the <code class="codeph">DUPLICATE</code> command, then the <a href="glossary.htm#GUID-2ABBEADC-F98C-4CF9-AD5B-065337E2733B"><span class="xrefglossterm">DBID</span></a> of the copied database remains the same as the original database. To register the copied database in the same recovery catalog with the original, you must change the DBID with the <a id="d98114e357" class="indexterm-anchor"></a>DBNEWID utility (see <a class="olink SUTIL" target="_blank" href="../SUTIL/toc.htm"><span class="italic">Oracle Database Utilities</span></a>). In contrast, the <code class="codeph">DUPLICATE</code> command automatically assigns the duplicate database a different DBID so that it can be registered in the same recovery catalog as the source database.</p>
+<p><a id="d98114e369" class="indexterm-anchor"></a>The <code class="codeph">DUPLICATE</code> command can create a fully functional copy of your database or create a <a href="glossary.htm#GUID-009B3F56-8C1E-4CF6-AF0F-A9D2C2E4B9C2"><span class="xrefglossterm">physical standby database</span></a>, which serves a very different purpose. A standby database is a copy of the primary database that you update continually with archived redo log files from the primary database. If the primary database is inaccessible, then you can fail over to the standby database, which becomes the new primary database. A database copy, however, cannot be used in this way: it is not intended for failover scenarios and does <span class="italic">not</span> support the various standby recovery and failover options.</p>
+<div class="infoboxnotealso" id="GUID-1F3AB2AC-80FB-421D-B44D-48B229655363__GUID-AEE8444F-99C6-4918-BB5C-245028458889">
+<p class="notep1">See Also:</p>
+<p><a class="olink SBYDB01500" target="_blank" href="../SBYDB/rcmbackp.htm#SBYDB01500"><span class="italic">Oracle Data Guard Concepts and Administration</span></a> to learn how to create a standby database with the <code class="codeph">DUPLICATE</code> command</p>
+</div>
+</div>
+</div>
+<a id="BRADV89929"></a>
+<div class="props_rev_3"><a id="GUID-C890DBA3-A58B-4FA5-A4B1-8FE8DFF8E600"></a>
+<h3 id="BRADV-GUID-C890DBA3-A58B-4FA5-A4B1-8FE8DFF8E600" class="sect3">Basic Concepts of Database Duplication</h3>
+<div>
+<p>The <a href="glossary.htm#GUID-031A8C43-8FC5-46D6-B45B-E5BBA707F22D"><span class="xrefglossterm">source host</span></a> is the computer that hosts the <a href="glossary.htm#GUID-609A4BFA-A852-4459-AD52-05C49212753A"><span class="xrefglossterm">source database</span></a>. The <span class="bold">source database instance</span> is the instance associated with the source database.</p>
+<p>The <a href="glossary.htm#GUID-45F2720B-CAFE-4120-8D54-05F435852FA3"><span class="xrefglossterm">destination host</span></a> is the computer that hosts the duplicate database. The source host and destination host can be the same or different computers. For the duplication process, the database instance associated with the duplicate database is called the <a href="glossary.htm#GUID-4B8BBEA0-2F0F-4C5E-AE69-F1EE4DBA1B46"><span class="xrefglossterm">auxiliary instance</span></a>.</p>
+<div class="infobox-note" id="GUID-C890DBA3-A58B-4FA5-A4B1-8FE8DFF8E600__GUID-B05F395B-D9D8-4E5D-A9AB-F06B7158FEFE">
+<p class="notep1">Note:</p>
+<p>Performing simultaneous database duplication operations using the same source database is not supported.</p>
+</div>
+</div>
+<a id="BRADV531"></a><a id="BRADV416"></a>
+<div class="props_rev_3"><a id="GUID-5B67EEA8-E89E-4B83-B9AF-97AACB0AE4E4"></a>
+<h4 id="BRADV-GUID-5B67EEA8-E89E-4B83-B9AF-97AACB0AE4E4" class="sect4">Techniques for Duplicating a Database</h4>
+<div>
+<p>RMAN supports two basic types of duplication: active database duplication and backup-based duplication. RMAN can perform backup-based duplication with or without either of the following connections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Target</p>
+</li>
+<li>
+<p>Recovery catalog</p>
+</li>
+</ul>
+<p>A connection to both is required for active database duplication.</p>
+<p><a href="rcmdupdb.htm#GUID-5B67EEA8-E89E-4B83-B9AF-97AACB0AE4E4__BGBBFIAD">Figure 25-1</a> shows the decision tree for the two duplication techniques.</p>
+<div class="figure" id="GUID-5B67EEA8-E89E-4B83-B9AF-97AACB0AE4E4__BGBBFIAD">
+<p class="titleinfigure">Figure 25-1 Duplication Techniques</p>
+<img width="498" height="185" src="img/GUID-7D20C5A9-962B-42D1-B6EC-3C1119D3108C-default.gif" alt="Description of Figure 25-1 follows" title="Description of Figure 25-1 follows"/><br/>
+<a href="img_text/GUID-7D20C5A9-962B-42D1-B6EC-3C1119D3108C-print.htm">Description of &#34;Figure 25-1 Duplication Techniques&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="BRADV419"></a><a id="BRADV759"></a><a id="BRADV418"></a>
+<div class="props_rev_3"><a id="GUID-6F4CA5AA-DE19-4618-8707-519156FFC1B4"></a>
+<h5 id="BRADV-GUID-6F4CA5AA-DE19-4618-8707-519156FFC1B4" class="sect5">About Active Database Duplication with RMAN</h5>
+<div>
+<p><a id="d98114e653" class="indexterm-anchor"></a><a id="d98114e657" class="indexterm-anchor"></a>In <a href="glossary.htm#GUID-6B3A07BC-474E-43D4-99CF-CB02DD977938"><span class="xrefglossterm">active database duplication</span></a>, RMAN connects as <code class="codeph">TARGET</code> to the source database instance and as <code class="codeph">AUXILIARY</code> to the auxiliary instance. RMAN then manages the copying of the database to the auxiliary instance over the network. No backups of the source database are required.</p>
+<p>RMAN can transfer the files required for active database duplication as image copies or backup sets.</p>
+<div class="infobox-note" id="GUID-6F4CA5AA-DE19-4618-8707-519156FFC1B4__GUID-06DB36E5-4A2E-4186-B17E-3AB9A13A043D">
+<p class="notep1">Note:</p>
+<p>Performing active database duplication using backup sets is available starting with Oracle Database 12<span class="italic">c</span> Release 1 (12.1).</p>
+</div>
+<p><a href="rcmdupdb.htm#GUID-6F4CA5AA-DE19-4618-8707-519156FFC1B4__BGBHBEJH">Figure 25-2</a> illustrates active database duplication.</p>
+<div class="figure" id="GUID-6F4CA5AA-DE19-4618-8707-519156FFC1B4__BGBHBEJH">
+<p class="titleinfigure">Figure 25-2 Active Database Duplication</p>
+<img width="438" height="330" src="img/GUID-3EB4FF7B-8F3E-45AF-810F-D56334B97C6E-default.gif" alt="Description of Figure 25-2 follows" title="Description of Figure 25-2 follows"/><br/>
+<a href="img_text/GUID-3EB4FF7B-8F3E-45AF-810F-D56334B97C6E-print.htm">Description of &#34;Figure 25-2 Active Database Duplication&#34;</a></div>
+<!-- class="figure" -->
+<p>When <a id="d98114e688" class="indexterm-anchor"></a>active database duplication is performed using image copies, after RMAN establishes a connection with the source database, the source database transfers the required database files to the auxiliary database. Using image copies may require additional resources on the source database. This method is referred to as the <span class="bold">push-based method</span> of active database duplication.</p>
+<p>When RMAN performs <a id="d98114e700" class="indexterm-anchor"></a>active database duplication using backup sets, a connection is established with the source database and the auxiliary database. The auxiliary database then connects to the source database through Oracle Net Services and retrieves the required database files from the source database. This method of active database duplication is also to as the <span class="bold">pull-based method</span>.</p>
+<p>Using backup sets for active database duplication provides certain advantages<a id="d98114e712" class="indexterm-anchor"></a>. RMAN can employ <span class="bold"><a href="glossary.htm#GUID-0AA7EB43-FEA6-405F-9443-A4A2B43FFF96"><span class="xrefglossterm">unused block compression</span></a></span> while creating backups, thus reducing the size of backups that are transported over the network. Backup sets can be created in parallel on the source database by using multisection backups. You can also encrypt backup sets created on the source database.</p>
+<div class="infoboxnotealso" id="GUID-6F4CA5AA-DE19-4618-8707-519156FFC1B4__GUID-F91EC53E-6840-4241-A117-BAA40EC8F6ED">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="rcmdupdb.htm#GUID-456B8989-D281-4319-913B-88034B786A18">Specifying Encryption for Active Database Duplication</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="rcmdupdb.htm#GUID-04DF6B0A-4441-4648-B153-12D7360E0112">Compressing Backup Sets Used to Perform Active Database Duplication</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="rcmdupdb.htm#GUID-812420FE-9B1F-4EB8-A6A5-64845D714890">Creating Backup Sets in Parallel During Active Database Duplication</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+<div class="section">
+<p class="subhead3">Factors That Determine Whether Backup Sets or Image Copies Are Used for Active Database Duplication</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>RMAN only uses image copies to perform active database duplication when no auxiliary channels are allocated or when the number of auxiliary channels allocated is less than the number of target channels.</p>
+<p>RMAN uses backup sets to perform active database duplication when the connection to the target database is established using a net service name and any one of the following conditions is satisfied:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">DUPLICATE ... FROM ACTIVE DATABASE</code> command contains either the <code class="codeph">USING BACKUPSET, USING COMPRESSED BACKUPSET</code>, or <code class="codeph">SECTION SIZE</code> clause.</p>
+</li>
+<li>
+<p>The number of auxiliary channels allocated is equal to or greater than the number of target channels allocated.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-6F4CA5AA-DE19-4618-8707-519156FFC1B4__GUID-3068A88D-B69B-4A05-9884-3531E85E1076">
+<p class="notep1">Note:</p>
+<p>Oracle recommends that you use backup sets to perform active database duplication.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV421"></a><a id="BRADV532"></a><a id="BRADV422"></a><a id="BRADV420"></a>
+<div class="props_rev_3"><a id="GUID-90174F1B-BB61-44C1-A264-7F09BD690048"></a>
+<h5 id="BRADV-GUID-90174F1B-BB61-44C1-A264-7F09BD690048" class="sect5">About Backup-Based Duplication with RMAN</h5>
+<div>
+<p>In<a id="d98114e844" class="indexterm-anchor"></a> <a href="glossary.htm#GUID-84A1136E-32F6-4439-B7A4-40545D52FC4D"><span class="xrefglossterm">backup-based duplication</span></a>, RMAN creates the duplicate database by using preexisting RMAN backups and copies. This technique of duplication uses one of the following mutually exclusive methods:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a id="d98114e856" class="indexterm-anchor"></a>Duplication without a target database connection. RMAN obtains metadata about backups from a recovery catalog.</p>
+</li>
+<li>
+<p><a id="d98114e865" class="indexterm-anchor"></a>Duplication without a target database connection and without a recovery catalog. RMAN obtains metadata about where backups and copies reside from the <code class="codeph">BACKUP LOCATION</code> clause specification of the <code class="codeph">DUPLICATE</code> command.</p>
+</li>
+<li>
+<p><a id="d98114e880" class="indexterm-anchor"></a>Duplication with a target database connection. RMAN obtains metadata about backups from the target database control file or from the recovery catalog.</p>
+</li>
+</ul>
+<p><a href="rcmdupdb.htm#GUID-90174F1B-BB61-44C1-A264-7F09BD690048__BGBIFBJI">Figure 25-3</a> illustrates backup-based duplication without a target connection. RMAN connects to a recovery catalog database instance and the auxiliary instance. The destination host must have access to the RMAN backups required to create the duplicate database.</p>
+<div class="figure" id="GUID-90174F1B-BB61-44C1-A264-7F09BD690048__BGBIFBJI">
+<p class="titleinfigure">Figure 25-3 Backup-Based Duplication Without a Target Connection</p>
+<img width="476" height="308" src="img/GUID-45671AE2-5565-45B2-988D-EB6D5C922074-default.gif" alt="Description of Figure 25-3 follows" title="Description of Figure 25-3 follows"/><br/>
+<a href="img_text/GUID-45671AE2-5565-45B2-988D-EB6D5C922074-print.htm">Description of &#34;Figure 25-3 Backup-Based Duplication Without a Target Connection&#34;</a></div>
+<!-- class="figure" -->
+<p><a href="rcmdupdb.htm#GUID-90174F1B-BB61-44C1-A264-7F09BD690048__BGBIADHG">Figure 25-4</a> illustrates backup-based duplication <span class="italic">without</span> connections to the target or to the recovery catalog database instance. RMAN connects to the auxiliary instance of the duplicate database on the destination host. A disk backup location containing all the backups or copies for duplication must be available to the destination host.</p>
+<div class="figure" id="GUID-90174F1B-BB61-44C1-A264-7F09BD690048__BGBIADHG">
+<p class="titleinfigure">Figure 25-4 Backup-Based Duplication Without a Target Connection or Recovery Catalog Connection</p>
+<img width="420" height="269" src="img/GUID-5C21A5E1-FB65-4482-B6AB-A79A86A8199D-default.gif" alt="Description of Figure 25-4 follows" title="Description of Figure 25-4 follows"/><br/>
+<a href="img_text/GUID-5C21A5E1-FB65-4482-B6AB-A79A86A8199D-print.htm">Description of &#34;Figure 25-4 Backup-Based Duplication Without a Target Connection or Recovery Catalog Connection&#34;</a></div>
+<!-- class="figure" -->
+<p><a href="rcmdupdb.htm#GUID-90174F1B-BB61-44C1-A264-7F09BD690048__BGBFFBFC">Figure 25-5</a> illustrates backup-based duplication <span class="italic">with</span> a target connection. RMAN connects to the source database instance and the auxiliary instance. Optionally, RMAN can connect to a recovery catalog database (not shown in the figure). The destination host must have access to the RMAN backups required to create the duplicate database.</p>
+<div class="figure" id="GUID-90174F1B-BB61-44C1-A264-7F09BD690048__BGBFFBFC">
+<p class="titleinfigure">Figure 25-5 Backup-Based Duplication with a Target Connection</p>
+<img width="476" height="311" src="img/GUID-7D141235-949D-416D-B124-7A27A691FFA3-default.gif" alt="Description of Figure 25-5 follows" title="Description of Figure 25-5 follows"/><br/>
+<a href="img_text/GUID-7D141235-949D-416D-B124-7A27A691FFA3-print.htm">Description of &#34;Figure 25-5 Backup-Based Duplication with a Target Connection&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+</div>
+<a id="BRADV423"></a>
+<div class="props_rev_3"><a id="GUID-48E8AC1E-B3BB-49E0-9E5B-328130C916E5"></a>
+<h4 id="BRADV-GUID-48E8AC1E-B3BB-49E0-9E5B-328130C916E5" class="sect4">Contents of a Duplicate Database</h4>
+<div>
+<p>A duplicate database can include the same contents as the source database or only a subset of the tablespaces in the source database. For example, you can use the <code class="codeph">TABLESPACE</code> option of the <code class="codeph">DUPLICATE</code> command to duplicate only specified tablespaces, or the <code class="codeph">SKIP READONLY</code> option to exclude read-only tablespaces from the duplicate database.</p>
+</div>
+</div>
+<a id="BRADV424"></a>
+<div class="props_rev_3"><a id="GUID-49605DB7-8215-4F17-BEF3-814297D6BDBC"></a>
+<h4 id="BRADV-GUID-49605DB7-8215-4F17-BEF3-814297D6BDBC" class="sect4">How RMAN Duplicates a Database</h4>
+<div>
+<p>For backup-based duplication, <a id="d98114e1067" class="indexterm-anchor"></a>the <a id="d98114e1072" class="indexterm-anchor"></a>principal work of the duplication is performed by <a id="d98114e1077" class="indexterm-anchor"></a><a id="d98114e1079" class="indexterm-anchor"></a>the <a href="glossary.htm#GUID-A777765B-B2E8-4242-87F2-3E3A34489C6D"><span class="xrefglossterm">auxiliary channel</span></a>s. These channels correspond to a server session on the auxiliary instance on the destination host. For active database duplication, the type of duplication technique used determines which channel performs the principal work. When active database duplication is performed using backup sets, the principal work of duplication is performed by the auxiliary channels. When image copies are used, the primary work is performed by the target channels.</p>
+<p>RMAN must perform database point-in-time recovery, even when no explicit point in time is provided for duplication. Point-in-time recovery is required because the online redo log files in the source database are not backed up and cannot be applied to the duplicate database. The farthest point of recovery of the duplicate database is the most recent redo log file archived by the source database.</p>
+<p>As part of the duplicating operation, RMAN automates the following steps:</p>
+<ol>
+<li>
+<p>Creates a default server parameter file for the auxiliary instance if the following conditions are true:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Duplication does not involve a standby database.</p>
+</li>
+<li>
+<p>Server parameter files are not being duplicated.</p>
+</li>
+<li>
+<p>The auxiliary instance was not started with a server parameter file.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Restores from backup or copies from the active database the latest control file that satisfies the <code class="codeph">UNTIL</code> clause requirements.</p>
+</li>
+<li>
+<p>Mounts the restored or copied backup control file from the active database.</p>
+<div class="infobox-note" id="GUID-49605DB7-8215-4F17-BEF3-814297D6BDBC__GUID-C45EAA93-8331-4B67-8703-3A0A4F8C861B">
+<p class="notep1">Note:</p>
+<p>If the control file in the source database contains disabled threads, then these threads will also be disabled in the duplicate database.</p>
+</div>
+</li>
+<li>
+<p>Uses the RMAN repository to select the backups for restoring the data files to the auxiliary instance. This step applies to backup-based duplication.</p>
+</li>
+<li>
+<p>Copies the duplicate data files and restores them with incremental backups and archived redo log files to a noncurrent point in time.</p>
+</li>
+<li>
+<p>Shuts down and restarts the auxiliary database instance on the destination host in <code class="codeph">NOMOUNT</code> mode.</p>
+</li>
+<li>
+<p>Creates a new control file, which then creates and stores the new DBID in the data files.</p>
+</li>
+<li>
+<p>Opens the duplicate database with the <code class="codeph">RESETLOGS</code> option and creates the online redo log for the new database.</p>
+<p>If you do not want to open the duplicate database, use the <code class="codeph">NOOPEN</code> clause in the <code class="codeph">DUPLICATE</code> statement as described in <span class="q">&#34;<a href="rcmdupdb.htm#GUID-E0A263F2-68FF-4997-BCAE-BE3F3736734D">Specifying the State of the Duplicate Database</a>&#34;</span>.</p>
+</li>
+</ol>
+<div class="infoboxnotealso" id="GUID-49605DB7-8215-4F17-BEF3-814297D6BDBC__GUID-FC493623-E3C1-4665-84B8-A0E0BA67A166">
+<p class="notep1">See Also:</p>
+<p>The <code class="codeph">DUPLICATE</code> entry in <a class="olink RCMRF126" target="_blank" href="../RCMRF/rcmsynta020.htm#RCMRF126"><span class="italic">Oracle Database Backup and Recovery Reference</span></a> for a complete list of which files are copied to the duplicate database</p>
+</div>
+</div>
+</div>
+</div>
+<a id="BRADV425"></a><a id="BRADV89930"></a>
+<div class="props_rev_3"><a id="GUID-5C007067-E891-45AF-9985-50C052889078"></a>
+<h3 id="BRADV-GUID-5C007067-E891-45AF-9985-50C052889078" class="sect3">Basic Steps of Database Duplication</h3>
+<div>
+<div class="section">
+<p class="subhead3">To duplicate a database:</p>
+<p>This section describes the basic steps of database duplication. Follow the link in each step for further instructions.</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Prepare for database duplication.</span>
+<div>
+<p>See <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-6FE42904-990E-464E-A278-D7059A00BA3C">Preparing to Duplicate a Database</a></span>&#34;</span>.</p>
+<p>While duplicating an Oracle Real Application Clusters (Oracle RAC) database, set the <code class="codeph">CLUSTER_DATABASE</code> initialization parameter on the auxiliary database to FALSE. This parameter can be reset to TRUE after the duplication completes.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Start RMAN and connect to the necessary database instances.</span>
+<div>
+<p>See <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-C9221113-EC56-40D1-86C9-84F29A20CCD8">Starting RMAN and Connecting to Databases</a></span>&#34;</span>.</p>
+</div>
+</li>
+<li class="stepexpand"><span>For active database duplication, decide if you want to encrypt or compress the backup sets that are used to transfer files from the source database to the duplicate database. Additionally, decide if you want to create backup sets on the source database in parallel by using multisection backups.</span>
+<div>
+<p>See <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-456B8989-D281-4319-913B-88034B786A18">Specifying Encryption for Active Database Duplication</a></span>&#34;</span>, <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-04DF6B0A-4441-4648-B153-12D7360E0112">Compressing Backup Sets Used to Perform Active Database Duplication</a></span>&#34;</span>, and <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-812420FE-9B1F-4EB8-A6A5-64845D714890">Creating Backup Sets in Parallel During Active Database Duplication</a></span>&#34;</span>.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Place the source database in the proper state (if necessary).</span>
+<div>
+<p>See <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-0EAD0A8A-2D88-4D2E-8E83-3D8B99276A9C">Step 8: Placing the Source Database in the Proper State</a></span>&#34;</span>.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Configure RMAN channels (if necessary).</span>
+<div>
+<p>See <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-D3DAE858-C6C3-43CA-B728-AFE3E8CA08A4">Configuring RMAN Channels for Use in Duplication</a></span>&#34;</span>.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Perform the duplication.</span>
+<div>
+<p>See <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06">Duplicating a Database</a></span>&#34;</span>.</p>
+</div>
+</li>
+</ol>
+<div class="section">
+<div class="infoboxnotealso" id="GUID-5C007067-E891-45AF-9985-50C052889078__GUID-1565535C-9815-4223-8C77-1F0D4A5050DA">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-CDAB76DC-2FED-42EC-B9F9-C5898F7048A5">Duplicating CDBs</a></span>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-F8A5EEA9-F32E-4CB0-8C97-C9D0A5F942F1" title="RMAN enables you to duplicate PDBs with the DUPLICATE command. You can duplicate a single PDB, a set of PDBs, or a set of tablespaces within a PDB.">Duplicating PDBs</a></span>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV646"></a><a id="BRADV647"></a><a id="BRADV645"></a>
+<div class="props_rev_3"><a id="GUID-CDAB76DC-2FED-42EC-B9F9-C5898F7048A5"></a>
+<h3 id="BRADV-GUID-CDAB76DC-2FED-42EC-B9F9-C5898F7048A5" class="sect3">Duplicating CDBs</h3>
+<div>
+<div class="section">
+<p>Duplicating a whole <a href="glossary.htm#GUID-3E156A59-F6CC-4A2A-9749-DB7D1CE25F13"><span class="xrefglossterm">multitenant container database (CDB)</span></a> or one or more pluggable databases (<a href="glossary.htm#GUID-993BFB3F-3305-481C-999D-26132095DEC9"><span class="xrefglossterm">PDB</span></a>s) requires only minimal adjustments to the procedure for duplicating a <a href="glossary.htm#GUID-62A96A52-3B97-455A-A443-75B999DCAC94"><span class="xrefglossterm">non-CDB</span></a> as described in <span class="q">&#34;<a href="rcmdupdb.htm#GUID-5C007067-E891-45AF-9985-50C052889078">Basic Steps of Database Duplication</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">When duplicating a whole CDB or one more PDBs:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>You must create the auxiliary instance as a CDB. To do so, start the instance with the following declaration in the initialization parameter file:</p>
+<pre dir="ltr">enable_pluggable_database=TRUE
+</pre></li>
+<li>
+<p>When instructed to connect to the necessary instances, connect to the <a href="glossary.htm#GUID-EA3DB8F4-F68E-4FC5-A599-32A4886FFF8A"><span class="xrefglossterm">root</span></a> as a user with <code class="codeph">SYSDBA</code> or <code class="codeph">SYSBACKUP</code> privilege. On both instances, the password for the user performing the duplication must be the same.</p>
+</li>
+<li>
+<p>When instructed to create an initialization parameter file for the auxiliary instance, you must copy the file from the source database. This ensures that the auxiliary instance is also a CDB. After copying, you modify <code class="codeph">DB_NAME</code> and the various destination/location parameters.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">When transferring backup files from the source to the destination host:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>In <span class="q">&#34;<a href="rcmdupdb.htm#GUID-B8D25A08-C46D-47DE-AFF7-7902A119DC47">Making Disk Backups Accessible to the Auxiliary Instance</a>&#34;</span> and <span class="q">&#34;<a href="rcmdupad.htm#GUID-FA3D3776-53EB-495C-9726-3446D32E8B3A">Making Disk Backups Accessible Without Shared Disk</a>&#34;</span>, note the following adjustment:</p>
+<p>Use the <code class="codeph">PLUGGABLE DATABASE</code> syntax of the <code class="codeph">BACKUP</code> command to copy only the backups of a specific <a href="glossary.htm#GUID-993BFB3F-3305-481C-999D-26132095DEC9"><span class="xrefglossterm">PDB</span></a>.</p>
+</li>
+</ul>
+<p>This example transfers the backup files for the entire CDB:</p>
+<pre dir="ltr">BACKUP COPY OF DATABASE;
+</pre>
+<p>The next example transfers only the backup files for the PDB <code class="codeph">pdb3</code>:</p>
+<pre dir="ltr">BACKUP COPY OF PLUGGABLE DATABASE pdb3;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV761"></a><a id="BRADV762"></a><a id="BRADV763"></a><a id="BRADV760"></a>
+<div class="props_rev_3"><a id="GUID-F8A5EEA9-F32E-4CB0-8C97-C9D0A5F942F1"></a>
+<h3 id="BRADV-GUID-F8A5EEA9-F32E-4CB0-8C97-C9D0A5F942F1" class="sect3">Duplicating PDBs</h3>
+<div>
+<p>RMAN enables you to duplicate PDBs with the <code class="codeph">DUPLICATE</code> command. You can duplicate a single PDB, a set of PDBs, or a set of tablespaces within a PDB.</p>
+<div class="p">
+<p>You must log in to the root of the CDB as a user who is granted the <code class="codeph">SYSDBA</code> or <code class="codeph">SYSBACKUP</code> privilege. To perform backup-based duplication of PDBs, you must back up the root and the seed database (<code class="codeph">PDB$SEED</code>) of the CDB that contains the listed PDBs.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>To duplicate PDBs, you must create the auxiliary instance as a CDB. To do so, start the instance with the declaration <code class="codeph">enable_pluggable_database=TRUE</code> in the initialization parameter file. When you duplicate one or more PDBs, RMAN also duplicates the root (<code class="codeph">CDB$ROOT</code>) and the seed database (<code class="codeph">PDB$SEED</code>). The resulting duplicate database is a fully functional CDB that contains the root, the seed database, and the duplicated PDBs.<span><a href="rcmdupdb.htm#GUID-F8A5EEA9-F32E-4CB0-8C97-C9D0A5F942F1__BGBJDCAJ" title="This table describes the options used to duplicate pluggable databases.">Table 25-1</a></span> describes the options that you can use to duplicate PDBs or tablespaces within PDBs.</p>
+<div class="tblformal" id="GUID-F8A5EEA9-F32E-4CB0-8C97-C9D0A5F942F1__BGBJDCAJ">
+<p class="titleintable">Table 25-1 Options to Duplicate PDBs</p>
+<table class="cellalignment515" title="Options to Duplicate PDBs" summary="This table describes the options used to duplicate pluggable databases.">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment517" id="d98114e1655">DUPLICATE Option</th>
+<th class="cellalignment517" id="d98114e1658">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment519" id="d98114e1663" headers="d98114e1655">
+<p><code class="codeph">PLUGGABLE DATABASE</code> <span class="italic"><code class="codeph">pdb_name</code></span></p>
+</td>
+<td class="cellalignment519" headers="d98114e1663 d98114e1658">
+<p>Duplicates the specified PDBs in the CDB. Use a comma-delimited list to duplicate multiple PDBs.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment519" id="d98114e1675" headers="d98114e1655">
+<p><code class="codeph">SKIP PLUGGABLE DATABASE</code> <span class="italic"><code class="codeph">pdb_name</code></span></p>
+</td>
+<td class="cellalignment519" headers="d98114e1675 d98114e1658">
+<p>Duplicates all the PDBs in the CDB, except the PDBs specified by <span class="italic"><code class="codeph">pdb_name</code></span>. Use a comma-delimited list to specify multiple PDBs that must be excluded.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment519" id="d98114e1691" headers="d98114e1655">
+<p><code class="codeph">TABLESPACE</code> <span class="italic"><code class="codeph">pdb_name:tablespace_name</code></span></p>
+</td>
+<td class="cellalignment519" headers="d98114e1691 d98114e1658">
+<p>Duplicates specified tablespaces within a PDB. The tablespace name must be prefixed with the name of the PDB that contains the tablespace. If you omit the name of the PDB, <code class="codeph">root</code> is taken as the default.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment519" id="d98114e1706" headers="d98114e1655">
+<p><code class="codeph">SKIP TABLESPACE</code> <span class="italic"><code class="codeph">pdb_name:tablespace_name</code></span></p>
+</td>
+<td class="cellalignment519" headers="d98114e1706 d98114e1658">
+<p>Duplicates all tablespaces in the CDB except the specified tablespaces in the specified PDB.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To duplicate PDBs:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ol>
+<li>
+<p>Ensure that you have completed Steps 1 to 4 in <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-5C007067-E891-45AF-9985-50C052889078">Basic Steps of Database Duplication</a></span>&#34;</span>.</p>
+</li>
+<li>
+<p>Run the <code class="codeph">DUPLICATE</code> command with either the <code class="codeph">PLUGGABLE DATABASE</code> or <code class="codeph">SKIP PLUGGABLE DATABASE</code> option described in <span><a href="rcmdupdb.htm#GUID-F8A5EEA9-F32E-4CB0-8C97-C9D0A5F942F1__BGBJDCAJ" title="This table describes the options used to duplicate pluggable databases.">Table 25-1</a></span>.</p>
+<p>The following are some examples of duplicating PDBs:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To duplicate the PDB <code class="codeph">pdb1</code> to the CDB <code class="codeph">cdb1</code>, use the following command:</p>
+<pre dir="ltr">DUPLICATE DATABASE TO cdb1 PLUGGABLE DATABASE pdb1;
+</pre></li>
+<li>
+<p>To duplicate the PDBs <code class="codeph">pdb1</code>, <code class="codeph">pdb3</code>, and <code class="codeph">pdb4</code> to the database <code class="codeph">cdb1</code>, use the following command:</p>
+<pre dir="ltr">DUPLICATE DATABASE TO cdb1 PLUGGABLE DATABASE pdb1,pdb3,pdb4;
+</pre></li>
+<li>
+<p>To duplicate all the databases in the CDB, except the PDB <code class="codeph">pdb3</code>, use the following command:</p>
+<pre dir="ltr">DUPLICATE DATABASE TO cdb1 SKIP PLUGGABLE DATABASE pdb3;
+</pre></li>
+</ul>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To duplicate tablespaces within a PDB:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Ensure that you have completed Steps 1 to 4 in <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-5C007067-E891-45AF-9985-50C052889078">Basic Steps of Database Duplication</a></span>&#34;</span>.</span></li>
+<li class="stepexpand"><span>Run the <code class="codeph">DUPLICATE</code> command with the <code class="codeph">TABLESPACE</code> option described in <span><a href="rcmdupdb.htm#GUID-F8A5EEA9-F32E-4CB0-8C97-C9D0A5F942F1__BGBJDCAJ" title="This table describes the options used to duplicate pluggable databases.">Table 25-1</a></span>.</span>
+<div>
+<p>The following are some examples of duplicating tablespaces contained in PDBs:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To duplicate the <code class="codeph">users</code> tablespace that is part of PDB <code class="codeph">pdb1</code>, use the following command:</p>
+<pre dir="ltr">DUPLICATE DATABASE TO cdb1 TABLESPACE pdb1:users;
+</pre></li>
+<li>
+<p>To duplicate the PDB <code class="codeph">pdb1</code> and the <code class="codeph">users</code> tablespace in PDB <code class="codeph">pdb2</code>, use the following command:</p>
+<pre dir="ltr">DUPLICATE DATABASE TO cdb1 PLUGGABLE DATABASE pdb1 TABLESPACE pdb2:users;
+</pre></li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="BRADV649"></a><a id="BRADV426"></a>
+<div class="props_rev_3"><a id="GUID-6FE42904-990E-464E-A278-D7059A00BA3C"></a>
+<h2 id="BRADV-GUID-6FE42904-990E-464E-A278-D7059A00BA3C" class="sect2">Preparing to Duplicate a Database</h2>
+<div>
+<div class="section">
+<p>Before duplicating the database, you must decide how to perform the duplication and then prepare the database environment, including the auxiliary database instance. Follow the links in each step for further instructions.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Preparing for duplication:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmdupdb.htm#GUID-213A5741-5C93-42A8-BC2A-EE5412D8C2BA">Step 1: Choosing a Duplication Technique</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-85F678A1-AC25-416F-8A3A-E5FC8D99D771">Step 2: Choosing a Strategy for Naming Duplicate Files</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-4B0860BD-E93C-4F55-A366-9464C816B565">Step 3: Installing the Oracle Database Software on the Destination Host</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-F0644DE7-0D8B-4FF6-8645-7A696052EF82">Step 4: Making Backups Accessible to the Duplicate Instance</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-60DFD79E-6DDB-48CC-B714-E083A14D80B9">Step 5: Preparing Remote Access to Databases</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-D7F1B4D5-6FC3-45F6-85E8-EDB41E168364">Step 6: Copying the Oracle Keystore to the Destination Host</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-CFB68ABE-BE7D-4F88-897D-7D07BA46EBCA">Step 7: Creating an Initialization Parameter File and Starting the Auxiliary Instance</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-0EAD0A8A-2D88-4D2E-8E83-3D8B99276A9C">Step 8: Placing the Source Database in the Proper State</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="BRADV427"></a>
+<div class="props_rev_3"><a id="GUID-213A5741-5C93-42A8-BC2A-EE5412D8C2BA"></a>
+<h3 id="BRADV-GUID-213A5741-5C93-42A8-BC2A-EE5412D8C2BA" class="sect3">Step 1: Choosing a Duplication Technique</h3>
+<div>
+<div class="section">
+<p>Your business requirements and the database environment determine which duplication technique is best for your situation. Consider the following questions:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Are you familiar with the prerequisites for each duplication technique?</p>
+<p>Review the Prerequisites section of the <code class="codeph">DUPLICATE</code> command description in <a class="olink RCMRF126" target="_blank" href="../RCMRF/rcmsynta020.htm#RCMRF126"><span class="italic">Oracle Database Backup and Recovery Reference</span></a> for a complete list.</p>
+<p>Some prerequisites are specific and depend on the duplication technique. For example, active duplication requires that the source and auxiliary instances use the same password as the source database, whereas backup-based duplication without connections to the target database and recovery catalog requires only that all backups and database copies reside in a single location.</p>
+</li>
+<li>
+<p>Do backups of the source database exist?</p>
+<p>The principal advantage of active database duplication is that it does not require source database backups. Active duplication copies mounted or online database files over a network to the auxiliary instance. One disadvantage of this technique is the negative performance effect on the network. Another disadvantage is that the source database is running processes required to transfer the files to the auxiliary host, thereby affecting the source database and production workload.</p>
+<p>If the source database backups exist, and if the effect on the network is unacceptable, then backup-based duplication may be a better option. You can copy backups to temporary storage and transfer them manually to the destination host. If duplication is made with a connection to the target or the recovery catalog, then the backup files on the destination host must have the same file specification as they had on the source host. Otherwise, this is not a requirement.</p>
+</li>
+<li>
+<p>Is a recovery catalog available?</p>
+<p>If a recovery catalog exists, then you can perform backup-based duplication without connecting RMAN as <code class="codeph">TARGET</code> to the source database. This technique is advantageous where network connections from the auxiliary host to the source database are restricted or prone to intermittent disruptions. In duplication without a <code class="codeph">TARGET</code> connection, the source database is unaffected by the duplication.</p>
+</li>
+<li>
+<p>How much disk space is available on the destination host?</p>
+<p>The disk space on the destination host can be an issue when you perform duplication using disk backups. For example, if the source database is 1 terabyte (TB), and if you duplicate the database from disk backups <span class="italic">without</span> using shared disk or network file system (NFS), then you must have at least 2 terabytes (TB) of space available on the destination host. In some environments, manual transfer of backups is necessary because NFS performance is a bottleneck.</p>
+</li>
+<li>
+<p>Are the source and destination hosts connected by a LAN or a WAN?</p>
+<p>Performance of active database duplication is probably slower on a wide area network (WAN) than on a local area network (LAN). If the performance degradation on a WAN is unacceptable, then backup-based duplication may be the only viable option.</p>
+</li>
+<li>
+<p>When do you plan to duplicate the database?</p>
+<p>If you must duplicate the database during a period of high user activity, then the loss of network throughput caused by active duplication may be a problem, making backup-based duplication a better choice. Also, in active database duplication, the RMAN channels required for copying files to the auxiliary host can affect performance.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="BRADV704"></a>
+<div class="props_rev_3"><a id="GUID-456B8989-D281-4319-913B-88034B786A18"></a>
+<h4 id="BRADV-GUID-456B8989-D281-4319-913B-88034B786A18" class="sect4">Specifying Encryption for Active Database Duplication</h4>
+<div>
+<div class="section">
+<p>Starting with Oracle Database 12<span class="italic">c</span> Release 1 (12.1), RMAN can use backup sets to transfer the source database files that need to be duplicated. The backup sets are transferred over the network to the auxiliary database. Backup sets can be encrypted for additional security. Specify the encryption algorithm by using the <code class="codeph">SET ENCRYPTION ALGORITHM</code> command before the <code class="codeph">DUPLICATE</code> command.</p>
+<p>Before you perform active database duplication, use one of the following techniques to ensure that the encryption is successful:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>If the source database uses transparent encryption, then you must share the Oracle keystore that contains the encryption key between the source database and the auxiliary database as described in <span class="q">&#34;<a href="rcmdupdb.htm#GUID-D7F1B4D5-6FC3-45F6-85E8-EDB41E168364">Step 6: Copying the Oracle Keystore to the Destination Host</a>&#34;</span>.</p>
+</li>
+<li>
+<p>If the source database uses password encryption, then you must specify the password used to encrypt backups.</p>
+<p>The following command sets the encryption password to <code class="codeph">encr_pwd</code>:</p>
+<pre dir="ltr">SET ENCRYPTION ON IDENTIFIED BY encr_pwd;
+</pre></li>
+</ul>
+<p>The following example connects to the target database and an auxiliary database using net service names and performs active database duplication. The keystore that contains the encryption key is shared between the target and the auxiliary database. <code class="codeph">sbu</code> is a user who is granted the <code class="codeph">SYSBACKUP</code> privilege.</p>
+<pre dir="ltr">CONNECT TARGET &#34;sbu@prod AS SYSBACKUP&#34;;
+CONNECT AUXILIARY &#34;sbu@dup_db AS SYSBACKUP&#34;;
+SET ENCRYPTION ALGORITHM &#39;AES128&#39;;
+DUPLICATE TARGET DATABASE TO dup_db
+     FROM ACTIVE DATABASE
+     PASSWORD FILE;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV705"></a>
+<div class="props_rev_3"><a id="GUID-04DF6B0A-4441-4648-B153-12D7360E0112"></a>
+<h4 id="BRADV-GUID-04DF6B0A-4441-4648-B153-12D7360E0112" class="sect4">Compressing Backup Sets Used to Perform Active Database Duplication</h4>
+<div>
+<div class="section">
+<p>When you use backup sets to perform active database duplication, you can compress the backup sets created to transfer files from the source database to the destination database. Using compressed backup sets minimizes the size of the backup sets and thus provides better performance for the database duplication. Compressing backup sets used for active database duplication is supported starting with Oracle Database 12<span class="italic">c</span> Release 1 (12.1).</p>
+<p>Use the <code class="codeph">USING COMPRESSED BACKUPSET</code> clause of the <code class="codeph">DUPLICATE</code> command to compress the backup sets containing data required to perform active database duplication. The following command performs active database duplication using compressed backup sets. Assume that the connection to the target database and auxiliary instance has been made using net service names.</p>
+<pre dir="ltr">DUPLICATE TARGET DATABASE TO dup_db
+     FROM ACTIVE DATABASE
+     PASSWORD FILE
+     USING COMPRESSED BACKUPSET;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV706"></a>
+<div class="props_rev_3"><a id="GUID-812420FE-9B1F-4EB8-A6A5-64845D714890"></a>
+<h4 id="BRADV-GUID-812420FE-9B1F-4EB8-A6A5-64845D714890" class="sect4">Creating Backup Sets in Parallel During Active Database Duplication</h4>
+<div>
+<div class="section">
+<p>RMAN multisection backups provide faster backup performance by backing up very large data files in parallel. Multiple backup pieces are created, with a separate channel writing to each backup piece. Starting with Oracle Database 12<span class="italic">c</span> Release 1 (12.1), you can use multisection backup sets to transfer the source files required to perform active database duplication.</p>
+<p>Use the <code class="codeph">SECTION SIZE</code> clause in the <code class="codeph">DUPLICATE</code> command to create multisection backup sets that can be used for active database duplication. The following command creates multisection backup sets, with the size of each backup piece being 400MB. Assume that the connection to the target database and auxiliary instance has been made using net service names.</p>
+<pre dir="ltr">DUPLICATE TARGET DATABASE TO dup_db
+     FROM ACTIVE DATABASE
+     PASSWORD FILE          
+     SECTION SIZE 400M;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV764"></a>
+<div class="props_rev_3"><a id="GUID-E0A263F2-68FF-4997-BCAE-BE3F3736734D"></a>
+<h4 id="BRADV-GUID-E0A263F2-68FF-4997-BCAE-BE3F3736734D" class="sect4">Specifying the State of the Duplicate Database</h4>
+<div>
+<div class="section">
+<p>When you use the RMAN <code class="codeph">DUPLICATE</code> command, the duplicate database is created and then opened in <code class="codeph">RESETLOGS</code> mode. You can specify that the duplicate database must not be opened by using the <code class="codeph">NOOPEN</code> clause in the <code class="codeph">DUPLICATE</code> command.</p>
+<p>You may not want to open the duplicate database immediately after creation in the following situations:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Opening the duplicate database may cause errors.</p>
+</li>
+<li>
+<p>You need to modify the initialization parameters of the duplicate database.</p>
+<p>For example, you need to modify flashback database settings, configure fast incremental backups, or modify block change tracking.</p>
+</li>
+<li>
+<p>You are creating a new database as part of an upgrade procedure.</p>
+<p>During an upgrade you cannot open the database with <code class="codeph">RESETLOGS</code> option. The <code class="codeph">NOOPEN</code> clause enables you to duplicate the database and then leave it in a state ready for opening in upgrade mode and subsequent execution of upgrade scripts.</p>
+</li>
+</ul>
+<p>The following command creates a duplicate database called <code class="codeph">dupdb</code>. Because the <code class="codeph">NOOPEN</code> clause is used, RMAN creates the duplicate database but does not open it.</p>
+<pre dir="ltr">DUPLICATE TARGET DATABASE 
+TO dupdb
+FROM ACTIVE DATABASE
+NOOPEN;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="BRADV298"></a>
+<div class="props_rev_3"><a id="GUID-85F678A1-AC25-416F-8A3A-E5FC8D99D771"></a>
+<h3 id="BRADV-GUID-85F678A1-AC25-416F-8A3A-E5FC8D99D771" class="sect3">Step 2: Choosing a Strategy for Naming Duplicate Files</h3>
+<div>
+<div class="section">
+<p>When duplicating a database, RMAN generates names for the duplicate control files, data files, temp files, and online redo log files. Therefore, you must decide on a naming strategy for these files.</p>
+<p>The simplest duplication strategy is to configure the duplicate database to use the same names as the source database. Using the same names means that your environment meets the following requirements:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>If the source database uses ASM disk groups, then the duplicate database must use ASM disk groups with the same names.</p>
+</li>
+<li>
+<p>If the source database files are Oracle Managed Files, then the auxiliary instance must set <code class="codeph">DB_CREATE_FILE_DEST</code> to the same <span class="italic">directory</span> location as the source database. Although the directories are the same on the source and destination hosts, Oracle Database chooses the relative names for the duplicate files.</p>
+</li>
+<li>
+<p>If the names of the database files in the source database contain a path, then this path name must be the same in the duplicate database.</p>
+<div class="infobox-note" id="GUID-85F678A1-AC25-416F-8A3A-E5FC8D99D771__GUID-BFB09FFA-2518-47C8-A60A-B3C5760114BF">
+<p class="notep1">Note:</p>
+<p>If the destination and source hosts are the same, then use one of several methods available to modify the database file paths in the duplicate database. See <span class="q">&#34;<a href="rcmdupad.htm#GUID-7847194E-9A3F-46CB-97E5-FD02FE0CE15F">Specifying Alternative Names for Duplicate Database Files</a>&#34;</span>.</p>
+</div>
+</li>
+</ul>
+<p>When you configure your environment as suggested, <span class="italic">no additional configuration is required to name the duplicate files</span>.</p>
+<p>It is recommended that you use different names for the ASM disk groups in the source and duplicate database. Use one of the following techniques to specify different names for database files in the duplicate database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Set the <code class="codeph">DB_CREATE_FILE_DEST</code> and <code class="codeph">LOG_FILE_CREATE_DEST</code> initialization parameters in the auxiliary instance. This is recommended when you use ASM and OMF.</p>
+</li>
+<li>
+<p>Use the <code class="codeph">SET NEWNAME</code> command.</p>
+</li>
+<li>
+<p>Set the <code class="codeph">DB_FILE_NAME_CONVERT</code> and <code class="codeph">LOG_FILE_NAME_CONVERT</code> initialization parameters in the auxiliary instance.</p>
+<p>If <code class="codeph">DB_FILE_NAME_CONVERT</code> is applied for ASM names, only disk group name changes must be performed.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-85F678A1-AC25-416F-8A3A-E5FC8D99D771__GUID-7527EA5D-4C7E-4DCB-933B-2F7138049271">
+<p class="notep1">See Also:</p>
+<p><a href="rcmdupad.htm#GUID-7847194E-9A3F-46CB-97E5-FD02FE0CE15F">Specifying Alternative Names for Duplicate Database Files</a> for information about specifying different file names for files in the duplicate database</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV765"></a>
+<div class="props_rev_3"><a id="GUID-4B0860BD-E93C-4F55-A366-9464C816B565"></a>
+<h3 id="BRADV-GUID-4B0860BD-E93C-4F55-A366-9464C816B565" class="sect3">Step 3: Installing the Oracle Database Software on the Destination Host</h3>
+<div>
+<div class="section">
+<p>If the source and destination hosts are different, then you must install the Oracle Database software on the destination host so that you can create the auxiliary instance. You can install the software in one of two ways:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Perform a normal installation with Oracle Universal Installer (OUI).</p>
+<p>Install an Oracle Database that is the same release as the source database. Do not create a database; install the software only. Apply any required patches.</p>
+</li>
+<li>
+<p>Clone the source Oracle home.</p>
+<p>Use OUI to clone the source Oracle home. This ensures that all patches applied to the source database are present in the duplicate database.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-4B0860BD-E93C-4F55-A366-9464C816B565__GUID-AF1A7295-563C-4CAF-83CE-A68F2EBEEED4">
+<p class="notep1">See Also:</p>
+<p><a class="olink OUICG294" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=OUICG294"><span class="italic">Oracle Universal Installer and OPatch User&#39;s Guide</span></a> for information about cloning an Oracle home</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV89931"></a>
+<div class="props_rev_3"><a id="GUID-F0644DE7-0D8B-4FF6-8645-7A696052EF82"></a>
+<h3 id="BRADV-GUID-F0644DE7-0D8B-4FF6-8645-7A696052EF82" class="sect3">Step 4: Making Backups Accessible to the Duplicate Instance</h3>
+<div>
+<div class="section">
+<div class="infobox-note" id="GUID-F0644DE7-0D8B-4FF6-8645-7A696052EF82__GUID-E0A0A6AE-CF0B-480B-A8FA-497B5B170BA7">
+<p class="notep1">Note:</p>
+<p>If you are performing active database duplication, then skip this section and proceed to <span class="q">&#34;<a href="rcmdupdb.htm#GUID-60DFD79E-6DDB-48CC-B714-E083A14D80B9">Step 5: Preparing Remote Access to Databases</a>&#34;</span>.</p>
+</div>
+<p>When duplicating with a target and recovery catalog or just a target connection, RMAN uses metadata in the RMAN repository to locate backups and archived redo log files needed for duplication. If RMAN is connected to a recovery catalog, then RMAN obtains the backup metadata from the catalog. If RMAN is not connected to a catalog, as may be the case when performing backup-based duplication <span class="italic">with</span> a target connection, then RMAN obtains metadata from the control file.</p>
+<p>Unless you are duplicating without a connection to the target and to the recovery catalog, the names of the backups must be available with the same names recorded in the RMAN repository. Ensure that auxiliary channels on the destination host can access all data file backups and archived redo log files (required to restore and recover the duplicate database to the desired point in time). If not, duplication fails. The archived redo log files can be available either as image copies or backup sets.</p>
+<div class="infobox-note" id="GUID-F0644DE7-0D8B-4FF6-8645-7A696052EF82__GUID-364D2EAD-343F-4B6A-987F-D0E2282E1793">
+<p class="notep1">Note:</p>
+<p>The database backup need not have been generated with <code class="codeph">BACKUP DATABASE</code>. You can mix full and incremental backups of individual data files, but a full backup of every data file is required.</p>
+</div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmdupdb.htm#GUID-95355C80-01DD-4A7D-B51C-194121C9DBA4">Making SBT Backups Accessible to the Auxiliary Instance</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-B8D25A08-C46D-47DE-AFF7-7902A119DC47">Making Disk Backups Accessible to the Auxiliary Instance</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="BRADV99992"></a>
+<div class="props_rev_3"><a id="GUID-95355C80-01DD-4A7D-B51C-194121C9DBA4"></a>
+<h4 id="BRADV-GUID-95355C80-01DD-4A7D-B51C-194121C9DBA4" class="sect4">Making SBT Backups Accessible to the Auxiliary Instance</h4>
+<div>
+<div class="section">
+<p>The steps in this task are specific to your media manager configuration.</p>
+<p><span class="bold">To make SBT backups accessible to the auxiliary instance:</span></p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>If necessary, install media management software on the destination host.</span></li>
+<li class="stepexpand"><span>Make the tapes with the backups accessible to the destination host. Typically, you do one of the following:</span>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>Physically move the tapes to a drive attached to the remote host.</p>
+</li>
+<li>
+<p>Use a network-accessible tape server.</p>
+</li>
+</ul>
+</div>
+</li>
+<li class="stepexpand"><span>If necessary, inform the remote media management software about the existence of the tapes.</span></li>
+</ol>
+</div>
+</div>
+<a id="BRADV810"></a><a id="BRADV99993"></a>
+<div class="props_rev_3"><a id="GUID-B8D25A08-C46D-47DE-AFF7-7902A119DC47"></a>
+<h4 id="BRADV-GUID-B8D25A08-C46D-47DE-AFF7-7902A119DC47" class="sect4">Making Disk Backups Accessible to the Auxiliary Instance</h4>
+<div>
+<div class="section">
+<p>When you make disk backups accessible to the auxiliary instance, your strategy depends on whether or not you duplicate the database while connected to the target or recovery catalog. If you do not connect to the target or recovery catalog, then you must designate a backup location for the duplication by using the <code class="codeph">BACKUP LOCATION</code> clause.</p>
+<p>When you use a backup location, the backups and copies can reside in a shared location or can be moved to the location on the destination host. In the latter case, you do not need to preserve the name or the original path of the backup or copy. The location specified in the <code class="codeph">BACKUP LOCATION</code> option must contain sufficient backup sets, image copies, and archived logs to restore all of the files being duplicated, and recover them to the desired point in time.</p>
+<p>It is not required that all of the backups be from the same point in time, or that they all be backup sets, or all image copies. Data file backups can be supplied as either image copies or backup sets. Archived logs can be supplied either in their normal format or as backup sets of archived logs.</p>
+<p>When you use backups from different points in time, the backup location must contain archived logs covering the time from the start of the oldest backup until the desired recovery point.</p>
+<p>If the backup location contains backup files from multiple databases, then the <code class="codeph">DATABASE</code> clause must specify the name of the database that is to be duplicated. If the backup location contains backup files from multiple databases having the same name, then the <code class="codeph">DATABASE</code> clause must specify both the name and <code class="codeph">DBID</code> of the database that is to be duplicated.</p>
+<p>The source database&#39;s Fast Recovery Area is particularly well suited for use as a backup location because it almost always contains all of the files needed for the duplication. To use a Fast Recovery Area as a backup location, you can either remotely access it from the destination system, or copy its contents to the destination system.</p>
+<p>When you are not using a backup location, your strategy depends on the following mutually exclusive scenarios:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Identical file systems for source and destination hosts</p>
+<p>This scenario is the simplest and Oracle recommends it. For example, assume that the backups of the source database are stored in <code class="codeph">/dsk1/bkp</code>. In this case, you can make disk backups accessible to the destination host in either of these ways:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Manually transfer backups from the source host to an identical path in the destination host. For example, if the backups are in <code class="codeph">/dsk1/bkp</code> on the source host, then use FTP to transfer them to <code class="codeph">/dsk1/bkp</code> on the destination host.</p>
+</li>
+<li>
+<p>Use NFS or shared disks and ensure that the same path is accessible in the destination host. For example, assuming that the source host can access <code class="codeph">/dsk1/bkp</code>, use NFS to mount <code class="codeph">/dsk1/bkp</code> on the destination host and use <code class="codeph">/dsk1/bkp</code> as the mount point name.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Different file systems for source and destination hosts</p>
+<p>In this case you <span class="italic">cannot</span> use the same directory name on the destination host as you use on the source host. You have the following options:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You can use shared disk to make backups available. This section explains the shared disk technique.</p>
+</li>
+<li>
+<p>You cannot use shared disk to make backups available. <span class="q">&#34;<a href="rcmdupad.htm#GUID-FA3D3776-53EB-495C-9726-3446D32E8B3A">Making Disk Backups Accessible Without Shared Disk</a>&#34;</span> explains this technique.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>Assume that you have two hosts, <code class="codeph">srchost</code> and <code class="codeph">dsthost</code>, and access to NFS or shared disk. The database on <code class="codeph">srchost</code> is called <code class="codeph">srcdb</code>. The backups of <code class="codeph">srcdb</code> reside in <code class="codeph">/dsk1/bkp</code> on host <code class="codeph">srchost</code>. The directory <code class="codeph">/dsk1/bkp</code> is in use on the destination host, but the directory <code class="codeph">/dsk2/dup</code> is not in use on either host.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To transfer the backups from the source host to the destination host:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Create a backup storage directory in either the source or destination host.</span>
+<div>
+<p>For this example, create backup directory <code class="codeph">/dsk2/dup</code> on the destination host.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Mount the directory created in the previous step on the other host, ensuring that the directory and the mount point names are the same.</span>
+<div>
+<p>For example, if you created <code class="codeph">/dsk2/dup</code> on the destination host, then use NFS to mount this directory as <code class="codeph">/dsk2/dup</code> on the source host.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Make the backups available in the new location on the destination host. You can use either of the following techniques:</span>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>Connect RMAN to the source database as <code class="codeph">TARGET</code> and use the <code class="codeph">BACKUP</code> command to back up the backups, as explained in <span class="q">&#34;<a href="rcmbckba.htm#GUID-731ADA67-235E-481D-AC17-9F9067AD55BF">Backing Up RMAN Backups</a>&#34;</span>. For example, use the <code class="codeph">BACKUP COPY OF DATABASE</code> command to copy the backups in <code class="codeph">/dsk1/bkp</code> on the source host to <code class="codeph">/dsk2/dup</code> on the source host. In this case, RMAN automatically catalogs the backups in the new location.</p>
+<p>If you are duplicating a PDB, then use the <code class="codeph">PLUGGABLE DATABASE</code> syntax of the <code class="codeph">BACKUP COPY OF</code> command to copy only the backups of the PDB.</p>
+</li>
+<li>
+<p>Use an operating system utility to transfer the backups to the new location. For example, use FTP to transfer the backups from <code class="codeph">/dsk1/bkp</code> on the source host to <code class="codeph">/dsk2/dup</code> on the destination host, or use the <code class="codeph">cp</code> command to copy the backups from <code class="codeph">/dsk1/bkp</code> on the source host to <code class="codeph">/dsk2/dup</code> on the source host. Afterward, connect RMAN to the source database as <code class="codeph">TARGET</code> and use the <code class="codeph">CATALOG</code> command to update the RMAN repository with the location of the manually transferred backups.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="BRADV533"></a>
+<div class="props_rev_3"><a id="GUID-60DFD79E-6DDB-48CC-B714-E083A14D80B9"></a>
+<h3 id="BRADV-GUID-60DFD79E-6DDB-48CC-B714-E083A14D80B9" class="sect3">Step 5: Preparing Remote Access to Databases</h3>
+<div>
+<div class="section">
+<p>When a database must be accessed from another host, you must set up a password file and Oracle Net connectivity. Be aware of the potential security consequences of this type of setup.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmdupdb.htm#GUID-108B8C0F-6461-41F6-A5CA-7AF9CA1DE640">Establishing Database Connectivity</a></p>
+</li>
+<li>
+<p><a href="rcmdupdb.htm#GUID-4E81FB11-78E5-48B7-A382-B803AA202F72">Creating a Password File for the Auxiliary Instance</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="BRADV535"></a><a id="BRADV536"></a><a id="BRADV534"></a>
+<div class="props_rev_3"><a id="GUID-108B8C0F-6461-41F6-A5CA-7AF9CA1DE640"></a>
+<h4 id="BRADV-GUID-108B8C0F-6461-41F6-A5CA-7AF9CA1DE640" class="sect4">Establishing Database Connectivity</h4>
+<div>
+<div class="section">
+<p>You can establish database connectivity by manually creating a password file or using Oracle Net.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To create a password file manually:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Follow the instructions in <a class="olink ADMIN10241" target="_blank" href="../ADMIN/dba.htm#ADMIN10241"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to create a password file.</p>
+<p>The types of file names allowed for password files and the location of the password files are both platform-specific and operating system-specific.</p>
+<div class="infoboxnotealso" id="GUID-108B8C0F-6461-41F6-A5CA-7AF9CA1DE640__GUID-99BA640E-5147-4ABA-B4F9-ED8B751C440F">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SBYDB01500" target="_blank" href="../SBYDB/rcmbackp.htm#SBYDB01500"><span class="italic">Oracle Data Guard Concepts and Administration</span></a> to create a password file manually</p>
+</li>
+<li>
+<p><a class="olink ASOAG" target="_blank" href="../ASOAG/toc.htm"><span class="italic">Oracle Database Security Guide</span></a></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To establish Oracle Net connectivity and set up a static listener:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Follow the instructions in <a class="olink NETAG006" target="_blank" href="../NETAG/gettingstart.htm#NETAG006"><span class="italic">Oracle Database Net Services Administrator&#39;s Guide</span></a> to configure a client for connection to a database and add static service information for the listener.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV537"></a>
+<div class="props_rev_3"><a id="GUID-4E81FB11-78E5-48B7-A382-B803AA202F72"></a>
+<h4 id="BRADV-GUID-4E81FB11-78E5-48B7-A382-B803AA202F72" class="sect4">Creating a Password File for the Auxiliary Instance</h4>
+<div>
+<div class="section">
+<p>You have the following options for creating a <a href="glossary.htm#GUID-AFB3C6E2-4C77-460F-A64D-A980EBF628EB"><span class="xrefglossterm">password file</span></a> for the auxiliary instance on the destination host:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Copy the source database password file to the destination host and rename it to match the auxiliary instance name. This is applicable only if the source and destination hosts are on the same platform.</p>
+</li>
+<li>
+<p>Create the password file manually.</p>
+</li>
+<li>
+<p>Create the password file with the ORAPWD command. The SYSBACKUP option creates a SYSBACKUP entry in the new password file.</p>
+</li>
+<li>
+<p>Specify the <code class="codeph">PASSWORD FILE</code> option on the <code class="codeph">DUPLICATE... FROM ACTIVE DATABASE</code> command.</p>
+<p>In this case, RMAN copies the source database password file to the destination host and overwrites any existing password file for the auxiliary instance. This technique is useful if the source database password file has multiple passwords to make available on the duplicate database.</p>
+<p>There are additional requirements for the case of <code class="codeph">DUPLICATE ... FROM ACTIVE DATABASE</code>. The password file must contain at least two passwords, for the <code class="codeph">SYS</code> user and the user with <code class="codeph">SYSBACKUP</code> privilege, and the passwords must match the passwords of the source database. You can start the auxiliary instance and enable the source database to connect to it.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-4E81FB11-78E5-48B7-A382-B803AA202F72__GUID-1B31C4F1-EFF0-4E64-895A-3BBF07712BD3">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADMIN10241" target="_blank" href="../ADMIN/dba.htm#ADMIN10241"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for information about creating a password file</p>
+</div>
+<div class="infobox-note" id="GUID-4E81FB11-78E5-48B7-A382-B803AA202F72__GUID-438DBE0C-617E-475F-B52F-F6B3283CC1D5">
+<p class="notep1">Note:</p>
+<p>If you create a standby database with the <code class="codeph">FROM ACTIVE DATABASE</code> option, then RMAN always copies the password file to the standby host.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="BRADV766"></a>
+<div class="props_rev_3"><a id="GUID-D7F1B4D5-6FC3-45F6-85E8-EDB41E168364"></a>
+<h3 id="BRADV-GUID-D7F1B4D5-6FC3-45F6-85E8-EDB41E168364" class="sect3">Step 6: Copying the Oracle Keystore to the Destination Host</h3>
+<div>
+<div class="section">
+<p>If transparent encryption is configured on the source database, then you must ensure that the Oracle software keystore from the source database is available to the auxiliary instance. Manually copy the source database keystore to the destination host.</p>
+<p>The following are requirements for the keystore at the duplicate database:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The keystore must be in the default location, or in the location indicated by the <code class="codeph">sqlnet.ora</code> file.</p>
+</li>
+<li>
+<p>Permissions on the Oracle keystore file must be set so that the database can access the file.</p>
+</li>
+<li>
+<p>The keystore must be an auto login keystore.</p>
+</li>
+<li>
+<p>During duplication, the auxiliary instance is restarted thereby causing the Oracle software keystore to become unavailable. To ensure that the auxiliary instance has access to the keystore, set the <code class="codeph">ENCRYPTION_WALLET_LOCATION</code> parameter in the <code class="codeph">sqlnet.ora</code> file such that it points to the keystore location.</p>
+</li>
+<li>
+<p>With Oracle Real Application Clusters (Oracle RAC), register the auxiliary instance statically with an Oracle Grid Infrastructure listener and use the <code class="codeph">ENVS</code> parameter in the <code class="codeph">sqlnet.ora</code> file of the Oracle Grid home to specify environment variables that set the keystore location and the unique name of the database.</p>
+<p>The following example sets the <code class="codeph">ENVS</code> parameter in <code class="codeph">sqlnet.ora</code> to specify the keystore location and unique database name:</p>
+<pre dir="ltr">(ENVS=&#34;ORACLE_UNQNAME=cdbrptl, ENCRYPTION_WALLET_LOCATION=(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=/etc/ORACLE/WALLETS/cdbrpt1)))&#34;)
+</pre></li>
+<li>
+<p>If the source database uses a password-based software keystore (not an auto-login software keystore), then you must provide the keystore password before you begin the database duplication.</p>
+<p>Use the <code class="codeph">SET</code> command with the <code class="codeph">DECRYPTION WALLET OPEN IDENTIFIED BY</code> clause to specify the password that must be used to open the keystore.</p>
+<p>The following command sets specifies that the password used to open the keystore is <code class="codeph">my_pswd</code>:</p>
+<pre dir="ltr">SET DECRYPTION WALLET OPEN IDENTIFIED BY my_pswd;
+</pre></li>
+</ul>
+<div class="infoboxnotealso" id="GUID-D7F1B4D5-6FC3-45F6-85E8-EDB41E168364__GUID-08F09CEE-9F5E-473C-8158-6F09A6F60231">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink NETRF257" target="_blank" href="../NETRF/sqlnet.htm#NETRF257"><span class="italic">Oracle Database Net Services Reference</span></a> for information about specifying the Oracle keystore location in sqlnet.ora</p>
+</li>
+<li>
+<p><a class="olink ASOAG10274" target="_blank" href="../ASOAG/configuring-transparent-data-encryption.htm#ASOAG10274"><span class="italic">Oracle Database Advanced Security Guide</span></a> for information about the default Oracle keystore location</p>
+</li>
+<li>
+<p><a class="olink ASOAG10284" target="_blank" href="../ASOAG/configuring-transparent-data-encryption.htm#ASOAG10284"><span class="italic">Oracle Database Advanced Security Guide</span></a> for information about converting a standard Oracle keystore to an auto login keystore</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV167"></a>
+<div class="props_rev_3"><a id="GUID-CFB68ABE-BE7D-4F88-897D-7D07BA46EBCA"></a>
+<h3 id="BRADV-GUID-CFB68ABE-BE7D-4F88-897D-7D07BA46EBCA" class="sect3">Step 7: Creating an Initialization Parameter File and Starting the Auxiliary Instance</h3>
+<div>
+<div class="section">
+<p>The location and content of the initialization parameter file depend on your choice in <span class="q">&#34;<a href="rcmdupdb.htm#GUID-85F678A1-AC25-416F-8A3A-E5FC8D99D771">Step 2: Choosing a Strategy for Naming Duplicate Files</a>&#34;</span>. This section makes the following assumptions:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>You choose the recommended technique of using the same naming strategy for the source and destination hosts. For Oracle Real Application Clusters environments, you therefore use the same <code class="codeph">ORACLE_SID</code> for source and destination hosts.</p>
+</li>
+<li>
+<p>You create a text-based initialization parameter file (PFILE) for the auxiliary instance. See <a href="rcmdupad.htm#GUID-D98BB0FD-15C4-4691-BA86-8A85D072F824__CHDCAAIA" title="Describes the DB_NAME and CONTROL_FILES parameters.">Table 26-5</a>.</p>
+</li>
+<li>
+<p>The initialization parameter file is located in the operating system-specific default location of the host on which SQL*Plus runs.</p>
+<p>For example, on Linux and UNIX the default initialization parameter file name is <span class="italic"><code class="codeph">ORACLE_HOME</code></span><code class="codeph">/dbs/init</code><span class="italic"><code class="codeph">ORACLE_SID</code></span><code class="codeph">.ora</code> and on Windows the file name is <span class="italic"><code class="codeph">ORACLE_HOME</code></span><code class="codeph">\database\init</code><span class="italic"><code class="codeph">ORACLE_SID</code></span><code class="codeph">.ora</code>.</p>
+</li>
+<li>
+<p>You plan to specify the <code class="codeph">SPFILE</code> clause on the <code class="codeph">DUPLICATE</code> command.</p>
+<p>The <code class="codeph">DUPLICATE ... SPFILE</code> technique is easiest because during duplication RMAN automatically copies the server parameter file from the source database to the auxiliary instance or restores it from backup.</p>
+</li>
+</ul>
+<p>If you cannot meet the preceding requirements, then see <span class="q">&#34;<a href="rcmdupad.htm#GUID-D98BB0FD-15C4-4691-BA86-8A85D072F824">Duplicating a Database When No Server Parameter File Exists</a>&#34;</span>.</p>
+<p><span class="bold">To create an initialization parameter file and start the auxiliary instance:</span></p>
+<ol>
+<li>
+<p>Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Copy the initialization parameter file from the source host to the destination host, placing it in the operating system-specific default location, and then modify <code class="codeph">DB_NAME</code>, <code class="codeph">DB_DOMAIN</code>, and the various destination/location parameters such as <code class="codeph">CONTROL_FILES</code> and <code class="codeph">DB_RECOVERY_FILE_DEST</code>.</p>
+<p>If you are duplicating a CDB, ensure that the <code class="codeph">ENABLE_PLUGGABLE_DATABASE</code> parameter is present and set to <code class="codeph">TRUE</code>.</p>
+</li>
+<li>
+<p>Complete these steps:</p>
+<ol>
+<li>
+<p>Using a text editor, create an empty file for use as a text-based initialization parameter file, and save it in the operating system-specific default location.</p>
+</li>
+<li>
+<p>In the parameter file, set <code class="codeph">DB_NAME</code> and <code class="codeph">DB_DOMAIN</code>. These are the only required parameters.</p>
+<p>Setting <code class="codeph">DB_DOMAIN</code> enables you to connect to the default database service when connecting with a net service name.</p>
+</li>
+<li>
+<p>If the auxiliary instance is to be a CDB, then set the following parameter:</p>
+<pre dir="ltr">ENABLE_PLUGGABLE_DATABASE=TRUE
+</pre></li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>If necessary, set other initialization parameters like those needed for Oracle Real Application Clusters.</p>
+</li>
+<li>
+<p>Set the required environment variables, such as <code class="codeph">ORACLE_HOME</code> and <code class="codeph">ORACLE_SID</code>.</p>
+</li>
+<li>
+<p>Start SQL*Plus and connect to the auxiliary instance as a user with <code class="codeph">SYSDBA</code> or <code class="codeph">SYSBACKUP</code> privileges. Start the auxiliary instance in <code class="codeph">NOMOUNT</code> mode. No <code class="codeph">PFILE</code> parameter on the <code class="codeph">STARTUP</code> command is necessary if the file is in the default location.</p>
+<pre dir="ltr">SQL&gt; STARTUP NOMOUNT;
+</pre></li>
+</ol>
+<div class="infobox-note" id="GUID-CFB68ABE-BE7D-4F88-897D-7D07BA46EBCA__GUID-B727C792-9ACA-491E-8AEB-57E0093CC83B">
+<p class="notep1">Note:</p>
+<p>For this scenario, ensure that the auxiliary instance is started with a text-based initialization parameter file and <span class="italic">not</span> a server parameter file. Do not create a control file or try to mount or open the auxiliary instance.</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV430"></a>
+<div class="props_rev_3"><a id="GUID-0EAD0A8A-2D88-4D2E-8E83-3D8B99276A9C"></a>
+<h3 id="BRADV-GUID-0EAD0A8A-2D88-4D2E-8E83-3D8B99276A9C" class="sect3">Step 8: Placing the Source Database in the Proper State</h3>
+<div>
+<div class="section">
+<div class="infobox-note" id="GUID-0EAD0A8A-2D88-4D2E-8E83-3D8B99276A9C__GUID-5675831A-C988-4565-81B1-D2626DD8FCFE">
+<p class="notep1">Note:</p>
+<p>If you are performing backup-based duplication without a target connection, then skip to <span class="q">&#34;<a href="rcmdupdb.htm#GUID-D3DAE858-C6C3-43CA-B728-AFE3E8CA08A4">Configuring RMAN Channels for Use in Duplication</a>&#34;</span>.</p>
+</div>
+<p>If RMAN is connected to the source database as <code class="codeph">TARGET</code>, then the source database must be in the proper state for the duplication.</p>
+<p><span class="bold">To ensure that the source database is in the proper state:</span></p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>If the source database instance is not mounted or open, then mount or open it.</span></li>
+<li class="stepexpand"><span>If you are performing active database duplication, then ensure that the following additional requirements are met:</span>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the source database is open, then archiving must be enabled.</p>
+</li>
+<li>
+<p>If the source database is not open, then the database does not require instance recovery.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="BRADV299"></a>
+<div class="props_rev_3"><a id="GUID-C9221113-EC56-40D1-86C9-84F29A20CCD8"></a>
+<h2 id="BRADV-GUID-C9221113-EC56-40D1-86C9-84F29A20CCD8" class="sect2">Starting RMAN and Connecting to Databases</h2>
+<div>
+<div class="section">
+<p>In this task, you must start the RMAN client and connect to the database instances required by the duplication technique chosen in <span class="q">&#34;<a href="rcmdupdb.htm#GUID-213A5741-5C93-42A8-BC2A-EE5412D8C2BA">Step 1: Choosing a Duplication Technique</a>&#34;</span>. The RMAN client can be located on any host so long as it can connect to the necessary databases over the network.</p>
+<p><span class="bold">To start RMAN and connect to the target and auxiliary instances:</span></p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Start the RMAN client on any host that can connect to the necessary database instances.</span>
+<div>
+<p>For example, enter the following command at the operating system prompt on the destination host:</p>
+<pre dir="ltr">% rman
+</pre></div>
+</li>
+<li class="stepexpand"><span>At the RMAN prompt, run <code class="codeph">CONNECT</code> commands for the database instances required for your duplication technique.</span>
+<div>
+<div class="infobox-note" id="GUID-C9221113-EC56-40D1-86C9-84F29A20CCD8__GUID-9B5593AA-6C71-479B-8838-F7C435D4CBFA">
+<p class="notep1">Note:</p>
+<p>When duplicating a whole CDB or one or more PDBs, connect to the root of both instances.</p>
+</div>
+<ul style="list-style-type: disc;">
+<li>
+<p>For <a id="d98114e4136" class="indexterm-anchor"></a>active database duplication using image copies (push-based method), you must connect to the source database as <code class="codeph">TARGET</code> and to the auxiliary instance as <code class="codeph">AUXILIARY</code>. You must supply the net service name to connect to the <code class="codeph">AUXILIARY</code> instance. A recovery catalog connection is optional. On both instances, the password for the user performing the duplication must be the same. Any user with a <code class="codeph">SYSDBA</code> or <code class="codeph">SYSBACKUP</code> privilege can perform duplication.</p>
+</li>
+<li>
+<p>For <a id="d98114e4160" class="indexterm-anchor"></a>active database duplication using backup sets (pull-based method), you must connect to the source database as <code class="codeph">TARGET</code> using a net service name. The auxiliary instance uses this net service name to connect to the source database and retrieve the backup sets required for the duplication. Connect to the auxiliary instance as <code class="codeph">AUXILIARY</code>. If you are connecting to the auxiliary instance remotely or intend to use the <code class="codeph">PASSWORD</code> <code class="codeph">FILE</code> option of the <code class="codeph">DUPLICATE</code> command, then connect to the auxiliary instance with a net service name. On both instances, the password for the user performing the duplication must be the same. Any user with a <code class="codeph">SYSDBA</code> or <code class="codeph">SYSBACKUP</code> privilege can perform duplication. A recovery catalog connection is optional.</p>
+</li>
+<li>
+<p>For backup-based duplication <span class="italic">without</span> a target connection, you must connect to the auxiliary instance as <code class="codeph">AUXILIARY</code> and the recovery catalog as <code class="codeph">CATALOG</code>.</p>
+</li>
+<li>
+<p>For backup-based duplication <span class="italic">with</span> a target connection, you must connect to the source database as <code class="codeph">TARGET</code> and the auxiliary instance as <code class="codeph">AUXILIARY</code>. A recovery catalog is optional.</p>
+</li>
+<li>
+<p>For backup-based duplication without target and recovery catalog connections, you must connect to the auxiliary instance as <code class="codeph">AUXILIARY</code>.</p>
+</li>
+</ul>
+<p>In the following example of active database duplication, a connection is established to three database instances using net service names. RMAN connects to the target database and auxiliary instance as a user with the <code class="codeph">SYSBACKUP</code> privilege. The connection to the catalog is using the <code class="codeph">rco</code> user (the catalog owner). RMAN prompts for the passwords for these users.</p>
+<pre dir="ltr">CONNECT TARGET &#34;sbu@prod AS SYSBACKUP&#34;;      # source database
+
+CONNECT AUXILIARY &#34;sbu@dupdb AS SYSBACKUP&#34;;  # duplicate database instance
+
+CONNECT CATALOG rco@catdb;    # recovery catalog database
+</pre></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV89938"></a>
+<div class="props_rev_3"><a id="GUID-D3DAE858-C6C3-43CA-B728-AFE3E8CA08A4"></a>
+<h2 id="BRADV-GUID-D3DAE858-C6C3-43CA-B728-AFE3E8CA08A4" class="sect2">Configuring RMAN Channels for Use in Duplication</h2>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="rcmdupdb.htm#GUID-281A7B26-2A85-4743-BDE1-28BBA2279474">Configuring Channels for Backup-Based Duplication</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="rcmdupdb.htm#GUID-9309632B-FCAA-4301-9E59-9980358DB93F">Configuring Channels for Active Database Duplication</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+<a id="BRADV432"></a>
+<div class="props_rev_3"><a id="GUID-281A7B26-2A85-4743-BDE1-28BBA2279474"></a>
+<h3 id="BRADV-GUID-281A7B26-2A85-4743-BDE1-28BBA2279474" class="sect3">Configuring Channels for Backup-Based Duplication</h3>
+<div>
+<div class="section">
+<p>The channel on the auxiliary instance, not the source database instance, restores RMAN backups in backup-based duplication. The channel configuration depends on your duplication technique.</p>
+<p>RMAN can use the same channel configurations on the <span class="italic">source</span> database for duplication on the destination host. RMAN can use these configurations even if the source database channels do not specify the <code class="codeph">AUXILIARY</code> option.</p>
+<p>Note the following additional considerations:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The channel type (<code class="codeph">DISK</code> or <code class="codeph">sbt</code>) of the auxiliary channel must match the backup media. In general, the more channels you allocate for disk backups, the faster the duplication. You cannot increase the speed of duplication after the disks reach their maximum read/write rate. For tape backups, limit the number of channels to the number of devices available.</p>
+</li>
+<li>
+<p>If the auxiliary channels need special parameters (for example, to point to a different media manager), then you can configure an automatic channel with the <code class="codeph">AUXILIARY</code> option of the <code class="codeph">CONFIGURE</code> command.</p>
+</li>
+<li>
+<p>When you perform duplication without a target connection and without a recovery catalog, only disk channels can be used. If no user-allocated channels are used, then only one channel initially restores the control file. After the control file is mounted, the number of allocated channels depends on the configuration in the restored control file.</p>
+</li>
+<li>
+<p>If you omit the <code class="codeph">USING</code> <code class="codeph">BACKUPSET</code> clause from the <code class="codeph">DUPLICATE</code> command and the number of allocated auxiliary channels is greater than or equal to the number of target channels, then RMAN still uses active database duplication with backup sets.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV431"></a>
+<div class="props_rev_3"><a id="GUID-9309632B-FCAA-4301-9E59-9980358DB93F"></a>
+<h3 id="BRADV-GUID-9309632B-FCAA-4301-9E59-9980358DB93F" class="sect3">Configuring Channels for Active Database Duplication</h3>
+<div>
+<div class="section">
+<p>In active database duplication, you do not have to change your source database channel configuration or configure <code class="codeph">AUXILIARY</code> channels.</p>
+<p>To <a id="d98114e4518" class="indexterm-anchor"></a>perform active database duplication using backup sets, you must allocate additional auxiliary channels. The number of auxiliary channels must be greater than or equal to the number of target channels. Using backup sets for active duplication also enables parallelism which can improve the speed of the duplication process.</p>
+<div class="infoboxnotealso" id="GUID-9309632B-FCAA-4301-9E59-9980358DB93F__GUID-0344BF60-9F88-4D9D-A9EE-51BD5914C448">
+<p class="notep1">See Also:</p>
+<p><a class="olink RCMRF113" target="_blank" href="../RCMRF/rcmsynta009.htm#RCMRF113"><span class="italic">Oracle Database Backup and Recovery Reference</span></a> for information about the <code class="codeph">CONFIGURE</code> command</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="BRADV433"></a><a id="BRADV434"></a><a id="BRADV767"></a><a id="BRADV168"></a>
+<div class="props_rev_3"><a id="GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06"></a>
+<h2 id="BRADV-GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06" class="sect2">Duplicating a Database</h2>
+<div>
+<div class="section">
+<p>This section describes the most basic procedure to duplicate a database. This section makes the following assumptions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You are duplicating the database to a remote host. The duplicate database files use the same names as the source database files.</p>
+<div class="infobox-note" id="GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06__GUID-EBD77236-23B8-49F7-AA18-F0FAC418589A">
+<p class="notep1">Note:</p>
+<p>When running the <code class="codeph">DUPLICATE</code> command in this configuration, you must specify the <code class="codeph">NOFILENAMECHECK</code> option on the <code class="codeph">DUPLICATE</code> command. If you duplicate a database on the same host as the source database, then verify that <code class="codeph">NOFILENAMECHECK</code> is not specified.</p>
+</div>
+</li>
+<li>
+<p>You are duplicating the entire database or one or more PDBs. For other scenarios, see <span class="q">&#34;<span><a href="rcmdupad.htm#GUID-0C6616AE-FF8A-41E1-B0DE-EED457E020FC">Duplicating a Subset of the Source Database Tablespaces</a></span>&#34;</span>.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06__GUID-94EE5DFD-64B0-444D-9713-209499B9D8E3">
+<p class="notep1">Note:</p>
+<p>For more information about duplicating an Oracle RAC database, refer to My Oracle Support Note 1617946.1 at <a href="https://support.oracle.com/rs?type=doc&amp;id=1617946.1" target="_blank"><code class="codeph">https://support.oracle.com/rs?type=doc&amp;id=1617946.1</code></a>.</p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To duplicate a database to a remote host with the same directory structure:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li><span>Ensure that you have completed Steps 1 through 4 in <span class="q">&#34;<span><a href="rcmdupdb.htm#GUID-5C007067-E891-45AF-9985-50C052889078">Basic Steps of Database Duplication</a></span>&#34;</span>.</span></li>
+<li><span>Run the <code class="codeph">DUPLICATE</code> command.</span></li>
+</ol>
+<div class="example" id="GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06__BGBEEAEH">
+<p class="titleinexample">Example 25-1 Duplicating to a Different Host with the Same Directory Structure (Active)</p>
+<p>This example illustrates how to perform active duplication. RMAN uses the pull method (using backup sets) by default.<span><code class="codeph">DUPLICATE</code></span> requires the<span><code class="codeph">NOFILENAMECHECK</code></span> option because the source database files have the same names as the duplicate database files.</p>
+<p>The <span><code class="codeph">PASSWORD FILE</code></span> option specifies that RMAN copies the password file to the destination host.</p>
+<p>RMAN automatically copies the server parameter file to the destination host, restarts the auxiliary instance with the server parameter file, copies all necessary database files and archived redo logs over the network to the destination host, and recovers the database. Finally, RMAN opens the database with the<span><code class="codeph">RESETLOGS</code></span> option to create the online redo log.<span><code class="codeph">dupdb</code></span> is the<span><code class="codeph">DB_NAME</code></span> of the duplicate database</p>
+<pre dir="ltr">DUPLICATE TARGET DATABASE TO dupdb
+  FROM ACTIVE DATABASE
+  PASSWORD FILE
+  SPFILE
+  NOFILENAMECHECK;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06__BGBEJIAB">
+<p class="titleinexample">Example 25-2 Duplicating a PDB</p>
+<p>This example adds the <span><code class="codeph">PLUGGABLE</code></span> <span><code class="codeph">DATABASE</code></span> clause to the previous example to duplicate a single PDB. The root and seed database are automatically included in the duplication. The auxiliary instance must have been started with an initialization parameter file that includes the declaration <span><code class="codeph">enable_pluggable_database=TRUE</code></span>.</p>
+<pre dir="ltr">DUPLICATE TARGET DATABASE TO cdbdupe
+  PLUGGABLE DATABASE sales
+  FROM ACTIVE DATABASE
+  PASSWORD FILE
+  SPFILE
+  NOFILENAMECHECK;
+</pre></div>
+<!-- class="example" --></div>
+<a id="BRADV436"></a><a id="BRADV437"></a><a id="BRADV435"></a>
+<div class="props_rev_3"><a id="GUID-46F117F4-E029-4997-A598-92D7E06957A3"></a>
+<h3 id="BRADV-GUID-46F117F4-E029-4997-A598-92D7E06957A3" class="sect3">Backup-Based Duplication Without a Target Connection: Example</h3>
+<div>
+<div class="section">
+<p>In this variation of <a href="rcmdupdb.htm#GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06__BGBEEAEH">Example 25-1</a>, RMAN does not use a <code class="codeph">TARGET</code> connection to the source database. <span><a href="rcmdupdb.htm#GUID-46F117F4-E029-4997-A598-92D7E06957A3__BGBHJDEJ">Example 25-3</a></span> creates a duplicate of the source database <code class="codeph">prod</code> as it appeared in 2013 in a previous database incarnation. RMAN is not connected to the source database but must be connected to a recovery catalog because no <code class="codeph">BACKUP LOCATION</code> clause is provided.</p>
+</div>
+<!-- class="section" -->
+<div class="section"></div>
+<!-- class="section" -->
+<div class="example" id="GUID-46F117F4-E029-4997-A598-92D7E06957A3__BGBHJDEJ">
+<p class="titleinexample">Example 25-3 Duplicating a Database to a Past Point in Time (Backup-Based)</p>
+<pre dir="ltr">DUPLICATE DATABASE prod DBID 8675309 TO dupdb
+  UNTIL TIME &#34;TO_DATE(&#39;11/01/2013&#39;, &#39;MM/DD/YYYY&#39;)&#34;
+  SPFILE
+  NOFILENAMECHECK;
+</pre>
+<p>Note the following characteristics of <span><a href="rcmdupdb.htm#GUID-46F117F4-E029-4997-A598-92D7E06957A3__BGBHJDEJ">Example 25-3</a></span>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">FROM ACTIVE DATABASE</code> clause is not specified. By not specifying this clause, you instruct RMAN to perform backup-based duplication.</p>
+</li>
+<li>
+<p>The <code class="codeph">DBID</code> of the source database is specified because the source database name <code class="codeph">prod</code> is not unique in the recovery catalog.</p>
+</li>
+<li>
+<p>The <code class="codeph">NOFILENAMECHECK</code> check is specified because it is necessary when the duplicate database files use the same names as the source database files.</p>
+</li>
+</ul>
+<p>Assume a variation in which you want to restore an <span><a href="glossary.htm#GUID-52B0BB49-8AC2-4C8E-A52F-1908CDE77717"><span class="xrefglossterm">archival backup</span></a></span>, which is all-inclusive in the sense that every file needed to restore and recover the database is included. The recommended technique for restoring an archival backup for testing is to create a temporary instance and use the <code class="codeph">DUPLICATE</code> command. In this way, you avoid interfering with the source database.</p>
+<p>In the <code class="codeph">DUPLICATE</code> command you must specify the restore point that was created with the archival backup. You can only specify <code class="codeph">TO RESTORE POINT</code> if RMAN is connected to a catalog, or to the source database when the restore point exists in the control file.<span><a href="rcmdupdb.htm#GUID-46F117F4-E029-4997-A598-92D7E06957A3__BGBEDEEB">Example 25-4</a></span> specifies restore point <code class="codeph">TESTDB103107</code>.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-46F117F4-E029-4997-A598-92D7E06957A3__BGBEDEEB">
+<p class="titleinexample">Example 25-4 Using an Archival Backup for Backup-Based Duplication</p>
+<pre dir="ltr">DUPLICATE DATABASE prod DBID 8675309 TO dupdb
+  TO RESTORE POINT TESTDB103107
+  SPFILE
+  NOFILENAMECHECK;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="BRADV439"></a><a id="BRADV438"></a>
+<div class="props_rev_3"><a id="GUID-21E0EE95-2897-484F-88D1-2CB2BE0596A4"></a>
+<h3 id="BRADV-GUID-21E0EE95-2897-484F-88D1-2CB2BE0596A4" class="sect3">Backup-Based Duplication with a Target Connection: Example</h3>
+<div>
+<div class="section">
+<p>Assume a backup-based variation of <span><a href="rcmdupdb.htm#GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06__BGBEEAEH">Example 25-1</a></span> in which RMAN is connected as <code class="codeph">TARGET</code> to the source database. <span><a href="rcmdupdb.htm#GUID-21E0EE95-2897-484F-88D1-2CB2BE0596A4__BGBGDBDJ">Example 25-5</a></span> recovers the duplicate database to 1 week ago to view the data in the source database as it appeared then.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-21E0EE95-2897-484F-88D1-2CB2BE0596A4__BGBGDBDJ">
+<p class="titleinexample">Example 25-5 Duplicating a Database to a Past Point in Time (Backup-Based)</p>
+<pre dir="ltr">DUPLICATE TARGET DATABASE TO dupdb
+  SPFILE
+  NOFILENAMECHECK
+  UNTIL TIME &#39;SYSDATE-7&#39;;
+</pre>
+<p>Note the following characteristics of <span><a href="rcmdupdb.htm#GUID-21E0EE95-2897-484F-88D1-2CB2BE0596A4__BGBGDBDJ">Example 25-5</a></span>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">FROM ACTIVE DATABASE</code> clause is not specified. By not specifying this clause, you instruct RMAN to perform backup-based duplication.</p>
+</li>
+<li>
+<p>The <code class="codeph">NOFILENAMECHECK</code> option is specified because it is necessary when the duplicate database files use the same names as the source database files.</p>
+</li>
+</ul>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="BRADV539"></a><a id="BRADV540"></a><a id="BRADV538"></a>
+<div class="props_rev_3"><a id="GUID-531F0692-80CC-4990-937F-EEDFC02C8672"></a>
+<h3 id="BRADV-GUID-531F0692-80CC-4990-937F-EEDFC02C8672" class="sect3">Backup-Based Duplication Without a Target or Recovery Catalog Connection: Example</h3>
+<div>
+<div class="section">
+<p>In the variation of <span><a href="rcmdupdb.htm#GUID-F32840E6-F8C5-43D6-9B65-A3DF71665B06__BGBEEAEH">Example 25-1</a></span> shown in <a href="rcmdupdb.htm#GUID-531F0692-80CC-4990-937F-EEDFC02C8672__BGBIHBCJ">Example 25-6</a>, RMAN does not use a <code class="codeph">TARGET</code> connection to the source database or a <code class="codeph">CATALOG</code> connection to a recovery catalog. All backup and copies necessary for duplication until November 1 of 2013 at 2:00 PM, including a control file backup or copy, have been placed under <code class="codeph">/prod_backups</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-531F0692-80CC-4990-937F-EEDFC02C8672__BGBIHBCJ">
+<p class="titleinexample">Example 25-6 Duplicating a Database Without a Target and Recovery Catalog Connection (Backup-Based)</p>
+<pre dir="ltr">DUPLICATE DATABASE TO dupdb
+  UNTIL TIME &#34;TO_DATE(&#39;11/01/2013 14:00:00&#39;, &#39;MM/DD/YYYY HH24:MI:SS&#39;)&#34;
+  SPFILE
+  BACKUP LOCATION &#39;/prod_backups&#39;
+  NOFILENAMECHECK;
+</pre>
+<p>Note the following characteristics of <span><a href="rcmdupdb.htm#GUID-531F0692-80CC-4990-937F-EEDFC02C8672__BGBIHBCJ">Example 25-6</a></span> :</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The database name is not specified. By not specifying a database name with the <code class="codeph">DATABASE</code> keyword, <code class="codeph">DUPLICATE</code> obtains the database name and <code class="codeph">DBID</code> from the backups. An error is displayed if backups for multiple databases were found in the <code class="codeph">BACKUP LOCATION</code>.</p>
+</li>
+<li>
+<p>Use of the <code class="codeph">BACKUP LOCATION</code> clause identifies the type of duplication as backup-based with neither a target connection nor recovery catalog.</p>
+</li>
+<li>
+<p>The <code class="codeph">UNTIL TIME</code> option is specified. It is the only <code class="codeph">UNTIL</code> subclause permitted with the <code class="codeph">BACKUP LOCATION</code> clause.</p>
+</li>
+<li>
+<p>The <code class="codeph">NOFILENAMECHECK</code> option is specified because it is necessary when the duplicate database files use the same names as the source database files.</p>
+</li>
+</ul>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-531F0692-80CC-4990-937F-EEDFC02C8672__BGBDFEII">
+<p class="titleinexample">Example 25-7 Duplicating a Database to a Past Point in Time (Backup-Based)</p>
+<p>This example performs backup-based duplication to a point-in-time in the past.</p>
+<pre dir="ltr">DUPLICATE TARGET DATABASE TO dupdb
+  SPFILE
+  NOFILENAMECHECK
+  UNTIL TIME &#39;SYSDATE-7&#39;;
+</pre>
+<p>Note the following characteristics of <a href="rcmdupdb.htm#GUID-531F0692-80CC-4990-937F-EEDFC02C8672__BGBDFEII">Example 25-7</a>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">FROM ACTIVE DATABASE</code> clause is not specified. Omitting this clause instructs RMAN to perform backup-based duplication.</p>
+</li>
+<li>
+<p>The <code class="codeph">NOFILENAMECHECK</code> option check is specified because it is necessary when the duplicate database files use the same names as the source database files.</p>
+</li>
+</ul>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<div class="sect2"><a id="GUID-D65799A8-0921-4DFE-B407-21715911DA21"></a>
+<h2 id="BRADV-GUID-D65799A8-0921-4DFE-B407-21715911DA21" class="sect2">Example: Script to Duplicate a Database Using Backup-based Duplication</h2>
+<div>
+<p>This example shows how to use a script to automate the process of duplicating a target database.</p>
+<div class="section">
+<div class="p">This example assumes the following:
+<ul style="list-style-type: disc;">
+<li>
+<p>backups of the target database are available to the auxiliary instance</p>
+</li>
+<li>
+<p>connection to the RMAN recovery catalog that contains metadata for the target database is available (connection to the target database is not required)</p>
+</li>
+<li>
+<p>both source and duplicate database use Oracle Managed Files (OMF)</p>
+</li>
+<li>
+<p>operating system used is Linux or UNIX</p>
+</li>
+<li>
+<p>audit directory is created on the auxiliary database host</p>
+</li>
+<li>
+<p>prerequisites for backup-based duplication are met</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="p">The script provided in this example performs the following tasks:
+<ul style="list-style-type: disc;">
+<li>
+<p>drops the auxiliary database</p>
+</li>
+<li>
+<p>backs up the target database</p>
+</li>
+<li>
+<p>creates a dummy auxiliary instance and opens it in <code class="codeph">NOMOUNT</code> mode</p>
+</li>
+<li>
+<p>duplicates the target database using the target database backups and metadata in the RMAN recovery catalog</p>
+<p>The duplicate database control file is stored as <code class="codeph">+REDO/</code><span class="italic"><code class="codeph">ORACLE_SID</code></span><code class="codeph">/CONTROLFILE/cf3.ctl</code> and the data files are stored in the <code class="codeph">+DATA</code> directory.</p>
+</li>
+<li>
+<p>verifies that the required objects are created in the duplicate database</p>
+</li>
+</ul>
+</div>
+<p>To duplicate a target database using backup-based duplication without a target connection:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Create a parameter file (pfile) for the auxiliary instance. The pfile contains only the <code class="codeph">DB_NAME</code> initialization parameter which is set to the SID of the duplicate database.</span>
+<div>
+<p>The following pfile, called <code class="codeph">init_dup.ora</code> and located in the <code class="codeph">/home/oracle</code> directory, sets the <code class="codeph">DB_NAME</code> parameter. Replace <span class="italic"><code class="codeph">dup_db</code></span> with the SID of your duplicate database:</p>
+<pre dir="ltr">*.db_name = &#39;<span class="italic">dup_db</span>&#39;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Use a text editor and create a Shell script (called <code class="codeph">dup_db.sh</code> in this example) with the contents shown below and with the following modifications:</span>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>Replace the value of the <code class="codeph">ORACLE_HOME</code> variable with the Oracle home directory of your auxiliary instance.</p>
+</li>
+<li>
+<p>Replace the value of the <code class="codeph">logdir</code> variable with the directory in which you want to store log files.</p>
+</li>
+<li>
+<p>Replace the following placeholders (shown in Italics) with values appropriate to your duplication scenario:</p>
+<p><span class="italic"><code class="codeph">dup_db</code></span>: system identifier (SID) and service name of the auxiliary instance</p>
+<p><span class="italic"><code class="codeph">tgt_db</code></span>: SID and service name of the target database</p>
+<p><span class="italic"><code class="codeph">sys_pswd</code></span>: Password for the <code class="codeph">SYS</code> user of the target database</p>
+<p><span class="italic"><code class="codeph">rman_cat_user</code></span>: Name of the RMAN catalog user</p>
+<p><span class="italic"><code class="codeph">cat_user_pswd</code></span>: Password for the RMAN catalog user <span class="italic"><code class="codeph">rman_cat_user</code></span></p>
+<p><span class="italic"><code class="codeph">rman_catalog_db</code></span>: SID of the RMAN catalog database</p>
+<p><span class="italic"><code class="codeph">system_pswd</code></span>: Password for the <code class="codeph">SYSTEM</code> user in the target database</p>
+</li>
+<li>
+<p>If you want to store the duplicate database control file using a name and location that is different from <code class="codeph">+REDO/</code><span class="italic"><code class="codeph">ORACLE_SID</code></span><code class="codeph">/CONTROLFILE/cf3.ctl</code>, then replace the value of <code class="codeph">control_files</code> in the <code class="codeph">dup_aux_db</code> function with a value that is appropriate for your duplication scenario.</p>
+</li>
+<li>
+<p>If you want to store the duplicate data files in a directory that is different from <code class="codeph">+DATA</code>, then replace the value of <code class="codeph">db_create_file_dest</code> in the <code class="codeph">dup_aux_db</code> function with a value that is appropriate for your duplication scenario.</p>
+</li>
+</ul>
+<pre dir="ltr">#!/bin/bash
+export ORACLE_HOME=/u01/app/oracle/product/11.2.0.4/dbhome_2
+export ORACLE_BASE=/uo1/app/oracle
+export ORACLE_SID=<span class="italic">dup_db</span>
+export PATH=$PATH:$HOME/bin:$ORACLE_HOME/bin:$ORACLE_HOME/Opatch
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$ORACLE_HOME/rdbms/lib:/lib:/usr/lib;
+export LD_LIBRARY_PATH
+export logdir=/home/oracle/log
+export dt=&#39;date +%y%m%d%H%M%S&#39;
+export NLS_DATE_FORMAT=&#39;DD-MM-YYYY HH24:MI:SS&#39;
+
+function drop_aux_db {
+export ORACLE_SID=<span class="italic">dup_db</span>
+$ORACLE_HOME/bin/sqlplus -s &#39;/ as sysdba&#39; &lt;&lt;EOF2
+set pagesize 999 linesize 999 heading off feedback off
+select name, open_mode from v\$database;
+shutdown immediate;
+startup mount exclusive restrict;
+drop database;
+exit;
+EOF2
+}
+
+echo &#34;Backup the target database&#34;
+function backup_source_db {
+$ORACLE_HOME/bin/rman target sys/<span class="italic">sys_pswd</span>@<span class="italic">tgt_db</span> catalog
+<span class="italic">rman_cat_user</span>/<span class="italic">cat_user_pswd</span>@<span class="italic">rman_catalog_db</span> &lt;&lt;EOF
+RUN {
+backup as backupset cumulative incremental level 1 database include current
+controlfile plus archivelog not backed up delete input;}
+exit;
+EOF
+}
+
+sleep 120
+
+echo &#34;List the backup of the target database&#34;
+function check_source_db_backup {
+$ORACLE_HOME/bin/rman target sys/<span class="italic">sys_pswd</span>@<span class="italic">tgt_db</span> catalog
+<span class="italic">rman_cat_user</span>/<span class="italic">cat_user_pswd</span>@<span class="italic">rman_catalog_db</span> &lt;&lt;EOF
+LIST BACKUP OF DATABASE COMPLETED AFTER &#39;(SYSDATE-1/24)&#39;;
+EOF
+}
+
+echo &#34;Start the auxiliary database in FORCE NOMOUNT mode&#34;
+function nomount_aux_db {
+export ORACLE_SID=<span class="italic">dup_db</span>
+$ORACLE_HOME/bin/rman target / &lt;&lt;EOF2
+startup force nomount pfile=&#39;/home/oracle/init_dup.ora&#39;;
+exit;
+EOF2
+}
+
+echo &#34;Duplicate the target database&#34;
+function dup_aux_db {
+export ORACLE_SID=<span class="italic">dup_db</span>
+$ORACLE_HOME/bin/rman catalog <span class="italic">rman_cat_user</span>/<span class="italic">cat_user_pswd</span>@<span class="italic">rman_catalog_db</span> AUXILIARY /
+&lt;&lt;EOF
+duplicate database <span class="italic">tgt_db</span> to <span class="italic">dup_db</span> spfile
+set control_files &#39;+REDO/${<span class="italic">ORACLE_SID</span>}/CONTROLFILE/cf3.ctl&#39;
+set db_create_file_dest &#39;+DATA/&#39; ;
+exit;
+EOF
+}
+
+echo &#34;Check schema objects on the target&#34;
+function check_source_db {
+$ORACLE_HOME/bin/sqlplus -s system/<span class="italic">system_pswd</span>@<span class="italic">tgt_db</span> &lt;&lt;EOF2
+set pagesize 999 linesize 999 heading off feedback off
+select name, open_mode from v\$database;
+select table_name, num_rows from dba_tables where owner=&#39;SOE&#39;;
+exit;
+EOF2
+}
+
+echo &#34;Check schema objects on the auxiliary&#34;
+function check_aux_db {
+export ORACLE_SID=<span class="italic">dup_db</span>
+$ORACLE_HOME/bin/sqlplus -s &#39;/ as sysdba&#39; &lt;&lt;EOF2
+set pagesize 999 linesize 999 heading off feedback off
+select name, open_mode from v\$database;
+select table_name, num_rows from dba_tables where owner=&#39;SOE&#39;;
+exit;
+EOF2
+}
+
+drop_aux_db
+backup_source_db
+check_source_db_backup
+nomount_aux_db
+dup_aux_db
+check_source_db
+check_aux_db
+</pre></div>
+</li>
+<li class="stepexpand"><span>Set execute permissions for the script <code class="codeph">dup_db.sh</code> using the <code class="codeph">chmod</code> command.</span>
+<div><code class="codeph">$ chmod +x dup_db.sh</code></div>
+</li>
+<li class="stepexpand"><span>On the duplicate host (that hosts the duplicate database), run the <code class="codeph">dup_db.sh</code> script.</span>
+<div>
+<p>The following command runs the <code class="codeph">dup_db.sh</code> script that is stored in the <code class="codeph">/home/my_scripts/duplication</code> directory:</p>
+<code class="codeph">$./home/my_scripts/duplication/dup_db.sh</code></div>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV650"></a><a id="BRADV440"></a>
+<div class="props_rev_3"><a id="GUID-D5673FBE-0070-4266-B13C-E94164DB3CEE"></a>
+<h2 id="BRADV-GUID-D5673FBE-0070-4266-B13C-E94164DB3CEE" class="sect2">Restarting DUPLICATE After a Failure</h2>
+<div>
+<div class="section">
+<p>RMAN automatically optimizes a <code class="codeph">DUPLICATE</code> command that is a repeat of a previously failed <code class="codeph">DUPLICATE</code> command. The repeat <code class="codeph">DUPLICATE</code> command notices which data files were successfully copied earlier and does not copy them again. This applies to all forms of duplication, whether they are backup-based (with or without a target connection) or active database duplication. The automatic optimization of the <code class="codeph">DUPLICATE</code> command can be especially useful when a failure occurs during the duplication of very large databases.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To restart a DUPLICATE operation:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Exit RMAN.</span></li>
+<li class="stepexpand"><span>Start SQL*Plus and connect to the auxiliary instance with <code class="codeph">SYSDBA</code> or <code class="codeph">SYSBACKUP</code> privilege. Start the auxiliary instance in <code class="codeph">NOMOUNT</code> mode with the same <code class="codeph">SPFILE</code> or <code class="codeph">PFILE</code> specification that you used initially. If you omitted this specification initially, then omit it again here.</span>
+<div>
+<p>This example starts the auxiliary instance using the parameters in <code class="codeph">/home/my_pfile.ora</code>:</p>
+<pre dir="ltr">STARTUP FORCE PFILE=/home/my_pfile.ora
+</pre></div>
+</li>
+<li class="stepexpand"><span>Exit SQL*Plus and start RMAN.</span></li>
+<li class="stepexpand"><span>Connect to the same databases as initially.</span></li>
+<li class="stepexpand"><span>Repeat the <code class="codeph">DUPLICATE</code> command.</span></li>
+</ol>
+<div class="section">
+<p><a id="d98114e5639" class="indexterm-anchor"></a>The second <code class="codeph">DUPLICATE</code> operation:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Locates the data files that were successfully duplicated by the initial <code class="codeph">DUPLICATE</code> command.</p>
+</li>
+<li>
+<p>Displays a message similar to the following for each data file that it does not need to duplicate again:</p>
+<pre dir="ltr">RMAN-05560: Using previous duplicated file /oradata/new/data01.f for datafile 1 with checkpoint SCN of 1654665
+</pre></li>
+<li>
+<p>Restores only the missing or incomplete data files, thereby avoiding recopying and restoring all the data files.</p>
+</li>
+</ul>
+<p>If you do not want RMAN to automatically recover from a failed <code class="codeph">DUPLICATE</code> operation, specify the keyword <code class="codeph">NORESUME</code> to disable the functionality. Using the keyword <code class="codeph">NORESUME</code> in the first invocation of <code class="codeph">DUPLICATE</code> prevents a subsequent <code class="codeph">DUPLICATE</code> command for the new database from using this automatic optimization.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment500">
+<tr>
+<td class="cellalignment512">
+<table class="cellalignment505">
+<tr>
+<td class="cellalignment504"><a href="part_tra.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment504"><a href="rcmdupad.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2003, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment514">
+<table class="cellalignment503">
+<tr>
+<td class="cellalignment504"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment504"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment504"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment504"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment504"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment504"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

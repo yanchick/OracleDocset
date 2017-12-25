@@ -1,0 +1,428 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-114020"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Managing%20Database%20Failover%20and%20Recovery"></a><title>Managing Database Failover and Recovery</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 726"/>
+<meta name="dcterms.created" content="2014-09-29T11:11:56Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen In-Memory Database Replication Guide"/>
+<meta name="dcterms.identifier" content="E21635-11"/>
+<meta name="dcterms.isVersionOf" content="TTREP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="perform.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="clusterattributes.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21635-11.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">19/21</span> <!-- End Header -->
+<div id="TTREP651" class="chapter"><a id="CFHGEGCJ"></a>
+<h1 class="chapter"><span class="secnum">15</span> Managing Database Failover and Recovery</h1>
+<p>This chapter applies to all replication schemes, including active standby pairs. However, TimesTen integration with Oracle Clusterware is the best way to monitor active standby pairs. See <a href="cluster.htm#CCHCFAAD">Chapter 8, &#34;Using Oracle Clusterware to Manage Active Standby Pairs&#34;</a>.</p>
+<p>This chapter includes these topics:</p>
+<ul>
+<li>
+<p><a href="#CFHGIJGF">Overview of database failover and recovery</a></p>
+</li>
+<li>
+<p><a href="#CFHHAHJG">General failover and recovery procedures</a></p>
+</li>
+<li>
+<p><a href="#CFHBBHBH">Recovering a failed database</a></p>
+</li>
+<li>
+<p><a href="#CACIBCCA">Recovering nondurable databases</a></p>
+</li>
+<li>
+<p><a href="#CFHCJBEG">Writing a failure recovery script</a></p>
+</li>
+</ul>
+<a id="CFHGIJGF"></a>
+<div id="TTREP614" class="sect1">
+<h2 class="sect1">Overview of database failover and recovery</h2>
+<p>A fundamental element in the design of a highly available system is the ability to recover quickly from a failure. Failures may be related to hardware problems such as system failures or network failures. Software failures include operating system failure, application failure, database failure and operator error.</p>
+<p>Your replicated system must employ a cluster manager or custom software to detect such failures and, in the event of a failure involving a master database, redirect the user load to one of its subscribers. The focus of this discussion is on the TimesTen mechanisms that an application or cluster manager can use to recover from failures.</p>
+<p>Unless the replication scheme is configured to use the return twosafe service, TimesTen replicates updates only after the original transaction commits to the master database. If a subscriber database is inoperable or communication to a subscriber database fails, updates at the master are not impeded. During outages at subscriber systems, updates intended for the subscriber are saved in the TimesTen transaction log.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The procedures described in this chapter require the <code>ADMIN</code> privilege.</div>
+</div>
+<!-- class="sect1" -->
+<a id="CFHHAHJG"></a>
+<div id="TTREP547" class="sect1">
+<h2 class="sect1">General failover and recovery procedures</h2>
+<p>The procedures for managing failover and recovery depend primarily on:</p>
+<ul>
+<li>
+<p>The replication scheme</p>
+</li>
+<li>
+<p>Whether the failure occurred on a master or subscriber database</p>
+</li>
+<li>
+<p>Whether the threshold for the transaction log on the master is exhausted before the problem is resolved and the databases reconnected</p>
+</li>
+</ul>
+<a id="CACHAEAJ"></a>
+<div id="TTREP548" class="sect2">
+<h3 class="sect2">Subscriber failures<a id="sthref829"></a><a id="sthref830"></a></h3>
+<p>In a default asynchronous replication scheme, if a subscriber database becomes inoperable or communication to a subscriber database fails, updates at the master are not impeded and the cluster manager does not have to take any immediate action.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If the failed subscriber is configured to use a return service, you must first disable return service blocking, as described in <a href="attrib.htm#BGBHEHFB">&#34;Managing return service timeout errors and replication state changes&#34;</a>.</div>
+<p>During outages at subscriber systems, updates intended for the subscriber are saved in the transaction log on the master. If the subscriber agent reestablishes communication with its master before the master reaches its <a id="sthref831"></a><code>FAILTHRESHOLD</code>, the updates held in the log are automatically transferred to the subscriber and no further action is required. See <a href="attrib.htm#CHDBACFH">&#34;Setting the transaction log failure threshold&#34;</a> for details on how to establish the <a id="sthref832"></a><code>FAILTHRESHOLD</code> value for the master database.</p>
+<p>If the <a id="sthref833"></a><code>FAILTHRESHOLD</code> is exceeded, the master sets the subscriber to the <code>failed</code> state and it must be recovered, as described in <a href="#CFHBBHBH">&#34;Recovering a failed database&#34;</a>. Any application that connects to the failed subscriber receives a <code>tt_ErrReplicationInvalid</code> (8025) warning indicating that the database has been marked <code>failed</code> by a replication peer.</p>
+<p>An application can use the ODBC <a id="sthref834"></a><code>SQLGetInfo</code> function to check if the subscriber database it is connected to has been set to the <code>failed</code> state. The <code>SQLGetInfo</code> function includes a TimesTen-specific infotype, <code>TT_REPLICATION_INVALID</code>, that returns a 32-bit integer value of &#39;1&#39; if the database is failed, or &#39;0&#39; if not failed.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Since the infotype <code>TT_REPLICATION_INVALID</code> is specific to TimesTen, all applications using it need to include the <code>timesten.h</code> file in addition to the other ODBC <code>include</code> files.</div>
+<p>However, if you are using bidirectional replication scheme where each database serves as both master and subscriber and one of the subscribers fail, then an error condition may occur. For example, assuming that the masters and subscribers for the bidirectional replication scheme are defined as follows:</p>
+<pre>CREATE REPLICATION r1
+ELEMENT elem_accounts_1 TABLE ttuser.accounts
+  MASTER westds ON &#34;westcoast&#34;
+  SUBSCRIBER eastds ON &#34;eastcoast&#34;
+ELEMENT elem_accounts_2 TABLE ttuser.accounts
+  MASTER eastds ON &#34;eastcoast&#34;
+  SUBSCRIBER westds ON &#34;westcoast&#34;;
+</pre>
+<ul>
+<li>
+<p>If the <code>eastds</code> subscriber fails, the <code>westds</code> master stops accumulating updates for this subscriber since it received a failure.</p>
+</li>
+<li>
+<p>When the <code>eastds</code> subscriber fails, the replication agent shuts down on <code>eastds</code>. However, the <code>eastds</code> master continues accumulating updates to propagate to its subscriber on <code>westds</code> unaware that the replication agent has shut down. These updates continue to accumulate past the defined <code>FAILTHRESHOLD</code> since the replication agent (who propagates the records to the subscriber as well as monitors the <code>FAILTHRESHOLD</code>) is down.</p>
+</li>
+</ul>
+<p>When you are using a bidirectional replication scheme and <code>TT_REPLICATION_INVALID</code> is set to 1 on the failed database, perform the following:</p>
+<ol>
+<li>
+<p>Destroy the failed database (in this example, the <code>eastds</code> database).</p>
+</li>
+<li>
+<p>Re-create the failed database by performing a <code>ttRepAdmin -duplicate</code> operation from the other master in the bidirectional replication scheme (in this example, the master on <code>westds</code>).</p>
+</li>
+</ol>
+<div id="TTREP549" class="example">
+<p class="titleinexample"><a id="sthref835"></a>Example 15-1 Checking whether a database has been set to the failed state</p>
+<p>Check if the database identified by the <code>hdbc</code> handle has been set to the <code>failed</code> state.</p>
+<pre>SQLINTEGER retStatus;
+
+SQLGetInfo(hdbc, TT_REPLICATION_INVALID,
+          (PTR)&amp;retStatus, NULL, NULL);
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" -->
+<div id="TTREP550" class="sect2"><a id="sthref836"></a>
+<h3 class="sect2">Master failures</h3>
+<p>The cluster manager plays a more central role if a failure involves the master database. If a master database fails, the cluster manager must detect this event and redirect the user load to one of its surviving databases. This surviving subscriber then becomes the master, which continues to accept transactions and replicates them to the other surviving subscriber databases. If the failed master and surviving subscriber are configured in a bidirectional manner, transferring the user load from a failed master to a subscriber does not require that you make any changes to your replication scheme. However, when using unidirectional replication or complex schemes, such as those involving propagators, you may have to issue one or more <code>ALTER REPLICATION</code> statements to reconfigure the surviving subscriber as the &#34;new master&#34; in your scheme. See <a href="alter.htm#BGBIAADA">&#34;Replacing a master database in a classic replication scheme&#34;</a> for an example.</p>
+<p>When the problem is resolved, if you are not using the bidirectional configuration or the active standby pair described in <a href="#CFHHHGGG">&#34;Automatic catch-up of a failed master database&#34;</a>, you must recover the master database as described in <a href="#CFHBBHBH">&#34;Recovering a failed database&#34;</a>.</p>
+<p>After the database is back online, the cluster manager can either transfer the user load back to the original master or reestablish it as a subscriber for the &#34;acting master.&#34;</p>
+</div>
+<!-- class="sect2" -->
+<a id="CFHHHGGG"></a>
+<div id="TTREP551" class="sect2">
+<h3 class="sect2">Automatic catch-up of a failed master database<a id="sthref837"></a><a id="sthref838"></a><a id="sthref839"></a></h3>
+<p>The master catch-up feature automatically restores a failed master database from a subscriber database without the need to invoke the <a id="sthref840"></a><code>ttRepAdmin</code> <code>-duplicate</code> operation described in <a href="#CFHBBHBH">&#34;Recovering a failed database&#34;</a>.</p>
+<p>The master catch-up feature needs no configuration, but it can be used only in the following types of configurations:</p>
+<ul>
+<li>
+<p>A single master replicated in a bidirectional manner to a single subscriber</p>
+</li>
+<li>
+<p>An active standby pair that is configured with <code>RETURN TWOSAFE</code></p>
+</li>
+</ul>
+<p>For replication schemes that are not active standby pairs, the following must be true:</p>
+<ul>
+<li>
+<p>The <code>ELEMENT</code> type is <code>DATASTORE</code>.</p>
+</li>
+<li>
+<p><code>TRANSMIT NONDURABLE</code> or <code>RETURN TWOSAFE</code> must be enabled.</p>
+</li>
+<li>
+<p>All replicated transactions must be committed nondurably. They must be transmitted to the remote database before they are committed on the local database. For example, if the replication scheme is configured with <code>RETURN TWOSAFE BY REQUEST</code> and any transaction is committed without first enabling <code>RETURN TWOSAFE</code>, master catch-up may not occur after a failure of the master.</p>
+</li>
+</ul>
+<p>When the master replication agent is restarted after a crash or invalidation, any lost transactions that originated on the master are automatically reapplied from the subscriber to the master (or from the standby to the active in an active standby pair). No connections are allowed to the master database until it has completely caught up with the subscriber. Applications attempting to connect to a database during the catch-up phase receive an error that indicates a catch-up is in progress. The only exception is connecting to a database with the <a id="sthref841"></a><code>ForceConnect</code><a id="sthref842"></a><a id="sthref843"></a> first connection attribute set in the DSN.</p>
+<p>When the catch-up phase is complete, the application can connect to the database. An SNMP trap and message to the system log indicate the completion of the catch-up phase.</p>
+<p>If one of the databases is invalidated or crashes during the catch-up process, the catch-up phase is resumed when the database comes back up.</p>
+<p>Master catch-up can fail under these circumstances:</p>
+<ul>
+<li>
+<p>The failed database is offline long enough for the failure threshold to be exceeded on the subscriber database (the standby database in an active standby pair).</p>
+</li>
+<li>
+<p>Dynamic load operations are taking place on the active database in an active standby pair when the failure occurs. <code>RETURN TWOSAFE</code> is not enabled for dynamic load operations even though it is enabled for the active database. The database failure causes the dynamic load transactions to be trapped and <code>RETURN TWOSAFE</code> to fail.</p>
+</li>
+</ul>
+<div id="TTREP741" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref844"></a>
+<h4 class="sect3">When master catch-up is required for an active standby pair</h4>
+<p>TimesTen error 8110 (<code>Connection not permitted. This store requires Master Catchup.</code>) indicates that the standby database is ahead of the active database and that master catch-up must occur before replication can resume.</p>
+<p>When using master catch-up with an active standby pair, the standby database must be failed over to become the new active database. If the old active database can recover, it becomes the new standby database. If it cannot recover, the old active database must be destroyed and the new standby database must be created by duplicating the new active database. See <a href="standby.htm#BABJDAEI">&#34;When replication is return twosafe&#34;</a> for more information about recovering from a failure of the active database when <code>RETURN TWOSAFE</code> is configured (required for master catch-up).</p>
+<p>In an active standby pair with <code>RETURN TWOSAFE</code> configured, it is possible to have a <a id="sthref845"></a><span class="italic">trapped transaction</span>. A trapped transaction occurs when the new standby database has a transaction present that is not present on the new active database after failover. Error 16227 (<code>Standby store has replicated transactions not present on the active</code>) is one indication of trapped transactions. You can verify the number of trapped transactions by checking the number of records in replicated tables on each database during the manual recovery process. For example, enter a statement similar to the following:</p>
+<pre>SELECT COUNT(*) FROM reptable;
+</pre>
+<p>When there are trapped transactions, perform these tasks for recovery:</p>
+<ol>
+<li>
+<p>Use the <code>ttRepStateSet</code> built-in procedure to change the state on the standby database to <code>&#39;ACTIVE&#39;</code>.</p>
+</li>
+<li>
+<p>Destroy the old active database.</p>
+</li>
+<li>
+<p>Use <code>ttRepAdmin -duplicate</code> to create a new standby database from the new active database, which has all of the transactions. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<div id="TTREP552" class="sect2"><a id="sthref846"></a>
+<h3 class="sect2">Failures in bidirectional distributed workload schemes</h3>
+<p>You can distribute the workload over multiple bidirectionally replicated databases, each of which serves as both master and subscriber. When recovering a master/subscriber database, the log on the failed database may present problems when you restart replication. See <a href="design.htm#CHDBDHCI">&#34;Bidirectional distributed workload scheme&#34;</a>.</p>
+<p>If a database in a distributed workload scheme fails and work is shifted to a surviving database, the information in the surviving database becomes more current than that in the failed database. If replication is restarted at the failed system before the log failure threshold has been reached on the surviving database, then both databases attempt to update one another with the contents of their transaction logs. In this case, the older updates in the transaction log on the failed database may overwrite more recent data on the surviving system.</p>
+<p>There are two ways to recover in such a situation:</p>
+<ul>
+<li>
+<p>If the timestamp conflict resolution rules described in <a href="conflict.htm#BABGABJH">Chapter 13, &#34;Resolving Replication Conflicts&#34;</a> are sufficient to guarantee consistency for your application, then you can restart the failed system and allow the updates from the failed database to propagate to the surviving database. The conflict resolution rules prevent more recent updates from being overwritten.</p>
+</li>
+<li>
+<p>Re-create the failed database, as described in <a href="#CFHBBHBH">&#34;Recovering a failed database&#34;</a>. If the database must be re-created, the updates in the log on the failed database that were not received by the surviving database cannot be identified or restored. In the case of several surviving databases, you must select which of the surviving databases is to be used to re-create the failed database. It is possible that at the time the failed database is re-created, the selected surviving database may not have received all updates from the other surviving databases. This results in diverging databases. The only way to prevent this situation is to re-create the other surviving databases from the selected surviving database.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<div id="TTREP553" class="sect2"><a id="sthref847"></a>
+<h3 class="sect2">Network failures</h3>
+<p>In the event of a temporary network failure, you do not need to perform any specific action to continue replication. The replication agents that were in communication attempt to reconnect every few seconds. If the agents reconnect before the master database runs out of log space, the replication protocol makes sure they do not miss or repeat any replication updates. If the network is unavailable for a longer period and the log failure threshold has been exceeded for the master log, you need to recover the subscriber as described in <a href="#CFHBBHBH">&#34;Recovering a failed database&#34;</a>.</p>
+</div>
+<!-- class="sect2" -->
+<div id="TTREP554" class="sect2"><a id="sthref848"></a>
+<h3 class="sect2">Failures involving sequences</h3>
+<p>After a network link failure, if replication is allowed to recover by replaying queued logs, you do not need to take any action.</p>
+<p>However, if the failed host was down for a significant amount of time, you must use the <code>ttRepAdmin</code> <code>-duplicate</code> command to repopulate the database on the failed host with transactions from the surviving host, as sequences are not rolled back during failure recovery. In this case, the <code>ttRepAdmin</code> <code>-duplicate</code> command copies the sequence definitions from one database to the other.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CFHBBHBH"></a>
+<div id="TTREP555" class="sect1">
+<h2 class="sect1">Recovering a failed database</h2>
+<p>If the databases are configured in a bidirectional replication scheme, a failed master database is automatically brought up to date from the subscriber. See <a href="#CFHHHGGG">&#34;Automatic catch-up of a failed master database&#34;</a>. Automatic catch-up also applies to recovery of master databases in active standby pairs.</p>
+<p>If a restarted database cannot be recovered from its master&#39;s transaction log so that it is consistent with the other databases in the replicated system, you must re-create the database from one of its replication peers. Use command line utilities or the TimesTen Utility C functions. See <a href="#CFHJGFHA">&#34;Recovering a failed database from the command line&#34;</a> and <a href="#CFHIBBJG">&#34;Recovering a failed database from a C program&#34;</a>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+It is not necessary to re-create the DSN for the failed database.</div>
+<p>In the event of a subscriber failure, if any tables are configured with a return service, commits on those tables in the master database are blocked until the return service timeout period expires. To avoid this, you can establish a return service failure and recovery policy in your replication scheme, as described in <a href="attrib.htm#BGBHEHFB">&#34;Managing return service timeout errors and replication state changes&#34;</a>. If you are using the <code>RETURN RECEIPT</code> service, an alternative is to use <code>ALTER REPLICATION</code> and set the <code>NO RETURN</code> attribute to disable return receipt until the subscriber is restored and caught up. Then you can submit another <code>ALTER REPLICATION</code> statement to reestablish <code>RETURN RECEIPT</code>.</p>
+<a id="CFHJGFHA"></a>
+<div id="TTREP556" class="sect2">
+<h3 class="sect2">Recovering a failed database from the command line</h3>
+<p>If the databases are fully replicated, you can use the <a id="sthref849"></a><code>ttDestroy</code> utility to remove the failed database from memory and <a id="sthref850"></a><code>ttRepAdmin</code> <code>-duplicate</code> to re-create it from a surviving database. If the database contains any cache groups, you must also use the <code>-keepCG</code> option of <code>ttRepAdmin</code>. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>.</p>
+<div id="TTREP557" class="example">
+<p class="titleinexample"><a id="sthref851"></a>Example 15-2 Recovering a failed database</p>
+<p>To recover a failed database, <code>subscriberds</code>, from a master named <code>masterds</code> on host <code>system1</code>, enter:</p>
+<pre>&gt; ttdestroy /tmp/subscriberds
+
+&gt; ttrepadmin -dsn subscriberds -duplicate -from masterds -host &#34;system1&#34; -uid ttuser
+</pre>
+<p>You are prompted for the password of <code>ttuser</code>.</p>
+</div>
+<!-- class="example" -->
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<code>ttRepAdmin</code> <code>-duplicate</code> is supported only between identical and patch TimesTen releases. The major and minor release numbers must be the same.</div>
+<p>After re-creating the database with <a id="sthref852"></a><code>ttRepAdmin</code> <code>-duplicate,</code> the first connection to the database reloads it into memory. To improve performance when duplicating large databases, you can avoid the reload step by using the <a id="sthref853"></a><code>ttRepAdmin</code> <code>-ramload</code> option to keep the database in memory after the duplicate operation.</p>
+<div id="TTREP558" class="example">
+<p class="titleinexample"><a id="sthref854"></a>Example 15-3 Keeping a database in memory when recovering it</p>
+<p>To recover a failed database, <code>subscriberds</code>, from a master named <code>masterds</code> on host <code>system1</code>, and to keep the database in memory and restart replication after the duplicate operation, enter:</p>
+<pre>&gt; ttdestroy /tmp/subscriberds
+
+&gt; ttrepadmin -dsn subscriberds -duplicate -ramload -from masterds -host &#34;system1&#34;
+-uid ttuser -setmasterrepstart
+</pre>
+<p>You are prompted for the password of <code>ttuser</code>.</p>
+</div>
+<!-- class="example" -->
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+After duplicating a database with the <a id="sthref855"></a><code>ttRepAdmin</code> <code>-duplicate -ramLoad</code> options, the RAM Policy for the database is <code>manual</code> until explicitly reset by <a id="sthref856"></a><code>ttAdmin</code> <code>-ramPolicy</code> or the <code>ttRamPolicy</code> function.</div>
+</div>
+<!-- class="sect2" -->
+<a id="CFHIBBJG"></a>
+<div id="TTREP559" class="sect2">
+<h3 class="sect2">Recovering a failed database from a C program</h3>
+<p>You can use the C functions provided in the TimesTen utility library to recover a failed database programmatically.</p>
+<p>If the databases are fully replicated, you can use <a id="sthref857"></a><code>ttDestroyDataStore</code> function to remove the failed database and the <a id="sthref858"></a><code>ttRepDuplicateEx</code> function to re-create it from a surviving database.</p>
+<div id="TTREP560" class="example">
+<p class="titleinexample"><a id="sthref859"></a>Example 15-4 Recovering and starting a failed database</p>
+<p>To recover and start a failed database, named <code>subscriberds</code> on host <code>system2</code>, from a master, named <code>masterds</code> on host <code>system1</code>, enter:</p>
+<pre>int          rc;
+ttutilhandle utilhandle;
+ttrepduplicateexarg arg;
+memset( &amp;arg, 0, sizeof( arg ) );
+arg.size = sizeof( ttrepduplicateexarg );
+arg.flags = tt_repdup_repstart | tt_repdup_ramload;
+arg.uid=ttuser;
+arg.pwd=ttuser;
+arg.localhost = &#34;system2&#34;;
+rc = ttdestroydatastore( utilhandle, &#34;subscriberds&#34;, 30 );
+rc = ttrepduplicateex( utilhandle, &#34;dsn=subscriberds&#34;,
+                      &#34;masterds&#34;, &#34;system1&#34;, &amp;arg );
+</pre>
+<p>In this example, the timeout for the <code>ttDestroyDataStore</code> operation is 30 seconds. The last parameter of the <code>ttRepDuplicateEx</code> function is an argument structure containing two flags:</p>
+<ul>
+<li>
+<p><code>TT_REPDUP_RESTART</code> to set the <code>subscriberds</code> database to the <code>start</code> state after the duplicate operation is completed</p>
+</li>
+<li>
+<p><code>TT_REPDUP_RAMLOAD</code> to set the RAM policy to <code>manual</code> and keep the database in memory</p>
+</li>
+</ul>
+</div>
+<!-- class="example" -->
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+When the <code>TT_REPDUP_RAMLOAD</code> flag is used with <code>ttRepDuplicateEx</code>, the RAM policy for the duplicate database is <code>manual</code> until explicitly reset by the <code>ttRamPolicy</code> function or <a id="sthref860"></a><code>ttAdmin</code> <code>-ramPolicy</code>.</div>
+<p>See <a class="olink TTCDV371" href="../TTCDV/c_ref.htm#TTCDV371">&#34;TimesTen Utility API&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database C Developer&#39;s Guide</span> for the complete list of the functions provided in the TimesTen C language utility library.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CACIBCCA"></a>
+<div id="TTREP561" class="sect1">
+<h2 class="sect1">Recovering nondurable databases<a id="sthref861"></a></h2>
+<p>If your database is configured with the <code>TRANSMIT NONDURABLE</code> option in a bidirectional configuration, you do not need to take any action to recover a failed master database. See <a href="#CFHHHGGG">&#34;Automatic catch-up of a failed master database&#34;</a>.</p>
+<p>For other types of configurations, if the master database configured with the <code>TRANSMIT NONDURABLE</code> option fails, you must use <a id="sthref862"></a><code>ttRepAdmin</code><code>-duplicate</code> or <code>ttRepDuplicateEx</code> to re-create the master database from the most current subscriber database. If the application attempts to reconnect to the master database without first performing the duplicate operation, the replication agent recovers the database, but any attempt to connect results in an error that advises you to perform the duplicate operation. To avoid this error, the application must reconnect with the <a id="sthref863"></a><code>ForceConnect</code> first connection attribute set to 1.</p>
+</div>
+<!-- class="sect1" -->
+<a id="CFHCJBEG"></a>
+<div id="TTREP562" class="sect1">
+<h2 class="sect1">Writing a <a id="sthref864"></a>failure recovery script</h2>
+<p>Upon detecting a failure, the cluster manager should invoke a script that effectively executes the procedure shown by the pseudocode in <a href="#CFHHCBAJ">Example 15-5</a>.</p>
+<div id="TTREP563" class="example">
+<p class="titleinexample"><a id="CFHHCBAJ"></a>Example 15-5 Failure recovery pseudocode</p>
+<pre>Detect problem {
+       if (Master == unavailable) {
+          FailedDataDatabase = Master
+          FailedDSN = Master_DSN
+          SurvivorDatabase = Subscriber
+          switch users to SurvivorDatabase
+      }
+else {
+          FailedDatabase = Subscriber
+          FailedDSN = Subscriber_DSN
+          SurvivorDatabase = Master
+      }
+}
+Fix problem....
+If (Problem resolved) {
+       Get state for FailedDatabase
+       if (state == &#34;failed&#34;) {
+         ttDestroy FailedDatabase
+         ttRepAdmin -dsn FailedDSN -duplicate
+                 -from SurvivorDatabase -host SurvivorHost
+                 -setMasterRepStart
+                 -uid ttuser
+                 -pwd ttuser
+      }
+      else {
+         ttAdmin -repStart FailedDSN
+      }
+      while (backlog != 0) {
+         wait
+      }
+}
+
+Switch users back to Master.
+</pre></div>
+<!-- class="example" -->
+<p>This applies to either the master or subscriber databases. If the master fails, you may lose some transactions.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5803">
+<tr>
+<td class="cellalignment5812">
+<table class="cellalignment5808">
+<tr>
+<td class="cellalignment5807"><a href="perform.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5807"><a href="clusterattributes.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5814">
+<table class="cellalignment5806">
+<tr>
+<td class="cellalignment5807"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5807"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5807"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5807"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5807"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5807"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

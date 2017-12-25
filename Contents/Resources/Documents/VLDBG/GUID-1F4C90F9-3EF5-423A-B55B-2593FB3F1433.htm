@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114212"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Concurrent%20Execution%20of%20Union%20All"></a><title>Concurrent Execution of Union All</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-F3751631-4858-43FF-ACBB-B42307A43F0D.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-E8E35EE2-C719-4122-AEA2-1E7D15147439.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-1F4C90F9-3EF5-423A-B55B-2593FB3F1433"></a> <span id="PAGE" style="display:none;">409/481</span> <!-- End Header --><a id="VLDBG14182"></a><a id="VLDBG14131"></a>
+<h1 id="VLDBG-GUID-1F4C90F9-3EF5-423A-B55B-2593FB3F1433" class="sect1">Concurrent Execution of Union All</h1>
+<div>
+<p><a id="d64530e62" class="indexterm-anchor"></a><a id="d64530e64" class="indexterm-anchor"></a>Set operators like <code>UNION</code> or <code>UNION</code> <code>ALL</code> consist of multiple queries (branches) combined to a single SQL statement. Traditionally, set operators are processed in a sequential manner. Individual branches can be processed in serial or parallel, but only one branch at a time, one branch after another. While this approach satisfies many use cases, there are situations where the processing of multiple branches of a <code>UNION</code> or <code>UNION</code> <code>ALL</code> statement should occur concurrently. The most typical situation is when several or all branches are remote SQL statements. In this situation, concurrent processing on all participating remote systems is desired to speed up the overall processing time without increasing the workload of any participating system.</p>
+<p>The default behavior of concurrent execution for <code>UNION</code> or <code>UNION</code> <code>ALL</code> statements is controlled by the setting of the <code>OPTIMIZER_FEATURES_ENABLE</code> initialization parameter. When set to <code>12.1</code>, concurrent execution is enabled by default. Any statement where at least one branch of the statement is local and is considered being processed in parallel, the entire <code>UNION</code> or <code>UNION</code> <code>ALL</code> statement is also processed concurrently. The system calculates the DOP for every individual local branch of the statement and chooses the highest DOP for the execution of the entire <code>UNION</code> or <code>UNION</code> <code>ALL</code> statement. The system then works concurrently on as many branches as possible, using the chosen DOP both for parallelization of the branches that are processed in parallel, and as concurrent workers on serial and remote statements.</p>
+<p>When the <code>OPTIMIZER_FEATURES_ENABLE</code> initialization parameter is set to a value less than <code>12.1</code>, concurrent execution of <code>UNION</code> or <code>UNION</code> <code>ALL</code> statements must be enabled explicitly by using the <code>PQ_CONCURRENT_UNION</code> hint.</p>
+<p>However, unlike the sequential processing of one branch after another, the concurrent processing does not guarantee an ordered return of the results of the individual branches. If an ordered return of one branch after another is required, then you either must disable concurrent processing using the <code>NO_PQ_CONCURRENT_UNION</code> hint or you must augment the SQL statement to uniquely identify individual branches of the statement and to sort on this specified identifier.</p>
+<p><code>UNION</code> or <code>UNION</code> <code>ALL</code> statements that only consist of serial or remote branches are not processed concurrently unless specifically using the <code>PQ_CONCURRENT_UNION</code> hint. The DOP of this SQL statement is at most the number of serial and remote inputs.</p>
+<p>Whether or not concurrent processing of a <code>UNION</code> or <code>UNION</code> <code>ALL</code> statement occurs can be easily identified with the execution plan of the SQL statements. When executed in parallel, the execution of serial and remote branches is managed with a row source identifiable as <code>PX</code> <code>SELECTOR</code>. Statements that are not processed concurrently show the query coordinator (<code>QC</code>) as coordinator of serial and remote branches.</p>
+<p>In <a href="GUID-1F4C90F9-3EF5-423A-B55B-2593FB3F1433.htm#GUID-1F4C90F9-3EF5-423A-B55B-2593FB3F1433__BEIEHGJD">Example 8-7</a>, the SQL statement consists of local and remote branches. The SQL statement loads information about gold and platinum customers from the local database, and the information about customers from three major cities from remote databases. Because the local select statements occur in parallel, this processing is automatically performed in parallel. Each serial branch is executed by only one parallel execution server process. Because each parallel execution server can execute one serial branch, they are executed concurrently.</p>
+<div class="example" id="GUID-1F4C90F9-3EF5-423A-B55B-2593FB3F1433__BEIEHGJD">
+<p class="titleinexample">Example 8-7 Explain Plan for UNION ALL</p>
+<pre dir="ltr">SQL&gt; EXPLAIN PLAN FOR INSERT INTO all_customer 
+  SELECT * FROM GOLD_customer UNION ALL 
+  SELECT * FROM PLATINUM_customer UNION ALL 
+  SELECT * FROM SF_customer@san_francisco UNION ALL 
+  SELECT * FROM LA_customer@los_angeles UNION ALL 
+  SELECT * FROM LV_customer@las_vegas;
+-------------------------------------------------------------------------------
+| Id | Operation              | Name          | TQ/Ins |IN-OUT | PQ Distrib|
+-------------------------------------------------------------------------------
+| 0 | INSERT STATEMENT         |              |        |       |           |
+| 1 |  LOAD TABLE CONVENTIONAL | ALL_CUSTOMER |        |       |           |
+| 2 |   PX COORDINATOR         |              |        |       |           |
+| 3 |    PX SEND QC (RANDOM)   | :TQ10003     |        | P-&gt;S  | QC (RAND) |
+| 4 |     UNION-ALL            |              |        | PCWP  |           |
+| 5 |      PX BLOCK ITERATOR   |              |        | PCWC  |           |
+| 6 |       TABLE ACCESS FULL  | GOLD_CUSTOMER|        | PCWP  |           |
+| 7 |      PX BLOCK ITERATOR   |              |        | PCWC  |           |
+| 8 |       TABLE ACCESS FULL  | PLATINUM_CUST|        | PCWP  |           |
+| 9 |      PX SELECTOR         |              |        | PCWP  |           |
+|10 |       REMOTE             | SF_CUSTOMER  |        | PCWP  |           |
+|11 |      PX SELECTOR         |              |        | PCWP  |           |
+|12 |       REMOTE             | LA_CUSTOMER  |        | PCWP  |           |
+|13 |      PX SELECTOR         |              |        | PCWP  |           |
+|14 |       REMOTE             | LV_CUSTOMER  |        | PCWP  |           |
+-------------------------------------------------------------------------------
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-F3751631-4858-43FF-ACBB-B42307A43F0D.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-E8E35EE2-C719-4122-AEA2-1E7D15147439.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

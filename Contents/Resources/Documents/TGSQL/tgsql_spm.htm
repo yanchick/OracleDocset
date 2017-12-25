@@ -1,0 +1,2413 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106801"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Managing%20SQL%20Plan%20Baselines"></a><title>Managing SQL Plan Baselines</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="You can manage SQL plan baselines using the DBMS_SPM package."/>
+<meta name="keywords" content=", SQL plan management, plan evolution, plan selection, plan capture, SQL plan baselines, introduction, purpose, benefits, SQL profiles, and SQL plan baselines, SQL plan capture, automatic plan capture, manual plan capture, plan verification, pluggable databases, SQL management base, pluggable databases and, SQL statement log, SQL plan history, DBMS_SPM, SPM Evolve Advisor, SPM Evolve Advisor task, managing, scheduling, displaying, loading using DBMS_SPM, SQL tuning sets, loading in SQL plan baselines, loading plans from SQL tuning sets, loading from shared SQL area, DBMS_SPM package, SQL plan evolution, managing an evolve task, dropping"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_profiles.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_mig.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-7024369A-F98D-48E4-921C-C899485C954F"></a> <span id="PAGE" style="display:none;">36/40</span> <!-- End Header -->
+<a id="TGSQL94621"></a>
+<h1 id="TGSQL-GUID-7024369A-F98D-48E4-921C-C899485C954F" class="sect1"><span class="enumeration_chapter">23</span> Managing SQL Plan Baselines</h1>
+<div>
+<p>You can manage SQL plan baselines using the <code class="codeph">DBMS_SPM</code> package.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_spm.htm#GUID-F1C45056-F998-43E5-B362-83F88DA49E58" title="SQL plan management is a preventative mechanism that enables the optimizer to automatically manage execution plans, ensuring that the database uses only known or verified plans.">About SQL Plan Management</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-3D701147-1371-4604-8127-F9199EA0EDE0" title="You control SQL plan management with initialization parameters. Setting the OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES initialization parameter to true is all that is necessary for the database to automatically create an initial SQL plan baseline for any SQL statement not already in the plan history. This parameter does not control the automatic addition of newly discovered plans to a previously created SQL plan baseline.When you set the OPTIMIZER_USE_SQL_PLAN_BASELINES initialization parameter to false, the database does not use any plan baselines in the database. SPM Evolve Advisor is a SQL advisor that evolves plans that have recently been added to the SQL plan baseline. The advisor simplifies plan evolution by eliminating the requirement to do it manually.No separate scheduler client exists for the Automatic SPM Evolve Advisor task. The DBMS_SPM package enables you to configure automatic plan evolution by specifying the task parameters using the SET_EVOLVE_TASK_PARAMETER procedure. Because the task is owned by SYS, only SYS can set task parameters.">Configuring SQL Plan Management</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-582BC3FB-2F52-4190-B807-16B79346B776" title="To view the plans stored in the SQL plan baseline for a specific statement, use the DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE function. This function uses plan information stored in the plan history to display the plans.">Displaying Plans in a SQL Plan Baseline</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-C6AC4856-3C8C-42D8-A7FD-629974E98D36" title="Using DBMS_SPM, you can initiate the bulk load of a set of existing plans into a SQL plan baseline.">Loading SQL Plan Baselines</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-19E6FFB0-BC7A-4CDB-AE36-6D67C15C7332" title="Oracle recommends that you configure the SQL Plan Management Evolve task to run automatically. You can also use PL/SQL or Cloud Control to manually evolve an unaccepted plan to determine whether it performs better than any plan currently in the plan baseline.">Evolving SQL Plan Baselines Manually</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-BA19EA4E-AFEF-4677-B08F-854DE59ED932" title="You can remove some or all plans from a SQL plan baseline. This technique is sometimes useful when testing SQL plan management.">Dropping SQL Plan Baselines</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-DE976D2B-DBAD-498F-B933-D16B06CA9D2A" title="The SQL management base (SMB) is a part of the data dictionary that resides in the SYSAUX tablespace. The SMB stores statement logs, plan histories, SQL plan baselines, and SQL profiles.">Managing the SQL Management Base</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-7024369A-F98D-48E4-921C-C899485C954F__GUID-404127B5-FBB7-4ECB-BD68-00A13F85A8FD">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_mig.htm#GUID-E1CBB4DA-2F83-4F4D-845B-CAAA8333DF1A" title="Stored outline migration is the user-initiated process of converting stored outlines to SQL plan baselines. A SQL plan baseline is a set of plans proven to provide optimal performance.">Migrating Stored Outlines to SQL Plan Baselines</a>&#34;</span></p>
+</div>
+</div>
+<a id="TGSQL615"></a>
+<div class="props_rev_3"><a id="GUID-F1C45056-F998-43E5-B362-83F88DA49E58"></a>
+<h2 id="TGSQL-GUID-F1C45056-F998-43E5-B362-83F88DA49E58" class="sect2">About SQL Plan Management</h2>
+<div>
+<p><span class="bold">SQL plan management</span> is a preventative mechanism that enables the optimizer to automatically manage execution plans, ensuring that the database uses only known or verified plans.</p>
+<p>SQL plan management uses a mechanism called a <a href="glossary.htm#GUID-A9B279E2-7088-4029-8C94-4E8DD00B7E21"><span class="xrefglossterm">SQL plan baseline</span></a>. A plan baseline is a set of accepted plans that the optimizer is allowed to use for a SQL statement. In the typical use case, the database accepts a plan into the plan baseline only after verifying that the plan performs well. In this context, a plan includes all plan-related information (for example, SQL plan identifier, set of hints, bind values, and optimizer environment) that the optimizer needs to reproduce an execution plan.</p>
+<p>The main components of SQL plan management are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Plan capture</p>
+<p>This component stores relevant information about plans for a set of SQL statements. See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-D09EA02C-12A8-439F-B06B-04C4D539BFCE" title="SQL plan capture refers to techniques for capturing and storing relevant information about plans in the SQL Management Base for a set of SQL statements. Capturing a plan means making SQL plan management aware of this plan.">Plan Capture</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Plan selection</p>
+<p>This component is the detection by the optimizer of plan changes based on stored plan history, and the use of SQL plan baselines to select appropriate plans to avoid potential performance regressions. See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90" title="SQL plan selection is the optimizer ability to detect plan changes based on stored plan history, and the use of SQL plan baselines to select plans to avoid potential performance regressions.">Plan Selection</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Plan evolution</p>
+<p>This component is the process of adding new plans to existing SQL plan baselines, either manually or automatically. See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-3AB2B2F2-A7CD-404C-A36D-8CB5AD5A78B4" title="In general, SQL plan evolution is the process by which the optimizer verifies new plans and adds them to an existing SQL plan baseline.">Plan Evolution</a>&#34;</span>.</p>
+</li>
+</ul>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_spm.htm#GUID-C4749F43-89C3-4C27-9ED1-DA0D34A05586" title="The primary goal of SQL plan management is to prevent performance regressions caused by plan changes. A secondary goal is to gracefully adapt to changes such as new optimizer statistics or indexes by verifying and accepting only plan changes that improve performance.">Purpose of SQL Plan Management</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-D09EA02C-12A8-439F-B06B-04C4D539BFCE" title="SQL plan capture refers to techniques for capturing and storing relevant information about plans in the SQL Management Base for a set of SQL statements. Capturing a plan means making SQL plan management aware of this plan.">Plan Capture</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90" title="SQL plan selection is the optimizer ability to detect plan changes based on stored plan history, and the use of SQL plan baselines to select plans to avoid potential performance regressions.">Plan Selection</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-3AB2B2F2-A7CD-404C-A36D-8CB5AD5A78B4" title="In general, SQL plan evolution is the process by which the optimizer verifies new plans and adds them to an existing SQL plan baseline.">Plan Evolution</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-169AFEFC-6DB2-483B-90D3-877B0FD2AC67" title="The SQL plan management infrastructure records the signatures of parsed statements, and both accepted and unaccepted plans.">Storage Architecture for SQL Plan Management</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-00CFEAE0-32D8-43FC-AF4F-A3CB3062E374" title="The SQL Plan Control page in Cloud Control is a GUI that shows information about SQL profiles, SQL patches, and SQL plan baselines.On the command line, use the DBMS_SPM and DBMS_XPLAN PL/SQL packages to perform most SQL plan management tasks.">User Interfaces for SQL Plan Management</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-C79E7420-053B-4DCE-A219-072BDE488E21" title="This section explains the basic tasks in using SQL plan management to prevent plan regressions and permit the optimizer to consider new plans.">Basic Tasks in SQL Plan Management</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL617"></a>
+<div class="props_rev_3"><a id="GUID-C4749F43-89C3-4C27-9ED1-DA0D34A05586"></a>
+<h3 id="TGSQL-GUID-C4749F43-89C3-4C27-9ED1-DA0D34A05586" class="sect3">Purpose of SQL Plan Management</h3>
+<div>
+<p>The primary goal of SQL plan management is to prevent performance regressions caused by plan changes. A secondary goal is to gracefully adapt to changes such as new optimizer statistics or indexes by verifying and accepting only plan changes that improve performance.</p>
+<div class="infobox-note" id="GUID-C4749F43-89C3-4C27-9ED1-DA0D34A05586__GUID-87C898B3-4B7F-4FC0-8F09-F88670FE1118">
+<p class="notep1">Note:</p>
+<p>SQL plan baselines cannot help when an event has caused irreversible execution plan changes, such as dropping an index.</p>
+</div>
+</div>
+<a id="TGSQL780"></a>
+<div class="props_rev_3"><a id="GUID-F7111F80-83ED-42B2-B3DF-188A5C7427F4"></a>
+<h4 id="TGSQL-GUID-F7111F80-83ED-42B2-B3DF-188A5C7427F4" class="sect4">Benefits of SQL Plan Management</h4>
+<div>
+<p>SQL plan management can improve or preserve SQL performance in database upgrades and system and data changes.</p>
+<p>Specifically, benefits include:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A database upgrade that installs a new optimizer version usually results in plan changes for a small percentage of SQL statements.</p>
+<p>Most plan changes result in either improvement or no performance change. However, some plan changes may cause performance regressions. SQL plan baselines significantly minimize potential regressions resulting from an upgrade.</p>
+<p>When you upgrade, the database only uses plans from the plan baseline. The database puts new plans that are not in the current baseline into a holding area, and later evaluates them to determine whether they use fewer resources than the current plan in the baseline. If the plans perform better, then the database promotes them into the baseline; otherwise, the database does not promote them.</p>
+</li>
+<li>
+<p>Ongoing system and data changes can affect plans for some SQL statements, potentially causing performance regressions.</p>
+<p>SQL plan baselines help minimize performance regressions and stabilize SQL performance.</p>
+</li>
+<li>
+<p>Deployment of new application modules introduces new SQL statements into the database.</p>
+<p>The application software may use appropriate SQL execution plans developed in a standard test configuration for the new statements. If the system configuration is significantly different from the test configuration, then the database can evolve SQL plan baselines over time to produce better performance.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-F7111F80-83ED-42B2-B3DF-188A5C7427F4__GUID-175522B5-5614-4790-8048-2D4AAA4CD717">
+<p class="notep1">See Also:</p>
+<p><a class="olink UPGRD001" target="_blank" href="../UPGRD/intro.htm#UPGRD001"><span class="italic">Oracle Database Upgrade Guide</span></a> to learn how to upgrade an Oracle database</p>
+</div>
+</div>
+</div>
+<a id="TGSQL781"></a>
+<div class="props_rev_3"><a id="GUID-27C85EB8-C4CE-40C5-B99C-F4ADDC09A617"></a>
+<h4 id="TGSQL-GUID-27C85EB8-C4CE-40C5-B99C-F4ADDC09A617" class="sect4">Differences Between SQL Plan Baselines and SQL Profiles</h4>
+<div>
+<p>Both SQL profiles and SQL plan baselines help improve the performance of SQL statements by ensuring that the optimizer uses only optimal plans.</p>
+<p>Both profiles and baselines are internally implemented using hints. However, these mechanisms have significant differences, including the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In general, SQL plan baselines are proactive, whereas SQL profiles are reactive.</p>
+<p>Typically, you create SQL plan baselines <span class="italic">before</span> significant performance problems occur. SQL plan baselines prevent the optimizer from using suboptimal plans in the future.</p>
+<p>The database creates SQL profiles when you invoke SQL Tuning Advisor, which you do typically only <span class="italic">after</span> a SQL statement has shown high-load symptoms. SQL profiles are primarily useful by providing the ongoing resolution of optimizer mistakes that have led to suboptimal plans. Because the SQL profile mechanism is reactive, it cannot guarantee stable performance as drastic database changes occur.</p>
+<div class="figure" id="GUID-27C85EB8-C4CE-40C5-B99C-F4ADDC09A617__GUID-5FDDC457-26D0-453B-8991-E6066D88AAB3">
+<p class="titleinfigure">Figure 23-1 SQL Plan Baselines and SQL Profiles</p>
+<img width="420" height="164" src="img/GUID-409F2B0E-671A-4208-9EEB-9EB23B4CF655-default.png" alt="Description of Figure 23-1 follows" title="Description of Figure 23-1 follows"/><br/>
+<a href="img_text/GUID-409F2B0E-671A-4208-9EEB-9EB23B4CF655-print.htm">Description of &#34;Figure 23-1 SQL Plan Baselines and SQL Profiles&#34;</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>SQL plan baselines reproduce a specific plan, whereas SQL profiles correct optimizer cost estimates.</p>
+<p>A SQL plan baseline is a set of accepted plans. Each plan is implemented using a set of outline hints that fully specify a particular plan. SQL profiles are also implemented using hints, but these hints do not specify any specific plan. Rather, the hints correct miscalculations in the optimizer estimates that lead to suboptimal plans. For example, a hint may correct the cardinality estimate of a table.</p>
+<p>Because a profile does not constrain the optimizer to any one plan, a SQL profile is more flexible than a SQL plan baseline. For example, changes in initialization parameters and optimizer statistics enable the optimizer to choose a better plan.</p>
+</li>
+</ul>
+<p>Oracle recommends that you use SQL Tuning Advisor. In this way, you follow the recommendations made by the advisor for SQL profiles and plan baselines rather than trying to determine which mechanism is best for each SQL statement.</p>
+<div class="infoboxnotealso" id="GUID-27C85EB8-C4CE-40C5-B99C-F4ADDC09A617__GUID-0A19FE9C-0DDB-4830-9E95-DCA30532B662">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-B198573A-C64B-4071-9CD8-738355A20DD7" title="Use hints to influence the optimizer mode, query transformation, access path, join order, and join methods.">About Optimizer Hints</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_profiles.htm#GUID-C7FE0936-63B8-46EF-A03E-7E59F704606E" title="A SQL profile is a database object that contains auxiliary statistics specific to a SQL statement. When profiling a SQL statement, SQL Tuning Advisor uses a specific set of bind values as input.A SQL profile is a collection of auxiliary statistics on a query, including all tables and columns referenced in the query. The profile is stored in the data dictionary. The optimizer uses this information during optimization to determine the most optimal plan.Basic tasks include accepting (implementing) a SQL profile, altering it, listing it, and dropping it.As a rule of thumb, implement a SQL profile recommended by SQL Tuning Advisor. You can export a SQL profile from the SYS schema in one database to a staging table, and then import it from the staging table into another database. You can transport a SQL profile to any Oracle database created in the same release or later.">Managing SQL Profiles</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_sqltune.htm#GUID-8E1A39CB-A491-4254-8B31-9B1DF7B52AA1" title="SQL Tuning Advisor is SQL diagnostic software in the Oracle Database Tuning Pack. You can submit one or more SQL statements as input to the advisor and receive advice or recommendations for how to tune the statements, along with a rationale and expected benefit.SQL Tuning Advisor is a mechanism for resolving problems related to suboptimally performing SQL statements. Automatic Tuning Optimizer is the central tool used by SQL Tuning Advisor. The advisor can receive SQL statements as input from multiple sources, analyze these statements using the optimizer, and then make recommendations.Configure SQL Tuning Advisor to run automatically using DBMS_AUTO_SQLTUNE, or on demand using DBMS_SQLTUNE.Input for SQL Tuning Advisor can come from several sources, including ADDM, AWR, the shared SQL area, and SQL tuning sets.After analyzing the SQL statements, SQL Tuning Advisor publishes recommendations.In tuning mode, the optimizer has more time to consider options and gather statistics.The optimizer relies on object statistics to generate execution plans. If these statistics are stale or missing, then the optimizer can generate suboptimal plans. Automatic Tuning Optimizer checks each query object for missing or stale statistics, and recommends gathering fresh statistics if needed.SQL profiling is the verification by the Automatic Tuning Optimizer of its own estimates.The database can profile some DML and DDL statements.If the optimizer generates auxiliary information during statistical analysis or SQL profiling, then the optimizer recommends implementing a SQL profile. An access path is the means by which the database retrieves data.During structural analysis, Automatic Tuning Optimizer tries to identify syntactic, semantic, or design problems that can lead to suboptimal performance. The goal is to identify poorly written SQL statements and to advise you how to restructure them.While tuning a SQL statement, SQL Tuning Advisor searches real-time and historical performance data for alternative execution plans for the statement.By default, the Automatic SQL Tuning task runs for in a nightly maintenance window.Configuring automatic SQL tuning instead of tuning manually decreases cost and increases manageabilityOracle Scheduler uses the automated maintenance tasks infrastructure (known as AutoTask) to schedules tasks to run automatically.This section explains the basic tasks in running SQL Tuning Advisor as an automatic task. You can enable and disable all automatic maintenance tasks, including the Automatic SQL Tuning task, using Cloud Control.If you do not use Cloud Control to enable and disable the Automatic SQL Tuning task, then you must use the command line.You can enable and disable all automatic maintenance tasks, including the Automatic SQL Tuning task, using Cloud Control. You must perform the operation as SYS or have the EXECUTE privilege on the PL/SQL package DBMS_AUTO_SQLTUNE.Automatic Database Diagnostic Monitor (ADDM) automatically identifies high-load SQL statements. If ADDM identifies such statements, then click Schedule/Run SQL Tuning Advisor on the Recommendation Detail page to run SQL Tuning Advisor.This section explains the basic tasks in running SQL Tuning Advisor using the DBMS_SQLTUNE package. To change the parameters of a tuning task after it has been created, execute the DBMS_SQLTUNE.SET_TUNING_TASK_PARAMETER function.">Analyzing SQL with SQL Tuning Advisor</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL784"></a>
+<div class="props_rev_3"><a id="GUID-D09EA02C-12A8-439F-B06B-04C4D539BFCE"></a>
+<h3 id="TGSQL-GUID-D09EA02C-12A8-439F-B06B-04C4D539BFCE" class="sect3">Plan Capture</h3>
+<div>
+<p><span class="bold">SQL plan capture</span> refers to techniques for capturing and storing relevant information about plans in the SQL Management Base for a set of SQL statements. Capturing a plan means making SQL plan management aware of this plan.</p>
+<p>You can configure initial plan capture to occur automatically by setting an initialization parameter, or you can capture plans manually by using the <code class="codeph">DBMS_SPM</code> package.</p>
+</div>
+<a id="TGSQL623"></a>
+<div class="props_rev_3"><a id="GUID-5A1E6CF4-70E5-4C26-A67B-EFDBB93EC621"></a>
+<h4 id="TGSQL-GUID-5A1E6CF4-70E5-4C26-A67B-EFDBB93EC621" class="sect4">Automatic Initial Plan Capture</h4>
+<div>
+<p>You enable <span class="bold">automatic initial plan capture</span> by setting the initialization parameter <code class="codeph">OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES</code> to <code class="codeph">true</code> (the default is <code class="codeph">false</code>). When enabled, the database automatically creates a SQL plan baseline for any repeatable SQL statement executed on the database.</p>
+<p>The settings of <code class="codeph">OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES</code> and <code class="codeph">OPTIMIZER_USE_SQL_PLAN_BASELINES</code> are independent. For example, if <code class="codeph">OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES</code> is <code class="codeph">true</code>, then the database creates initial plan baselines regardless of whether <code class="codeph">OPTIMIZER_USE_SQL_PLAN_BASELINES</code> is <code class="codeph">true</code> or <code class="codeph">false</code>.</p>
+<div class="infoboxnotealso" id="GUID-5A1E6CF4-70E5-4C26-A67B-EFDBB93EC621__GUID-702A2CBC-483F-4EF9-8594-4B9F839E3516">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN10293" target="_blank" href="../REFRN/GUID-6218A4B0-B8B9-416E-ADB6-3FFA70F412DA.htm#REFRN10293"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">OPTIMIZER_USE_SQL_PLAN_BASELINES</code> initialization parameter</p>
+</div>
+</div>
+</div>
+<a id="TGSQL624"></a>
+<div class="props_rev_3"><a id="GUID-30DAEDBC-9CA6-49AB-ADEB-AC0CBA128D43"></a>
+<h4 id="TGSQL-GUID-30DAEDBC-9CA6-49AB-ADEB-AC0CBA128D43" class="sect4">Manual Plan Capture</h4>
+<div>
+<p>In SQL plan management, <span class="bold">manual plan capture</span> refers to the user-initiated bulk load of existing plans into a SQL plan baseline.</p>
+<p>Use Cloud Control or PL/SQL to load the execution plans for SQL statements from a <a href="glossary.htm#GUID-52FB0AE5-7346-44E5-BE92-3C09385B1DDC"><span class="xrefglossterm">SQL tuning set (STS)</span></a>, the <a href="glossary.htm#GUID-577D0DD3-FB98-4B1B-BCFB-95313BB35C01"><span class="xrefglossterm">shared SQL area</span></a>, a staging table, or a <a href="glossary.htm#GUID-A1BD6A75-73B9-4F68-8FD6-A89057E95ADF"><span class="xrefglossterm">stored outline</span></a>.</p>
+<p>The following graphic illustrates loading plans into a SQL plan baseline.</p>
+<div class="figure" id="GUID-30DAEDBC-9CA6-49AB-ADEB-AC0CBA128D43__GUID-8906F5AC-F4C7-4658-8C97-EAC577D1235E">
+<p class="titleinfigure">Figure 23-2 Loading Plans into a SQL Plan Baseline</p>
+<img width="497" height="425" src="img/GUID-8F559861-845D-4698-AB1D-3CB2D2D5DCF0-default.png" alt="Description of Figure 23-2 follows" title="Description of Figure 23-2 follows"/><br/>
+<a href="img_text/GUID-8F559861-845D-4698-AB1D-3CB2D2D5DCF0-print.htm">Description of &#34;Figure 23-2 Loading Plans into a SQL Plan Baseline&#34;</a></div>
+<!-- class="figure" -->
+<p>The loading behavior varies depending on whether a SQL plan baseline exists for each statement represented in the bulk load:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If a baseline for the statement does not exist, then the database does the following:</p>
+<ol>
+<li>
+<p>Creates a plan history and plan baseline for the statement</p>
+</li>
+<li>
+<p>Marks the initial plan for the statement as accepted</p>
+</li>
+<li>
+<p>Adds the plan to the new baseline</p>
+</li>
+</ol>
+</li>
+<li>
+<p>If a baseline for the statement exists, then the database does the following:</p>
+<ol>
+<li>
+<p>Marks the loaded plan as accepted</p>
+</li>
+<li>
+<p>Adds the plan to the plan baseline for the statement <span class="italic">without</span> verifying the plan&#39;s performance</p>
+</li>
+</ol>
+</li>
+</ul>
+<p>Manually loaded plans are always marked accepted because the optimizer assumes that any plan loaded manually by the administrator has acceptable performance.</p>
+<div class="infoboxnotealso" id="GUID-30DAEDBC-9CA6-49AB-ADEB-AC0CBA128D43__GUID-FE1F2FF2-A733-438C-B80F-621BA916D30D">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS150" target="_blank" href="../ARPLS/d_spm.htm#ARPLS150"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn more about the <code class="codeph">DBMS_SPM.LOAD_PLANS_FROM_<span class="codeinlineitalic">%</span></code> functions</p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL625"></a>
+<div class="props_rev_3"><a id="GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90"></a>
+<h3 id="TGSQL-GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90" class="sect3">Plan Selection</h3>
+<div>
+<p><span class="bold">SQL plan selection</span> is the optimizer ability to detect plan changes based on stored plan history, and the use of SQL plan baselines to select plans to avoid potential performance regressions.</p>
+<p>When the database performs a <a href="glossary.htm#GUID-AB764C9E-2F03-49A9-BF8B-36A9FBD03BCE"><span class="xrefglossterm">hard parse</span></a> of a SQL statement, the optimizer generates a best-cost plan. By default, the optimizer then attempts to find a matching plan in the SQL plan baseline for the statement. If no plan baseline exists, then the database runs the statement with the best-cost plan.</p>
+<p>If a plan baseline exists, then the optimizer behavior depends on whether the newly generated plan is in the plan baseline:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the new plan is in the baseline, then the database executes the statement using the found plan.</p>
+</li>
+<li>
+<p>If the new plan is <span class="italic">not</span> in the baseline, then the optimizer marks the newly generated plan as unaccepted and adds it to the plan history. Optimizer behavior depends on the contents of the plan baseline:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If fixed plans exist in the plan baseline, then the optimizer uses the fixed plan with the lowest cost.</p>
+</li>
+<li>
+<p>If no fixed plans exist in the plan baseline, then the optimizer uses the baseline plan with the lowest cost.</p>
+</li>
+<li>
+<p>If no reproducible plans exist in the plan baseline, which could happen if every plan in the baseline referred to a dropped index, then the optimizer uses the newly generated cost-based plan.</p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="figure" id="GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90__GUID-FFFD0C0C-A746-401F-A4F4-42E194C95745">
+<p class="titleinfigure">Figure 23-3 Decision Tree for SQL Plan Selection</p>
+<img width="561" height="389" src="img/GUID-E17D99FB-740F-4C7B-A0F3-224F9B5B3A48-default.png" alt="Description of Figure 23-3 follows" title="Description of Figure 23-3 follows"/><br/>
+<a href="img_text/GUID-E17D99FB-740F-4C7B-A0F3-224F9B5B3A48-print.htm">Description of &#34;Figure 23-3 Decision Tree for SQL Plan Selection&#34;</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90__GUID-2341897B-8CE7-4E1A-9507-985B3F8F531C">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-B51FBAA9-EE95-4F19-AD4B-F5F4C2910688" title="A fixed plan is an accepted plan that is marked as preferred, so that the optimizer considers only the fixed plans in the baseline. Fixed plans influence the plan selection process of the optimizer.">Fixed Plans</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="TGSQL626"></a>
+<div class="props_rev_3"><a id="GUID-3AB2B2F2-A7CD-404C-A36D-8CB5AD5A78B4"></a>
+<h3 id="TGSQL-GUID-3AB2B2F2-A7CD-404C-A36D-8CB5AD5A78B4" class="sect3">Plan Evolution</h3>
+<div>
+<p>In general, SQL <span class="bold">plan evolution</span> is the process by which the optimizer verifies new plans and adds them to an existing SQL plan baseline.</p>
+<p>Specifically, plan evolution consists of the following distinct steps:</p>
+<ol>
+<li>
+<p>Verifying that unaccepted plans perform at least as well as accepted plans in a SQL plan baseline (known as <a href="glossary.htm#GUID-B1FE5553-56FF-440B-B37A-D024CFA679A9"><span class="xrefglossterm">plan verification</span></a>)</p>
+</li>
+<li>
+<p>Adding unaccepted plans to the plan baseline as accepted plans after the database has proved that they perform as well as accepted plans</p>
+</li>
+</ol>
+<p>In the standard case of plan evolution, the optimizer performs the preceding steps sequentially, so that a new plan is not usable by SQL plan management until the optimizer verifies plan performance relative to the SQL plan baseline. However, you can configure SQL plan management to perform one step without performing the other. The following graphic shows the possible paths for plan evolution.</p>
+<div class="figure" id="GUID-3AB2B2F2-A7CD-404C-A36D-8CB5AD5A78B4__GUID-D69F3046-5A51-47E4-BDD1-086E2AB4821F">
+<p class="titleinfigure">Figure 23-4 Plan Evolution</p>
+<img width="410" height="167" src="img/GUID-665397D3-1CE2-4952-8F88-792598344A44-default.png" alt="Description of Figure 23-4 follows" title="Description of Figure 23-4 follows"/><br/>
+<a href="img_text/GUID-665397D3-1CE2-4952-8F88-792598344A44-print.htm">Description of &#34;Figure 23-4 Plan Evolution&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="TGSQL94644"></a>
+<div class="props_rev_3"><a id="GUID-FD80224B-A2DD-4C9D-A35B-879A55BA6A45"></a>
+<h4 id="TGSQL-GUID-FD80224B-A2DD-4C9D-A35B-879A55BA6A45" class="sect4">Purpose of Plan Evolution</h4>
+<div>
+<p>Typically, a SQL plan baseline for a SQL statement starts with a single accepted plan. However, some SQL statements perform well when executed with different plans under different conditions.</p>
+<p>For example, a SQL statement with bind variables whose values result in different selectivities may have several optimal plans. Creating a materialized view or an index or repartitioning a table may make current plans more expensive than other plans.</p>
+<p>If new plans were never added to SQL plan baselines, then the performance of some SQL statements might degrade. Thus, it is sometimes necessary to evolve newly accepted plans into SQL plan baselines. Plan evolution prevents performance regressions by verifying the performance of a new plan before including it in a SQL plan baseline.</p>
+</div>
+</div>
+<a id="TGSQL94645"></a>
+<div class="props_rev_3"><a id="GUID-55CF99F0-41E0-4160-8789-422689C74AD8"></a>
+<h4 id="TGSQL-GUID-55CF99F0-41E0-4160-8789-422689C74AD8" class="sect4">PL/SQL Subprograms for Plan Evolution</h4>
+<div>
+<p>The <code class="codeph">DBMS_SPM</code> package provides procedures and functions for plan evolution.</p>
+<p>These subprograms use the task infrastructure. For example, <code class="codeph">CREATE_EVOLVE_TASK</code> creates an evolution task, whereas <code class="codeph">EXECUTE_EVOLVE_TASK</code> executes it. All task evolution subprograms have the string <code class="codeph">EVOLVE_TASK</code> in the name.</p>
+<p>Use the evolve procedures on demand, or configure the subprograms to run automatically. The automatic maintenance task <code class="codeph">SYS_AUTO_SPM_EVOLVE_TASK</code> executes daily in the scheduled maintenance window. The task perform the following actions automatically:</p>
+<ol>
+<li>
+<p>Selects and ranks unaccepted plans for verification</p>
+</li>
+<li>
+<p>Accepts each plan if it satisfies the performance threshold</p>
+</li>
+</ol>
+<div class="infoboxnotealso" id="GUID-55CF99F0-41E0-4160-8789-422689C74AD8__GUID-846EE365-DA79-4BD8-A963-4B10107F382C">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-A94CFA49-910A-4237-A7BB-39BFA94E227E" title="SPM Evolve Advisor is a SQL advisor that evolves plans that have recently been added to the SQL plan baseline. The advisor simplifies plan evolution by eliminating the requirement to do it manually.">Managing the SPM Evolve Advisor Task</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-19E6FFB0-BC7A-4CDB-AE36-6D67C15C7332" title="Oracle recommends that you configure the SQL Plan Management Evolve task to run automatically. You can also use PL/SQL or Cloud Control to manually evolve an unaccepted plan to determine whether it performs better than any plan currently in the plan baseline.">Evolving SQL Plan Baselines Manually</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ARPLS150" target="_blank" href="../ARPLS/d_spm.htm#ARPLS150"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_SPM</code> package</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL630"></a>
+<div class="props_rev_3"><a id="GUID-169AFEFC-6DB2-483B-90D3-877B0FD2AC67"></a>
+<h3 id="TGSQL-GUID-169AFEFC-6DB2-483B-90D3-877B0FD2AC67" class="sect3">Storage Architecture for SQL Plan Management</h3>
+<div>
+<p>The SQL plan management infrastructure records the signatures of parsed statements, and both accepted and unaccepted plans.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_spm.htm#GUID-EA548FAC-B350-4F31-96E9-8541AA8AC267" title="The SQL management base (SMB) is a logical repository in the data dictionary.">SQL Management Base</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-AEF0CAF0-49A5-4EDB-9D91-6E033912593B" title="When automatic SQL plan capture is enabled, the SQL statement log contains the signature of statements that the optimizer has evaluated over time.">SQL Statement Log</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-BC65F4D4-1CEE-4014-8188-C849A0D9251A" title="The SQL plan history is the set of captured SQL execution plans. The history contains both SQL plan baselines and unaccepted plans.">SQL Plan History</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL631"></a>
+<div class="props_rev_3"><a id="GUID-EA548FAC-B350-4F31-96E9-8541AA8AC267"></a>
+<h4 id="TGSQL-GUID-EA548FAC-B350-4F31-96E9-8541AA8AC267" class="sect4">SQL Management Base</h4>
+<div>
+<p>The <span class="bold">SQL management base (SMB)</span> is a logical repository in the data dictionary.</p>
+<p>The SMB contains the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>SQL statement log, which contains only SQL IDs</p>
+</li>
+<li>
+<p>SQL plan history, which includes the SQL plan baselines</p>
+</li>
+<li>
+<p>SQL profiles</p>
+</li>
+<li>
+<p>SQL patches</p>
+</li>
+</ul>
+<p>The SMB stores information that the optimizer can use to maintain or improve SQL performance.</p>
+<p>The SMB resides in the <code class="codeph">SYSAUX</code> tablespace and uses automatic segment-space management. Because the SMB is located entirely within the <code class="codeph">SYSAUX</code> tablespace, the database does not use SQL plan management and SQL tuning features when this tablespace is unavailable.</p>
+<div class="figure" id="GUID-EA548FAC-B350-4F31-96E9-8541AA8AC267__GUID-432F6017-93B1-4911-9548-4D4678FAD60F">
+<p class="titleinfigure">Figure 23-5 SMB Architecture</p>
+<img width="192" height="183" src="img/GUID-22E200F7-3174-4C3D-872A-3F0EB06009F0-default.png" alt="Description of Figure 23-5 follows" title="Description of Figure 23-5 follows"/><br/>
+<a href="img_text/GUID-22E200F7-3174-4C3D-872A-3F0EB06009F0-print.htm">Description of &#34;Figure 23-5 SMB Architecture&#34;</a></div>
+<!-- class="figure" -->
+<div class="infobox-note" id="GUID-EA548FAC-B350-4F31-96E9-8541AA8AC267__GUID-EF62AAA7-B016-4AEA-99CF-D51450C324E3">
+<p class="notep1">Note:</p>
+<p>Data visibility and privilege requirements may differ when using the SMB with pluggable databases. See <a class="olink ADMIN13885" target="_blank" href="../ADMIN/cdb_admin.htm#ADMIN13885"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> for a table that summarizes how manageability features work in a container database (CDB).</p>
+</div>
+<div class="infoboxnotealso" id="GUID-EA548FAC-B350-4F31-96E9-8541AA8AC267__GUID-91DF20B2-AB42-4B8D-BF4D-1ACD2C081E9D">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADMIN00203" target="_blank" href="../ADMIN/create.htm#ADMIN00203"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn about the <code class="codeph">SYSAUX</code> tablespace</p>
+</div>
+</div>
+</div>
+<a id="TGSQL633"></a><a id="TGSQL632"></a>
+<div class="props_rev_3"><a id="GUID-AEF0CAF0-49A5-4EDB-9D91-6E033912593B"></a>
+<h4 id="TGSQL-GUID-AEF0CAF0-49A5-4EDB-9D91-6E033912593B" class="sect4">SQL Statement Log</h4>
+<div>
+<p>When automatic SQL plan capture is enabled, the <span class="bold">SQL statement log</span> contains the signature of statements that the optimizer has evaluated over time.</p>
+<p>A <a href="glossary.htm#GUID-160EB64E-536F-4313-B7B0-191C2719CF1F"><span class="xrefglossterm">SQL signature</span></a> is a numeric hash value computed using a SQL statement text that has been normalized for case insensitivity and white space. When the optimizer parses a statement, it creates signature.</p>
+<p>During automatic capture, the database matches this signature against the SQL statement log (<code class="codeph">SQLLOG$</code>) to determine whether the signature has been observed before. If it has not, then the database adds the signature to the log. If the signature is already in the log, then the database has confirmation that the statement is a <a href="glossary.htm#GUID-FB73DB1A-CF56-4A19-8AFD-E5C2E0C5BDDB"><span class="xrefglossterm">repeatable SQL statement</span></a>.</p>
+<div class="infobox-note" id="GUID-AEF0CAF0-49A5-4EDB-9D91-6E033912593B__GUID-CC01A03D-5249-44C0-A592-2BF6CDE288CF">
+<p class="notep1">Note:</p>
+<p>If a filter excludes a statement, then its signature is also excluded from the log.</p>
+</div>
+<div class="example" id="GUID-AEF0CAF0-49A5-4EDB-9D91-6E033912593B__GUID-4999E3B0-1798-46F3-A509-F4CF74B5D63C">
+<p class="titleinexample">Example 23-1 Logging SQL Statements</p>
+<p>This example illustrates how the database tracks statements in the statement log and creates baselines automatically for repeatable statements. An initial query of the statement log shows no tracked SQL statements. After a query of <code class="codeph">hr.jobs</code> for <code class="codeph">AD_PRES</code>, the log shows one tracked statement.</p>
+<pre dir="ltr">SQL&gt; ALTER SYSTEM SET OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES=true;
+
+System altered.
+
+SQL&gt; SELECT * FROM SQLLOG$;
+ 
+no rows selected
+ 
+SQL&gt; SELECT job_title FROM hr.jobs WHERE job_id = &#39;AD_PRES&#39;;
+ 
+JOB_TITLE
+-----------------------------------
+President
+ 
+SQL&gt; SELECT * FROM SQLLOG$;
+ 
+ SIGNATURE     BATCH#
+---------- ----------
+1.8096E+19          1
+</pre>
+<p>Now the session executes a different <code class="codeph">jobs</code> query. The log shows two tracked statements:</p>
+<pre dir="ltr">SQL&gt; SELECT job_title FROM hr.jobs WHERE job_id=&#39;PR_REP&#39;;
+ 
+JOB_TITLE
+-----------------------------------
+Public Relations Representative
+ 
+SQL&gt; SELECT * FROM SQLLOG$;
+ 
+ SIGNATURE     BATCH#
+---------- ----------
+1.7971E+19          1
+1.8096E+19          1
+</pre>
+<p>A query of <code class="codeph">DBA_SQL_PLAN_BASELINES</code> shows that no baseline for either statement exists because neither statement is repeatable:</p>
+<pre dir="ltr">SQL&gt; SELECT SQL_HANDLE, SQL_TEXT 
+  2  FROM DBA_SQL_PLAN_BASELINES 
+  3  WHERE SQL_TEXT LIKE &#39;SELECT job_title%&#39;;
+ 
+no rows selected
+</pre>
+<p>The session executes the query for <code class="codeph">job_id=&#39;PR_REP&#39;</code> a second time. Because this statement is now repeatable, and because automatic SQL plan capture is enabled, the database creates a plan baseline for this statement. The query for <code class="codeph">job_id=&#39;AD_PRES&#39;</code> has only been executed once, so no plan baseline exists for it.</p>
+<pre dir="ltr">SQL&gt; SELECT job_title FROM hr.jobs WHERE job_id=&#39;PR_REP&#39;;
+ 
+JOB_TITLE
+-----------------------------------
+Public Relations Representative
+ 
+SQL&gt; SELECT SQL_HANDLE, SQL_TEXT 
+  2  FROM DBA_SQL_PLAN_BASELINES 
+  3  WHERE SQL_TEXT LIKE &#39;SELECT job_title%&#39;;
+ 
+SQL_HANDLE           SQL_TEXT
+-------------------- --------------------
+SQL_f9676a330f972dd5 SELECT job_title FRO
+                     M hr.jobs WHERE job_
+                     id=&#39;PR_REP&#39;
+</pre>
+<div class="infoboxnotealso" id="GUID-AEF0CAF0-49A5-4EDB-9D91-6E033912593B__GUID-E2E86269-EB9F-4E8E-8525-C34D6ABD7A10">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-5A1E6CF4-70E5-4C26-A67B-EFDBB93EC621" title="You enable automatic initial plan capture by setting the initialization parameter OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES to true (the default is false). When enabled, the database automatically creates a SQL plan baseline for any repeatable SQL statement executed on the database.">Automatic Initial Plan Capture</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN23714" target="_blank" href="../REFRN/GUID-101D8477-5600-4659-9A3C-9528391E500D.htm#REFRN23714"><span class="italic">Oracle Database Reference</span></a> to learn about <code class="codeph">DBA_SQL_PLAN_BASELINES</code></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL634"></a>
+<div class="props_rev_3"><a id="GUID-BC65F4D4-1CEE-4014-8188-C849A0D9251A"></a>
+<h4 id="TGSQL-GUID-BC65F4D4-1CEE-4014-8188-C849A0D9251A" class="sect4">SQL Plan History</h4>
+<div>
+<p>The <span class="bold">SQL plan history</span> is the set of captured SQL execution plans. The history contains both SQL plan baselines and unaccepted plans.</p>
+<p>In SQL plan management, the database detects new SQL execution plans for existing SQL plan baselines and records the new plan in the history so that they can be evolved (verified). Evolution is initiated automatically by the database or manually by the DBA.</p>
+<p>Starting in Oracle Database 12<span class="italic">c</span>, the SMB stores the execution plans for all SQL statements in the SQL plan history. The <code class="codeph">DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE</code> function fetches and displays the plan from the SMB. For plans created before Oracle Database 12<span class="italic">c</span>, the function must compile the SQL statement and generate the plan because the SMB does not store it.</p>
+<div class="infoboxnotealso" id="GUID-BC65F4D4-1CEE-4014-8188-C849A0D9251A__GUID-3178121F-8E7C-4B67-876B-6E444A163B38">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-582BC3FB-2F52-4190-B807-16B79346B776" title="To view the plans stored in the SQL plan baseline for a specific statement, use the DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE function. This function uses plan information stored in the plan history to display the plans.">Displaying Plans in a SQL Plan Baseline</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ARPLS70138" target="_blank" href="../ARPLS/d_xplan.htm#ARPLS70138"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE</code> function</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL635"></a>
+<div class="props_rev_3"><a id="GUID-7ACCE857-4A76-4459-862D-50969C74D56B"></a>
+<h5 id="TGSQL-GUID-7ACCE857-4A76-4459-862D-50969C74D56B" class="sect5">Enabled Plans</h5>
+<div>
+<p>An <span class="bold">enabled plan</span> is a plan that is eligible for use by the optimizer.</p>
+<p>When plans are loaded with the <code class="codeph">enabled</code> parameter set to <code class="codeph">YES</code> (default), the database automatically marks the resulting SQL plan baselines as enabled, even if they are unaccepted. You can manually change an enabled plan to a <a href="glossary.htm#GUID-A8FEC167-D149-4AC8-9FD5-B2E698026021"><span class="xrefglossterm">disabled plan</span></a>, which means the optimizer can no longer use the plan even if it is accepted.</p>
+</div>
+</div>
+<a id="TGSQL637"></a><a id="TGSQL636"></a>
+<div class="props_rev_3"><a id="GUID-AABE25C1-55BD-40F4-AB79-28B4373D545D"></a>
+<h5 id="TGSQL-GUID-AABE25C1-55BD-40F4-AB79-28B4373D545D" class="sect5">Accepted Plans</h5>
+<div>
+<p>An <span class="bold">accepted plan</span> is a plan that is in a SQL plan baseline for a SQL statement and thus available for use by the optimizer. An accepted plan contains a set of hints, a plan hash value, and other plan-related information.</p>
+<p>The SQL plan history for a statement contains all plans, both accepted and unaccepted. After the optimizer generates the first accepted plan in a plan baseline, every subsequent <a href="glossary.htm#GUID-C02667C0-BF55-4CCE-B347-71CE5C3B6F1B"><span class="xrefglossterm">unaccepted plan</span></a> is added to the plan history, awaiting verification, but is not in the SQL plan baseline.</p>
+</div>
+</div>
+<a id="TGSQL639"></a><a id="TGSQL638"></a>
+<div class="props_rev_3"><a id="GUID-B51FBAA9-EE95-4F19-AD4B-F5F4C2910688"></a>
+<h5 id="TGSQL-GUID-B51FBAA9-EE95-4F19-AD4B-F5F4C2910688" class="sect5">Fixed Plans</h5>
+<div>
+<p>A <span class="bold">fixed plan</span> is an accepted plan that is marked as preferred, so that the optimizer considers only the fixed plans in the baseline. Fixed plans influence the plan selection process of the optimizer.</p>
+<p>Assume that three plans exist in the SQL plan baseline for a statement. You want the optimizer to give preferential treatment to only two of the plans. As shown in the following figure, you mark these two plans as fixed so that the optimizer uses only the best plan from these two, ignoring the other plans.</p>
+<div class="figure" id="GUID-B51FBAA9-EE95-4F19-AD4B-F5F4C2910688__CDEDDDAE">
+<p class="titleinfigure">Figure 23-6 Fixed Plans</p>
+<img width="468" height="306" src="img/GUID-F44A0804-1F2C-4C8F-A66B-623BBF29E1B2-default.png" alt="Description of Figure 23-6 follows" title="Description of Figure 23-6 follows"/><br/>
+<a href="img_text/GUID-F44A0804-1F2C-4C8F-A66B-623BBF29E1B2-print.htm">Description of &#34;Figure 23-6 Fixed Plans&#34;</a></div>
+<!-- class="figure" -->
+<p>If new plans are added to a baseline that contains at least one enabled fixed plan, then the optimizer cannot use the new plans until you manually declare them as fixed.</p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL618"></a>
+<div class="props_rev_3"><a id="GUID-00CFEAE0-32D8-43FC-AF4F-A3CB3062E374"></a>
+<h3 id="TGSQL-GUID-00CFEAE0-32D8-43FC-AF4F-A3CB3062E374" class="sect3">User Interfaces for SQL Plan Management</h3>
+<div>
+<p>Access the <code class="codeph">DBMS_SPM</code> package through Cloud Control or through the command line.</p>
+</div>
+<a id="TGSQL94646"></a><a id="TGSQL94614"></a>
+<div class="props_rev_3"><a id="GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631"></a>
+<h4 id="TGSQL-GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631" class="sect4">Accessing the SQL Plan Baseline Page in Cloud Control</h4>
+<div>
+<p>The SQL Plan Control page in Cloud Control is a GUI that shows information about SQL profiles, SQL patches, and SQL plan baselines.</p>
+<div class="section">
+<p class="subhead3">To access the SQL Plan Baseline page:</p>
+<ol>
+<li>
+<p>Log in to Cloud Control with the appropriate credentials.</p>
+</li>
+<li>
+<p>Under the <span class="bold">Targets</span> menu, select <span class="bold">Databases</span>.</p>
+</li>
+<li>
+<p>In the list of database targets, select the target for the Oracle Database instance that you want to administer.</p>
+</li>
+<li>
+<p>If prompted for database credentials, then enter the minimum credentials necessary for the tasks you intend to perform.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">SQL</span>, then <span class="bold">SQL Plan Control</span>.</p>
+<p>The SQL Plan Control page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">Files</span> to view the SQL Plan Baseline subpage, shown in <a href="tgsql_spm.htm#GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631__CDEBHHEI">Figure 23-7</a>.</p>
+<div class="figure" id="GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631__CDEBHHEI">
+<p class="titleinfigure">Figure 23-7 SQL Plan Baseline Subpage</p>
+<img width="787" height="448" src="img/GUID-562EB3FB-F732-407C-8440-DF53DE204FA2-default.gif" alt="Description of Figure 23-7 follows" title="Description of Figure 23-7 follows"/><br/>
+<a href="img_text/GUID-562EB3FB-F732-407C-8440-DF53DE204FA2-default.htm">Description of &#34;Figure 23-7 SQL Plan Baseline Subpage&#34;</a></div>
+<!-- class="figure" -->
+<p>You can perform most SQL plan management tasks in this page or in pages accessed through this page.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631__GUID-D48C76F1-6B5A-4E1F-959A-7E462E930035">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Cloud Control context-sensitive online help to learn about the options on the SQL Plan Baseline subpage</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-A94CFA49-910A-4237-A7BB-39BFA94E227E" title="SPM Evolve Advisor is a SQL advisor that evolves plans that have recently been added to the SQL plan baseline. The advisor simplifies plan evolution by eliminating the requirement to do it manually.">Managing the SPM Evolve Advisor Task</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL620"></a><a id="TGSQL94615"></a>
+<div class="props_rev_3"><a id="GUID-AE8CB28A-79CB-4B5F-BAE7-FF54E2EF6330"></a>
+<h4 id="TGSQL-GUID-AE8CB28A-79CB-4B5F-BAE7-FF54E2EF6330" class="sect4">DBMS_SPM Package</h4>
+<div>
+<p>On the command line, use the <code class="codeph">DBMS_SPM</code> and <code class="codeph">DBMS_XPLAN</code> PL/SQL packages to perform most SQL plan management tasks.</p>
+<div class="section">
+<p>The following table describes the most relevant <code class="codeph">DBMS_SPM</code> procedures and functions for creating, dropping, and loading SQL plan baselines.</p>
+</div>
+<!-- class="section" -->
+<div class="tblformal" id="GUID-AE8CB28A-79CB-4B5F-BAE7-FF54E2EF6330__CDEFGAIE">
+<p class="titleintable">Table 23-1 DBMS_SPM Procedures and Functions</p>
+<table class="cellalignment4808" title="DBMS_SPM Procedures and Functions" summary="DBMS_SPM procedures and functions">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4839" id="d124673e2782">Package</th>
+<th class="cellalignment4839" id="d124673e2785">Procedure or Function</th>
+<th class="cellalignment4839" id="d124673e2788">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e2793" headers="d124673e2782">
+<p><code class="codeph">DBMS_SPM</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2793 d124673e2785">
+<p><code class="codeph">CONFIGURE</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2793 d124673e2788">
+<p>This procedure changes configuration options for the SMB in name/value format.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e2805" headers="d124673e2782">
+<p><code class="codeph">DBMS_SPM</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2805 d124673e2785">
+<p><code class="codeph">CREATE_STGTAB_BASELINE</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2805 d124673e2788">
+<p>This procedure creates a staging table that enables you to transport SQL plan baselines from one database to another.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e2817" headers="d124673e2782">
+<p><code class="codeph">DBMS_SPM</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2817 d124673e2785">
+<p><code class="codeph">DROP_SQL_PLAN_BASELINE</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2817 d124673e2788">
+<p>This function drops some or all plans in a plan baseline.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e2829" headers="d124673e2782">
+<p><code class="codeph">DBMS_SPM</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2829 d124673e2785">
+<p><code class="codeph">LOAD_PLANS_FROM_CURSOR_CACHE</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2829 d124673e2788">
+<p>This function loads plans in the shared SQL area (also called the <span class="bold">cursor cache</span>) into SQL plan baselines.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e2844" headers="d124673e2782">
+<p><code class="codeph">DBMS_SPM</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2844 d124673e2785">
+<p><code class="codeph">LOAD_PLANS_FROM_SQLSET</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2844 d124673e2788">
+<p>This function loads plans in an STS into SQL plan baselines.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e2856" headers="d124673e2782">
+<p><code class="codeph">DBMS_SPM</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2856 d124673e2785">
+<p><code class="codeph">PACK_STGTAB_BASELINE</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2856 d124673e2788">
+<p>This function packs SQL plan baselines, which means that it copies them from the SMB into a staging table.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e2868" headers="d124673e2782">
+<p><code class="codeph">DBMS_SPM</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2868 d124673e2785">
+<p><code class="codeph">UNPACK_STGTAB_BASELINE</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2868 d124673e2788">
+<p>This function unpacks SQL plan baselines, which means that it copies SQL plan baselines from a staging table into the SMB.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e2880" headers="d124673e2782">
+<p><code class="codeph">DBMS_XPLAN</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2880 d124673e2785">
+<p><code class="codeph">DISPLAY_SQL_PLAN_BASELINE</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e2880 d124673e2788">
+<p>This function displays one or more execution plans for the SQL statement identified by SQL handle.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-AE8CB28A-79CB-4B5F-BAE7-FF54E2EF6330__GUID-ADA03D0B-66B3-496D-B870-CA0325D01B6F">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-15A23B74-8B43-49EA-83CE-14F2C209C9A9" title="This topic describes the most relevant DBMS_SPM functions for managing plan evolution. Execute evolution tasks manually or schedule them to run automatically.">About the DBMS_SPM Evolve Functions</a>&#34;</span> describes the functions related to SQL plan evolution.</p>
+</li>
+<li>
+<p><a class="olink ARPLS150" target="_blank" href="../ARPLS/d_spm.htm#ARPLS150"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_SPM</code> package</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL621"></a>
+<div class="props_rev_3"><a id="GUID-C79E7420-053B-4DCE-A219-072BDE488E21"></a>
+<h3 id="TGSQL-GUID-C79E7420-053B-4DCE-A219-072BDE488E21" class="sect3">Basic Tasks in SQL Plan Management</h3>
+<div>
+<p>This section explains the basic tasks in using SQL plan management to prevent plan regressions and permit the optimizer to consider new plans.</p>
+<p>The tasks are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Set initialization parameters to control whether the database captures and uses SQL plan baselines, and whether it evolves new plans.</p>
+<p>See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-3D701147-1371-4604-8127-F9199EA0EDE0" title="You control SQL plan management with initialization parameters. Setting the OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES initialization parameter to true is all that is necessary for the database to automatically create an initial SQL plan baseline for any SQL statement not already in the plan history. This parameter does not control the automatic addition of newly discovered plans to a previously created SQL plan baseline.When you set the OPTIMIZER_USE_SQL_PLAN_BASELINES initialization parameter to false, the database does not use any plan baselines in the database. SPM Evolve Advisor is a SQL advisor that evolves plans that have recently been added to the SQL plan baseline. The advisor simplifies plan evolution by eliminating the requirement to do it manually.No separate scheduler client exists for the Automatic SPM Evolve Advisor task. The DBMS_SPM package enables you to configure automatic plan evolution by specifying the task parameters using the SET_EVOLVE_TASK_PARAMETER procedure. Because the task is owned by SYS, only SYS can set task parameters.">Configuring SQL Plan Management</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Display plans in a SQL plan baseline.</p>
+<p>See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-582BC3FB-2F52-4190-B807-16B79346B776" title="To view the plans stored in the SQL plan baseline for a specific statement, use the DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE function. This function uses plan information stored in the plan history to display the plans.">Displaying Plans in a SQL Plan Baseline</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Manually load plans into SQL plan baselines.</p>
+<p>Load plans from SQL tuning sets, the shared SQL area, a staging table, or stored outlines.</p>
+<p>See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-C6AC4856-3C8C-42D8-A7FD-629974E98D36" title="Using DBMS_SPM, you can initiate the bulk load of a set of existing plans into a SQL plan baseline.">Loading SQL Plan Baselines</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Manually evolve plans into SQL plan baselines.</p>
+<p>Use PL/SQL to verify the performance of specified plans and add them to plan baselines.</p>
+<p>See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-19E6FFB0-BC7A-4CDB-AE36-6D67C15C7332" title="Oracle recommends that you configure the SQL Plan Management Evolve task to run automatically. You can also use PL/SQL or Cloud Control to manually evolve an unaccepted plan to determine whether it performs better than any plan currently in the plan baseline.">Evolving SQL Plan Baselines Manually</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Drop all or some plans in SQL plan baselines.</p>
+<p>See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-BA19EA4E-AFEF-4677-B08F-854DE59ED932" title="You can remove some or all plans from a SQL plan baseline. This technique is sometimes useful when testing SQL plan management.">Dropping SQL Plan Baselines</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Manage the SMB.</p>
+<p>Alter disk space limits and change the length of the plan retention policy.</p>
+<p>See <span class="q">&#34;<a href="tgsql_spm.htm#GUID-DE976D2B-DBAD-498F-B933-D16B06CA9D2A" title="The SQL management base (SMB) is a part of the data dictionary that resides in the SYSAUX tablespace. The SMB stores statement logs, plan histories, SQL plan baselines, and SQL profiles.">Managing the SQL Management Base</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Migrate stored outlines to SQL plan baselines.</p>
+<p>See <span class="q">&#34;<a href="tgsql_mig.htm#GUID-E1CBB4DA-2F83-4F4D-845B-CAAA8333DF1A" title="Stored outline migration is the user-initiated process of converting stored outlines to SQL plan baselines. A SQL plan baseline is a set of plans proven to provide optimal performance.">Migrating Stored Outlines to SQL Plan Baselines</a>&#34;</span>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL94647"></a>
+<div class="props_rev_3"><a id="GUID-3D701147-1371-4604-8127-F9199EA0EDE0"></a>
+<h2 id="TGSQL-GUID-3D701147-1371-4604-8127-F9199EA0EDE0" class="sect2">Configuring SQL Plan Management</h2>
+<div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_spm.htm#GUID-C357AC4E-20CF-4995-A8C1-491FF26C19BC" title="You control SQL plan management with initialization parameters.">Configuring the Capture and Use of SQL Plan Baselines</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-A94CFA49-910A-4237-A7BB-39BFA94E227E" title="SPM Evolve Advisor is a SQL advisor that evolves plans that have recently been added to the SQL plan baseline. The advisor simplifies plan evolution by eliminating the requirement to do it manually.">Managing the SPM Evolve Advisor Task</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL640"></a>
+<div class="props_rev_3"><a id="GUID-C357AC4E-20CF-4995-A8C1-491FF26C19BC"></a>
+<h3 id="TGSQL-GUID-C357AC4E-20CF-4995-A8C1-491FF26C19BC" class="sect3">Configuring the Capture and Use of SQL Plan Baselines</h3>
+<div>
+<p>You control SQL plan management with initialization parameters.</p>
+<p>The default values are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES=false</code></p>
+<p>For any repeatable SQL statement that does not already exist in the plan history, the database does <span class="italic">not</span> automatically create an initial SQL plan baseline for the statement.</p>
+</li>
+<li>
+<p><code class="codeph">OPTIMIZER_USE_SQL_PLAN_BASELINES=true</code></p>
+<p>For any SQL statement that has an existing SQL plan baseline, the database automatically adds new plans to the SQL plan baseline as nonaccepted plans.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-C357AC4E-20CF-4995-A8C1-491FF26C19BC__GUID-AE7524ED-119E-43C1-867A-CBF009D0FD32">
+<p class="notep1">Note:</p>
+<p>The settings of the preceding parameters are independent of each other. For example, if <code class="codeph">OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES</code> is <code class="codeph">true</code>, then the database creates initial plan baselines for new statements even if <code class="codeph">OPTIMIZER_USE_SQL_PLAN_BASELINES</code> is <code class="codeph">false</code>.</p>
+</div>
+<p>If the default behavior is what you intend, then skip this section.</p>
+<div class="p">The following sections explain how to change the default parameter settings from the command line. If you use Cloud Control, then set these parameters in the SQL Plan Baseline subpage.
+<div class="infoboxnotealso" id="GUID-C357AC4E-20CF-4995-A8C1-491FF26C19BC__GUID-FF052313-98A7-4705-82D1-F7D42670F510">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-5A1E6CF4-70E5-4C26-A67B-EFDBB93EC621" title="You enable automatic initial plan capture by setting the initialization parameter OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES to true (the default is false). When enabled, the database automatically creates a SQL plan baseline for any repeatable SQL statement executed on the database.">Automatic Initial Plan Capture</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90" title="SQL plan selection is the optimizer ability to detect plan changes based on stored plan history, and the use of SQL plan baselines to select plans to avoid potential performance regressions.">Plan Selection</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631__CDEBHHEI">Figure 23-7</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL641"></a>
+<div class="props_rev_3"><a id="GUID-B3262755-C4A0-4B37-891B-6B3C2ACC6C45"></a>
+<h4 id="TGSQL-GUID-B3262755-C4A0-4B37-891B-6B3C2ACC6C45" class="sect4">Enabling Automatic Initial Plan Capture for SQL Plan Management</h4>
+<div>
+<p>Setting the <code class="codeph">OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES</code> initialization parameter to <code class="codeph">true</code> is all that is necessary for the database to automatically create an initial SQL plan baseline for any SQL statement not already in the plan history. This parameter does not control the automatic addition of newly discovered plans to a previously created SQL plan baseline.</p>
+<div class="section">
+<p class="subhead3">To enable automatic initial plan capture for SQL plan management:</p>
+<div class="infobox-note" id="GUID-B3262755-C4A0-4B37-891B-6B3C2ACC6C45__GUID-E65A7E68-BBB4-40B0-B9F1-7C58F0B3D40B">
+<p class="notep1">Caution:</p>
+<p>When automatic baseline capture is enabled, the database creates a SQL plan baseline for every repeatable statement, including all recursive SQL and monitoring SQL. Thus, automatic capture may result in the creation of an extremely large number of plan baselines.</p>
+</div>
+<ol>
+<li>
+<p>Start SQL*Plus, and log in to the database with the necessary privileges.</p>
+</li>
+<li>
+<p>Show the current settings for SQL plan management.</p>
+<p>For example, connect SQL*Plus to the database with administrator privileges and execute the following command (sample output included):</p>
+<pre dir="ltr">SQL&gt; SHOW PARAMETER SQL_PLAN
+ 
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- -----
+optimizer_capture_sql_plan_baselines boolean     FALSE
+optimizer_use_sql_plan_baselines     boolean     TRUE
+</pre>
+<p>If the parameters are set as you intend, then skip the remaining steps.</p>
+</li>
+<li>
+<p>To enable the automatic recognition of repeatable SQL statements and the generation of SQL plan baselines for these statements, enter the following statement:</p>
+<pre dir="ltr">SQL&gt; ALTER SYSTEM SET OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES=true;
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL642"></a>
+<div class="props_rev_3"><a id="GUID-4D5A5D5F-7B6A-416A-8108-E1FD82825A4D"></a>
+<h4 id="TGSQL-GUID-4D5A5D5F-7B6A-416A-8108-E1FD82825A4D" class="sect4">Disabling All SQL Plan Baselines</h4>
+<div>
+<p>When you set the <code class="codeph">OPTIMIZER_USE_SQL_PLAN_BASELINES</code> initialization parameter to <code class="codeph">false</code>, the database does not use <span class="italic">any</span> plan baselines in the database.</p>
+<div class="section">
+<p>Typically, you might want to disable one or two plan baselines, but not all of them. A possible use case might be testing the benefits of SQL plan management.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To disable all SQL plan baselines in the database:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then show the current settings for SQL plan management.</p>
+<p>For example, connect SQL*Plus to the database with administrator privileges and execute the following command (sample output included):</p>
+<pre dir="ltr">SQL&gt; SHOW PARAMETER SQL_PLAN
+ 
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- -----
+optimizer_capture_sql_plan_baselines boolean     FALSE
+optimizer_use_sql_plan_baselines     boolean     TRUE
+</pre>
+<p>If the parameters are set as you intend, then skip the remaining steps.</p>
+</li>
+<li>
+<p>To ignore all existing plan baselines enter the following statement:</p>
+<pre dir="ltr">SQL&gt; ALTER SYSTEM SET OPTIMIZER_USE_SQL_PLAN_BASELINES=false
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-4D5A5D5F-7B6A-416A-8108-E1FD82825A4D__GUID-C0CA18EB-37A5-4406-8B32-EB5625B51AAD">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN10292" target="_blank" href="../REFRN/GUID-A562069E-BD44-4ABB-A987-0A13078F4E90.htm#REFRN10292"><span class="italic">Oracle Database Reference</span></a> to learn about the SQL plan baseline initialization parameters</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL94648"></a>
+<div class="props_rev_3"><a id="GUID-A94CFA49-910A-4237-A7BB-39BFA94E227E"></a>
+<h3 id="TGSQL-GUID-A94CFA49-910A-4237-A7BB-39BFA94E227E" class="sect3">Managing the SPM Evolve Advisor Task</h3>
+<div>
+<p>SPM Evolve Advisor is a SQL advisor that evolves plans that have recently been added to the SQL plan baseline. The advisor simplifies plan evolution by eliminating the requirement to do it manually.</p>
+</div>
+<a id="TGSQL94649"></a>
+<div class="props_rev_3"><a id="GUID-0D221783-C6C3-470E-8022-60ADF87E2473"></a>
+<h4 id="TGSQL-GUID-0D221783-C6C3-470E-8022-60ADF87E2473" class="sect4">Enabling and Disabling the SPM Evolve Advisor Task</h4>
+<div>
+<p>No separate scheduler client exists for the Automatic SPM Evolve Advisor task.</p>
+<div class="section">
+<p>One client controls both Automatic SQL Tuning Advisor and Automatic SPM Evolve Advisor. Thus, the same task enables or disables both.</p>
+<div class="infoboxnotealso" id="GUID-0D221783-C6C3-470E-8022-60ADF87E2473__GUID-CB91827F-AB2C-497F-AC2B-D796D44A58BD">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_sqltune.htm#GUID-581888AA-B9EF-4471-ABDF-1FF9C0264412" title="You can enable and disable all automatic maintenance tasks, including the Automatic SQL Tuning task, using Cloud Control.If you do not use Cloud Control to enable and disable the Automatic SQL Tuning task, then you must use the command line.">Enabling and Disabling the Automatic SQL Tuning Task</a>&#34;</span> to learn how to enable and disable Automatic SPM Evolve Advisor</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94969"></a><a id="TGSQL94650"></a>
+<div class="props_rev_3"><a id="GUID-541EBA4B-4F7D-42DD-A152-C06BDE69D828"></a>
+<h4 id="TGSQL-GUID-541EBA4B-4F7D-42DD-A152-C06BDE69D828" class="sect4">Configuring the Automatic SPM Evolve Advisor Task</h4>
+<div>
+<p>The <code class="codeph">DBMS_SPM</code> package enables you to configure automatic plan evolution by specifying the task parameters using the <code class="codeph">SET_EVOLVE_TASK_PARAMETER</code> procedure. Because the task is owned by <code class="codeph">SYS</code>, only <code class="codeph">SYS</code> can set task parameters.</p>
+<div class="section">
+<p>The <code class="codeph">ACCEPT_PLANS</code> tuning task parameter specifies whether to accept recommended plans automatically. When <code class="codeph">ACCEPT_PLANS</code> is <code class="codeph">true</code> (default), SQL plan management automatically accepts all plans recommended by the task. When set to <code class="codeph">false</code>, the task verifies the plans and generates a report if its findings, but does not evolve the plans.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The tutorial in this section assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You do not want the database to evolve plans automatically.</p>
+</li>
+<li>
+<p>You want the task to time out after 1200 seconds per execution.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To set automatic evolution task parameters:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then optionally query the current task settings.</p>
+<p>For example, connect SQL*Plus to the database with administrator privileges and execute the following query:</p>
+<pre dir="ltr">COL PARAMETER_NAME FORMAT a25
+COL VALUE FORMAT a10
+SELECT PARAMETER_NAME, PARAMETER_VALUE AS &#34;VALUE&#34;
+FROM   DBA_ADVISOR_PARAMETERS
+WHERE  ( (TASK_NAME = &#39;SYS_AUTO_SPM_EVOLVE_TASK&#39;) AND
+         ( (PARAMETER_NAME = &#39;ACCEPT_PLANS&#39;) OR
+           (PARAMETER_NAME = &#39;TIME_LIMIT&#39;) ) );
+</pre>
+<p>Sample output appears as follows:</p>
+<pre dir="ltr">PARAMETER_NAME            VALUE
+------------------------- ----------
+ACCEPT_PLANS              TRUE
+TIME_LIMIT                3600
+</pre></li>
+<li>
+<p>Set parameters using PL/SQL code of the following form:</p>
+<pre dir="ltr">BEGIN
+  DBMS_SPM.SET_EVOLVE_TASK_PARAMETER(
+    task_name =&gt; &#39;SYS_AUTO_SPM_EVOLVE_TASK&#39;
+,   parameter =&gt; <span class="italic">parameter_name</span>
+,   value     =&gt; <span class="italic">value</span>
+);
+END;
+/
+</pre>
+<p>For example, the following PL/SQL block sets a time limit to 20 minutes, and also automatically accepts plans:</p>
+<pre dir="ltr">BEGIN
+  DBMS_SPM.SET_EVOLVE_TASK_PARAMETER(
+    task_name =&gt; &#39;SYS_AUTO_SPM_EVOLVE_TASK&#39;
+,   parameter =&gt; &#39;LOCAL_TIME_LIMIT&#39;
+,   value     =&gt; 1200
+);
+  DBMS_SPM.SET_EVOLVE_TASK_PARAMETER(
+    task_name =&gt; &#39;SYS_AUTO_SPM_EVOLVE_TASK&#39;
+,   parameter =&gt; &#39;ACCEPT_PLANS&#39;
+,   value     =&gt; &#39;true&#39;
+);
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-541EBA4B-4F7D-42DD-A152-C06BDE69D828__GUID-B51E96A0-4EF1-4D3D-B525-EB72955EA06A">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS150" target="_blank" href="../ARPLS/d_spm.htm#ARPLS150"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> for more information about the <code class="codeph">DBMS_SPM</code> package</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL644"></a><a id="TGSQL643"></a>
+<div class="props_rev_3"><a id="GUID-582BC3FB-2F52-4190-B807-16B79346B776"></a>
+<h2 id="TGSQL-GUID-582BC3FB-2F52-4190-B807-16B79346B776" class="sect2">Displaying Plans in a SQL Plan Baseline</h2>
+<div>
+<p>To view the plans stored in the SQL plan baseline for a specific statement, use the <code class="codeph">DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE</code> function. This function uses plan information stored in the plan history to display the plans.</p>
+<div class="section">
+<p>The following table describes the relevant parameters for the <code class="codeph">DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE</code> function.</p>
+<div class="tblformal" id="GUID-582BC3FB-2F52-4190-B807-16B79346B776__CDEBDFIH">
+<p class="titleintable">Table 23-2 DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE Parameters</p>
+<table class="cellalignment4808" title="DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE Parameters" summary="This 2 column table lists the parameters for the DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE function. Column 1 lists the parameters. Column 2 describes the parameters.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4839" id="d124673e4051">Function Parameter</th>
+<th class="cellalignment4839" id="d124673e4054">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e4059" headers="d124673e4051">
+<p><code class="codeph">sql_handle</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e4059 d124673e4054">
+<p>SQL handle of the statement. Retrieve the SQL handle by joining the <code class="codeph">V$SQL.SQL_PLAN_BASELINE</code> and <code class="codeph">DBA_SQL_PLAN_BASELINES</code> views on the <code class="codeph">PLAN_NAME</code> columns.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e4076" headers="d124673e4051">
+<p><code class="codeph">plan_name</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e4076 d124673e4054">
+<p>Name of the plan for the statement.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>This section explains how to show plans in a baseline from the command line. If you use Cloud Control, then display plan baselines from the SQL Plan Baseline subpage shown in <a href="tgsql_spm.htm#GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631__CDEBHHEI">Figure 23-7</a>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To display plans in a SQL plan baselines:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then obtain the SQL ID of the query whose plan you want to display.</p>
+<p>For example, assume that a SQL plan baseline exists for a <code class="codeph">SELECT</code> statement with the SQL ID <code class="codeph">31d96zzzpcys9</code>.</p>
+</li>
+<li>
+<p>Query the plan by SQL ID.</p>
+<p>The following query displays execution plans for the statement with the SQL ID <code class="codeph">31d96zzzpcys9</code>:</p>
+<pre dir="ltr">SELECT PLAN_TABLE_OUTPUT
+FROM   V$SQL s, DBA_SQL_PLAN_BASELINES b, 
+       TABLE(
+       DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE(b.sql_handle,b.plan_name,&#39;basic&#39;) 
+       ) t
+WHERE  s.EXACT_MATCHING_SIGNATURE=b.SIGNATURE
+AND    b.PLAN_NAME=s.SQL_PLAN_BASELINE
+AND    s.SQL_ID=&#39;<span class="bold">31d96zzzpcys9</span>&#39;;
+</pre>
+<p>The sample query results are as follows:</p>
+<pre dir="ltr">PLAN_TABLE_OUTPUT
+---------------------------------------------------------------------------
+ 
+---------------------------------------------------------------------------
+SQL handle: SQL_513f7f8a91177b1a
+SQL text: select * from hr.employees where employee_id=100
+---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+Plan name: SQL_PLAN_52gvzja8jfysuc0e983c6         Plan id: 3236529094
+Enabled: YES     Fixed: NO      Accepted: YES     Origin: AUTO-CAPTURE
+---------------------------------------------------------------------------
+ 
+Plan hash value: 3236529094
+ 
+-----------------------------------------------------
+| Id  | Operation                   | Name          |
+-----------------------------------------------------
+|   0 | SELECT STATEMENT            |               |
+|   1 |  TABLE ACCESS BY INDEX ROWID| EMPLOYEES     |
+|   2 |   INDEX UNIQUE SCAN         | EMP_EMP_ID_PK |
+-----------------------------------------------------
+</pre>
+<p>The results show that the plan for SQL ID <code class="codeph">31d96zzzpcys</code> is named <code class="codeph">SQL_PLAN_52gvzja8jfysuc0e983c6</code> and was captured automatically.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-582BC3FB-2F52-4190-B807-16B79346B776__GUID-070BBDCB-D2D5-46AD-B348-8FCA11795DB6">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-EA548FAC-B350-4F31-96E9-8541AA8AC267" title="The SQL management base (SMB) is a logical repository in the data dictionary.">SQL Management Base</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ARPLS378" target="_blank" href="../ARPLS/d_xplan.htm#ARPLS378"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about additional parameters used by the <code class="codeph">DISPLAY_SQL_PLAN_BASELINE</code> function</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL645"></a>
+<div class="props_rev_3"><a id="GUID-C6AC4856-3C8C-42D8-A7FD-629974E98D36"></a>
+<h2 id="TGSQL-GUID-C6AC4856-3C8C-42D8-A7FD-629974E98D36" class="sect2">Loading SQL Plan Baselines</h2>
+<div>
+<p>Using <code class="codeph">DBMS_SPM</code>, you can initiate the bulk load of a set of existing plans into a SQL plan baseline.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_spm.htm#GUID-93DCD1D7-DCAA-4135-97B3-6CDAB37AC73B" title="A SQL tuning set is a database object that includes one or more SQL statements, execution statistics, and execution context. This topic explains how to load plans from an STS.">Loading Plans from a SQL Tuning Set</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-C7C5AEF7-5833-4780-81CF-C40CE6B43571" title="This topic explains how to load plans from the shared SQL area, also called the cursor cache, using PL/SQL.">Loading Plans from the Shared SQL Area</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-406BA5D3-29DE-4AF7-B5D2-8B488297023F" title="You may want to transfer optimal plans from a source database to a different destination database.">Loading Plans from a Staging Table</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL647"></a><a id="TGSQL94970"></a><a id="TGSQL648"></a><a id="TGSQL646"></a>
+<div class="props_rev_3"><a id="GUID-93DCD1D7-DCAA-4135-97B3-6CDAB37AC73B"></a>
+<h3 id="TGSQL-GUID-93DCD1D7-DCAA-4135-97B3-6CDAB37AC73B" class="sect3">Loading Plans from a SQL Tuning Set</h3>
+<div>
+<p>A <span class="bold">SQL tuning set</span> is a database object that includes one or more SQL statements, execution statistics, and execution context. This topic explains how to load plans from an STS.</p>
+<div class="section">
+<p>Load plans with the <code class="codeph">DBMS_SPM.LOAD_PLANS_FROM_SQLSET</code> function or using Cloud Control. The following table describes some function parameters.</p>
+<div class="tblformal" id="GUID-93DCD1D7-DCAA-4135-97B3-6CDAB37AC73B__CDEGJHGG">
+<p class="titleintable">Table 23-3 LOAD_PLANS_FROM_SQLSET Parameters</p>
+<table class="cellalignment4808" title="LOAD_PLANS_FROM_SQLSET Parameters" summary="Parameters for DBMS_SPM.LOAD_PLANS_FROM_SQLSET">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4870" id="d124673e4377">Function Parameter</th>
+<th class="cellalignment4901" id="d124673e4380">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d124673e4385" headers="d124673e4377">
+<p><code class="codeph">sqlset_name</code></p>
+</td>
+<td class="cellalignment4902" headers="d124673e4385 d124673e4380">
+<p>Name of the STS from which the plans are loaded into SQL plan baselines.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d124673e4393" headers="d124673e4377">
+<p><code class="codeph">basic_filter</code></p>
+</td>
+<td class="cellalignment4902" headers="d124673e4393 d124673e4380">
+<p>A filter applied to the STS to select only qualifying plans to be loaded. The filter can take the form of any <code class="codeph">WHERE</code> clause predicate that can be specified against the view <code class="codeph">DBA_SQLSET_STATEMENTS</code>. An example is <code class="codeph">basic_filter =&gt; &#39;sql_text like &#39;&#39;select /*LOAD_STS*/%&#39;&#39;&#39;</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4871" id="d124673e4410" headers="d124673e4377">
+<p><code class="codeph">fixed</code></p>
+</td>
+<td class="cellalignment4902" headers="d124673e4410 d124673e4380">
+<p>Default <code class="codeph">NO</code> means the loaded plans are used as nonfixed plans. <code class="codeph">YES</code> means the loaded plans are fixed plans. <span class="q">&#34;<a href="tgsql_spm.htm#GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90" title="SQL plan selection is the optimizer ability to detect plan changes based on stored plan history, and the use of SQL plan baselines to select plans to avoid potential performance regressions.">Plan Selection</a>&#34;</span> explains that the optimizer chooses a fixed plan in the plan baseline over a nonfixed plan.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>This section explains how to load plans from the command line. In Cloud Control, go to the SQL Plan Baseline subpage (shown in <a href="tgsql_spm.htm#GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631__CDEBHHEI">Figure 23-7</a>) and click <span class="bold">Load</span> to load plan baselines from SQL tuning sets.</p>
+</div>
+<!-- class="section" -->
+<div class="p">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want the loaded plans to be nonfixed.</p>
+</li>
+<li>
+<p>You have executed the following query:</p>
+<pre dir="ltr">SELECT /*LOAD_STS*/ *
+FROM   sh.sales
+WHERE  quantity_sold &gt; 40
+ORDER BY prod_id;
+</pre></li>
+<li>
+<p>You have loaded the plan from the shared SQL area into the SQL tuning set named <code class="codeph">SPM_STS</code>, which is owned by user <code class="codeph">SPM</code>.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To load plans from a SQL tuning set:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then verify which plans are in the SQL tuning set.</p>
+<p>For example, query <code class="codeph">DBA_SQLSET_STATEMENTS</code> for the STS name (sample output included):</p>
+<pre dir="ltr">SELECT SQL_TEXT
+FROM   DBA_SQLSET_STATEMENTS
+WHERE  SQLSET_NAME = &#39;SPM_STS&#39;;
+ 
+SQL_TEXT
+--------------------
+SELECT /*LOAD_STS*/
+*
+FROM sh.sales
+WHERE quantity_sold
+&gt; 40
+ORDER BY prod_id
+</pre>
+<p>The output shows that the plan for the <code class="codeph">select /*LOAD_STS*/</code> statement is in the STS.</p>
+</li>
+<li>
+<p>Load the plan from the STS into the SQL plan baseline.</p>
+<p>For example, in SQL*Plus execute the function as follows:</p>
+<pre dir="ltr">VARIABLE v_plan_cnt NUMBER
+EXECUTE :v_plan_cnt := DBMS_SPM.LOAD_PLANS_FROM_SQLSET( -
+                         sqlset_name  =&gt; &#39;SPM_STS&#39;, -
+                         basic_filter =&gt; &#39;sql_text like &#39;&#39;SELECT /*LOAD_STS*/%&#39;&#39;&#39; );
+</pre>
+<p>The <code class="codeph">basic_filter</code> parameter specifies a <code class="codeph">WHERE</code> clause that loads only the plans for the queries of interest. The variable <code class="codeph">v_plan_cnt</code> stores the number of plans loaded from the STS.</p>
+</li>
+<li>
+<p>Query the data dictionary to ensure that the plan was loaded into the baseline for the statement.</p>
+<p>The following statement queries the <code class="codeph">DBA_SQL_PLAN_BASELINES</code> view (sample output included).</p>
+<pre dir="ltr">SQL&gt; SELECT SQL_HANDLE, SQL_TEXT, PLAN_NAME,
+  2         ORIGIN, ENABLED, ACCEPTED
+  3  FROM   DBA_SQL_PLAN_BASELINES;
+
+SQL_HANDLE            SQL_TEXT        PLAN_NAME        ORIGIN      ENA ACC
+--------------------- --------------- ---------------- ----------- --- ---
+SQL_a8632bd857a4a25e  SELECT          SQL_PLAN_ahstb   MANUAL-LOAD YES <span class="bold">YES</span>
+                      /*LOAD_STS*/*   v1bu98ky1694fc6b
+                      FROM sh.sales
+                      WHERE 
+                      quantity_sold 
+                      &gt; 40 ORDER BY                    
+                      prod_id
+</pre>
+<p>The output shows that the plan is accepted, which means that it is in the plan baseline. Also, the origin is <code class="codeph">MANUAL-LOAD</code>, which means that the plan was loaded by an end user rather than automatically captured.</p>
+</li>
+<li>
+<p>Optionally, drop the STS.</p>
+<p>For example, execute <code class="codeph">DBMS_SQLTUNE.DROP_SQLSET</code> to drop the <code class="codeph">SPM_STS</code> tuning set as follows:</p>
+<pre dir="ltr">EXEC SYS.DBMS_SQLTUNE.DROP_SQLSET( sqlset_name=&gt;&#39;SPM_STS&#39;, sqlset_owner=&gt;&#39;SPM&#39; );
+</pre></li>
+</ol>
+<div class="infoboxnotealso" id="GUID-93DCD1D7-DCAA-4135-97B3-6CDAB37AC73B__GUID-7813B9D9-DB9B-4CA6-B67A-872196B369CD">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink REFRN23470" target="_blank" href="../REFRN/GUID-25025608-4761-4794-8D1A-5A4E415C43C9.htm#REFRN23470"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">DBA_SQL_PLAN_BASELINES</code> view</p>
+</li>
+<li>
+<p><a class="olink ARPLS68170" target="_blank" href="../ARPLS/d_spm.htm#ARPLS68170"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_SPM.LOAD_PLANS_FROM_SQLSET</code> function</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL650"></a><a id="TGSQL94971"></a><a id="TGSQL651"></a><a id="TGSQL649"></a>
+<div class="props_rev_3"><a id="GUID-C7C5AEF7-5833-4780-81CF-C40CE6B43571"></a>
+<h3 id="TGSQL-GUID-C7C5AEF7-5833-4780-81CF-C40CE6B43571" class="sect3">Loading Plans from the Shared SQL Area</h3>
+<div>
+<p>This topic explains how to load plans from the shared SQL area, also called the cursor cache, using PL/SQL.</p>
+<div class="section">
+<p>Load plans with the <code class="codeph">LOAD_PLANS_FROM_CURSOR_CACHE</code> function of the <code class="codeph">DBMS_SPM</code> package. The following table describes some function parameters.</p>
+<div class="tblformal" id="GUID-C7C5AEF7-5833-4780-81CF-C40CE6B43571__CDEJCBCC">
+<p class="titleintable">Table 23-4 LOAD_PLANS_FROM_CURSOR_CACHE Parameters</p>
+<table class="cellalignment4808" title="LOAD_PLANS_FROM_CURSOR_CACHE Parameters" summary="This table describes LOAD_PLANS_FROM_CURSOR_CACHE function parameters.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4839" id="d124673e4661">Function Parameter</th>
+<th class="cellalignment4839" id="d124673e4664">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e4669" headers="d124673e4661">
+<p><code class="codeph">sql_id</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e4669 d124673e4664">
+<p>SQL statement identifier. Identifies a SQL statement in the shared SQL area.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4802" id="d124673e4677" headers="d124673e4661">
+<p><code class="codeph">fixed</code></p>
+</td>
+<td class="cellalignment4802" headers="d124673e4677 d124673e4664">
+<p>Default <code class="codeph">NO</code> means the loaded plans are used as nonfixed plans. <code class="codeph">YES</code> means the loaded plans are fixed plans (see <span class="q">&#34;<a href="tgsql_spm.htm#GUID-B51FBAA9-EE95-4F19-AD4B-F5F4C2910688" title="A fixed plan is an accepted plan that is marked as preferred, so that the optimizer considers only the fixed plans in the baseline. Fixed plans influence the plan selection process of the optimizer.">Fixed Plans</a>&#34;</span>). <span class="q">&#34;<a href="tgsql_spm.htm#GUID-67A76171-62CB-49A5-B5BD-CFFE26511E90" title="SQL plan selection is the optimizer ability to detect plan changes based on stored plan history, and the use of SQL plan baselines to select plans to avoid potential performance regressions.">Plan Selection</a>&#34;</span> explains that the optimizer chooses a fixed plan in the plan baseline over a nonfixed plan.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>This section explains how to load plans using the command line. In Cloud Control, go to the SQL Plan Baseline subpage (shown in <a href="tgsql_spm.htm#GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631__CDEBHHEI">Figure 23-7</a>) and click <span class="bold">Load</span> to load plan baselines from the shared SQL area.</p>
+</div>
+<!-- class="section" -->
+<div class="p">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You have executed the following query:</p>
+<pre dir="ltr">SELECT /*LOAD_CC*/ *
+FROM   sh.sales
+WHERE  quantity_sold &gt; 40
+ORDER BY prod_id;
+</pre></li>
+<li>
+<p>You want the loaded plans to be nonfixed.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To load plans from the shared SQL area:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then determine the SQL IDs of the relevant statements in the shared SQL area.</p>
+<p>For example, query <code class="codeph">V$SQL</code> for the SQL ID of the <code class="codeph">sh.sales</code> query (sample output included):</p>
+<pre dir="ltr">SELECT   SQL_ID, CHILD_NUMBER AS &#34;Child Num&#34;,
+         PLAN_HASH_VALUE AS &#34;Plan Hash&#34;,
+         OPTIMIZER_ENV_HASH_VALUE AS &#34;Opt Env Hash&#34;
+FROM     V$SQL
+WHERE    SQL_TEXT LIKE &#39;SELECT /*LOAD_CC*/%&#39;;
+ 
+SQL_ID         Child Num  Plan Hash Opt Env Hash
+------------- ---------- ---------- ------------
+27m0sdw9snw59          0 1421641795   3160571937
+</pre>
+<p>The preceding output shows that the SQL ID of the statement is <code class="codeph">27m0sdw9snw59</code>.</p>
+</li>
+<li>
+<p>Load the plans for the specified statements into the SQL plan baseline.</p>
+<p>For example, execute the <code class="codeph">LOAD_PLANS_FROM_CURSOR_CACHE</code> function in SQL*Plus to load the plan for the statement with the SQL ID <code class="codeph">27m0sdw9snw59</code>:</p>
+<pre dir="ltr">VARIABLE cnt NUMBER
+EXECUTE :cnt := DBMS_SPM.LOAD_PLANS_FROM_CURSOR_CACHE( -
+                    sql_id =&gt; &#39;27m0sdw9snw59&#39;);
+</pre>
+<p>In the preceding example, the variable <code class="codeph">cnt</code> contains the number of plans that were loaded.</p>
+</li>
+<li>
+<p>Query the data dictionary to ensure that the plans were loaded into the baseline for the statement.</p>
+<p>The following statement queries <code class="codeph">DBA_SQL_PLAN_BASELINES</code> (sample output included):</p>
+<pre dir="ltr">SELECT SQL_HANDLE, SQL_TEXT, PLAN_NAME,
+       ORIGIN, ENABLED, ACCEPTED
+FROM   DBA_SQL_PLAN_BASELINES;
+ 
+SQL_HANDLE            SQL_TEXT             PLAN_NAME             ORIGIN      ENA ACC
+--------------------- -------------------- --------------------- ----------- --- ---
+SQL_a8632bd857a4a25e  SELECT /*LOAD_CC*/   SQL_PLAN_gdkvzfhrgkda MANUAL-LOAD YES YES
+                      *                    71694fc6b
+                      FROM sh.sales
+                      WHERE quantity_sold
+                      &gt; 40                           
+                      ORDER BY prod_id
+</pre>
+<p>The output shows that the plan is accepted, which means that it is in the plan baseline for the statement. Also, the origin is <code class="codeph">MANUAL-LOAD</code>, which means that the statement was loaded manually rather than automatically captured.</p>
+</li>
+</ol>
+<div class="infoboxnotealso" id="GUID-C7C5AEF7-5833-4780-81CF-C40CE6B43571__GUID-00BA708C-2663-44E3-811D-3F31AD82EF76">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS150" target="_blank" href="../ARPLS/d_spm.htm#ARPLS150"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn how to use the <code class="codeph">DBMS_SPM.LOAD_PLANS_FROM_CURSOR_CACHE</code> function</p>
+</li>
+<li>
+<p><a class="olink REFRN23714" target="_blank" href="../REFRN/GUID-101D8477-5600-4659-9A3C-9528391E500D.htm#REFRN23714"><span><cite>Oracle Database Reference</cite></span></a> to learn more about the <code class="codeph">DBA_SQL_PLAN_BASELINES</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94972"></a><a id="TGSQL652"></a>
+<div class="props_rev_3"><a id="GUID-406BA5D3-29DE-4AF7-B5D2-8B488297023F"></a>
+<h3 id="TGSQL-GUID-406BA5D3-29DE-4AF7-B5D2-8B488297023F" class="sect3">Loading Plans from a Staging Table</h3>
+<div>
+<p>You may want to transfer optimal plans from a source database to a different destination database.</p>
+<div class="section">
+<p>For example, you may have investigated a set of plans on a test database and confirmed that they have performed well. You decide to load these plans into a production database.</p>
+<p>A staging table is a table that, for the duration of its existence, stores plans so that the plans do not disappear from the table while you are unpacking them. Use the <code class="codeph">DBMS.CREATE_STGTAB_BASELINE</code> procedure to create a staging table. To pack (insert row into) and unpack (extract rows from) the staging table, use the <code class="codeph">PACK_STGTAB_BASELINE</code> and <code class="codeph">UNPACK_STGTAB_BASELINE</code> functions of the <code class="codeph">DBMS_SPM</code> package. Oracle Data Pump Import and Export enable you to copy the staging table to a different database.</p>
+<p>The following graphic depicts the basic steps.</p>
+<div class="figure" id="GUID-406BA5D3-29DE-4AF7-B5D2-8B488297023F__GUID-FFFE50DB-912E-4A75-AF90-8944A1C9CAE5">
+<p class="titleinfigure">Figure 23-8 Loading Plans from a Staging Table</p>
+<img width="636" height="384" src="img/GUID-483E0689-967A-486A-8D90-BE3C56FE3AC5-default.png" alt="Description of Figure 23-8 follows" title="Description of Figure 23-8 follows"/><br/>
+<a href="img_text/GUID-483E0689-967A-486A-8D90-BE3C56FE3AC5-print.htm">Description of &#34;Figure 23-8 Loading Plans from a Staging Table&#34;</a></div>
+<!-- class="figure" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to create a staging table named <code class="codeph">stage1</code> in the source database.</p>
+</li>
+<li>
+<p>You want to load all plans owned by user <code class="codeph">spm</code> into the staging table.</p>
+</li>
+<li>
+<p>You want to transfer the staging table to a destination database.</p>
+</li>
+<li>
+<p>You want to load the plans in <code class="codeph">stage1</code> as fixed plans.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To transfer a set of SQL plan baselines from one database to another:</p>
+<ol>
+<li>
+<p>Using SQL*Plus, log in to the source database with the appropriate privileges, and then create a staging table using the <code class="codeph">CREATE_STGTAB_BASELINE</code> procedure.</p>
+<p>The following example creates a staging table named <code class="codeph">stage1</code>:</p>
+<pre dir="ltr">BEGIN
+  DBMS_SPM.CREATE_STGTAB_BASELINE (
+    table_name =&gt; &#39;stage1&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>On the source database, pack the SQL plan baselines you want to export from the SQL management base into the staging table.</p>
+<p>The following example packs enabled plan baselines created by user <code class="codeph">spm</code> into staging table <code class="codeph">stage1</code>. Select SQL plan baselines using the plan name (<code class="codeph">plan_name</code>), SQL handle (<code class="codeph">sql_handle</code>), or any other plan criteria. The <code class="codeph">table_name</code> parameter is mandatory.</p>
+<pre dir="ltr">DECLARE
+  v_plan_cnt NUMBER;
+BEGIN
+  v_plan_cnt := DBMS_SPM.PACK_STGTAB_BASELINE (
+    table_name =&gt; &#39;stage1&#39;
+,   enabled    =&gt; &#39;yes&#39;
+,   creator    =&gt; &#39;spm&#39;
+);
+END;
+/
+</pre></li>
+<li>
+<p>Export the staging table <code class="codeph">stage1</code> into a dump file using Oracle Data Pump Export.</p>
+</li>
+<li>
+<p>Transfer the dump file to the host of the destination database.</p>
+</li>
+<li>
+<p>On the destination database, import the staging table <code class="codeph">stage1</code> from the dump file using the Oracle Data Pump Import utility.</p>
+</li>
+<li>
+<p>On the destination database, unpack the SQL plan baselines from the staging table into the SQL management base.</p>
+<p>The following example unpacks all fixed plan baselines stored in the staging table <code class="codeph">stage1</code>:</p>
+<pre dir="ltr">DECLARE
+  v_plan_cnt NUMBER;
+BEGIN
+  v_plan_cnt := DBMS_SPM.UNPACK_STGTAB_BASELINE (
+    table_name =&gt; &#39;stage1&#39;
+,   fixed      =&gt; &#39;yes&#39;
+);
+END;
+/
+</pre></li>
+</ol>
+<div class="infoboxnotealso" id="GUID-406BA5D3-29DE-4AF7-B5D2-8B488297023F__GUID-CD28EF75-6A13-431A-90CB-3ABD93BCB70B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS150" target="_blank" href="../ARPLS/d_spm.htm#ARPLS150"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> for more information about using the <code class="codeph">DBMS_SPM</code> package</p>
+</li>
+<li>
+<p><a class="olink SUTIL100" target="_blank" href="../SUTIL/GUID-17FAE261-0972-4220-A2E4-44D479F519D4.htm#SUTIL100"><span><cite>Oracle Database Utilities</cite></span></a> for detailed information about using the Data Pump Export and Import utilities</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL653"></a>
+<div class="props_rev_3"><a id="GUID-19E6FFB0-BC7A-4CDB-AE36-6D67C15C7332"></a>
+<h2 id="TGSQL-GUID-19E6FFB0-BC7A-4CDB-AE36-6D67C15C7332" class="sect2">Evolving SQL Plan Baselines Manually</h2>
+<div>
+<p>Oracle recommends that you configure the SQL Plan Management Evolve task to run automatically. You can also use PL/SQL or Cloud Control to manually evolve an unaccepted plan to determine whether it performs better than any plan currently in the plan baseline.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_spm.htm#GUID-15A23B74-8B43-49EA-83CE-14F2C209C9A9" title="This topic describes the most relevant DBMS_SPM functions for managing plan evolution. Execute evolution tasks manually or schedule them to run automatically.">About the DBMS_SPM Evolve Functions</a></p>
+</li>
+<li>
+<p><a href="tgsql_spm.htm#GUID-528D51FD-E109-488A-B1EF-9B736E78901A" title="This topic describes a typical use case in which you create and execute a task, and then implement its recommendations.">Managing an Evolve Task</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-19E6FFB0-BC7A-4CDB-AE36-6D67C15C7332__GUID-981975F8-72CE-403A-8F93-152FF4AB7DD4">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-A94CFA49-910A-4237-A7BB-39BFA94E227E" title="SPM Evolve Advisor is a SQL advisor that evolves plans that have recently been added to the SQL plan baseline. The advisor simplifies plan evolution by eliminating the requirement to do it manually.">Managing the SPM Evolve Advisor Task</a>&#34;</span></p>
+</div>
+</div>
+<a id="TGSQL94616"></a><a id="TGSQL94652"></a><a id="TGSQL94651"></a>
+<div class="props_rev_3"><a id="GUID-15A23B74-8B43-49EA-83CE-14F2C209C9A9"></a>
+<h3 id="TGSQL-GUID-15A23B74-8B43-49EA-83CE-14F2C209C9A9" class="sect3">About the DBMS_SPM Evolve Functions</h3>
+<div>
+<p>This topic describes the most relevant <code class="codeph">DBMS_SPM</code> functions for managing plan evolution. Execute evolution tasks manually or schedule them to run automatically.</p>
+<div class="tblformal" id="GUID-15A23B74-8B43-49EA-83CE-14F2C209C9A9__CDEGCFDF">
+<p class="titleintable">Table 23-5 DBMS_SPM Functions and Procedures for Managing Plan Evolution Tasks</p>
+<table class="cellalignment4808" title="DBMS_SPM Functions and Procedures for Managing Plan Evolution Tasks" summary="This 3 column table lists the procedures and functions for managing plan evolution. Column 1 is the procedure or function. Column 2 is a description.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4903" id="d124673e5226">Procedure or Function</th>
+<th class="cellalignment4904" id="d124673e5229">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4905" id="d124673e5234" headers="d124673e5226">
+<p><code class="codeph">ACCEPT_SQL_PLAN_BASELINE</code></p>
+</td>
+<td class="cellalignment4906" headers="d124673e5234 d124673e5229">
+<p>This function accepts one recommendation to evolve a single plan into a SQL plan baseline.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4905" id="d124673e5242" headers="d124673e5226">
+<p><code class="codeph">CREATE_EVOLVE_TASK</code></p>
+</td>
+<td class="cellalignment4906" headers="d124673e5242 d124673e5229">
+<p>This function creates an advisor task to prepare the <a href="glossary.htm#GUID-EB0CDE30-5FFF-4F51-A06D-AB60811B242F"><span class="xrefglossterm">plan evolution</span></a> of one or more plans for a specified SQL statement. The input parameters can be a <a href="glossary.htm#GUID-73B75657-B353-4201-8465-796B20C1A6C6"><span class="xrefglossterm">SQL handle</span></a>, plan name or a list of plan names, time limit, task name, and description.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4905" id="d124673e5256" headers="d124673e5226">
+<p><code class="codeph">EXECUTE_EVOLVE_TASK</code></p>
+</td>
+<td class="cellalignment4906" headers="d124673e5256 d124673e5229">
+<p>This function executes an evolution task. The input parameters can be the task name, execution name, and execution description. If not specified, the advisor generates the name, which is returned by the function.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4905" id="d124673e5264" headers="d124673e5226">
+<p><code class="codeph">IMPLEMENT_EVOLVE_TASK</code></p>
+</td>
+<td class="cellalignment4906" headers="d124673e5264 d124673e5229">
+<p>This function implements all recommendations for an evolve task. Essentially, this function is equivalent to using <code class="codeph">ACCEPT_SQL_PLAN_BASELINE</code> for all recommended plans. Input parameters include task name, plan name, owner name, and execution name.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4905" id="d124673e5275" headers="d124673e5226">
+<p><code class="codeph">REPORT_EVOLVE_TASK</code></p>
+</td>
+<td class="cellalignment4906" headers="d124673e5275 d124673e5229">
+<p>This function displays the results of an evolve task as a <code class="codeph">CLOB</code>. Input parameters include the task name and section of the report to include.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4905" id="d124673e5286" headers="d124673e5226">
+<p><code class="codeph">SET_EVOLVE_TASK_PARAMETER</code></p>
+</td>
+<td class="cellalignment4906" headers="d124673e5286 d124673e5229">
+<p>This function updates the value of an evolve task parameter. In this release, the only valid parameter is <code class="codeph">TIME_LIMIT</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Oracle recommends that you configure SPM Evolve Advisor to run automatically. You can also evolve SQL plan baselines manually. The following graphic shows the basic workflow for managing SQL plan management tasks.</p>
+<div class="figure" id="GUID-15A23B74-8B43-49EA-83CE-14F2C209C9A9__CDEGEHCC">
+<p class="titleinfigure">Figure 23-9 Evolving SQL Plan Baselines</p>
+<img width="396" height="272" src="img/GUID-E4D67EB7-665F-46DE-B70A-EEB3F0588F98-default.png" alt="Description of Figure 23-9 follows" title="Description of Figure 23-9 follows"/><br/>
+<a href="img_text/GUID-E4D67EB7-665F-46DE-B70A-EEB3F0588F98-print.htm">Description of &#34;Figure 23-9 Evolving SQL Plan Baselines&#34;</a></div>
+<!-- class="figure" -->
+<p>Typically, you manage SQL plan evolution tasks in the following sequence:</p>
+<ol>
+<li>
+<p>Create an evolve task</p>
+</li>
+<li>
+<p>Optionally, set evolve task parameters</p>
+</li>
+<li>
+<p>Execute the evolve task</p>
+</li>
+<li>
+<p>Implement the recommendations in the task</p>
+</li>
+<li>
+<p>Report on the task outcome</p>
+</li>
+</ol>
+<div class="infoboxnotealso" id="GUID-15A23B74-8B43-49EA-83CE-14F2C209C9A9__GUID-61EF304D-E301-459F-B819-1085D09BF8DE">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_spm.htm#GUID-541EBA4B-4F7D-42DD-A152-C06BDE69D828" title="The DBMS_SPM package enables you to configure automatic plan evolution by specifying the task parameters using the SET_EVOLVE_TASK_PARAMETER procedure. Because the task is owned by SYS, only SYS can set task parameters.">Configuring the Automatic SPM Evolve Advisor Task</a>&#34;</span>)</p>
+</li>
+<li>
+<p><a class="olink ARPLS150" target="_blank" href="../ARPLS/d_spm.htm#ARPLS150"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> for more information about the <code class="codeph">DBMS_SPM</code> package</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL654"></a><a id="TGSQL94973"></a><a id="TGSQL655"></a><a id="TGSQL656"></a><a id="TGSQL94810"></a><a id="TGSQL94653"></a>
+<div class="props_rev_3"><a id="GUID-528D51FD-E109-488A-B1EF-9B736E78901A"></a>
+<h3 id="TGSQL-GUID-528D51FD-E109-488A-B1EF-9B736E78901A" class="sect3">Managing an Evolve Task</h3>
+<div>
+<p>This topic describes a typical use case in which you create and execute a task, and then implement its recommendations.</p>
+<div class="section">
+<p>The following table describes some parameters of the <code class="codeph">CREATE_EVOLVE_TASK</code> function.</p>
+<div class="tblformal" id="GUID-528D51FD-E109-488A-B1EF-9B736E78901A__CDEFCHHA">
+<p class="titleintable">Table 23-6 DBMS_SPM.CREATE_EVOLVE_TASK Parameters</p>
+<table class="cellalignment4808" title="DBMS_SPM.CREATE_EVOLVE_TASK Parameters" summary="This 2 column table lists the parameters for the CREATE_EVOLVE_TASK function. Column 1 is the parameter. Column 2 describes that parameter.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4891" id="d124673e5468">Function Parameter</th>
+<th class="cellalignment4907" id="d124673e5471">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4894" id="d124673e5476" headers="d124673e5468">
+<p><code class="codeph">sql_handle</code></p>
+</td>
+<td class="cellalignment4908" headers="d124673e5476 d124673e5471">
+<p>SQL handle of the statement. The default <code class="codeph">NULL</code> considers all SQL statements with unaccepted plans.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4894" id="d124673e5487" headers="d124673e5468">
+<p><code class="codeph">plan_name</code></p>
+</td>
+<td class="cellalignment4908" headers="d124673e5487 d124673e5471">
+<p>Plan identifier. The default <code class="codeph">NULL</code> means consider all unaccepted plans of the specified SQL handle or all SQL statements if the SQL handle is <code class="codeph">NULL</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4894" id="d124673e5502" headers="d124673e5468">
+<p><code class="codeph">time_limit</code></p>
+</td>
+<td class="cellalignment4908" headers="d124673e5502 d124673e5471">
+<p>Time limit in number of minutes. The time limit for first unaccepted plan equals the input value. The time limit for the second unaccepted plan equals the input value minus the time spent in first plan verification, and so on. The default <code class="codeph">DBMS_SPM.AUTO_LIMIT</code> means let the system choose an appropriate time limit based on the number of plan verifications required to be done.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4894" id="d124673e5514" headers="d124673e5468">
+<p><code class="codeph">task_name</code></p>
+</td>
+<td class="cellalignment4908" headers="d124673e5514 d124673e5471">
+<p>User-specified name of the evolution task.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>This section explains how to evolve plan baselines from the command line. In Cloud Control, from the SQL Plan Baseline subpage, select a plan, and then click <span class="bold">Evolve</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="p">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You do not have the automatic evolve task enabled (see <span class="q">&#34;<a href="tgsql_spm.htm#GUID-A94CFA49-910A-4237-A7BB-39BFA94E227E" title="SPM Evolve Advisor is a SQL advisor that evolves plans that have recently been added to the SQL plan baseline. The advisor simplifies plan evolution by eliminating the requirement to do it manually.">Managing the SPM Evolve Advisor Task</a>&#34;</span>).</p>
+</li>
+<li>
+<p>You want to create a SQL plan baseline for the following query:</p>
+<pre dir="ltr">SELECT /* q1_group_by */ prod_name, sum(quantity_sold)
+FROM   products p, sales s
+WHERE  p.prod_id = s.prod_id
+AND    p.prod_category_id =203
+GROUP BY prod_name;
+</pre></li>
+<li>
+<p>You want to create two indexes to improve the query performance, and then evolve the plan that uses these indexes if it performs better than the plan currently in the plan baseline.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To evolve a specified plan:</p>
+<ol>
+<li>
+<p>Perform the initial setup as follows:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with administrator privileges, and then prepare for the tutorial by flushing the shared pool and the buffer cache:</p>
+<pre dir="ltr">ALTER SYSTEM FLUSH SHARED_POOL;
+ALTER SYSTEM FLUSH BUFFER_CACHE;
+</pre></li>
+<li>
+<p>Enable the automatic capture of SQL plan baselines.</p>
+<p>For example, enter the following statement:</p>
+<pre dir="ltr">ALTER SYSTEM SET OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES=true;
+</pre></li>
+<li>
+<p>Connect to the database as user <code class="codeph">sh</code>, and then set SQL*Plus display parameters:</p>
+<pre dir="ltr">CONNECT sh
+-- enter password
+SET PAGES 10000 LINES 140
+SET SERVEROUTPUT ON
+COL SQL_TEXT FORMAT A20
+COL SQL_HANDLE FORMAT A20
+COL PLAN_NAME FORMAT A30
+COL ORIGIN FORMAT A12
+SET LONGC 60535
+SET LONG 60535
+SET ECHO ON
+</pre></li>
+</ol>
+</li>
+<li>
+<p>Execute the <code class="codeph">SELECT</code> statements so that SQL plan management captures them:</p>
+<ol>
+<li>
+<p>Execute the <code class="codeph">SELECT /* q1_group_by */</code> statement for the first time.</p>
+<p>Because the database only captures plans for repeatable statements, the plan baseline for this statement is empty.</p>
+</li>
+<li>
+<p>Query the data dictionary to confirm that no plans exist in the plan baseline.</p>
+<p>For example, execute the following query (sample output included):</p>
+<pre dir="ltr">SELECT SQL_HANDLE, SQL_TEXT, PLAN_NAME, ORIGIN, ENABLED, 
+       ACCEPTED, FIXED, AUTOPURGE
+FROM   DBA_SQL_PLAN_BASELINES
+WHERE  SQL_TEXT LIKE &#39;%q1_group%&#39;;
+
+no rows selected
+</pre>
+<p>SQL plan management only captures repeatable statements, so this result is expected.</p>
+</li>
+<li>
+<p>Execute the <code class="codeph">SELECT /* q1_group_by */</code> statement for the second time.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Query the data dictionary to ensure that the plans were loaded into the plan baseline for the statement.</p>
+<p>The following statement queries <code class="codeph">DBA_SQL_PLAN_BASELINES</code> (sample output included):</p>
+<pre dir="ltr">SELECT SQL_HANDLE, SQL_TEXT, PLAN_NAME,
+       ORIGIN, ENABLED, ACCEPTED, FIXED 
+FROM   DBA_SQL_PLAN_BASELINES
+WHERE  SQL_TEXT LIKE &#39;%q1_group%&#39;;
+ 
+SQL_HANDLE           SQL_TEXT         PLAN_NAME                      ORIGIN       ENA ACC FIX
+-------------------- ---------------- ------------------------------ ------------ --- --- ---
+SQL_07f16c76ff893342 SELECT /* q1_gro SQL_PLAN_0gwbcfvzskcu242949306 <span class="bold">AUTO-CAPTURE</span> YES <span class="bold">YES</span> NO
+                     up_by */ prod_na
+                     me, sum(quantity
+                     _sold) FROM 
+                     products p, 
+                     sales s WHERE 
+                     p.prod_id = 
+                     s.prod_id AND
+                     p.prod_category
+                     _id =203 GROUP
+                     BY prod_name
+</pre>
+<p>The output shows that the plan is accepted, which means that it is in the plan baseline for the statement. Also, the origin is <code class="codeph">AUTO-CAPTURE</code>, which means that the statement was automatically captured and not manually loaded.</p>
+</li>
+<li>
+<p>Explain the plan for the statement and verify that the optimizer is using this plan.</p>
+<p>For example, explain the plan as follows, and then display it:</p>
+<pre dir="ltr">EXPLAIN PLAN FOR  
+  SELECT /* q1_group_by */ prod_name, sum(quantity_sold)
+  FROM   products p, sales s
+  WHERE  p.prod_id = s.prod_id
+  AND    p.prod_category_id =203
+  GROUP BY prod_name;
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY(null, null, &#39;basic +note&#39;));
+</pre>
+<p>Sample output appears below:</p>
+<pre dir="ltr">Plan hash value: 1117033222
+ 
+------------------------------------------
+| Id  | Operation             | Name     |
+------------------------------------------
+|   0 | SELECT STATEMENT      |          |
+|   1 |  HASH GROUP BY        |          |
+|   2 |   HASH JOIN           |          |
+|   3 |    TABLE ACCESS FULL  | PRODUCTS |
+|   4 |    PARTITION RANGE ALL|          |
+|   5 |     TABLE ACCESS FULL | SALES    |
+------------------------------------------
+ 
+Note
+-----
+   - SQL plan baseline &#34;SQL_PLAN_0gwbcfvzskcu242949306&#34; used for this statement
+</pre>
+<p>The note indicates that the optimizer is using the plan shown with the plan name listed in the previous step.</p>
+</li>
+<li>
+<p>Create two indexes to improve the performance of the <code class="codeph">SELECT /* q1_group_by */</code> statement.</p>
+<p>For example, use the following statements:</p>
+<pre dir="ltr">CREATE INDEX ind_prod_cat_name 
+  ON products(prod_category_id, prod_name, prod_id);
+CREATE INDEX ind_sales_prod_qty_sold 
+  ON sales(prod_id, quantity_sold);
+</pre></li>
+<li>
+<p>Execute the <code class="codeph">select /* q1_group_by */</code> statement again.</p>
+<p>Because automatic capture is enabled, the plan baseline is populated with the new plan for this statement.</p>
+</li>
+<li>
+<p>Query the data dictionary to ensure that the plan was loaded into the SQL plan baseline for the statement.</p>
+<p>The following statement queries <code class="codeph">DBA_SQL_PLAN_BASELINES</code> (sample output included).</p>
+<pre dir="ltr">SELECT SQL_HANDLE, SQL_TEXT, PLAN_NAME, ORIGIN, ENABLED, ACCEPTED
+FROM   DBA_SQL_PLAN_BASELINES
+WHERE  SQL_HANDLE IN (&#39;SQL_07f16c76ff893342&#39;)
+ORDER BY SQL_HANDLE, ACCEPTED;
+
+SQL_HANDLE           SQL_TEXT             PLAN_NAME                      ORIGIN       ENA ACC
+-------------------- -------------------- ------------------------------ ------------ --- ---
+SQL_07f16c76ff893342 SELECT /* q1_group_b SQL_PLAN_0gwbcfvzskcu20135fd6c AUTO-CAPTURE YES <span class="bold">NO</span>
+                     y */ prod_name, sum(
+                     quantity_sold)
+                     FROM   products p, s
+                     ales s
+                     WHERE  p.prod_id = s
+                     .prod_id
+                     AND    p.prod_catego
+                     ry_id =203
+                     GROUP BY prod_name
+ 
+SQL_07f16c76ff893342 SELECT /* q1_group_b SQL_PLAN_0gwbcfvzskcu242949306 AUTO-CAPTURE YES YES
+                     y */ prod_name, sum(
+                     quantity_sold)
+                     FROM   products p, s
+                     ales s
+                     WHERE  p.prod_id = s
+                     .prod_id
+                     AND    p.prod_catego
+                     ry_id =203
+                     GROUP BY prod_name
+</pre>
+<p>The output shows that the new plan is unaccepted, which means that it is in the statement history but not the SQL plan baseline.</p>
+</li>
+<li>
+<p>Explain the plan for the statement and verify that the optimizer is using the original nonindexed plan.</p>
+<p>For example, explain the plan as follows, and then display it:</p>
+<pre dir="ltr">EXPLAIN PLAN FOR
+  SELECT /* q1_group_by */ prod_name, sum(quantity_sold)
+  FROM   products p, sales s
+  WHERE  p.prod_id = s.prod_id
+  AND    p.prod_category_id =203
+  GROUP BY prod_name;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY(null, null, &#39;basic +note&#39;));
+</pre>
+<p>Sample output appears below:</p>
+<pre dir="ltr">Plan hash value: 1117033222
+ 
+------------------------------------------
+| Id  | Operation             | Name     |
+------------------------------------------
+|   0 | SELECT STATEMENT      |          |
+|   1 |  HASH GROUP BY        |          |
+|   2 |   HASH JOIN           |          |
+|   3 |    TABLE ACCESS FULL  | PRODUCTS |
+|   4 |    PARTITION RANGE ALL|          |
+|   5 |     TABLE ACCESS FULL | SALES    |
+------------------------------------------
+ 
+Note
+-----
+   - SQL plan baseline &#34;SQL_PLAN_0gwbcfvzskcu242949306&#34; used for this statement
+</pre>
+<p>The note indicates that the optimizer is using the plan shown with the plan name listed in Step 3.</p>
+</li>
+<li>
+<p>Connect as an administrator, and then create an evolve task that considers all SQL statements with unaccepted plans.</p>
+<p>For example, execute the <code class="codeph">DBMS_SPM.CREATE_EVOLVE_TASK</code> function and then obtain the name of the task:</p>
+<pre dir="ltr">CONNECT / AS SYSDBA
+VARIABLE cnt NUMBER
+VARIABLE tk_name VARCHAR2(50)
+VARIABLE exe_name VARCHAR2(50)
+VARIABLE evol_out CLOB
+ 
+EXECUTE :tk_name := DBMS_SPM.CREATE_EVOLVE_TASK( 
+  sql_handle =&gt; &#39;SQL_07f16c76ff893342&#39;, 
+  plan_name  =&gt; &#39;SQL_PLAN_0gwbcfvzskcu20135fd6c&#39;);
+ 
+SELECT :tk_name FROM DUAL;
+</pre>
+<p>The following sample output shows the name of the task:</p>
+<pre dir="ltr">:EVOL_OUT
+--------------------------------------------------------------------------
+TASK_11
+</pre>
+<p>Now that the task has been created and has a unique name, execute the task.</p>
+</li>
+<li>
+<p>Execute the task.</p>
+<p>For example, execute the <code class="codeph">DBMS_SPM.EXECUTE_EVOLVE_TASK</code> function (sample output included):</p>
+<pre dir="ltr">EXECUTE :exe_name :=DBMS_SPM.EXECUTE_EVOLVE_TASK(task_name=&gt;:tk_name); 
+SELECT :exe_name FROM DUAL;
+
+:EXE_NAME
+---------------------------------------------------------------------------
+EXEC_1
+</pre></li>
+<li>
+<p>View the report.</p>
+<p>For example, execute the <code class="codeph">DBMS_SPM.REPORT_EVOLVE_TASK</code> function (sample output included):</p>
+<pre dir="ltr">EXECUTE :evol_out := DBMS_SPM.REPORT_EVOLVE_TASK( task_name=&gt;:tk_name, execution_name=&gt;:exe_name );
+SELECT :evol_out FROM DUAL;
+
+GENERAL INFORMATION SECTION
+--------------------------------------------------------------------------
+ 
+ Task Information:
+ ---------------------------------------------
+ Task Name            : TASK_11
+ Task Owner           : SYS
+ Execution Name       : EXEC_1
+ Execution Type       : SPM EVOLVE
+ Scope                : COMPREHENSIVE
+ Status               : COMPLETED
+ Started              : 01/09/2012 12:21:27
+ Finished             : 01/09/2012 12:21:29
+ Last Updated         : 01/09/2012 12:21:29
+ Global Time Limit    : 2147483646
+ Per-Plan Time Limit  : UNUSED
+ Number of Errors     : 0
+---------------------------------------------------------------------------
+ 
+SUMMARY SECTION
+---------------------------------------------------------------------------
+  Number of plans processed  : 1
+  Number of findings         : 1
+  Number of recommendations  : 1
+  Number of errors           : 0
+---------------------------------------------------------------------------
+ 
+DETAILS SECTION
+---------------------------------------------------------------------------
+ Object ID         : 2
+ Test Plan Name    : SQL_PLAN_0gwbcfvzskcu20135fd6c
+ Base Plan Name    : SQL_PLAN_0gwbcfvzskcu242949306
+ SQL Handle        : SQL_07f16c76ff893342
+ Parsing Schema    : SH
+ Test Plan Creator : SH
+ SQL Text          : SELECT /*q1_group_by*/ prod_name, 
+                     sum(quantity_sold) 
+                     FROM products p, sales s 
+                     WHERE p.prod_id=s.prod_id AND p.prod_category_id=203 
+                     GROUP BY prod_name
+ 
+Execution Statistics:
+-----------------------------
+                    Base Plan                     Test Plan
+                    ----------------------------  ------------------------
+ Elapsed Time (s):  .044336                       .012649
+ CPU Time (s):      .044003                       .012445
+ Buffer Gets:       360                           99
+ Optimizer Cost:    924                           891
+ Disk Reads:        341                           82
+ Direct Writes:     0                             0
+ Rows Processed:    4                             2
+ Executions:        5                             9
+ 
+ 
+FINDINGS SECTION
+---------------------------------------------------------------------------
+ 
+<span class="bold">Findings</span> <span class="bold">(1):</span>
+<span class="bold">-----------------------------</span>
+<span class="bold"> 1.</span> <span class="bold">The plan was verified in 2.18 seconds. It passed the benefit criterion</span>
+    <span class="bold">because its verified performance was 2.01 times better than that of the</span>
+    <span class="bold">baseline plan.</span>
+ 
+Recommendation:
+-----------------------------
+ Consider accepting the plan. Execute
+ dbms_spm.accept_sql_plan_baseline(task_name =&gt; &#39;TASK_11&#39;, object_id =&gt; 2,
+ task_owner =&gt; &#39;SYS&#39;);
+ 
+EXPLAIN PLANS SECTION
+---------------------------------------------------------------------------
+ 
+Baseline Plan
+-----------------------------
+ Plan Id          : 1
+ Plan Hash Value  : 1117033222
+ 
+---------------------------------------------------------------------------
+| Id| Operation               | Name     | Rows | Bytes   |Cost | Time    |
+---------------------------------------------------------------------------
+| 0 | SELECT STATEMENT        |          |   21 |     861 | 924 | 00:00:12|
+| 1 |   HASH GROUP BY         |          |   21 |     861 | 924 | 00:00:12|
+| *2|    HASH JOIN            |          |267996|10987836 | 742 | 00:00:09|
+| *3|     TABLE ACCESS FULL   | PRODUCTS |   21 |     714 |   2 | 00:00:01|
+| 4 |     PARTITION RANGE ALL |          |918843| 6431901 | 662 | 00:00:08|
+| 5 |      TABLE ACCESS FULL  | SALES    |918843| 6431901 | 662 | 00:00:08|
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+------------------------------------------
+* 2 - access(&#34;P&#34;.&#34;PROD_ID&#34;=&#34;S&#34;.&#34;PROD_ID&#34;)
+* 3 - filter(&#34;P&#34;.&#34;PROD_CATEGORY_ID&#34;=203)
+  
+Test Plan
+-----------------------------
+ Plan Id          : 2
+ Plan Hash Value  : 20315500
+ 
+---------------------------------------------------------------------------
+|Id| Operation            | Name             | Rows | Bytes  | Cost| Time |
+---------------------------------------------------------------------------
+| 0|SELECT STATEMENT      |                  |    21|     861|891|00:00:11|
+| 1|  SORT GROUP BY NOSORT|                  |    21|     861|891|00:00:11|
+| 2|   NESTED LOOPS       |                  |267996|10987836|891|00:00:11|
+|*3|    INDEX RANGE SCAN  |IND_PROD_CAT_NAME |    21|     714|  1|00:00:01|
+|*4|    INDEX RANGE SCAN  |IND_SALES_PROD_QTY| 12762|   89334| 42|00:00:01|
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+------------------------------------------
+* 3 - access(&#34;P&#34;.&#34;PROD_CATEGORY_ID&#34;=203)
+* 4 - access(&#34;P&#34;.&#34;PROD_ID&#34;=&#34;S&#34;.&#34;PROD_ID&#34;)
+</pre>
+<p>This report indicates that the new execution plan, which uses the two new indexes, performs better than the original plan.</p>
+</li>
+<li>
+<p>Implement the recommendations of the evolve task.</p>
+<p>For example, execute the <code class="codeph">IMPLEMENT_EVOLVE_TASK</code> function:</p>
+<pre dir="ltr">EXECUTE :cnt := DBMS_SPM.IMPLEMENT_EVOLVE_TASK( task_name=&gt;:tk_name, execution_name=&gt;:exe_name );
+</pre></li>
+<li>
+<p>Query the data dictionary to ensure that the new plan is accepted.</p>
+<p>The query provides the following sample output:</p>
+<pre dir="ltr">SELECT SQL_HANDLE, SQL_TEXT, PLAN_NAME, ORIGIN, ENABLED, ACCEPTED
+FROM   DBA_SQL_PLAN_BASELINES
+WHERE  SQL_HANDLE IN (&#39;SQL_07f16c76ff893342&#39;)
+ORDER BY SQL_HANDLE, ACCEPTED;
+
+SQL_HANDLE           SQL_TEXT             PLAN_NAME                      ORIGIN       ENA ACC
+-------------------- -------------------- ------------------------------ ------------ --- ---
+SQL_07f16c76ff893342 SELECT /* q1_group_b SQL_PLAN_0gwbcfvzskcu20135fd6c AUTO-CAPTURE YES <span class="bold">YES</span>
+                     y */ prod_name, sum(
+                     quantity_sold)
+                     FROM   products p, s
+                     ales s
+                     WHERE  p.prod_id = s
+                     .prod_id
+                     AND    p.prod_catego
+                     ry_id =203
+                     GROUP BY prod_name
+ 
+SQL_07f16c76ff893342 SELECT /* q1_group_b SQL_PLAN_0gwbcfvzskcu242949306 AUTO-CAPTURE YES YES
+                     y */ prod_name, sum(
+                     quantity_sold)
+                     FROM   products p, s
+                     ales s
+                     WHERE  p.prod_id = s
+                     .prod_id
+                     AND    p.prod_catego
+                     ry_id =203
+                     GROUP BY prod_name
+</pre>
+<p>The output shows that the new plan is accepted.</p>
+</li>
+<li>
+<p>Clean up after the example.</p>
+<p>For example, enter the following statements:</p>
+<pre dir="ltr">EXEC :cnt := DBMS_SPM.DROP_SQL_PLAN_BASELINE(&#39;SQL_07f16c76ff893342&#39;);
+EXEC :cnt := DBMS_SPM.DROP_SQL_PLAN_BASELINE(&#39;SQL_9049245213a986b3&#39;);
+EXEC :cnt := DBMS_SPM.DROP_SQL_PLAN_BASELINE(&#39;SQL_bb77077f5f90a36b&#39;);
+EXEC :cnt := DBMS_SPM.DROP_SQL_PLAN_BASELINE(&#39;SQL_02a86218930bbb20&#39;);
+DELETE FROM SQLLOG$;
+CONNECT sh
+-- enter password
+DROP INDEX IND_SALES_PROD_QTY_SOLD;
+DROP INDEX IND_PROD_CAT_NAME;
+</pre></li>
+</ol>
+<div class="infoboxnotealso" id="GUID-528D51FD-E109-488A-B1EF-9B736E78901A__GUID-E3A8F265-C0B4-4E93-B365-124E924F0C21">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS150" target="_blank" href="../ARPLS/d_spm.htm#ARPLS150"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn more about the <code class="codeph">DBMS_SPM</code> evolve functions</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL659"></a><a id="TGSQL94974"></a><a id="TGSQL660"></a><a id="TGSQL658"></a>
+<div class="props_rev_3"><a id="GUID-BA19EA4E-AFEF-4677-B08F-854DE59ED932"></a>
+<h2 id="TGSQL-GUID-BA19EA4E-AFEF-4677-B08F-854DE59ED932" class="sect2">Dropping SQL Plan Baselines</h2>
+<div>
+<p>You can remove some or all plans from a SQL plan baseline. This technique is sometimes useful when testing SQL plan management.</p>
+<div class="section">
+<p>Drop plans with the <code class="codeph">DBMS_SPM.DROP_SQL_PLAN_BASELINE</code> function. This function returns the number of dropped plans. The following table describes input parameters.</p>
+<div class="tblformal" id="GUID-BA19EA4E-AFEF-4677-B08F-854DE59ED932__GUID-84D20EAF-6112-4C56-8AD1-E4156BB48927">
+<p class="titleintable">Table 23-7 DROP_SQL_PLAN_BASELINE Parameters</p>
+<table class="cellalignment4808" title="DROP_SQL_PLAN_BASELINE Parameters" summary="This 2 column table lists DROP_SQL_PLAN_BASELINE Parameters. Column 1 is the parameter. Column 2 describes that parameter.">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4909" id="d124673e5897">Function Parameter</th>
+<th class="cellalignment4910" id="d124673e5900">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d124673e5905" headers="d124673e5897">
+<p><code class="codeph">sql_handle</code></p>
+</td>
+<td class="cellalignment4912" headers="d124673e5905 d124673e5900">
+<p>SQL statement identifier.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4911" id="d124673e5913" headers="d124673e5897">
+<p><code class="codeph">plan_name</code></p>
+</td>
+<td class="cellalignment4912" headers="d124673e5913 d124673e5900">
+<p>Name of a specific plan. Default <code class="codeph">NULL</code> drops all plans associated with the SQL statement identified by <code class="codeph">sql_handle</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>This section explains how to drop baselines from the command line. In Cloud Control, from the SQL Plan Baseline subpage, select a plan, and then click <span class="bold">Drop</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="p">
+<p>This tutorial assumes that you want to drop all plans for the following SQL statement, effectively dropping the SQL plan baseline:</p>
+<pre dir="ltr">SELECT /* repeatable_sql */ COUNT(*) FROM hr.jobs;
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To drop a SQL plan baseline:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then query the data dictionary for the plan baseline.</p>
+<p>The following statement queries <code class="codeph">DBA_SQL_PLAN_BASELINES</code> (sample output included):</p>
+<pre dir="ltr">SQL&gt; SELECT SQL_HANDLE, SQL_TEXT, PLAN_NAME, ORIGIN,
+  2         ENABLED, ACCEPTED
+  3  FROM   DBA_SQL_PLAN_BASELINES
+  4  WHERE  SQL_TEXT LIKE &#39;SELECT /* repeatable_sql%&#39;;
+ 
+SQL_HANDLE           SQL_TEXT             PLAN_NAME                      ORIGIN         ENA ACC
+-------------------- -------------------- ------------------------------ -------------- --- ---
+SQL_b6b0d1c71cd1807b SELECT /* repeatable SQL_PLAN_bdc6jswfd303v2f1e9c20 AUTO-CAPTURE   YES YES
+                     _sql */ count(*) fro
+                     m hr.jobs
+</pre></li>
+<li>
+<p>Drop the SQL plan baseline for the statement.</p>
+<p>The following example drops the plan baseline with the SQL handle <code class="codeph">SQL_b6b0d1c71cd1807b</code>, and returns the number of dropped plans. Specify plan baselines using the plan name (<code class="codeph">plan_name</code>), SQL handle (<code class="codeph">sql_handle</code>), or any other plan criteria. The <code class="codeph">table_name</code> parameter is mandatory.</p>
+<pre dir="ltr">DECLARE
+  v_dropped_plans number;
+BEGIN
+  v_dropped_plans := DBMS_SPM.DROP_SQL_PLAN_BASELINE (
+     sql_handle =&gt; &#39;SQL_b6b0d1c71cd1807b&#39;
+);
+  DBMS_OUTPUT.PUT_LINE(&#39;dropped &#39; || v_dropped_plans || &#39; plans&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Confirm that the plans were dropped.</p>
+<p>For example, execute the following query:</p>
+<pre dir="ltr">SELECT SQL_HANDLE, SQL_TEXT, PLAN_NAME, ORIGIN,
+       ENABLED, ACCEPTED
+FROM   DBA_SQL_PLAN_BASELINES
+WHERE  SQL_TEXT LIKE &#39;SELECT /* repeatable_sql%&#39;;
+ 
+no rows selected
+</pre></li>
+</ol>
+<div class="infoboxnotealso" id="GUID-BA19EA4E-AFEF-4677-B08F-854DE59ED932__GUID-138F46C2-FC36-4AB4-AF7D-442F50352549">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68164" target="_blank" href="../ARPLS/d_spm.htm#ARPLS68164"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DROP_SQL_PLAN_BASELINE</code> function</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL662"></a><a id="TGSQL661"></a>
+<div class="props_rev_3"><a id="GUID-DE976D2B-DBAD-498F-B933-D16B06CA9D2A"></a>
+<h2 id="TGSQL-GUID-DE976D2B-DBAD-498F-B933-D16B06CA9D2A" class="sect2">Managing the SQL Management Base</h2>
+<div>
+<p>The SQL management base (SMB) is a part of the data dictionary that resides in the <code class="codeph">SYSAUX</code> tablespace. The SMB stores statement logs, plan histories, SQL plan baselines, and SQL profiles.</p>
+<div class="section">
+<p>This section explains how to change the disk space usage parameters for the SMB, and change the retention time for plans in the SMB.</p>
+<p>The <code class="codeph">DBA_SQL_MANAGEMENT_CONFIG</code> view shows the current configuration settings for the SMB. <a href="tgsql_spm.htm#GUID-DE976D2B-DBAD-498F-B933-D16B06CA9D2A__CDEGBJCA" title="initialization parameters for task">Table 23-8</a> describes the parameters in the <code class="codeph">PARAMETER_NAME</code> column.</p>
+<div class="tblformal" id="GUID-DE976D2B-DBAD-498F-B933-D16B06CA9D2A__CDEGBJCA">
+<p class="titleintable">Table 23-8 Parameters in DBA_SQL_MANAGEMENT_CONFIG.PARAMETER_NAME</p>
+<table class="cellalignment4808" title="Parameters in DBA_SQL_MANAGEMENT_CONFIG.PARAMETER_NAME" summary="initialization parameters for task">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4843" id="d124673e6097">Parameter</th>
+<th class="cellalignment4868" id="d124673e6100">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4845" id="d124673e6105" headers="d124673e6097">
+<p><code class="codeph">SPACE_BUDGET_PERCENT</code></p>
+</td>
+<td class="cellalignment4869" headers="d124673e6105 d124673e6100">
+<p>Maximum percent of <code class="codeph">SYSAUX</code> space that the SQL management base can use. The default is 10. The allowable range for this limit is between 1% and 50%.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4845" id="d124673e6116" headers="d124673e6097">
+<p><code class="codeph">PLAN_RETENTION_WEEKS</code></p>
+</td>
+<td class="cellalignment4869" headers="d124673e6116 d124673e6100">
+<p>Number of weeks to retain unused plans before they are purged. The default is 53.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" --></div>
+<a id="TGSQL94975"></a><a id="TGSQL663"></a>
+<div class="props_rev_3"><a id="GUID-DF2EC31E-7BAB-45BB-B3B4-F1D1A4A13019"></a>
+<h3 id="TGSQL-GUID-DF2EC31E-7BAB-45BB-B3B4-F1D1A4A13019" class="sect3">Changing the Disk Space Limit for the SMB</h3>
+<div>
+<div class="section">
+<p>A weekly background process measures the total space occupied by the SMB. When the defined limit is exceeded, the process writes a warning to the alert log. The database generates alerts weekly until either the SMB space limit is increased, the size of the <code class="codeph">SYSAUX</code> tablespace is increased, or the disk space used by the SMB is decreased by purging SQL management objects (SQL plan baselines or SQL profiles). This task explains how to change the limit with the <code class="codeph">DBMS_SPM.CONFIGURE</code> procedure.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The current SMB space limit is the default of 10%.</p>
+</li>
+<li>
+<p>You want to change the percentage limit to 30%</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To change the percentage limit of the SMB:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then query the data dictionary to see the current space budget percent.</p>
+<p>For example, execute the following query (sample output included):</p>
+<pre dir="ltr">SELECT PARAMETER_NAME, PARAMETER_VALUE AS &#34;%_LIMIT&#34;, 
+       ( SELECT sum(bytes/1024/1024) FROM DBA_DATA_FILES 
+         WHERE TABLESPACE_NAME = &#39;SYSAUX&#39; ) AS SYSAUX_SIZE_IN_MB,
+       PARAMETER_VALUE/100 * 
+       ( SELECT sum(bytes/1024/1024) FROM DBA_DATA_FILES 
+         WHERE TABLESPACE_NAME = &#39;SYSAUX&#39; ) AS &#34;CURRENT_LIMIT_IN_MB&#34;
+FROM DBA_SQL_MANAGEMENT_CONFIG
+WHERE PARAMETER_NAME = &#39;SPACE_BUDGET_PERCENT&#39;;
+
+PARAMETER_NAME          %_LIMIT SYSAUX_SIZE_IN_MB CURRENT_LIMIT_IN_MB
+-------------------- ---------- ----------------- -------------------
+SPACE_BUDGET_PERCENT         10          211.4375            21.14375
+</pre></li>
+<li>
+<p>Change the percentage setting.</p>
+<p>For example, execute the following command to change the setting to 30%:</p>
+<pre dir="ltr">EXECUTE DBMS_SPM.CONFIGURE(&#39;space_budget_percent&#39;,30);
+</pre></li>
+<li>
+<p>Query the data dictionary to confirm the change.</p>
+<p>For example, execute the following join (sample output included):</p>
+<pre dir="ltr">SELECT PARAMETER_NAME, PARAMETER_VALUE AS &#34;%_LIMIT&#34;, 
+       ( SELECT sum(bytes/1024/1024) FROM DBA_DATA_FILES 
+         WHERE TABLESPACE_NAME = &#39;SYSAUX&#39; ) AS SYSAUX_SIZE_IN_MB,
+       PARAMETER_VALUE/100 * 
+       ( SELECT sum(bytes/1024/1024) FROM DBA_DATA_FILES 
+         WHERE TABLESPACE_NAME = &#39;SYSAUX&#39; ) AS &#34;CURRENT_LIMIT_IN_MB&#34;
+FROM   DBA_SQL_MANAGEMENT_CONFIG
+WHERE  PARAMETER_NAME = &#39;SPACE_BUDGET_PERCENT&#39;;
+
+PARAMETER_NAME          %_LIMIT SYSAUX_SIZE_IN_MB CURRENT_LIMIT_IN_MB
+-------------------- ---------- ----------------- -------------------
+SPACE_BUDGET_PERCENT         <span class="bold">30</span>          211.4375            63.43125
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-DF2EC31E-7BAB-45BB-B3B4-F1D1A4A13019__GUID-B8531588-E06C-40D4-A976-F897213235AC">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68159" target="_blank" href="../ARPLS/d_spm.htm#ARPLS68159"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn more about the <code class="codeph">CONFIGURE</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL664"></a>
+<div class="props_rev_3"><a id="GUID-D5F66DF0-3D41-4E78-9FAE-62ECC9F22F1F"></a>
+<h3 id="TGSQL-GUID-D5F66DF0-3D41-4E78-9FAE-62ECC9F22F1F" class="sect3">Changing the Plan Retention Policy in the SMB</h3>
+<div>
+<div class="section">
+<p>A weekly scheduled purging task manages disk space used by SQL plan management. The task runs as an automated task in the maintenance window. The database purges plans that have not been used for longer than the plan retention period, as identified by the <code class="codeph">LAST_EXECUTED</code> timestamp stored in the SMB for that plan. The default retention period is 53 weeks. The period can range between 5 and 523 weeks.</p>
+<p>This task explains how to change the plan retention period with the <code class="codeph">DBMS_SPM.CONFIGURE</code> procedure. In Cloud Control, set the plan retention policy in the SQL Plan Baseline subpage (shown in <a href="tgsql_spm.htm#GUID-9BB06D27-4A3F-4DBA-A7EB-85B5C4EA0631__CDEBHHEI">Figure 23-7</a>).</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To change the plan retention period for the SMB:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then query the data dictionary to see the current plan retention period.</p>
+<p>For example, execute the following query (sample output included):</p>
+<pre dir="ltr">SQL&gt; SELECT PARAMETER_NAME, PARAMETER_VALUE
+  2  FROM   DBA_SQL_MANAGEMENT_CONFIG
+  3  WHERE  PARAMETER_NAME = &#39;PLAN_RETENTION_WEEKS&#39;;
+ 
+PARAMETER_NAME                 PARAMETER_VALUE
+------------------------------ ---------------
+PLAN_RETENTION_WEEKS                        53
+</pre></li>
+<li>
+<p>Change the retention period.</p>
+<p>For example, execute the <code class="codeph">CONFIGURE</code> procedure to change the period to 105 weeks:</p>
+<pre dir="ltr">EXECUTE DBMS_SPM.CONFIGURE(&#39;plan_retention_weeks&#39;,105);
+</pre></li>
+<li>
+<p>Query the data dictionary to confirm the change.</p>
+<p>For example, execute the following query:</p>
+<pre dir="ltr">SQL&gt; SELECT PARAMETER_NAME, PARAMETER_VALUE
+  2  FROM   DBA_SQL_MANAGEMENT_CONFIG
+  3  WHERE  PARAMETER_NAME = &#39;PLAN_RETENTION_WEEKS&#39;;
+ 
+PARAMETER_NAME                 PARAMETER_VALUE
+------------------------------ ---------------
+PLAN_RETENTION_WEEKS                       <span class="bold">105</span>
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-D5F66DF0-3D41-4E78-9FAE-62ECC9F22F1F__GUID-EC1F2994-7CAC-4023-B51B-5E30818CBB52">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68159" target="_blank" href="../ARPLS/d_spm.htm#ARPLS68159"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn more about the <code class="codeph">CONFIGURE</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_profiles.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_mig.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

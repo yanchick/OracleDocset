@@ -1,0 +1,1549 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-113936"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/TimesTen%20Database%20Performance%20Tuning"></a><title>TimesTen Database Performance Tuning</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 748"/>
+<meta name="dcterms.created" content="2014-09-30T15:13:5Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen In-Memory Database Operations Guide"/>
+<meta name="dcterms.identifier" content="E21633-12"/>
+<meta name="dcterms.isVersionOf" content="TTOPR"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="query.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="glossary.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21633-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">14/16</span> <!-- End Header -->
+<div id="TTOPR411" class="chapter"><a id="CACFHAAD"></a>
+<h1 class="chapter"><span class="secnum">10</span> TimesTen Database Performance Tuning</h1>
+<p>An application using the TimesTen Data Manager should obtain an order <a id="sthref1160"></a>of magnitude performance improvement in its data access over an application using a traditional DBMS. However, poor application design and tuning can erode the TimesTen advantage. This chapter discusses factors that can affect the performance of a TimesTen application. These factors range from subtle, such as data conversions, to more overt, such as preparing a command at each execution.</p>
+<p>This chapter explains the full range of these factors, with a section on each factor indicating:</p>
+<ul>
+<li>
+<p>How to detect problems.</p>
+</li>
+<li>
+<p>How large is the potential performance impact.</p>
+</li>
+<li>
+<p>Where are the performance gains.</p>
+</li>
+<li>
+<p>What are the tradeoffs.</p>
+</li>
+</ul>
+<p>The following sections describe how to tune and identify performance issues:</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can also identify performance issues by examining the <code>SYS.SYSTEMSTATS</code> table.</div>
+<ul>
+<li>
+<p><a href="#BABBABBI">System and database tuning</a></p>
+</li>
+<li>
+<p><a href="#BABFHEEH">Client/Server tuning</a></p>
+</li>
+<li>
+<p><a href="#BABHIAHI">SQL tuning</a></p>
+</li>
+<li>
+<p><a href="#BABJEGJA">Materialized view tuning</a></p>
+</li>
+<li>
+<p><a href="#CACIJBGH">Transaction tuning</a></p>
+</li>
+<li>
+<p><a href="#CACJAJGB">Recovery tuning</a></p>
+</li>
+<li>
+<p><a href="#BABFGDHG">Scaling for multiple CPUs</a></p>
+</li>
+<li>
+<p><a href="#BABJEAHE">XLA tuning</a></p>
+</li>
+<li>
+<p><a href="#CACHIAEJ">Cache and replication tuning</a></p>
+</li>
+</ul>
+<p>For information on tuning TimesTen Java applications, see <a class="olink TTJDV251" href="../TTJDV/tuning.htm#TTJDV251">&#34;Java Application Tuning&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Java Developer&#39;s Guide</span>. For information on tuning TimesTen C applications, see <a class="olink TTCDV363" href="../TTCDV/tuning.htm#TTCDV363">&#34;ODBC Application Tuning&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database C Developer&#39;s Guide</span>.</p>
+<a id="BABBABBI"></a>
+<div id="TTOPR412" class="sect1">
+<h2 class="sect1">System and database tuning</h2>
+<p>The following sections include tips for tuning your system and databases:</p>
+<ul>
+<li>
+<p><a href="#CACDHICI">Provide enough memory</a></p>
+</li>
+<li>
+<p><a href="#CACIDGGB">Size your database correctly</a></p>
+</li>
+<li>
+<p><a href="#CACDJCEC">Calculate shared memory size for PL/SQL runtime</a></p>
+</li>
+<li>
+<p><a href="#CACGHHEA">Increase LogBufMB if needed</a></p>
+</li>
+<li>
+<p><a href="#CACJDFGD">Use temporary databases if appropriate</a></p>
+</li>
+<li>
+<p><a href="#BABJCABD">Avoid connection overhead</a></p>
+</li>
+<li>
+<p><a href="#CACEABFJ">Load the database into RAM when duplicating</a></p>
+</li>
+<li>
+<p><a href="#CACFGGCG">Prevent reloading of the database after automatic recovery fails</a></p>
+</li>
+<li>
+<p><a href="#BCGCEECC">Reduce contention</a></p>
+</li>
+<li>
+<p><a href="#CACDFFAI">Avoid operating system paging at load time</a></p>
+</li>
+<li>
+<p><a href="#CACIJAFF">Consider special options for maintenance</a></p>
+</li>
+<li>
+<p><a href="#CACBIGBD">Check your driver</a></p>
+</li>
+<li>
+<p><a href="#CACCDIGC">Enable tracing only as needed</a></p>
+</li>
+<li>
+<p><a href="#CACCABGG">Use metrics to evaluate performance</a></p>
+</li>
+<li>
+<p><a href="#CACBAEDD">Investigate alternative JVMs</a></p>
+</li>
+<li>
+<p><a href="#CACBEHBH">Migrate data with character set conversions</a></p>
+</li>
+</ul>
+<a id="CACDHICI"></a>
+<div id="TTOPR413" class="sect2">
+<h3 class="sect2">Provide enough memory</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>Configure your system so that the entire database fits in main memory. The use of virtual memory substantially decreases performance. The database or working set does not fit if a performance monitoring tool shows excessive paging or virtual memory activity.</p>
+<p>You may have to add physical memory or configure the system software to allow a large amount of shared memory to be allocated to your process(es). TimesTen includes the <code>ttSize</code> utility to help you estimate the size of tables in your database. For more information, see <a class="olink TTREF305" href="../TTREF/proced.htm#TTREF305">&#34;ttSize&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACIDGGB"></a>
+<div id="TTOPR414" class="sect2">
+<h3 class="sect2">Size your database correctly</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p><a id="sthref1161"></a><a id="sthref1162"></a><a id="sthref1163"></a><a id="sthref1164"></a>When you create a <a id="sthref1165"></a>database, you are required to specify a database size. Specifically, you specify sizes for the permanent and temporary memory regions of the database. For details on how to size the database and shared memory, see <a href="using.htm#BCGIDAJG">&#34;Specifying the size of a database&#34;</a>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACDJCEC"></a>
+<div id="TTOPR415" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Calculate shared memory size for PL/SQL runtime</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>The PL/SQL runtime system uses an area of shared memory to hold metadata about PL/SQL objects in TimesTen and the executable code for PL/SQL program units that are currently being executed or that have recently been executed. The size of this shared memory area is controlled by the <a id="sthref1166"></a><a id="sthref1167"></a><a id="sthref1168"></a><a id="sthref1169"></a><code>PLSQL_MEMORY_SIZE</code> first connect attribute.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+When you enable PL/SQL ( <code>PLSQL=1</code> ), there is both a fixed and per connection overhead automatically allocated from the PL/SQL segment, even if you do not use PL/SQL.
+<p>For more information, see <a class="olink TTREF183" href="../TTREF/attribute.htm#TTREF183">&#34;PLSQL_MEMORY_SIZE&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<p>When a new PL/SQL program unit is prepared for execution, it is loaded into shared memory. If shared memory space is not available, the cached recently-executed program units are discarded from memory until sufficient shared memory space is available. If all of the PL/SQL shared memory is being used by currently executing program units, then attempts by a new connection to execute PL/SQL may result in out of space errors, such as <code>ORA-04031</code>. If this happens, increase the <code>PLSQL_MEMORY_SIZE</code>.</p>
+<p>Even if such out of space errors do not occur, the <code>PLSQL_MEMORY_SIZE</code> may be too small. It is less expensive in CPU time to execute a PL/SQL procedure that is cached in shared memory than one that is not cached. In a production application, the goal should be for <code>PLSQL_MEMORY_SIZE</code> to be large enough so that frequently-executed PL/SQL units are always cached. The TimesTen built-in procedure <code>ttPLSQLMemoryStats</code> can be used to determine how often this occurs. The <code>PinHitRatio</code> value returned is a real number between 0 and 1.</p>
+<ul>
+<li>
+<p>1.0: A value of 1.0 means that every PL/SQL execution occurred from the cache.</p>
+</li>
+<li>
+<p>0.0: A value of 0.0 means that every execution required that the program unit be loaded into shared memory.</p>
+</li>
+</ul>
+<p>The proper value of <code>PLSQL_MEMORY_SIZE</code> for a given application depends on the application. If only a small number of PL/SQL program units are repeatedly executed, then the size requirements can be small. If the application uses hundreds of PL/SQL program units, memory requirements increase.</p>
+<p>Performance increases dramatically as the <code>PinHitRatio</code> goes up. In one set of experiments, an application program repeatedly executed a large number of PL/SQL stored procedures. With a larger value for <code>PLSQL_MEMORY_SIZE</code>, the application results in a <code>PinHitRatio</code> of around 90%, and the average execution time for a PL/SQL procedure was 0.02 seconds. With a smaller value for <code>PLSQL_MEMORY_SIZE</code>, there was more contention for the cache, resulting in a <code>PinHitRatio</code> of 66%. In this experiment the average execution time was 0.26 seconds.</p>
+<p>The default value for <code>PLSQL_MEMORY_SIZE</code> is 32 MB on UNIX systems and 32 MB on Windows 32-bit systems. This should be sufficient for several hundred PL/SQL program units of reasonable complexity to execute. After running a production workload for some time, check the value of <code>PinHitRatio</code>. If it is less than 0.90, consider increasing <code>PLSQL_MEMORY_SIZE</code>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACGHHEA"></a>
+<div id="TTOPR416" class="sect2">
+<h3 class="sect2">Increase LogBufMB if needed</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>Log buffer waits occur when application processes cannot insert transaction data to the log buffer and must stall to wait for log buffer space to be freed. The usual reason for this is that the log flusher thread has not cleared out data fast enough. This may indicate that log buffer space is insufficient, disk bandwidth is insufficient, writing to disk is taking too long, or the log flusher is CPU-bound.</p>
+<p>Increasing the value of <code>LogBufMB</code> and <code>LogFileSize</code> can have a substantial positive performance impact. If <code>LOG_BUFFER_WAITS</code> is increasing, increase the value of <code>LogBufMB</code>. If log buffer waits still persist after increasing the <code>LogBufMb</code> and <code>LogFileSize</code> values, then review the other possible issues mentioned above.</p>
+<p>The trade-off from increasing the value of <code>LogBufMb</code> is that more transactions are buffered in memory and may be lost if the process crashes. If <code>DurableCommits</code> are enabled, increasing the default <code>LogBufMB</code> value does not improve performance.<a id="sthref1170"></a><a id="sthref1171"></a></p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more details, see <a class="olink TTREF143" href="../TTREF/attribute.htm#TTREF143">&#34;LogBufMB&#34;</a> and <a class="olink TTREF145" href="../TTREF/attribute.htm#TTREF145">&#34;LogFileSize&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+</div>
+<!-- class="sect2" -->
+<a id="CACJDFGD"></a>
+<div id="TTOPR418" class="sect2">
+<h3 class="sect2">Use temporary <a id="sthref1172"></a>databases if appropriate</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p><a id="sthref1173"></a><a id="sthref1174"></a><a id="sthref1175"></a><a id="sthref1176"></a>A TimesTen database may be permanent or temporary. A temporary database disappears when the last connection goes away or when there is a system or application failure. For information on temporary databases, see <a href="comp.htm#CHDBEDHC">&#34;Database overview&#34;</a>.</p>
+<p>If you do not need to save the database to disk, you can save checkpoint overhead by creating a temporary database.</p>
+<p>Temporary databases are never fully checkpointed to disk, although the transaction log is periodically written to disk. The amount of data written to the transaction log for temporary databases is less than that written for permanent databases, allowing better performance for temporary databases. Checkpoint operations can have significant overhead for permanent databases, depending on database size and activity, but have very little impact for temporary databases. Checkpoints are still necessary to remove transaction log files.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABJCABD"></a>
+<div id="TTOPR420" class="sect2">
+<h3 class="sect2">Avoid connection overhead</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1177"></a><a id="sthref1178"></a>By default, TimesTen loads an idle database, which is a database with no connections, into memory when a first connection is made to it. When the final application disconnects from a database, a delay occurs when the database is written to disk. If applications are continually connecting and disconnecting from a database, the database may be loaded to and unloaded from memory continuously, resulting in excessive disk I/O and poor performance. Similarly, if you are using a very large database you may want to pre-load the database into memory before any applications attempt to use it.</p>
+<p>To avoid the latency of loading a database into memory, you can change the RAM policy of the database to allow databases to always remain in memory. The trade-off is that since the database is never unloaded from memory, a final disconnect checkpoint never occurs. So, applications should checkpoint the database explicitly to reduce the disk space taken up by transaction log files.</p>
+<p>Alternatively, you can specify that the database remain in memory for a specified interval of time and accept new connections. If no new connections occur in this interval, TimesTen unloads the database from memory and checkpoints it. You can also specify a setting to enable a system administrator to load and unload the database from memory manually.</p>
+<p>To change the RAM policy of a database, use the <code>ttAdmin</code> utility. For more details on the RAM policy and the <code>ttAdmin</code> utility, see <a href="using.htm#BABFFCGC">&#34;Specifying a RAM policy&#34;</a> in this book and the <a class="olink TTREF321" href="../TTREF/util.htm#TTREF321">&#34;ttAdmin&#34;</a> section in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACEABFJ"></a>
+<div id="TTOPR422" class="sect2">
+<h3 class="sect2">Load the database into RAM when duplicating</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>When you duplicate a database, use the <code>-ramLoad</code> option of the <code>ttAdmin</code> utility. This places the database in memory, available for connections, instead of unloading it with a blocking checkpoint. For more information, see <a href="#BABJCABD">&#34;Avoid connection overhead&#34;</a> in this book and the <a class="olink TTREF321" href="../TTREF/util.htm#TTREF321">&#34;ttAdmin&#34;</a> section in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACFGGCG"></a>
+<div id="TTOPR732" class="sect2">
+<h3 class="sect2">Prevent reloading of the database after automatic recovery fails</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>When TimesTen recovers after a database is invalidated, a new database is reloaded. However, the invalidated database is only unloaded after all connections to this database are closed. Thus, both the invalidated database and the recovered database could exist in RAM at the same time.</p>
+<p>Reloading a large database into memory when an invalidated database still exists in memory can fill up available RAM. See <a href="using.htm#BABBGJDG">&#34;Preventing an automatic reload of the database after failure&#34;</a> on how to stop automatic reloading of the database.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BCGCEECC"></a>
+<div id="TTOPR423" class="sect2">
+<h3 class="sect2">Reduce <a id="sthref1179"></a><a id="sthref1180"></a><a id="sthref1181"></a><a id="sthref1182"></a>contention</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>Database contention can substantially impede application performance.</p>
+<p>To reduce contention in your application:</p>
+<ul>
+<li>
+<p>Choose the appropriate locking method. See <a href="#BCGBEEFA">&#34;Choose the best method of locking&#34;</a>.</p>
+</li>
+<li>
+<p>Distribute data strategically in multiple tables or databases.</p>
+</li>
+</ul>
+<p>If your application suffers a decrease in performance because of lock contention and a lack of concurrency, reducing contention is an important first step in improving performance.</p>
+<p>The <code>lock.locks_granted.immediate</code>, <code>lock.locks_granted.wait</code> and <code>lock.timeouts</code> columns in the <code>SYS.SYSTEMSTATS</code> table provide some information on lock contention:</p>
+<ul>
+<li>
+<p><code>lock.locks_granted.immediate</code> counts how often a lock was available and was immediately granted at lock request time.</p>
+</li>
+<li>
+<p><code>lock.locks_granted.wait</code> counts how often a lock request was granted after the requestor had to wait for the lock to become available.</p>
+</li>
+<li>
+<p><code>lock.timeouts</code> counts how often a lock request was not granted because the requestor did not want to wait for the lock to become available.</p>
+</li>
+</ul>
+<p>If limited concurrency results in a lack of throughput, or if response time is an issue, an application can reduce the number of threads or processes making API (JDBC, ODBC, or OCI) calls. Using fewer threads requires some queuing and scheduling on the part of the application, which has to trade off some CPU time for a decrease in contention and wait time. The result is higher performance for low-concurrency applications that spend the bulk of their time in the database.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACDFFAI"></a>
+<div id="TTOPR424" class="sect2">
+<h3 class="sect2">Avoid <a id="sthref1183"></a>operating system paging at load time</h3>
+<p><span class="bold">Performance impact: Medium</span></p>
+<p>All of the TimesTen platform operating systems implement a dynamic file system buffer pool in main memory. If this buffer pool is allowed to be large, TimesTen and the operating system both retain a copy of the file in memory, causing some of the TimesTen shared segment to be paged out.</p>
+<p>This behavior may not occur for databases that are less than half of the installed memory size. On some systems, it is possible to limit the amount of main memory used by the file system. On other systems, this effect is less pronounced.</p>
+<p>On AIX, you can avoid paging by configuring large pages, which locks the shared segment into memory so it cannot be paged. See <a class="olink TTINS244" href="../TTINS/install.htm#TTINS244">&#34;Large pages (AIX)&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Installation Guide</span> for details on how to configure large pages on AIX.</p>
+<p>On Linux, you can avoid paging by configuring large pages, which locks the shared segment into memory so it cannot be paged. See <a class="olink TTINS312" href="../TTINS/install.htm#TTINS312">&#34;Large pages (Linux)&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Installation Guide</span> for details on how to configure large pages on Linux.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACIJAFF"></a>
+<div id="TTOPR426" class="sect2">
+<h3 class="sect2">Consider special options for maintenance</h3>
+<p><span class="bold">Performance impact: Medium</span></p>
+<p><a id="sthref1184"></a><a id="sthref1185"></a>During special operations such as initial loading, you can choose different options than you would use during normal operations. In particular, consider using database-level locking for bulk loading; an example would be using <code>ttBulkCp</code> or <code>ttMigrate</code>. These choices can improve loading performance by a factor of two.</p>
+<p>An alternative to database-level locking is to exploit concurrency. Multiple copies of <code>ttBulkCp -i</code> can be run using the <code>-notblLock</code> option. Optimal batching for <code>ttBulkCp</code> occurs by adding the <code>-xp 256</code> option. <code>ttMigrate</code> can be run with <code>-numThreads</code> option to load individual or multiple tables concurrently.</p>
+<p>For more details, see <a class="olink TTREF324" href="../TTREF/util.htm#TTREF324">&#34;ttBulkCp&#34;</a> and <a class="olink TTREF343" href="../TTREF/util.htm#TTREF343">&#34;ttMigrate&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBIGBD"></a>
+<div id="TTOPR428" class="sect2">
+<h3 class="sect2">Check your driver</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1186"></a>There are two versions of the TimesTen Data Manager driver for each platform: a debug and production version. Unless you are debugging, use the production version. The debug library can be significantly slower. See <a href="using.htm#BCGHAIBG">&#34;Specify the Data Manager DSN&#34;</a> and <a href="using.htm#BCGJHHHF">&#34;Specify the ODBC driver&#34;</a> for a description of the TimesTen Data Manager drivers for the different platforms.</p>
+<p>On Windows, make sure that applications that use the ODBC driver manager use a DSN that accesses the correct TimesTen driver. Make sure that applications are linked with the correct TimesTen driver. For direct connect applications, use the TimesTen Data Manager driver. An application can call the ODBC <code>SQLGetInfo</code> function with the <code>SQL_DRIVER_NAME</code> argument to determine which driver it is using.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACCDIGC"></a>
+<div id="TTOPR430" class="sect2">
+<h3 class="sect2">Enable tracing only as needed</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1187"></a><a id="sthref1188"></a>Both ODBC and JDBC provide a trace facility to help debug applications. For performance runs, make sure that tracing is disabled except when debugging applications.</p>
+<p>To turn the <a id="sthref1189"></a>JDBC tracing on, use:</p>
+<pre>DriverManager.setLogStream method:
+DriverManager.setLogStream(new PrintStream(System.out, true));
+</pre>
+<p>By default tracing is off. You must call this method before you load a JDBC driver. Once you turn the tracing on, you cannot turn it off for the entire execution of the application.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACCABGG"></a>
+<div id="TTOPR770" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Use metrics to evaluate performance<a id="sthref1190"></a><a id="sthref1191"></a><a id="sthref1192"></a><a id="sthref1193"></a></h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>You can use the <code>ttStats</code> utility to collect and display database metrics. The <code>ttStats</code> utility can perform the following functions.</p>
+<ul>
+<li>
+<p>Monitor and display database performance metrics in real-time, calculating rates of change during each preceding interval.</p>
+</li>
+<li>
+<p>Collect and store snapshots of metrics to the database then produce reports with values and rates of change from specified pairs of snapshots. (These functions are performed through calls to the <code>TT_STATS</code> PL/SQL package.)</p>
+</li>
+</ul>
+<p>The <code>ttStats</code> utility gathers metrics from TimesTen system tables, views, and built-in procedures. In reports, this includes information such as a summary of memory usage, connections, and load profile, followed by metrics (as applicable) for SQL statements, transactions, PL/SQL memory, replication, logs and log holds, checkpoints, cache groups, cache grid, latches, locks, XLA, and TimesTen connection attributes.</p>
+<p>For details on the <code>ttStats</code> utility, see <a class="olink TTREF802" href="../TTREF/util.htm#TTREF802">&#34;ttStats&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>. For more details on the <code>TT_STATS</code> PL/SQL package, see <a class="olink TTPLP71655" href="../TTPLP/t_stats.htm#TTPLP71655">&#34;TT_STATS&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database PL/SQL Packages Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBAEDD"></a>
+<div id="TTOPR432" class="sect2">
+<h3 class="sect2">Investigate alternative JVMs</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>JRockit and IBM provide JVMs that may perform better than the Sun JVM.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBEHBH"></a>
+<div id="TTOPR438" class="sect2">
+<h3 class="sect2">Migrate data with character set conversions</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>If character set conversion is requested when migrating databases, performance may be slower than if character set conversion is not requested.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABFHEEH"></a>
+<div id="TTOPR440" class="sect1">
+<h2 class="sect1">Client/Server tuning</h2>
+<p>The following sections include tips for Client/Server tuning:</p>
+<ul>
+<li>
+<p><a href="#CACIACDG">Diagnose Client/Server performance</a></p>
+</li>
+<li>
+<p><a href="#CACEDFEG">Work locally when possible</a></p>
+</li>
+<li>
+<p><a href="#BCGHBHBH">Choose a timeout interval</a></p>
+</li>
+<li>
+<p><a href="#BCGBEEFA">Choose the best method of locking</a></p>
+</li>
+<li>
+<p><a href="#CACIBCDG">Use shared memory segment as IPC when client and server are on the same system</a></p>
+</li>
+<li>
+<p><a href="#CACHDJIA">Enable TT_PREFETCH_CLOSE for Serializable transactions</a></p>
+</li>
+<li>
+<p><a href="#CACFIJFI">Use a connection handle when calling SQLTransact</a></p>
+</li>
+</ul>
+<a id="CACIACDG"></a>
+<div id="TTOPR715" class="sect2">
+<h3 class="sect2">Diagnose Client/Server performance<a id="sthref1194"></a><a id="sthref1195"></a><a id="sthref1196"></a><a id="sthref1197"></a><a id="sthref1198"></a><a id="sthref1199"></a><a id="sthref1200"></a></h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>You can analyze your Client/Server performance with the following statistics that are tracked in the <code>SYS.SYSTEMSTATS</code> table that can also be viewed with either the <code>ttStats</code> utility or the <code>TT_STATS</code> PL/SQL package:</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more details on the <code>SYS.SYSTEMSTATS</code> table, see <a class="olink TTSYS439" href="../TTSYS/systemtables.htm#TTSYS439">&#34;SYS.SYSTEMSTATS&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database System Tables and Views Reference</span>. For details on the <code>ttStats</code> utility, see <a class="olink TTREF802" href="../TTREF/util.htm#TTREF802">&#34;ttStats&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>. For more details on the <code>TT_STATS</code> PL/SQL package, see <a class="olink TTPLP71655" href="../TTPLP/t_stats.htm#TTPLP71655">&#34;TT_STATS&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database PL/SQL Packages Reference</span>.</div>
+<ul>
+<li>
+<p>Total number of executions from a Client/Server application.</p>
+</li>
+<li>
+<p>Total number of <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>SELECT</code>, <code>MERGE</code>, <code>ALTER</code>, <code>CREATE</code>, <code>DROP</code> statements executed by the server.</p>
+</li>
+<li>
+<p>Total number of transactions committed or rolled back by the server.</p>
+</li>
+<li>
+<p>Total number of table rows inserted, updated, or deleted by the server.</p>
+</li>
+<li>
+<p>Total number of Client/Server roundtrips.</p>
+</li>
+<li>
+<p>Total number of bytes transmitted or received by the server.</p>
+</li>
+<li>
+<p>Total number of Client/Server disconnects.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="CACEDFEG"></a>
+<div id="TTOPR441" class="sect2">
+<h3 class="sect2">Work locally when possible</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>Using TimesTen <a id="sthref1201"></a><a id="sthref1202"></a><a id="sthref1203"></a>Client to access databases on a remote server system adds network overhead to your connections. Whenever possible, write your applications to access the TimesTen Data Manager locally, and link the application directly with the TimesTen Data Manager.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BCGHBHBH"></a>
+<div id="TTOPR443" class="sect2">
+<h3 class="sect2">Choose a <a id="sthref1204"></a><a id="sthref1205"></a><a id="sthref1206"></a><a id="sthref1207"></a>timeout interval</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>By default, connections wait 10 seconds to acquire a lock. To change the timeout interval for locks, use the <code>ttLockWait</code> built-in procedure.</p>
+<p>For more details, see <a class="olink TTREF260" href="../TTREF/proced.htm#TTREF260">&#34;ttLockWait&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BCGBEEFA"></a>
+<div id="TTOPR444" class="sect2">
+<h3 class="sect2">Choose the best method of <a id="sthref1208"></a><a id="sthref1209"></a><a id="sthref1210"></a><a id="sthref1211"></a><a id="sthref1212"></a><a id="sthref1213"></a><a id="sthref1214"></a>locking</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>When multiple connections access a database simultaneously, TimesTen uses locks to ensure that the various transactions operate in apparent isolation. TimesTen supports the isolation levels described in <a href="trans.htm#BABIIJHF">Chapter 7, &#34;Transaction Management&#34;</a>. It also supports the locking levels: database-level locking, table-level locking and row-level locking. You can use the <code>LockLevel</code> connection attribute to indicate whether database-level locking or row-level locking should be used. Use the <code>ttOptSetFlag</code> procedure to set optimizer hints that indicate whether table locks should be used. The default lock granularity is row-level locking.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information, see <a class="olink TTREF164" href="../TTREF/attribute.htm#TTREF164">&#34;LockLevel&#34;</a> and <a class="olink TTREF271" href="../TTREF/proced.htm#TTREF271">&#34;ttOptSetFlag&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+<div id="TTOPR445" class="sect3"><a id="sthref1215"></a>
+<h4 class="sect3">Choose an appropriate lock level</h4>
+<p>If there is very little contention on the database, use table-level locking. It provides better performance and deadlocks are less likely. There is generally little contention on the database when transactions are short or there are few connections. In that case, transactions are not likely to overlap.</p>
+<p>Table-level <a id="sthref1216"></a>locking is also useful when a statement accesses nearly all the rows on a table. Such statements can be queries, updates, deletes or multiple inserts done in a single transaction.</p>
+<p>Database-level <a id="sthref1217"></a>locking completely restricts database access to a single transaction, and it is not recommended for ordinary operations. A long-running transaction using database-level locking blocks all other access to the database, affecting even the various background tasks needed to monitor and maintain the database.</p>
+<p>Row-level <a id="sthref1218"></a>locking is generally preferable when there are many <a id="sthref1219"></a><a id="sthref1220"></a>concurrent transactions that are not likely to need access to the same row. On modern systems with a sufficient number of processors using high-concurrency, for example, multiple <code>ttBulkCp</code> processes, row-level locking generally outperforms database-level locking.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information on the <code>ttBulkCp</code> utility, see <a class="olink TTREF324" href="../TTREF/util.htm#TTREF324">&#34;ttBulkCp&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+</div>
+<!-- class="sect3" -->
+<div id="TTOPR446" class="sect3"><a id="sthref1221"></a>
+<h4 class="sect3">Choose an appropriate <a id="sthref1222"></a><a id="sthref1223"></a><a id="sthref1224"></a>isolation level</h4>
+<p>When using row-level locking, applications can run transactions at the <code>SERIALIZABLE</code> or <code>READ_COMMITTED</code> isolation level. The default isolation level is <code>READ_COMMITTED</code>. You can use the <code>Isolation</code> connection attribute to specify one of these isolation levels for new connections.</p>
+<p>When running at <code>SERIALIZABLE</code> transaction isolation level, TimesTen holds all locks for the duration of the transaction.</p>
+<ul>
+<li>
+<p>Any transaction updating a row blocks writers until the transaction commits.</p>
+</li>
+<li>
+<p>Any transaction reading a row blocks out writers until the transaction commits.</p>
+</li>
+</ul>
+<p>When running at <code>READ_COMMITTED</code> transaction isolation level, TimesTen only holds update locks for the duration of the transaction.</p>
+<ul>
+<li>
+<p>Any transaction updating a row blocks out writers to that row until the transaction commits. A reader of that row receives the previously committed version of the row.</p>
+</li>
+<li>
+<p><a id="sthref1225"></a>Phantoms are possible. A phantom is a row that appears during one read but not during another read, or appears in modified form in two different reads, in the same transaction, due to early release of read locks during the transaction.</p>
+</li>
+</ul>
+<p>You can determine if there is an undue amount of contention on your system by checking for time-out and deadlock errors (errors 6001, 6002, and 6003). Information is also available in the <code>lock.timeouts</code> and <code>lock.deadlocks</code> columns of the <code>SYS.SYSTEMSTATS</code> table.</p>
+<p>For more details on isolation levels, see <a href="trans.htm#BABCIHEJ">&#34;Transaction isolation levels&#34;</a>.</p>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CACIBCDG"></a>
+<div id="TTOPR447" class="sect2">
+<h3 class="sect2">Use shared memory segment as IPC when client and server are on the same system</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>The TimesTen Client normally communicates with TimesTen Server using TCP/IP sockets. If both the TimesTen Client and TimesTen Server are on the same system, client applications show improved performance by using a shared memory segment or a UNIX domain socket for inter-process communication (IPC).</p>
+<p>To use a shared memory segment as IPC, you must set the server options in the <code>ttendaemon.options</code> file. For a description of the server options, see <a href="daemon.htm#CFFBEHIJ">&#34;Modifying the TimesTen Server options&#34;</a>.</p>
+<p>In addition, applications that use shared memory for IPC must use a logical server name for the client DSN with <code>ttShmHost</code> as the Network Address. For more information, see <a href="client_server.htm#BGBDCBAA">&#34;Creating and configuring client DSNs on UNIX&#34;</a>.</p>
+<p>This feature may require a significant amount of shared memory. The TimesTen Server pre-allocates the shared memory segment irrespective of the number of existing connections or the number of statements within all connections.</p>
+<p>If your application is running on a UNIX system and you are concerned about memory usage, the applications using TimesTen Client ODBC driver may improve the performance by using UNIX domain sockets for communication. The performance improvement when using UNIX domain sockets is not as large as when using <code>ShmIPC</code>.</p>
+<p>Applications that take advantage of UNIX domain sockets for local connections must use a logical server name for the client DSN with <code>ttLocalHost</code> as the Network Address. For more information, see <a href="client_server.htm#BGBDCBAA">&#34;Creating and configuring client DSNs on UNIX&#34;</a>. In addition, make sure that your system kernel parameters are configured to allow the number of connections you require. See <a class="olink TTINS127" href="../TTINS/install.htm#TTINS127">&#34;Installation prerequisites&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Installation Guide</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACHDJIA"></a>
+<div id="TTOPR449" class="sect2">
+<h3 class="sect2">Enable TT_PREFETCH_CLOSE for Serializable transactions</h3>
+<p><a id="TTOPR450"></a><span class="bold">Performance impact: Variable</span></p>
+<p>Enable <a id="sthref1226"></a><code>TT_PREFETCH_CLOSE</code> for <a id="sthref1227"></a><a id="sthref1228"></a>serializable transactions in client/server applications. In Serializable isolation mode, all transactions should be committed when executed, including read-only transactions. When <code>TT_PREFETCH_CLOSE</code> is enabled, the server closes the cursor and commits the transaction after the server has fetched the entire result set for a read-only query. The client should still call <code>SQLFreeStmt(SQL_CLOSE)</code> and <code>SQLTransact(SQL_COMMIT)</code>, but the calls are executed in the client and do not require a network round trip between the client and server. <code>TT_PREFETCH_CLOSE</code> enhances performance by decreasing the network traffic between client and server.</p>
+<p>Do not use multiple statement handles when <code>TT_PREFETCH_CLOSE</code> is enabled. The server may fetch all of the result set, commit the transaction, and close the statement handle before the client is finished, resulting in the closing of all statement handles.</p>
+<p>The following example shows how to use the <code>TT_PREFETCH_CLOSE</code> option with ODBC and JDBC. This example sets <code>TT_PREFETCH_CLOSE</code> with the <code>SQLSetConnectOption</code> ODBC function. You can also set it with the <code>SQLSetStmtOption</code> ODBC function.</p>
+<pre>SQLSetConnectOption (hdbc, TT_PREFETCH_CLOSE, TT_PREFETCH_CLOSE_ON);
+SQLExecDirect (hstmt, &#34;SELECT * FROM T&#34;, SQL_NTS);
+while (SQLFetch (hstmt) != SQL_NO_DATA_FOUND)
+{
+// do the processing
+}
+SQLFreeStmt (hstmt, SQL_CLOSE);
+</pre>
+<p>This example shows how to enable the <code>TT_PREFETCH_CLOSE</code> option with JDBC:</p>
+<pre>con = DriverManager.getConnection (&#34;jdbc:timesten:client:&#34; + DSN);
+stmt = con.createStatement();
+import com.timesten.sql
+...
+...
+con.setTtPrefetchClose(true);
+rs = stmt.executeQuery(&#34;select * from t&#34;);
+while(rs.next())
+{
+// do the processing
+}
+import com.timesten.sql
+....
+try {
+       ((TimesTenConnection)con).setTtPrefetchClose(true);
+}
+catch (SQLException) {
+...
+}
+rs.close();
+con.commit();
+</pre></div>
+<!-- class="sect2" -->
+<a id="CACFIJFI"></a>
+<div id="TTOPR451" class="sect2">
+<h3 class="sect2">Use a connection handle when calling SQLTransact</h3>
+<p><a id="TTOPR452"></a><span class="bold">Performance impact: Large</span></p>
+<p>An application can make a call to <code>SQLTransact</code> with either <code>SQL_NULL_HDBC</code> and a valid environment handle:</p>
+<pre>SQLTransact (ValidHENV, SQL_NULL_HDBC, fType)
+</pre>
+<p>or a valid connection handle:</p>
+<pre>SQLTransact (SQL_NULL_HENV, ValidHDBC, fType).
+</pre>
+<p>If the intention of the application is simply to commit or rollback on a single connection, it should use a valid connection handle when calling <code>SQLTransact</code>.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABHIAHI"></a>
+<div id="TTOPR453" class="sect1">
+<h2 class="sect1">SQL<a id="sthref1229"></a> tuning</h2>
+<p>After you have determined the overall locking and I/O strategies, make sure that the individual SQL statements are executed as efficiently as possible. The following sections describe how to streamline your SQL statements:</p>
+<ul>
+<li>
+<p><a href="#CACJDFBA">Tune statements and use indexes</a></p>
+</li>
+<li>
+<p><a href="#CACCBBEJ">Collect and evaluate sampling of execution times for SQL statements</a></p>
+</li>
+<li>
+<p><a href="#CACGIFDH">Select hash, range, or bitmap indexes appropriately</a></p>
+</li>
+<li>
+<p><a href="#CACFIFGD">Size hash indexes appropriately</a></p>
+</li>
+<li>
+<p><a href="#CACBADHJ">Use foreign key constraint appropriately</a></p>
+</li>
+<li>
+<p><a href="#CACBAGDC">Compute exact or estimated statistics</a></p>
+</li>
+<li>
+<p><a href="#CACDFFIH">Create script to regenerate current table statistics</a></p>
+</li>
+<li>
+<p><a href="#CACIICID">Control the invalidation of commands in the SQL command cache</a></p>
+</li>
+<li>
+<p><a href="#CACHJIDF">Avoid ALTER TABLE</a></p>
+</li>
+<li>
+<p><a href="#CACEIDFB">Avoid nested queries</a></p>
+</li>
+<li>
+<p><a href="#CACHDIAI">Prepare statements in advance</a></p>
+</li>
+<li>
+<p><a href="#CACHGDJD">Avoid unnecessary prepare operations</a></p>
+</li>
+<li>
+<p><a href="#CACGBEGC">Store data efficiently with table compression</a></p>
+</li>
+<li>
+<p><a href="#BABCDJHA">Control read optimization during concurrent write operations</a></p>
+</li>
+</ul>
+<a id="CACJDFBA"></a>
+<div id="TTOPR454" class="sect2">
+<h3 class="sect2">Tune statements and use indexes</h3>
+<p><a id="TTOPR455"></a><span class="bold">Performance impact: Large</span></p>
+<p>Verify that all statements are executed efficiently. For example, use queries that reference only the rows necessary to produce the required result set. If only <code>col1</code> from table <code>t1</code> is needed, use the statement:</p>
+<pre>SELECT col1 FROM t1...
+</pre>
+<p>instead of using:</p>
+<pre>SELECT * FROM t1...
+</pre>
+<p><a href="query.htm#BABEJFHI">Chapter 9, &#34;The TimesTen Query Optimizer&#34;</a> describes how to view the plan that TimesTen uses to execute a statement. Alternatively, you can use the <code>ttIsql showplan</code> command to view the plan. View the plan for each frequently executed statement in the application. If indexes are not used to evaluate predicates, consider creating new indexes or rewriting the statement or query so that indexes can be used. For example, <a id="sthref1230"></a><a id="sthref1231"></a><a id="sthref1232"></a>indexes can only be used to evaluate <code>WHERE</code> clauses when single columns appear on one side of a comparison predicate (equalities and inequalities), or in a <code>BETWEEN</code> predicate.</p>
+<p>If this comparison predicate is evaluated often, it would therefore make sense to rewrite</p>
+<pre>WHERE c1+10 &lt; c2+20
+</pre>
+<p>to</p>
+<pre>WHERE c1 &lt; c2+10
+</pre>
+<p>and create an index on <code>c1</code>.</p>
+<p>The presence of indexes does slow down write operations such as <code>UPDATE</code>, <code>INSERT</code>, <code>DELETE</code> and <code>CREATE VIEW</code>. If an application does few reads but many writes to a table, an index on that table may hurt overall performance rather than help it.</p>
+<p>Occasionally, the system may create a temporary index to speed up query evaluation. If this happens frequently, it is better for the application itself to create the index. The <code>CMD_TEMP_INDEXES</code> column in the <code>MONITOR</code> table indicates how often a temporary index was created during query evaluation.</p>
+<p>If you have implemented time-based aging for a table or cache group, create an index on the timestamp column for better performance of aging. See <a href="comp.htm#CHDCJGAA">&#34;Time-based aging&#34;</a>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACCBBEJ"></a>
+<div id="TTOPR766" class="sect2">
+<h3 class="sect2">Collect and evaluate sampling of execution times for SQL statements<a id="sthref1233"></a><a id="sthref1234"></a><a id="sthref1235"></a></h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>TimesTen provides built-in procedures that measure the execution time of SQL operations to determine the performance of SQL statements. Instead of tracing, the built-in procedures sample the execution time of SQL statements during execution. The built-in procedures measure the execution time of SQL statements by timing the execution within the <code>SQLExecute</code> API.</p>
+<p>You can configure the sampling rate and how the execution times are collected with the <code>ttStatsConfig</code> built-in procedure and the following name-value pairs:</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For full details, see <a class="olink TTREF800" href="../TTREF/proced.htm#TTREF800">&#34;ttStatsConfig&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+<div id="TTOPR767" class="tblformal">
+<p class="titleintable"><a id="sthref1236"></a><a id="sthref1237"></a>Table 10-1 ttStatsConfig parameter and value descriptions</p>
+<table class="cellalignment3237" title="ttStatsConfig parameter and value descriptions" summary="ttStatsConfig parameter description" dir="ltr">
+<thead>
+<tr class="cellalignment3224">
+<th class="cellalignment3234" id="r1c1-t9">Parameter</th>
+<th class="cellalignment3234" id="r1c2-t9">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r2c1-t9" headers="r1c1-t9">
+<p><code>SQLCmdSampleFactor</code></p>
+</td>
+<td class="cellalignment3230" headers="r2c1-t9 r1c2-t9">
+<p>Configures how often a SQL statement execution timing sample is taken. The default is 0, which means that the sampling is turned off. For example, when set to 10, TimesTen captures the wall clock time of the SQL statement execution for every 10th statement.</p>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r3c1-t9" headers="r1c1-t9">
+<p><code>ConnSampleFactor</code></p>
+</td>
+<td class="cellalignment3230" headers="r3c1-t9 r1c2-t9">
+<p>Configures how often a SQL statement sample is taken for an individual connection. The value includes two parameters separated by a comma within quotes, so that it appears as a single value. The first number is the connection ID; the second is the same as the <code>SQLCmdSampleFactor</code> as a number that designates how often the command sample is taken. By default, sampling is turned off (set to zero) for individual connections.</p>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r4c1-t9" headers="r1c1-t9">
+<p><code>SQLCmdHistogramReset</code></p>
+</td>
+<td class="cellalignment3230" headers="r4c1-t9 r1c2-t9">
+<p>When set to a nonzero value, clears the SQL execution time histogram data.</p>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r5c1-t9" headers="r1c1-t9">
+<p><code>StatsLevel</code></p>
+</td>
+<td class="cellalignment3230" headers="r5c1-t9 r1c2-t9">
+<p>Sets the level of statistics to be taken. Values can be set to either <code>NONE</code>, <code>BASIC</code>, <code>TYPICAL</code>, or <code>ALL</code>. The default is <code>TYPICAL</code>. Setting the level to <code>ALL</code> could negatively impact your performance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" -->
+<p>The following are examples of how to set the name-value pairs with the <code>ttStatsConfig</code> built-in procedure:</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can achieve the best results by choosing representative connections with the <code>ConnSampleFactor</code> parameter in the <code>ttStatsConfig</code> built-in procedure, rather than sampling all transactions. Sampling all transactions with a small sample factor can affect your performance negatively.
+<p>For meaningful results, the database should remain in memory since unloading and re-loading the database empties the SQL command cache.</p>
+</div>
+<p>Sample every 5th statement on connection 1.</p>
+<pre>Command&gt; call ttStatsConfig(&#39;ConnSampleFactor&#39;, &#39;1,5&#39;);
+&lt; CONNSAMPLEFACTOR, 1,5 &gt;
+1 row found.
+ 
+</pre>
+<p>Turn off sampling on connection 1.</p>
+<pre>Command&gt; call ttStatsConfig(&#39;ConnSampleFactor&#39;, &#39;1,0&#39;);
+&lt; CONNSAMPLEFACTOR, 1,0 &gt;
+1 row found.
+</pre>
+<p>Sample every command:</p>
+<pre>Command&gt; call ttStatsConfig(&#39;SqlCmdSampleFactor&#39;,1);
+&lt; SQLCMDSAMPLEFACTOR, 1 &gt;
+1 row found.
+ 
+</pre>
+<p>Check whether sampling:</p>
+<pre>Command&gt; call ttStatsConfig(&#39;SqlCmdSampleFactor&#39;);
+&lt; SQLCMDSAMPLEFACTOR, 1 &gt;
+1 row found.
+ 
+</pre>
+<p>Check the current database statistics collection level.</p>
+<pre>Command&gt; call ttStatsConfig(&#39;StatsLevel&#39;);
+&lt; STATSLEVEL, TYPICAL &gt;
+1 row found.
+</pre>
+<p>Turn off database statistics collection by setting to <code>NONE</code>.</p>
+<pre>Command&gt; call ttStatsConfig(&#39;StatsLevel&#39;,&#39;None&#39;);
+&lt; STATSLEVEL, NONE &gt;
+1 row found.
+</pre>
+<p><a id="sthref1238"></a><a id="sthref1239"></a><a id="sthref1240"></a>Once you have configured the statistics that you want collected, the collected statistics are displayed with the <code>ttSQLCmdCacheInfo</code> built-in procedure. To display the execution time histogram at either the command or database levels, use the <code><a id="sthref1241"></a><a id="sthref1242"></a>ttSQLExecutionTimeHistogram</code> built-in procedure.</p>
+<p>The <code>ttSQLCmdCacheInfo</code> built-in procedure displays the following information relating to SQL execution time statistics:</p>
+<ul>
+<li>
+<p>Number of fetch executions performed internally for this statement.</p>
+</li>
+<li>
+<p>The timestamp when the statement started.</p>
+</li>
+<li>
+<p>The maximum wall clock execute time in seconds of this statement.</p>
+</li>
+<li>
+<p>Last measured execution time in seconds of the statement.</p>
+</li>
+<li>
+<p>The minimum execute time in seconds of the statement.</p>
+</li>
+</ul>
+<p>In the following example, the display shows these statistics as the last five values:</p>
+<pre>Command&gt; vertical call ttSQLCmdCacheInfo(135680792);
+
+  SQLCMDID:                        146250096
+  PRIVATE_COMMAND_CONNECTION_ID:   2048
+  EXECUTIONS:                      40
+  PREPARES:                        20
+  REPREPARES:                      1
+  FREEABLE:                        1
+  SIZE:                            3880
+  OWNER:                           ORATT
+  QUERYTEXT:                       select min(unique2) from big1
+  FETCHCOUNT:                      40
+  STARTTIME:                       2012-06-18 13:10:46.808000
+  MAXEXECUTETIME:                  .001319
+  LASTEXECUTETIME:                 .000018
+  MINEXECUTETIME:                  .000017
+1 row found.
+</pre>
+<p>For more information on the <code>ttSQLCmdCacheInfo</code> built-in procedure, see <a class="olink TTREF306" href="../TTREF/proced.htm#TTREF306">&#34;ttSQLCmdCacheInfo&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+<p>The <code>ttSQLExecutionTimeHistogram</code> built-in procedure displays a histogram of SQL execution times for either a single SQL command or all SQL commands in the command cache, assuming that sampling is enabled where <code>SQLCmdSampleFactor</code> is greater than zero.</p>
+<p>The histogram displays a single row for each bucket of the histogram. Each row includes the following information:</p>
+<ul>
+<li>
+<p>The number of SQL statement execution time operations that have been measured since either the TimesTen database was started or after the <code>ttStatsConfig</code> built-in procedure was used to reset statistics.</p>
+</li>
+<li>
+<p>Accumulated wall clock execution time.</p>
+</li>
+<li>
+<p>The execution time limit that denotes each time frame.</p>
+</li>
+<li>
+<p>The last row shows the number of SQL statements that executed in a particular time frame.</p>
+</li>
+</ul>
+<p>The following example shows the output for the <code>ttSQLExecutionTimeHistogram</code> built-in procedure:</p>
+<p>The following example of the <code>ttSQLExecutionTimeHistogram</code> built-in procedure shows that a total of 1919 statements executed. The total time for all 1919 statements to execute was 1.090751 seconds. This example shows that SQL statements ran in the following time frames:</p>
+<ul>
+<li>
+<p>278 statements executed in a time frame that was less than or equal to .00001562 seconds.</p>
+</li>
+<li>
+<p>1484 statements executed in a time frame that was greater than .00001562 seconds and less than or equal to .000125 seconds.</p>
+</li>
+<li>
+<p>35 statements executed in a time frame that was greater than .000125 seconds and less than or equal to .001 seconds.</p>
+</li>
+<li>
+<p>62 statements executed in a time frame that was greater than .001 seconds and less than or equal to .008 seconds.</p>
+</li>
+<li>
+<p>60 statements executed in a time frame that was greater than .008 seconds and less than or equal to .064 seconds.</p>
+</li>
+</ul>
+<pre>Command&gt; call ttSQLExecutionTimeHistogram;
+&lt; 1919, 1.090751, .00001562, 278 &gt;
+&lt; 1919, 1.090751, .000125, 1484 &gt;
+&lt; 1919, 1.090751, .001, 35 &gt;
+&lt; 1919, 1.090751, .008, 62 &gt;
+&lt; 1919, 1.090751, .064, 60 &gt;
+&lt; 1919, 1.090751, .512, 0 &gt;
+&lt; 1919, 1.090751, 4.096, 0 &gt;
+&lt; 1919, 1.090751, 32.768, 0 &gt;
+&lt; 1919, 1.090751, 262.144, 0 &gt;
+&lt; 1919, 1.090751, 9.999999999E+125, 0 &gt;
+10 rows found.
+</pre></div>
+<!-- class="sect2" -->
+<a id="CACGIFDH"></a>
+<div id="TTOPR456" class="sect2">
+<h3 class="sect2">Select <a id="sthref1243"></a><a id="sthref1244"></a><a id="sthref1245"></a>hash, range, or bitmap indexes appropriately</h3>
+<p><a id="TTOPR457"></a><span class="bold">Performance impact: Variable</span></p>
+<p>The TimesTen database supports hash, range, and bitmap indexes. The following details when it is appropriate to use each type of index.</p>
+<p>Hash <a id="sthref1246"></a>indexes are useful for finding rows with an <a id="sthref1247"></a><a id="sthref1248"></a>exact match on one or more columns. Hash indexes are useful for doing equality searches. A hash index is created with either of the following:</p>
+<ul>
+<li>
+<p>You can create a hash index or a unique hash index with the <code>CREATE [UNIQUE] HASH INDEX</code> statement.</p>
+</li>
+<li>
+<p>You can create a unique hash index when creating your table with the <code>CREATE TABLE... UNIQUE HASH ON</code> statement. The unique hash index is specified over the primary key columns of the table.</p>
+</li>
+</ul>
+<p>Range indexes are created by default with the <code>CREATE TABLE</code> statement or created with the <code>CREATE [UNIQUE] HASH INDEX</code> statement. Range indexes can speed up exact key lookups but are more flexible and can speed up other queries as well. Select a range index if your queries include <code>LESS THAN</code> or <code>GREATER THAN</code> comparisons. Range indexes are effective for high-cardinality data: that is, data with many possible values, such as <code>CUSTOMER_NAME</code> or <code>PHONE_NUMBER</code>. Range indexes are optimized for in-memory data management.</p>
+<p>Range indexes can also be used to speed up &#34;prefix&#34; queries. A prefix query has equality conditions on all but the last key column that is specified. The last column of a prefix query can have either an equality condition or an inequality condition.</p>
+<p>Consider the following table and index definitions:</p>
+<pre>CREATE TABLE T(i1 integer, i2 integer, i3 integer, ...);
+CREATE INDEX IXT on T(i1, i2, i3);
+</pre>
+<p>The index <code>IXT</code> can be used to speed up the following queries:</p>
+<pre>SELECT * FROM T WHERE i1&gt;12;
+SELECT * FROM T WHERE i1=12 and i2=75;
+SELECT * FROM T WHERE i1=12 and i2 BETWEEN 10 and 20;
+SELECT * FROM T WHERE i1=12 and i2=75 and i3&gt;30;
+</pre>
+<p>The index <code>IXT</code> is not used for the following queries, because the prefix property is not satisfied:</p>
+<pre>SELECT * FROM T WHERE i2=12;
+</pre>
+<p>There is no equality condition for <code>i1</code>.</p>
+<p>The index <code>IXT</code> is used, but matching only occurs on the first two columns for queries like the following:</p>
+<pre>SELECT * FROM T WHERE i1=12 and i2&lt;50 and i3=630;
+</pre>
+<p>Range indexes have a dynamic structure that adjusts itself automatically to accommodate changes in table size. A range index can be either unique or nonunique and can be declared over nullable columns. It also allows the indexed column values to be changed once a record is inserted. A range index is likely to be more compact than an equivalent hash index.</p>
+<p>Bitmap indexes are created with the <code>CREATE INDEX</code> statement. Bitmap indexes are performant when searching and retrieving data from columns with low cardinality. Bitmap indexes are useful with equality queries, especially when using the <code>AND</code> and <code>OR</code> operators. These indexes increase the performance of complex queries that specify multiple predicates on multiple columns connected by <code>AND</code> and <code>OR</code> operators. Bitmap indexes are widely used in data warehousing environments. The environments typically have large amounts of data and ad hoc queries, but a low level of concurrent DML transactions. Bitmap indexes are compressed and have smaller storage requirements than other indexing techniques. For more details on when to use bitmap indexes, see <a class="olink TTSQL292" href="../TTSQL/state.htm#TTSQL292">&#34;CREATE INDEX&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACFIFGD"></a>
+<div id="TTOPR458" class="sect2">
+<h3 class="sect2">Size <a id="sthref1249"></a><a id="sthref1250"></a>hash indexes appropriately</h3>
+<p><a id="TTOPR459"></a><span class="bold">Performance impact: Variable</span></p>
+<p>TimesTen uses hash indexes as both primary key constraints and when specified as part of the <code>CREATE INDEX</code> statement. The size of the hash index is determined by the <code>PAGES</code> parameter specified in the <code>UNIQUE HASH ON</code> clause of the <code>CREATE TABLE</code> and <code>CREATE INDEX</code> statements. The value for <code>PAGES</code> should be the expected number of rows in the table divided by 256; for example, a 256,000 row table should have <code>PAGES = 1000</code>. A smaller value may result in a greater number of hash collisions, decreasing performance, while a larger value may provide somewhat increased performance at the cost of extra space used by the index.</p>
+<p>If the number of rows in the table varies dramatically, and if performance is the primary consideration, it is best to create a large index. If the size of a table cannot be accurately predicted, consider using a range index. Also, consider the use of unique indexes when the indexed columns are large <code>CHAR</code> or binary values or when many columns are indexed. Unique indexes may be faster than hash indexes in these cases.</p>
+<p>If the performance of record inserts degrades as the size of the table gets larger, it is very likely that you have underestimated the expected size of the table. You can resize the hash index by using the <code>ALTER TABLE</code> statement to reset the <code>PAGES</code> value in the <code>UNIQUE HASH ON</code> clause. See information about <code>SET PAGES</code> in the <a class="olink TTSQL286" href="../TTSQL/state.htm#TTSQL286">&#34;ALTER TABLE&#34;</a> section in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBADHJ"></a>
+<div id="TTOPR460" class="sect2">
+<h3 class="sect2">Use <a id="sthref1251"></a><a id="sthref1252"></a>foreign key constraint appropriately</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>The declaration of a foreign key has no performance impact on <code>SELECT</code> queries, but it slows down the <code>INSERT</code> and <code>UPDATE</code> operations on the table that the foreign key is defined on and the <code>UPDATE</code> and <code>DELETE</code> operations on the table referenced by the foreign key. The slow down is proportional to the number of foreign keys that either reference or are defined on the table.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBAGDC"></a>
+<div id="TTOPR462" class="sect2">
+<h3 class="sect2">Compute exact or estimated <a id="sthref1253"></a>statistics</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>If statistics are available on the data in the database, the TimesTen optimizer uses them when preparing a command to determine the optimal path to the data. If there are no statistics, the optimizer uses generic guesses about the data distribution.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+See <a href="query.htm#BABEJFHI">Chapter 9, &#34;The TimesTen Query Optimizer&#34;</a> for more information.</div>
+<p>You should compute statistics before preparing your statements, since the information is likely to result in a more efficient query optimizer plan. When gathering statistics, you need to determine when and how often to gather new statistics as performance is affected by the statistics collection process. The frequency of collection should balance the task of providing accurate statistics for the optimizer against the processing overhead incurred by the statistics collection process.</p>
+<p>Since computing statistics is a time-consuming operation, you should compute statistics with the following guidelines:</p>
+<ul>
+<li>
+<p>Update statistics after loading your database or after major application upgrades.</p>
+</li>
+<li>
+<p>Do not update statistics during a heavy transaction load.</p>
+</li>
+<li>
+<p>Update statistics when there is substantial creation or alteration on tables, columns, or PL/SQL objects.</p>
+<p>If you have created or altered a substantial number of tables, columns, or PL/SQL objects in your database, you should update the data dictionary optimizer statistics for the following system tables: <code>SYS.TABLES</code>, <code>SYS.COLUMNS</code>, and <code>SYS.OBJ$</code>.</p>
+</li>
+<li>
+<p>When you substantially modify tables in batch operations, such as a bulk load or bulk delete, you can gather statistics on these tables as part of the batch operation.</p>
+</li>
+<li>
+<p>Update statistics infrequently, such as once a week or once a month, when tables are only incrementally modified.</p>
+</li>
+<li>
+<p>Update statistics as part of a regularly executed script or batch job during low transaction load times.</p>
+</li>
+<li>
+<p>When updating the statistics for multiple large tables, see <a href="#BABGJJEC">&#34;Update table statistics for large tables in parallel&#34;</a>.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For performance reasons, TimesTen does not hold a lock on tables or rows when computing statistics.</div>
+<p>Use the following for computing statistics: <code>ttIsql</code> <code>statsupdate</code> command, <code>ttOptUpdateStats</code>, or <a id="sthref1254"></a><a id="sthref1255"></a><a id="sthref1256"></a><code>ttOptEstimateStats</code>. Providing an empty string as the table name updates statistics for all tables in the current user&#39;s schema.</p>
+<ul>
+<li>
+<p>The <code>statsupdate</code> command within <code>ttIsql</code> evaluates every row of the table(s) in question and computes exact statistics.</p>
+</li>
+<li>
+<p>The <code>ttOptUpdateStats</code> built-in procedure evaluates every row of the table(s) in question and computes exact statistics.</p>
+</li>
+<li>
+<p>The <code>ttOptEstimateStats</code> procedure evaluates only a sampling of the rows of the table(s) in question and produces estimated statistics. This can be faster, but may result in less accurate statistics. Computing statistics with a sample of 10 percent is about ten times faster than computing exact statistics and generally results in the same execution plans.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more details on <code>ttIsql</code> or the built-in procedures, see <a class="olink TTREF342" href="../TTREF/util.htm#TTREF342">&#34;ttIsql&#34;</a> and <a class="olink TTREF213" href="../TTREF/proced.htm#TTREF213">&#34;Built-In Procedures&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Replication Guide</span>.</div>
+</div>
+<!-- class="sect2" -->
+<a id="BABGJJEC"></a>
+<div id="TTOPR793" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Update table statistics for large tables in parallel</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>It is important to keep table statistics up to date for all TimesTen tables. However, this process can be time-consuming and performance intensive when used on large tables. Consider calling the <code>ttOptUpdateStats</code> built-in procedure in parallel when updating the statistics for multiple large tables.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+A TimesTen table is considered a small table when it contains less than 1 million rows. A TimesTen table is considered a large table when it contains over 100 million rows.</div>
+<p>Call the <code>ttOptUpdateStats</code> built-in procedure for all of the large tables where you want to update table statistics. Make sure to call each <code>ttOptUpdateStats</code> built-in procedure in parallel. For more information on the <code>ttOptUpdateStats</code> built-in procedure, see <a class="olink TTREF277" href="../TTREF/proced.htm#TTREF277">&#34;ttOptUpdateStats&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+<pre>Command&gt; call ttOptUpdateStats(&#39;table1&#39;,0,0);
+Command&gt; call ttOptUpdateStats(&#39;table2&#39;,0,0);
+...
+...
+Command&gt; call ttOptUpdateStats(&#39;finaltable&#39;,0,0);
+</pre>
+<p>Once the <code>ttOptUpdateStats</code> built-in procedure calls have completed, determine how many transactions are accessing the large TimesTen tables for which you updated table statistics. During low transaction load times execute the t<code>tOptCmdCacheInvalidate(&#39;&#39;,1)</code> built-in procedure. For more information on the <code>ttOptCmdCacheInvalidate</code> built-in procedure, see <a class="olink TTREF772" href="../TTREF/proced.htm#TTREF772">&#34;ttOptCmdCacheInvalidate&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>. During high transaction load times execute the following built-in procedures and make sure to call each <code>ttOptCmdCacheInvalidate</code> built-in procedure in parallel:</p>
+<pre>Command&gt; call ttOptCmdCacheInvalidate(&#39;table1&#39;,1);
+Command&gt; call ttOptCmdCacheInvalidate(&#39;table2&#39;,1);
+...
+...
+Command&gt; call ttOptCmdCacheInvalidate(&#39;finaltable&#39;,1);
+</pre>
+<p>The table statistics of your tables are now up to date and compiled commands in the SQL command cache are invalidated.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACDFFIH"></a>
+<div id="TTOPR746" class="sect2">
+<h3 class="sect2">Create script to regenerate current table statistics<a id="sthref1257"></a><a id="sthref1258"></a></h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>You can generate a SQL script with the <code>ttOptStatsExport</code> built-in procedure from which you can restore the table statistics to the current state. When you apply these statements, you re-create the same environment. Recreating the table statistics could be used for diagnosing SQL performance.</p>
+<p>Call the <code>ttOptStatsExport</code> built-in procedure to return the set of statements required to restore the table statistics to the current state. If no table is specified, <code>ttOptStatsExport</code> returns the set of statements required to restore the table statistics for all user tables that the calling user has permission to access.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information and syntax for this built-in procedure, see <a class="olink TTREF779" href="../TTREF/proced.htm#TTREF779">&#34;ttOptStatsExport&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+<p>The following example returns a set of built-in procedure commands that would be required to be executed to restore the statistics for the <code>employees</code> table:</p>
+<pre>Command&gt; CALL ttOptStatsExport(&#39;HR.employees&#39;);
+
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;EMPLOYEE_ID&#39;, 0, (6, 0, 107, 107,
+ (20, 20, 1 ,100, 120, 101), (20, 20, 1 ,121, 141, 122), (20, 20, 1 ,142, 162, 
+143), (20, 20, 1 ,163, 183, 164), (20, 20, 1 ,184, 204, 185), (1, 1, 1 ,205, 206, 
+205))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;FIRST_NAME&#39;, 0, (1, 0, 89, 107, 
+(89, 107, 0, &#39;Adam&#39;, &#39;Winston&#39;, &#39;Adam&#39;))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;LAST_NAME&#39;, 0, (1, 0, 97, 107, (97, 
+107, 0, &#39;Abel&#39;, &#39;Zlotkey&#39;, &#39;Abel&#39;))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;EMAIL&#39;, 0, (6, 0, 107, 107, (20, 
+20, 1, &#39;ABANDA&#39;, &#39;DGREENE&#39;, &#39;ABULL&#39;), (20, 20, 1, &#39;DLEE&#39;, &#39;JKING&#39;, &#39;DLORENTZ&#39;), 
+(20, 20, 1, &#39;JLANDRY&#39;, &#39;LOZER&#39;, &#39;JLIVINGS&#39;), (20, 20, 1, &#39;LPOPP&#39;, &#39;RMATOS&#39;, 
+&#39;LSMITH&#39;), (20, 20, 1, &#39;RPERKINS&#39;, &#39;WGIETZ&#39;, &#39;SANDE&#39;), (1, 1, 1, &#39;WSMITH&#39;, 
+&#39;WTAYLOR&#39;, &#39;WSMITH&#39;))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;PHONE_NUMBER&#39;, 0, (1, 0, 103, 107, 
+(103, 107, 0, &#39;011.44.1343.329268&#39;, &#39;650.509.4876&#39;, &#39;011.44.1343.329268&#39;))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;HIRE_DATE&#39;, 0, (1, 0, 90, 107, (90, 
+107, 0 ,&#39;1987-06-17 00:00:00&#39;, &#39;2000-04-21 00:00:00&#39;, &#39;1987-06-17 00:00:00&#39;))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;JOB_ID&#39;, 0, (4, 0, 19, 107, (11, 
+16, 5, &#39;AC_ACCOUNT&#39;, &#39;PR_REP&#39;, &#39;FI_ACCOUNT&#39;), (3, 11, 30, &#39;PU_CLERK&#39;, &#39;SA_REP&#39;, 
+&#39;SA_REP&#39;), (1, 20, 20, &#39;SH_CLERK&#39;, &#39;ST_CLERK&#39;, &#39;ST_CLERK&#39;), (0, 0, 5, &#39;ST_MAN&#39;, 
+&#39;ST_MAN&#39;, &#39;ST_MAN&#39;))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;SALARY&#39;, 0, (1, 0, 57, 107, (57, 
+107, 0 ,2100, 24000, 2100))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;COMMISSION_PCT&#39;, 0, (1, 72, 7, 107, 
+(7, 35, 0 ,0.1, 0.4, 0.1))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;MANAGER_ID&#39;, 0, (1, 1, 18, 107, 
+(18, 106, 0 ,100, 205, 100))); &gt;
+&lt; call ttoptsetcolIntvlstats(&#39;HR.EMPLOYEES&#39;, &#39;DEPARTMENT_ID&#39;, 0, (3, 1, 11, 107, 
+(4, 10, 45 ,10, 50, 50), (2, 6, 34 ,60, 80, 80), (2, 5, 6 ,90, 110, 100))); &gt;
+&lt; call ttoptsettblstats(&#39;HR.EMPLOYEES&#39;, 107, 0); &gt;
+12 rows found.
+</pre></div>
+<!-- class="sect2" -->
+<a id="CACIICID"></a>
+<div id="TTOPR733" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Control the invalidation of commands in the SQL command cache<a id="sthref1259"></a><a id="sthref1260"></a><a id="sthref1261"></a></h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>TimesTen caches compiled commands in the SQL command cache. These commands can be invalidated. An invalidated command is usually reprepared automatically just before it is re-executed. A single command may be prepared several times.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+See <a href="query.htm#CBACIHBC">&#34;When optimization occurs&#34;</a> for more information on how commands are automatically invalidated.</div>
+<p>When you compute statistics, the process of updating and compiling commands may compete for the same locks on certain tables. If statistics are collected in multiple transactions and commands are invalidated after each statistics update, the following issues may occur:</p>
+<ul>
+<li>
+<p>A join query that references multiple tables might be invalidated and recompiled more than once.</p>
+</li>
+<li>
+<p>Locks needed for recompilation could interfere with updating statistics, which could result in a deadlock.</p>
+</li>
+</ul>
+<p>You can avoid these issues by controlling when commands are invalidated in the SQL command cache. In addition, you may want to hold off invalidation of all commands if you know that the table and index cardinalities will be changing significantly.</p>
+<p>You can control invalidation of the commands, as follows:</p>
+<ol>
+<li>
+<p>Compute statistics without invalidating the commands in the SQL command cache. Set the <code>invalidate</code> option to 0 in either the <code>ttIsql</code> <code>statsupdate</code> command, the <code>ttOptUpdateStats</code> built-in procedure, or the <code>ttOptEstimateStats</code> built-in procedure<a id="sthref1262"></a><a id="sthref1263"></a></p>
+</li>
+<li>
+<p>Manually invalidate the commands in the SQL command cache once all statistics have been compiled with the <code>ttOptCmdCacheInvalidate</code> built-in procedure.</p>
+</li>
+</ol>
+<p>The <code>ttOptCmdCacheInvalidate</code> built-in procedure can invalidate commands associated solely with a table or all commands within the SQL command cache. In addition, you can specify whether the invalidated commands are to be recompiled or marked as unusable.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For complete details on when to optimally calculate statistics, see <a href="#CACBAGDC">&#34;Compute exact or estimated statistics&#34;</a>. In addition, see <a class="olink TTREF342" href="../TTREF/util.htm#TTREF342">&#34;ttIsql,&#34;</a> <a class="olink TTREF277" href="../TTREF/proced.htm#TTREF277">&#34;ttOptUpdateStats,&#34;</a> <a class="olink TTREF264" href="../TTREF/proced.htm#TTREF264">&#34;ttOptEstimateStats, &#34;</a> or <a class="olink TTREF772" href="../TTREF/proced.htm#TTREF772">&#34;ttOptCmdCacheInvalidate&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+</div>
+<!-- class="sect2" -->
+<a id="CACHJIDF"></a>
+<div id="TTOPR463" class="sect2">
+<h3 class="sect2">Avoid <a id="sthref1264"></a><a id="sthref1265"></a><a id="sthref1266"></a><a id="sthref1267"></a>ALTER TABLE</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>The <code>ALTER TABLE</code> statement allows applications to add columns to a table and to drop columns from a table. Although the <code>ALTER TABLE</code> statement itself runs very quickly in most cases, the modifications it makes to the table can cause subsequent operations on the table to run more slowly. The actual performance degradation the application experiences varies with the number of times the table has been altered and with the particular operation being performed on the table.</p>
+<p>Dropping <code>VARCHAR2</code> and <code>VARBINARY</code> columns is slower than dropping columns of other data types since a table scan is required to free the space allocated to the existing <code>VARCHAR2</code> and <code>VARBINARY</code> values in the column to be dropped.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACEIDFB"></a>
+<div id="TTOPR465" class="sect2">
+<h3 class="sect2">Avoid nested queries</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>If you can, it is recommended that you should rewrite your query to avoid nested queries that need materialization of many rows.</p>
+<p>The following are examples of <a id="sthref1268"></a><a id="sthref1269"></a><a id="sthref1270"></a>nested queries that may need to be materialized and result in multiple rows:</p>
+<ul>
+<li>
+<p>Aggregate nested query with <code>GROUP BY</code></p>
+</li>
+<li>
+<p>Nested queries that reference <code>ROWNUM</code></p>
+</li>
+<li>
+<p>Union, intersect, or minus nested queries</p>
+</li>
+<li>
+<p>Nested queries with <code>ORDER BY</code></p>
+</li>
+</ul>
+<p>For example, the following aggregate nested query results in an expensive performance impact:</p>
+<pre>select * from (select sum(x1) sum1 from t1 group by y1), 
+ (select sum(x2) sum2 from t2 group by y2) where sum1=sum2;
+</pre>
+<p>The following is an example of a nested query that references <code>ROWNUM</code>:</p>
+<pre>select * from (select rownum rc, x1 from t1 where x1&gt;100), 
+ (select rownum rc, x2 from t2 where x2&gt;100) where x1=x2;
+</pre>
+<p>The following is an example of a union nested query:</p>
+<pre>select * from (select x1 from t1 union select x2 from t2), 
+ (select x3 from t3 group by x3) where x1=x3;
+</pre>
+<p>For more information on subqueries, see <a class="olink TTSQL198" href="../TTSQL/express.htm#TTSQL198">&#34;Subqueries&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACHDIAI"></a>
+<div id="TTOPR467" class="sect2">
+<h3 class="sect2">Prepare statements in advance</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>If you have applications that generate a statement multiple times searching for different values each time, prepare a parameterized statement to reduce compile time. For example, if your application generates statements like:</p>
+<pre>SELECT A FROM B WHERE C = 10
+SELECT A FROM B WHERE C = 15
+</pre>
+<p>You can replace these statements with the single statement:</p>
+<pre>SELECT A FROM B WHERE C = ?
+</pre>
+<p>TimesTen shares prepared statements automatically after they have been committed. As a result, an application request to prepare a statement for execution may be completed very quickly if a prepared version of the statement already exists in the system. Also, repeated requests to execute the same statement can avoid the prepare overhead by sharing a previously prepared version of the statement.</p>
+<p>Even though TimesTen allows prepared statements to be shared, it is still a good practice for performance reasons to use parameterized statements. Using parameterized statements can further reduce prepare overhead, in addition to any savings from sharing statements.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACHGDJD"></a>
+<div id="TTOPR468" class="sect2">
+<h3 class="sect2">Avoid unnecessary prepare operations</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1271"></a><a id="sthref1272"></a>Because preparing SQL statements is an expensive operation, your application should minimize the number of calls to the prepare API. Most applications prepare a set of statements at the beginning of a connection and use that set for the duration of the connection. This is a good strategy when connections are long, consisting of hundreds or thousands of transactions. But if connections are relatively short, a better strategy is to establish a long-duration connection that prepares the statements and executes them on behalf of all threads or processes. The trade-off here is between communication overhead and prepare overhead, and can be examined for each application. Prepared statements are invalidated when a connection is closed.</p>
+<p>See <a class="olink TTREF307" href="../TTREF/proced.htm#TTREF307">&#34;ttSQLCmdCacheInfoGet&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span> for related information.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACGBEGC"></a>
+<div id="TTOPR716" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Store data efficiently with table compression</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1273"></a><a id="sthref1274"></a>TimesTen provides the ability to compress tables at the column level, which stores the data more efficiently. This mechanism provides space reduction for tables by eliminating the redundant storage of duplicate values within columns.</p>
+<p>When compressing columns of a TimesTen table, consider the following:</p>
+<ul>
+<li>
+<p>Compress a column if values are repeated throughout such as the name of countries or states.</p>
+</li>
+<li>
+<p>Compress a column group if you often access multiple columns together.</p>
+</li>
+<li>
+<p>Do not compress columns that contain data types that require a small amount of storage such as <code>TT_TINYINT</code>.</p>
+</li>
+<li>
+<p>TimesTen does not compress <code>NULL</code> values.</p>
+</li>
+</ul>
+<p>For more information on columnar compression, see <a class="olink TTSQL512" href="../TTSQL/state.htm#TTSQL512">&#34;In-memory columnar compression of tables&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+<p>Compressed column groups can be added at the time of table creation or added later using <code>ALTER TABLE</code>. You can drop the entire compressed column group with the <code>ALTER TABLE</code> statement. For more information, see <a class="olink TTSQL286" href="../TTSQL/state.htm#TTSQL286">&#34;ALTER TABLE&#34;</a> and <a class="olink TTSQL302" href="../TTSQL/state.htm#TTSQL302">&#34;CREATE TABLE&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+<p>You can call the <code>ttSize</code> built-in procedure to review the level of compression that TimesTen achieved on your compressed table. For more information on the <code>ttSize</code> built-in procedure, see <a class="olink TTREF305" href="../TTREF/proced.htm#TTREF305">&#34;ttSize&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABCDJHA"></a>
+<div id="TTOPR783" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Control read optimization during concurrent write operations<a id="sthref1275"></a><a id="sthref1276"></a><a id="sthref1277"></a></h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>TimesTen concurrently processes read and write queries optimally. Your read queries can be optimized for read-only concurrency when you use transaction level optimizer hints such as <code>ttOptSetFlag (&#39;tblLock&#39;,1)</code> or statement level optimizer hints such as <code>/*+ tt_tbllock(1) tt_rowlock(0) */</code>. Write queries that operate concurrently with read optimized queries may result in contention.</p>
+<p>You can control read optimization during periods of concurrent write operations with the <code>ttDbWriteConcurrencyModeSet</code> built-in procedure. This built-in procedure enables you to switch between a standard mode and an enhanced write concurrent mode. In the standard mode, the optimizer respects read optimization hints. In the enhanced write concurrent mode, the optimizer ignores read optimization hints and does not use shared read table locks or write table locks.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information about table locking, see <a href="trans.htm#BABIJJGI">&#34;Locking granularities&#34;</a>.
+<p>For more information about statement level optimizer hints, see <a class="olink TTSQL528" href="../TTSQL/state.htm#TTSQL528">&#34;Statement level optimizer hints&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+<p>For more information about transaction level optimizer hints, see <a class="olink TTREF271" href="../TTREF/proced.htm#TTREF271">&#34;ttOptSetFlag&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<p>Set the <code><span class="codeinlineitalic">mode</span></code> of the <code>ttDbWriteConcurrencyModeSet</code> built-in procedure to <code>1</code> to enable the enhanced write concurrent mode and disable read optimization. Set the <code><span class="codeinlineitalic">mode</span></code> to <code>0</code> to disable the enhanced write concurrent mode and re-enable read optimization.</p>
+<p>When the <code><span class="codeinlineitalic">mode</span></code> is set to <code>1</code>, all transaction and statement table lock optimizer hints are ignored. This affects the following:</p>
+<ul>
+<li>
+<p>Shared read table-level locks for <code>SELECT</code> query and subqueries that are triggered by optimizer hints.</p>
+</li>
+<li>
+<p>Write table locks for DML statements that are triggered by optimizer hints.</p>
+</li>
+</ul>
+<p>Regardless of the <code><span class="codeinlineitalic">mode</span></code> setting, table locks that are not triggered by optimizer hints are not affected.</p>
+<p>Set the <code><span class="codeinlineitalic">wait</span></code> of the <code>ttDbWriteConcurrencyModeSet</code> built-in procedure to <code>0</code> to perform a mode switch without notifications. Set the <code><span class="codeinlineitalic">wait</span></code> of the <code>ttDbWriteConcurrencyModeSet</code> built-in procedure to <code>1</code> to force the built-in procedure to wait until the mode transition is complete.</p>
+<p>Execution of certain SQL statements causes the mode of the <code>ttdbWriteConcurrencyModeSet</code> built-in procedure to remain in transition. Such SQL statements must match the following two conditions:</p>
+<ul>
+<li>
+<p>Affected by the write concurrency mode.</p>
+</li>
+<li>
+<p>Compiled in a different write concurrency mode.</p>
+</li>
+</ul>
+<p>The mode of the <code>ttdbWriteConcurrencyModeSet</code> built-in procedure remains in transition until all such SQL statements complete. The <code>ttDbWriteConcurrencyModeSet</code> built-in procedure uses lock acquisition to wait during the mode transition. An error is returned if the <code>ttDbWriteConcurrencyModeSet</code> built-in procedure is not granted a lock within the timeout interval of the current connection.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information about the <code>ttDbWriteConcurrencyModeSet</code>, <code>ttLockWait</code>, <code>ttDbWriteConcurrencyModeGet</code> built-in procedures, see <a class="olink TTREF851" href="../TTREF/proced.htm#TTREF851">&#34;ttDbWriteConcurrencyModeSet&#34;</a>, <a class="olink TTREF260" href="../TTREF/proced.htm#TTREF260">&#34;ttLockWait&#34;</a>, and <a class="olink TTREF850" href="../TTREF/proced.htm#TTREF850">&#34;ttDbWriteConcurrencyModeGet&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABJEGJA"></a>
+<div id="TTOPR469" class="sect1">
+<h2 class="sect1">Materialized view tuning<a id="sthref1278"></a><a id="sthref1279"></a></h2>
+<p>The following sections include tips for improving performance of materialized views:</p>
+<ul>
+<li>
+<p><a href="#CACIJCCD">Limit number of join rows</a></p>
+</li>
+<li>
+<p><a href="#CACBBEBC">Use indexes on join columns</a></p>
+</li>
+<li>
+<p><a href="#CACEAFEC">Avoid unnecessary updates</a></p>
+</li>
+<li>
+<p><a href="#CACGBBJI">Avoid changes to the inner table of an outer join</a></p>
+</li>
+<li>
+<p><a href="#CACBIFJI">Limit number of columns in a view table</a></p>
+</li>
+</ul>
+<a id="CACIJCCD"></a>
+<div id="TTOPR470" class="sect2">
+<h3 class="sect2">Limit number of join rows</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>Larger numbers of join rows decrease performance. You can limit the number of join rows and the number of tables joined by controlling the join condition. For example, use only equality conditions that map one row from one table to one or at most a few rows from the other table.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBBEBC"></a>
+<div id="TTOPR472" class="sect2">
+<h3 class="sect2">Use indexes on join columns</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>Create indexes on the columns of the detail table that are specified in the <code>SELECT</code> statement that creates the join. Also consider creating an index on the materialized view itself. This can improve the performance of keeping the materialized view updated.</p>
+<p>If an <code>UPDATE</code> or <code>DELETE</code> operation on a detail table is often based on a condition on a column, try to create an index on the materialized view on this column if possible.</p>
+<p>For example, <code>CustOrder</code> is a materialized view of customer orders, based on two tables. The tables are <code>Customer</code> and <code>bookOrder</code>. The former has two columns (<code>custNo</code> and <code>custName</code>) and the latter has three columns (<code>ordNo</code>, <code>book</code>, and <code>custNo</code>). If you often update the <code>bookOrder</code> table to change a particular order by using the condition <code>bookOrder.ordNo=const</code>, then create an index on <code>CustOrder.ordNo</code>. On the other hand, if you often update based on the condition <code>bookOrder.custNo=const</code>, then create an index on <code>CustOrder.custNo</code>.</p>
+<p>If you often update using both conditions and cannot afford to create both indexes, you may want to add <code>bookOrder.rowId</code> in the view and create an index on it instead. In this case, TimesTen updates the view for each detail row update instead of updating all of the rows in the view directly and at the same time. The scan to find the row to be updated is an index scan instead of a row scan, and no join rows need to be generated.</p>
+<p>If <code>ViewUniqueMatchScan</code> is used in the execution plan, it is a sign that the execution may be slower or require more space than necessary. A <code>ViewUniqueMatchScan</code> is used to handle an update or delete that cannot be translated to a direct update or delete of a materialized view, and there is no unique mapping between a join row and the associated row in the materialized view. This can be fixed by selecting a unique key for each detail table that is updated or deleted.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACEAFEC"></a>
+<div id="TTOPR474" class="sect2">
+<h3 class="sect2">Avoid unnecessary updates</h3>
+<p><a id="TTOPR475"></a><span class="bold">Performance impact: Variable</span></p>
+<p>Try not to update a join column or a <code>GROUP BY</code> column because this involves deleting the old value and inserting the new value.</p>
+<p>Try not to update an expression that references more than one table. This may disallow direct update of the view because TimesTen may perform another join operation to get the new value when one value in this expression is updated.</p>
+<p>View maintenance based on an update or delete is more expensive when:</p>
+<ul>
+<li>
+<p>The view cannot be updated directly. For example, not all columns specified in the detail table <code>UPDATE</code> or <code>DELETE</code> statement are selected in the view, or</p>
+</li>
+<li>
+<p>There is not an indication of a one-to-one mapping from the view rows to the join rows.</p>
+</li>
+</ul>
+<p>For example:</p>
+<pre>CREATE MATERIALIZED VIEW v1 AS SELECT x1 FROM t1, t2 WHERE x1=x2;
+DELETE FROM t1 WHERE y1=1;
+</pre>
+<p>The extra cost comes from the fact that extra processing is needed to ensure that one and only one view row is affected due to a join row.</p>
+<p>The problem is resolved if either <code>x1</code> is <code>UNIQUE</code> or a unique key from <code>t1</code> is included in the select list of the view. <code>ROWID</code> can always be used as the unique key.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACGBBJI"></a>
+<div id="TTOPR476" class="sect2">
+<h3 class="sect2">Avoid changes to the inner table of an <a id="sthref1280"></a><a id="sthref1281"></a>outer join</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>Since outer join maintenance is more expensive when changes happen to an inner table, try to avoid changes to the inner table of an outer join. When possible, perform <code>INSERT</code> operations on an inner table before inserting into the associated join rows into an outer table. Likewise, when possible perform <code>DELETE</code> operations on the outer table before deleting from the inner table. This avoids having to convert non-matching rows into matching rows or vice versa.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBIFJI"></a>
+<div id="TTOPR478" class="sect2">
+<h3 class="sect2">Limit number of columns in a view table</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>The number of columns projected in the view <code>SelectList</code> can impact performance. As the number of columns in the select list grows, the time to prepare operations on detail tables increases. In addition, the time to execute operations on the view detail tables also increases. Do not select values or expressions that are not needed.</p>
+<p>The optimizer considers the use of temporary indexes when preparing operations on detail tables of views. This can significantly slow down prepare time, depending upon the operation and the view. If prepare time seems slow, consider using <code>ttOptSetFlag</code> to turn off temporary range indexes and temporary hash scans.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CACIJBGH"></a>
+<div id="TTOPR480" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Transaction tuning<a id="sthref1282"></a><a id="sthref1283"></a></h2>
+<p>The following sections describe how to increase performance when using transactions:</p>
+<ul>
+<li>
+<p><a href="#BCGGIDIA">Size transactions appropriately</a></p>
+</li>
+<li>
+<p><a href="#BCGGIBBC">Use durable commits appropriately</a></p>
+</li>
+<li>
+<p><a href="#BCGBJGJG">Avoid frequent checkpoints</a></p>
+</li>
+<li>
+<p><a href="#CACFCFFG">Turn off autocommit mode</a></p>
+</li>
+<li>
+<p><a href="#CACBECHI">Avoid transaction rollback</a></p>
+</li>
+<li>
+<p><a href="#BABDGDCI">Avoid large DELETE statements</a></p>
+</li>
+<li>
+<p><a href="#CACIIFCF">Increase the commit buffer cache size</a></p>
+</li>
+</ul>
+<a id="BCGGIDIA"></a>
+<div id="TTOPR481" class="sect2">
+<h3 class="sect2">Size transactions appropriately</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1284"></a><a id="sthref1285"></a><a id="sthref1286"></a><a id="sthref1287"></a><a id="sthref1288"></a><a id="sthref1289"></a>Each transaction, when it generates transaction log records (for example, a transaction that does an <code>INSERT</code>, <code>DELETE</code> or <code>UPDATE</code>), incurs a disk write when the transaction commits. Disk I/O affects response time and may affect throughput, depending on how effective group commit is.</p>
+<p>Performance-sensitive applications should avoid unnecessary disk writes at commit. Use a performance analysis tool to measure the amount of time your application spends in disk writes (versus CPU time). If there seems to be an excessive amount of I/O, there are two steps you can take to avoid writes at commit:</p>
+<ul>
+<li>
+<p>Adjust the transaction size.</p>
+</li>
+<li>
+<p>Adjust whether disk writes are performed at transaction commit. See <a href="#BCGGIBBC">&#34;Use durable commits appropriately&#34;</a>.</p>
+</li>
+</ul>
+<p>Long transactions perform fewer disk writes per unit of time than short transactions. However, long transactions also can reduce concurrency, as discussed in <a href="trans.htm#BABIIJHF">Chapter 7, &#34;Transaction Management&#34;</a>.</p>
+<ul>
+<li>
+<p>If only one connection is active on a database, longer transactions could improve performance. However, long transactions may have some disadvantages, such as longer rollbacks.</p>
+</li>
+<li>
+<p>If there are multiple connections, there is a trade-off between transaction log <a id="sthref1290"></a>I/O delays and locking delays. In this case, transactions are best kept to the natural length, as determined by requirements for atomicity and durability.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="BCGGIBBC"></a>
+<div id="TTOPR482" class="sect2">
+<h3 class="sect2">Use durable commits appropriately</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1291"></a><a id="sthref1292"></a><a id="sthref1293"></a><a id="sthref1294"></a>By default, each TimesTen transaction results in a disk write at commit time. This practice ensures that no committed transactions are lost because of system or application failures. Applications can avoid some or all of these disk writes by performing nondurable commits. Nondurable commits do everything that a durable commit does except write the transaction log to disk. Locks are released and cursors are closed, but no disk write is performed.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Some drivers only write data into cache memory or write to disk some time after the operating system receives the write completion notice. In these cases, a power failure may cause some information that you thought was durably committed to be lost. To avoid this loss of data, configure your disk to write to the recording media before reporting completion or use an uninterruptible power supply.</div>
+<p>The advantage of <a id="sthref1295"></a><a id="sthref1296"></a><a id="sthref1297"></a><a id="sthref1298"></a><a id="sthref1299"></a>nondurable commits is a potential reduction in response time and increase in throughput. The disadvantage is that some transactions may be lost in the event of system failure. An application can force the transaction log to disk by performing an occasional durable commit or checkpoint, thereby decreasing the amount of potentially lost data. In addition, TimesTen itself periodically flushes the transaction log to disk when internal buffers fill up, limiting the amount of data that could be lost.</p>
+<p>Transactions can be made durable or can be made to have delayed durability on a connection-by-connection basis. Applications can force a durable commit of a specific transaction by calling the <code>ttDurableCommit</code> procedure.</p>
+<p>Applications that do not use nondurable commits can benefit from using synchronous writes in place of write and flush. To turn on synchronous writes set the first connection attribute <code>LogFlushMethod=2</code>.</p>
+<p>The <code>txn.commits.durable</code> column of the <code>SYS.SYSTEMSTATS</code> table indicates the number of transactions that were durably committed.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BCGBJGJG"></a>
+<div id="TTOPR483" class="sect2">
+<h3 class="sect2">Avoid frequent checkpoints</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1300"></a><a id="sthref1301"></a><a id="sthref1302"></a>Applications that are connected to a database for a long period of time occasionally need to call the <code>ttCkpt</code> built-in procedure to checkpoint the database so that transaction log files do not fill up the disk. Transaction-consistent checkpoints can have a significant performance impact because they require exclusive access to the database.</p>
+<p>It is generally better to call <code>ttCkpt</code> to perform a non-blocking (or &#34;fuzzy&#34;) checkpoint than to call <code>ttCkptBlocking</code> to perform a blocking checkpoint. Non-blocking checkpoints may take longer, but they permit other transactions to operate against the database at the same time and thus impose less overall overhead. You can increase the interval between successive checkpoints by increasing the amount of disk space available for accumulating transaction log files.</p>
+<p>As the transaction log increases in size (if the interval between checkpoints is large), recovery time increases accordingly. If reducing recovery time after a system crash or application failure is important, frequent checkpoints may be preferable. The <code>ckpt.completed</code> column of the <code>SYS.SYSTEMSTATS</code> table indicates how often checkpoints have successfully completed.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACFCFFG"></a>
+<div id="TTOPR484" class="sect2">
+<h3 class="sect2">Turn off autocommit mode</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1303"></a><a id="sthref1304"></a><code>AUTOCOMMIT</code> mode forces a commit after each statement, and is enabled by default. Committing each statement after execution, however, can significantly degrade performance. For this reason, it is generally advisable to disable <code>AUTOCOMMIT</code>, using the appropriate API for your programming environment.</p>
+<p>The <code>txn.commits.count</code> column of the <code>SYS.SYSTEMSTATS</code> table indicates the number of transaction commits.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If you do not include any explicit commits in your application, the application can use up important resources unnecessarily, including memory and locks. All applications should do periodic commits.</div>
+</div>
+<!-- class="sect2" -->
+<a id="CACBECHI"></a>
+<div id="TTOPR485" class="sect2">
+<h3 class="sect2">Avoid transaction rollback</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>When <a id="sthref1305"></a><a id="sthref1306"></a><a id="sthref1307"></a>transactions fail due to erroneous data or application failure, they are rolled back by TimesTen automatically. In addition, applications often explicitly rollback transactions to recover from deadlock or timeout conditions. This is not desirable from a performance point of view, as a rollback consumes resources and the entire transaction is wasted.</p>
+<p>Applications should avoid unnecessary rollbacks. This may mean designing the application to avoid contention and checking application or input data for potential errors in advance, if possible. The <code>txn.rollbacks</code> column of the <code>SYS.SYSTEMSTATS</code> table indicates the number of transactions that were rolled back.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABDGDCI"></a>
+<div id="TTOPR789" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Avoid large DELETE statements</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>Consider the following ways to avoid large delete statements:</p>
+<ul>
+<li>
+<p><a href="#BABIEFFH">Avoid DELETE FROM statements</a></p>
+</li>
+<li>
+<p><a href="#BABEFIBC">Prefer the TRUNCATE TABLE statement</a></p>
+</li>
+<li>
+<p><a href="#BABBFHGF">Consider using the DELETE FIRST clause</a></p>
+</li>
+</ul>
+<a id="BABIEFFH"></a>
+<div id="TTOPR790" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Avoid DELETE FROM statements</h4>
+<p>If you attempt to delete a large number of rows (100,000 or more) from a table with a single SQL statement the operation can take a long time. TimesTen logs each row deleted, in case the operation needs to be rolled back, and writing all of those log records can be very time-consuming because it is a disk-bound operation.</p>
+<p>Another problem with such a large delete operation is that other database operations will be slowed down while the write-intensive delete transaction is occurring. Deleting millions of rows in a single transaction can take minutes to complete.</p>
+<p>Another problem with deleting millions of rows at once occurs when the table is being replicated. Because replication transmits only committed transactions, the replication agent can be slowed down by transmitting a single, multi-hundred MB (or GB) transaction. TimesTen replication is optimized for lots of small transactions and performs slowly when millions of rows are deleted in a single transaction.</p>
+<p>For more information about the <code>DELETE</code> SQL statement, see <a class="olink TTSQL306" href="../TTSQL/state.htm#TTSQL306">&#34;DELETE&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+</div>
+<!-- class="sect3" -->
+<a id="BABEFIBC"></a>
+<div id="TTOPR791" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Prefer the TRUNCATE TABLE statement</h4>
+<p>Instead of deleting all rows from a table, consider using the <code>TRUNCATE TABLE</code> SQL statement. This SQL statement has the same final effect as a <code>DELETE</code> with no <code>WHERE</code> clause, with substantially less logging. In addition, when using replication, the <code>TRUNCATE</code> operation is replicated to another database as a single operation, rather than one operation for each deleted row.</p>
+<p>For more information about the <code>TRUNCATE TABLE</code> SQL statement, see <a class="olink TTSQL334" href="../TTSQL/state.htm#TTSQL334">&#34;TRUNCATE TABLE&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+</div>
+<!-- class="sect3" -->
+<a id="BABBFHGF"></a>
+<div id="TTOPR792" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Consider using the DELETE FIRST clause</h4>
+<p>If you want to delete a large number of rows and <code>TRUNCATE TABLE</code> is not appropriate, consider using the <code>DELETE FIRST</code> <code><span class="codeinlineitalic">NumRows</span></code> clause to delete rows from a table in batches. The <code>DELETE FIRST</code> <code><span class="codeinlineitalic">NumRows</span></code> syntax allows you to change &ldquo;<code>DELETE FROM</code> <code><span class="codeinlineitalic">TableName</span></code> <code>WHERE</code> . . .&rdquo; into a sequence of &ldquo;<code>DELETE FIRST</code> 10000 <code>FROM</code> <code><span class="codeinlineitalic">TableName</span></code> <code>WHERE</code> . . .&rdquo; operations.</p>
+<p>By splitting a large <code>DELETE</code> operation into a batch of smaller operations, the rows will be deleted much faster, and the overall concurrency of the system and replication will not be affected.</p>
+<p>For more information about the <code>DELETE FIRST</code> clause, see <a class="olink TTSQL306" href="../TTSQL/state.htm#TTSQL306">&#34;DELETE&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</p>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CACIIFCF"></a>
+<div id="TTOPR771" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Inc<a id="sthref1308"></a>rease the commit buffer cache size</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>TimesTen resource cleanup occurs during the reclaim phase of a transaction commit. During reclaim, TimesTen reexamines all the transaction log records starting from the beginning of the transaction to determine the reclaim operations that must be performed.</p>
+<p>The reclaim phase of a large transaction commit results in a large amount of processing and is very resource intensive. You can improve performance, however, by increasing the maximum size of the commit buffer, which is the cache of transaction log records used during reclaim operations.</p>
+<p>You can use the TimesTen <code>CommitBufferSizeMax</code> connection attribute to specify the maximum size of the commit buffer, in megabytes. This setting has the scope of your current session.</p>
+<p>See <a href="trans.htm#BABJEBGI">&#34;Configuring the commit buffer for reclaim operations&#34;</a> for information.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CACJAJGB"></a>
+<div id="TTOPR486" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><a id="sthref1309"></a>Recovery tuning</h2>
+<p>The following sections include tips for improving performance of database recovery after database shutdown or system failure:</p>
+<ul>
+<li>
+<p><a href="#CACHEFHI">Set RecoveryThreads</a></p>
+</li>
+<li>
+<p><a href="#CACCICDJ">Set CkptReadThreads</a></p>
+</li>
+</ul>
+<a id="CACHEFHI"></a>
+<div id="TTOPR487" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Set RecoveryThreads</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>Set the <code>RecoveryThreads</code> attribute to the number of indexes or CPUs to improve recovery performance.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACCICDJ"></a>
+<div id="TTOPR795" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Set <a id="sthref1310"></a><a id="sthref1311"></a>CkptReadThreads</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p>When a database has large checkpoint files (hundreds of gigabytes), first connection or recovery operations may not perform well and, in extreme cases, may take hours to complete. To improve recovery performance when you have large checkpoint files, use the <code>CkptReadThreads</code> connection attribute to increase the number of concurrent threads used for reading the checkpoint files during the loading of the database into memory.</p>
+<p>For more information on the <code>CkptReadThreads</code> connection attribute, see <a class="olink TTREF857" href="../TTREF/attribute.htm#TTREF857">&#34;CkptReadThreads&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABFGDHG"></a>
+<div id="TTOPR491" class="sect1">
+<h2 class="sect1">Scaling for multiple CPUs</h2>
+<p>The following sections include tips for improving performance for multiple CPUs:</p>
+<ul>
+<li>
+<p><a href="#CACJGBBB">Run the demo applications as a prototype</a></p>
+</li>
+<li>
+<p><a href="#CACBHCHB">Limit database-intensive connections per CPU</a></p>
+</li>
+<li>
+<p><a href="#CACJCDCH">Use read operations when available</a></p>
+</li>
+<li>
+<p><a href="#CACBHJCD">Limit prepares, re-prepares and connects</a></p>
+</li>
+<li>
+<p><a href="#CACGDIIJ">Allow indexes to be rebuilt in parallel during recovery</a></p>
+</li>
+<li>
+<p><a href="#CACDBAHH">Use private commands</a></p>
+</li>
+</ul>
+<a id="CACJGBBB"></a>
+<div id="TTOPR492" class="sect2">
+<h3 class="sect2">Run the demo applications as a prototype</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>One way to determine the approximate scaling you can expect from TimesTen is to run one of the scalable demo applications, such as <code>tptbm</code>, on your system.</p>
+<p>The <code>tptbm</code> application implements a multi-user throughput benchmark. It enables you to control how it executes, including options to vary the number of processes that execute TimesTen operations and the transaction mix of <code>SELECT</code>s, <code>UPDATE</code>s, and <code>INSERT</code>s, for example. Run <code>tptbm -help</code> to see the full list of options.</p>
+<p>By default the demo executes one operation per transaction. You can specify more operations per transaction to better model your application. Larger transactions may scale better or worse, depending on the application profile.</p>
+<p>Run multi-processor versions of the demo to evaluate how your application can be expected to perform on systems that have multiple CPUs. If the demo scales well but your application scales poorly, you might try simplifying your application to see where the issue is. Some users comment out the TimesTen calls and find they still have bad scaling due to issues in the application.</p>
+<p>You may also find, for example, that some simulated application data is not being generated properly, so that all the operations are accessing the same few rows. That type of localized access greatly inhibits scalability if the accesses involve changes to the data.</p>
+<p>See the Quick Start home page at <code><span class="codeinlineitalic">install_dir</span></code><code>/quickstart.html</code> for additional information about <code>tptbm</code> and other demo applications. Go to the ODBC link under &#34;Sample Programs&#34;.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBHCHB"></a>
+<div id="TTOPR494" class="sect2">
+<h3 class="sect2">Limit database-intensive connections per CPU</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>Check the <code>lock.timeouts</code> or <code>lock.locks_granted.wait</code> fields in the <code>SYS.SYSTEMSTATS</code> table. If they have high values, this may indicate undue contention, which can lead to poor scaling.</p>
+<p>Because TimesTen is quite CPU-intensive, optimal scaling is achieved by having at most one database-intensive connection per CPU. If you have a 4-CPU system or a 2-CPU system with hyperthreading, then a 4-processor application executes well, but an 8-processor application does not perform well. The contention between the active threads is too high. The only exception to this rule is when many transactions are committed durably. In this case, the connections are not very CPU-intensive because of the increase in I/O operations to disk, and so the system can support many more concurrent connections.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACJCDCH"></a>
+<div id="TTOPR496" class="sect2">
+<h3 class="sect2">Use read operations when available</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>Read operations scale better than write operations. Make sure that the read and write balance reflects the real-life workload of your application.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBHJCD"></a>
+<div id="TTOPR498" class="sect2">
+<h3 class="sect2">Limit prepares, re-prepares and connects</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>Prepares do not scale. Make sure that you pre-prepare commands that are executed more than once. The <code>stmt.prepares.count</code> and <code>stmt.reprepares.count</code> columns of the <code>SYS.SYSTEMSTATS</code> table indicate how often commands were prepared or automatically re-prepared due to creation or deletion of indexes. If either has a high value, modify your application to do connection pooling, so that connects and disconnects are rare events.</p>
+<p>Connects do not scale. Make sure that you pre-prepare commands that are executed more than once. Look at the <code>connections.established.count</code> column in the <code>SYS.SYSTEMSTATS</code> table. If the field has a high value, modify your application to do connection pooling, so that connects and disconnects are rare events.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACGDIIJ"></a>
+<div id="TTOPR502" class="sect2">
+<h3 class="sect2">Allow indexes to be rebuilt in parallel during recovery</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>On multi-processor systems, set RecoveryThreads to minimum(number of CPUs available, number of indexes) to allow indexes to be rebuilt in parallel if recovery is necessary. If a rebuild is necessary, progress can be viewed in the user log. Setting RecoveryThreads to a number larger than the number of CPUs available can cause recovery to take longer than if it were single-threaded.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACDBAHH"></a>
+<div id="TTOPR504" class="sect2">
+<h3 class="sect2">Use private commands</h3>
+<p><span class="bold">Performance impact: Variable</span></p>
+<p>On multi-processor systems, if many threads are executing the same commands, then try setting PrivateCommands=1 to improve throughput or response time. The use of private commands increases the amount of temporary space used.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABJEAHE"></a>
+<div id="TTOPR506" class="sect1">
+<h2 class="sect1">XLA tuning</h2>
+<p>The following sections include tips for improving XLA performance:</p>
+<ul>
+<li>
+<p><a href="#BCGIDFGJ">Increase transaction log buffer size when using XLA</a></p>
+</li>
+<li>
+<p><a href="#CACDGGGD">Prefetch multiple update records</a></p>
+</li>
+<li>
+<p><a href="#CACBEDGD">Acknowledge XLA updates</a></p>
+</li>
+</ul>
+<a id="BCGIDFGJ"></a>
+<div id="TTOPR507" class="sect2">
+<h3 class="sect2">Increase transaction log buffer size when using XLA</h3>
+<p><span class="bold">Performance impact: Large</span></p>
+<p><a id="sthref1312"></a><a id="sthref1313"></a><a id="sthref1314"></a>A larger transaction log buffer size is appropriate when using XLA. When XLA is enabled, additional transaction log records are generated to store additional information for XLA. To ensure the transaction log buffer is properly sized, one can watch for changes in the <code>SYS.MONITOR</code> table entries <code>LOG_FS_READS</code> and <code>LOG_BUFFER_WAITS</code>. For optimal performance, both of these values should remain 0. Increasing the transaction log buffer size may be necessary to ensure the values remain 0.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACDGGGD"></a>
+<div id="TTOPR508" class="sect2">
+<h3 class="sect2">Prefetch multiple update records</h3>
+<p><span class="bold">Performance impact: Medium</span></p>
+<p>Prefetching <a id="sthref1315"></a><a id="sthref1316"></a><a id="sthref1317"></a><a id="sthref1318"></a>multiple update records at a time is more efficient than obtaining each update record from XLA individually. Because updates are not prefetched when you use <code>AUTO_ACKNOWLEDGE</code> mode, it can be slower than the other modes. If possible, you should design your application to tolerate duplicate updates so you can use <code>DUPS_OK_ACKNOWLEDGE</code>, or explicitly acknowledge updates. Explicitly acknowledging updates usually yields the best performance if the application can tolerate not acknowledging each message individually.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACBEDGD"></a>
+<div id="TTOPR510" class="sect2">
+<h3 class="sect2">Acknowledge XLA updates</h3>
+<p><span class="bold">Performance impact: Medium</span></p>
+<p>To explicitly <a id="sthref1319"></a><a id="sthref1320"></a>acknowledge an XLA update, you call <code>acknowledge</code> on the update message. Acknowledging a message implicitly acknowledges all previous messages. Typically, you receive and process multiple update messages between acknowledgements. If you are using the <code>CLIENT_ACKNOWLEDGE</code> mode and intend to reuse a durable subscription in the future, you should call <code>acknowledge</code> to reset the bookmark to the last-read position before exiting.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CACHIAEJ"></a>
+<div id="TTOPR772" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Cache and replication tuning</h2>
+<p>For recommendations on improving performance for when using a replication scheme, see <a class="olink TTREP673" href="../TTREP/perform.htm#TTREP673">&#34;Improving replication performance&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Replication Guide</span>.</p>
+<p>For recommendations on improving performance when using cache groups, see <a class="olink TTCAC410" href="../TTCAC/perform.htm#TTCAC410">&#34;Cache Performance&#34;</a> in the <span class="italic">Oracle TimesTen Application-Tier Database Cache User&#39;s Guide</span>.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment3223">
+<tr>
+<td class="cellalignment3230">
+<table class="cellalignment3228">
+<tr>
+<td class="cellalignment3227"><a href="query.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment3227"><a href="glossary.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment3232">
+<table class="cellalignment3226">
+<tr>
+<td class="cellalignment3227"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment3227"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment3227"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment3227"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment3227"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment3227"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,1519 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-4091"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Memory%20Architecture"></a><title>Memory Architecture</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="This chapter discusses the memory architecture of a database instance."/>
+<meta name="keywords" content="instances, database, memory structures of, memory, content of, software code areas, program global area (PGA), system global area (SGA), user global area (UGA), initialization parameters, OPEN_CURSORS, OPEN_CURSORS parameter, managing private SQL areas, handles for SQL statements, private SQL areas, how managed, SGA (system global area), contents of, shared and writable, database buffer cache, database buffers, definition, buffer cache, data blocks, stored in the buffer cache, automatic big table caching, tables, least recently used (LRU) algorithm, database buffers and, LRU, optimized physical reads, flash cache, buffer bodies in flash cache, cache hits and misses, buffer reads, big table cache, SGA, database writer process (DBW, n, least recently used algorithm (LRU), latches, cached in memory, writing to disk, scans, full table, full table scans, LRU algorithm and, full table scans and, force full database caching mode, In-Memory Column Store, columnar format, INMEMORY_SIZE initialization parameter, INMEMORY_SIZE, benefits, consistency with buffer cache, dual memory formats, Space Management Worker Processes (Wnnn), CPU_COUNT initialization parameter, INMEMORY_MAX_POPULATE_SERVERS initialization parameter, In-Memory Compression Units (IMCUs), population, population of columnar data, Oracle RAC, compression, storage index, optimization of scans, online redo log, log writer process, log writer process (LGWR), redo log buffers and, redo logs buffer, redo log buffer, data dictionary cache, library cache, shared SQL areas, shared pool, described, data dictionary, cache, SQL, memory allocation for, allocation for SQL statements, SQL areas, shared, private, packages, shared SQL areas and, PL/SQL, program units, shared pool and, procedures, packages, triggers and, procedures, triggers, global database names, databases, distributed, changing global database name, flushing, statistics, dependency management and, shared SQL pool, allocation of, content, client result cache, result cache, RESULT_CACHE clause, XA, session memory in the large pool, Oracle XA, shared server, sessions, memory allocation in the large pool, large pool, Java-related"/>
+<meta name="dcterms.created" content="2017-07-10T11:33:29Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Concepts"/>
+<meta name="dcterms.identifier" content="E41396-15"/>
+<meta name="dcterms.isVersionOf" content="CNCPT"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1993, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="startup.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="process.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41396-15.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-913335DF-050A-479A-A653-68A064DCCA41"></a> <span id="PAGE" style="display:none;">23/34</span> <!-- End Header -->
+<a id="CNCPT007"></a>
+<h1 id="CNCPT-GUID-913335DF-050A-479A-A653-68A064DCCA41" class="sect1"><span class="enumeration_chapter">14</span> Memory Architecture</h1>
+<div>
+<p>This chapter discusses the memory architecture of a database instance.</p>
+<p>This chapter contains the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="memory.htm#GUID-1A40F9B9-EB2F-4060-9007-7B26C033A774" title="When an instance is started, Oracle Database allocates a memory area and starts background processes.">Introduction to Oracle Database Memory Structures</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-61B574AB-8493-4D43-8B30-0050A30550AD" title="The UGA is session memory, which is memory allocated for session variables, such as logon information, and other information required by a database session. Essentially, the UGA stores the session state.">Overview of the User Global Area</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-859795E2-87CD-442B-B36F-584A77755F59" title="The PGA is memory specific to an operating process or thread that is not shared by other processes or threads on the system. Because the PGA is process-specific, it is never allocated in the SGA.">Overview of the Program Global Area (PGA)</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-24EDB8CD-8279-4CED-82AF-642FC01A4A73" title="The SGA is a read/write memory area that, along with the Oracle background processes, form a database instance. All server processes that execute on behalf of users can read information in the instance SGA. Several processes write to the SGA during database operation.">Overview of the System Global Area (SGA)</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-EE4E1B4E-1C00-499F-B00E-2637B7E19963" title="A software code area is a portion of memory that stores code that is being run or can be run. Oracle Database code is stored in a software area that is typically more exclusive and protected than the location of user programs.">Overview of Software Code Areas</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-913335DF-050A-479A-A653-68A064DCCA41__GUID-A380A7A7-B722-4313-BF06-3548919FA5A1">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADMIN00207" target="_blank" href="../ADMIN/memory.htm#ADMIN00207"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> for instructions for configuring and managing memory</p>
+</div>
+</div>
+<a id="CNCPT7776"></a>
+<div class="props_rev_3"><a id="GUID-1A40F9B9-EB2F-4060-9007-7B26C033A774"></a>
+<h2 id="CNCPT-GUID-1A40F9B9-EB2F-4060-9007-7B26C033A774" class="sect2">Introduction to Oracle Database Memory Structures</h2>
+<div>
+<p>When an instance is started, Oracle Database allocates a memory area and starts background processes.</p>
+<p>The memory area stores information such as the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Program code</p>
+</li>
+<li>
+<p>Information about each connected <a href="glossary.htm#GUID-0F44C072-9841-4E2E-B846-FB16A2E54139"><span class="xrefglossterm">session</span></a>, even if it is not currently active</p>
+</li>
+<li>
+<p>Information needed during program execution, for example, the current state of a <a href="glossary.htm#GUID-CCF91C9F-A98A-498F-A84B-58A0FA16CD6E"><span class="xrefglossterm">query</span></a> from which rows are being fetched</p>
+</li>
+<li>
+<p>Information such as <a href="glossary.htm#GUID-6D016291-A487-4F88-BE0B-ACF8FA2AE72C"><span class="xrefglossterm">lock</span></a> data that is shared and communicated among processes</p>
+</li>
+<li>
+<p>Cached data, such as data blocks and redo records, that also exists on disk</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-1A40F9B9-EB2F-4060-9007-7B26C033A774__GUID-07FDFA76-13C8-462F-AD2A-1EDADA321CCE">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="process.htm#GUID-85D9852E-5BF1-4AC0-9E5A-49F0570DBD7A" title="This chapter discusses the processes in an Oracle database.">Process Architecture</a>&#34;</span></p>
+</div>
+</div>
+<a id="CNCPT89066"></a><a id="CNCPT7777"></a>
+<div class="props_rev_3"><a id="GUID-02378E7A-865B-456B-8725-1E73D16A34BE"></a>
+<h3 id="CNCPT-GUID-02378E7A-865B-456B-8725-1E73D16A34BE" class="sect3">Basic Memory Structures</h3>
+<div>
+<p>Oracle Database includes several memory areas, each of which contains multiple subcomponents.</p>
+<p>The basic memory structures associated with Oracle Database include:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>System global area (SGA)</p>
+<p>The SGA is a group of shared memory structures, known as <span class="italic">SGA components</span>, that contain data and control information for one Oracle Database instance. All server and background processes share the SGA. Examples of data stored in the SGA include cached data blocks and shared SQL areas.</p>
+</li>
+<li>
+<p>Program global area (PGA)</p>
+<p>A PGA is a nonshared memory region that contains data and control information exclusively for use by an Oracle process. Oracle Database creates the PGA when an Oracle process starts.</p>
+<p>One PGA exists for each <a href="glossary.htm#GUID-E660AC1C-B704-4DC1-A35A-DB49EFB34F4A"><span class="xrefglossterm">server process</span></a> and background process. The collection of individual PGAs is the total instance PGA, or <a href="glossary.htm#GUID-8341392A-07AD-45A0-8E71-E330584EEE74"><span class="xrefglossterm">instance PGA</span></a>. Database initialization parameters set the size of the instance PGA, not individual PGAs.</p>
+</li>
+<li>
+<p>User global area (UGA)</p>
+<p>The UGA is memory associated with a user session.</p>
+</li>
+<li>
+<p>Software code areas</p>
+<p>Software code areas are portions of memory used to store code that is being run or can be run. Oracle Database code is stored in a software area that is typically at a different location from user programs&mdash;a more exclusive or protected location.</p>
+</li>
+</ul>
+<p>The following figure illustrates the relationships among these memory structures.</p>
+<div class="figure" id="GUID-02378E7A-865B-456B-8725-1E73D16A34BE__CHDHAHIJ">
+<p class="titleinfigure">Figure 14-1 Oracle Database Memory Structures</p>
+<img width="581" height="596" src="img/GUID-8C66B8D0-7204-48FA-909C-C434CFED0F70-default.gif" alt="Description of Figure 14-1 follows" title="Description of Figure 14-1 follows"/><br/>
+<a href="img_text/GUID-8C66B8D0-7204-48FA-909C-C434CFED0F70-print.htm">Description of &#34;Figure 14-1 Oracle Database Memory Structures&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="CNCPT7778"></a>
+<div class="props_rev_3"><a id="GUID-079064A0-DBFC-45C4-B10A-1442D4667036"></a>
+<h3 id="CNCPT-GUID-079064A0-DBFC-45C4-B10A-1442D4667036" class="sect3">Oracle Database Memory Management</h3>
+<div>
+<p>Memory management involves maintaining optimal sizes for the Oracle instance memory structures as demands on the database change. Oracle Database manages memory based on the settings of memory-related initialization parameters.</p>
+<p>The basic options for memory management are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Automatic memory management</p>
+<p>You specify the target size for the database instance memory. The instance automatically tunes to the target memory size, redistributing memory as needed between the SGA and the instance PGA.</p>
+</li>
+<li>
+<p>Automatic shared memory management</p>
+<p>This management mode is partially automated. You set a target size for the SGA and then have the option of setting an aggregate target size for the PGA or managing PGA work areas individually.</p>
+</li>
+<li>
+<p>Manual memory management</p>
+<p>Instead of setting the total memory size, you set many initialization parameters to manage components of the SGA and instance PGA individually.</p>
+</li>
+</ul>
+<p>If you create a database with Database Configuration Assistant (DBCA) and choose the basic installation option, then automatic memory management is the default.</p>
+<div class="infoboxnotealso" id="GUID-079064A0-DBFC-45C4-B10A-1442D4667036__GUID-F2F3F67F-D0CD-4CD1-8226-A351C51FC434">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="cncptdba.htm#GUID-D39DB708-CC94-4EE6-ACDA-ACED36DA4DA5" title="Memory management involves maintaining optimal sizes for the Oracle instance memory structures as demands on the database change. Initialization parameter settings determine how SGA and instance PGA memory is managed.">Memory Management</a>&#34;</span> for more information about memory management options for DBAs</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="cncptdba.htm#GUID-87ACF317-FEBC-418C-9BE6-253F2C43F482" title="Oracle provides several tools to simplify the task of installing and configuring Oracle Database software.">Tools for Database Installation and Configuration</a>&#34;</span> to learn about DBCA</p>
+</li>
+<li>
+<p><a class="olink ADMIN11197" target="_blank" href="../ADMIN/memory.htm#ADMIN11197"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn about memory management options</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89067"></a><a id="CNCPT1238"></a>
+<div class="props_rev_3"><a id="GUID-61B574AB-8493-4D43-8B30-0050A30550AD"></a>
+<h2 id="CNCPT-GUID-61B574AB-8493-4D43-8B30-0050A30550AD" class="sect2">Overview of the User Global Area</h2>
+<div>
+<p>The UGA is session memory, which is memory allocated for session variables, such as logon information, and other information required by a database session. Essentially, the UGA stores the session state.</p>
+<p>The following figure depicts the UGA.</p>
+<div class="figure" id="GUID-61B574AB-8493-4D43-8B30-0050A30550AD__BGBJCDEA">
+<p class="titleinfigure">Figure 14-2 User Global Area (UGA)</p>
+<img width="203" height="153" src="img/GUID-06A7AD33-963E-4612-804C-9443CF4D8B5F-default.gif" alt="Description of Figure 14-2 follows" title="Description of Figure 14-2 follows"/><br/>
+<a href="img_text/GUID-06A7AD33-963E-4612-804C-9443CF4D8B5F-print.htm">Description of &#34;Figure 14-2 User Global Area (UGA)&#34;</a></div>
+<!-- class="figure" -->
+<p>If a session loads a <a href="glossary.htm#GUID-FE40E95B-5EB8-46D6-8ED2-5DB2D26C8726"><span class="xrefglossterm">PL/SQL package</span></a> into memory, then the UGA contains the <span class="italic">package state</span>, which is the set of values stored in all the package variables at a specific time. The package state changes when a package subprogram changes the variables. By default, the package variables are unique to and persist for the life of the session.</p>
+<p>The <a href="glossary.htm#GUID-D802897B-B87B-462C-9E55-5C36226CE128"><span class="xrefglossterm">OLAP page pool</span></a> is also stored in the UGA. This pool manages <a href="glossary.htm#GUID-A6734D1E-A45B-4BE3-ABF8-F6201A40F6B3"><span class="xrefglossterm">OLAP</span></a> data pages, which are equivalent to data blocks. The page pool is allocated at the start of an OLAP session and released at the end of the session. An OLAP session opens automatically whenever a user queries a dimensional object such as a <a href="glossary.htm#GUID-A41DC92E-57F1-4ECB-96EA-E641EEC33748"><span class="xrefglossterm">cube</span></a>.</p>
+<p>The UGA must be available to a database session for the life of the session. For this reason, the UGA cannot be stored in the PGA when using a <a href="glossary.htm#GUID-E94CE0E3-CC86-4F46-B8EF-54945F026326"><span class="xrefglossterm">shared server</span></a> connection because the PGA is specific to a single process. Therefore, the UGA is stored in the SGA when using shared server connections, enabling any shared server process access to it. When using a <a href="glossary.htm#GUID-8B14C804-9D68-471C-A581-5AEE673A9FCD"><span class="xrefglossterm">dedicated server</span></a> connection, the UGA is stored in the PGA.</p>
+<div class="infoboxnotealso" id="GUID-61B574AB-8493-4D43-8B30-0050A30550AD__GUID-D46BD30E-0CF3-49A1-8709-4491CD633EBB">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="srvrside.htm#GUID-87FA8137-A449-4542-8869-441C63810C63" title="A PL/SQL package is a group of related subprograms, along with the cursors and variables they use, stored together in the database for continued use as a unit. Packaged subprograms can be called explicitly by applications or users.">PL/SQL Packages</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="process.htm#GUID-3A11FF2F-50EE-4839-A1A6-F746DFF634AB" title="A database connection is a physical communication pathway between a client process and a database instance.">Connections and Sessions</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink NETAG210" target="_blank" href="../NETAG/net_arch.htm#NETAG210"><span><cite>Oracle Database Net Services Administrator&#39;s Guide</cite></span></a> to learn about shared server connections</p>
+</li>
+<li>
+<p><a class="olink OLAUG100" target="_blank" href="../OLAUG/overview.htm#OLAUG100"><span><cite>Oracle OLAP User&rsquo;s Guide</cite></span></a> for an overview of Oracle OLAP</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89068"></a><a id="CNCPT803"></a>
+<div class="props_rev_3"><a id="GUID-859795E2-87CD-442B-B36F-584A77755F59"></a>
+<h2 id="CNCPT-GUID-859795E2-87CD-442B-B36F-584A77755F59" class="sect2">Overview of the Program Global Area (PGA)</h2>
+<div>
+<p>The PGA is memory specific to an operating process or thread that is not shared by other processes or threads on the system. Because the PGA is process-specific, it is never allocated in the SGA.</p>
+<p>The PGA is a memory heap that contains session-dependent variables required by a dedicated or shared server process. The server process allocates memory structures that it requires in the PGA.</p>
+<p>An analogy for a PGA is a temporary countertop workspace used by a file clerk. In this analogy, the file clerk is the server process doing work on behalf of the customer (client process). The clerk clears a section of the countertop, uses the workspace to store details about the customer request and to sort the folders requested by the customer, and then gives up the space when the work is done.</p>
+<p>The following figure shows an instance PGA (collection of all PGAs) for an instance that is not configured for shared servers. You can use an initialization parameter to set a target maximum size of the instance PGA. Individual PGAs can grow as needed up to this target size.</p>
+<div class="figure" id="GUID-859795E2-87CD-442B-B36F-584A77755F59__BGBFGGFF">
+<p class="titleinfigure">Figure 14-3 Instance PGA</p>
+<img width="287" height="297" src="img/GUID-1E5854F1-CD32-48E1-8955-112FB2E7800F-default.gif" alt="Description of Figure 14-3 follows" title="Description of Figure 14-3 follows"/><br/>
+<a href="img_text/GUID-1E5854F1-CD32-48E1-8955-112FB2E7800F-print.htm">Description of &#34;Figure 14-3 Instance PGA&#34;</a></div>
+<!-- class="figure" -->
+<div class="infobox-note" id="GUID-859795E2-87CD-442B-B36F-584A77755F59__GUID-A3441764-26D0-4269-9F89-50A9B1825587">
+<p class="notep1">Note:</p>
+<p>Background processes also allocate their own PGAs. This discussion focuses on server process PGAs only.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-859795E2-87CD-442B-B36F-584A77755F59__GUID-73AE7CC2-C339-4403-A147-62B7CC658325">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="cncptdba.htm#GUID-17DC29B0-9741-4B80-8091-D9E1A886B357" title="Memory management is either automatic or manual.">Summary of Memory Management Methods</a>&#34;</span></p>
+</div>
+</div>
+<a id="CNCPT89069"></a><a id="CNCPT1237"></a>
+<div class="props_rev_3"><a id="GUID-0788EAEE-0E93-497B-9ACA-401EC0F7BCA1"></a>
+<h3 id="CNCPT-GUID-0788EAEE-0E93-497B-9ACA-401EC0F7BCA1" class="sect3">Contents of the PGA</h3>
+<div>
+<p>The PGA is subdivided into different areas, each with a different purpose.</p>
+<p>The following figure shows the possible contents of the PGA for a dedicated server session. Not all of the PGA areas will exist in every case.</p>
+<div class="figure" id="GUID-0788EAEE-0E93-497B-9ACA-401EC0F7BCA1__BGBCICEI">
+<p class="titleinfigure">Figure 14-4 PGA Contents</p>
+<img width="503" height="122" src="img/GUID-8C7EE2ED-874D-4D85-8CBC-FBF4099A5770-default.gif" alt="Description of Figure 14-4 follows" title="Description of Figure 14-4 follows"/><br/>
+<a href="img_text/GUID-8C7EE2ED-874D-4D85-8CBC-FBF4099A5770-print.htm">Description of &#34;Figure 14-4 PGA Contents&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="CNCPT89189"></a><a id="CNCPT1239"></a>
+<div class="props_rev_3"><a id="GUID-8C561EE3-04BC-44A9-BED0-19CDBA566810"></a>
+<h4 id="CNCPT-GUID-8C561EE3-04BC-44A9-BED0-19CDBA566810" class="sect4">Private SQL Area</h4>
+<div>
+<p>A <span class="bold">private SQL area</span> holds information about a parsed SQL statement and other session-specific information for processing.</p>
+<p>When a server process executes SQL or PL/SQL code, the process uses the private SQL area to store <a href="glossary.htm#GUID-456A73CB-75F4-4197-B1CD-12A51A1CBDC7"><span class="xrefglossterm">bind variable</span></a> values, query execution state information, and query execution work areas.</p>
+<p>Do not confuse a <span class="italic">private</span> SQL area, which is in the PGA, with the <span class="italic">shared</span> SQL area, which stores execution plans in the SGA. Multiple private SQL areas in the same or different sessions can point to a single execution plan in the SGA. For example, 20 executions of <code class="codeph">SELECT * FROM sales</code> in one session and 10 executions of the same query in a different session can share the same plan. The private SQL areas for each execution are not shared and may contain different values and data.</p>
+<p>A <a href="glossary.htm#GUID-D1D3E8DD-CD5C-4C0D-93E4-DE0BF0BD53A3"><span class="xrefglossterm">cursor</span></a> is a name or handle to a specific private SQL area. As shown in the following graphic, you can think of a cursor as a pointer on the client side and as a state on the server side. Because cursors are closely associated with private SQL areas, the terms are sometimes used interchangeably.</p>
+<div class="figure" id="GUID-8C561EE3-04BC-44A9-BED0-19CDBA566810__BGBJBFAE">
+<p class="titleinfigure">Figure 14-5 Cursor</p>
+<img width="264" height="186" src="img/GUID-D3F2B149-6142-42D0-92FC-2B4B97B1A1EC-default.gif" alt="Description of Figure 14-5 follows" title="Description of Figure 14-5 follows"/><br/>
+<a href="img_text/GUID-D3F2B149-6142-42D0-92FC-2B4B97B1A1EC-print.htm">Description of &#34;Figure 14-5 Cursor&#34;</a></div>
+<!-- class="figure" -->
+<p>A private SQL area is divided into the following areas:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The run-time area</p>
+<p>This area contains query execution state information. For example, the run-time area tracks the number of rows retrieved so far in a <a href="glossary.htm#GUID-BF9B54D6-892E-4C3B-8536-38958ACC069D"><span class="xrefglossterm">full table scan</span></a>.</p>
+<p>Oracle Database creates the run-time area as the first step of an execute request. For <a href="glossary.htm#GUID-B5F2F112-1B33-41B5-B63D-9DC8F99A369D"><span class="xrefglossterm">DML</span></a> statements, the run-time area is freed when the SQL statement is closed.</p>
+</li>
+<li>
+<p>The persistent area</p>
+<p>This area contains <a href="glossary.htm#GUID-456A73CB-75F4-4197-B1CD-12A51A1CBDC7"><span class="xrefglossterm">bind variable</span></a> values. A bind variable value is supplied to a SQL statement at run time when the statement is executed. The persistent area is freed only when the cursor is closed.</p>
+</li>
+</ul>
+<p>The client process is responsible for managing private SQL areas. The allocation and deallocation of private SQL areas depends largely on the application, although the number of private SQL areas that a client process can allocate is limited by the initialization parameter <code class="codeph">OPEN_CURSORS</code>.</p>
+<p>Although most users rely on the automatic cursor handling of database utilities, the Oracle Database programmatic interfaces offer developers more control over cursors. In general, applications should close all open cursors that will not be used again to free the persistent area and to minimize the memory required for application users.</p>
+<div class="infoboxnotealso" id="GUID-8C561EE3-04BC-44A9-BED0-19CDBA566810__GUID-A2D832E3-D2AB-446E-9C2E-2EF928024AF0">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="memory.htm#GUID-0DBEB809-0660-4A04-ADF6-CABE4F6DF0B8" title="The database represents each SQL statement that it runs in the shared SQL area and private SQL area.">Shared SQL Areas</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADFNS00903" target="_blank" href="../ADFNS/adfns_packages.htm#ADFNS00903"><span><cite>Oracle Database Development Guide</cite></span></a> and <a class="olink LNPLS00602" target="_blank" href="../LNPLS/static.htm#LNPLS00602"><span><cite>Oracle Database PL/SQL Language Reference</cite></span></a> to learn how to use cursors</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89070"></a><a id="CNCPT1242"></a>
+<div class="props_rev_3"><a id="GUID-6DAE943E-D164-46E2-A3AC-4FFC59A7CB82"></a>
+<h4 id="CNCPT-GUID-6DAE943E-D164-46E2-A3AC-4FFC59A7CB82" class="sect4">SQL Work Areas</h4>
+<div>
+<p>A <span class="bold">work area</span> is a private allocation of PGA memory used for memory-intensive operations.</p>
+<p>For example, a sort operator uses the sort area to sort a set of rows. Similarly, a <a href="glossary.htm#GUID-D2587A67-E1CB-4F35-8830-4599717C47BC"><span class="xrefglossterm">hash join</span></a> operator uses a hash area to build a <a href="glossary.htm#GUID-1EBD10A8-7E0A-45B9-94CB-0859F4773082"><span class="xrefglossterm">hash table</span></a> from its left input, whereas a <a href="glossary.htm#GUID-85F90309-D2DA-455C-A726-81C33043566E"><span class="xrefglossterm">bitmap merge</span></a> uses the bitmap merge area to merge data retrieved from scans of multiple bitmap indexes.</p>
+<p>The following example shows a <a href="glossary.htm#GUID-71A4D429-D0A6-4979-AACA-EDE5F4BCFC8B"><span class="xrefglossterm">join</span></a> of <code class="codeph">employees</code> and <code class="codeph">departments</code> with its <a href="glossary.htm#GUID-78BCF1CD-1865-4AEB-8F14-AFA4FF1981BF"><span class="xrefglossterm">query plan</span></a>:</p>
+<pre dir="ltr">SQL&gt; SELECT * 
+  2  FROM   employees e JOIN departments d 
+  3  ON     e.department_id=d.department_id 
+  4  ORDER BY last_name;
+.
+.
+.
+--------------------------------------------------------------------------------
+| Id| Operation           | Name        | Rows  | Bytes | Cost (%CPU)| Time    |
+--------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT    |             |   106 |  9328 |    7  (29)| 00:00:01 |
+| 1 |  SORT ORDER BY      |             |   106 |  9328 |    7  (29)| 00:00:01 |
+|*2 |   HASH JOIN         |             |   106 |  9328 |    6  (17)| 00:00:01 |
+| 3 |    TABLE ACCESS FULL| DEPARTMENTS |    27 |   540 |    2   (0)| 00:00:01 |
+| 4 |    TABLE ACCESS FULL| EMPLOYEES   |   107 |  7276 |    3   (0)| 00:00:01 |
+--------------------------------------------------------------------------------
+</pre>
+<p>In the preceding example, the run-time area tracks the progress of the full table scans. The session performs a hash join in the hash area to match rows from the two tables. The <code class="codeph">ORDER BY</code> sort occurs in the sort area.</p>
+<p>If the amount of data to be processed by the operators does not fit into a work area, then Oracle Database divides the input data into smaller pieces. In this way, the database processes some data pieces in memory while writing the rest to temporary disk storage for processing later.</p>
+<p>The database automatically tunes work area sizes when automatic PGA memory management is enabled. You can also manually control and tune the size of a work area. See <span class="q">&#34;<a href="cncptdba.htm#GUID-D39DB708-CC94-4EE6-ACDA-ACED36DA4DA5" title="Memory management involves maintaining optimal sizes for the Oracle instance memory structures as demands on the database change. Initialization parameter settings determine how SGA and instance PGA memory is managed.">Memory Management</a>&#34;</span> for more information.</p>
+<p>Generally, larger work areas can significantly improve performance of an operator at the cost of higher memory consumption. Optimally, the size of a work area is sufficient to accommodate the input data and auxiliary memory structures allocated by its associated SQL operator. If not, response time increases because part of the input data must be cached on disk. In the extreme case, if the size of a work area is too small compared to input data size, then the database must perform multiple passes over the data pieces, dramatically increasing response time.</p>
+<div class="infoboxnotealso" id="GUID-6DAE943E-D164-46E2-A3AC-4FFC59A7CB82__GUID-F88BA790-8DEF-4180-A59C-DFBF076839F3">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADMIN11233" target="_blank" href="../ADMIN/memory.htm#ADMIN11233"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn how to use automatic PGA management</p>
+</li>
+<li>
+<p><a class="olink TGDBA346" target="_blank" href="../TGDBA/tune_pga.htm#TGDBA346"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn how to tune PGA memory</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89071"></a><a id="CNCPT1243"></a>
+<div class="props_rev_3"><a id="GUID-26FCB7D9-7B1D-4F5A-88AA-1DB1E0ACD2BE"></a>
+<h3 id="CNCPT-GUID-26FCB7D9-7B1D-4F5A-88AA-1DB1E0ACD2BE" class="sect3">PGA Usage in Dedicated and Shared Server Modes</h3>
+<div>
+<p>PGA memory allocation depends on whether the database uses dedicated or shared server connections.</p>
+<p>The following table shows the differences.</p>
+<div class="tblformal" id="GUID-26FCB7D9-7B1D-4F5A-88AA-1DB1E0ACD2BE__G26073">
+<p class="titleintable">Table 14-1 Differences in Memory Allocation Between Dedicated and Shared Servers</p>
+<table class="cellalignment1206" title="Differences in Memory Allocation Between Dedicated and Shared Servers" summary="This table shows the differences between dedicated and shared server architecture.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1241" id="d69735e2808">Memory Area</th>
+<th class="cellalignment1231" id="d69735e2811">Dedicated Server</th>
+<th class="cellalignment1231" id="d69735e2814">Shared Server</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1242" id="d69735e2819" headers="d69735e2808">
+<p>Nature of session memory</p>
+</td>
+<td class="cellalignment1232" headers="d69735e2819 d69735e2811">
+<p>Private</p>
+</td>
+<td class="cellalignment1232" headers="d69735e2819 d69735e2814">
+<p>Shared</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1242" id="d69735e2829" headers="d69735e2808">
+<p>Location of the persistent area</p>
+</td>
+<td class="cellalignment1232" headers="d69735e2829 d69735e2811">
+<p>PGA</p>
+</td>
+<td class="cellalignment1232" headers="d69735e2829 d69735e2814">
+<p>SGA</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1242" id="d69735e2839" headers="d69735e2808">
+<p>Location of the run-time area for DML and DDL statements</p>
+</td>
+<td class="cellalignment1232" headers="d69735e2839 d69735e2811">
+<p>PGA</p>
+</td>
+<td class="cellalignment1232" headers="d69735e2839 d69735e2814">
+<p>PGA</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-26FCB7D9-7B1D-4F5A-88AA-1DB1E0ACD2BE__GUID-3F7C0208-F532-4AF2-AD08-5B1A4709B086">
+<p class="notep1">See Also:</p>
+<p><a class="olink GUID-1EC99B97-38DC-4061-A2F5-3890828616B5" target="_blank" href="../ADMIN/manproc.htm#GUID-1EC99B97-38DC-4061-A2F5-3890828616B5"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn how to configure a database for shared server</p>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT802"></a>
+<div class="props_rev_3"><a id="GUID-24EDB8CD-8279-4CED-82AF-642FC01A4A73"></a>
+<h2 id="CNCPT-GUID-24EDB8CD-8279-4CED-82AF-642FC01A4A73" class="sect2">Overview of the System Global Area (SGA)</h2>
+<div>
+<p>The <span class="bold">SGA</span> is a read/write memory area that, along with the Oracle background processes, form a database instance. All server processes that execute on behalf of users can read information in the instance SGA. Several processes write to the SGA during database operation.</p>
+<div class="infobox-note" id="GUID-24EDB8CD-8279-4CED-82AF-642FC01A4A73__GUID-26164DEF-334F-494A-9DE2-DF996A2FDB3B">
+<p class="notep1">Note:</p>
+<p>The server and background processes do not reside <span class="italic">within</span> the SGA, but exist in a separate memory space.</p>
+</div>
+<p>Each database instance has its own SGA. Oracle Database automatically allocates memory for an SGA at instance startup and reclaims the memory at instance shutdown. When you start an instance with SQL*Plus or Oracle Enterprise Manager, the size of the SGA is shown as in the following example:</p>
+<pre dir="ltr">SQL&gt; STARTUP
+ORACLE instance started.
+ 
+Total System Global Area  368283648 bytes
+Fixed Size                  1300440 bytes
+Variable Size             343935016 bytes
+Database Buffers           16777216 bytes
+Redo Buffers                6270976 bytes
+Database mounted.
+Database opened.
+</pre>
+<p>As shown in <a href="memory.htm#GUID-02378E7A-865B-456B-8725-1E73D16A34BE__CHDHAHIJ">Figure 14-1</a>, the SGA consists of several memory components, which are pools of memory used to satisfy a particular class of memory allocation requests. All SGA components except the redo log buffer allocate and deallocate space in units of contiguous memory called <span class="italic">granules</span>. Granule size is platform-specific and is determined by total SGA size.</p>
+<p>You can query the <code class="codeph">V$SGASTAT</code> view for information about SGA components.</p>
+<p>The most important SGA components are the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="memory.htm#GUID-4FF66585-E469-4631-9225-29D75594CD14" title="The database buffer cache, also called the buffer cache, is the memory area that stores copies of data blocks read from data files.">Database Buffer Cache</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-EEA265EE-8FBA-4457-8C3F-315B9EEA2224" title="Starting in Oracle Database 12c Release 1 (12.1.0.2), the In-Memory Column Store (IM column store) is an optional, static SGA pool that stores copies of tables and partitions in a special columnar format optimized for rapid scans.">In-Memory Column Store</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-C2AD1BF6-A5AE-42E9-9677-0AA08126864B" title="The redo log buffer is a circular buffer in the SGA that stores redo entries describing changes made to the database.">Redo Log Buffer</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-1CB2BA23-4386-46DA-9146-5FE0E4599AC6" title="The shared pool caches various types of program data.">Shared Pool</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-1ECB5213-AC4E-4BB4-9113-91C761676B34" title="The large pool is an optional memory area intended for memory allocations that are larger than is appropriate for the shared pool.">Large Pool</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-51234BB8-1976-4670-8BC5-BB0E3D3BA12D" title="The Java pool is an area of memory that stores all session-specific Java code and data within the Java Virtual Machine (JVM). This memory includes Java objects that are migrated to the Java session space at end-of-call.">Java Pool</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-30BD00BF-963A-40E4-80BA-96B651BDF2A6" title="The Streams pool stores buffered queue messages and provides memory for Oracle Streams capture processes and apply processes. The Streams pool is used exclusively by Oracle Streams.">Streams Pool</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-F18E4E7F-2ED9-4734-A6E4-4E77D0561C19" title="The fixed SGA is an internal housekeeping area.">Fixed SGA</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-24EDB8CD-8279-4CED-82AF-642FC01A4A73__GUID-F5E90AF3-0D70-400E-A85F-24BC049AA484">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="startup.htm#GUID-2942B648-70FA-47B4-8950-0CC6884B1F80" title="A database instance is a set of memory structures that manage database files.">Introduction to the Oracle Database Instance</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink GUID-8059B22B-0F5F-4492-A6D0-256E6FDF1E59" target="_blank" href="../TGDBA/tune_sga.htm#GUID-8059B22B-0F5F-4492-A6D0-256E6FDF1E59"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn more about granule sizing</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="CNCPT1222"></a>
+<div class="props_rev_3"><a id="GUID-4FF66585-E469-4631-9225-29D75594CD14"></a>
+<h3 id="CNCPT-GUID-4FF66585-E469-4631-9225-29D75594CD14" class="sect3">Database Buffer Cache</h3>
+<div>
+<p>The <span class="bold">database buffer cache</span>, also called the <span class="italic">buffer cache</span>, is the memory area that stores copies of data blocks read from data files.</p>
+<p>A <a href="glossary.htm#GUID-F789350A-9B90-4361-9BEF-68DECB15E755"><span class="xrefglossterm">buffer</span></a> is a main memory address in which the buffer manager temporarily caches a currently or recently used data block. All users concurrently connected to a database instance share access to the buffer cache.</p>
+</div>
+<a id="CNCPT94670"></a>
+<div class="props_rev_3"><a id="GUID-093B7282-1A44-4E29-9E9A-B8511F4267C9"></a>
+<h4 id="CNCPT-GUID-093B7282-1A44-4E29-9E9A-B8511F4267C9" class="sect4">Purpose of the Database Buffer Cache</h4>
+<div>
+<p>Oracle Database uses the buffer cache to achieve multiple goals.</p>
+<p>The goals include:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Optimize physical I/O</p>
+<p>The database updates data blocks in the cache and stores metadata about the changes in the redo log buffer. After a <code class="codeph">COMMIT</code>, the database writes the redo buffers to the online redo log but does not immediately write data blocks to the data files. Instead, <a href="glossary.htm#GUID-C27AAA54-E60B-49BC-AB04-7B3848EBAFD6"><span class="xrefglossterm">database writer (DBW)</span></a> performs lazy writes in the background.</p>
+</li>
+<li>
+<p>Keep frequently accessed blocks in the buffer cache and write infrequently accessed blocks to disk</p>
+<p>When Database Smart Flash Cache (flash cache) is enabled, part of the buffer cache can reside in the flash cache. This buffer cache extension is stored on one or more flash disk devices, which are solid state storage devices that uses flash memory. The database can improve performance by caching buffers in flash memory instead of reading from magnetic disk.</p>
+<p>Use the <code class="codeph">DB_FLASH_CACHE_FILE</code> and <code class="codeph">DB_FLASH_CACHE_SIZE</code> initialization parameters to configure multiple flash devices. The buffer cache tracks each device and distributes buffers to the devices uniformly.</p>
+<div class="infobox-note" id="GUID-093B7282-1A44-4E29-9E9A-B8511F4267C9__GUID-DF24B739-1B05-425C-914A-C12DA376E428">
+<p class="notep1">Note:</p>
+<p>Database Smart Flash Cache is available only in Solaris and Oracle Linux.</p>
+</div>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-093B7282-1A44-4E29-9E9A-B8511F4267C9__GUID-5D8D8F72-76B0-4580-B6CD-4185F629F7DC">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN10315" target="_blank" href="../REFRN/GUID-45C21508-08FD-4535-A5BD-73284588F850.htm#REFRN10315"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">DB_FLASH_CACHE_FILE</code> initialization parameter</p>
+</div>
+</div>
+</div>
+<a id="CNCPT1223"></a>
+<div class="props_rev_3"><a id="GUID-BC14C103-F8A6-4E72-A451-EECA62F13D85"></a>
+<h4 id="CNCPT-GUID-BC14C103-F8A6-4E72-A451-EECA62F13D85" class="sect4">Buffer States</h4>
+<div>
+<p>The database uses internal algorithms to manage buffers in the cache.</p>
+<p>A buffer can be in any of the following mutually exclusive states:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Unused</p>
+<p>The buffer is available for use because it has never been used or is currently unused. This type of buffer is the easiest for the database to use.</p>
+</li>
+<li>
+<p>Clean</p>
+<p>This buffer was used earlier and now contains a read-consistent version of a block as of a point in time. The block contains data but is &#34;clean&#34; so it does not need to be checkpointed. The database can pin the block and reuse it.</p>
+</li>
+<li>
+<p>Dirty</p>
+<p>The buffer contain modified data that has not yet been written to disk. The database must checkpoint the block before reusing it.</p>
+</li>
+</ul>
+<p>Every buffer has an access mode: pinned or free (unpinned). A buffer is &#34;pinned&#34; in the cache so that it does not age out of memory while a user session accesses it. Multiple sessions cannot modify a pinned buffer at the same time.</p>
+</div>
+</div>
+<a id="CNCPT89169"></a>
+<div class="props_rev_3"><a id="GUID-23325842-C7CB-4939-8698-FD52F36A564C"></a>
+<h4 id="CNCPT-GUID-23325842-C7CB-4939-8698-FD52F36A564C" class="sect4">Buffer Modes</h4>
+<div>
+<p>When a client requests data, Oracle Database retrieves buffers from the database buffer cache in either current mode or consistent mode.</p>
+<p>The modes differ as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Current mode</p>
+<p>A <a href="glossary.htm#GUID-FEFF09C7-3935-4DA6-B85B-BB1350B79C14"><span class="xrefglossterm">current mode get</span></a>, also called a <span class="italic">db block get</span>, is a retrieval of a block as it currently appears in the buffer cache. For example, if an uncommitted transaction has updated two rows in a block, then a current mode get retrieves the block with these uncommitted rows. The database uses db block gets most frequently during modification statements, which must update only the current version of the block.</p>
+</li>
+<li>
+<p>Consistent mode</p>
+<p>A <a href="glossary.htm#GUID-F881B50F-FA19-48CB-B512-05841067F42C"><span class="xrefglossterm">consistent read get</span></a> is a retrieval of a read-consistent version of a block. This retrieval may use <a href="glossary.htm#GUID-297B963A-989C-4720-B061-A2352FF72892"><span class="xrefglossterm">undo data</span></a>. For example, if an uncommitted transaction has updated two rows in a block, and if a query in a separate session requests the block, then the database uses undo data to create a read-consistent version of this block (called a <span class="italic">consistent read clone</span>) that does not include the uncommitted updates. Typically, a query retrieves blocks in consistent mode.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-23325842-C7CB-4939-8698-FD52F36A564C__GUID-75EAE1D6-73F7-4680-92ED-FC3510455A44">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="consist.htm#GUID-8DC0D1D1-C2B1-4237-9B77-27889B6467C1" title="To manage the multiversion read consistency model, the database must create a read-consistent set of data when a table is simultaneously queried and updated.">Read Consistency and Undo Segments</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN103" target="_blank" href="../REFRN/GUID-2A9F2E5B-992E-43D1-8377-F4080824129C.htm#REFRN103"><span><cite>Oracle Database Reference</cite></span></a> for descriptions of database statistics such as db block get and consistent read get</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89146"></a>
+<div class="props_rev_3"><a id="GUID-D1429BAA-6543-4B34-93DB-C8F33D497B53"></a>
+<h4 id="CNCPT-GUID-D1429BAA-6543-4B34-93DB-C8F33D497B53" class="sect4">Buffer I/O</h4>
+<div>
+<p>A <span class="bold">logical I/O</span>, also known as a <span class="italic">buffer I/O</span>, refers to reads and writes of buffers in the buffer cache.</p>
+<p>When a requested buffer is not found in memory, the database performs a physical I/O to copy the buffer from either the flash cache or disk into memory. The database then performs a logical I/O to read the cached buffer.</p>
+</div>
+<a id="CNCPT94671"></a>
+<div class="props_rev_3"><a id="GUID-43AE366D-9BDA-4C95-A7BB-46C84E4A4C18"></a>
+<h5 id="CNCPT-GUID-43AE366D-9BDA-4C95-A7BB-46C84E4A4C18" class="sect5">Buffer Replacement Algorithms</h5>
+<div>
+<p>To make buffer access efficient, the database must decide which buffers to cache in memory, and which to access from disk.</p>
+<p>The database uses the following algorithms:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>LRU-based, block-level replacement algorithm</p>
+<p>This sophisticated algorithm, which is the default, uses a least recently used (LRU) list that contains pointers to dirty and non-dirty buffers. The LRU list has a hot end and cold end. A <a href="glossary.htm#GUID-B427531D-6550-4071-A0C2-C46BAE6680A1"><span class="xrefglossterm">cold buffer</span></a> is a buffer that has not been recently used. A <a href="glossary.htm#GUID-6CBD65A1-DC66-44DF-B642-42EC36FE4984"><span class="xrefglossterm">hot buffer</span></a> is frequently accessed and has been recently used. Conceptually, there is only one LRU, but for <a href="glossary.htm#GUID-D7E696DB-944C-4798-B70D-5C2381FE971F"><span class="xrefglossterm">data concurrency</span></a> the database actually uses several LRUs.</p>
+</li>
+<li>
+<p>Temperature-based, object-level replacement algorithm</p>
+<p>Starting in Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2), the automatic big table caching feature enables table scans to use a different algorithm in the following scenarios:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Parallel queries</p>
+<p>In single-instance and Oracle Real Applications Cluster (Oracle RAC) databases, parallel queries can use the big table cache when the <code class="codeph">DB_BIG_TABLE_CACHE_PERCENT_TARGET</code> initialization parameter is set to a nonzero value, and <code class="codeph">PARALLEL_DEGREE_POLICY</code> is set to <code class="codeph">auto</code> or <code class="codeph">adaptive</code>.</p>
+</li>
+<li>
+<p>Serial queries</p>
+<p>In a single-instance configuration only, serial queries can use the big table cache when the <code class="codeph">DB_BIG_TABLE_CACHE_PERCENT_TARGET</code> initialization parameter is set to a nonzero value.</p>
+</li>
+</ul>
+<p>When a table does not fit in memory, the database decides which buffers to cache based on access patterns. For example, if only 95% of a popular table fits in memory, then the database may choose to leave 5% of the blocks on disk rather than cyclically reading blocks into memory and writing blocks to disk&mdash;a phenomenon known as <span class="italic">thrashing</span>. When caching multiple large objects, the database considers more popular tables hotter and less popular tables cooler, which influences which blocks are cached. The <code class="codeph">DB_BIG_TABLE_CACHE_PERCENT_TARGET</code> initialization parameter sets the percentage of the buffer cache that uses this algorithm.</p>
+<div class="infobox-note" id="GUID-43AE366D-9BDA-4C95-A7BB-46C84E4A4C18__GUID-539C4682-EEF5-4D5E-BF16-1CC4E2C31F35">
+<p class="notep1">Note:</p>
+<p>This document explains the LRU-based, block level replacement algorithm. To learn more about the temperature-based algorithm, see <a class="olink GUID-A553169D-C6CD-443E-88C3-B746D5E32923" target="_blank" href="../VLDBG/GUID-A553169D-C6CD-443E-88C3-B746D5E32923.htm#GUID-A553169D-C6CD-443E-88C3-B746D5E32923"><span><cite>Oracle Database VLDB and Partitioning Guide</cite></span></a>.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<a id="CNCPT89074"></a>
+<div class="props_rev_3"><a id="GUID-9247D1BA-36E3-4407-ACCE-DF212F81C019"></a>
+<h5 id="CNCPT-GUID-9247D1BA-36E3-4407-ACCE-DF212F81C019" class="sect5">Buffer Writes</h5>
+<div>
+<p>The <span class="bold">database writer (DBW)</span> process periodically writes cold, dirty buffers to disk.</p>
+<p>DBW writes buffers in the following circumstances:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A server process cannot find clean buffers for reading new blocks into the database buffer cache.</p>
+<p>As buffers are dirtied, the number of free buffers decreases. If the number drops below an internal threshold, and if clean buffers are required, then server processes signal DBW to write.</p>
+<p>The database uses the LRU to determine which dirty buffers to write. When dirty buffers reach the cold end of the LRU, the database moves them off the LRU to a write queue. DBW writes buffers in the queue to disk, using multiblock writes if possible. This mechanism prevents the end of the LRU from becoming clogged with dirty buffers and allows clean buffers to be found for reuse.</p>
+</li>
+<li>
+<p>The database must advance the <a href="glossary.htm#GUID-95DBDA37-4C57-444F-B660-D52B4A99D919"><span class="xrefglossterm">checkpoint</span></a>, which is the position in the redo thread from which <a href="glossary.htm#GUID-FFDBC27D-CE99-49C7-8BB9-C8C2D8D52801"><span class="xrefglossterm">instance recovery</span></a> must begin.</p>
+</li>
+<li>
+<p>Tablespaces are changed to read-only status or taken offline.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-9247D1BA-36E3-4407-ACCE-DF212F81C019__GUID-91053C0C-FEEA-4F87-AFA0-ABC3F0E4930D">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="process.htm#GUID-DC9CBDED-3978-450A-9D7A-0A94CE8FF233" title="The database writer process (DBW) writes the contents of database buffers to data files. DBW processes write modified buffers in the database buffer cache to disk.">Database Writer Process (DBW)</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink GUID-F2D11BC8-986F-4A8B-A37F-530BE9EB2DA8" target="_blank" href="../TGDBA/tune_buffer_cache.htm#GUID-F2D11BC8-986F-4A8B-A37F-530BE9EB2DA8"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn how to diagnose and tune buffer write issues</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89177"></a><a id="CNCPT89073"></a>
+<div class="props_rev_3"><a id="GUID-57D00A42-6C41-4655-A268-691E84158294"></a>
+<h5 id="CNCPT-GUID-57D00A42-6C41-4655-A268-691E84158294" class="sect5">Buffer Reads</h5>
+<div>
+<p>When the number of unused buffers is low, the database must remove buffers from the buffer cache.</p>
+<p>The algorithm depends on whether the flash cache is enabled:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Flash cache disabled</p>
+<p>The database re-uses each clean buffer as needed, overwriting it. If the overwritten buffer is needed later, then the database must read it from magnetic disk.</p>
+</li>
+<li>
+<p>Flash cache enabled</p>
+<p>DBW can write the body of a clean buffer to the flash cache, enabling reuse of its in-memory buffer. The database keeps the buffer header in an LRU list in main memory to track the state and location of the buffer body in the flash cache. If this buffer is needed later, then the database can read it from the flash cache instead of from magnetic disk.</p>
+</li>
+</ul>
+<p>When a client process requests a buffer, the server process searches the buffer cache for the buffer. A cache hit occurs if the database finds the buffer in memory. The search order is as follows:</p>
+<ol>
+<li>
+<p>The server process searches for the whole buffer in the buffer cache.</p>
+<p>If the process finds the whole buffer, then the database performs a <a href="glossary.htm#GUID-267C24F9-BB8A-4D14-8513-0D7DC97D8F8D"><span class="xrefglossterm">logical read</span></a> of this buffer.</p>
+</li>
+<li>
+<p>The server process searches for the buffer header in the flash cache LRU list.</p>
+<p>If the process finds the buffer header, then the database performs an optimized physical read of the buffer body from the flash cache into the in-memory cache.</p>
+</li>
+<li>
+<p>If the process does <span class="italic">not</span> find the buffer in memory (a cache miss), then the server process performs the following steps:</p>
+<ol>
+<li>
+<p>Copies the block from a data file on disk into memory (a physical read)</p>
+</li>
+<li>
+<p>Performs a logical read of the buffer that was read into memory</p>
+</li>
+</ol>
+</li>
+</ol>
+<p><a href="memory.htm#GUID-57D00A42-6C41-4655-A268-691E84158294__BGBHEHBG">Figure 14-6</a> illustrates the buffer search order. The extended buffer cache includes both the in-memory buffer cache, which contains whole buffers, and the flash cache, which contains buffer bodies. In the figure, the database searches for a buffer in the buffer cache and, not finding the buffer, reads it into memory from magnetic disk.</p>
+<div class="figure" id="GUID-57D00A42-6C41-4655-A268-691E84158294__BGBHEHBG">
+<p class="titleinfigure">Figure 14-6 Buffer Search</p>
+<img width="504" height="455" src="img/GUID-FAAEF210-3AF0-4F7E-95A1-4CC03D7D000F-default.gif" alt="Description of Figure 14-6 follows" title="Description of Figure 14-6 follows"/><br/>
+<a href="img_text/GUID-FAAEF210-3AF0-4F7E-95A1-4CC03D7D000F-print.htm">Description of &#34;Figure 14-6 Buffer Search&#34;</a></div>
+<!-- class="figure" -->
+<p>In general, accessing data through a cache hit is faster than through a cache miss. The <a href="glossary.htm#GUID-51C6BAE1-58AA-4C6A-9FC3-5C4014DB2470"><span class="xrefglossterm">buffer cache hit ratio</span></a> measures how often the database found a requested block in the buffer cache without needing to read it from disk.</p>
+<p>The database can perform physical reads from either a data file or a <a href="glossary.htm#GUID-5760E541-E0BB-4246-A423-E725E599A9D0"><span class="xrefglossterm">temp file</span></a>. Reads from a data file are followed by logical I/Os. Reads from a temp file occur when insufficient memory forces the database write data to a <a href="glossary.htm#GUID-41501962-A37B-4D37-BAF2-59030048FE08"><span class="xrefglossterm">temporary table</span></a> and read it back later. These physical reads bypass the buffer cache and do not incur a logical I/O.</p>
+<div class="infoboxnotealso" id="GUID-57D00A42-6C41-4655-A268-691E84158294__GUID-35576A87-8C40-4FE3-B68B-F7F4988B2D69">
+<p class="notep1">See Also:</p>
+<p><a class="olink GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC" target="_blank" href="../TGDBA/tune_buffer_cache.htm#GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn how to calculate the buffer cache hit ratio</p>
+</div>
+</div>
+</div>
+<a id="CNCPT9833"></a>
+<div class="props_rev_3"><a id="GUID-AD0569FF-DF51-4B8B-BE22-73B659199BF2"></a>
+<h5 id="CNCPT-GUID-AD0569FF-DF51-4B8B-BE22-73B659199BF2" class="sect5">Buffer Touch Counts</h5>
+<div>
+<p>The database measures the frequency of access of buffers on the LRU list using a touch count. This mechanism enables the database to increment a counter when a buffer is pinned instead of constantly shuffling buffers on the LRU list.</p>
+<div class="infobox-note" id="GUID-AD0569FF-DF51-4B8B-BE22-73B659199BF2__GUID-33BCEE66-99EC-4B9F-A4D8-13BF66B5E28C">
+<p class="notep1">Note:</p>
+<p>The database does not physically move blocks in memory. The movement is the change in location of a pointer on a list.</p>
+</div>
+<p>When a buffer is pinned, the database determines when its touch count was last incremented. If the count was incremented over three seconds ago, then the count is incremented; otherwise, the count stays the same. The three-second rule prevents a burst of pins on a buffer counting as many touches. For example, a session may insert several rows in a data block, but the database considers these inserts as one touch.</p>
+<p>If a buffer is on the cold end of the LRU, but its touch count is high, then the buffer moves to the hot end. If the touch count is low, then the buffer ages out of the cache.</p>
+</div>
+</div>
+</div>
+<a id="CNCPT89072"></a><a id="CNCPT9832"></a>
+<div class="props_rev_3"><a id="GUID-69531656-7F8C-4852-BB69-C4B9F0AE5437"></a>
+<h4 id="CNCPT-GUID-69531656-7F8C-4852-BB69-C4B9F0AE5437" class="sect4">Buffer Pools</h4>
+<div>
+<p>A <span class="bold">buffer pool</span> is a collection of buffers.</p>
+<p>The database buffer cache is divided into one or more buffer pools, which manage blocks in mostly the same way. The pools do not have radically different algorithms for aging or caching blocks.</p>
+<p>You can manually configure separate buffer pools that either keep data in the buffer cache or make the buffers available for new data immediately after using the data blocks. You can then assign specific schema objects to the appropriate buffer pool to control how blocks age out of the cache. For example, you can segregate segments into hot, warm, and cold buffer pools.</p>
+<p>The possible buffer pools are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Default pool</p>
+<p>This pool is the location where blocks are normally cached. Unless you manually configure separate pools, the default pool is the only buffer pool. The optional configuration of the other pools has no effect on the default pool.</p>
+<p>Starting in Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2), the <a href="glossary.htm#GUID-46A51ED5-DC39-47B0-9592-81C56414487B"><span class="xrefglossterm">big table cache</span></a> is an optional section of the default pool that uses a temperature-based, object-level replacement algorithm. In single-instance and Oracle RAC databases, parallel queries can use the big table cache when the <code class="codeph">DB_BIG_TABLE_CACHE_PERCENT_TARGET</code> initialization parameter is set to a nonzero value, and <code class="codeph">PARALLEL_DEGREE_POLICY</code> is set to <code class="codeph">auto</code> or <code class="codeph">adaptive</code>. In single-instance configurations only, serial queries can use the big table cache when <code class="codeph">DB_BIG_TABLE_CACHE_PERCENT_TARGET</code> is set.</p>
+</li>
+<li>
+<p>Keep pool</p>
+<p>This pool is intended for blocks that were accessed frequently, but which aged out of the default pool because of lack of space. The purpose of the keep buffer pool is to retain objects in memory, thus avoiding I/O operations.</p>
+<div class="infobox-note" id="GUID-69531656-7F8C-4852-BB69-C4B9F0AE5437__GUID-F208A310-95A3-4D07-B76F-451F26EC93D4">
+<p class="notep1">Note:</p>
+<p>The keep pool manages buffers in the same way as the other pools: it does not use a special algorithm to pin buffers. The word &#34;keep&#34; is a naming convention. You can place tables that you want to keep in the larger keep pool, and place tables that you do not want to keep in the smaller recycle pool.</p>
+</div>
+</li>
+<li>
+<p>Recycle pool</p>
+<p>This pool is intended for blocks that are used infrequently. A recycle pool prevent objects from consuming unnecessary space in the cache.</p>
+</li>
+</ul>
+<p>A database has a standard block size. You can create a tablespace with a block size that differs from the standard size. Each nondefault block size has its own pool. Oracle Database manages the blocks in these pools in the same way as in the default pool.</p>
+<p><a href="memory.htm#GUID-69531656-7F8C-4852-BB69-C4B9F0AE5437__BGBBEBCH">Figure 14-7</a> shows the structure of the buffer cache when multiple pools are used. The cache contains default, keep, and recycle pools. The default block size is 8 KB. The cache contains separate pools for tablespaces that use the nonstandard block sizes of 2 KB, 4 KB, and 16 KB.</p>
+<div class="figure" id="GUID-69531656-7F8C-4852-BB69-C4B9F0AE5437__BGBBEBCH">
+<p class="titleinfigure">Figure 14-7 Database Buffer Cache</p>
+<img width="395" height="306" src="img/GUID-5CE65D12-8850-421F-BAB6-5EC8DE0660B7-default.gif" alt="Description of Figure 14-7 follows" title="Description of Figure 14-7 follows"/><br/>
+<a href="img_text/GUID-5CE65D12-8850-421F-BAB6-5EC8DE0660B7-print.htm">Description of &#34;Figure 14-7 Database Buffer Cache&#34;</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-69531656-7F8C-4852-BB69-C4B9F0AE5437__GUID-C89B5770-2DFC-46B4-90D9-1FBB1763A7D1">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="logical.htm#GUID-39B58094-478C-4DD9-8419-504439F4E8F7" title="Every database has a database block size.">Database Block Size</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADMIN11222" target="_blank" href="../ADMIN/memory.htm#ADMIN11222"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn more about buffer pools</p>
+</li>
+<li>
+<p><a class="olink TGDBA315" target="_blank" href="../TGDBA/tune_buffer_cache.htm#TGDBA315"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn how to use multiple buffer pools</p>
+</li>
+<li>
+<p><a class="olink GUID-122865EE-4589-434D-8DD5-4E201C6CC739" target="_blank" href="../REFRN/GUID-122865EE-4589-434D-8DD5-4E201C6CC739.htm#GUID-122865EE-4589-434D-8DD5-4E201C6CC739"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">DB_BIG_TABLE_CACHE_PERCENT_TARGET</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT1224"></a>
+<div class="props_rev_3"><a id="GUID-AA95A3C7-C452-4DDB-B7E4-44CB43B1E9C3"></a>
+<h4 id="CNCPT-GUID-AA95A3C7-C452-4DDB-B7E4-44CB43B1E9C3" class="sect4">Buffers and Full Table Scans</h4>
+<div>
+<p>The database uses a complicated algorithm to manage table scans. By default, when buffers must be read from disk, the database inserts the buffers into the middle of the LRU list. In this way, hot blocks can remain in the cache so that they do not need to be read from disk again.</p>
+<p>A problem is posed by a <a href="glossary.htm#GUID-BF9B54D6-892E-4C3B-8536-38958ACC069D"><span class="xrefglossterm">full table scan</span></a>, which sequentially reads all rows under the table <a href="glossary.htm#GUID-F3F5ACB2-94C8-483F-B427-1981836D0609"><span class="xrefglossterm">high water mark (HWM)</span></a>. Suppose that the total size of the blocks in a table segment is greater than the size of the buffer cache. A full scan of this table could clean out the buffer cache, preventing the database from maintaining a cache of frequently accessed blocks.</p>
+<div class="infoboxnotealso" id="GUID-AA95A3C7-C452-4DDB-B7E4-44CB43B1E9C3__GUID-63FA5FB5-B7CA-42F1-AC89-AE0757F648CC">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="logical.htm#GUID-5050DCC5-DBBD-4B57-AB14-D83A480B9AAE" title="To manage space, Oracle Database tracks the state of blocks in the segment. The high water mark (HWM) is the point in a segment beyond which data blocks are unformatted and have never been used.">Segment Space and the High Water Mark</a>&#34;</span></p>
+</div>
+</div>
+<a id="CNCPT94672"></a>
+<div class="props_rev_3"><a id="GUID-C1918CC8-2F33-49AA-A4F4-D1ED5BF73E57"></a>
+<h5 id="CNCPT-GUID-C1918CC8-2F33-49AA-A4F4-D1ED5BF73E57" class="sect5">Default Mode for Full Table Scans</h5>
+<div>
+<p>By default, the database takes a conservative approach to full table scans, loading a small table into memory only when the table size is a small percentage of the buffer cache.</p>
+<p>To determine whether medium sized tables should be cached, the database uses an algorithm that incorporates the interval between the last table scan, the aging timestamp of the buffer cache, and the space remaining in the buffer cache.</p>
+<p>For very large tables, the database typically uses a <a href="glossary.htm#GUID-F824D5F8-5826-48F6-AB0D-7855B73BFB4B"><span class="xrefglossterm">direct path read</span></a>, which loads blocks directly into the PGA and bypasses the SGA altogether, to avoid populating the buffer cache. For medium size tables, the database may use a direct read or a cache read. If it decides to use a cache read, then the database places the blocks at the end of the LRU list to prevent the scan from effectively cleaning out the buffer cache.</p>
+<p>Starting in Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2), the buffer cache of a database instance automatically performs an internal calculation to determine whether memory is sufficient for the database to be fully cached in the instance SGA, and if caching tables on access would be beneficial for performance. If the whole database can fully fit in memory, and if various other internal criteria are met, then Oracle Database treats all tables in the database as small tables, and considers them eligible for caching. However, the database does not cache LOBs marked with the <code class="codeph">NOCACHE</code> attribute.</p>
+</div>
+</div>
+<a id="CNCPT94667"></a>
+<div class="props_rev_3"><a id="GUID-14D5B148-DDC0-4BC5-A7DA-3F28822B46B1"></a>
+<h5 id="CNCPT-GUID-14D5B148-DDC0-4BC5-A7DA-3F28822B46B1" class="sect5">Parallel Query Execution</h5>
+<div>
+<p>When performing a full table scan, the database can sometimes improve response time by using multiple parallel execution servers.</p>
+<p>In some cases, as when the database has a large amount of memory, the database can cache parallel query data in the system global area (SGA) instead of using direct path reads into the program global area (PGA). Typically, parallel queries occur in low-concurrency data warehouses because of the potential resource usage.</p>
+<div class="infoboxnotealso" id="GUID-14D5B148-DDC0-4BC5-A7DA-3F28822B46B1__GUID-CD90D906-005C-404A-B565-74C3E67BCA79">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink GUID-452FBA23-6976-4590-AA41-1369647AD14D" target="_blank" href="../DWHSG/concept.htm#GUID-452FBA23-6976-4590-AA41-1369647AD14D"><span><cite>Oracle Database Data Warehousing Guide</cite></span></a> for an introduction to data warehouses</p>
+</li>
+<li>
+<p><a class="olink VLDBG010" target="_blank" href="../VLDBG/GUID-3E2AE088-2505-465E-A8B2-AC38813EA355.htm#VLDBG010"><span><cite>Oracle Database VLDB and Partitioning Guide</cite></span></a> to learn more about parallel execution</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT94673"></a>
+<div class="props_rev_3"><a id="GUID-18580B49-AA0E-4ACD-AB52-8F514FE09B6A"></a>
+<h5 id="CNCPT-GUID-18580B49-AA0E-4ACD-AB52-8F514FE09B6A" class="sect5">CACHE Attribute</h5>
+<div>
+<p>In the rare case where the default caching behavior is not desired, you can use <code class="codeph">ALTER TABLE ... CACHE</code> to change how blocks from large tables are read into the database buffer cache.</p>
+<p>For tables with the <code class="codeph">CACHE</code> attribute set, the database does not force or pin the blocks in the buffer cache. Instead, the database ages the blocks out of the cache in the same way as any other table block. Use care when exercising this option because a full scan of a large table may clean most of the other blocks out of the cache.</p>
+<div class="infobox-note" id="GUID-18580B49-AA0E-4ACD-AB52-8F514FE09B6A__GUID-72A80A37-B8D9-44A1-BB73-D2A1530840E9">
+<p class="notep1">Note:</p>
+<p>Executing <code class="codeph">ALTER TABLE ... CACHE</code> does not <span class="italic">cause</span> a table to be cached.</p>
+</div>
+</div>
+</div>
+<a id="CNCPT94674"></a>
+<div class="props_rev_3"><a id="GUID-EF7A548D-CB7C-4FFB-8D11-CD277975ED58"></a>
+<h5 id="CNCPT-GUID-EF7A548D-CB7C-4FFB-8D11-CD277975ED58" class="sect5">KEEP Attribute</h5>
+<div>
+<p>For large tables, you can use <code class="codeph">ALTER TABLE ... STORAGE BUFFER_POOL KEEP</code> to cause scans to load blocks for these tables into the keep pool.</p>
+<p>Placing a table into the keep pool changes the part of the buffer cache where the blocks are stored. Instead of caching blocks in the default buffer pool, the database caches them in the keep buffer pool. No separate algorithm controls keep pool caching.</p>
+<div class="infoboxnotealso" id="GUID-EF7A548D-CB7C-4FFB-8D11-CD277975ED58__GUID-CA23C813-940F-4DE8-BBF0-C646FB1FA9EF">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF54597" target="_blank" href="../SQLRF/statements_7002.htm#SQLRF54597"><span class="italic">Oracle Database SQL Language Reference</span></a> for information about the <code class="codeph">CACHE</code> clause and the <code class="codeph">KEEP</code> attribute</p>
+</li>
+<li>
+<p><a class="olink GUID-DE6B6C6E-D947-45FF-B189-F0271B86DB10" target="_blank" href="../TGDBA/tune_buffer_cache.htm#GUID-DE6B6C6E-D947-45FF-B189-F0271B86DB10"><span class="italic">Oracle Database Performance Tuning Guide</span></a> to learn how to interpret buffer cache advisory statistics</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT94675"></a>
+<div class="props_rev_3"><a id="GUID-6A62FF03-2D75-471F-AF8B-A5688E3A8F48"></a>
+<h5 id="CNCPT-GUID-6A62FF03-2D75-471F-AF8B-A5688E3A8F48" class="sect5">Force Full Database Caching Mode</h5>
+<div>
+<p>To improve performance in some situations, you can explicitly execute the <code class="codeph">ALTER DATABASE ... FORCE FULL DATABASE CACHING</code> statement to enable the <span class="bold">force full database caching mode</span>.</p>
+<p>In contrast to the default mode, which is automatic, the force full database caching mode considers the entire database, including <code class="codeph">NOCACHE</code> LOBs, as eligible for caching in the buffer cache. This mode is available starting in Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2).</p>
+<div class="infobox-note" id="GUID-6A62FF03-2D75-471F-AF8B-A5688E3A8F48__GUID-9C27C724-D24F-418C-A05C-9988F457051B">
+<p class="notep1">Note:</p>
+<p>Enabling force full database caching mode does <span class="italic">not</span> force the database into memory. Rather, the entire database is <span class="italic">eligible</span> to be completely cached in the buffer cache. Oracle Database caches the tables only when they are accessed.</p>
+</div>
+<p>Oracle recommends that you enable force full database caching mode only when the buffer cache size of each individual instance is greater than the database size. This guideline applies to both single-instance and Oracle RAC databases. However, when Oracle RAC applications are well partitioned, you can enable force full database caching mode when the combined buffer cache of all instances, with extra space to handle duplicate cached blocks between instances, is greater than the database size.</p>
+<div class="infoboxnotealso" id="GUID-6A62FF03-2D75-471F-AF8B-A5688E3A8F48__GUID-3A7D5C4C-5206-4E6A-84E0-9B3B12F58900">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADMIN14237" target="_blank" href="../ADMIN/memory.htm#ADMIN14237"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn how to enable force full database caching mode</p>
+</li>
+<li>
+<p><a class="olink SQLRF56678" target="_blank" href="../SQLRF/statements_1006.htm#SQLRF56678"><span><cite>Oracle Database SQL Language Reference</cite></span></a> for more information about <code class="codeph">ALTER DATABASE ... FORCE FULL DATABASE CACHING</code> statement</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89667"></a><a id="CNCPT89659"></a>
+<div class="props_rev_3"><a id="GUID-EEA265EE-8FBA-4457-8C3F-315B9EEA2224"></a>
+<h3 id="CNCPT-GUID-EEA265EE-8FBA-4457-8C3F-315B9EEA2224" class="sect3">In-Memory Column Store</h3>
+<div>
+<p>Starting in Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2), the <span class="bold">In-Memory Column Store</span> (IM column store) is an optional, static SGA pool that stores copies of tables and partitions in a special <span class="bold">columnar format</span> optimized for rapid scans.</p>
+<p>The IM column store does not replace the buffer cache, but acts as a supplement so that both memory areas can store the same data in different formats. By default, only objects specified as <code class="codeph">INMEMORY</code> using DDL are candidates to be populated in the IM column store.</p>
+<div class="infobox-note" id="GUID-EEA265EE-8FBA-4457-8C3F-315B9EEA2224__GUID-0113E6AA-79B7-4BF7-BA51-C66DB2791005">
+<p class="notep1">Note:</p>
+<p>It is not necessary for objects populated in the IM column store to be loaded into the database buffer cache.</p>
+</div>
+<p>The columnar format exists only in memory. The following figure shows three tables from the <code class="codeph">sh</code> schema stored in the IM column store: <code class="codeph">customers</code>, <code class="codeph">products</code>, and <code class="codeph">sales</code>. The IM column store stores the data by column rather than row. The database keeps the columnar data transactionally consistent with the buffer cache.</p>
+<div class="figure" id="GUID-EEA265EE-8FBA-4457-8C3F-315B9EEA2224__BGBJCAIB">
+<p class="titleinfigure">Figure 14-8 Columnar Format</p>
+<img width="657" height="891" src="img/GUID-3220307D-F5FB-4A6B-9D75-6AF49FB7B300-default.png" alt="Description of Figure 14-8 follows" title="Description of Figure 14-8 follows"/><br/>
+<a href="img_text/GUID-3220307D-F5FB-4A6B-9D75-6AF49FB7B300-print.htm">Description of &#34;Figure 14-8 Columnar Format&#34;</a></div>
+<!-- class="figure" -->
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="memory.htm#GUID-602270F6-E676-4EFC-A732-6DADC1645933" title="The IM column store enables the database to perform scans, joins, and aggregates much faster than when it uses the on-disk format exclusively.">Benefits of the IM Column Store</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-93893C03-EEBD-46E5-8C08-7E120EB643A6" title="When fetching data, Oracle Database can read either the IM column store or the database buffer cache, or both within the same query.">Dual Memory Formats: Columnar and Row</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-DF723C06-62FE-4E5A-8BE0-0703695A7886" title="During population, the database reads data from disk in its row format, pivots the rows to create columns, and then compresses the data into In-Memory Compression Units (IMCUs).">How Background Processes Populate IMCUs</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-E652C13F-FD52-49D2-B968-3B1A03F7F1ED" title="The IM column store uses special compression formats optimized for access speed rather than storage reduction.">In-Memory Columnar Compression</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-50A30EC3-1CD1-4BFC-9BD1-9AC55D0B4AAE" title="The columnar format enables queries to scan only necessary columns.">Scan Optimizations for the IM Column Store</a></p>
+</li>
+</ul>
+</div>
+<a id="CNCPT89660"></a>
+<div class="props_rev_3"><a id="GUID-602270F6-E676-4EFC-A732-6DADC1645933"></a>
+<h4 id="CNCPT-GUID-602270F6-E676-4EFC-A732-6DADC1645933" class="sect4">Benefits of the IM Column Store</h4>
+<div>
+<p>The IM column store enables the database to perform scans, joins, and aggregates much faster than when it uses the on-disk format exclusively.</p>
+<p>In particular, the IM column store is useful for:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Performing fast full scans of large tables</p>
+</li>
+<li>
+<p>Evaluating predicate filters that use operators such as <code class="codeph">=</code>, <code class="codeph">&lt;</code>, <code class="codeph">&gt;</code>, and <code class="codeph">IN</code></p>
+</li>
+<li>
+<p>Querying a subset of columns in a table, for example, selecting 5 of 100 columns</p>
+</li>
+<li>
+<p>Accelerating joins by converting predicates on small dimension tables into filters on a large fact table</p>
+</li>
+</ul>
+<p>Business applications, ad-hoc analytic queries, and data warehouse workloads benefit most. Pure OLTP databases that perform short transactions using index lookups benefit less.</p>
+<p>The IM column store also provides the following advantages:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>All existing database features are supported, including High Availability features (see <span class="q">&#34;<a href="cmntopc.htm#GUID-5A26C2FD-EB17-4DF6-AC43-F73B98573707" title="Availability is the degree to which an application, service, or functionality is available on demand.">Overview of High Availability</a>&#34;</span>).</p>
+</li>
+<li>
+<p>No application changes are required.</p>
+<p>The optimizer automatically takes advantage of the columnar format.</p>
+</li>
+<li>
+<p>Configuration is simple.</p>
+<p>The <code class="codeph">INMEMORY_SIZE</code> initialization parameter specifies the amount of memory reserved for use by the IM column store. DDL statements specify the tablespaces, tables, partitions, or columns to be read into the IM column store.</p>
+</li>
+<li>
+<p>Compression is optimized for query performance.</p>
+<p>These compression techniques increase the effective memory bandwidth by enabling sessions to read more data into memory.</p>
+</li>
+<li>
+<p>Fewer indexes, materialized views, and OLAP cubes are required.</p>
+<p>The reduction in the number of pre-built objects results in reduced storage space and significantly less processing overhead.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-602270F6-E676-4EFC-A732-6DADC1645933__GUID-DFD8C9ED-6998-439A-92EB-86AC81A98337">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADMIN14297" target="_blank" href="../ADMIN/memory.htm#ADMIN14297"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to learn how to enable the IM column store</p>
+</li>
+<li>
+<p><a class="olink REFRN10348" target="_blank" href="../REFRN/GUID-B5BEB6BF-5308-485F-920D-CBB584DDDE8F.htm#REFRN10348"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">INMEMORY_SIZE</code> and <code class="codeph">INMEMORY_FORCE</code> initialization parameters</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89669"></a><a id="CNCPT89668"></a>
+<div class="props_rev_3"><a id="GUID-93893C03-EEBD-46E5-8C08-7E120EB643A6"></a>
+<h4 id="CNCPT-GUID-93893C03-EEBD-46E5-8C08-7E120EB643A6" class="sect4">Dual Memory Formats: Columnar and Row</h4>
+<div>
+<p>When fetching data, Oracle Database can read either the IM column store or the database buffer cache, or both within the same query.</p>
+<p>The database transparently sends OLTP queries (such as primary key lookups) to the buffer cache, and analytic and reporting queries to the IM column store. Thus, dual memory formats provide the best of both worlds.</p>
+<div class="infobox-note" id="GUID-93893C03-EEBD-46E5-8C08-7E120EB643A6__GUID-8B772890-5222-4FCC-848B-C376707C3906">
+<p class="notep1">Note:</p>
+<p>In the execution plan, the operation <code class="codeph">TABLE ACCESS IN MEMORY FULL</code> indicates use of the IM column store.</p>
+</div>
+<p>The following figure shows a sample IM column store. The <code class="codeph">sh.sales</code> table is stored on disk in traditional row format. The SGA stores the data in columnar format in the IM column store, and in row format in the database buffer cache.</p>
+<div class="figure" id="GUID-93893C03-EEBD-46E5-8C08-7E120EB643A6__BGBEFJBH">
+<p class="titleinfigure">Figure 14-9 IM Column Store</p>
+<img width="612" height="800" src="img/GUID-8FA08D5D-FBE0-46E3-BBF5-D54D579159E4-default.png" alt="Description of Figure 14-9 follows" title="Description of Figure 14-9 follows"/><br/>
+<a href="img_text/GUID-8FA08D5D-FBE0-46E3-BBF5-D54D579159E4-print.htm">Description of &#34;Figure 14-9 IM Column Store&#34;</a></div>
+<!-- class="figure" -->
+<p>Every on-disk data format for permanent, heap-organized tables is supported by the IM column store. The columnar format does not affect the format of data stored in data files or in the buffer cache, nor does it affect undo, online redo logging, and so on.</p>
+<p>The database processes DML modifications in the same way regardless of whether the IM column store is in use: by updating the buffer cache, online redo log, undo tablespace, and so on. However, the database uses an internal mechanism to track changes and ensure that the IM column store is consistent with the rest of the database. For example, if the <code class="codeph">sales</code> table resides in the IM column store, and if a row in <code class="codeph">sales</code> is updated, then the database automatically ensures the copy of the <code class="codeph">sales</code> table in the IM column store is kept transactionally consistent. A query that accesses the IM column store always returns the same results for a query that accesses the buffer cache.</p>
+</div>
+</div>
+<a id="CNCPT94774"></a>
+<div class="props_rev_3"><a id="GUID-DF723C06-62FE-4E5A-8BE0-0703695A7886"></a>
+<h4 id="CNCPT-GUID-DF723C06-62FE-4E5A-8BE0-0703695A7886" class="sect4">How Background Processes Populate IMCUs</h4>
+<div>
+<p>During population, the database reads data from disk in its row format, pivots the rows to create columns, and then compresses the data into In-Memory Compression Units (IMCUs).</p>
+<p>Worker processes (W<span class="italic">nnn</span>) populate the data in the IM column store. Each worker process operates on a subset of database blocks from the object. Population is a streaming mechanism, simultaneously compressing the data and converting it into columnar format.</p>
+<p>The <code class="codeph">INMEMORY_MAX_POPULATE_SERVERS</code> initialization parameter specifies the maximum number of worker processes to use for IM column store population. By default, the setting is one half of <code class="codeph">CPU_COUNT</code>. Set this parameter to an appropriate value for your environment. More worker processes result in faster population, but they use more CPU resources. Fewer worker processes result in slower population, which reduces CPU overhead.</p>
+<div class="infobox-note" id="GUID-DF723C06-62FE-4E5A-8BE0-0703695A7886__GUID-717BA1F4-0B28-467E-B241-AC8332E32E05">
+<p class="notep1">Note:</p>
+<p>If <code class="codeph">INMEMORY_MAX_POPULATE_SERVERS</code> is set to <code class="codeph">0</code>, then population is disabled.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-DF723C06-62FE-4E5A-8BE0-0703695A7886__GUID-4C4DF133-8DB5-4FB7-8AEC-2D8DD301C47F">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN-GUID-3428C0FF-5AA9-491C-908E-F0BD88095A5A" target="_blank" href="../REFRN/GUID-3428C0FF-5AA9-491C-908E-F0BD88095A5A.htm#REFRN-GUID-3428C0FF-5AA9-491C-908E-F0BD88095A5A"><span><cite>Oracle Database Reference</cite></span></a> for more information about the <code class="codeph">INMEMORY_MAX_POPULATE_SERVERS</code> initialization parameter</p>
+</div>
+</div>
+<a id="CNCPT94775"></a>
+<div class="props_rev_3"><a id="GUID-0D6BE0E3-4E99-466E-AD1A-18404241C670"></a>
+<h5 id="CNCPT-GUID-0D6BE0E3-4E99-466E-AD1A-18404241C670" class="sect5">Population of the IM Column Store at Instance Startup</h5>
+<div>
+<p>The database must reconstruct the entire in-memory columnar representation from the on-disk representation every time the database instance restarts. This reconstruction is necessary because the IM column store resides only in memory.</p>
+</div>
+</div>
+<a id="CNCPT89670"></a>
+<div class="props_rev_3"><a id="GUID-5D4B2A1F-815F-4FDC-91F8-E5CF7179985B"></a>
+<h5 id="CNCPT-GUID-5D4B2A1F-815F-4FDC-91F8-E5CF7179985B" class="sect5">Population of the IM Column Store in Response to Queries</h5>
+<div>
+<p>Setting the <code class="codeph">INMEMORY</code> attribute on an object means that this object is a <span class="italic">candidate</span> for population in the IM column store, not that the database immediately populates the object in memory.</p>
+<p>By default (<code class="codeph">INMEMORY PRIORITY</code> is set to <code class="codeph">NONE</code>), the database delays population of a table in the IM column store until the database considers it useful. When the <code class="codeph">INMEMORY</code> attribute is set for an object, the database may choose not to materialize all columns when the database determines that the memory is better used elsewhere. Also, the IM column store may populate a subset of columns from a table.</p>
+<div class="example" id="GUID-5D4B2A1F-815F-4FDC-91F8-E5CF7179985B__GUID-CD3B2EB8-4C77-428A-9DA3-EAEB61363D82">
+<p class="titleinexample">Example 14-1 Population of an Object in the IM Column Store</p>
+<p>Assume that you connect to the database as administrator. To determine whether data from the <code class="codeph">sh.customers</code> table has been populated in the IM column store, you execute the following query :</p>
+<pre dir="ltr">SQL&gt; SELECT SEGMENT_NAME, POPULATE_STATUS FROM V$IM_SEGMENTS WHERE SEGMENT_NAME = &#39;CUSTOMERS&#39;;
+
+no rows selected
+</pre>
+<p>In this case, no segments are populated in the IM column store because <code class="codeph">sh.customers</code> has not yet been accessed. You query <code class="codeph">sh.customers</code>, and then query <code class="codeph">V$IM_SEGMENTS</code> again:</p>
+<pre dir="ltr">SQL&gt; SELECT cust_id, cust_last_name, cust_first_name 
+  2  FROM sh.customers WHERE cust_city = &#39;Hyderabad&#39; 
+  3  AND cust_income_level LIKE &#39;C%&#39; AND cust_year_of_birth &gt; 1960;
+
+   CUST_ID CUST_LAST_NAME  CUST_FIRST
+---------- --------------- ----------
+      6284 Hummer          Liane
+     12515 Oppy            Linette
+     39514 Ready           Theodric
+     33292 Weston          Theodric
+     33284 Grigsby         Thatcher
+     27062 Patterson       Thatcher
+
+6 rows selected.
+
+SQL&gt; COL SEGMENT_NAME FORMAT a20
+SQL&gt; SELECT SEGMENT_NAME, POPULATE_STATUS FROM V$IM_SEGMENTS WHERE SEGMENT_NAME = &#39;CUSTOMERS&#39;;
+
+SEGMENT_NAME         POPULATE_STAT
+-------------------- -------------
+CUSTOMERS            COMPLETED
+</pre>
+<p>The following query confirms that the database used the IM column store to retrieve the results:</p>
+<pre dir="ltr">SQL&gt; COL NAME FORMAT a25
+SQL&gt; SELECT ul.NAME, ul.DETECTED_USAGES FROM DBA_FEATURE_USAGE_STATISTICS ul 
+  2  WHERE ul.VERSION=(SELECT MAX(u2.VERSION) FROM DBA_FEATURE_USAGE_STATISTICS u2 
+  3  WHERE u2.NAME = ul.NAME AND ul.NAME LIKE &#39;%Column Store%&#39;);
+
+NAME                      DETECTED_USAGES
+------------------------- ---------------
+In-Memory Column Store    1
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="CNCPT94758"></a>
+<div class="props_rev_3"><a id="GUID-EC299917-17C4-4486-9371-A2DA7E1D5D02"></a>
+<h5 id="CNCPT-GUID-EC299917-17C4-4486-9371-A2DA7E1D5D02" class="sect5">Population of the IM Column Store in Oracle RAC</h5>
+<div>
+<p>Each node in an Oracle Real Application Clusters (Oracle RAC) environment has its own IM column store.</p>
+<p>By default, each in-memory object is distributed among the Oracle RAC instances, effectively employing a share-nothing architecture for the IM column store. When <code class="codeph">INMEMORY</code> is specified, the <code class="codeph">DISTRIBUTE</code> and <code class="codeph">DUPLICATE</code> keywords control the distribution of objects.</p>
+<div class="p">
+<div class="infobox-note" id="GUID-EC299917-17C4-4486-9371-A2DA7E1D5D02__GUID-BBCE9593-4235-439B-973D-C42D4E39D058">
+<p class="notep1">Note:</p>
+<p>Setting <code class="codeph">INMEMORY_SIZE</code> to <code class="codeph">0</code> for a specific node disables the IM column store for the node.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89672"></a>
+<div class="props_rev_3"><a id="GUID-E652C13F-FD52-49D2-B968-3B1A03F7F1ED"></a>
+<h4 id="CNCPT-GUID-E652C13F-FD52-49D2-B968-3B1A03F7F1ED" class="sect4">In-Memory Columnar Compression</h4>
+<div>
+<p>The IM column store uses special compression formats optimized for access speed rather than storage reduction.</p>
+<p>The database increases speed in the following ways:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The compression formats enable the database to decrease the amount of memory processed for each column. SQL executes directly on the compressed columns.</p>
+</li>
+<li>
+<p>The database uses SIMD vector (array) instructions to process an array of column values in a single CPU clock cycle. The database can store many values in a vector, which maximizes the performance benefits with SIMD vector processing.</p>
+</li>
+</ul>
+<p>You can use the <code class="codeph">MEMCOMPRESS</code> subclause of <code class="codeph">CREATE</code> and <code class="codeph">ALTER</code> to select different compression options for each table, partition, or column. For example, you might optimize some columns in a table for scan speed, and others for storage.</p>
+<p>The default compression option is <code class="codeph">MEMCOMPRESS FOR QUERY LOW</code>. This option provides the fastest read times because the database does not need to decompress the data. The other compression options, such as <code class="codeph">FOR QUERY HIGH</code> and <code class="codeph">FOR CAPACITY</code>, use layers of compression, some of which require decompression. Before storing a table in the IM column store, you can use <code class="codeph">DBMS_COMPRESSION.GET_COMPRESSION_RATIO</code> to report the compression ratio, and thus estimate how much space is required.</p>
+<p>The in-memory columnar compression is closely related to Hybrid Columnar Compression. Both technologies involve processing sets of column vectors. The primary difference is that the column vectors for the IM column store are optimized for memory storage, whereas the column vectors for Hybrid Columnar Compression are optimized for disk storage.</p>
+<div class="infoboxnotealso" id="GUID-E652C13F-FD52-49D2-B968-3B1A03F7F1ED__GUID-E1CB37F6-B8A3-4A1C-8A0F-FF3B139809FC">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tablecls.htm#GUID-901A054B-B47F-4ADF-A57B-2074EBB85341" title="With Hybrid Columnar Compression, the database stores the same column for a group of rows together. The data block does not store data in row-major format, but uses a combination of both row and columnar methods.">Hybrid Columnar Compression</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADMIN14218" target="_blank" href="../ADMIN/memory.htm#ADMIN14218"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> for a summary of compression options</p>
+</li>
+<li>
+<p><a class="olink SQLRF01001" target="_blank" href="../SQLRF/statements_3001.htm#SQLRF01001"><span><cite>Oracle Database SQL Language Reference</cite></span></a> for <code class="codeph">ALTER TABLE</code> syntax and semantics</p>
+</li>
+<li>
+<p><a class="olink ARPLS65605" target="_blank" href="../ARPLS/d_compress.htm#ARPLS65605"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about <code class="codeph">DBMS_COMPRESSION.GET_COMPRESSION_RATIO</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89674"></a><a id="CNCPT89673"></a>
+<div class="props_rev_3"><a id="GUID-50A30EC3-1CD1-4BFC-9BD1-9AC55D0B4AAE"></a>
+<h4 id="CNCPT-GUID-50A30EC3-1CD1-4BFC-9BD1-9AC55D0B4AAE" class="sect4">Scan Optimizations for the IM Column Store</h4>
+<div>
+<p>The columnar format enables queries to scan only necessary columns.</p>
+<p>For example, suppose a user executes the following ad hoc query:</p>
+<pre dir="ltr">SELECT cust_id, time_id, channel_id
+FROM   sales
+WHERE  prod_id &gt; 14
+AND    prod_id &lt; 29
+</pre>
+<p>When using the buffer cache, the database would typically scan an index to find the product IDs, use the rowids to fetch the rows from disk into the buffer cache, and then discard the unwanted column values. Scanning data in row format in the buffer cache requires many CPU instructions, and can result in poor CPU efficiency.</p>
+<p>When using the IM column store, the database can scan only the requested <code class="codeph">sales</code> columns, avoiding expensive disk I/O altogether. Scanning data in columnar format pipelines only necessary columns to the CPU, increasing efficiency. Each CPU core scans local in-memory columns using SIMD vector instructions.</p>
+<div class="infoboxnotealso" id="GUID-50A30EC3-1CD1-4BFC-9BD1-9AC55D0B4AAE__GUID-9AF0B6CD-7C30-4E74-99B7-BA1D4411071E">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADMIN14218" target="_blank" href="../ADMIN/memory.htm#ADMIN14218"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to learn more about compression options</p>
+</li>
+<li>
+<p><a class="olink REFRN30742" target="_blank" href="../REFRN/GUID-AFD47ABD-F8AB-401A-82A1-6D5C77384C43.htm#REFRN30742"><span class="italic">Oracle Database Reference</span></a> for a description of the <code class="codeph">V$IM_COLUMN_LEVEL</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89075"></a><a id="CNCPT1225"></a>
+<div class="props_rev_3"><a id="GUID-C2AD1BF6-A5AE-42E9-9677-0AA08126864B"></a>
+<h3 id="CNCPT-GUID-C2AD1BF6-A5AE-42E9-9677-0AA08126864B" class="sect3">Redo Log Buffer</h3>
+<div>
+<p>The <span class="bold">redo log buffer</span> is a circular buffer in the SGA that stores redo entries describing changes made to the database.</p>
+<p>A <a href="glossary.htm#GUID-F73D3BEC-7C9E-4BE0-A30F-D7E1DA4F217A"><span class="xrefglossterm">redo record</span></a> is a data structure that contains the information necessary to reconstruct, or redo, changes made to the database by DML or DDL operations. Database recovery applies redo entries to data files to reconstruct lost changes.</p>
+<p>The database processes copy redo entries from the user memory space to the redo log buffer in the SGA. The redo entries take up continuous, sequential space in the buffer. The background process <a href="glossary.htm#GUID-E96BC851-0B78-4250-8EAB-26EBDF4FE5A6"><span class="xrefglossterm">log writer process (LGWR)</span></a> writes the redo log buffer to the active online redo log group on disk. <a href="memory.htm#GUID-C2AD1BF6-A5AE-42E9-9677-0AA08126864B__BGBFDAHB">Figure 14-10</a> shows this redo buffer activity.</p>
+<div class="figure" id="GUID-C2AD1BF6-A5AE-42E9-9677-0AA08126864B__BGBFDAHB">
+<p class="titleinfigure">Figure 14-10 Redo Log Buffer</p>
+<img width="336" height="294" src="img/GUID-B6649342-D376-4D48-ABD4-1509EBFCC2D2-default.gif" alt="Description of Figure 14-10 follows" title="Description of Figure 14-10 follows"/><br/>
+<a href="img_text/GUID-B6649342-D376-4D48-ABD4-1509EBFCC2D2-print.htm">Description of &#34;Figure 14-10 Redo Log Buffer&#34;</a></div>
+<!-- class="figure" -->
+<p>LGWR writes redo sequentially to disk while DBW performs scattered writes of data blocks to disk. Scattered writes tend to be much slower than sequential writes. Because LGWR enable users to avoid waiting for DBW to complete its slow writes, the database delivers better performance.</p>
+<p>The <code class="codeph">LOG_BUFFER</code> initialization parameter specifies the amount of memory that Oracle Database uses when buffering redo entries. Unlike other SGA components, the redo log buffer and fixed SGA buffer do not divide memory into granules.</p>
+<div class="infoboxnotealso" id="GUID-C2AD1BF6-A5AE-42E9-9677-0AA08126864B__GUID-C0180021-8641-4BF3-A2D9-D5A28C4AF40F">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="process.htm#GUID-B6BE2C31-1543-4504-9763-6FFBBF99DC85" title="The log writer process (LGWR) manages the online redo log buffer.">Log Writer Process (LGWR)</a>&#34;</span> and <span class="q">&#34;<a href="startup.htm#GUID-19F515DA-AA77-4138-853B-1C41A759D76E" title="Instance recovery uses checkpoints to determine which changes must be applied to the data files. The checkpoint position guarantees that every committed change with an SCN lower than the checkpoint SCN is saved to the data files.">Importance of Checkpoints for Instance Recovery</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADMIN11302" target="_blank" href="../ADMIN/onlineredo.htm#ADMIN11302"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> for information about the online redo log</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89076"></a><a id="CNCPT1226"></a>
+<div class="props_rev_3"><a id="GUID-1CB2BA23-4386-46DA-9146-5FE0E4599AC6"></a>
+<h3 id="CNCPT-GUID-1CB2BA23-4386-46DA-9146-5FE0E4599AC6" class="sect3">Shared Pool</h3>
+<div>
+<p>The <span class="bold">shared pool</span> caches various types of program data.</p>
+<p>For example, the shared pool stores parsed SQL, PL/SQL code, system parameters, and <a href="glossary.htm#GUID-D6A3934F-BA6D-464F-9612-C683E20514A4"><span class="xrefglossterm">data dictionary</span></a> information. The shared pool is involved in almost every operation that occurs in the database. For example, if a user executes a SQL statement, then Oracle Database accesses the shared pool.</p>
+<p>The shared pool is divided into several subcomponents, the most important of which are shown in <a href="memory.htm#GUID-1CB2BA23-4386-46DA-9146-5FE0E4599AC6__BGBIAJIG">Figure 14-11</a>.</p>
+<div class="figure" id="GUID-1CB2BA23-4386-46DA-9146-5FE0E4599AC6__BGBIAJIG">
+<p class="titleinfigure">Figure 14-11 Shared Pool</p>
+<img width="500" height="321" src="img/GUID-05A0ACC1-DE4D-4594-8BD2-D96BF010BDBF-default.gif" alt="Description of Figure 14-11 follows" title="Description of Figure 14-11 follows"/><br/>
+<a href="img_text/GUID-05A0ACC1-DE4D-4594-8BD2-D96BF010BDBF-print.htm">Description of &#34;Figure 14-11 Shared Pool&#34;</a></div>
+<!-- class="figure" -->
+<p>This section includes the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="memory.htm#GUID-DE757E9C-3437-408A-8598-3EB4C8E2A3B0" title="The library cache is a shared pool memory structure that stores executable SQL and PL/SQL code.">Library Cache</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-66430838-7862-4389-96B5-795B99A72473" title="The data dictionary is a collection of database tables and views containing reference information about the database, its structures, and its users.">Data Dictionary Cache</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-675AAFFB-E915-4197-8159-C0CF1C009973" title="The server result cache is a memory pool within the shared pool. Unlike the buffer pools, the server result cache holds result sets and not data blocks.">Server Result Cache</a></p>
+</li>
+<li>
+<p><a href="memory.htm#GUID-A1D3C388-AB6B-4FD1-BD40-FEDB8CF307F8" title="The reserved pool is a memory area in the shared pool that Oracle Database can use to allocate large contiguous chunks of memory.">Reserved Pool</a></p>
+</li>
+</ul>
+</div>
+<a id="CNCPT1227"></a>
+<div class="props_rev_3"><a id="GUID-DE757E9C-3437-408A-8598-3EB4C8E2A3B0"></a>
+<h4 id="CNCPT-GUID-DE757E9C-3437-408A-8598-3EB4C8E2A3B0" class="sect4">Library Cache</h4>
+<div>
+<p>The <span class="bold">library cache</span> is a shared pool memory structure that stores executable SQL and PL/SQL code.</p>
+<p>This cache contains the shared SQL and PL/SQL areas and control structures such as locks and library cache handles. In a shared server architecture, the library cache also contains private SQL areas.</p>
+<p>When a SQL statement is executed, the database attempts to reuse previously executed code. If a parsed representation of a SQL statement exists in the library cache and can be shared, then the database reuses the code, known as a <a href="glossary.htm#GUID-A9D78636-6F7B-472B-8AC6-4B07C775DE00"><span class="xrefglossterm">soft parse</span></a> or a <span class="italic">library cache hit</span>. Otherwise, the database must build a new executable version of the application code, known as a <a href="glossary.htm#GUID-1BFB2AF7-BC88-4A93-B9AA-C75CA62C5824"><span class="xrefglossterm">hard parse</span></a> or a <span class="italic">library cache miss</span>.</p>
+</div>
+<a id="CNCPT89077"></a><a id="CNCPT1228"></a>
+<div class="props_rev_3"><a id="GUID-0DBEB809-0660-4A04-ADF6-CABE4F6DF0B8"></a>
+<h5 id="CNCPT-GUID-0DBEB809-0660-4A04-ADF6-CABE4F6DF0B8" class="sect5">Shared SQL Areas</h5>
+<div>
+<p>The database represents each SQL statement that it runs in the shared SQL area and private SQL area.</p>
+<p>The database uses the shared SQL area to process the first occurrence of a SQL statement. This area is accessible to all users and contains the statement parse tree and <a href="glossary.htm#GUID-2DF33B85-94BB-44F3-93B7-06916FB18361"><span class="xrefglossterm">execution plan</span></a>. Only one shared SQL area exists for a unique statement. Each session issuing a SQL statement has a private SQL area in its PGA. Each user that submits the same statement has a private SQL area pointing to the same shared SQL area. Thus, many private SQL areas in separate PGAs can be associated with the same shared SQL area.</p>
+<p>The database automatically determines when applications submit similar SQL statements. The database considers both SQL statements issued directly by users and applications and recursive SQL statements issued internally by other statements.</p>
+<p>The database performs the following steps:</p>
+<ol>
+<li>
+<p>Checks the shared pool to see if a shared SQL area exists for a syntactically and semantically identical statement:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If an identical statement exists, then the database uses the shared SQL area for the execution of the subsequent new instances of the statement, thereby reducing memory consumption.</p>
+</li>
+<li>
+<p>If an identical statement does not exist, then the database allocates a new shared SQL area in the shared pool. A statement with the same syntax but different semantics uses a <a href="glossary.htm#GUID-8230A43B-CD9B-4A64-9D59-182F747A0BD5"><span class="xrefglossterm">child cursor</span></a>.</p>
+</li>
+</ul>
+<p>In either case, the private SQL area for the user points to the shared SQL area that contains the statement and execution plan.</p>
+</li>
+<li>
+<p>Allocates a private SQL area on behalf of the session</p>
+<p>The location of the private SQL area depends on the connection established for the session. If a session is connected through a shared server, then part of the private SQL area is kept in the SGA.</p>
+</li>
+</ol>
+<p><a href="memory.htm#GUID-0DBEB809-0660-4A04-ADF6-CABE4F6DF0B8__BGBGFFFF">Figure 14-12</a> shows a dedicated server architecture in which two sessions keep a copy of the same SQL statement in their own PGAs. In a shared server, this copy is in the UGA, which is in the large pool or in the shared pool when no large pool exists.</p>
+<div class="figure" id="GUID-0DBEB809-0660-4A04-ADF6-CABE4F6DF0B8__BGBGFFFF">
+<p class="titleinfigure">Figure 14-12 Private SQL Areas and Shared SQL Area</p>
+<img width="666" height="527" src="img/GUID-B71BA462-E5D5-4AB5-90BE-6E7668469CF2-default.gif" alt="Description of Figure 14-12 follows" title="Description of Figure 14-12 follows"/><br/>
+<a href="img_text/GUID-B71BA462-E5D5-4AB5-90BE-6E7668469CF2-print.htm">Description of &#34;Figure 14-12 Private SQL Areas and Shared SQL Area&#34;</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-0DBEB809-0660-4A04-ADF6-CABE4F6DF0B8__GUID-9994EA56-128F-4651-95E7-0B3DFCBB0449">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="memory.htm#GUID-8C561EE3-04BC-44A9-BED0-19CDBA566810" title="A private SQL area holds information about a parsed SQL statement and other session-specific information for processing.">Private SQL Area</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink TGDBA562" target="_blank" href="../TGDBA/tune_shared_pool.htm#TGDBA562"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn more about managing the library cache</p>
+</li>
+<li>
+<p><a class="olink ADFNS99965" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS99965"><span><cite>Oracle Database Development Guide</cite></span></a> for more information about shared SQL</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT1230"></a>
+<div class="props_rev_3"><a id="GUID-59808C48-B7AF-49D5-A3BA-D923655FE9CE"></a>
+<h5 id="CNCPT-GUID-59808C48-B7AF-49D5-A3BA-D923655FE9CE" class="sect5">Program Units and the Library Cache</h5>
+<div>
+<p>The library cache holds executable forms of PL/SQL programs and Java classes. These items are collectively referred to as <span class="italic">program units</span>.</p>
+<p>The database processes program units similarly to SQL statements. For example, the database allocates a shared area to hold the parsed, compiled form of a PL/SQL program. The database allocates a private area to hold values specific to the session that runs the program, including local, global, and package variables, and buffers for executing SQL. If multiple users run the same program, then each user maintains a separate copy of his or her private SQL area, which holds session-specific values, and accesses a single shared SQL area.</p>
+<p>The database processes individual SQL statements within a PL/SQL program unit as previously described. Despite their origins within a PL/SQL program unit, these SQL statements use a shared area to hold their parsed representations and a private area for each session that runs the statement.</p>
+</div>
+</div>
+<a id="CNCPT1232"></a>
+<div class="props_rev_3"><a id="GUID-F41EF3AF-42D7-4445-A2DD-E800A5E54E3F"></a>
+<h5 id="CNCPT-GUID-F41EF3AF-42D7-4445-A2DD-E800A5E54E3F" class="sect5">Allocation and Reuse of Memory in the Shared Pool</h5>
+<div>
+<p>The database allocates shared pool memory when a new SQL statement is parsed. The memory size depends on the complexity of the statement.</p>
+<p>In general, an item in the shared pool stays until it is removed according to a least recently used (LRU) algorithm. The database allows shared pool items used by many sessions to remain in memory as long as they are useful, even if the process that created the item terminates. This mechanism minimizes the overhead and processing of SQL statements.</p>
+<p>If space is needed for new items, then the database frees memory for infrequently used items. A shared SQL area can be removed from the shared pool even if the shared SQL area corresponds to an open cursor that has not been used for some time. If the open cursor is subsequently used to run its statement, then Oracle Database reparses the statement and allocates a new shared SQL area.</p>
+<p>The database also removes a shared SQL area from the shared pool in the following circumstances:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the database gathers statistics for a table, <a href="glossary.htm#GUID-1C56177E-6BEE-4FE7-B45E-38298CDB946D"><span class="xrefglossterm">table cluster</span></a>, or index, then by default the database gradually removes all shared SQL areas that contain statements referencing the analyzed object after a period. The next time a removed statement is run, the database parses it in a new shared SQL area to reflect the new statistics for the schema object.</p>
+</li>
+<li>
+<p>If a schema object is referenced in a SQL statement, and if this object is later modified by a DDL statement, then the database invalidates the shared SQL area. The optimizer must reparse the statement the next time it is run.</p>
+</li>
+<li>
+<p>If you change the global database name, then the database removes all information from the shared pool.</p>
+</li>
+</ul>
+<p>To assess the performance that can be expected after a database instance restart, use the <code class="codeph">ALTER SYSTEM FLUSH SHARED_POOL</code> statement to manually remove all information in the shared pool.</p>
+<div class="infoboxnotealso" id="GUID-F41EF3AF-42D7-4445-A2DD-E800A5E54E3F__GUID-0619567A-5B52-4AC8-8B55-4D56790AF7C3">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF53120" target="_blank" href="../SQLRF/statements_2017.htm#SQLRF53120"><span><cite>Oracle Database SQL Language Reference</cite></span></a> for information about using <code class="codeph">ALTER SYSTEM FLUSH SHARED_POOL</code></p>
+</li>
+<li>
+<p><a class="olink REFRN30246" target="_blank" href="../REFRN/GUID-2B9340D7-4AA8-4894-94C0-D5990F67BE75.htm#REFRN30246"><span><cite>Oracle Database Reference</cite></span></a> for information about <code class="codeph">V$SQL</code> and <code class="codeph">V$SQLAREA</code> dynamic views</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1231"></a>
+<div class="props_rev_3"><a id="GUID-66430838-7862-4389-96B5-795B99A72473"></a>
+<h4 id="CNCPT-GUID-66430838-7862-4389-96B5-795B99A72473" class="sect4">Data Dictionary Cache</h4>
+<div>
+<p>The <span class="bold">data dictionary</span> is a collection of database tables and views containing reference information about the database, its structures, and its users.</p>
+<p>Oracle Database accesses the data dictionary frequently during SQL statement parsing. The data dictionary is accessed so often by Oracle Database that the following special memory locations are designated to hold dictionary data:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Data dictionary cache</p>
+<p>This cache holds information about database objects. The cache is also known as the <span class="italic">row cache</span> because it holds data as rows instead of buffers.</p>
+</li>
+<li>
+<p>Library cache</p>
+</li>
+</ul>
+<p>All server processes share these caches for access to data dictionary information.</p>
+<div class="infoboxnotealso" id="GUID-66430838-7862-4389-96B5-795B99A72473__GUID-92447A87-B604-414F-B9AB-D205278EB02C">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="datadict.htm#GUID-BDF5B748-EB43-4B48-938E-89099069C3BB" title="The central set of read-only reference tables and views of each Oracle database is known collectively as the data dictionary. The dynamic performance views are special views that are continuously updated while a database is open and in use.">Data Dictionary and Dynamic Performance Views</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink TGDBA593" target="_blank" href="../TGDBA/tune_shared_pool.htm#TGDBA593"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn how to allocate additional memory to the data dictionary cache</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT1919"></a>
+<div class="props_rev_3"><a id="GUID-675AAFFB-E915-4197-8159-C0CF1C009973"></a>
+<h4 id="CNCPT-GUID-675AAFFB-E915-4197-8159-C0CF1C009973" class="sect4">Server Result Cache</h4>
+<div>
+<p>The <span class="bold">server result cache</span> is a memory pool within the shared pool. Unlike the buffer pools, the server result cache holds result sets and not data blocks.</p>
+<p>The server result cache contains the <a href="glossary.htm#GUID-EAEA5633-B660-4D51-99FF-48B596750DB8"><span class="xrefglossterm">SQL query result cache</span></a> and <a href="glossary.htm#GUID-9804DF97-092F-48A5-827B-67F1065ADAB3"><span class="xrefglossterm">PL/SQL function result cache</span></a>, which share the same infrastructure.</p>
+<div class="infobox-note" id="GUID-675AAFFB-E915-4197-8159-C0CF1C009973__GUID-423E25C2-A44B-443C-BAA8-341F7F571C8F">
+<p class="notep1">Note:</p>
+<p>A client result cache differs from the server result cache. A client cache is configured at the application level and is located in client memory, not in database memory.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-675AAFFB-E915-4197-8159-C0CF1C009973__GUID-2FF2AC7A-F5D1-4995-AD57-D9F507BA14D3">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADMIN11228" target="_blank" href="../ADMIN/memory.htm#ADMIN11228"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> for information about sizing the result cache</p>
+</li>
+<li>
+<p><a class="olink ARPLS202" target="_blank" href="../ARPLS/d_result_cache.htm#ARPLS202"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> for information about the <code class="codeph">DBMS_RESULT_CACHE</code> package</p>
+</li>
+<li>
+<p><a class="olink TGDBA638" target="_blank" href="../TGDBA/tune_result_cache.htm#TGDBA638"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> for more information about the client result cache</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="CNCPT1920"></a>
+<div class="props_rev_3"><a id="GUID-A778611A-E802-4D9B-A645-90CDA658D61F"></a>
+<h5 id="CNCPT-GUID-A778611A-E802-4D9B-A645-90CDA658D61F" class="sect5">SQL Query Result Cache</h5>
+<div>
+<p>The <span class="bold">SQL query result cache</span> is a subset of the server result cache that stores the results of queries and query fragments.</p>
+<p>Most applications benefit from this performance improvement. Consider an application that runs the same <code class="codeph">SELECT</code> statement repeatedly. If the results are cached, then the database returns them immediately. In this way, the database avoids the expensive operation of rereading blocks and recomputing results.</p>
+<p>When a query executes, the database searches memory to determine whether the result exists in the result cache. If the result exists, then the database retrieves the result from memory instead of executing the query. If the result is not cached, then the database executes the query, returns the result as output, and then stores the result in the result cache. The database automatically invalidates a cached result whenever a transaction modifies the data or metadata of database objects used to construct that cached result.</p>
+<p>Users can annotate a query or query fragment with a <code class="codeph">RESULT_CACHE</code> <a href="glossary.htm#GUID-B2534A3C-7E63-45E3-A61F-3746124B7CCA"><span class="xrefglossterm">hint</span></a> to indicate that the database should store results in the SQL query result cache. The <code class="codeph">RESULT_CACHE_MODE</code> initialization parameter determines whether the SQL query result cache is used for all queries (when possible) or only for annotated queries.</p>
+<div class="infoboxnotealso" id="GUID-A778611A-E802-4D9B-A645-90CDA658D61F__GUID-35051DAA-5A96-42DF-92C1-CD280D4A636F">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink REFRN10270" target="_blank" href="../REFRN/GUID-DEC2BDE4-8CF4-4378-A04C-6EE50A0FA250.htm#REFRN10270"><span><cite>Oracle Database Reference</cite></span></a> to learn more about the <code class="codeph">RESULT_CACHE_MODE</code> initialization parameter</p>
+</li>
+<li>
+<p><a class="olink SQLRF20004" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF20004"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about the <code class="codeph">RESULT_CACHE</code> hint</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT1921"></a>
+<div class="props_rev_3"><a id="GUID-1E702BCE-CA52-472E-918B-0C5FB8C09767"></a>
+<h5 id="CNCPT-GUID-1E702BCE-CA52-472E-918B-0C5FB8C09767" class="sect5">PL/SQL Function Result Cache</h5>
+<div>
+<p>The <span class="bold">PL/SQL function result cache</span> is a subset of the server result cache that stores function result sets.</p>
+<p>Without caching, 1000 calls of a function at 1 second per call would take 1000 seconds. With caching, 1000 function calls with the same inputs could take 1 second <span class="italic">total</span>. Good candidates for result caching are frequently invoked functions that depend on relatively static data.</p>
+<p>PL/SQL function code can include a request to cache its results. Upon invocation of this function, the system checks the cache. If the cache contains the result from a previous function call with the same parameter values, then the system returns the cached result to the invoker and does not reexecute the function body. If the cache does not contain the result, then the system executes the function body and adds the result (for these parameter values) to the cache before returning control to the invoker.</p>
+<div class="infobox-note" id="GUID-1E702BCE-CA52-472E-918B-0C5FB8C09767__GUID-A6601CDA-7D49-484C-BA32-C81129F6E79C">
+<p class="notep1">Note:</p>
+<p>You can specify the database objects that Oracle Database uses to compute a cached result, so that if any of them are updated, the cached result becomes invalid and must be recomputed.</p>
+</div>
+<p>The cache can accumulate many results&mdash;one result for every unique combination of parameter values with which each result-cached function was invoked. If the database needs more memory, then it ages out one or more cached results.</p>
+<div class="infoboxnotealso" id="GUID-1E702BCE-CA52-472E-918B-0C5FB8C09767__GUID-5C5CBFD5-A598-49EF-81F9-46F978727B7E">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADFNS333" target="_blank" href="../ADFNS/adfns_packages.htm#ADFNS333"><span><cite>Oracle Database Development Guide</cite></span></a> to learn more about the PL/SQL function result cache</p>
+</li>
+<li>
+<p><a class="olink LNPLS00817" target="_blank" href="../LNPLS/subprograms.htm#LNPLS00817"><span><cite>Oracle Database PL/SQL Language Reference</cite></span></a> to learn more about the PL/SQL function result cache</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT9835"></a>
+<div class="props_rev_3"><a id="GUID-A1D3C388-AB6B-4FD1-BD40-FEDB8CF307F8"></a>
+<h4 id="CNCPT-GUID-A1D3C388-AB6B-4FD1-BD40-FEDB8CF307F8" class="sect4">Reserved Pool</h4>
+<div>
+<p>The <span class="bold">reserved pool</span> is a memory area in the shared pool that Oracle Database can use to allocate large contiguous chunks of memory.</p>
+<p>The database allocates memory from the shared pool in chunks. Chunking allows large objects (over 5 KB) to be loaded into the cache without requiring a single contiguous area. In this way, the database reduces the possibility of running out of contiguous memory because of fragmentation.</p>
+<p>Infrequently, Java, PL/SQL, or SQL cursors may make allocations out of the shared pool that are larger than 5 KB. To allow these allocations to occur most efficiently, the database segregates a small amount of the shared pool for the reserved pool.</p>
+<div class="infoboxnotealso" id="GUID-A1D3C388-AB6B-4FD1-BD40-FEDB8CF307F8__GUID-4A8B314F-BEF2-436B-AA82-10E0804A9843">
+<p class="notep1">See Also:</p>
+<p><a class="olink TGDBA605" target="_blank" href="../TGDBA/tune_shared_pool.htm#TGDBA605"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn how to configure the reserved pool</p>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89078"></a><a id="CNCPT1233"></a>
+<div class="props_rev_3"><a id="GUID-1ECB5213-AC4E-4BB4-9113-91C761676B34"></a>
+<h3 id="CNCPT-GUID-1ECB5213-AC4E-4BB4-9113-91C761676B34" class="sect3">Large Pool</h3>
+<div>
+<p>The <span class="bold">large pool</span> is an optional memory area intended for memory allocations that are larger than is appropriate for the shared pool.</p>
+<p>The large pool can provide large memory allocations for the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>UGA for the shared server and the <a href="glossary.htm#GUID-4805B3F4-1858-473B-A802-3496C73CE818"><span class="xrefglossterm">Oracle XA</span></a> interface (used where transactions interact with multiple databases)</p>
+</li>
+<li>
+<p>Message buffers used in the parallel execution of statements</p>
+</li>
+<li>
+<p>Buffers for Recovery Manager (RMAN) I/O slaves</p>
+</li>
+</ul>
+<p>By allocating session memory from the large pool, the database avoids the memory fragmentation that can occur when the database allocates memory from the shared pool. When the database allocates large pool memory to a session, this memory is not eligible to be released unless the session releases it. In contrast, the database manages memory in the shared pool in an LRU fashion, which means that portions of memory can age out.</p>
+<p><a href="memory.htm#GUID-1ECB5213-AC4E-4BB4-9113-91C761676B34__BGBDJBCF">Figure 14-13</a> is a graphical depiction of the large pool.</p>
+<div class="figure" id="GUID-1ECB5213-AC4E-4BB4-9113-91C761676B34__BGBDJBCF">
+<p class="titleinfigure">Figure 14-13 Large Pool</p>
+<img width="323" height="230" src="img/GUID-2A48B53A-F0AE-4D81-B469-B5171B283193-default.gif" alt="Description of Figure 14-13 follows" title="Description of Figure 14-13 follows"/><br/>
+<a href="img_text/GUID-2A48B53A-F0AE-4D81-B469-B5171B283193-print.htm">Description of &#34;Figure 14-13 Large Pool&#34;</a></div>
+<!-- class="figure" -->
+<p>The large pool is different from reserved space in the shared pool, which uses the same LRU list as other memory allocated from the shared pool. The large pool does not have an LRU list. Pieces of memory are allocated and cannot be freed until they are done being used. As soon as a chunk of memory is freed, other processes can use it.</p>
+<div class="infoboxnotealso" id="GUID-1ECB5213-AC4E-4BB4-9113-91C761676B34__GUID-76E7713A-12B1-4CF6-9AF9-D7C42291CC47">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="dist_pro.htm#GUID-EC8F8778-02B7-4CF9-9E6F-A5D88C777235" title="A request from a user is a single API call that is part of the user&#39;s SQL statement.">Dispatcher Request and Response Queues</a>&#34;</span> to learn about allocating session memory for shared server</p>
+</li>
+<li>
+<p><a class="olink ADFNS017" target="_blank" href="../ADFNS/adfns_xa.htm#ADFNS017"><span><cite>Oracle Database Development Guide</cite></span></a> to learn about Oracle XA</p>
+</li>
+<li>
+<p><a class="olink TGDBA609" target="_blank" href="../TGDBA/tune_shared_pool.htm#TGDBA609"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> for more information about the large pool</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="process.htm#GUID-6487F7FA-2299-4428-8588-7937BD8675D3" title="In parallel execution, the server process acts as the query coordinator (also called the parallel execution coordinator).">Query Coordinator</a>&#34;</span> for information about allocating memory for parallel execution</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT1234"></a>
+<div class="props_rev_3"><a id="GUID-51234BB8-1976-4670-8BC5-BB0E3D3BA12D"></a>
+<h3 id="CNCPT-GUID-51234BB8-1976-4670-8BC5-BB0E3D3BA12D" class="sect3">Java Pool</h3>
+<div>
+<p>The <span class="bold">Java pool</span> is an area of memory that stores all session-specific Java code and data within the Java Virtual Machine (JVM). This memory includes Java objects that are migrated to the Java session space at end-of-call.</p>
+<p>For dedicated server connections, the Java pool includes the shared part of each Java class, including methods and read-only memory such as code vectors, but not the per-session Java state of each session. For shared server, the pool includes the shared part of each class and some UGA used for the state of each session. Each UGA grows and shrinks as necessary, but the total UGA size must fit in the Java pool space.</p>
+<p>The Java Pool Advisor statistics provide information about library cache memory used for Java and predict how changes in the size of the Java pool can affect the parse rate. The Java Pool Advisor is internally turned on when <code class="codeph">statistics_level</code> is set to <code class="codeph">TYPICAL</code> or higher. These statistics reset when the advisor is turned off.</p>
+<div class="infoboxnotealso" id="GUID-51234BB8-1976-4670-8BC5-BB0E3D3BA12D__GUID-A7B0BD15-211A-4085-A633-F45DFB403D69">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink JJDEV01000" target="_blank" href="../JJDEV/chone.htm#JJDEV01000"><span><cite>Oracle Database Java Developer&rsquo;s Guide</cite></span></a></p>
+</li>
+<li>
+<p><a class="olink TGDBA589" target="_blank" href="../TGDBA/tune_shared_pool.htm#TGDBA589"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn about views containing Java pool advisory statistics</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT1235"></a>
+<div class="props_rev_3"><a id="GUID-30BD00BF-963A-40E4-80BA-96B651BDF2A6"></a>
+<h3 id="CNCPT-GUID-30BD00BF-963A-40E4-80BA-96B651BDF2A6" class="sect3">Streams Pool</h3>
+<div>
+<p>The <span class="bold">Streams pool</span> stores buffered queue messages and provides memory for Oracle Streams capture processes and apply processes. The Streams pool is used exclusively by Oracle Streams.</p>
+<p>Unless you specifically configure it, the size of the Streams pool starts at zero. The pool size grows dynamically as required by Oracle Streams.</p>
+<div class="infoboxnotealso" id="GUID-30BD00BF-963A-40E4-80BA-96B651BDF2A6__GUID-B250AB66-E5F6-4D9C-9783-6A11B33FC5EA">
+<p class="notep1">See Also:</p>
+<p><a class="olink STREP011" target="_blank" href="../STREP/prep_rep.htm#STREP011"><span><cite>Oracle Streams Replication Administrator&#39;s Guide</cite></span></a> and <a class="olink STREP202" target="_blank" href="../STREP/prep_rep.htm#STREP202"><span><cite>Oracle Streams Replication Administrator&#39;s Guide</cite></span></a></p>
+</div>
+</div>
+</div>
+<a id="CNCPT9837"></a>
+<div class="props_rev_3"><a id="GUID-F18E4E7F-2ED9-4734-A6E4-4E77D0561C19"></a>
+<h3 id="CNCPT-GUID-F18E4E7F-2ED9-4734-A6E4-4E77D0561C19" class="sect3">Fixed SGA</h3>
+<div>
+<p>The <span class="bold">fixed SGA</span> is an internal housekeeping area.</p>
+<p>For example, the fixed SGA contains:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>General information about the state of the database and the instance, which the background processes need to access</p>
+</li>
+<li>
+<p>Information communicated between processes, such as information about locks</p>
+</li>
+</ul>
+<p>The size of the fixed SGA is set by Oracle Database and cannot be altered manually. The fixed SGA size can change from release to release.</p>
+<div class="infoboxnotealso" id="GUID-F18E4E7F-2ED9-4734-A6E4-4E77D0561C19__GUID-DE542EB4-4294-4469-8A0C-3C3208420091">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="consist.htm#GUID-E926E638-0161-4389-887B-4A31A529478A" title="Oracle Database automatically locks a resource on behalf of a transaction to prevent other transactions from doing something that requires exclusive access to the same resource. The database automatically acquires different types of locks at different levels of restrictiveness depending on the resource and the operation being performed.">Overview of Automatic Locks</a>&#34;</span></p>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT804"></a>
+<div class="props_rev_3"><a id="GUID-EE4E1B4E-1C00-499F-B00E-2637B7E19963"></a>
+<h2 id="CNCPT-GUID-EE4E1B4E-1C00-499F-B00E-2637B7E19963" class="sect2">Overview of Software Code Areas</h2>
+<div>
+<p>A <span class="bold">software code area</span> is a portion of memory that stores code that is being run or can be run. Oracle Database code is stored in a software area that is typically more exclusive and protected than the location of user programs.</p>
+<p>Software areas are usually static in size, changing only when software is updated or reinstalled. The required size of these areas varies by operating system.</p>
+<p>Software areas are read-only and can be installed shared or nonshared. Some database tools and utilities, such as Oracle Forms and SQL*Plus, can be installed shared, but some cannot. When possible, database code is shared so that all users can access it without having multiple copies in memory, resulting in reduced main memory and overall improvement in performance. Multiple instances of a database can use the same database code area with different databases if running on the same computer.</p>
+<div class="infobox-note" id="GUID-EE4E1B4E-1C00-499F-B00E-2637B7E19963__GUID-1543C5D6-3DE6-400C-A008-C771B365EBE3">
+<p class="notep1">Note:</p>
+<p>The option of installing software shared is not available for all operating systems, for example, on PCs operating Microsoft Windows. See your operating system-specific documentation for more information.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1196">
+<tr>
+<td class="cellalignment1203">
+<table class="cellalignment1201">
+<tr>
+<td class="cellalignment1200"><a href="startup.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1200"><a href="process.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1993, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1205">
+<table class="cellalignment1199">
+<tr>
+<td class="cellalignment1200"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1200"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1200"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1200"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1200"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1200"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-72345"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Diagnosing%20a%20Connection%20Pool"></a><title>Diagnosing a Connection Pool</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="This guide provides instructions for using Oracle Universal Connection Pooling API. The API is JDBC driver agnostic."/>
+<meta name="dcterms.created" content="2014-06-29T23:47:52Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Universal Connection Pool for JDBC Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49541-01"/>
+<meta name="dcterms.isVersionOf" content="JJUCP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="app_cont.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="err_cod_ref.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49541-01.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">14/16</span> <!-- End Header -->
+<div id="JJUCP8223" class="chapter"><a id="sthref373"></a>
+<h1 class="chapter"><span class="secnum">10</span> Diagnosing a Connection Pool</h1>
+<p>The following sections are included in this chapter:</p>
+<ul>
+<li>
+<p><a href="#BABEBDHF">Pool Statistics</a></p>
+</li>
+<li>
+<p><a href="#BABBFJIE">Dynamic Monitoring Service Metrics</a></p>
+</li>
+<li>
+<p><a href="#CIHFBJFD">Viewing Oracle RAC Statistics</a></p>
+</li>
+<li>
+<p><a href="#CIHIGBIJ">Setting Up Logging in UCP</a></p>
+</li>
+<li>
+<p><a href="#CHDJCAJI">Exceptions and Error Codes</a></p>
+</li>
+</ul>
+<a id="BABEBDHF"></a>
+<div id="JJUCP8224" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Pool Statistics</h2>
+<p>Universal Connection Pool (UCP) for JDBC provides a set of run-time statistics for the connection pool. These statistics can be divided into the following two categories:</p>
+<ul>
+<li>
+<p>Noncumulative</p>
+<p>These statistics apply only to the current running connection pool instance.</p>
+</li>
+<li>
+<p>Cumulative</p>
+<p>These statistics are collected across multiple pool start/stop cycles.</p>
+</li>
+</ul>
+<p>The <code>oracle.ucp.UniversalConnectionPoolStatistics</code> interface provides methods that are used to query the connection pool statistics. The methods of this interface can be called from a pool-enabled data source and pool-enabled XA data source, using the <code>oracle.ucp.jdbc.PoolDataSource.getStatistics</code> method. For example:</p>
+<pre>PoolDataSource pds = PoolDataSourceFactory.getPoolDataSource();
+...
+...
+int totalConnsCount = pds.getStatistics().getTotalConnectionsCount();
+System.out.println(&#34;The total connetion count in the pool is &#34;+ totalConnsCount +&#34;.&#34;);
+</pre>
+<p>The <code>oracle.ucp.jdbc.PoolDataSource.getStatistics</code> method can also be called by itself to return all connection pool statistics as a <code>String</code>.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABBFJIE"></a>
+<div id="JJUCP8226" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Dynamic Monitoring Service Metrics</h2>
+<p>UCP supports all the pool statistics to be in the form of Dynamic Monitoring Service (DMS) metrics. You must include the <code>dms.jar</code> file in the class path of the application to collect and utilize these DMS metrics.</p>
+<p>UCP supports DMS metrics collection in both the pool manager interface and the pool manager MBean. You can use the <code>UnversalConnectionPoolManager.startMetricsCollection</code> method to start collecting DMS metrics for the specified connection pool instance, and use the <code>UnversalConnectionPoolManager.stopMetricsCollection</code> method to stop DMS metrics collection. The metrics update interval can be specified using the <code>UnversalConnectionPoolManager.setMetricUpdateInterval</code> method. The pool manager MBean exports similar operations.</p>
+</div>
+<!-- class="sect1" -->
+<a id="CIHFBJFD"></a>
+<div id="JJUCP8229" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Viewing Oracle RAC Statistics</h2>
+<p><a id="sthref374"></a><a id="sthref375"></a><a id="sthref376"></a>UCP for JDBC provides a set of Oracle RAC run-time statistics that are used to determine how well a connection pool is utilizing Oracle RAC features and are also used to help determine whether the connection pool has been configured properly to use the Oracle RAC features. The statistics report FCF processing information, run-time connection load balance success/failure rate, and affinity context success/failure rate.</p>
+<p>The <code>OracleJDBCConnectionPoolStatistics</code> interface that is located in the <code>oracle.ucp.jdbc.oracle</code> package provides methods that are used to query the connection pool for Oracle RAC statistics. The methods of this interface can be called from a pool-enabled and pool-enabled XA data source using the data source&#39;s <code>getStatistics</code> method. For example:</p>
+<pre>PoolDataSource  pds = PoolDataSourceFactory.getPoolDataSource();
+...
+
+Long rclbS = ((OracleJDBCConnectionPoolStatistics)pds.getStatistics()).
+   getSuccessfulRCLBBasedBorrowCount();
+System.out.println(&#34;The RCLB success rate is &#34;+rclbS+&#34;.&#34;);
+</pre>
+<p>The data source&#39;s <code>getStatistics</code> method can also be called by itself and returns all connection pool statistics as a <code>String</code> and includes the Oracle RAC statistics.</p>
+<div id="JJUCP8230" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref377"></a>
+<h3 class="sect2">Fast Connection Failover Statistics</h3>
+<p><a id="sthref378"></a><a id="sthref379"></a>The <code>getFCFProcessingInfo</code> method provides information on recent Fast Connection Failover (FCF) attempts in the form of a <code>String</code>. The FCF information is typically used to help diagnose FCF problems. The information includes the outcome of each FCF attempt (successful or failed), the relevant Oracle RAC instances, the number of connections that were cleaned up, the exception that triggered the FCF attempt failure, and more. The following example demonstrates using the <code>getFCFProcessingInfo</code> method:</p>
+<pre>Sting fcfInfo = ((OracleJDBCConnectionPoolStatistics)pds.getStatistics()).
+   getFCFProcessingInfo();
+System.out.println(&#34;The FCF information: &#34;+fcfInfo+&#34;.&#34;);
+</pre>
+<p>Following is a sample output string from the <code>getFCFProcessingInfo()</code> method:</p>
+<pre>    Oct 28, 2008 12:34:02 SUCCESS &lt;Reason:planned&gt; &lt;Type:SERVICE_UP&gt; \
+      &lt;Service:&#34;svvc1&#34;&gt; &lt;Instance:&#34;inst1&#34;&gt; &lt;Db:&#34;db1&#34;&gt; \
+      Connections:(Available=6 Affected=2 FailedToProcess=0 MarkedDown=2 Closed=2) \
+      (Borrowed=6 Affected=2 FailedToProcess=0 MarkedDown=2 MarkedDeferredClose=0 Closed=2) \
+      TornDown=2 MarkedToClose=2 Cardinality=2
+    ...
+    Oct 28, 2008 12:09:52 SUCCESS &lt;Reason:unplanned&gt; &lt;Type:SERVICE_DOWN&gt; \
+      &lt;Service:&#34;svc1&#34;&gt; &lt;Instance:&#34;inst1&#34;&gt; &lt;Db:&#34;db1&#34;&gt; \
+      Connections:(Available=6 Affected=2 FailedToProcess=0 MarkedDown=2 Closed=2) \
+      (Borrowed=6 Affected=2 FailedToProcess=0 MarkedDown=2 MarkedDeferredClose=0 Closed=2)
+    ...
+    Oct 28, 2008 11:14:53 FAILURE &lt;Type:HOST_DOWN&gt; &lt;Host:&#34;host1&#34;&gt; \
+      Connections:(Available=6 Affected=4 FailedToProcess=0 MarkedDown=4 Closed=4) \
+      (Borrowed=6 Affected=4 FailedToProcess=0 MarkedDown=4 MarkedDeferredClose=0 Closed=4)
+</pre>
+<p>If you enable logging, then the preceding information will also be available in the UCP logs and you will be able to verify the FCF outcome.</p>
+</div>
+<!-- class="sect2" -->
+<div id="JJUCP8231" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref380"></a>
+<h3 class="sect2">Run-Time Connection Load Balance Statistics</h3>
+<p><a id="sthref381"></a><a id="sthref382"></a>The run-time connection load balance statistics are used to determine if a connection pool is effectively utilizing the run-time connection load balancing feature of Oracle RAC. The statistics report how many requests successfully used the run-time connection load balancing algorithms and how many requests failed to use the algorithms. The <code>getSuccessfulRCLBBasedBorrowCount</code> method and the <code>getFailedRCLBBasedBorrowCount</code> method, respectively, are used to get the statistics. The following example demonstrates using the <code>getFailedRCLBBasedBorrowCount</code> method:</p>
+<pre>Long rclbF = ((OracleJDBCConnectionPoolStatistics)pds.getStatistics()).
+   getFailedRCLBBasedBorrowCount();
+System.out.println(&#34;The RCLB failure rate is: &#34;+rclbF+&#34;.&#34;);
+</pre>
+<p>A high failure rate may indicate that the Oracle RAC Load Balancing Advisory or connection pool is not configured properly.</p>
+</div>
+<!-- class="sect2" -->
+<div id="JJUCP8232" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref383"></a>
+<h3 class="sect2">Connection Affinity Statistics</h3>
+<p><a id="sthref384"></a><a id="sthref385"></a>The connection affinity statistics are used to determine if a connection pools is effectively utilizing connection affinity. The statistics report the number of borrow requests that succeeded in matching the affinity context and how many requests failed to match the affinity context. The <code>getSuccessfulAffinityBasedBorrowCount</code> method and the <code>getFailedAffinityBasedBorrowCount</code> method, respectively, are used to get the statistics. The following example demonstrates using the <code>getFailedAffinityBasedBorrowCount</code> method:</p>
+<pre>Long affF = ((OracleJDBCConnectionPoolStatistics)pds.getStatistics()).
+   getFailedAffinityBasedBorrowCount();
+System.out.println(&#34;The connection affinity failure rate is: &#34;+affF+&#34;.&#34;);
+</pre></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CIHIGBIJ"></a>
+<div id="JJUCP8233" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Setting Up Logging in UCP</h2>
+<p><a id="sthref386"></a>UCP for JDBC leverages the JDK logging facility (<code>java.util.logging</code>). Logging is not enabled by default and must be configured in order to print log messages. Logging can be configured using a log configuration file as well as through API-level configuration.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The default log level is <code>null</code>. This ensures that a parent logger&#39;s log level is used by default.</div>
+<div id="JJUCP8234" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref387"></a>
+<h3 class="sect2">Using a Logging Properties File</h3>
+<p><a id="sthref388"></a>Logging can be configured using a properties file. The location of the properties file must be set as a Java property for the logging configuration file property. For example:</p>
+<pre>java -Djava.util.logging.config.file=log.properties
+</pre>
+<p>The logging properties file defines the handler to use for writing logs, the formatter to use for formatting logs, a default log level, as well as log levels for specific packages or classes. For example:</p>
+<pre>handlers = java.util.logging.ConsoleHandler
+java.util.logging.ConsoleHandler.level = ALL
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+
+oracle.ucp.level = FINEST
+oracle.ucp.jdbc.PoolDataSource = WARNING
+</pre>
+<p>A custom formatter is included with UCP for JDBC and can be entered as the value for the formatter property. For example:</p>
+<pre>java.util.logging.ConsoleHandler.formatter = oracle.ucp.util.logging.UCPFormatter
+</pre>
+<p>You can also download the <code>ucpdemos.jar</code> file, which is shipped with UCP, from Oracle Technology Network (OTN). This file contains a list of sample logging property files. For example, this file contains the logging property file that can be used for troubleshooting the Fast Connection Failover (FCF) feature.</p>
+</div>
+<!-- class="sect2" -->
+<div id="JJUCP8235" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref389"></a>
+<h3 class="sect2">Using UCP for JDBC and JDK API</h3>
+<p><a id="sthref390"></a>Logging can be dynamically configured though either the UCP for JDBC API or the JDK API. When using the UCP for JDBC API, logging is configured using a connection pool manager. When using the JDK, logging is configured using the <code>java.util.logging</code> implementation.</p>
+<p>The following example demonstrates using the UCP for JDBC API to configure logging:</p>
+<pre>UniversalConnectionPoolManager mgr = UniversalConnectionPoolManagerImpl.
+getUniversalConnectionPoolManager();
+
+mgr.setLogLevel(Level.FINE);
+</pre>
+<p>The following example demonstrate using the JDK logging implementation directly:</p>
+<pre>Logger.getLogger(&#34;oracle.ucp&#34;).setLevel(Level.FINEST);
+Logger.getLogger(&#34;oracle.ucp.jdbc.PoolDataSource&#34;).setLevel(Level.FINEST);
+</pre></div>
+<!-- class="sect2" -->
+<div id="JJUCP8236" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref391"></a>
+<h3 class="sect2">Supported Log Levels</h3>
+<p><a id="sthref392"></a>The following list describes each of the log levels that are supported for JDBC. Levels lower than <code>FINE</code> produce output that may not be meaningful to users. Levels lower than <code>FINER</code> will produce very large volumes of output.</p>
+<ul>
+<li>
+<p><code>INTERNAL_ERROR</code> &ndash; Internal Errors</p>
+</li>
+<li>
+<p><code>SEVERE</code> &ndash; SQL Exceptions</p>
+</li>
+<li>
+<p><code>WARNING</code> &ndash; SQL Warnings and other invisible problems</p>
+</li>
+<li>
+<p><code>INFO</code> &ndash; Public events such as connection attempts or Oracle RAC events</p>
+</li>
+<li>
+<p><code>CONFIG</code> &ndash; SQL statements</p>
+</li>
+<li>
+<p><code>FINE</code> &ndash; Public APIs</p>
+</li>
+<li>
+<p><code>TRACE_10</code> &ndash; Internal events</p>
+</li>
+<li>
+<p><code>FINER</code> &ndash; Internal APIs</p>
+</li>
+<li>
+<p><code>TRACE_20</code> &ndash; Internal debug</p>
+</li>
+<li>
+<p><code>TRACE_30</code> &ndash; High volume internal APIs</p>
+</li>
+<li>
+<p><code>FINEST</code> &ndash; High volume internal debug</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CHDJCAJI"></a>
+<div id="JJUCP8237" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Exceptions and Error Codes</h2>
+<p>Many UCP methods throw the <code>UniversalConnectionPoolException</code>, with exception chaining supported. You can call the <code>printStackTrace</code> method on the thrown exception, to identify the root cause of the exception. The <code>UniversalConnectionPoolException</code> includes standard Oracle error codes that are in the range of 45000 and 45499. The <code>getErrorCode</code> method can be used to retrieve the error code for an exception.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4234">
+<tr>
+<td class="cellalignment4243">
+<table class="cellalignment4239">
+<tr>
+<td class="cellalignment4238"><a href="app_cont.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4238"><a href="err_cod_ref.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4246">
+<table class="cellalignment4237">
+<tr>
+<td class="cellalignment4238"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4238"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4238"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4238"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4238"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4238"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

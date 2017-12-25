@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114313"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20Online%20Redefinition%20to%20Partition%20Collection%20Tables"></a><title>Using Online Redefinition to Partition Collection Tables</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-6054142E-207A-4DF0-A62A-4C1A94DD36C4.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-2D424638-511C-4CC3-9BDE-53FFB1686ECD.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-5C0F8D12-DDDF-42AB-B644-1880156832BC"></a> <span id="PAGE" style="display:none;">256/481</span> <!-- End Header --><a id="VLDBG14075"></a><a id="VLDBG1197"></a>
+<h1 id="VLDBG-GUID-5C0F8D12-DDDF-42AB-B644-1880156832BC" class="sect1">Using Online Redefinition to Partition Collection Tables</h1>
+<div>
+<div class="section">
+<p>You can use online redefinition to copy nonpartitioned Collection Tables to partitioned Collection Tables and Oracle Database inserts rows into the appropriate partitions in the Collection Table. <a href="GUID-5C0F8D12-DDDF-42AB-B644-1880156832BC.htm#GUID-5C0F8D12-DDDF-42AB-B644-1880156832BC__CHDHIDJJ">Example 4-30</a> illustrates how this is done for nested tables inside an Objects column; a similar example works for Ordered Collection Type Tables inside an <code>XMLType</code> table or column. During the <code>copy_table_dependents</code> operation, you specify <code>0</code> or <code>false</code> for copying the indexes and constraints, because you want to keep the indexes and constraints of the newly defined collection table. However, the Collection Tables and its partitions have the same names as that of the interim table (<code>print_media2</code> in <a href="GUID-5C0F8D12-DDDF-42AB-B644-1880156832BC.htm#GUID-5C0F8D12-DDDF-42AB-B644-1880156832BC__CHDHIDJJ">Example 4-30</a>). You must take explicit steps to preserve the Collection Table names.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-5C0F8D12-DDDF-42AB-B644-1880156832BC__CHDHIDJJ">
+<p class="titleinexample">Example 4-30 Redefining partitions with collection tables</p>
+<pre dir="ltr">CONNECT / AS SYSDBA
+DROP USER eqnt CASCADE;
+CREATE USER eqnt IDENTIFIED BY eqnt;
+GRANT CONNECT, RESOURCE TO eqnt;
+ 
+-- Grant privleges required for online redefinition.
+GRANT EXECUTE ON DBMS_REDEFINITION TO eqnt;
+GRANT ALTER ANY TABLE TO eqnt;
+GRANT DROP ANY TABLE TO eqnt;
+GRANT LOCK ANY TABLE TO eqnt;
+GRANT CREATE ANY TABLE TO eqnt;
+GRANT SELECT ANY TABLE TO eqnt;
+ 
+-- Privileges required to perform cloning of dependent objects.
+GRANT CREATE ANY TRIGGER TO eqnt;
+GRANT CREATE ANY INDEX TO eqnt;
+ 
+CONNECT eqnt/eqnt
+ 
+CREATE TYPE textdoc_typ AS OBJECT ( document_typ VARCHAR2(32));
+/
+CREATE TYPE textdoc_tab AS TABLE OF textdoc_typ;
+/
+
+-- (old) non partitioned nested table
+CREATE TABLE print_media
+    ( product_id        NUMBER(6) primary key
+    , ad_textdocs_ntab  textdoc_tab
+    )
+NESTED TABLE ad_textdocs_ntab STORE AS equi_nestedtab
+(   (document_typ NOT NULL)
+    STORAGE (INITIAL 8M)
+)
+</pre>
+<pre dir="ltr">;
+ 
+-- Insert into base table
+INSERT INTO print_media VALUES (1,
+   textdoc_tab(textdoc_typ(&#39;xx&#39;), textdoc_typ(&#39;yy&#39;)));
+INSERT INTO print_media VALUES (11,
+   textdoc_tab(textdoc_typ(&#39;aa&#39;), textdoc_typ(&#39;bb&#39;)));
+COMMIT;
+ 
+-- Insert into nested table
+INSERT INTO TABLE
+  (SELECT p.ad_textdocs_ntab FROM print_media p WHERE p.product_id = 11)
+   VALUES (&#39;cc&#39;);
+ 
+SELECT * FROM print_media;
+
+PRODUCT_ID   AD_TEXTDOCS_NTAB(DOCUMENT_TYP)
+----------   ------------------------------
+         1   TEXTDOC_TAB(TEXTDOC_TYP(&#39;xx&#39;), TEXTDOC_TYP(&#39;yy&#39;))
+        11   TEXTDOC_TAB(TEXTDOC_TYP(&#39;aa&#39;), TEXTDOC_TYP(&#39;bb&#39;), TEXTDOC_TYP(&#39;cc&#39;))
+ 
+-- Creating partitioned Interim Table
+CREATE TABLE print_media2
+    ( product_id        NUMBER(6)
+    , ad_textdocs_ntab  textdoc_tab
+    )
+NESTED TABLE ad_textdocs_ntab STORE AS equi_nestedtab2
+(   (document_typ NOT NULL)
+    STORAGE (INITIAL 8M)
+)
+PARTITION BY RANGE (product_id)
+(
+    PARTITION P1 VALUES LESS THAN (10),
+    PARTITION P2 VALUES LESS THAN (20)
+);
+ 
+EXEC dbms_redefinition.start_redef_table(&#39;eqnt&#39;, &#39;print_media&#39;, &#39;print_media2&#39;);
+ 
+DECLARE
+ error_count pls_integer := 0;
+BEGIN
+  dbms_redefinition.copy_table_dependents(&#39;eqnt&#39;, &#39;print_media&#39;, &#39;print_media2&#39;,
+                                          0, true, false, true, false,
+                                          error_count);
+ 
+  dbms_output.put_line(&#39;errors := &#39; || to_char(error_count));
+END;
+/
+ 
+EXEC  dbms_redefinition.finish_redef_table(&#39;eqnt&#39;, &#39;print_media&#39;, &#39;print_media2&#39;);
+ 
+-- Drop the interim table
+DROP TABLE print_media2;
+ 
+-- print_media has partitioned nested table here
+
+SELECT * FROM print_media PARTITION (p1);
+
+PRODUCT_ID   AD_TEXTDOCS_NTAB(DOCUMENT_TYP)
+----------   ------------------------------
+         1   TEXTDOC_TAB(TEXTDOC_TYP(&#39;xx&#39;), TEXTDOC_TYP(&#39;yy&#39;))
+
+SELECT * FROM print_media PARTITION (p2);
+
+PRODUCT_ID   AD_TEXTDOCS_NTAB(DOCUMENT_TYP)
+----------   ------------------------------
+        11   TEXTDOC_TAB(TEXTDOC_TYP(&#39;aa&#39;), TEXTDOC_TYP(&#39;bb&#39;), TEXTDOC_TYP(&#39;cc&#39;))
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-6054142E-207A-4DF0-A62A-4C1A94DD36C4.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-2D424638-511C-4CC3-9BDE-53FFB1686ECD.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

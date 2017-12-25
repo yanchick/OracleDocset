@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114315"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Advanced%20Partition%20Pruning%20Techniques"></a><title>Advanced Partition Pruning Techniques</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-B00AFD05-37FA-40B6-A8F4-2B714F87492A.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-6D8AC65A-04D7-40F8-B7F9-A7F094D3ACCB.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-5C53C677-F376-4611-83F6-85E8AC9EC79C"></a> <span id="PAGE" style="display:none;">315/481</span> <!-- End Header --><a id="VLDBG1346"></a>
+<h1 id="VLDBG-GUID-5C53C677-F376-4611-83F6-85E8AC9EC79C" class="sect1">Advanced Partition Pruning Techniques</h1>
+<div>
+<p><a id="d52862e61" class="indexterm-anchor"></a>Oracle Database pruning feature effectively handles more complex predicates or SQL statements that involve partitioned tables. A common situation is when a partitioned table is joined to the subset of another table, limited by a <code>WHERE</code> condition. For example, consider the following query:</p>
+<pre dir="ltr">SELECT t.day_number_in_month, SUM(s.amount_sold)
+  FROM sales s, times t
+  WHERE s.time_id = t.time_id
+    AND t.calendar_month_desc=&#39;2000-12&#39;
+  GROUP BY t.day_number_in_month;
+</pre>
+<p>If the database performed a nested loop join with <code>times</code> table on the right-hand side, then the query would access only the partition corresponding to this row from the <code>times</code> table, so pruning would implicitly take place. But, if the database performed a hash or sort merge join, this would not be possible. If the table with the <code>WHERE</code> predicate is relatively small compared to the partitioned table, and the expected reduction of records or partitions for the partitioned table is significant, then the database performs dynamic partition pruning using a recursive subquery. The decision whether to invoke subquery pruning is an internal cost-based decision of the optimizer.</p>
+<p>A sample execution plan using a hash join operation would look like the following:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------------------------
+| Id| Operation                    |  Name |  Rows | Bytes| Cost (%CPU)|  Time  | Pstart | Pstop |
+--------------------------------------------------------------------------------------------------
+|  0| SELECT STATEMENT             |       |       |      | 761 (100)  |        |        |       |
+|  1|  HASH GROUP BY               |       |    20 | 640  | 761 (41)   |00:00:10|        |       |
+|* 2|   HASH JOIN                  |       | 19153 | 598K | 749 (40)   |00:00:09|        |       |
+|* 3|    TABLE ACCESS FULL         | TIMES |    30 |  570 |  17 (6)    |00:00:01|        |       |
+|  4|     PARTITION RANGE SUBQUERY |       |  918K | 11M  |   655 (33) |00:00:08| KEY(SQ)|KEY(SQ)|
+|  5|      TABLE ACCESS FULL       | SALES |   918 | 11M  |   655 (33) |00:00:08| KEY(SQ)|KEY(SQ)|
+--------------------------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+---------------------------------------------------
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------------------------
+  2 - access(&#34;S&#34;.&#34;TIME_ID&#34;=&#34;T&#34;.&#34;TIME_ID&#34;) 
+  3 - filter(&#34;T&#34;.&#34;CALENDAR_MONTH_DESC&#34;=&#39;2000-12&#39;)
+</pre>
+<p>This execution plan shows that dynamic partition pruning occurred on the <code>sales</code> table using a subquery, as shown by the <code>KEY(SQ)</code> value in the <code>PSTART</code> and <code>PSTOP</code> columns.</p>
+<p>The following is an example of advanced pruning using an <code>OR</code> predicate.</p>
+<pre dir="ltr">SELECT p.promo_name promo_name, (s.profit - p.promo_cost) profit
+FROM
+   promotions p,
+   ( SELECT
+      sales.promo_id,
+      SUM(sales.QUANTITY_SOLD * (costs.UNIT_PRICE - costs.UNIT_COST)) profit
+   FROM
+      sales, costs
+   WHERE
+      ((sales.time_id BETWEEN TO_DATE(&#39;01-JAN-1998&#39;,&#39;DD-MON-YYYY&#39;,
+                  &#39;NLS_DATE_LANGUAGE = American&#39;) AND
+      TO_DATE(&#39;01-JAN-1999&#39;,&#39;DD-MON-YYYY&#39;, &#39;NLS_DATE_LANGUAGE = American&#39;)
+   OR
+      (sales.time_id BETWEEN TO_DATE(&#39;01-JAN-2001&#39;,&#39;DD-MON-YYYY&#39;,
+                  &#39;NLS_DATE_LANGUAGE = American&#39;) AND
+      TO_DATE(&#39;01-JAN-2002&#39;,&#39;DD-MON-YYYY&#39;, &#39;NLS_DATE_LANGUAGE = American&#39;)))
+      AND sales.time_id = costs.time_id
+      AND sales.prod_id = costs.prod_id)
+   GROUP BY
+      sales.promo_id) s
+WHERE s.promo_id = p.promo_id
+ORDER BY profit
+DESC;
+</pre>
+<p>This query joins the <code>sales</code> and <code>costs</code> tables in the <code>sh</code> sample schema. The <code>sales</code> table is partitioned by range on the column <code>time_id</code>. One condition in the query is two predicates on <code>time_id</code>, which are combined with an <code>OR</code> operator. This <code>OR</code> predicate is used to prune the partitions in the <code>sales</code> table and a single join between the <code>sales</code> and <code>costs</code> table is performed. The execution plan is as follows:</p>
+<pre dir="ltr">--------------------------------------------------------------------------------------------------
+| Id| Operation               |  Name    |Rows |Bytes |TmpSp|Cost(%CPU)| Time    | Pstart| Pstop |
+--------------------------------------------------------------------------------------------------
+|  0| SELECT STATEMENT        |          | 4   |  200 |     | 3556 (14)| 00:00:43|       |       |
+|  1|  SORT ORDER BY          |          | 4   |  200 |     | 3556 (14)| 00:00:43|       |       |
+|* 2|   HASH JOIN             |          | 4   |  200 |     | 3555 (14)| 00:00:43|       |       |
+|  3|    TABLE ACCESS FULL    |PROMOTIONS| 503 | 16599|     |    16 (0)| 00:00:01|       |       |
+|  4|    VIEW                 |          |   4 |   68 |     | 3538 (14)| 00:00:43|       |       |
+|  5|     HASH GROUP BY       |          |   4 |  164 |     | 3538 (14)| 00:00:43|       |       |
+|  6|      PARTITION RANGE OR |          | 314K|   12M|     |  3321 (9)| 00:00:40|KEY(OR)|KEY(OR)|
+|* 7|       HASH JOIN         |          | 314K|   12M| 440K|  3321 (9)| 00:00:40|       |       |
+|* 8|        TABLE ACCESS FULL| SALES    | 402K| 7467K|     |  400 (39)| 00:00:05|KEY(OR)|KEY(OR)|
+|  9| TABLE ACCESS FULL       | COSTS    |82112| 1764K|     |   77 (24)| 00:00:01|KEY(OR)|KEY(OR)|
+--------------------------------------------------------------------------------------------------
+Predicate Information (identified by operation id):
+--------------------------------------------------- 
+  2 - access(&#34;S&#34;.&#34;PROMO_ID&#34;=&#34;P&#34;.&#34;PROMO_ID&#34;) 
+  7 - access(&#34;SALES&#34;.&#34;TIME_ID&#34;=&#34;COSTS&#34;.&#34;TIME_ID&#34; AND &#34;SALES&#34;.&#34;PROD_ID&#34;=&#34;COSTS&#34;.&#34;PROD_ID&#34;) 
+  8 - filter(&#34;SALES&#34;.&#34;TIME_ID&#34;&lt;=TO_DATE(&#39;1999-01-01 00:00:00&#39;, &#39;yyyy-mm-dd hh24:mi:ss&#39;) AND 
+      &#34;SALES&#34;.&#34;TIME_ID&#34;&gt;=TO_DATE(&#39;1998-01-01 00:00:00&#39;, &#39;yyyy-mm-dd hh24:mi:ss&#39;) OR 
+      &#34;SALES&#34;.&#34;TIME_ID&#34;&gt;=TO_DATE(&#39;2001-01-01 00:00:00&#39;, &#39;yyyy-mm-dd hh24:mi:ss&#39;) AND 
+      &#34;SALES&#34;.&#34;TIME_ID&#34;&lt;=TO_DATE(&#39;2002-01-01 00:00:00&#39;, &#39;yyyy-mm-dd hh24:mi:ss&#39;))
+</pre>
+<p>The database also does additional pruning when a column is range-partitioned on multiple columns. As long as the database can guarantee that a particular predicate cannot be satisfied in a particular partition, the partition is skipped. This allows the database to optimize cases where there are range predicates on multiple columns or in the case where there are no predicates on a prefix of the partitioning columns.</p>
+<p>For tips on partition pruning, refer to <span class="q">&#34;<a href="GUID-6C660105-8ECE-4426-A795-5884E84B0A48.htm">Partition Pruning Tips</a>&#34;</span>.</p>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-B00AFD05-37FA-40B6-A8F4-2B714F87492A.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-6D8AC65A-04D7-40F8-B7F9-A7F094D3ACCB.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

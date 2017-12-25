@@ -1,0 +1,3883 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-141"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20LOB%20APIs"></a><title>Using LOB APIs</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="character set ID, getting, persistent LOBs, loading, LOB with data from a BFILE, open, determining whether a LOB is open, displaying, LOB data for persistent LOBs, reading, data from a LOB, persistent LOBs, polling, callback, chunk size, multiple of, to improve performance, array read, OCILobArrayRead(), reading, portion of LOB using substr, comparing, all or part of two LOBs, pattern, if it exists IN LOB using (instr), length, persistent LOB, copying, all or part of a LOB to another LOB, updating, locking before, copying, LOB locator, equal, one LOB locator to another, locators, see if LOB locator is initialized, appending, writing to the end of a LOB, writing, singly or piecewise, data to a LOB, streaming, write, DBMS_LOB package, WRITE(), guidelines, array write, OCILobArrayWrite(), trimming LOB data, locking prior to, erasing, part of LOB, buffering, enable, buffering, flush, buffering, disable persistent LOBs, temporary LOBs, checking if LOB is temporary, temporary BLOB, checking if temporary using JDBC, JDBC, checking if BLOB is temporary"/>
+<meta name="dcterms.created" content="2017-03-16T22:27:47Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SecureFiles and Large Objects Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E17605-12"/>
+<meta name="dcterms.isVersionOf" content="ADLOB"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2015, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="adlob_bfile_ops.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="adlob_demo.htm" title="Next" type="text/html"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-5BEE64AC-5528-45DC-AB57-A8EDE8E4DE65"></a> <span id="PAGE" style="display:none;">31/34</span> <!-- End Header -->
+<a id="ADLOB1400"></a>
+<h1 id="ADLOB-GUID-5BEE64AC-5528-45DC-AB57-A8EDE8E4DE65" class="sect1"><span class="enumeration_chapter">22</span> Using LOB APIs</h1>
+<div>
+<p>APIs that perform operations on <code class="codeph">BLOB</code>, <code class="codeph">CLOB</code>, and <code class="codeph">NCLOB</code> data types appear in <a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a>. These operations can be used with either persistent or temporary LOB instances. Note that these do not apply to <code class="codeph">BFILE</code>s.</p>
+<div class="infoboxnotealso" id="GUID-5BEE64AC-5528-45DC-AB57-A8EDE8E4DE65__GUID-3CEBB568-DB98-48B5-B22F-70B188DF57AE">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_creating.htm#GUID-7B3D15D3-A182-4ED1-A265-8EE15E793C46">Operations Specific to Persistent and Temporary LOBs</a> for information on how to create temporary and persistent LOB instances and other operations specific to temporary or persistent LOBs.</p>
+</li>
+<li>
+<p><a href="adlob_bfile_ops.htm#GUID-043A9B91-69C8-44D4-A38A-E872B0A2B9A9" title="You can determine whether a pattern exists in a BFILE using the INSTRoperation.">LOB APIs for BFILE Operations</a> for information on operations specific to <code class="codeph">BFILE</code> instances.</p>
+</li>
+</ul>
+</div>
+<p>This information is given for each of these operations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="bold">Preconditions</span> describe dependencies that must be met and conditions that must exist before calling each operation.</p>
+</li>
+<li>
+<p><span class="bold">Usage Notes</span> provide implementation guidelines such as information specific to a given programmatic environment or data type.</p>
+</li>
+<li>
+<p><span class="bold">Syntax</span> refers you to the syntax reference documentation for each supported programmatic environment.</p>
+</li>
+<li>
+<p><span class="bold">Examples</span> describe any setup tasks necessary to run the examples given. Demonstration files listed are available in subdirectories under <code class="codeph">$ORACLE_HOME/rdbms/demo/lobs/</code> named <code class="codeph">plsql</code>, <code class="codeph">oci</code>, <code class="codeph">vb</code>, and <code class="codeph">java</code>. The driver program <code class="codeph">lobdemo.sql</code> is in <code class="codeph">/plsql</code> and the driver program <code class="codeph">lobdemo.c</code> is in <code class="codeph">/oci</code>.</p>
+</li>
+</ul>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC">Supported Environments</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-8565620F-A9F9-4AE0-949E-C5A12DE405CB">About Appending One LOB to Another</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-512E9190-CD3B-40FB-B796-1CED146FACD0">About Determining Character Set Form</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-BD546589-AEFC-4C6D-9787-E6ACF4C9B8D0">About Determining Character Set ID</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-94FBC256-0F45-49CF-A01F-31701B34B586">Loading a LOB with Data from a BFILE</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-3DCD0C11-5A7D-46A2-ABF0-1DACFDE5BCD8">About Loading a BLOB with Data from a BFILE</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-3E8F6AB9-B07B-4C22-981E-296C86ECC125">Loading a CLOB or NCLOB with Data from a BFILE</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-C6F6F1A5-F563-4194-919D-6620797AF6AA">Determining Whether a LOB is Open</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-D44D2C71-8CAB-44F0-A82B-BF3F3E8BCDB9">About Displaying LOB Data</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-AC5E49A1-8479-4D68-AF1A-C497AACC5495">About Reading Data from a LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-F41CA770-8003-4864-A999-91FA47FDB971">About LOB Array Read</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-913B73AA-F6A9-4F59-AD78-EF38F08B7BCE">Reading a Portion of a LOB (SUBSTR)</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-F4F530C0-1604-4A83-9479-F79400819B22">Comparing All or Part of Two LOBs</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-66B2AC7A-9959-4D36-8C75-E02DC59AF0A9">Patterns: Checking for Patterns in a LOB Using INSTR</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-8D5BBF87-8869-4ADB-A38C-318CA2FAEEDD">Length: Determining the Length of a LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-CB96E540-2C7E-4DDA-8A25-E8077A4DBA8C">Copying All or Part of One LOB to Another LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-39CAC466-1BA9-4BF8-8C63-8BD6265A8F21">Copying a LOB Locator</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-2C03EEF3-2719-4BD0-AD13-ECF93E1B4492">Equality: Checking If One LOB Locator Is Equal to Another</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-9B110BA7-91BA-4800-AACF-590D81893A79">About Determining Whether LOB Locator Is Initialized</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-E5A777E0-512F-4D84-87A2-3F9AB7F8A400">About Appending to a LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-361CDD50-6A70-4024-988C-273D885654F2">About Writing Data to a LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-9C2E65CE-BCA5-4600-8B7F-E51C3466C985">LOB Array Write</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-1F0A8155-1431-4804-81DE-D55EE5A69CB2">About Trimming LOB Data</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-CB83E58B-CF34-4771-A79B-61C57F48369C">About Erasing Part of a LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-67AD0BB6-DD54-4BE5-9401-367407082E22">Enabling LOB Buffering</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-37B3816A-B7D0-48F8-A788-1D61585D2C51">About Flushing the Buffer</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-2A09CB48-1B1D-4FEC-877A-22B7CE0BDA8C">About Disabling LOB Buffering</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-9C8276AA-A510-4F5A-858F-8B40D2FB47AA">Determining Whether a LOB instance Is Temporary</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-032C4593-7EAA-4B60-9B49-0FD6197EC80A" title="You can convert a BLOB instance to a CLOB using the PL/SQL procedure DBMS_LOB.CONVERTTOCLOB.">Converting a BLOB to a CLOB</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-DC046D03-AFB3-4B8C-A163-ED49C18A48CC">Converting a CLOB to a BLOB</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-06CC03E6-4DD2-4326-82E2-3CABC9A37941">Ensuring Read Consistency</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45696"></a><a id="ADLOB45695"></a>
+<div class="props_rev_3"><a id="GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC"></a>
+<h2 id="ADLOB-GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC" class="sect2">Supported Environments</h2>
+<div>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a> indicates which programmatic environments are supported for the APIs discussed in this chapter. The first column describes the operation that the API performs. The remaining columns indicate with Yes or No whether the API is supported in PL/SQL, OCI, OCCI, COBOL, Pro*C/C++, and JDBC.</p>
+<div class="tblformalwide" id="GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343">
+<p class="titleintable">Table 22-1 Environments Supported for LOB APIs</p>
+<table class="cellalignment2809" title="Environments Supported for LOB APIs " summary="This table is described in the preceding text">
+<thead>
+<tr class="cellalignment2783">
+<th class="cellalignment2827" id="d87843e412">Operation</th>
+<th class="cellalignment2843" id="d87843e415">PL/SQL</th>
+<th class="cellalignment2843" id="d87843e418">OCI</th>
+<th class="cellalignment2843" id="d87843e421">OCCI</th>
+<th class="cellalignment2843" id="d87843e424">COBOL</th>
+<th class="cellalignment2892" id="d87843e427">Pro*C/C++</th>
+<th class="cellalignment2843" id="d87843e430">JDBC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e435" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-8565620F-A9F9-4AE0-949E-C5A12DE405CB">About Appending One LOB to Another</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e435 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e435 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e435 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e435 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e435 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e435 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e460" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-512E9190-CD3B-40FB-B796-1CED146FACD0">About Determining Character Set Form</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e460 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e460 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e460 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e460 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e460 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e460 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e485" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-BD546589-AEFC-4C6D-9787-E6ACF4C9B8D0">About Determining Character Set ID</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e485 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e485 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e485 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e485 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e485 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e485 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e510" headers="d87843e412">
+<p>Determining Chunk Size, See: <a href="adlob_lob_ops.htm#GUID-361CDD50-6A70-4024-988C-273D885654F2">About Writing Data to a LOB</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e510 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e510 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e510 d87843e421">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e510 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e510 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e510 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e535" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-F4F530C0-1604-4A83-9479-F79400819B22">Comparing All or Part of Two LOBs</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e535 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e535 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e535 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e535 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e535 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e535 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e560" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-032C4593-7EAA-4B60-9B49-0FD6197EC80A" title="You can convert a BLOB instance to a CLOB using the PL/SQL procedure DBMS_LOB.CONVERTTOCLOB.">Converting a BLOB to a CLOB</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e560 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e560 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e560 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e560 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e560 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e560 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e597" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-DC046D03-AFB3-4B8C-A163-ED49C18A48CC">Converting a CLOB to a BLOB</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e597 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e597 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e597 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e597 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e597 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e597 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e622" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-39CAC466-1BA9-4BF8-8C63-8BD6265A8F21">Copying a LOB Locator</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e622 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e622 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e622 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e622 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e622 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e622 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e647" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-CB96E540-2C7E-4DDA-8A25-E8077A4DBA8C">Copying All or Part of One LOB to Another LOB</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e647 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e647 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e647 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e647 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e647 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e647 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e672" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-2A09CB48-1B1D-4FEC-877A-22B7CE0BDA8C">About Disabling LOB Buffering</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e672 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e672 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e672 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e672 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e672 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e672 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e697" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-D44D2C71-8CAB-44F0-A82B-BF3F3E8BCDB9">About Displaying LOB Data</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e697 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e697 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e697 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e697 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e697 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e697 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e723" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-67AD0BB6-DD54-4BE5-9401-367407082E22">Enabling LOB Buffering</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e723 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e723 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e723 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e723 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e723 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e723 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e748" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-2C03EEF3-2719-4BD0-AD13-ECF93E1B4492">Equality: Checking If One LOB Locator Is Equal to Another</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e748 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e748 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e748 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e748 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e748 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e748 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e773" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-CB83E58B-CF34-4771-A79B-61C57F48369C">About Erasing Part of a LOB</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e773 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e773 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e773 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e773 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e773 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e773 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e798" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-37B3816A-B7D0-48F8-A788-1D61585D2C51">About Flushing the Buffer</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e798 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e798 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e798 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e798 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e798 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e798 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e823" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-9B110BA7-91BA-4800-AACF-590D81893A79">About Determining Whether LOB Locator Is Initialized</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e823 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e823 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e823 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e823 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e823 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e823 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e848" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-8D5BBF87-8869-4ADB-A38C-318CA2FAEEDD">Length: Determining the Length of a LOB</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e848 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e848 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e848 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e848 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e848 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e848 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e873" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-94FBC256-0F45-49CF-A01F-31701B34B586">Loading a LOB with Data from a BFILE</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e873 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e873 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e873 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e873 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e873 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e873 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e898" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-3DCD0C11-5A7D-46A2-ABF0-1DACFDE5BCD8">About Loading a BLOB with Data from a BFILE</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e898 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e898 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e898 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e898 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e898 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e898 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e923" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-3E8F6AB9-B07B-4C22-981E-296C86ECC125">Loading a CLOB or NCLOB with Data from a BFILE</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e923 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e923 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e923 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e923 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e923 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e923 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e948" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-F41CA770-8003-4864-A999-91FA47FDB971">About LOB Array Read</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e948 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e948 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e948 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e948 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e948 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e948 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e972" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-9C2E65CE-BCA5-4600-8B7F-E51C3466C985">LOB Array Write</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e972 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e972 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e972 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e972 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e972 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e972 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e997" headers="d87843e412">
+<p><a href="adlob_design.htm#GUID-B161D891-886D-4D53-89F0-BB42BD22C102">Opening Persistent LOBs with the OPEN and CLOSE Interfaces</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e997 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e997 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e997 d87843e421">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e997 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e997 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e997 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e1021" headers="d87843e412">
+<p>Open: <a href="adlob_lob_ops.htm#GUID-C6F6F1A5-F563-4194-919D-6620797AF6AA">Determining Whether a LOB is Open</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e1021 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1021 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1021 d87843e421">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1021 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e1021 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1021 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e1046" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-66B2AC7A-9959-4D36-8C75-E02DC59AF0A9">Patterns: Checking for Patterns in a LOB Using INSTR</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e1046 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1046 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1046 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1046 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e1046 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1046 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e1071" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-913B73AA-F6A9-4F59-AD78-EF38F08B7BCE">Reading a Portion of a LOB (SUBSTR)</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e1071 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1071 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1071 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1071 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e1071 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1071 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e1096" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-AC5E49A1-8479-4D68-AF1A-C497AACC5495">About Reading Data from a LOB</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e1096 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1096 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1096 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1096 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e1096 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1096 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e1121" headers="d87843e412">
+<p>Storage Limit, Determining: <a href="adlob_design.htm#GUID-A84520F4-05EF-48F3-B2A4-9CC001192B23">Maximum Storage Limit for Terabyte-Size LOBs</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e1121 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1121 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1121 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1121 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e1121 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1121 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e1146" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-1F0A8155-1431-4804-81DE-D55EE5A69CB2">About Trimming LOB Data</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e1146 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1146 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1146 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1146 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e1146 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1146 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e1171" headers="d87843e412">
+<p>WriteNoAppend, see <a href="adlob_lob_ops.htm#GUID-E5A777E0-512F-4D84-87A2-3F9AB7F8A400">About Appending to a LOB</a> .</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1171 d87843e415">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1171 d87843e418">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1171 d87843e421">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1171 d87843e424">
+<p>No</p>
+</td>
+<td class="cellalignment2893" headers="d87843e1171 d87843e427">
+<p>No</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1171 d87843e430">
+<p>No</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2829" id="d87843e1197" headers="d87843e412">
+<p><a href="adlob_lob_ops.htm#GUID-361CDD50-6A70-4024-988C-273D885654F2">About Writing Data to a LOB</a></p>
+</td>
+<td class="cellalignment2847" headers="d87843e1197 d87843e415">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1197 d87843e418">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1197 d87843e421">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1197 d87843e424">
+<p>Yes</p>
+</td>
+<td class="cellalignment2893" headers="d87843e1197 d87843e427">
+<p>Yes</p>
+</td>
+<td class="cellalignment2847" headers="d87843e1197 d87843e430">
+<p>Yes</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="ADLOB45697"></a><a id="ADLOB45698"></a><a id="ADLOB45699"></a><a id="ADLOB45700"></a><a id="ADLOB1001"></a>
+<div class="props_rev_3"><a id="GUID-8565620F-A9F9-4AE0-949E-C5A12DE405CB"></a>
+<h2 id="ADLOB-GUID-8565620F-A9F9-4AE0-949E-C5A12DE405CB" class="sect2">About Appending One LOB to Another</h2>
+<div>
+<div class="section">
+<p>This operation appends one LOB instance to another.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Preconditions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Before you can append one LOB to another, the following conditions must be met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Two LOB instances must exist.</p>
+</li>
+<li>
+<p>Both instances must be of the same type, for example both <code class="codeph">BLOB</code> or both <code class="codeph">CLOB</code> types.</p>
+</li>
+<li>
+<p>You can pass any combination of persistent or temporary LOB instances to this operation.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p><span class="bold">Persistent LOBs:</span> You must lock the row you are selecting the LOB from prior to <a id="d87843e1320" class="indexterm-anchor"></a>updating <a id="d87843e1325" class="indexterm-anchor"></a>a LOB value if you are using the PL/SQL <code class="codeph">DBMS_LOB</code> Package or OCI. While the SQL <code class="codeph">INSERT</code> and <code class="codeph">UPDATE</code> statements implicitly lock the row, locking the row can be done explicitly using the SQL <code class="codeph">SELECT</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> statement in SQL and PL/SQL programs, or by using an OCI <code class="codeph">pin</code> or <code class="codeph">lock</code> function in OCI programs. For more details on the state of the locator after an update, refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD">Example of Updating LOBs Through Updated Locators</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>See the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; <span class="italic">&mdash;</span> APPEND</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobAppend()</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB Statements, and embedded SQL and precompiler directives &mdash; LOB APPEND.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> for information on embedded SQL statements and directives &mdash; LOB APPEND</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC" target="_blank" href="../JJDBC/toc.htm"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> for information on creating and populating LOB columns in Java.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>To run the following examples, you must create two LOB instances and pass them when you call the given append operation. Creating a LOB instance is described in <a href="adlob_creating.htm#GUID-7B3D15D3-A182-4ED1-A265-8EE15E793C46">Operations Specific to Persistent and Temporary LOBs</a>.</p>
+<p>Examples for this use case are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lappend.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lappend.c</code></p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lappend.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45702"></a><a id="ADLOB45703"></a><a id="ADLOB45701"></a>
+<div class="props_rev_3"><a id="GUID-512E9190-CD3B-40FB-B796-1CED146FACD0"></a>
+<h2 id="ADLOB-GUID-512E9190-CD3B-40FB-B796-1CED146FACD0" class="sect2">About Determining Character Set Form</h2>
+<div>
+<div class="section">
+<p>This section describes how to get the character set form of a LOB instance.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): There is no applicable syntax reference for this operation.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobCharSetForm()</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL): There is no applicable syntax reference for this operation</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): There is no applicable syntax reference for this operation.</p>
+</li>
+<li>
+<p>Java (JDBC): There is no applicable syntax reference for this operation.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Example</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The example demonstrates how to determine the character set form of the foreign language text (<code class="codeph">ad_fltextn</code>).</p>
+<p>This functionality is currently available only in OCI:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>OCI: <code class="codeph">lgetchfm.c</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45705"></a><a id="ADLOB45706"></a><a id="ADLOB45704"></a>
+<div class="props_rev_3"><a id="GUID-BD546589-AEFC-4C6D-9787-E6ACF4C9B8D0"></a>
+<h2 id="ADLOB-GUID-BD546589-AEFC-4C6D-9787-E6ACF4C9B8D0" class="sect2">About Determining Character Set ID</h2>
+<div>
+<div class="section">
+<p>This section describes how to determine the character set ID.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): There is no applicable syntax reference for this operation.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;Relational Functions&#34; &mdash; LOB Functions, OCILobCharSetId()</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL): There is no applicable syntax reference for this operation.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): There is no applicable syntax reference for this operation</p>
+</li>
+<li>
+<p>Java (JDBC): There is no applicable syntax reference for this operation.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Example</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This functionality is currently available only in OCI:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>OCI: <code class="codeph">lgetchar.c</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45708"></a><a id="ADLOB45709"></a><a id="ADLOB45710"></a><a id="ADLOB45711"></a><a id="ADLOB45712"></a><a id="ADLOB45713"></a><a id="ADLOB45714"></a><a id="ADLOB45707"></a>
+<div class="props_rev_3"><a id="GUID-94FBC256-0F45-49CF-A01F-31701B34B586"></a>
+<h2 id="ADLOB-GUID-94FBC256-0F45-49CF-A01F-31701B34B586" class="sect2">Loading a LOB with Data from a BFILE</h2>
+<div>
+<div class="section">
+<p>This operation loads a LOB with data from a <code class="codeph">BFILE</code>. This procedure can be used to load data into any persistent or temporary LOB instance of any LOB data type.</p>
+<div class="infoboxnotealso" id="GUID-94FBC256-0F45-49CF-A01F-31701B34B586__GUID-CEA25C78-4385-4AB1-ABD8-D8ACD71BA1DD">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">LOADBLOBFROMFILE</code> and <code class="codeph">LOADCLOBFROMFILE</code> procedures implement the functionality of this procedure and provide improved features for loading binary data and character data. (These improved procedures are available in the PL/SQL environment only.) When possible, using one of the improved procedures is recommended. See <span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-3DCD0C11-5A7D-46A2-ABF0-1DACFDE5BCD8">About Loading a BLOB with Data from a BFILE</a>&#34;</span> and <span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-3E8F6AB9-B07B-4C22-981E-296C86ECC125">Loading a CLOB or NCLOB with Data from a BFILE</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>As an alternative to this operation, you can use SQL*Loader to load persistent LOBs with data directly from a file in the file system. See <span class="q">&#34;<a href="adlob_managing.htm#GUID-6C345C7E-120D-4653-AF13-DB99325D106E" title="There are two general techniques for using SQL*Loader to load data into LOBs">About Using SQL*Loader to Load LOBs</a>&#34;</span> for more information.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Preconditions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Before you can load a LOB with data from a <code class="codeph">BFILE</code>, the following conditions must be met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">BFILE</code> must exist.</p>
+</li>
+<li>
+<p>The target LOB instance must exist.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following issues regarding this operation.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Use LOADCLOBFROMFILE When Loading Character Data</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>When you use the <code class="codeph">DBMS_LOB.LOADFROMFILE</code> procedure to load a <code class="codeph">CLOB</code> or <code class="codeph">NCLOB</code> instance, you are loading the LOB with binary data from the <code class="codeph">BFILE</code> and no implicit character set conversion is performed. For this reason, using the <code class="codeph">DBMS_LOB.LOADCLOBFROMFILE</code> procedure is recommended when loading character data, see <a href="adlob_lob_ops.htm#GUID-3E8F6AB9-B07B-4C22-981E-296C86ECC125">Loading a CLOB or NCLOB with Data from a BFILE</a> for more information.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Specifying Amount of BFILE Data to Load</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The value you pass for the amount parameter to functions listed in <a href="adlob_lob_ops.htm#GUID-94FBC256-0F45-49CF-A01F-31701B34B586__g1098617" title="This table is described in the preceding text">Table 22-2</a> must be one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>An amount less than or equal to the actual size (in bytes) of the <code class="codeph">BFILE</code> you are loading.</p>
+</li>
+<li>
+<p>The maximum allowable LOB size (in bytes). Passing this value, loads the entire <code class="codeph">BFILE</code>. You can use this technique to load the entire <code class="codeph">BFILE</code> without determining the size of the <code class="codeph">BFILE</code> before loading. To get the maximum allowable LOB size, use the technique described in <a href="adlob_lob_ops.htm#GUID-94FBC256-0F45-49CF-A01F-31701B34B586__g1098617" title="This table is described in the preceding text">Table 22-2</a>.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="tblformal" id="GUID-94FBC256-0F45-49CF-A01F-31701B34B586__g1098617">
+<p class="titleintable">Table 22-2 Maximum LOB Size for Load from File Operations</p>
+<table class="cellalignment2789" title="Maximum LOB Size for Load from File Operations" summary="This table is described in the preceding text">
+<thead>
+<tr class="cellalignment2783">
+<th class="cellalignment2803" id="d87843e1899">Environment</th>
+<th class="cellalignment2802" id="d87843e1902">Function</th>
+<th class="cellalignment2801" id="d87843e1905">To pass maximum LOB size, get value of:</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2783">
+<td class="cellalignment2806" id="d87843e1910" headers="d87843e1899"><code class="codeph">DBMS_LOB</code></td>
+<td class="cellalignment2805" headers="d87843e1910 d87843e1902"><code class="codeph">DBMS_LOB.LOADBLOBFROMFILE</code></td>
+<td class="cellalignment2804" headers="d87843e1910 d87843e1905"><code class="codeph">DBMS_LOB.LOBMAXSIZE</code></td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2806" id="d87843e1920" headers="d87843e1899"><code class="codeph">DBMS_LOB</code></td>
+<td class="cellalignment2805" headers="d87843e1920 d87843e1902"><code class="codeph">DBMS_LOB.LOADCLOBFROMFILE</code></td>
+<td class="cellalignment2804" headers="d87843e1920 d87843e1905"><code class="codeph">DBMS_LOB.LOBMAXSIZE</code></td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2806" id="d87843e1930" headers="d87843e1899"><code class="codeph">OCI</code></td>
+<td class="cellalignment2805" headers="d87843e1930 d87843e1902"><code class="codeph">OCILobLoadFromFile2()</code></td>
+<td class="cellalignment2804" headers="d87843e1930 d87843e1905"><code class="codeph">UB8MAXVAL</code></td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2806" id="d87843e1940" headers="d87843e1899"><code class="codeph">OCI</code></td>
+<td class="cellalignment2805" headers="d87843e1940 d87843e1902"><code class="codeph">OCILobLoadFromFile()</code> (For LOBs less than 4 gigabytes in size.)</td>
+<td class="cellalignment2804" headers="d87843e1940 d87843e1905"><code class="codeph">UB4MAXVAL</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>See the following syntax references for details on using this operation in each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS" target="_blank" href="../ARPLS/toc.htm"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; <span class="italic">&mdash;</span> LOADFROMFILE.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobLoadFromFile().</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; <code class="codeph">LOB LOAD</code>, <code class="codeph">LOB OPEN</code>, <code class="codeph">LOB CLOSE</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; <code class="codeph">LOB LOAD</code></p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> Chapter 7, &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lloaddat.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lloaddat.c</code></p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lloaddat.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45715"></a><a id="ADLOB45716"></a><a id="ADLOB45717"></a><a id="ADLOB45718"></a><a id="ADLOB45719"></a><a id="ADLOB45720"></a><a id="ADLOB1100"></a>
+<div class="props_rev_3"><a id="GUID-3DCD0C11-5A7D-46A2-ABF0-1DACFDE5BCD8"></a>
+<h2 id="ADLOB-GUID-3DCD0C11-5A7D-46A2-ABF0-1DACFDE5BCD8" class="sect2">About Loading a BLOB with Data from a BFILE</h2>
+<div>
+<div class="section">
+<p>This procedure loads a <code class="codeph">BLOB</code> with data from a <code class="codeph">BFILE</code>. This procedure can be used to load data into any persistent or temporary <code class="codeph">BLOB</code> instance.</p>
+<div class="infoboxnotealso" id="GUID-3DCD0C11-5A7D-46A2-ABF0-1DACFDE5BCD8__GUID-E1E90C76-2395-438D-994E-1F8A308DA418">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-94FBC256-0F45-49CF-A01F-31701B34B586">Loading a LOB with Data from a BFILE</a>&#34;</span></p>
+</li>
+<li>
+<p>To load character data, use <code class="codeph">DBMS_LOB.LOADCLOBFROMFILE</code>. See <span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-3E8F6AB9-B07B-4C22-981E-296C86ECC125">Loading a CLOB or NCLOB with Data from a BFILE</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>As an alternative to this operation, you can use SQL*Loader to load persistent LOBs with data directly from a file in the file system. See <span class="q">&#34;<a href="adlob_managing.htm#GUID-6C345C7E-120D-4653-AF13-DB99325D106E" title="There are two general techniques for using SQL*Loader to load data into LOBs">About Using SQL*Loader to Load LOBs</a>&#34;</span> for more information.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Preconditions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The following conditions must be met before calling this procedure:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The target <code class="codeph">BLOB</code> instance must exist.</p>
+</li>
+<li>
+<p>The source <code class="codeph">BFILE</code> must exist.</p>
+</li>
+<li>
+<p>You must open the <code class="codeph">BFILE</code>. (After calling this procedure, you must close the <code class="codeph">BFILE</code> at some point.)</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following with respect to this operation:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">New Offsets Returned</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Using <code class="codeph">DBMS_LOB.LOADBLOBFROMFILE</code> to load binary data into a <code class="codeph">BLOB</code> achieves the same result as using <code class="codeph">DBMS_LOB.LOADFROMFILE</code>, but also returns the new offsets of BLOB.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Specifying Amount of BFILE Data to Load</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The value you pass for the amount parameter to the <code class="codeph">DBMS_LOB.LOADBLOBFROMFILE</code> function must be one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>An amount less than or equal to the actual size (in bytes) of the <code class="codeph">BFILE</code> you are loading.</p>
+</li>
+<li>
+<p>The maximum allowable LOB size: <code class="codeph">DBMS_LOB.LOBMAXSIZE</code><code class="codeph">.</code> Passing this value causes the function to load the entire <code class="codeph">BFILE</code>. This is a useful technique for loading the entire <code class="codeph">BFILE</code> without introspecting the size of the <code class="codeph">BFILE</code>.</p>
+<div class="infoboxnotealso" id="GUID-3DCD0C11-5A7D-46A2-ABF0-1DACFDE5BCD8__GUID-2F740BF7-F3F9-4782-B4F6-B0143420B754">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-94FBC256-0F45-49CF-A01F-31701B34B586__g1098617" title="This table is described in the preceding text">Table 22-2</a></p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>See <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a>, &#34;DBMS_LOB&#34; &mdash; LOADBLOBFROMFILE procedure for syntax details on this procedure.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This example is available in PL/SQL only. This API is not provided in other programmatic environments. The online file is <code class="codeph">lldblobf.sql</code>. This example illustrates:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>How to use <code class="codeph">LOADBLOBFROMFILE</code> to load the entire <code class="codeph">BFILE</code> without getting its length first.</p>
+</li>
+<li>
+<p>How to use the return value of the offsets to calculate the actual amount loaded.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45721"></a><a id="ADLOB45722"></a><a id="ADLOB45723"></a><a id="ADLOB45724"></a><a id="ADLOB45725"></a><a id="ADLOB1017"></a>
+<div class="props_rev_3"><a id="GUID-3E8F6AB9-B07B-4C22-981E-296C86ECC125"></a>
+<h2 id="ADLOB-GUID-3E8F6AB9-B07B-4C22-981E-296C86ECC125" class="sect2">Loading a CLOB or NCLOB with Data from a BFILE</h2>
+<div>
+<div class="section">
+<p>This procedure loads a <code class="codeph">CLOB</code> or <code class="codeph">NCLOB</code> with character data from a <code class="codeph">BFILE</code>. This procedure can be used to load data into a persistent or temporary <code class="codeph">CLOB</code> or <code class="codeph">NCLOB</code> instance.</p>
+<div class="infoboxnotealso" id="GUID-3E8F6AB9-B07B-4C22-981E-296C86ECC125__GUID-B5C60BF5-048B-4747-897A-F06BE8F0B8E4">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-94FBC256-0F45-49CF-A01F-31701B34B586">Loading a LOB with Data from a BFILE</a>&#34;</span></p>
+</li>
+<li>
+<p>To load binary data, use <code class="codeph">DBMS_LOB.LOADBLOBFROMFILE</code>. See <span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-3DCD0C11-5A7D-46A2-ABF0-1DACFDE5BCD8">About Loading a BLOB with Data from a BFILE</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>As an alternative to this operation, you can use SQL*Loader to load persistent LOBs with data directly from a file in the file system. See <span class="q">&#34;<a href="adlob_managing.htm#GUID-6C345C7E-120D-4653-AF13-DB99325D106E" title="There are two general techniques for using SQL*Loader to load data into LOBs">About Using SQL*Loader to Load LOBs</a>&#34;</span> for more information.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Preconditions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The following conditions must be met before calling this procedure:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The target <code class="codeph">CLOB</code> or <code class="codeph">NCLOB</code> instance must exist.</p>
+</li>
+<li>
+<p>The source <code class="codeph">BFILE</code> must exist.</p>
+</li>
+<li>
+<p>You must open the <code class="codeph">BFILE</code>. (After calling this procedure, you must close the <code class="codeph">BFILE</code> at some point.)</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>You can specify the character set id of the <code class="codeph">BFILE</code> when calling this procedure. Doing so, ensures that the character set is properly converted from the <code class="codeph">BFILE</code> data character set to the destination <code class="codeph">CLOB</code> or <code class="codeph">NCLOB</code> character set.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Specifying Amount of BFILE Data to Load</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The value you pass for the amount parameter to the <code class="codeph">DBMS_LOB.LOADCLOBFROMFILE</code> function must be one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>An amount less than or equal to the actual size (in characters) of the <code class="codeph">BFILE</code> data you are loading.</p>
+</li>
+<li>
+<p>The maximum allowable LOB size: <code class="codeph">DBMS_LOB.LOBMAXSIZE</code></p>
+<p>Passing this value causes the function to load the entire <code class="codeph">BFILE</code>. This is a useful technique for loading the entire <code class="codeph">BFILE</code> without introspecting the size of the <code class="codeph">BFILE</code>.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>See <a class="olink ARPLS66728" target="_blank" href="../ARPLS/d_lob.htm#ARPLS66728"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a>, &#34;DBMS_LOB&#34; &mdash; <code class="codeph">LOADCLOBFROMFILE</code> procedure for syntax details on this procedure.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The following examples illustrate different techniques for using this API:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-E59B97A9-6966-47A0-93D0-7B185002E4AC">About PL/SQL: Loading Character Data from a BFILE into a LOB</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-3415F194-403B-4D35-97F4-C07D80822DA4">About PL/SQL: Loading Segments of Character Data into Different LOBs</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="ADLOB45726"></a>
+<div class="props_rev_3"><a id="GUID-E59B97A9-6966-47A0-93D0-7B185002E4AC"></a>
+<h3 id="ADLOB-GUID-E59B97A9-6966-47A0-93D0-7B185002E4AC" class="sect3">About PL/SQL: Loading Character Data from a BFILE into a LOB</h3>
+<div>
+<div class="section">
+<p>The following example illustrates:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>How to use default csid (<code class="codeph">0</code>).</p>
+</li>
+<li>
+<p>How to load the entire file without calling <code class="codeph">getlength</code> for the <code class="codeph">BFILE</code>.</p>
+</li>
+<li>
+<p>How to find out the actual amount loaded using return offsets.</p>
+</li>
+</ul>
+<p>This example assumes that <code class="codeph">ad_source</code> is a <code class="codeph">BFILE</code> in <code class="codeph">UTF8</code> character set format and the database character set is <code class="codeph">UTF8</code>. The online file is <code class="codeph">lldclobf.sql</code>.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45727"></a>
+<div class="props_rev_3"><a id="GUID-3415F194-403B-4D35-97F4-C07D80822DA4"></a>
+<h3 id="ADLOB-GUID-3415F194-403B-4D35-97F4-C07D80822DA4" class="sect3">About PL/SQL: Loading Segments of Character Data into Different LOBs</h3>
+<div>
+<div class="section">
+<p>The following example illustrates:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>How to get the character set ID from the character set name using the <code class="codeph">NLS_CHARSET_ID</code> function.</p>
+</li>
+<li>
+<p>How to load a stream of data from a single <code class="codeph">BFILE</code> into different LOBs using the returned offset value and the language context <code class="codeph">lang_ctx</code>.</p>
+</li>
+<li>
+<p>How to read a warning message.</p>
+</li>
+</ul>
+<p>This example assumes that <code class="codeph">ad_file_ext_01</code> is a <code class="codeph">BFILE</code> in <code class="codeph">JA16TSTSET</code> format and the database national character set is <code class="codeph">AL16UTF16</code>. The online file is <code class="codeph">lldclobs.sql</code>.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADLOB45728"></a><a id="ADLOB45729"></a><a id="ADLOB45730"></a><a id="ADLOB45731"></a><a id="ADLOB1014"></a>
+<div class="sect2"><a id="GUID-C6F6F1A5-F563-4194-919D-6620797AF6AA"></a>
+<h2 id="ADLOB-GUID-C6F6F1A5-F563-4194-919D-6620797AF6AA" class="sect2">Determining Whether a LOB is Open</h2>
+<div>
+<p>This operation determines whether a LOB is open.</p>
+<div class="section">
+<p class="subhead2">Preconditions</p>
+</div>
+<!-- class="section" -->
+<p>The LOB instance must exist before executing this procedure.</p>
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<p>When a LOB is open, it must be closed at some point later in the session.</p>
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; <span class="italic">&mdash;</span> <code class="codeph">OPEN</code>, <code class="codeph">ISOPEN</code>.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobIsOpen()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB Statements, and embedded SQL and precompiler directives &mdash; LOB DESCRIBE.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; <code class="codeph">LOB DESCRIBE</code> ... <code class="codeph">ISOPEN</code> ...</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide,</span></a> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lisopen.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lisopen.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lisopen.java</code></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45732"></a>
+<div class="sect3"><a id="GUID-FFFC36E2-34FC-4FC8-AF04-F1773A57877D"></a>
+<h3 id="ADLOB-GUID-FFFC36E2-34FC-4FC8-AF04-F1773A57877D" class="sect3">Java (JDBC): Checking If a LOB Is Open</h3>
+<div>
+<p>Here is how to check a <code class="codeph">BLOB</code> or a <code class="codeph">CLOB</code>.</p>
+</div>
+<a id="ADLOB45733"></a>
+<div class="props_rev_3"><a id="GUID-4030F018-8AEA-49CA-AA89-E8BEF163D805"></a>
+<h4 id="ADLOB-GUID-4030F018-8AEA-49CA-AA89-E8BEF163D805" class="sect4">Checking If a CLOB Is Open</h4>
+<div>
+<div class="section">
+<p>To see if a <code class="codeph">CLOB</code> is open, your JDBC application can use the <code class="codeph">isOpen</code> method defined in <code class="codeph">oracle.sql.CLOB</code>. The return Boolean value indicates whether the <code class="codeph">CLOB</code> has been previously opened or not. The <code class="codeph">isOpen</code> method is defined as follows:</p>
+<pre dir="ltr">/** 
+  * Check whether the CLOB is opened. 
+  * @return true if the LOB is opened. 
+  */ 
+public boolean isOpen () throws SQLException
+</pre>
+<p>The usage example is:</p>
+<pre dir="ltr">CLOB clob = ... 
+ // See if the CLOB is opened 
+ boolean isOpen = clob.isOpen ();
+...
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45734"></a>
+<div class="props_rev_3"><a id="GUID-32FE7672-468A-4896-86FC-CD5BC7859369"></a>
+<h4 id="ADLOB-GUID-32FE7672-468A-4896-86FC-CD5BC7859369" class="sect4">Checking If a BLOB Is Open</h4>
+<div>
+<div class="section">
+<p>To see if a <code class="codeph">BLOB</code> is open, your JDBC application can use the <code class="codeph">isOpen</code> method defined in <code class="codeph">oracle.sql.BLOB</code>. The return Boolean value indicates whether the <code class="codeph">BLOB</code> has been previously opened or not. The <code class="codeph">isOpen</code> method is defined as follows:</p>
+<pre dir="ltr">/** 
+ * Check whether the BLOB is opened. 
+ * @return true if the LOB is opened. 
+ */ 
+ public boolean isOpen () throws SQLException
+</pre>
+<p>The usage example is:</p>
+<pre dir="ltr">BLOB blob = ... 
+// See if the BLOB is opened 
+boolean isOpen = blob.isOpen ();
+...
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="ADLOB45736"></a><a id="ADLOB45737"></a><a id="ADLOB45738"></a><a id="ADLOB45739"></a><a id="ADLOB45740"></a><a id="ADLOB45741"></a><a id="ADLOB45735"></a>
+<div class="props_rev_3"><a id="GUID-D44D2C71-8CAB-44F0-A82B-BF3F3E8BCDB9"></a>
+<h2 id="ADLOB-GUID-D44D2C71-8CAB-44F0-A82B-BF3F3E8BCDB9" class="sect2">About Displaying LOB Data</h2>
+<div>
+<div class="section">
+<p>This section describes APIs that allow you to read LOB data. You can use this operation to read LOB data into a buffer. This is useful if your application requires displaying large amounts of LOB data or streaming data operations.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following when using these APIs.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Streaming Mechanism</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The most efficient way to read large amounts of LOB data is to use <code class="codeph">OCILobRead2</code>() with the streaming mechanism enabled.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Amount Parameter</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The value you pass for the amount parameter is restricted for the APIs described in <a href="adlob_lob_ops.htm#GUID-D44D2C71-8CAB-44F0-A82B-BF3F3E8BCDB9__g1136086" title="This table is described in the preceding text">Table 22-3</a>.</p>
+</div>
+<!-- class="section" -->
+<div class="tblformal" id="GUID-D44D2C71-8CAB-44F0-A82B-BF3F3E8BCDB9__g1136086">
+<p class="titleintable">Table 22-3 Maximum LOB Size for Amount Parameter</p>
+<table class="cellalignment2789" title="Maximum LOB Size for Amount Parameter" summary="This table is described in the preceding text">
+<thead>
+<tr class="cellalignment2783">
+<th class="cellalignment2816" id="d87843e3263">Environment</th>
+<th class="cellalignment2894" id="d87843e3266">Function</th>
+<th class="cellalignment2894" id="d87843e3269">Value of amount parameter is limited to:</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2783">
+<td class="cellalignment2819" id="d87843e3274" headers="d87843e3263">
+<p>DBMS_LOB</p>
+</td>
+<td class="cellalignment2895" headers="d87843e3274 d87843e3266">
+<p><code class="codeph">DBMS_LOB.READ</code></p>
+</td>
+<td class="cellalignment2895" headers="d87843e3274 d87843e3269">
+<p>The size of the buffer, 32Kbytes.</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2819" id="d87843e3285" headers="d87843e3263">
+<p>OCI</p>
+</td>
+<td class="cellalignment2895" headers="d87843e3285 d87843e3266">
+<p><code class="codeph">OCILobRead()</code></p>
+<p>(For LOBs less than 4 gigabytes in size.)</p>
+</td>
+<td class="cellalignment2895" headers="d87843e3285 d87843e3269">
+<p><code class="codeph">UB4MAXVAL</code></p>
+<p>Specifying this amount reads the entire file.</p>
+</td>
+</tr>
+<tr class="cellalignment2783">
+<td class="cellalignment2819" id="d87843e3301" headers="d87843e3263">
+<p>OCI</p>
+</td>
+<td class="cellalignment2895" headers="d87843e3301 d87843e3266">
+<p><code class="codeph">OCILobRead2()</code></p>
+<p>(For LOBs of any size.)</p>
+</td>
+<td class="cellalignment2895" headers="d87843e3301 d87843e3269">
+<p><code class="codeph">UB8MAXVAL</code></p>
+<p>Specifying this amount reads the entire file.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; <span class="italic">&mdash;</span> OPEN, READ, CLOSE.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash;, OCILobOpen(), OCILobRead2(), OCILobClose().</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; LOB READ.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; <code class="codeph">LOB READ</code></p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide,</span></a> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">ldisplay.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">ldisplay.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided in this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">ldisplay.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45742"></a><a id="ADLOB45743"></a><a id="ADLOB45744"></a><a id="ADLOB45745"></a><a id="ADLOB45746"></a><a id="ADLOB1018"></a>
+<div class="props_rev_3"><a id="GUID-AC5E49A1-8479-4D68-AF1A-C497AACC5495"></a>
+<h2 id="ADLOB-GUID-AC5E49A1-8479-4D68-AF1A-C497AACC5495" class="sect2">About Reading Data from a LOB</h2>
+<div>
+<div class="section">
+<p>This section describes how to read data from LOBs using <code class="codeph">OCILobRead2()</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following when using this operation.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Streaming Read in OCI</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The most efficient way to read large amounts of LOB data is to use <code class="codeph">OCILobRead2()</code> with the streaming mechanism enabled using polling or callback. To do so, specify the starting point of the read using the <code class="codeph">offset</code> parameter as follows:</p>
+<pre dir="ltr">ub8  char_amt =  0;
+ub8  byte_amt =  0;
+ub4  offset = 1000;
+
+OCILobRead2(svchp, errhp, locp, &amp;byte_amt, &amp;char_amt, offset, bufp, bufl,
+            OCI_ONE_PIECE, 0, 0, 0, 0);
+</pre>
+<p>When using <span class="italic">polling mode</span>, be sure to look at the value of the <code class="codeph">byte_amt</code> parameter after each <code class="codeph">OCILobRead2()</code> call to see how many bytes were read into the buffer because the buffer may not be entirely full.</p>
+<p>When using <span class="italic">callbacks</span>, the <code class="codeph">lenp</code> parameter, which is input to the callback, indicates how many bytes are filled in the buffer. Be sure to check the <code class="codeph">lenp</code> parameter during your callback processing because the entire buffer may not be filled with data (see the <a class="olink LNOCI16518" target="_blank" href="../LNOCI/oci07lob.htm#LNOCI16518"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a><span class="italic">.</span>)</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Chunk Size</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>A chunk is one or more Oracle blocks. You can specify the chunk size for the BasicFiles LOB when creating the table that contains the LOB. This corresponds to the data size used by Oracle Database when accessing or modifying the LOB value. Part of the chunk is used to store system-related information and the rest stores the LOB value. The API you are using has a function that returns the amount of space used in the LOB chunk to store the LOB value. In PL/SQL use <code class="codeph">DBMS_LOB.GETCHUNKSIZE</code>. In OCI, use <code class="codeph">OCILobGetChunkSize()</code>. For SecureFiles, <code class="codeph">CHUNK</code> is an advisory size and is provided for backward compatibility purposes.</p>
+<p>To improve performance, you may run <code class="codeph">write</code> requests using a multiple of the value returned by one of these functions. The reason for this is that you are using the same unit that the Oracle database uses when reading data from disk. If it is appropriate for your application, then you should batch reads until you have enough for an entire chunk instead of issuing several LOB read calls that operate on the same LOB chunk.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; <span class="italic">&mdash;</span> <code class="codeph">OPEN</code>, <code class="codeph">GETCHUNKSIZE</code>, <code class="codeph">READ</code>, <code class="codeph">CLOSE</code>.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobOpen()</code>, <code class="codeph">OCILobRead2()</code>, <code class="codeph">OCILobClose()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; <code class="codeph">LOB READ</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; LOB READ</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> Chapter 7, &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lread.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lread.c</code></p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lread.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45748"></a><a id="ADLOB45749"></a><a id="ADLOB45750"></a><a id="ADLOB45751"></a><a id="ADLOB45752"></a><a id="ADLOB45753"></a><a id="ADLOB45754"></a><a id="ADLOB45747"></a>
+<div class="props_rev_3"><a id="GUID-F41CA770-8003-4864-A999-91FA47FDB971"></a>
+<h2 id="ADLOB-GUID-F41CA770-8003-4864-A999-91FA47FDB971" class="sect2">About LOB Array Read</h2>
+<div>
+<div class="section">
+<p>This section describes how to read LOB data for multiple locators in one round trip, using <code class="codeph">OCILobArrayRead()</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This function improves performance in reading LOBs in the size range less than about 512 Kilobytes. For an OCI application example, assume that the program has a prepared SQL statement such as:</p>
+<pre dir="ltr">SELECT lob1 FROM lob_table for UPDATE;
+</pre>
+<p>where <code class="codeph">lob1</code> is the LOB column and <code class="codeph">lob_array</code> is an array of define variables corresponding to a LOB column:</p>
+<pre dir="ltr">OCILobLocator * lob_array[10];
+
+...
+ for (i=0; i&lt;10, i++)        /* initialize array of locators */
+    lob_array[i] = OCIDescriptorAlloc(..., OCI_DTYPE_LOB, ...);
+ 
+...
+ 
+OCIDefineByPos(..., 1, (dvoid *) lob_array, ... SQLT_CLOB, ...);
+ 
+/* Execute the statement with iters = 10 to do an array fetch of 10 locators. */
+OCIStmtExecute ( &lt;service context&gt;, &lt;statement handle&gt;, &lt;error handle&gt;,
+                 10,    /* iters  */ 
+                 0,     /* row offset */
+                 NULL,  /* snapshot IN */
+                 NULL,  /* snapshot out */
+                 OCI_DEFAULT /* mode */);
+...
+ 
+  ub4 array_iter = 10;
+  char  *bufp[10];
+  oraub8 bufl[10];
+  oraub8 char_amtp[10];
+  oraub8 offset[10];  
+ 
+ for (i=0; i&lt;10; i++)
+  {
+    bufp[i] = (char *)malloc(1000);
+    bufl[i] = 1000;
+    offset[i] = 1;
+    char_amtp[i] = 1000;  /* Single byte fixed width char set. */
+  } 
+ 
+/* Read the 1st 1000 characters for all 10 locators in one
+ * round trip. Note that offset and amount need not be 
+ * same for all the locators. */
+ 
+OCILobArrayRead(&lt;service context&gt;, &lt;error handle&gt;,
+                &amp;array_iter, /* array size */
+                lob_array,   /* array of locators */
+                NULL,        /* array of byte amounts */
+                char_amtp,   /* array of char amounts */
+                offset,      /* array of offsets */
+       (void **)bufp,        /* array of read buffers */
+                bufl,        /* array of buffer lengths */
+                OCI_ONE_PIECE,  /* piece information */
+                NULL,           /* callback context */
+                NULL,           /* callback function */
+                0,              /* character set ID - default */
+                SQLCS_IMPLICIT);/* character set form */
+ 
+ ...
+ 
+for (i=0; i&lt;10; i++)
+  {
+    /* Fill bufp[i] buffers with data to be written */
+    strncpy (bufp[i], &#34;Test Data------&#34;, 15);
+    bufl[i] = 1000;
+    offset[i] = 50;
+    char_amtp[i] = 15;  /* Single byte fixed width char set. */
+  } 
+ 
+/* Write the 15 characters from offset 50 to all 10 
+ * locators in one round trip. Note that offset and
+ * amount need not be same for all the locators. */
+ */
+ 
+OCILobArrayWrite(&lt;service context&gt;, &lt;error handle&gt;,
+                  &amp;array_iter, /* array size */
+                  lob_array,   /* array of locators */
+                  NULL,        /* array of byte amounts */
+                  char_amtp,   /* array of char amounts */
+                  offset,      /* array of offsets */
+             (void **)bufp,    /* array of read buffers */
+                  bufl,        /* array of buffer lengths */
+                  OCI_ONE_PIECE,  /* piece information */
+                  NULL,           /* callback context */
+                  NULL,           /* callback function */
+                  0,              /* character set ID - default */
+                  SQLCS_IMPLICIT);/* character set form */
+...
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Streaming Support</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>LOB array APIs can be used to read/write LOB data in multiple pieces. This can be done by using polling method or a callback function.Here data is read/written in multiple pieces sequentially for the array of locators. For polling, the API would return to the application after reading/writing each piece with the <code class="codeph">array_iter</code> parameter (OUT) indicating the index of the locator for which data is read/written. With a callback, the function is called after reading/writing each piece with <code class="codeph">array_iter</code> as IN parameter.</p>
+<p>Note that:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>It is possible to read/write data for a few of the locators in one piece and read/write data for other locators in multiple pieces. Data is read/written in one piece for locators which have sufficient buffer lengths to accommodate the whole data to be read/written.</p>
+</li>
+<li>
+<p>Your application can use different amount value and buffer lengths for each locator.</p>
+</li>
+<li>
+<p>Your application can pass zero as the amount value for one or more locators indicating pure streaming for those locators. In the case of reading, LOB data is read to the end for those locators. For writing, data is written until <code class="codeph">OCI_LAST_PIECE</code> is specified for those locators.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">LOB Array Read in Polling Mode</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The following example reads 10Kbytes of data for each of 10 locators with 1Kbyte buffer size. Each locator needs 10 pieces to read the complete data. <code class="codeph">OCILobArrayRead()</code> must be called 100 (10*10) times to fetch all the data.First we call <code class="codeph">OCILobArrayRead()</code> with <code class="codeph">OCI_FIRST_PIECE</code> as <code class="codeph">piece</code> parameter. This call returns the first 1K piece for the first locator.Next <code class="codeph">OCILobArrayRead()</code> is called in a loop until the application finishes reading all the pieces for the locators and returns <code class="codeph">OCI_SUCCESS</code>. In this example it loops 99 times returning the pieces for the locators sequentially.</p>
+<pre dir="ltr">/* Fetch the locators */ 
+...
+ 
+     /* array_iter parameter indicates the number of locators in the array read.
+      * It is an IN parameter for the 1st call in polling and is ignored as IN
+      * parameter for subsequent calls. As OUT parameter it indicates the locator
+      * index for which the piece is read.
+      */
+ 
+     ub4    array_iter = 10;
+     char  *bufp[10];
+     oraub8 bufl[10];
+     oraub8 char_amtp[10];
+     oraub8 offset[10];
+     sword  st;  
+ 
+     for (i=0; i&lt;10; i++)
+     {
+       bufp[i] = (char *)malloc(1000);
+       bufl[i] = 1000;
+       offset[i] = 1;
+       char_amtp[i] = 10000;       /* Single byte fixed width char set. */
+     } 
+ 
+     st =  OCILobArrayRead(&lt;service context&gt;, &lt;error handle&gt;,
+                         &amp;array_iter, /* array size */
+                         lob_array, /* array of locators */
+                         NULL,      /* array of byte amounts */
+                         char_amtp, /* array of char amounts */
+                         offset,    /* array of offsets */
+                (void **)bufp,      /* array of read buffers */
+                         bufl,      /* array of buffer lengths */
+                         OCI_FIRST_PIECE, /* piece information */
+                         NULL,           /* callback context */
+                         NULL,           /* callback function */
+                         0,              /* character set ID - default */
+                         SQLCS_IMPLICIT); /* character set form */
+ 
+     /* First piece for the first locator is read here. 
+      * bufp[0]          =&gt; Buffer pointer into which data is read.
+      * char_amtp[0 ]    =&gt; Number of characters read in current buffer
+      *
+      */ 
+ 
+     While ( st == OCI_NEED_DATA)
+     {  
+          st =  OCILobArrayRead(&lt;service context&gt;, &lt;error handle&gt;,
+                          &amp;array_iter, /* array size */
+                          lob_array, /* array of locators */
+                          NULL,      /* array of byte amounts */
+                          char_amtp, /* array of char amounts */
+                          offset,    /* array of offsets */
+                 (void **)bufp,      /* array of read buffers */
+                          bufl,      /* array of buffer lengths */
+                          OCI_NEXT_PIECE, /* piece information */
+                          NULL,           /* callback context */
+                          NULL,           /* callback function */
+                          0,              /* character set ID - default */
+                          SQLCS_IMPLICIT);
+ 
+       /* array_iter returns the index of the current array element for which 
+        * data is read. for example, aray_iter = 1 implies first locator,
+        * array_iter = 2 implies second locator and so on.
+        *
+        * lob_array[ array_iter - 1]=&gt; Lob locator for which data is read. 
+        * bufp[array_iter - 1]      =&gt; Buffer pointer into which data is read.
+        * char_amtp[array_iter - 1] =&gt; Number of characters read in current buffer
+        */
+ 
+...
+        /* Consume the data here */
+...
+     }
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">LOB Array Read with Callback</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The following example reads 10Kbytes of data for each of 10 locators with 1Kbyte buffer size. Each locator needs 10 pieces to read all the data. The callback function is called 100 (10*10) times to return the pieces sequentially.</p>
+<pre dir="ltr">/* Fetch the locators */ 
+...
+     ub4    array_iter = 10;
+     char  *bufp[10];
+     oraub8 bufl[10];
+     oraub8 char_amtp[10];
+     oraub8 offset[10];
+     sword  st;  
+
+     for (i=0; i&lt;10; i++)
+     {
+       bufp[i] = (char *)malloc(1000);
+       bufl[i] = 1000;
+       offset[i] = 1;
+       char_amtp[i] = 10000;       /* Single byte fixed width char set. */
+      }
+
+      st =  OCILobArrayRead(&lt;service context&gt;, &lt;error handle&gt;,
+                        &amp;array_iter, /* array size */
+                        lob_array,   /* array of locators */
+                        NULL,        /* array of byte amounts */
+                        char_amtp,   /* array of char amounts */
+                        offset,      /* array of offsets */
+               (void **)bufp,        /* array of read buffers */
+                        bufl,        /* array of buffer lengths */
+                        OCI_FIRST_PIECE,  /* piece information */
+                        ctx,              /* callback context */
+                        cbk_read_lob,     /* callback function */
+                        0,                /* character set ID - default */
+                        SQLCS_IMPLICIT);
+...
+/* Callback function for LOB array read. */
+sb4 cbk_read_lob(dvoid *ctxp, ub4 array_iter, CONST dvoid *bufxp, oraub8 len,
+                 ub1 piece, dvoid **changed_bufpp, oraub8 *changed_lenp)
+{  
+   static ub4 piece_count = 0;
+   piece_count++;  
+   switch (piece)
+   {
+    case OCI_LAST_PIECE: 
+      /*--- buffer processing code goes here ---*/ 
+(void) printf(&#34;callback read the %d th piece(last piece) for %dth locator \n\n&#34;,
+                piece_count, array_iter ); 
+      piece_count = 0; 
+      break; 
+    case OCI_FIRST_PIECE: 
+      /*--- buffer processing code goes here ---*/ 
+      (void) printf(&#34;callback read the 1st piece for %dth locator\n&#34;,
+                    array_iter); 
+    /* --Optional code to set changed_bufpp and changed_lenp if the buffer needs
+         to be changed dynamically --*/ 
+      break; 
+    case OCI_NEXT_PIECE: 
+      /*--- buffer processing code goes here ---*/ 
+      (void) printf(&#34;callback read the %d th piece for %dth locator\n&#34;,
+                    piece_count, array_iter); 
+      /* --Optional code to set changed_bufpp and changed_lenp if the  buffer
+           must be changed dynamically --*/ 
+      break; 
+      default:
+      (void) printf(&#34;callback read error: unkown piece = %d.\n&#34;, piece); 
+      return OCI_ERROR; 
+   } 
+    return OCI_CONTINUE;
+}
+...
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Polling LOB Array Read</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The next example is polling LOB data in <code class="codeph">OCILobArrayRead()</code> with variable <code class="codeph">amtp</code>, <code class="codeph">bufl</code>, and <code class="codeph">offset</code>.</p>
+<pre dir="ltr">/* Fetch the locators */ 
+...
+ 
+     ub4    array_iter = 10;
+     char  *bufp[10];
+     oraub8 bufl[10];
+     oraub8 char_amtp[10];
+     oraub8 offset[10];
+     sword  st;  
+ 
+     for (i=0; i&lt;10; i++)
+     {
+       bufp[i] = (char *)malloc(1000);
+       bufl[i] = 1000;
+       offset[i] = 1;
+       char_amtp[i] = 10000;       /* Single byte fixed width char set. */
+     }
+ 
+     /* For 3rd locator read data in 500 bytes piece from offset 101. Amount
+      * is 2000, that is, total number of pieces is 2000/500 = 4.
+      */
+     offset[2] = 101; bufl[2] = 500; char_amtp[2] = 2000;
+     
+     /* For 6th locator read data in 100 bytes piece from offset 51. Amount
+      * is 0 indicating pure polling, that is, data is read till the end of
+      * the LOB is reached.
+      */
+     offset[5] = 51;  bufl[5] = 100; char_amtp[5] = 0;
+ 
+     /* For 8th locator read 100 bytes of data in one piece. Note amount 
+      * is less than buffer length indicating single piece read.
+      */ 
+     offset[7] = 61;  bufl[7] = 200; char_amtp[7] = 100; 
+ 
+     st =  OCILobArrayRead(&lt;service context&gt;, &lt;error handle&gt;,
+                         &amp;array_iter, /* array size */
+                         lob_array, /* array of locators */
+                         NULL,      /* array of byte amounts */
+                         char_amtp, /* array of char amounts */
+                         offset,    /* array of offsets */
+                (void **)bufp,      /* array of read buffers */
+                         bufl,      /* array of buffer lengths */
+                         OCI_FIRST_PIECE, /* piece information */
+                         NULL,           /* callback context */
+                         NULL,           /* callback function */
+                         0,              /* character set ID - default */
+                         SQLCS_IMPLICIT); /* character set form */
+ 
+     /* First piece for the first locator is read here. 
+      * bufp[0]          =&gt; Buffer pointer into which data is read.
+      * char_amtp[0 ]    =&gt; Number of characters read in current buffer
+      *
+      */ 
+ 
+     while ( st == OCI_NEED_DATA)
+     {  
+          st =  OCILobArrayRead(&lt;service context&gt;, &lt;error handle&gt;,
+                          &amp;array_iter, /* array size */
+                          lob_array, /* array of locators */
+                          NULL,      /* array of byte amounts */
+                          char_amtp, /* array of char amounts */
+                          offset,    /* array of offsets */
+                 (void **)bufp,      /* array of read buffers */
+                          bufl,      /* array of buffer lengths */
+                          OCI_NEXT_PIECE, /* piece information */
+                          NULL,           /* callback context */
+                          NULL,           /* callback function */
+                          0,              /* character set ID - default */
+                          SQLCS_IMPLICIT);
+ 
+       /* array_iter returns the index of the current array element for which 
+        * data is read. for example, aray_iter = 1 implies first locator,
+        * array_iter = 2 implies second locator and so on.
+        *
+        * lob_array[ array_iter - 1]=&gt; Lob locator for which data is read. 
+        * bufp[array_iter - 1]      =&gt; Buffer pointer into which data is read.
+        * char_amtp[array_iter - 1]=&gt;Number of characters read in current buffer
+        */
+ 
+...
+        /* Consume the data here */
+...
+     }
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for the OCI programmatic environment:</p>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobArrayRead()</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Example</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>An example is provided in the following programmatic environment:</p>
+<p>OCI: lreadarr.c</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45755"></a><a id="ADLOB45756"></a><a id="ADLOB1019"></a>
+<div class="props_rev_3"><a id="GUID-913B73AA-F6A9-4F59-AD78-EF38F08B7BCE"></a>
+<h2 id="ADLOB-GUID-913B73AA-F6A9-4F59-AD78-EF38F08B7BCE" class="sect2">Reading a Portion of a LOB (SUBSTR)</h2>
+<div>
+<div class="section">
+<p>This section describes how to read a portion of a LOB using SUBSTR.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; &mdash; SUBSTR, OPEN, CLOSE</p>
+</li>
+<li>
+<p>C (OCI): There is no applicable syntax reference for this use case.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB Statements, and embedded SQL and precompiler directives &mdash; <code class="codeph">ALLOCATE, LOB OPEN, LOB READ, LOB CLOSE</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; LOB READ. See PL/SQL <code class="codeph">DBMS_LOB.SUBSTR</code>.</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide,</span></a> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lsubstr.sql</code></p>
+</li>
+<li>
+<p>OCI: No example is provided with this release.</p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lsubstr.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45757"></a><a id="ADLOB45758"></a><a id="ADLOB1003"></a>
+<div class="props_rev_3"><a id="GUID-F4F530C0-1604-4A83-9479-F79400819B22"></a>
+<h2 id="ADLOB-GUID-F4F530C0-1604-4A83-9479-F79400819B22" class="sect2">Comparing All or Part of Two LOBs</h2>
+<div>
+<div class="section">
+<p>This section describes how to compare all or part of two LOBs.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; &mdash; COMPARE.</p>
+</li>
+<li>
+<p>C (OCI): There is no applicable syntax reference for this use case.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> or information on LOBs, usage notes on LOB Statements, and embedded SQL and precompiler directives &mdash; EXECUTE. Also reference PL/SQL DBMS_LOB.COMPARE.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; EXECUTE. Also reference PL/SQL <code class="codeph">DBMS_LOB.COMPARE</code>.</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide,</span></a> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lcompare.sql</code></p>
+</li>
+<li>
+<p>C (OCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lcompare.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45760"></a><a id="ADLOB45761"></a><a id="ADLOB45759"></a>
+<div class="props_rev_3"><a id="GUID-66B2AC7A-9959-4D36-8C75-E02DC59AF0A9"></a>
+<h2 id="ADLOB-GUID-66B2AC7A-9959-4D36-8C75-E02DC59AF0A9" class="sect2">Patterns: Checking for Patterns in a LOB Using INSTR</h2>
+<div>
+<div class="section">
+<p>This section describes how to see if a pattern exists in a LOB using <code class="codeph">INSTR</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; &mdash; INSTR.</p>
+</li>
+<li>
+<p>C (OCI): There is no applicable syntax reference for this use case.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; EXECUTE. Also reference PL/SQL <code class="codeph">DBMS_LOB.INSTR</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; EXECUTE. Also reference PL/SQL <code class="codeph">DBMS_LOB.INSTR</code>.</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> Chapter 7, &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">linstr.sql</code></p>
+</li>
+<li>
+<p>C (OCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">linstr.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45762"></a><a id="ADLOB45763"></a><a id="ADLOB1074"></a>
+<div class="props_rev_3"><a id="GUID-8D5BBF87-8869-4ADB-A38C-318CA2FAEEDD"></a>
+<h2 id="ADLOB-GUID-8D5BBF87-8869-4ADB-A38C-318CA2FAEEDD" class="sect2">Length: Determining the Length of a LOB</h2>
+<div>
+<div class="section">
+<p>This section describes how to determine the length of a LOB.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; &mdash; GETLENGTH</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobGetLength2()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB Statements, and embedded SQL and precompiler directives &mdash; LOB DESCRIBE.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; LOB DESCRIBE ... GET LENGTH...</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide,</span></a> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package) <code class="codeph">llength.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">llength.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">llength.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45764"></a><a id="ADLOB45765"></a><a id="ADLOB45766"></a><a id="ADLOB45767"></a><a id="ADLOB45768"></a><a id="ADLOB1004"></a>
+<div class="props_rev_3"><a id="GUID-CB96E540-2C7E-4DDA-8A25-E8077A4DBA8C"></a>
+<h2 id="ADLOB-GUID-CB96E540-2C7E-4DDA-8A25-E8077A4DBA8C" class="sect2">Copying All or Part of One LOB to Another LOB</h2>
+<div>
+<div class="section">
+<p>This section describes how to copy all or part of a LOB to another LOB. These APIs copy an amount of data you specify from a source LOB to a destination LOB.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following issues when using this API.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Specifying Amount of Data to Copy</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The value you pass for the <code class="codeph">amount</code> parameter to the <code class="codeph">DBMS_LOB.COPY</code> function must be one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>An amount less than or equal to the actual size of the data you are loading.</p>
+</li>
+<li>
+<p>The maximum allowable LOB size: <code class="codeph">DBMS_LOB.LOBMAXSIZE</code><code class="codeph">.</code>Passing this value causes the function to read the entire LOB. This is a useful technique for reading the entire LOB without introspecting the size of the LOB.</p>
+</li>
+</ul>
+<p>Note that for character data, the amount is specified in characters, while for binary data, the amount is specified in bytes.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Locking the Row Prior to Updating</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>If you plan to update a LOB value, then you must lock the row containing the LOB prior to updating. <a id="d87843e4632" class="indexterm-anchor"></a>While the SQL <code class="codeph">INSERT</code> and <code class="codeph">UPDATE</code> statements implicitly lock the row, locking is done explicitly by means of a SQL <code class="codeph">SELECT</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> statement in SQL and PL/SQL programs, or by using an <code class="codeph">OCI</code> <code class="codeph">pin</code> or <code class="codeph">lock</code> function in OCI programs.</p>
+<p>For more details on the state of the locator after an update, refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD">Example of Updating LOBs Through Updated Locators</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>See the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; &mdash; COPY</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobCopy2</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB Statements, and embedded SQL and precompiler directives &mdash; <code class="codeph">LOB COPY</code>. Also reference PL/SQL <code class="codeph">DBMS_LOB.COPY</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> for information on embedded SQL statements and directives &mdash; <code class="codeph">LOB COPY</code></p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide,</span></a> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lcopy.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lcopy.c</code></p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lcopy.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45770"></a><a id="ADLOB45771"></a><a id="ADLOB45769"></a>
+<div class="props_rev_3"><a id="GUID-39CAC466-1BA9-4BF8-8C63-8BD6265A8F21"></a>
+<h2 id="ADLOB-GUID-39CAC466-1BA9-4BF8-8C63-8BD6265A8F21" class="sect2">Copying a LOB Locator</h2>
+<div>
+<div class="section">
+<p>This section describes how to copy a LOB locator. Note that different locators may point to the same or different data, or to current or outdated data.</p>
+<div class="infobox-note" id="GUID-39CAC466-1BA9-4BF8-8C63-8BD6265A8F21__GUID-6C7F458F-20C8-4D65-A8FF-870553251E24">
+<p class="notep1">Note:</p>
+<p>To assign one LOB to another using PL/SQL, use the <code class="codeph">:=</code> operator. This is discussed in more detail in <span class="q">&#34;<a href="adlob_design.htm#GUID-B1E476A2-F3FE-4D13-BC2B-FFB809698ED3">Read-Consistent Locators</a>&#34;</span>.</p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): Refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-B1E476A2-F3FE-4D13-BC2B-FFB809698ED3">Read-Consistent Locators</a>&#34;</span> for information on assigning one lob locator to another.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobAssign()</code>, <code class="codeph">OCILobIsEqual()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB Statements, and embedded SQL and precompiler directives &mdash; ALLOCATE, LOB ASSIGN.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; SELECT, LOB ASSIGN</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> Chapter 7, &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lcopyloc.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lcopyloc.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lcopyloc.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45773"></a><a id="ADLOB45774"></a><a id="ADLOB45772"></a>
+<div class="props_rev_3"><a id="GUID-2C03EEF3-2719-4BD0-AD13-ECF93E1B4492"></a>
+<h2 id="ADLOB-GUID-2C03EEF3-2719-4BD0-AD13-ECF93E1B4492" class="sect2">Equality: Checking If One LOB Locator Is Equal to Another</h2>
+<div>
+<div class="section">
+<p>This section describes how to determine whether one LOB locator is equal to another. If two locators are equal, then this means that they refer to the same version of the LOB data.</p>
+<div class="infoboxnotealso" id="GUID-2C03EEF3-2719-4BD0-AD13-ECF93E1B4492__GUID-C2B17C2B-C8C0-438C-9578-70A929E9190F">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_design.htm#GUID-B1E476A2-F3FE-4D13-BC2B-FFB809698ED3">Read-Consistent Locators</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobAssign()</code>, <code class="codeph">OCILobIsEqual()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL): There is no applicable syntax reference for this use case.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; <code class="codeph">LOB ASSIGN</code></p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide,</span></a> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL: No example is provided with this release.</p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lequal.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lequal.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45776"></a><a id="ADLOB45777"></a><a id="ADLOB45775"></a>
+<div class="props_rev_3"><a id="GUID-9B110BA7-91BA-4800-AACF-590D81893A79"></a>
+<h2 id="ADLOB-GUID-9B110BA7-91BA-4800-AACF-590D81893A79" class="sect2">About Determining Whether LOB Locator Is Initialized</h2>
+<div>
+<div class="section">
+<p>This section describes how to determine whether a LOB locator is initialized.</p>
+<div class="infoboxnotealso" id="GUID-9B110BA7-91BA-4800-AACF-590D81893A79__GUID-0EFD9DAD-7331-4D0A-87B9-67B1F70BFD3A">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): There is no applicable syntax reference for this use case.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobLocatorIsInit()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL): There is no applicable syntax reference for this use case.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++) <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34;. See C(OCI), <code class="codeph">OCILobLocatorIsInit()</code>.</p>
+</li>
+<li>
+<p>Java (JDBC): There is no applicable syntax reference for this use case.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): No example is provided with this release.</p>
+</li>
+<li>
+<p>OCI: <code class="codeph">linit.c</code></p>
+</li>
+<li>
+<p>C (OCCI)): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): No example is provided with this release.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45778"></a><a id="ADLOB45779"></a><a id="ADLOB45780"></a><a id="ADLOB45781"></a><a id="ADLOB45782"></a><a id="ADLOB45783"></a><a id="ADLOB1021"></a>
+<div class="props_rev_3"><a id="GUID-E5A777E0-512F-4D84-87A2-3F9AB7F8A400"></a>
+<h2 id="ADLOB-GUID-E5A777E0-512F-4D84-87A2-3F9AB7F8A400" class="sect2">About Appending to a LOB</h2>
+<div>
+<div class="section">
+<p>This section describes how to write-append the contents of a buffer to a LOB.</p>
+<div class="infoboxnotealso" id="GUID-E5A777E0-512F-4D84-87A2-3F9AB7F8A400__GUID-42DED2EF-1061-4B07-9100-3A21D66D0DC9">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following issues regarding usage of this API.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Writing Singly or Piecewise</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The <code class="codeph">writeappend</code> operation writes a buffer to the end of a LOB.</p>
+<p>For OCI, the buffer can be written to the LOB in a single piece with this call; alternatively, it can be rendered piecewise using callbacks or a standard polling method.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Writing Piecewise: When to Use Callbacks or Polling</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>If the value of the piece parameter is <code class="codeph">OCI_FIRST_PIECE</code>, then data must be provided through callbacks or polling.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If a callback function is defined in the <code class="codeph">cbfp</code> parameter, then this callback function is called to get the next piece after a piece is written to the pipe. Each piece is written from <code class="codeph">bufp</code>.</p>
+</li>
+<li>
+<p>If no callback function is defined, then <code class="codeph">OCILobWriteAppend2</code>() returns the <code class="codeph">OCI_NEED_DATA</code> error code. The application must call <code class="codeph">OCILobWriteAppend2</code>() again to write more pieces of the LOB. In this mode, the buffer pointer and the length can be different in each call if the pieces are of different sizes and from different locations. A piece value of <code class="codeph">OCI_LAST_PIECE</code> terminates the piecewise write.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Locking the Row Prior to Updating</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p><a id="d87843e5409" class="indexterm-anchor"></a>Prior to updating a LOB value using the PL/SQL <code class="codeph">DBMS_LOB</code> package or the OCI, you must lock the row containing the LOB. While the SQL <code class="codeph">INSERT</code> and <code class="codeph">UPDATE</code> statements implicitly lock the row, locking is done explicitly by means of an SQL <code class="codeph">SELECT</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> statement in SQL and PL/SQL programs, or by using an <code class="codeph">OCI</code> <code class="codeph">pin</code> or <code class="codeph">lock</code> function in OCI programs.</p>
+<p>For more details on the state of the locator after an update, refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD">Example of Updating LOBs Through Updated Locators</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> <span class="italic">&#34;DBMS_LOB&#34;</span> <span class="italic">&mdash;</span> <code class="codeph">WRITEAPPEND</code></p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobWriteAppend2()</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; <code class="codeph">LOB WRITE APPEND</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; LOB WRITE APPEND</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> Chapter 7, &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lwriteap.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lwriteap.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lwriteap.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45784"></a><a id="ADLOB45785"></a><a id="ADLOB45786"></a><a id="ADLOB45787"></a><a id="ADLOB45788"></a><a id="ADLOB45789"></a><a id="ADLOB45790"></a><a id="ADLOB45791"></a><a id="ADLOB1013"></a>
+<div class="props_rev_3"><a id="GUID-361CDD50-6A70-4024-988C-273D885654F2"></a>
+<h2 id="ADLOB-GUID-361CDD50-6A70-4024-988C-273D885654F2" class="sect2">About Writing Data to a LOB</h2>
+<div>
+<div class="section">
+<p>This section describes how to write the contents of a buffer to a LOB.</p>
+<div class="infoboxnotealso" id="GUID-361CDD50-6A70-4024-988C-273D885654F2__GUID-F4C39899-F69D-4A30-AF10-CD7E5A753966">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</li>
+<li>
+<p><a href="adlob_lob_ops.htm#GUID-AC5E49A1-8479-4D68-AF1A-C497AACC5495">About Reading Data from a LOB</a></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following issues regarding usage of this API.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Stream Write</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The most efficient way to write large amounts of LOB data is to use <code class="codeph">OCILobWrite2</code>() with the streaming mechanism enabled, and using polling or a callback. If you know how much data is written to the LOB, then specify that amount when calling <code class="codeph">OCILobWrite2()</code>. This ensures that LOB data on the disk is contiguous. Apart from being spatially efficient, the contiguous structure of the LOB data makes reads and writes in subsequent operations faster.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Chunk Size</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>A chunk is one or more Oracle blocks. You can specify the chunk size for the LOB when creating the table that contains the LOB. This corresponds to the data size used by Oracle Database when accessing or modifying the LOB value. Part of the chunk is used to store system-related information and the rest stores the LOB value. The API you are using has a function that returns the amount of space used in the LOB chunk to store the LOB value. In PL/SQL use <code class="codeph">DBMS_LOB.GETCHUNKSIZE</code>. In OCI, use <code class="codeph">OCILobGetChunkSize()</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Use a Multiple of the Returned Value to Improve Write Performance</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>To improve performance, run write requests using a multiple of the value returned by one of these functions. The reason for this is that the LOB chunk is versioned for every <code class="codeph">write</code> operation. If all <code class="codeph">writes</code> are done on a chunk basis, then no extra or excess versioning is incurred or duplicated. If it is appropriate for your application, then you should batch writes until you have enough for an entire chunk instead of issuing several LOB write calls that operate on the same LOB chunk.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Locking the Row Prior to Updating</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p><a id="d87843e5703" class="indexterm-anchor"></a>Prior to updating a LOB value using the PL/SQL <code class="codeph">DBMS_LOB</code> Package or OCI, you must lock the row containing the LOB. While the SQL <code class="codeph">INSERT</code> and <code class="codeph">UPDATE</code> statements implicitly lock the row, locking is done explicitly by means of a SQL <code class="codeph">SELECT</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> statement in SQL and PL/SQL programs, or by using an <code class="codeph">OCI</code> <code class="codeph">pin</code> or <code class="codeph">lock</code> function in OCI programs.</p>
+<p>For more details on the state of the locator after an update, refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD">Example of Updating LOBs Through Updated Locators</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Using DBMS_LOB.WRITE to Write Data to a BLOB</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>When you are passing a <a id="d87843e5752" class="indexterm-anchor"></a>hexadecimal string to <a id="d87843e5757" class="indexterm-anchor"></a>DBMS_LOB.WRITE() to write data to a BLOB, use the following guidelines:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">amount</code> parameter should be &lt;= the buffer <code class="codeph">length</code> parameter</p>
+</li>
+<li>
+<p>The <code class="codeph">length</code> of the buffer should be ((<code class="codeph">amount</code>*2) - 1). This guideline exists because the two characters of the string are seen as one hexadecimal character (and an implicit hexadecimal-to-raw conversion takes place), that is, every two bytes of the string are converted to one raw byte.</p>
+</li>
+</ul>
+<p>The following example is <span class="italic">correct</span>:</p>
+<pre dir="ltr">declare
+   blob_loc  BLOB;
+   rawbuf RAW(10);
+   an_offset INTEGER := 1;
+   an_amount BINARY_INTEGER := 10;
+BEGIN
+   select blob_col into blob_loc from a_table
+where id = 1;
+   rawbuf := &#39;1234567890123456789&#39;;
+   dbms_lob.write(blob_loc, an_amount, an_offset,
+rawbuf);
+   commit;
+END;
+</pre>
+<pre dir="ltr"></pre>
+<p>Replacing the value for <code class="codeph">an_amount</code> in the previous example with the following values, yields error message, ora_21560:</p>
+<pre dir="ltr">    an_amount BINARY_INTEGER := 11;
+</pre>
+<p>or</p>
+<pre dir="ltr">    an_amount BINARY_INTEGER := 19;
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> <span class="italic">&#34;DBMS_LOB&#34;</span> &mdash; WRITE</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobWrite2().</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; <code class="codeph">LOB WRITE</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; <code class="codeph">LOB</code> WRITE</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> Chapter 7, &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lwrite.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lwrite.c</code></p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lwrite.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45793"></a><a id="ADLOB45794"></a><a id="ADLOB45795"></a><a id="ADLOB45796"></a><a id="ADLOB45797"></a><a id="ADLOB45798"></a><a id="ADLOB45792"></a>
+<div class="props_rev_3"><a id="GUID-9C2E65CE-BCA5-4600-8B7F-E51C3466C985"></a>
+<h2 id="ADLOB-GUID-9C2E65CE-BCA5-4600-8B7F-E51C3466C985" class="sect2">LOB Array Write</h2>
+<div>
+<div class="section">
+<p>This section describes how to write LOB data for multiple locators in one round trip, using <code class="codeph">OCILobArrayWrite()</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-9C2E65CE-BCA5-4600-8B7F-E51C3466C985__GUID-EA01553B-3F2B-47A1-BC1F-539CBA2343AA">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-F41CA770-8003-4864-A999-91FA47FDB971">About LOB Array Read</a>&#34;</span> for examples of array read/write.</p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">LOB Array Write in Polling Mode</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The following example writes 10Kbytes of data for each of <code class="codeph">10</code> locators with a 1K buffer size. <code class="codeph">OCILobArrayWrite()</code> has to be called <code class="codeph">100</code> (<code class="codeph">10</code> times <code class="codeph">10</code>) times to write all the data. The function is used in a similar manner to <code class="codeph">OCILobWrite2()</code>.</p>
+<pre dir="ltr">/* Fetch the locators */
+...
+ 
+/* array_iter parameter indicates the number of locators in the array read.
+ * It is an IN parameter for the 1st call in polling and is ignored as IN
+ * parameter for subsequent calls. As an OUT parameter it indicates the locator
+ * index for which the piece is written.
+ */
+ 
+ub4    array_iter = 10;
+char  *bufp[10];
+oraub8 bufl[10];
+oraub8 char_amtp[10];
+oraub8 offset[10];
+sword  st;
+int    i, j; 
+ 
+for (i=0; i&lt;10; i++)
+{
+  bufp[i] = (char *)malloc(1000);
+  bufl[i] = 1000;
+  /* Fill bufp here. */
+...
+  offset[i] = 1;
+  char_amtp[i] = 10000;       /* Single byte fixed width char set. */  
+}
+ 
+for (i  = 1; i &lt;= 10; i++)
+{
+ /* Fill up bufp[i-1] here.  The first piece for ith locator would be written from
+    bufp[i-1] */
+...
+    st =  <span class="bold">OCILobArrayWrite</span>(&lt;service context&gt;, &lt;error handle&gt;,
+                      &amp;array_iter, /* array size */
+                      lob_array,   /* array of locators */
+                      NULL,        /* array of byte amounts */
+                      char_amtp,   /* array of char amounts */
+                      offset,      /* array of offsets */
+             (void **)bufp,        /* array of write buffers */
+                      bufl,        /* array of buffer lengths */
+                      <span>OCI_FIRST_PIECE</span>, /* piece information */
+                      NULL,            /* callback context */
+                      NULL,            /* callback function */
+                      0,               /* character set ID - default */
+                      SQLCS_IMPLICIT); /* character set form */
+ 
+ for ( j = 2; j &lt; 10; j++) 
+ {
+ /* Fill up bufp[i-1] here.  The jth piece for ith locator would be written from
+    bufp[i-1] */
+...
+ st =  <span class="bold">OCILobArrayWrite</span>(&lt;service context&gt;, &lt;error handle&gt;,
+                        &amp;array_iter, /* array size */
+                        lob_array,   /* array of locators */
+                        NULL,        /* array of byte amounts */
+                        char_amtp,   /* array of char amounts */
+                        offset,      /* array of offsets */
+               (void **)bufp,        /* array of write buffers */
+                        bufl,        /* array of buffer lengths */
+                        <span class="bold">OCI_NEXT_PIECE</span>, /* piece information */
+                        NULL,           /* callback context */
+                        NULL,           /* callback function */
+                        0,              /* character set ID - default */
+                        SQLCS_IMPLICIT);
+ 
+    /* array_iter returns the index of the current array element for which
+     * data is being written. for example, aray_iter = 1 implies first locator,
+     * array_iter = 2 implies second locator and so on. Here i = array_iter.
+     *
+     * lob_array[ array_iter - 1] =&gt; Lob locator for which data is written.
+     * bufp[array_iter - 1]       =&gt; Buffer pointer from which data is written.
+     * char_amtp[ array_iter - 1] =&gt; Number of characters written in
+     * the piece just written
+     */
+}
+
+/* Fill up bufp[i-1] here.  The last piece for ith locator would be written from
+   bufp[i -1] */
+...       
+ st =  OCILobArrayWrite(&lt;service context&gt;, &lt;error handle&gt;,
+                        &amp;array_iter, /* array size */
+                        lob_array,   /* array of locators */
+                        NULL,        /* array of byte amounts */
+                        char_amtp,   /* array of char amounts */
+                        offset,      /* array of offsets */
+               (void **)bufp,        /* array of write buffers */
+                        bufl,        /* array of buffer lengths */
+                        <span class="bold">OCI_LAST_PIECE</span>,  /* piece information */
+                        NULL,            /* callback context */
+                        NULL,            /* callback function */
+                        0,               /* character set ID - default */
+                        SQLCS_IMPLICIT);
+}
+
+...
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">LOB Array Write with Callback</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The following example writes 10Kbytes of data for each of 10 locators with a 1K buffer size. A total of 100 pieces must be written (10 pieces for each locator). The first piece is provided by the <code class="codeph">OCILobArrayWrite()</code> call. The callback function is called 99 times to get the data for subsequent pieces to be written.</p>
+<pre dir="ltr">/* Fetch the locators */
+...
+
+    ub4    array_iter = 10;
+    char  *bufp[10];
+    oraub8 bufl[10];
+    oraub8 char_amtp[10];
+    oraub8 offset[10];
+    sword  st; 
+ 
+    for (i=0; i&lt;10; i++)
+    {
+      bufp[i] = (char *)malloc(1000);
+      bufl[i] = 1000;
+      offset[i] = 1;
+      char_amtp[i] = 10000;       /* Single byte fixed width char set. */
+    }
+ 
+ st =  <span class="bold">OCILobArrayWrite</span>(&lt;service context&gt;, &lt;error handle&gt;,
+                        &amp;array_iter, /* array size */
+                        lob_array,   /* array of locators */
+                        NULL,        /* array of byte amounts */
+                        char_amtp,   /* array of char amounts */
+                        offset,      /* array of offsets */
+               (void **)bufp,        /* array of write buffers */
+                        bufl,        /* array of buffer lengths */
+                        <span class="bold">OCI_FIRST_PIECE</span>,  /* piece information */
+                        ctx,              /* callback context */
+                        cbk_write_lob     /* callback function */
+                        0,                /* character set ID - default */
+                        SQLCS_IMPLICIT);
+
+...
+
+/* Callback function for LOB array write. */
+sb4 cbk_write_lob(dvoid *ctxp, <span class="bold">ub4 array_iter</span>, dvoid *bufxp, oraub8 *lenp,
+                  ub1 *piecep, ub1 *changed_bufpp, oraub8 *changed_lenp)
+{
+ static ub4 piece_count = 0;
+ piece_count++; 
+
+ printf (&#34; %dth piece written  for <span class="bold">%dth locator</span> \n\n&#34;, piece_count, <span class="bold">array_iter</span>);
+
+ /*-- code to fill bufxp with data goes here. *lenp should reflect the  size and
+  *   should be less than or equal to MAXBUFLEN -- */
+ /* --Optional code to set changed_bufpp and changed_lenp if the buffer must
+  *   be changed dynamically --*/
+
+  if (this is the last data buffer for current locator)
+     *piecep = <span class="bold">OCI_LAST_PIECE</span>;     
+  else if (this is the first data buffer for the next locator)
+     *piecep = <span class="bold">OCI_FIRST_PIECE</span>;
+     piece_count = 0;
+  else
+     *piecep = <span class="bold">OCI_NEXT_PIECE</span>;
+ 
+     return OCI_CONTINUE;
+    }
+...
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Polling LOB Data in Array Write</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>The next example is polling LOB data in <code class="codeph">OCILobArrayWrite()</code> with variable <code class="codeph">amtp</code>, <code class="codeph">bufl</code>, and <code class="codeph">offset</code>.</p>
+<pre dir="ltr">/* Fetch the locators */
+...
+ 
+ub4    array_iter = 10;
+char  *bufp[10];
+oraub8 bufl[10];
+oraub8 char_amtp[10];
+oraub8 offset[10];
+sword  st;
+int    i, j;
+int piece_count; 
+ 
+for (i=0; i&lt;10; i++)
+{
+  bufp[i] = (char *)malloc(1000);
+  bufl[i] = 1000;
+  /* Fill bufp here. */
+...
+  offset[i] = 1;
+  char_amtp[i] = 10000;       /* Single byte fixed width char set. */  
+}
+ 
+     /* For 3rd locator write data in 500 bytes piece from offset 101. Amount
+      * is 2000, that is, total number of pieces is 2000/500 = 4.
+      */
+     offset[2] = 101; bufl[2] = 500; char_amtp[2] = 2000;
+     
+     /* For 6th locator write data in 100 bytes piece from offset 51. Amount
+      * is 0 indicating pure polling, that is, data is written 
+      * till OCI_LAST_PIECE
+      */
+     offset[5] = 51;  bufl[5] = 100; char_amtp[5] = 0;
+ 
+     /* For 8th locator write 100 bytes of data in one piece. Note amount 
+      * is less than buffer length indicating single piece write.
+      */ 
+     offset[7] = 61;  bufl[7] = 200; char_amtp[7] = 100;
+ 
+for (i  = 1; i &lt;= 10; i++)
+{
+ /* Fill up bufp[i-1] here.  The first piece for ith locator would be written from
+    bufp[i-1] */
+...
+    /* Calculate number of pieces that must be written */
+    piece_count = char_amtp[i-1]/bufl[i-1];
+ 
+    /* Single piece case */
+    if (char_amtp[i-1] &lt;= bufl[i-1])
+      piece_count = 1;
+ 
+    /* Zero amount indicates pure polling. So we can write as many
+     * pieces as needed. Let us write 50 pieces.
+     */
+    if (char_amtp[i-1] == 0)
+      piece_count = 50;
+ 
+    st =  OCILobArrayWrite(&lt;service context&gt;, &lt;error handle&gt;,
+                      &amp;array_iter, /* array size */
+                      lob_array,   /* array of locators */
+                      NULL,        /* array of byte amounts */
+                      char_amtp,   /* array of char amounts */
+                      offset,      /* array of offsets */
+             (void **)bufp,        /* array of write buffers */
+                      bufl,        /* array of buffer lengths */
+                      OCI_FIRST_PIECE, /* piece information */
+                      NULL,            /* callback context */
+                      NULL,            /* callback function */
+                      0,               /* character set ID - default */
+                      SQLCS_IMPLICIT); /* character set form */
+ 
+ for ( j = 2; j &lt; piece_count; j++) 
+ {
+   /* Fill up bufp[i-1] here. The jth piece for ith locator would be written
+    * from bufp[i-1] */
+...
+   st =  OCILobArrayWrite(&lt;service context&gt;, &lt;error handle&gt;,
+                          &amp;array_iter, /* array size */
+                          lob_array,   /* array of locators */
+                          NULL,        /* array of byte amounts */
+                          char_amtp,   /* array of char amounts */
+                          offset,      /* array of offsets */
+                 (void **)bufp,        /* array of write buffers */
+                          bufl,        /* array of buffer lengths */
+                          OCI_NEXT_PIECE, /* piece information */
+                          NULL,           /* callback context */
+                          NULL,           /* callback function */
+                          0,              /* character set ID - default */
+                          SQLCS_IMPLICIT);
+ 
+    /* array_iter returns the index of the current array element for which
+     * data is being written. for example, aray_iter = 1 implies first locator,
+     * array_iter = 2 implies second locator and so on. Here i = array_iter.
+     *
+     * lob_array[ array_iter - 1] =&gt; Lob locator for which data is written.
+     * bufp[array_iter - 1]       =&gt; Buffer pointer from which data is written.
+     * char_amtp[ array_iter - 1] =&gt; Number of characters written in
+     * the piece just written
+     */
+}
+ 
+/* Fill up bufp[i-1] here.  The last piece for ith locator would be written from
+ * bufp[i -1] */
+...
+ 
+/* If piece_count is 1 it is a single piece write. */
+if (piece_count[i] != 1)
+  st =  OCILobArrayWrite(&lt;service context&gt;, &lt;error handle&gt;,
+                          &amp;array_iter, /* array size */
+                          lob_array,   /* array of locators */
+                          NULL,        /* array of byte amounts */
+                          char_amtp,   /* array of char amounts */
+                          offset,      /* array of offsets */
+                 (void **)bufp,        /* array of write buffers */
+                          bufl,        /* array of buffer lengths */
+                          OCI_LAST_PIECE,  /* piece information */
+                          NULL,            /* callback context */
+                          NULL,            /* callback function */
+                          0,               /* character set ID - default */
+                          SQLCS_IMPLICIT);
+}
+ 
+...
+</pre></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for the OCI programmatic environment:</p>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobArrayWrite()</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Example</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>An example is provided in the following programmatic environment:</p>
+<p>OCI: lwritearr.c</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45799"></a><a id="ADLOB45800"></a><a id="ADLOB45801"></a><a id="ADLOB45802"></a><a id="ADLOB1020"></a>
+<div class="props_rev_3"><a id="GUID-1F0A8155-1431-4804-81DE-D55EE5A69CB2"></a>
+<h2 id="ADLOB-GUID-1F0A8155-1431-4804-81DE-D55EE5A69CB2" class="sect2">About Trimming LOB Data</h2>
+<div>
+<div class="section">
+<p>This section describes how to trim a LOB to the size you specify.</p>
+<div class="infoboxnotealso" id="GUID-1F0A8155-1431-4804-81DE-D55EE5A69CB2__GUID-2699EBA0-863B-42B6-A22B-2C7ACC90582E">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following issues regarding usage of this API.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Locking the Row Prior to Updating</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p><a id="d87843e6244" class="indexterm-anchor"></a>Prior to updating a LOB value using the PL/SQL <code class="codeph">DBMS_LOB</code> Package, or OCI, you must lock the row containing the LOB. While the SQL <code class="codeph">INSERT</code> and <code class="codeph">UPDATE</code> statements implicitly lock the row, locking is done explicitly by means of:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A <code class="codeph">SELECT</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> statement in SQL and PL/SQL programs.</p>
+</li>
+<li>
+<p>An <code class="codeph">OCI</code> <code class="codeph">pin</code> or <code class="codeph">lock</code> function in OCI programs.</p>
+</li>
+</ul>
+<p>For more details on the state of the locator after an update, refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD">Example of Updating LOBs Through Updated Locators</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> <span class="italic">&#34;DBMS_LOB&#34;</span> &mdash; <code class="codeph">TRIM</code></p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobTrim2().</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; <code class="codeph">LOB TRIM</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL and Precompiler Directives&#34; &mdash; <code class="codeph">LOB TRIM</code></p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> Chapter 7, &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">ltrim.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">ltrim.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">ltrim.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45803"></a><a id="ADLOB45804"></a><a id="ADLOB45805"></a><a id="ADLOB45806"></a><a id="ADLOB1006"></a>
+<div class="props_rev_3"><a id="GUID-CB83E58B-CF34-4771-A79B-61C57F48369C"></a>
+<h2 id="ADLOB-GUID-CB83E58B-CF34-4771-A79B-61C57F48369C" class="sect2">About Erasing Part of a LOB</h2>
+<div>
+<div class="section">
+<p>This section describes how to erase part of a LOB.</p>
+<div class="infoboxnotealso" id="GUID-CB83E58B-CF34-4771-A79B-61C57F48369C__GUID-10C5444C-E63C-497E-B8BF-004705CE958C">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Note the following issues regarding usage of this API.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Locking the Row Prior to Updating</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p><a id="d87843e6485" class="indexterm-anchor"></a>Prior to updating a LOB value using the PL/SQL <code class="codeph">DBMS_LOB</code> Package or OCI, you must lock the row containing the LOB. While <code class="codeph">INSERT</code> and <code class="codeph">UPDATE</code> statements implicitly lock the row, locking is done explicitly by means of a <code class="codeph">SELECT</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> statement in SQL and PL/SQL programs, or by using the <code class="codeph">OCI</code> <code class="codeph">pin</code> or <code class="codeph">lock</code> function in OCI programs.</p>
+<p>For more details on the state of the locator after an update, refer to<span class="q">&#34;<a href="adlob_design.htm#GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD">Example of Updating LOBs Through Updated Locators</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; &mdash; ERASE</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobErase2()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; <code class="codeph">LOB ERASE</code>.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL and Precompiler Directives&#34; &mdash; <code class="codeph">LOB ERASE</code></p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide,</span></a> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">lerase.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">lerase.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): <code class="codeph">lerase.java</code></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45808"></a><a id="ADLOB45809"></a><a id="ADLOB45810"></a><a id="ADLOB45807"></a>
+<div class="props_rev_3"><a id="GUID-67AD0BB6-DD54-4BE5-9401-367407082E22"></a>
+<h2 id="ADLOB-GUID-67AD0BB6-DD54-4BE5-9401-367407082E22" class="sect2">Enabling LOB Buffering</h2>
+<div>
+<div class="section">
+<p>This section describes how to enable LOB buffering.</p>
+<div class="infoboxnotealso" id="GUID-67AD0BB6-DD54-4BE5-9401-367407082E22__GUID-F9463C2F-5141-4EA6-9360-80CB8F262117">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Enable LOB buffering when you are performing a <a id="d87843e6708" class="indexterm-anchor"></a><a id="d87843e6712" class="indexterm-anchor"></a>small read or write of data. Once you have completed these tasks, you must disable buffering before you can continue with any other LOB operations.</p>
+<div class="infobox-note" id="GUID-67AD0BB6-DD54-4BE5-9401-367407082E22__GUID-25479FAA-64F6-4C56-BD92-C61C7E4CF393">
+<p class="notep1">Note:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You must flush the buffer in order to make your modifications persistent.</p>
+</li>
+<li>
+<p>Do not enable buffering for the <a id="d87843e6726" class="indexterm-anchor"></a>stream read and write involved in checkin and checkout.</p>
+</li>
+</ul>
+</div>
+<p>For more information, refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-7094DFC9-03B9-46D8-95DB-B80741AB755A">LOB Buffering Subsystem</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL: This API is not available in any supplied PL/SQL packages.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobEnableBuffering()</code>, <code class="codeph">OCILobDisableBuffering()</code>, <code class="codeph">OCIFlushBuffer()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; LOB ENABLE BUFFERING.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL and Precompiler Directives&#34; &mdash; <code class="codeph">LOB ENABLE BUFFERING</code></p>
+</li>
+<li>
+<p>Java (JDBC): There is no applicable syntax reference for this use case.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL: No example is provided.</p>
+</li>
+<li>
+<p>C (OCI): No example is provided with this release. Using this API is similar to that described in the example, <span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-2A09CB48-1B1D-4FEC-877A-22B7CE0BDA8C">About Disabling LOB Buffering</a> &#34;</span>.</p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): No example provided.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45812"></a><a id="ADLOB45813"></a><a id="ADLOB45814"></a><a id="ADLOB45811"></a>
+<div class="props_rev_3"><a id="GUID-37B3816A-B7D0-48F8-A788-1D61585D2C51"></a>
+<h2 id="ADLOB-GUID-37B3816A-B7D0-48F8-A788-1D61585D2C51" class="sect2">About Flushing the Buffer</h2>
+<div>
+<div class="section">
+<p>This section describes how to flush the LOB buffer.</p>
+<div class="infoboxnotealso" id="GUID-37B3816A-B7D0-48F8-A788-1D61585D2C51__GUID-8EDE3709-51F1-406D-B262-ACDE670351F3">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Enable buffering when performing a small read or write of data. Once you have completed these tasks, you must disable buffering before you can continue with any other LOB operations.</p>
+<div class="infobox-note" id="GUID-37B3816A-B7D0-48F8-A788-1D61585D2C51__GUID-C5C911D0-80A9-4D61-8E75-FCD10E1C7D3F">
+<p class="notep1">Note:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You must flush the buffer in order to make your modifications persistent.</p>
+</li>
+<li>
+<p>Do not enable buffering for the stream read and write involved in checkin and checkout.</p>
+</li>
+</ul>
+</div>
+<p>For more information, refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-7094DFC9-03B9-46D8-95DB-B80741AB755A">LOB Buffering Subsystem</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): There is no applicable syntax reference for this use case.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobEnableBuffering(), OCILobDisableBuffering(), OCIFlushBuffer().</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; LOB FLUSH BUFFER.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; LOB FLUSH BUFFER.</p>
+</li>
+<li>
+<p>Java (JDBC): There is no applicable syntax reference for this use case.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): No example is provided with this release.</p>
+</li>
+<li>
+<p>C (OCI): No example is provided with this release. Using this API is similar to that described in the example, <span class="q">&#34;<a href="adlob_lob_ops.htm#GUID-2A09CB48-1B1D-4FEC-877A-22B7CE0BDA8C">About Disabling LOB Buffering</a> &#34;</span>.</p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): No example is provided with this release.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45816"></a><a id="ADLOB45817"></a><a id="ADLOB45818"></a><a id="ADLOB45815"></a>
+<div class="props_rev_3"><a id="GUID-2A09CB48-1B1D-4FEC-877A-22B7CE0BDA8C"></a>
+<h2 id="ADLOB-GUID-2A09CB48-1B1D-4FEC-877A-22B7CE0BDA8C" class="sect2">About Disabling LOB Buffering</h2>
+<div>
+<div class="section">
+<p>This section describes how to disable LOB buffering.</p>
+<div class="infoboxnotealso" id="GUID-2A09CB48-1B1D-4FEC-877A-22B7CE0BDA8C__GUID-752ACD40-EA5C-4F5C-A3C4-660BDBDB7A42">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Usage Notes</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Enable buffering when performing a small read or write of data. Once you have completed these tasks, you must disable buffering before you can continue with any other LOB operations.</p>
+<div class="infobox-note" id="GUID-2A09CB48-1B1D-4FEC-877A-22B7CE0BDA8C__GUID-FE233D8F-877D-4906-A4D3-D0BD050F4D33">
+<p class="notep1">Note:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You must flush the buffer in order to make your modifications persistent.</p>
+</li>
+<li>
+<p>Do not enable buffering for the stream read and write involved in checkin and checkout.</p>
+</li>
+</ul>
+</div>
+<p>For more information, refer to <span class="q">&#34;<a href="adlob_design.htm#GUID-7094DFC9-03B9-46D8-95DB-B80741AB755A">LOB Buffering Subsystem</a>&#34;</span></p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package)<span class="italic">:</span> There is no applicable syntax reference for this use case.</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; <code class="codeph">OCILobEnableBuffering()</code>, <code class="codeph">OCILobDisableBuffering()</code>, <code class="codeph">OCIFlushBuffer()</code>.</p>
+</li>
+<li>
+<p>C++ (OCCI): <a class="olink LNCPP" target="_blank" href="../LNCPP/toc.htm"><span class="italic">Oracle C++ Call Interface Programmer&#39;s Guide</span></a></p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; LOB DISABLE BUFFER.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC" target="_blank" href="../LNPCC/toc.htm"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; LOB DISABLE BUFFER</p>
+</li>
+<li>
+<p>Java (JDBC): There is no applicable syntax reference for this use case.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): No example is provided with this release.</p>
+</li>
+<li>
+<p>OCI: <code class="codeph">ldisbuf.c</code></p>
+</li>
+<li>
+<p>C++ (OCCI): No example is provided with this release.</p>
+</li>
+<li>
+<p>Java (JDBC): No example is provided with this release.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45819"></a><a id="ADLOB45820"></a><a id="ADLOB1015"></a>
+<div class="sect2"><a id="GUID-9C8276AA-A510-4F5A-858F-8B40D2FB47AA"></a>
+<h2 id="ADLOB-GUID-9C8276AA-A510-4F5A-858F-8B40D2FB47AA" class="sect2">Determining Whether a LOB instance Is Temporary</h2>
+<div>
+<p>This section describes how to determine whether a LOB instance is temporary.</p>
+<div class="infoboxnotealso" id="GUID-9C8276AA-A510-4F5A-858F-8B40D2FB47AA__GUID-A427F48A-62AB-4C1D-9E7E-B7CABFBB079C">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_lob_ops.htm#GUID-AEE4EC42-6F89-49C1-88D5-23D4CCCED6FC__g1098343" title="This table is described in the preceding text">Table 22-1</a></p>
+</div>
+<div class="section">
+<p class="subhead2">Syntax</p>
+</div>
+<!-- class="section" -->
+<p>Use the following syntax references for each programmatic environment:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB): <a class="olink ARPLS600" target="_blank" href="../ARPLS/d_lob.htm#ARPLS600"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> &#34;DBMS_LOB&#34; &mdash; ISTEMPORARY, FREETEMPORARY</p>
+</li>
+<li>
+<p>C (OCI): <a class="olink LNOCI160" target="_blank" href="../LNOCI/oci17msc.htm#LNOCI160"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> &#34;LOB Functions&#34; &mdash; OCILobIsTemporary().</p>
+</li>
+<li>
+<p>COBOL (Pro*COBOL) <a class="olink LNPCB" target="_blank" href="../LNPCB/toc.htm"><span class="italic">Pro*COBOL Programmer&#39;s Guide</span></a> for information on LOBs, usage notes on LOB statements, and embedded SQL and precompiler directives &mdash; LOB DESCRIBE, ISTEMPORARY.</p>
+</li>
+<li>
+<p>C/C++ (Pro*C/C++): <a class="olink LNPCC02012" target="_blank" href="../LNPCC/pc_afemb.htm#LNPCC02012"><span class="italic">Pro*C/C++ Programmer&#39;s Guide</span></a> Appendix F, &#34;Embedded SQL Statements and Directives&#34; &mdash; LOB DESCRIBE...ISTEMPORARY</p>
+</li>
+<li>
+<p>Java (JDBC): <a class="olink JJDBC15000" target="_blank" href="../JJDBC/oralob.htm#JJDBC15000"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a><span>,</span> &#34;Working With LOBs&#34; &mdash; Creating and Populating a <code class="codeph">BLOB</code> or <code class="codeph">CLOB</code> Column.</p>
+</li>
+</ul>
+<div class="section">
+<p class="subhead2">Examples</p>
+</div>
+<!-- class="section" -->
+<p>Examples are provided in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>PL/SQL (DBMS_LOB Package): <code class="codeph">listemp.sql</code></p>
+</li>
+<li>
+<p>OCI: <code class="codeph">listemp.c</code></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45821"></a>
+<div class="props_rev_3"><a id="GUID-C5615FAF-BBCA-4F81-ADC6-097D701B141B"></a>
+<h3 id="ADLOB-GUID-C5615FAF-BBCA-4F81-ADC6-097D701B141B" class="sect3">Java (JDBC): Determining Whether a BLOB Is Temporary</h3>
+<div>
+<div class="section">
+<p>To see if a <code class="codeph">BLOB</code> is temporary, the JDBC application can either use the <code class="codeph">isTemporary</code> instance method to determine whether the current <code class="codeph">BLOB</code> object is temporary, or pass the <code class="codeph">BLOB</code> object to the static <code class="codeph">isTemporary</code> method to determine whether the specified <code class="codeph">BLOB</code> object is temporary. These two methods are defined in<code class="codeph">listempb.java</code>.</p>
+<p>This JDBC API replaces previous work-arounds that use <code class="codeph">DBMS_LOB.isTemporary().</code></p>
+<p>To determine whether a <code class="codeph">CLOB</code> is temporary, the JDBC application can either use the <code class="codeph">isTemporary</code> instance method to determine whether the current <code class="codeph">CLOB</code> object is temporary, or pass the <code class="codeph">CLOB</code> object to the static <code class="codeph">isTemporary</code> method. These two methods are defined in <code class="codeph">listempc.java</code>.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADLOB45822"></a>
+<div class="props_rev_3"><a id="GUID-032C4593-7EAA-4B60-9B49-0FD6197EC80A"></a>
+<h2 id="ADLOB-GUID-032C4593-7EAA-4B60-9B49-0FD6197EC80A" class="sect2">Converting a BLOB to a CLOB</h2>
+<div>
+<p>You can convert a <code class="codeph">BLOB</code> instance to a <code class="codeph">CLOB</code> using the PL/SQL procedure <code class="codeph">DBMS_LOB.CONVERTTOCLOB</code>.</p>
+<div class="section">
+<p>This technique is convenient if you have character data stored in binary format that you want to store in a <code class="codeph">CLOB</code>. You specify the character set of the binary data when calling this procedure. See <a class="olink ARPLS602" target="_blank" href="../ARPLS/d_lob.htm#ARPLS602"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for details on syntax and usage of this procedure.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45823"></a>
+<div class="props_rev_3"><a id="GUID-DC046D03-AFB3-4B8C-A163-ED49C18A48CC"></a>
+<h2 id="ADLOB-GUID-DC046D03-AFB3-4B8C-A163-ED49C18A48CC" class="sect2">Converting a CLOB to a BLOB</h2>
+<div>
+<div class="section">
+<p>You can convert a <code class="codeph">CLOB</code> instance to a <code class="codeph">BLOB</code> instance using the PL/SQL procedure <code class="codeph">DBMS_LOB.CONVERTTOBLOB</code>. This technique is a convenient way to convert character data to binary data using LOB APIs. See <a class="olink ARPLS603" target="_blank" href="../ARPLS/d_lob.htm#ARPLS603"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for details on syntax and usage of this procedure.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45824"></a>
+<div class="props_rev_3"><a id="GUID-06CC03E6-4DD2-4326-82E2-3CABC9A37941"></a>
+<h2 id="ADLOB-GUID-06CC03E6-4DD2-4326-82E2-3CABC9A37941" class="sect2">Ensuring Read Consistency</h2>
+<div>
+<div class="section">
+<p>This script can be used to ensure that hot backups can be taken of tables that have <code class="codeph">NOLOGGING</code> or <code class="codeph">FILESYSTEM_LIKE_LOGGING</code> LOBs and have a known recovery point with no read inconsistencies:</p>
+<pre dir="ltr">ALTER DATABASE FORCE LOGGING;
+SELECT CHECKPOINT_CHANGE# FROM V$DATABASE;  --Start SCN
+</pre>
+<pre dir="ltr"></pre>
+<p>SCN (System Change Number) is a stamp that defines a version of the database at the time that a transaction is committed.</p>
+<p>Perform the backup.</p>
+<p>Run the next script:</p>
+<pre dir="ltr">ALTER SYSTEM CHECKPOINT GLOBAL;
+SELECT CHECKPOINT_CHANGE# FROM V$DATABASE;  --End SCN
+ALTER DATABASE NO FORCE LOGGING;
+</pre>
+<p>Back up the archive logs generated by the database. At the minimum, archive logs between start SCN and end SCN (including both SCN points) must be backed up.</p>
+<p>To restore to a point with no read inconsistency, restore to end SCN as your incomplete recovery point. If recovery is done to an SCN after end SCN, there can be read inconsistency in the <code class="codeph">NOLOGGING</code> LOBs.</p>
+<p>For SecureFiles, if a read inconsistency is found during media recovery, the database treats the inconsistent blocks as holes and fills <code class="codeph">BLOB</code>s with <code class="codeph">0</code>&#39;s and <code class="codeph">CLOB</code>s with fill characters.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2782">
+<tr>
+<td class="cellalignment2794">
+<table class="cellalignment2787">
+<tr>
+<td class="cellalignment2786"><a href="adlob_bfile_ops.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2786"><a href="adlob_demo.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2015, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2796">
+<table class="cellalignment2785">
+<tr>
+<td class="cellalignment2786"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2786"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2786"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2786"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2786"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2786"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

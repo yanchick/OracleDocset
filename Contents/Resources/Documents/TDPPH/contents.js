@@ -1,0 +1,16 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Introducing PHP with Oracle Database", anchor: "TDPPH109", file: "ch_one.htm" },
+  { topic: "chapter", section: "2", title: "Getting Started", anchor: "TDPPH114", file: "ch_two.htm" },
+  { topic: "chapter", section: "3", title: "Building a Database Access Class", anchor: "TDPPH147", file: "ch_three_db_access_class.htm" },
+  { topic: "chapter", section: "4", title: "Building the AnyCo Application", anchor: "TDPPH153", file: "ch_four_anyco_app.htm" },
+  { topic: "chapter", section: "5", title: "Paging Through Employee Data", anchor: "TDPPH159", file: "ch_five_emp_data.htm" },
+  { topic: "chapter", section: "6", title: "Showing Equipment Records by Using a REF CURSOR", anchor: "TDPPH160", file: "ch_six_ref_cur.htm" },
+  { topic: "chapter", section: "7", title: "Error handling", anchor: "TDPPH165", file: "ch_seven_error.htm" },
+  { topic: "chapter", section: "8", title: "Query Performance and Prefetching", anchor: "TDPPH168", file: "ch_eight_query.htm" },
+  { topic: "chapter", section: "9", title: "Inserting Data", anchor: "TDPPH173", file: "ch_nine_insert.htm" },
+  { topic: "chapter", section: "10", title: "Inserting Multiple Data Values", anchor: "TDPPH177", file: "ch_ten_insert_multiple.htm" },
+  { topic: "chapter", section: "11", title: "Using JSON and generating a JPEG image", anchor: "TDPPH180", file: "ch_eleven_image.htm" },
+  { topic: "chapter", section: "12", title: "Uploading and Displaying BLOBs", anchor: "TDPPH183", file: "ch_twelve_blobs.htm" },
+  { topic: "chapter", section: "13", title: "Monitoring Database Usage of the Application", anchor: "TDPPH188", file: "ch_thirteen_monitor.htm" },
+  { topic: "chapter", section: "14", title: "Building Global Applications", anchor: "TDPPH193", file: "ch_fourteen_global.htm" },
+  { } ];

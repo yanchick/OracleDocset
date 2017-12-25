@@ -1,0 +1,17 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: " Initialization Parameters", anchor: "REFRN-GUID-FD266F6F-D047-4EBB-8D96-B51B1DCA2D61", file: "GUID-FD266F6F-D047-4EBB-8D96-B51B1DCA2D61.htm" },
+  { topic: "chapter", section: "2", title: " Static Data Dictionary Views: ALL_ALL_TABLES to ALL_OUTLINES", anchor: "REFRN-GUID-41B62782-83FA-4066-8C56-0D0B66CC0EC7", file: "GUID-41B62782-83FA-4066-8C56-0D0B66CC0EC7.htm" },
+  { topic: "chapter", section: "3", title: " Static Data Dictionary Views: ALL_PART_COL_STATISTICS to DATABASE_PROPERTIES", anchor: "REFRN-GUID-88C6BCB4-5D86-47A3-AD27-F7AA7EDD9FDC", file: "GUID-88C6BCB4-5D86-47A3-AD27-F7AA7EDD9FDC.htm" },
+  { topic: "chapter", section: "4", title: " Static Data Dictionary Views: DBA_2PC_NEIGHBORS to DBA_HIST_JAVA_POOL_ADVICE", anchor: "REFRN-GUID-085A6CC5-3EF3-40BF-89D4-9C49B0097B2D", file: "GUID-085A6CC5-3EF3-40BF-89D4-9C49B0097B2D.htm" },
+  { topic: "chapter", section: "5", title: " Static Data Dictionary Views: DBA_HIST_LATCH to DBA_STORED_SETTINGS", anchor: "REFRN-GUID-2E7FFA31-6241-474E-BA88-5EB5B8F69245", file: "GUID-2E7FFA31-6241-474E-BA88-5EB5B8F69245.htm" },
+  { topic: "chapter", section: "6", title: " Static Data Dictionary Views: DBA_STREAMS_ADD_COLUMN to USER_ZONEMAPS", anchor: "REFRN-GUID-22FAAA6B-2181-47AE-8A10-6CF968B52CA4", file: "GUID-22FAAA6B-2181-47AE-8A10-6CF968B52CA4.htm" },
+  { topic: "chapter", section: "7", title: " Dynamic Performance (V$) Views: V$ACCESS to V$HVMASTER_INFO", anchor: "REFRN-GUID-A634ED26-2334-40F5-A016-22973F54BEDA", file: "GUID-A634ED26-2334-40F5-A016-22973F54BEDA.htm" },
+  { topic: "chapter", section: "8", title: " Dynamic Performance (V$) Views: V$IM_COLUMN_LEVEL to V$RULE_SET_AGGREGATE_STATS", anchor: "REFRN-GUID-B200B2D6-08D4-49B0-9FD9-8AF6AED37202", file: "GUID-B200B2D6-08D4-49B0-9FD9-8AF6AED37202.htm" },
+  { topic: "chapter", section: "9", title: " Dynamic Performance (V$) Views: V$SCHEDULER_RUNNING_JOBS to V$XSTREAM_TRANSACTION", anchor: "REFRN-GUID-35400A54-B329-4C50-96AB-830152437737", file: "GUID-35400A54-B329-4C50-96AB-830152437737.htm" },
+  { topic: "appendix", section: "A", title: " Database Limits", anchor: "REFRN004", file: "GUID-ED26F826-DB40-433F-9C2C-8C63A46A3BFE.htm" },
+  { topic: "appendix", section: "B", title: " SQL Scripts", anchor: "REFRN005", file: "GUID-C308549C-A3DC-4CF2-9433-90650AD0F6DB.htm" },
+  { topic: "appendix", section: "C", title: " Oracle Wait Events", anchor: "REFRN101", file: "GUID-03BFEEFB-1020-4F3F-8CF8-A23E7026684B.htm" },
+  { topic: "appendix", section: "D", title: " Oracle Enqueue Names", anchor: "REFRN102", file: "GUID-94B7C247-F152-43EB-9482-35B35EDBA934.htm" },
+  { topic: "appendix", section: "E", title: " Statistics Descriptions", anchor: "REFRN103", file: "GUID-2A9F2E5B-992E-43D1-8377-F4080824129C.htm" },
+  { topic: "appendix", section: "F", title: "Background Processes", anchor: "REFRN104", file: "GUID-86184690-5531-405F-AA05-BB935F57B76D.htm" },
+  { } ];

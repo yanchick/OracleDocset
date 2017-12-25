@@ -1,0 +1,18 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "TimesTen Application-Tier Database Cache Concepts", anchor: "TTCAC117", file: "concepts.htm" },
+  { topic: "chapter", section: "2", title: "Getting Started", anchor: "TTCAC131", file: "gettingstarted.htm" },
+  { topic: "chapter", section: "3", title: "Setting Up a Caching Infrastructure", anchor: "TTCAC167", file: "prereqs.htm" },
+  { topic: "chapter", section: "4", title: "Defining Cache Groups", anchor: "TTCAC203", file: "define.htm" },
+  { topic: "chapter", section: "5", title: "Cache Group Operations", anchor: "TTCAC266", file: "operations.htm" },
+  { topic: "chapter", section: "6", title: "Creating Other Cache Grid Members", anchor: "TTCAC295", file: "gridmembers.htm" },
+  { topic: "chapter", section: "7", title: "Managing a Caching Environment", anchor: "TTCAC303", file: "manage.htm" },
+  { topic: "chapter", section: "8", title: "Cache Performance", anchor: "TTCAC410", file: "perform.htm" },
+  { topic: "chapter", section: "9", title: "Cleaning up the Caching Environment", anchor: "TTCAC328", file: "cleanup.htm" },
+  { topic: "chapter", section: "10", title: "Using the Cache Advisor", anchor: "TTCAC502", file: "caintro.htm" },
+  { topic: "chapter", section: "11", title: "Using TimesTen Application-Tier Database Cache in an Oracle RAC Environment", anchor: "TTCAC336", file: "rac.htm" },
+  { topic: "chapter", section: "12", title: "Using TimesTen Application-Tier Database Cache with Data Guard", anchor: "TTCAC341", file: "dataguard.htm" },
+  { topic: "appendix", section: "A", title: "Procedure and Privileges for Caching Oracle Database Data in TimesTen", anchor: "TTCAC542", file: "summary.htm" },
+  { topic: "appendix", section: "B", title: "SQL*Plus Scripts for TimesTen Application-Tier Database Cache", anchor: "TTCAC365", file: "oraclescripts.htm" },
+  { topic: "appendix", section: "C", title: "Compatibility Between TimesTen and Oracle Databases", anchor: "TTCAC346", file: "oracle_tt.htm" },
+  { topic: "glossary", section: "", title: "Glossary", anchor: "TTCAC367", file: "glossary.htm" },
+  { } ];

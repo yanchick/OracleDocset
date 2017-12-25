@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114288"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Full%20Partition-Wise%20Joins"></a><title>Full Partition-Wise Joins</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-6D8AC65A-04D7-40F8-B7F9-A7F094D3ACCB.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-956E0532-BD25-44C6-B986-9D345BBAF663.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-5279BF41-41BF-4F87-A64E-2AA58C22BD61"></a> <span id="PAGE" style="display:none;">317/481</span> <!-- End Header --><a id="VLDBG1348"></a>
+<h1 id="VLDBG-GUID-5279BF41-41BF-4F87-A64E-2AA58C22BD61" class="sect1">Full Partition-Wise Joins</h1>
+<div>
+<p><a id="d53104e61" class="indexterm-anchor"></a><a id="d53104e65" class="indexterm-anchor"></a><a id="d53104e67" class="indexterm-anchor"></a>Full partition-wise joins can occur if two tables that are co-partitioned on the same key are joined in a query. The tables can be co-partitioned at the partition level, or at the subpartition level, or at a combination of partition and subpartition levels. Reference partitioning is an easy way to guarantee co-partitioning. Full partition-wise joins can be executed serially and in parallel.</p>
+<p>For more information about partition-wise joins, refer to <a href="GUID-FA29787B-8700-49EA-B80D-54D667CF2752.htm">Partitioning for Availability_ Manageability_ and Performance</a>.</p>
+<p>The following example shows a full partition-wise join on the <code>orders</code> and <code>order_items</code> tables, in which the <code>order_items</code> table is reference-partitioned.</p>
+<pre dir="ltr">CREATE TABLE orders
+( order_id     NUMBER(12) NOT NULL
+, order_date   DATE NOT NULL
+, order_mode   VARCHAR2(8)
+, order_status VARCHAR2(1)
+, CONSTRAINT orders_pk PRIMARY KEY (order_id)
+)
+PARTITION BY RANGE (order_date)
+( PARTITION p_before_jan_2006 VALUES LESS THAN (TO_DATE(&#39;01-JAN-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_jan VALUES LESS THAN (TO_DATE(&#39;01-FEB-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_feb VALUES LESS THAN (TO_DATE(&#39;01-MAR-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_mar VALUES LESS THAN (TO_DATE(&#39;01-APR-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_apr VALUES LESS THAN (TO_DATE(&#39;01-MAY-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_may VALUES LESS THAN (TO_DATE(&#39;01-JUN-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_jun VALUES LESS THAN (TO_DATE(&#39;01-JUL-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_jul VALUES LESS THAN (TO_DATE(&#39;01-AUG-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_aug VALUES LESS THAN (TO_DATE(&#39;01-SEP-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_sep VALUES LESS THAN (TO_DATE(&#39;01-OCT-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_oct VALUES LESS THAN (TO_DATE(&#39;01-NOV-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_nov VALUES LESS THAN (TO_DATE(&#39;01-DEC-2006&#39;,&#39;dd-MON-yyyy&#39;))
+, PARTITION p_2006_dec VALUES LESS THAN (TO_DATE(&#39;01-JAN-2007&#39;,&#39;dd-MON-yyyy&#39;))
+)
+PARALLEL;
+
+CREATE TABLE order_items
+( order_id NUMBER(12) NOT NULL
+, product_id NUMBER NOT NULL
+, quantity NUMBER NOT NULL
+, sales_amount NUMBER NOT NULL
+, CONSTRAINT order_items_orders_fk FOREIGN KEY (order_id) REFERENCES 
+orders(order_id)
+)
+PARTITION BY REFERENCE (order_items_orders_fk)
+PARALLEL;
+</pre>
+<p>A typical data warehouse query would scan a large amount of data. In the underlying execution plan, the columns <code>Rows</code>, <code>Bytes</code>, <code>Cost (%CPU)</code>, <code>Time</code>, and <code>TQ</code> have been removed.</p>
+<pre dir="ltr">EXPLAIN PLAN FOR
+SELECT o.order_date
+, sum(oi.sales_amount) sum_sales
+FROM orders o
+, order_items oi
+WHERE o.order_id = oi.order_id
+AND o.order_date BETWEEN TO_DATE(&#39;01-FEB-2006&#39;,&#39;DD-MON-YYYY&#39;)
+                     AND TO_DATE(&#39;31-MAY-2006&#39;,&#39;DD-MON-YYYY&#39;)
+GROUP BY o.order_id
+, o.order_date
+ORDER BY o.order_date;
+
+---------------------------------------------------------------------------------------------
+| Id  | Operation                         | Name        | Pstart| Pstop |IN-OUT| PQ Distrib |
+---------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                  |             |       |       |      |            |
+|   1 |  PX COORDINATOR                   |             |       |       |      |            |
+|   2 |   PX SEND QC (ORDER)              | :TQ10001    |       |       | P-&gt;S | QC (ORDER) |
+|   3 |    SORT GROUP BY                  |             |       |       | PCWP |            |
+|   4 |     PX RECEIVE                    |             |       |       | PCWP |            |
+|   5 |      PX SEND RANGE                | :TQ10000    |       |       | P-&gt;P | RANGE      |
+|   6 |       SORT GROUP BY               |             |       |       | PCWP |            |
+|   7 |        PX PARTITION RANGE ITERATOR|             |     3 |     6 | PCWC |            |
+|*  8 |         HASH JOIN                 |             |       |       | PCWP |            |
+|*  9 |          TABLE ACCESS FULL        | ORDERS      |     3 |     6 | PCWP |            |
+|  10 |          TABLE ACCESS FULL        | ORDER_ITEMS |     3 |     6 | PCWP |            |
+---------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   8 - access(&#34;O&#34;.&#34;ORDER_ID&#34;=&#34;OI&#34;.&#34;ORDER_ID&#34;)
+   9 - filter(&#34;O&#34;.&#34;ORDER_DATE&#34;&lt;=TO_DATE(&#39; 2006-05-31 00:00:00&#39;, &#39;syyyy-mm-dd hh24:mi:ss&#39;))
+</pre></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-6D8AC65A-04D7-40F8-B7F9-A7F094D3ACCB.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-956E0532-BD25-44C6-B986-9D345BBAF663.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

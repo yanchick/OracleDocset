@@ -1,0 +1,18 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Overview of TimesTen Replication", anchor: "TTREP115", file: "overview.htm" },
+  { topic: "chapter", section: "2", title: "Getting Started", anchor: "TTREP153", file: "gettingstarted.htm" },
+  { topic: "chapter", section: "3", title: "Defining an Active Standby Pair Replication Scheme", anchor: "TTREP177", file: "definepair.htm" },
+  { topic: "chapter", section: "4", title: "Defining Attributes and Options for a Replication Scheme", anchor: "TTREP817", file: "attrib.htm" },
+  { topic: "chapter", section: "5", title: "Administering an Active Standby Pair without Cache Groups", anchor: "TTREP210", file: "standby.htm" },
+  { topic: "chapter", section: "6", title: "Administering an Active Standby Pair with Cache Groups", anchor: "TTREP231", file: "standbycache.htm" },
+  { topic: "chapter", section: "7", title: "Altering an Active Standby Pair", anchor: "TTREP680", file: "alterpair.htm" },
+  { topic: "chapter", section: "8", title: "Using Oracle Clusterware to Manage Active Standby Pairs", anchor: "TTREP257", file: "cluster.htm" },
+  { topic: "chapter", section: "9", title: "Defining Classic Replication Schemes", anchor: "TTREP306", file: "design.htm" },
+  { topic: "chapter", section: "10", title: "Altering a Classic Replication Scheme", anchor: "TTREP481", file: "alter.htm" },
+  { topic: "chapter", section: "11", title: "Setting Up a Replicated System", anchor: "TTREP400", file: "setup.htm" },
+  { topic: "chapter", section: "12", title: "Monitoring Replication", anchor: "TTREP440", file: "monitor.htm" },
+  { topic: "chapter", section: "13", title: "Resolving Replication Conflicts", anchor: "TTREP519", file: "conflict.htm" },
+  { topic: "chapter", section: "14", title: "Improving Replication Performance", anchor: "TTREP673", file: "perform.htm" },
+  { topic: "chapter", section: "15", title: "Managing Database Failover and Recovery", anchor: "TTREP651", file: "failure.htm" },
+  { topic: "appendix", section: "A", title: "TimesTen Configuration Attributes for Oracle Clusterware", anchor: "TTREP576", file: "clusterattributes.htm" },
+  { } ];

@@ -1,0 +1,952 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-114058"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Administering%20an%20Active%20Standby%20Pair%20with%20Cache%20Groups"></a><title>Administering an Active Standby Pair with Cache Groups</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 726"/>
+<meta name="dcterms.created" content="2014-09-29T11:11:55Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen In-Memory Database Replication Guide"/>
+<meta name="dcterms.identifier" content="E21635-11"/>
+<meta name="dcterms.isVersionOf" content="TTREP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="standby.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="alterpair.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21635-11.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">10/21</span> <!-- End Header -->
+<div id="TTREP231" class="chapter"><a id="BABHBJDG"></a>
+<h1 class="chapter"><span class="secnum">6</span> Administering an Active Standby Pair with Cache Groups</h1>
+<p>You can replicate tables within either a read-only cache group or an asynchronous writethrough (AWT) cache group as long as they are configured within an active standby pair.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For information about managing failover and recovery automatically, see <a href="cluster.htm#CCHCFAAD">Chapter 8, &#34;Using Oracle Clusterware to Manage Active Standby Pairs&#34;</a>.</div>
+<p>The following sections describe how to administer an active standby pair that replicates cache groups:</p>
+<ul>
+<li>
+<p><a href="#BABHDJFH">Active standby pairs with cache groups</a></p>
+</li>
+<li>
+<p><a href="#BABFGFBH">Setting up an active standby pair with a read-only cache group</a></p>
+</li>
+<li>
+<p><a href="#BABHABAJ">Setting up an active standby pair with an AWT cache group</a></p>
+</li>
+<li>
+<p><a href="#BABHHHHH">Changing user names or passwords used by replication</a></p>
+</li>
+<li>
+<p><a href="#BABICGCE">Recovering from a failure of the active database</a></p>
+</li>
+<li>
+<p><a href="#BABJCHFH">Recovering from a failure of the standby database</a></p>
+</li>
+<li>
+<p><a href="#BABIHJJH">Recovering after a dual failure of both active and standby databases</a></p>
+</li>
+<li>
+<p><a href="#BABJEADE">Recovering from the failure of a subscriber database</a></p>
+</li>
+<li>
+<p><a href="#BABBBBDD">Reversing the roles of the active and standby databases</a></p>
+</li>
+<li>
+<p><a href="#BABBBGIG">Detecting dual active databases</a></p>
+</li>
+<li>
+<p><a href="#CBAJDJBD">Using a disaster recovery subscriber in an active standby pair</a></p>
+</li>
+</ul>
+<a id="BABHDJFH"></a>
+<div id="TTREP232" class="sect1">
+<h2 class="sect1">Active standby pairs with cache groups</h2>
+<p>An active standby pair that replicates a read-only cache group or an asynchronous writethrough (AWT) cache group can change the role of the cache group automatically as part of failover and recovery. This helps ensure high availability of cache instances with minimal data loss. See <a href="overview.htm#CACJJCGG">&#34;Replicating an AWT cache group&#34;</a> and <a href="overview.htm#CACGFDAI">&#34;Replicating a read-only cache group&#34;</a>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+TimesTen<a id="sthref314"></a> does not support replication of a user managed cache group or a synchronous writethrough (SWT) cache group in an active standby pair.</div>
+<p>You can also create a special disaster recovery read-only subscriber when you set up active standby replication of an AWT cache group. This special subscriber, located at a remote disaster recovery site, can propagate updates to a second Oracle database, also located at the disaster recovery site. See <a href="#CBAJDJBD">&#34;Using a disaster recovery subscriber in an active standby pair&#34;</a>.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABFGFBH"></a>
+<div id="TTREP574" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Setting up an active standby pair with a read-only cache group<a id="sthref315"></a><a id="sthref316"></a></h2>
+<p>This section describes how to set up an active standby pair that replicates cache tables in a read-only cache group. The active standby pair used as an example in this section is not a cache grid member.</p>
+<p>Before you create a database, see the information in these sections:</p>
+<ul>
+<li>
+<p><a href="attrib.htm#CEGDGAAD">&#34;Configuring the network&#34;</a></p>
+</li>
+<li>
+<p><a href="setup.htm#CHDGICJC">&#34;Connection attributes for replicated databases&#34;</a></p>
+</li>
+<li>
+<p><a href="setup.htm#CEGHFHJH">&#34;Managing the transaction log on a replicated database&#34;</a></p>
+</li>
+</ul>
+<p>To set up an active standby pair that replicates a local read-only cache group, complete the following tasks:</p>
+<ol>
+<li>
+<p>Create a cache administration user in the Oracle database. See <a class="olink TTCAC133" href="../TTCAC/gettingstarted.htm#TTCAC133">&#34;Create users in the Oracle database&#34;</a> in <span class="italic">Oracle TimesTen Application-Tier Database Cache User&#39;s Guide</span>.</p>
+</li>
+<li>
+<p>Create a database. See <a class="olink TTCAC134" href="../TTCAC/gettingstarted.htm#TTCAC134">&#34;Create a DSN for the TimesTen database&#34;</a> in <span class="italic">Oracle TimesTen Application-Tier Database Cache User&#39;s Guide</span>.</p>
+</li>
+<li>
+<p>Set the cache administration user ID and password by calling the <code>ttCacheUidPwdSet</code> built-in procedure. See <a class="olink TTCAC136" href="../TTCAC/gettingstarted.htm#TTCAC136">&#34;Set the cache administration user name and password in the TimesTen database&#34;</a> in <span class="italic">Oracle TimesTen Application-Tier Database Cache User&#39;s Guide</span>. For example:</p>
+<pre>Command&gt; call ttCacheUidPwdSet(&#39;orauser&#39;,&#39;orapwd&#39;);
+</pre></li>
+<li>
+<p>Start the cache agent on the database. Use the <code>ttCacheStart</code> built-in procedure or the <code>ttAdmin -cachestart</code> utility.</p>
+<pre>Command&gt; call ttCacheStart;
+</pre></li>
+<li>
+<p>Use the <code>CREATE CACHE GROUP</code> statement to create the read-only cache group. For example:</p>
+<pre>Command&gt; CREATE READONLY CACHE GROUP readcache
+       &gt; AUTOREFRESH INTERVAL 5 SECONDS
+       &gt; FROM oratt.readtab
+       &gt; (keyval NUMBER NOT NULL PRIMARY KEY, str VARCHAR2(32));
+</pre></li>
+<li>
+<p>Ensure that the autorefresh state is set to <code>PAUSED</code>. The autorefresh state is <code>PAUSED</code> by default after cache group creation. You can verify the autorefresh state by executing the <code>ttIsql</code> <code>cachegroups</code> command:</p>
+<pre>Command&gt; cachegroups;
+</pre></li>
+<li>
+<p>Create the replication scheme using the<a id="sthref317"></a> <code>CREATE ACTIVE STANDBY PAIR</code> statement.</p>
+<p>For example, suppose <code>master1</code> and <code>master2</code> are defined as the master databases. <code>sub1</code> and <code>sub2</code> are defined as the subscriber databases. The databases reside on <code>node1</code>, <code>node2</code>, <code>node3</code>, and <code>node4</code>. The return service is <code>RETURN RECEIPT</code>. The replication scheme can be specified as follows:</p>
+<pre>Command&gt; CREATE ACTIVE STANDBY PAIR master1 ON &#34;node1&#34;, master2 ON &#34;node2&#34;
+       &gt; RETURN RECEIPT
+       &gt; SUBSCRIBER sub1 ON &#34;node3&#34;, sub2 ON &#34;node4&#34;
+       &gt; STORE master1 ON &#34;node1&#34; PORT 21000 TIMEOUT 30
+       &gt; STORE master2 ON &#34;node2&#34; PORT 20000 TIMEOUT 30;
+</pre></li>
+<li>
+<p>Set the replication state to <code>ACTIVE</code> by calling the <code>ttRepStateSet</code> built-in procedure on the active database (<code>master1</code>). For example:</p>
+<pre>Command&gt; call ttRepStateSet(&#39;ACTIVE&#39;);
+</pre></li>
+<li>
+<p>Set up the replication agent policy for <code>master1</code> and start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Load the cache group by using the <code>LOAD CACHE GROUP</code> statement. This starts the autorefresh process. For example:</p>
+<pre>Command&gt; LOAD CACHE GROUP readcache COMMIT EVERY 256 ROWS;
+</pre></li>
+<li>
+<p>As the instance administrator, duplicate the active database (<code>master1</code>) to the standby database (<code>master2</code>). Use the <code>ttRepAdmin</code> <code>-duplicate</code> utility with the <code>-keepCG</code> option to preserve the cache group. Alternatively, you can use the <code>ttRepDuplicateEx</code> C function to duplicate the database. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>. <code>ttRepAdmin</code> prompts for the values of <code>-uid</code>, <code>-pwd</code>, <code>-cacheuid</code> and <code>-cachepwd</code>.</p>
+<pre>ttRepAdmin -duplicate -from master1 -host node1 -keepCG 
+ -connStr &#34;DSN=master2;UID=;PWD=&#34;
+</pre></li>
+<li>
+<p>Set up the replication agent policy on <code>master2</code> and start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>The standby database enters the <code>STANDBY</code> state automatically. Wait for <code>master2</code> to enter the <code>STANDBY</code> state. Call the <code>ttRepStateGet</code> built-in procedure to check the state of <code>master2</code>. For example:</p>
+<pre>Command&gt; call ttRepStateGet;
+</pre></li>
+<li>
+<p>Start the cache agent for <code>master2</code> using the <code>ttCacheStart</code> built-in procedure or the <code>ttAdmin -cacheStart</code> utility. For example:</p>
+<pre>Command&gt; call ttCacheStart;
+</pre></li>
+<li>
+<p>As the instance administrator, duplicate the subscribers (<code>sub1</code> and <code>sub2</code>) from the standby database (<code>master2</code>). Use the <code>-noKeepCG</code> command line option with <code>ttRepAdmin -duplicate</code> to convert the cache tables to normal TimesTen tables on the subscribers. <code>ttRepAdmin</code> prompts for the values of <code>-uid</code> and <code>-pwd</code>. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>. For example:</p>
+<pre>ttRepAdmin -duplicate -from master2 -host node2 -nokeepCG
+ -connStr &#34;DSN=sub1;UID=;PWD=&#34;
+</pre></li>
+<li>
+<p>Set up the replication agent policy on the subscribers and start the replication agent on each of the subscriber databases. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect1" -->
+<a id="BABHABAJ"></a>
+<div id="TTREP575" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Setting up an active standby pair with an AWT cache group<a id="sthref318"></a><a id="sthref319"></a><a id="sthref320"></a><a id="sthref321"></a></h2>
+<p>For detailed instructions for setting up an active standby pair with a global AWT cache group, see <a class="olink TTCAC297" href="../TTCAC/gridmembers.htm#TTCAC297">&#34;Replicating cache tables&#34;</a> in <span class="italic">Oracle TimesTen Application-Tier Database Cache User&#39;s Guide</span>. The active standby pair in that section is a cache grid member.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABHHHHH"></a>
+<div id="TTREP822" class="sect1">
+<h2 class="sect1">Changing user names or passwords used by replication<a id="sthref322"></a><a id="sthref323"></a></h2>
+<p>In the active standby pair, you can modify either the TimesTen user name or password or (if there are cache groups in the active standby pair) the user names and passwords for the TimesTen cache manager user, its companion Oracle user, or the cache administration user.</p>
+<p>When the <code>DDLReplicationLevel</code> connection attribute is 2 or larger, changes to the user names or passwords executed on the active master are automatically replicated to the standby master and any subscribers. When the <code>DDLReplicationLevel</code> connection attribute is 1, changes to the user names or passwords executed on the active master are not automatically replicated to the standby master and any subscribers. In this case, you must manually execute each SQL statement on the active master, standby master, and any subscribers.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information on what DDL statements are automatically replicated for the different values of the <code>DDLReplicationLevel</code> connection attribute, see <a href="alterpair.htm#BABCAHEB">&#34;Making DDL changes in an active standby pair&#34;</a>.</div>
+<p>Perform the following to change any of the user names or passwords for the TimesTen user or, if there are cache groups in the active standby pair, for the TimesTen cache manager user, its companion Oracle user, or the cache administration user:</p>
+<ol>
+<li>
+<p>If you want to modify a password of a TimesTen user, use the <code>ALTER USER</code> statement on the active master database. If you want to change the TimesTen user name, you must first drop all objects that the TimesTen user owns before dropping the user name and creating a new user.</p>
+<p>To modify the password of the <code>oratt</code> user:</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+See <a class="olink TTOPR239" href="../TTOPR/accesscontrol.htm#TTOPR239">&#34;Creating or identifying users to the database&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Operations Guide</span>.</div>
+<pre>Command&gt; ALTER USER oratt IDENTIFIED BY newpwd;
+</pre></li>
+<li>
+<p>If you want to modify any of the user names or passwords used for cache operations (such as the cache administration user, the cache manager user or its companion Oracle user), perform the instructions provided in <a class="olink TTCAC545" href="../TTCAC/manage.htm#TTCAC545">&#34;Changing cache user names or passwords&#34;</a> in the <span class="italic">Oracle TimesTen Application-Tier Database Cache User&#39;s Guide</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect1" -->
+<a id="BABICGCE"></a>
+<div id="TTREP233" class="sect1">
+<h2 class="sect1">Recovering from a failure of the <a id="sthref324"></a>active database</h2>
+<p>If the active master has failed and the standby database did not fail or has recovered after a failure, then the following sections describe how to recover the active standby pair by making the standby master the new active master. In addition, you can then swap the active and standby masters again so that they exist on the original nodes.</p>
+<ul>
+<li>
+<p><a href="#BABJDJID">Recovering when the standby database is ready</a></p>
+</li>
+<li>
+<p><a href="#BABJECEJ">Failing back to the original nodes</a></p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If both the active and standby masters fail, see <a href="#BABIHJJH">&#34;Recovering after a dual failure of both active and standby databases&#34;</a> for instructions on how to recover.</div>
+<a id="BABJDJID"></a>
+<div id="TTREP234" class="sect2">
+<h3 class="sect2">Recovering when the standby database is ready</h3>
+<p>The first two sections describe how to recover the active database when the standby database is available and synchronized with the active database. The last section describes what to do if following the instructions from either of the first two sections fails; the standby database is available, but the data is not fully synchronized.</p>
+<ul>
+<li>
+<p><a href="#BABBGCDC">When replication is return receipt or asynchronous</a></p>
+</li>
+<li>
+<p><a href="#BABGBCEE">When replication is return twosafe</a></p>
+</li>
+<li>
+<p><a href="#BABCIIJD">When there is unsynchronized data in the cache groups</a></p>
+</li>
+</ul>
+<a id="BABBGCDC"></a>
+<div id="TTREP235" class="sect3">
+<h4 class="sect3">When replication is return receipt or asynchronous</h4>
+<p>Complete the following tasks:</p>
+<ol>
+<li>
+<p>On the standby database, stop the replication agent if it has not already been stopped.</p>
+</li>
+<li>
+<p>On the standby database, call <code>ttRepStateSet</code><code>(&#39;ACTIVE&#39;)</code>. This changes the role of the database from <code>STANDBY</code> to <code>ACTIVE</code>. If you are replicating a read-only cache group, this action automatically causes the autorefresh state to change from <code>PAUSED</code> to <code>ON</code> for this database.</p>
+</li>
+<li>
+<p>On the new active database, call <code>ttRepStateSave</code><code>(&#39;FAILED&#39;, &#39;</code><code><span class="codeinlineitalic">failed_database</span></code><code>&#39;,&#39;</code><code><span class="codeinlineitalic">host_name</span></code><code>&#39;)</code>, where <code><span class="codeinlineitalic">failed_database</span></code> is the former active database that failed. This step is necessary for the new active database to replicate directly to the subscriber databases. During normal operation, only the standby database replicates to the subscribers.</p>
+</li>
+<li>
+<p>On the new active database, start the replication agent and the cache agent.</p>
+</li>
+<li>
+<p>Destroy the failed database (the old active) with the <code>ttDestroy</code> utility.</p>
+</li>
+<li>
+<p>Duplicate the new active database to the new standby database. You can use either the <code>ttRepAdmin</code> <code>-duplicate</code> utility or the <code>ttRepDuplicateEx</code> C function to duplicate a database. Use the <code>-keepCG -recoveringNode</code> options with <code>ttRepAdmin</code> to recover and to preserve the cache group after the active master failure. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the new standby database and start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Start the cache agent on the new standby database.</p>
+</li>
+</ol>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If any of these steps failed, follow the directions in <a href="#BABCIIJD">&#34;When there is unsynchronized data in the cache groups&#34;</a>.</div>
+<p>The standby database contacts the active database. The active database stops sending updates to the subscribers. When the standby database is fully synchronized with the active database, then the standby database enters the <code>STANDBY</code> state and starts sending updates to the subscribers.The new standby database takes over processing of the cache group automatically when it enters the <code>STANDBY</code> state. If you are replicating an AWT cache group, the new standby database takes over processing of the cache group automatically when it enters the <code>STANDBY</code> state.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can verify that the standby database has entered the <code>STANDBY</code> state by using the <code>ttRepStateGet</code> built-in procedure.</div>
+</div>
+<!-- class="sect3" -->
+<a id="BABGBCEE"></a>
+<div id="TTREP236" class="sect3">
+<h4 class="sect3">When replication is return twosafe</h4>
+<p>Complete the following tasks:</p>
+<ol>
+<li>
+<p>Stop the replication agent on the standby database if it has not already been stopped.</p>
+</li>
+<li>
+<p>On the standby database, call <code>ttRepStateSet</code><code>(&#39;ACTIVE&#39;)</code>. This changes the role of the database from <code>STANDBY</code> to <code>ACTIVE</code>. If you are replicating a read-only cache group, this action automatically causes the autorefresh state to change from <code>PAUSED</code> to <code>ON</code> for this database.</p>
+</li>
+<li>
+<p>On the new active database, call <code>ttRepStateSave</code><code>(&#39;FAILED&#39;, &#39;</code><code><span class="codeinlineitalic">failed_database</span></code><code>&#39;,&#39;</code><code><span class="codeinlineitalic">host_name</span></code><code>&#39;)</code>, where <code><span class="codeinlineitalic">failed_database</span></code> is the former active database that failed. This step is necessary for the new active database to replicate directly to the subscriber databases. During normal operation, only the standby database replicates to the subscribers.</p>
+</li>
+<li>
+<p>On the new active database, start the replication agent and the cache agent.</p>
+</li>
+<li>
+<p>Connect to the failed database. This triggers recovery from the local transaction logs. If database recovery fails, you must continue from Step 5 of the procedure for recovering when replication is return receipt or asynchronous. See <a href="#BABBGCDC">&#34;When replication is return receipt or asynchronous&#34;</a>. If you are replicating a read-only cache group, the autorefresh state is automatically set to <code>PAUSED</code>.</p>
+</li>
+<li>
+<p>Verify that the replication agent for the failed database has restarted. If it has not restarted, then start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Verify that the cache agent for the failed database has restarted. If it has not restarted, then start the cache agent.</p>
+</li>
+</ol>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If any of these steps failed, follow the directions in <a href="#BABCIIJD">&#34;When there is unsynchronized data in the cache groups&#34;</a>.</div>
+<p>When the active database determines that it is fully synchronized with the standby database, then the standby database enters the <code>STANDBY</code> state and starts sending updates to the subscribers. The new standby database takes over processing of the cache group automatically when it enters the <code>STANDBY</code> state. If you are replicating an AWT cache group, the new standby database takes over processing of the cache group automatically when it enters the <code>STANDBY</code> state.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can verify that the standby database has entered the <code>STANDBY</code> state by using the <code>ttRepStateSet</code> built-in procedure.</div>
+</div>
+<!-- class="sect3" -->
+<a id="BABCIIJD"></a>
+<div id="TTREP833" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">When there is unsynchronized data in the cache groups</h4>
+<p>If the steps in either <a href="#BABBGCDC">&#34;When replication is return receipt or asynchronous&#34;</a> or <a href="#BABGBCEE">&#34;When replication is return twosafe&#34;</a> fail, then there could be unsynchronized data in the AWT cache groups that has not been propagated to the Oracle database. In addition, there could be unsynchronized data on the Oracle database that has not been uploaded to any read-only cache groups that are included in the active standby pair replication scheme.</p>
+<p>If there is data in any AWT cache groups on the standby master that has not been propagated when the active database failed, then simply recovering the standby database as the new active database is not an option. In this case, perform the following:</p>
+<ol>
+<li>
+<p>On the standby database, stop the replication agent and drop the replication configuration using the <code>DROP ACTIVE STANDBY PAIR</code> statement.</p>
+</li>
+<li>
+<p>Stop the cache agent to ensure that no more updates are applied to the AWT cache groups while performing this recovery operation and to ensure that you control when any read-only cache groups that were included in the replication scheme are refreshed.</p>
+</li>
+<li>
+<p>For any read-only cache groups that are included in the replication scheme, set the autorefresh state to pause with the <code>ALTER CACHE GROUP</code> ... <code>SET AUTOREFRESH STATE PAUSED</code> statement.</p>
+</li>
+<li>
+<p>On the standby database, flush any unpropagated committed inserts or updates on TimesTen cache tables for any AWT cache groups to the cached Oracle Database tables, as follows:</p>
+<ol>
+<li>
+<p>Set autocommit to off.</p>
+</li>
+<li>
+<p>Call the <code>ttCacheAllowFlushAwtSet</code> built-in procedure with the parameter set to 1. This built-in procedure allows you to execute a <code>FLUSH CACHE GROUP</code> statement against an AWT cache group and should only be used in this recovery scenario.</p>
+<pre>Command&gt; call ttCacheAllowFlushAwtSet(1);
+</pre></li>
+<li>
+<p>Execute the <code>FLUSH CACHE GROUP</code> SQL statement against each AWT cache group to ensure that all data is propagated to the Oracle database.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Executing the <code>FLUSH CACHE GROUP</code> statement under these conditions on the AWT cache group only flushes the contents of the tables in the AWT cache group; that is, the data that was either inserted or updated. It does not take into account any delete operations. So, you may have rows that exist on the Oracle database that were deleted from the AWT cache group. It is up to the user to recover any delete operations.</div>
+</li>
+<li>
+<p>Call the <code>ttCacheAllowFlushAwtSet</code> built-in procedure with the parameter set to 0 to disallow any future execution of the <code>FLUSH CACHE GROUP</code> statement on an AWT cache group.</p>
+<pre>Command&gt; call ttCacheAllowFlushAwtSet(0);
+</pre></li>
+<li>
+<p>Commit after calling the <code>ttCacheAllowFlushAwtSet</code> built-in procedure with the parameter set to 0. You can also choose to reset autocommit to on, as it only needed to be off for the <code>ttCacheAllowFlushAwtSet</code> built-in procedure.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Drop and re-create all AWT cache groups using the <code>DROP CACHE GROUP</code> and <code>CREATE CACHE GROUP</code> statements.</p>
+</li>
+<li>
+<p>Start the replication agent and the cache agent, since the cache agent needs to be active to refresh any read-only cache groups and both must be active in order to load the AWT cache groups.</p>
+</li>
+<li>
+<p>Refresh all read-only cache groups using the <code>REFRESH CACHE GROUP</code> statement to upload most current committed data from the cached Oracle database tables. Use the <code>REFRESH CACHE GROUP ... PARALLEL</code> <code><span class="codeinlineitalic">n</span></code> clause to concurrently load these cache groups over multiple threads.</p>
+</li>
+<li>
+<p>Load all AWT cache groups using the <code>LOAD CACHE GROUP</code> statement to begin the autorefresh process. Use the <code>LOAD CACHE GROUP ... PARALLEL</code> <code><span class="codeinlineitalic">n</span></code> clause to concurrently load these cache groups over multiple threads.</p>
+</li>
+<li>
+<p>Stop both the replication agent and the cache agent in preparation to re-create the active standby pair.</p>
+</li>
+<li>
+<p>Re-create the replication configuration on the standby database using the <code>CREATE ACTIVE STANDBY PAIR</code> statement.</p>
+</li>
+<li>
+<p>Set the old standby database as the new active database, destroy the failed old active database, perform a duplicate of the active to create a new standby database, and start the cache and replication agents on the standby as described in the steps listed in <a href="#BABBGCDC">&#34;When replication is return receipt or asynchronous&#34;</a>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="BABJECEJ"></a>
+<div id="TTREP240" class="sect2">
+<h3 class="sect2">Failing back to the original nodes<a id="sthref325"></a><a id="sthref326"></a></h3>
+<p>After a successful failover, you may want to fail back so that the active database and the standby database are on their original nodes. See <a href="#BABBBBDD">&#34;Reversing the roles of the active and standby databases&#34;</a> for instructions.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABJCHFH"></a>
+<div id="TTREP241" class="sect1">
+<h2 class="sect1">Recovering from a failure of the standby database<a id="sthref327"></a></h2>
+<p>To recover from a failure of the standby database, complete the following tasks:</p>
+<ol>
+<li>
+<p>If return twosafe service is enabled, the failure of the standby database may prevent a transaction in progress from being committed on the active database, resulting in error 8170, &#34;Receipt or commit acknowledgement not returned in the specified timeout interval&#34;. If so, then call the <code>ttRepSyncSet</code> built-in procedure with a <code><span class="codeinlineitalic">localAction</span></code> parameter of <code>2</code> (<code>COMMIT</code>) and commit the transaction again. For example:</p>
+<pre>Command&gt; call ttRepSyncSet( null, null, 2);
+Command&gt; commit;
+</pre></li>
+<li>
+<p>Call <code>ttRepStateSave</code><code>(&#39;FAILED&#39;,&#39;</code><code><span class="codeinlineitalic">standby_database</span></code><code>&#39;,&#39;</code><code><span class="codeinlineitalic">host_name</span></code><code>&#39;)</code> on the active database. Then, as long as the standby database is unavailable, updates to the active database are replicated directly to the subscriber databases. Additional subscriber databases may also be duplicated directly from the active.</p>
+</li>
+<li>
+<p>Recover the standby database in one of the following ways:</p>
+<ol>
+<li>
+<p>Connect to the standby database. This triggers recovery from the local transaction logs. If the standby database recovers, go to Step 4; otherwise, continue to Step 3b.</p>
+</li>
+<li>
+<p>Destroy the current version of the standby database with the <code>ttDestroy</code> utility.</p>
+</li>
+<li>
+<p>Duplicate a new standby database from the active database. You can use either the <code>ttRepAdmin</code> <code>-duplicate</code> utility or the <code>ttRepDuplicateEx</code> C function to duplicate a database. Use the <code>-keepCG -recoveringNode</code> options with <code>ttRepAdmin</code> to recover and to preserve the cache group after the standby master failure. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Set up the replication agent policy and start the replication agent on the standby database. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Start the cache agent on the standby database.</p>
+</li>
+</ol>
+<p>The standby database enters the <code>STANDBY</code> state and starts sending updates to the subscribers after the active database determines that the two master databases have been synchronized and stops sending updates to the subscribers.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can verify that the standby database has entered the <code>STANDBY</code> state by using the <code>ttRepStateGet</code> built-in procedure.</div>
+</div>
+<!-- class="sect1" -->
+<a id="BABIHJJH"></a>
+<div id="TTREP237" class="sect1">
+<h2 class="sect1">Recovering after a dual failure of both active and standby databases<a id="sthref328"></a></h2>
+<p>If both the active and standby databases fail at around the same time and if you can reconnect to both of them almost immediately, then restart the replication agents (and cache agents if applicable) and continue.</p>
+<ol>
+<li>
+<p>Connect to the failed active database. This triggers recovery from the local transaction logs. If you are replicating a read-only cache group, the autorefresh state is automatically set to <code>PAUSED</code>.</p>
+</li>
+<li>
+<p>Verify that the replication agent for the failed active database has restarted. If it has not restarted, then start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Call <code>ttRepStateSet</code><code>(&#39;ACTIVE&#39;)</code> on the newly recovered database. If you are replicating a read-only cache group, this action automatically causes the autorefresh state to change from <code>PAUSED</code> to <code>ON</code> for this database.</p>
+</li>
+<li>
+<p>Verify that the cache agent for the failed database has restarted. If it has not restarted, then start the cache agent.</p>
+</li>
+<li>
+<p>Connect to the failed standby master database. This triggers recovery from the local transaction logs. If you are replicating a read-only cache group, the autorefresh state is automatically set to <code>PAUSED</code>.</p>
+</li>
+<li>
+<p>Verify that the replication agent for the failed standby database has restarted. If it has not restarted, then start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Verify that the cache agent for the failed standby database has restarted. If it has not restarted, then start the cache agent.</p>
+</li>
+</ol>
+<p>Alternatively, consider the following scenarios where both the active and standby master databases fail:</p>
+<ul>
+<li>
+<p>The standby database fails. The active database fails before the standby comes back up or before the standby has been synchronized with the active database.</p>
+</li>
+<li>
+<p>The active database fails. The standby database becomes <code>ACTIVE</code>, and the rest of the recovery process begins. (See <a href="#BABICGCE">&#34;Recovering from a failure of the active database&#34;</a>.) The new active database fails before the new standby database is fully synchronized with it.</p>
+</li>
+</ul>
+<p>In these scenarios, the subscribers may have had more changes applied than the standby database.</p>
+<p>In this case, you could potentially perform one of the following options:</p>
+<ul>
+<li>
+<p><a href="#BABBGFID">Recover the active database and duplicate a new standby database</a></p>
+</li>
+<li>
+<p><a href="#BABBAJBJ">Recover the standby database to be the new active master</a></p>
+</li>
+<li>
+<p><a href="#BABCAJAD">Restore the active master from a backup</a></p>
+</li>
+</ul>
+<a id="BABBGFID"></a>
+<div id="TTREP238" class="sect2">
+<h3 class="sect2">Recover the active database and duplicate a new standby database</h3>
+<ol>
+<li>
+<p>Connect to the failed active database. This triggers recovery from the local transaction logs. If you are replicating a read-only cache group, the autorefresh state is automatically set to <code>PAUSED</code>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If this fails, perform the steps listed in <a href="#BABCAJAD">&#34;Restore the active master from a backup.&#34;</a>.</div>
+</li>
+<li>
+<p>Verify that the replication agent for the failed active database has restarted. If it has not restarted, then start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Call <code>ttRepStateSet</code><code>(&#39;ACTIVE&#39;)</code> on the newly recovered database. If you are replicating a read-only cache group, this action automatically causes the autorefresh state to change from <code>PAUSED</code> to <code>ON</code> for this database.</p>
+</li>
+<li>
+<p>Verify that the cache agent for the failed database has restarted. If it has not restarted, then start the cache agent.</p>
+</li>
+<li>
+<p>Duplicate the active database to the standby database. You can use either the <code>ttRepAdmin</code> <code>-duplicate</code> utility or the <code>ttRepDuplicateEx</code> C function to duplicate a database. Use the <code>-keepCG</code> command line option with <code>ttRepAdmin</code> to preserve the cache group. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the standby database and start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Wait for the standby database to enter the <code>STANDBY</code> state. Use the <code>ttRepStateGet</code> built-in procedure to check the state.</p>
+</li>
+<li>
+<p>Start the cache agent for on the standby database using the <code>ttCacheStart</code> built-in procedure or the <code>ttAdmin</code> <code>-cacheStart</code> utility.</p>
+</li>
+<li>
+<p>Duplicate all of the subscribers from the standby database. See <a href="setup.htm#BABFEEFF">&#34;Duplicating a master database to a subscriber&#34;</a>. Use the <code>-noKeepCG</code> command line option with <code>ttRepAdmin</code> in order to convert the cache group to regular TimesTen tables on the subscribers.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the subscribers and start the agent on each of the subscriber databases. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect2" -->
+<a id="BABBAJBJ"></a>
+<div id="TTREP239" class="sect2">
+<h3 class="sect2">Recover the standby database to be the new active master</h3>
+<ol>
+<li>
+<p>Connect to the failed standby master database. This triggers recovery from the local transaction logs. If you are replicating a read-only cache group, the autorefresh state is automatically set to <code>PAUSED</code>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If this fails, perform the steps listed in <a href="#BABCAJAD">&#34;Restore the active master from a backup.&#34;</a>.</div>
+</li>
+<li>
+<p>If the replication agent for the failed standby master has automatically restarted, stop the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>If the cache agent has automatically restarted, stop the cache agent.</p>
+</li>
+<li>
+<p>Drop the replication configuration using the <code>DROP ACTIVE STANDBY PAIR</code> statement.</p>
+</li>
+<li>
+<p>Drop and re-create all cache groups using the <code>DROP CACHE GROUP</code> and <code>CREATE CACHE GROUP</code> statements.</p>
+</li>
+<li>
+<p>Re-create the replication configuration using the <code>CREATE ACTIVE STANDBY PAIR</code> statement.</p>
+</li>
+<li>
+<p>Call <code>ttRepStateSet</code><code>(&#39;ACTIVE&#39;)</code> on the master database, giving it the <code>ACTIVE</code> role. If you are replicating a read-only cache group, this action automatically causes the autorefresh state to change from <code>PAUSED</code> to <code>ON</code> for this database.</p>
+</li>
+<li>
+<p>Set up the replication agent policy and start the replication agent on the new active database. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Start the cache agent on the new active database.</p>
+</li>
+<li>
+<p>Duplicate the active database to the standby database. You can use either the <code>ttRepAdmin</code> <code>-duplicate</code> utility or the <code>ttRepDuplicateEx</code> C function to duplicate a database. Use the <code>-keepCG</code> command line option with <code>ttRepAdmin</code> to preserve the cache group. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the standby database and start the replication agent on the new standby database. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Wait for the standby database to enter the <code>STANDBY</code> state. Use the <code>ttRepStateGet</code> built-in procedure to check the state.</p>
+</li>
+<li>
+<p>Start the cache agent for the standby database using the <code>ttCacheStart</code> built-in procedure or the <code>ttAdmin</code> <code>-cacheStart</code> utility.</p>
+</li>
+<li>
+<p>Duplicate all of the subscribers from the standby database. See <a href="setup.htm#BABFEEFF">&#34;Duplicating a master database to a subscriber&#34;</a>. Use the <code>-noKeepCG</code> command line option with <code>ttRepAdmin</code> in order to convert the cache group to regular TimesTen tables on the subscribers.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the subscribers and start the agent on each of the subscriber databases. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect2" -->
+<a id="BABCAJAD"></a>
+<div id="TTREP834" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Restore the active master from a backup</h3>
+<p>If both the active and standby masters fail and neither comes up and you have a backup, then perform the following:</p>
+<ol>
+<li>
+<p>Restore the active master from a backup, as described in &#34;Backing up and restoring a database with cache groups&#34; in the <span class="italic">Oracle TimesTen Application-Tier Database Cache User&#39;s Guide</span>.</p>
+</li>
+<li>
+<p>Drop the replication configuration using the <code>DROP ACTIVE STANDBY PAIR</code> statement.</p>
+</li>
+<li>
+<p>Drop and re-create all AWT cache groups using the <code>DROP CACHE GROUP</code> and <code>CREATE CACHE GROUP</code> statements.</p>
+</li>
+<li>
+<p>Start the replication agent and the cache agent, since the cache agent needs to be active to refresh any read-only cache groups and both must be active in order to load the AWT cache groups.</p>
+</li>
+<li>
+<p>Refresh all read-only cache groups using the <code>REFRESH CACHE GROUP</code> statement to upload most current committed data from the cached Oracle database tables. Use the <code>REFRESH CACHE GROUP ... PARALLEL</code> <code><span class="codeinlineitalic">n</span></code> clause to concurrently load these cache groups over multiple threads.</p>
+</li>
+<li>
+<p>Load all AWT cache groups using the <code>LOAD CACHE GROUP</code> statement to begin the autorefresh process. Use the <code>LOAD CACHE GROUP ... PARALLEL</code> <code><span class="codeinlineitalic">n</span></code> clause to concurrently load these cache groups over multiple threads.</p>
+</li>
+<li>
+<p>Stop both the replication agent and the cache agent in preparation to re-create the active standby pair.</p>
+</li>
+<li>
+<p>Re-create the replication configuration using the <code>CREATE ACTIVE STANDBY PAIR</code> statement.</p>
+</li>
+<li>
+<p>Call <code>ttRepStateSet</code><code>(&#39;ACTIVE&#39;)</code> on the active master database, giving it the <code>ACTIVE</code> role. If you are replicating a read-only cache group, this action automatically causes the autorefresh state to change from <code>PAUSED</code> to <code>ON</code> for this database.</p>
+</li>
+<li>
+<p>Set up the replication agent policy and start the replication agent on the active database. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Start the cache agent on the active database.</p>
+</li>
+<li>
+<p>Duplicate the active database to the standby database. You can use either the <code>ttRepAdmin</code> <code>-duplicate</code> utility or the <code>ttRepDuplicateEx</code> C function to duplicate a database. Use the <code>-keepCG</code> command line option with <code>ttRepAdmin</code> to preserve the cache group. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the standby database and start the replication agent on the new standby database. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Wait for the standby database to enter the <code>STANDBY</code> state. Use the <code>ttRepStateGet</code> built-in procedure to check the state.</p>
+</li>
+<li>
+<p>Start the cache agent for the standby database using the <code>ttCacheStart</code> built-in procedure or the <code>ttAdmin</code> <code>-cacheStart</code> utility.</p>
+</li>
+<li>
+<p>Duplicate all of the subscribers from the standby database. See <a href="setup.htm#BABFEEFF">&#34;Duplicating a master database to a subscriber&#34;</a>. Use the <code>-noKeepCG</code> command line option with <code>ttRepAdmin</code> in order to convert the cache group to regular TimesTen tables on the subscribers.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the subscribers and start the agent on each of the subscriber databases. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABJEADE"></a>
+<div id="TTREP242" class="sect1">
+<h2 class="sect1">Recovering from the <a id="sthref329"></a><a id="sthref330"></a>failure of a subscriber database</h2>
+<p>If a subscriber database fails, then you can recover it by one of the following methods:</p>
+<ul>
+<li>
+<p>Connect to the failed subscriber. This triggers recovery from the local transaction logs. Start the replication agent and let the subscriber catch up.</p>
+</li>
+<li>
+<p>Duplicate the subscriber from the standby database. You can use either the <code>ttRepAdmin</code> <code>-duplicate</code> utility or the <code>ttRepDuplicateEx</code> C function to duplicate a database. Use the <code>-noKeepCG</code> command line option with <code>ttRepAdmin</code> in order to convert the cache group to normal TimesTen tables on the subscriber.</p>
+</li>
+</ul>
+<p>If the standby database is down or in recovery, then duplicate the subscriber from the active database.</p>
+<p>After the subscriber database has been recovered, then set up the replication agent policy and start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABBBBDD"></a>
+<div id="TTREP243" class="sect1">
+<h2 class="sect1">Reversing the roles of the active and standby databases</h2>
+<p>To change the role of the active database to standby and vice versa:</p>
+<ol>
+<li>
+<p>Pause any applications that are generating updates on the current active database.</p>
+</li>
+<li>
+<p>Call <code>ttRepSubscriberWait</code> on the active database, with the DSN and host of the current standby database as input parameters. It must return success (<code>&lt;00&gt;</code>). This ensures that all updates have been transmitted to the current standby database.</p>
+</li>
+<li>
+<p>Stop the replication agent on the current active database. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>If global cache groups are not present, stop the cache agent on the current active database. When global cache groups are present, set the autorefresh state to <code>PAUSED</code>.</p>
+</li>
+<li>
+<p>Call <code>ttRepDeactivate</code> on the current active database. This puts the database in the <code>IDLE</code> state. If you are replicating a read-only cache group, this action automatically causes the autorefresh state to change from <code>ON</code> to <code>PAUSED</code> for this database.</p>
+</li>
+<li>
+<p>Call <code>ttRepStateSet</code><code>(&#39;ACTIVE&#39;)</code> on the current standby database. This database now acts as the active database in the active standby pair. If you are replicating a read-only cache group, this automatically causes the autorefresh state to change from <code>PAUSED</code> to <code>ON</code> for this database.</p>
+</li>
+<li>
+<p>Start the replication agent on the former master database.</p>
+</li>
+<li>
+<p>Configure the replication agent policy as needed and start the replication agent on the former active database. Use the <code>ttRepStateGet</code> built-in procedure to determine when the database&#39;s state has changed from <code>IDLE</code> to <code>STANDBY</code>. The database now acts as the standby database in the active standby pair.</p>
+</li>
+<li>
+<p>Start the cache agent on the former active database if it is not already running.</p>
+</li>
+<li>
+<p>Resume any applications that were paused in Step 1.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect1" -->
+<a id="BABBBGIG"></a>
+<div id="TTREP244" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Detecting dual active databases</h2>
+<p>See <a href="standby.htm#CBAFFJDA">&#34;Detection of dual active databases&#34;</a>. There is no difference for active standby pairs that replicate cache groups.</p>
+</div>
+<!-- class="sect1" -->
+<a id="CBAJDJBD"></a>
+<div id="TTREP250" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Using a <a id="sthref331"></a><a id="sthref332"></a>disaster recovery subscriber in an active standby pair</h2>
+<p>TimesTen active standby pair replication provides high availability by allowing for fast switching between databases within a data center. This includes the ability to automatically change which database propagates changes to an Oracle database using AWT cache groups. However, for additional high availability across data centers, you may require the ability to recover from a failure of an entire site, which can include a failure of both TimesTen master databases in the active standby pair as well as the Oracle database used for the cache groups.</p>
+<p>You can recover from a complete site failure by creating a special disaster recovery read-only subscriber as part of the active standby pair replication scheme. The standby database sends updates to cache group tables on the read-only subscriber. This special subscriber is located at a remote disaster recovery site and can propagate updates to a second Oracle database, also located at the disaster recovery site. The disaster recovery subscriber can take over as the active in a new active standby pair at the disaster recovery site if the primary site suffers a complete failure. Any applications may then connect to the disaster recovery site and continue operating, with minimal interruption of service.</p>
+<div id="TTREP251" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref333"></a>
+<h3 class="sect2">Requirements for using a disaster recovery subscriber with an active standby pair</h3>
+<p>To use a disaster recovery subscriber, you must:</p>
+<ul>
+<li>
+<p>Use an active standby pair configuration with AWT cache groups at the primary site. The active standby pair can also include read-only cache groups in the replication scheme. The read-only cache groups are converted to regular tables on the disaster recovery subscriber. The AWT cache group tables remain AWT cache group tables on the disaster recovery subscriber.</p>
+</li>
+<li>
+<p>Have a continuous WAN connection from the primary site to the disaster recovery site. This connection should have at least enough bandwidth to guarantee that the normal volume of transactions can be replicated to the disaster recovery subscriber at a reasonable pace.</p>
+</li>
+<li>
+<p>Configure an Oracle database at the disaster recovery site to include tables with the same schema as the database at the primary site. Note that this database is intended only for capturing the replicated updates from the primary site, and if any data exists in tables written to by the cache groups when the disaster recovery subscriber is created, that data is deleted.</p>
+</li>
+<li>
+<p>Have the same cache group administrator user ID and password at both the primary and the disaster recovery site.</p>
+</li>
+</ul>
+<p>Though it is not absolutely required, you should have a second TimesTen database configured at the disaster recovery site. This database can take on the role of a standby database, in the event that the disaster recovery subscriber is promoted to an active database after the primary site fails.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CBADGDFJ"></a>
+<div id="TTREP252" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Rolling out a disaster recovery subscriber</h3>
+<p>To create a disaster recovery subscriber, follow these steps:</p>
+<ol>
+<li>
+<p>Create an active standby pair with AWT cache groups at the primary site. The active standby pair can also include read-only cache groups. The read-only cache groups are converted to regular tables when the disaster recovery subscriber is rolled out.</p>
+</li>
+<li>
+<p>Create the disaster recovery subscriber at the disaster recovery site using the <code>ttRepAdmin</code> utility with the <code>-duplicate</code> and <code>-initCacheDR</code> options. You must also specify the cache group administrator and password for the Oracle database at the disaster recovery site using the <code>-cacheUid</code> and <code>-cachePwd</code> options.</p>
+<p>If your database includes multiple cache groups, you may improve the efficiency of the duplicate operation by using the <code>-nThreads</code> option to specify the number of threads that are spawned to flush the cache groups in parallel. Each thread flushes an entire cache group to the Oracle database and then moves on to the next cache group, if any remain to be flushed. If a value is not specified for <code>-nThread</code>s, only one flushing thread is spawned.</p>
+<p>For example, duplicate the standby database <code>mast2</code>, on the system with the host name <code>primary</code> and the cache user ID <code>system</code> and password <code>manager</code>, to the disaster recovery subscriber <code>drsub</code>, and using two cache group flushing threads. <code>ttRepAdmin</code> prompts for the values of <code>-uid</code>, <code>-pwd</code>, <code>-cacheUid</code> and <code>-cachePwd</code>.</p>
+<pre>ttRepAdmin -duplicate -from mast2 -host primary -initCacheDR -nThreads 2 
+ -connStr &#34;DSN=drsub;UID=;PWD=;&#34;
+</pre>
+<p>If you use the <code>ttRepDuplicateEx</code> function in C, you must set the <code>TT_REPDUP_INITCACHEDR</code> flag in <code>ttRepDuplicateExArg.flags</code> and may optionally specify a value for <code>ttRepDuplicateExArg.nThreads4InitDR</code>:</p>
+<pre>int                 rc;
+ttUtilHandle        utilHandle;
+ttRepDuplicateExArg arg;
+memset( &amp;arg, 0, sizeof( arg ) );
+arg.size = sizeof( ttRepDuplicateExArg );
+arg.flags = TT_REPDUP_INITCACHEDR;
+arg.nThreads4InitDR = 2;
+arg.uid=&#34;ttuser&#34;
+arg.pwd=&#34;ttuser&#34;
+arg.cacheuid = &#34;system&#34;;
+arg.cachepwd = &#34;manager&#34;;
+arg.localHost = &#34;disaster&#34;;
+rc = ttRepDuplicateEx( utilHandle, &#34;DSN=drsub&#34;,
+                       &#34;mast2&#34;, &#34;primary&#34;, &amp;arg );
+</pre>
+<p>After the subscriber is duplicated, TimesTen automatically configures the replication scheme that propagates updates from the AWT cache groups to the Oracle database, truncates the tables in the Oracle database that correspond to the cache groups in TimesTen, and then flushes all of the data in the cache groups to the Oracle database.</p>
+</li>
+<li>
+<p>If you want to set the failure threshold for the disaster recovery subscriber, call the <code>ttCacheAWTThresholdSet</code> built-in procedure and specify the number of transaction log files that can accumulate before the disaster recovery subscriber is considered either dead or too far behind to catch up.</p>
+<p>If one or both master databases had a failure threshold configured before the disaster recovery subscriber was created, then the disaster recovery subscriber inherits the failure threshold value when it is created with the <code>ttRepAdmin -duplicate -initCacheDR</code> command. If the master databases have different failure thresholds, then the higher value is used for the disaster recovery subscriber.</p>
+<p>For more information about the failure threshold, see <a href="attrib.htm#CHDBACFH">&#34;Setting the transaction log failure threshold&#34;</a>.</p>
+</li>
+<li>
+<p>Start the replication agent for the disaster recovery subscriber using the <code>ttRepStart</code> built-in procedure or the <code>ttAdmin</code> utility with the <code>-repstart</code> option. For example:</p>
+<pre>ttAdmin -repstart drsub
+</pre>
+<p>Updates are now replicated from the standby database to the disaster recovery subscriber, which then propagates the updates to the Oracle database at the disaster recovery site.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect2" -->
+<a id="CBACGHGG"></a>
+<div id="TTREP253" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Switching over to the disaster recovery site</h3>
+<p>When the primary site has failed, you can switch over to the disaster recovery site in one of two ways. If your goal is to minimize risk of data loss at the disaster recovery site, you may roll out a new active standby pair using the disaster recovery subscriber as the active database. If the goal is to absolutely minimize the downtime of your applications, at the risk of data loss if the disaster recovery database later fails, you may instead choose to drop the replication scheme from the disaster recovery subscriber and use it as a single non-replicating database. You may deploy an active standby pair at the disaster recovery site later.</p>
+<a id="CBAEECED"></a>
+<div id="TTREP254" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Creating a new active standby pair after switching to the disaster recovery site</h4>
+<ol>
+<li>
+<p>Any read-only applications may be redirected to the disaster recovery subscriber immediately. Redirecting applications that make updates to the database must wait until Step 7.</p>
+</li>
+<li>
+<p>Ensure that all of the recent updates to the cache groups have been propagated to the Oracle database using the <code>ttRepSubscriberWait</code> built-in procedure or the <code>ttRepAdmin</code> command with the <code>-wait</code> option.</p>
+<pre>Command&gt; call ttRepSubscriberWait( null, null, &#39;_ORACLE&#39;, null, 600 );
+</pre>
+<p>It must return success (<code>&lt;00&gt;</code>). If <code>ttRepSubscriberWait</code> returns <code>0x01</code>, indicating a timeout, investigate to determine why the cache groups are not finished propagating before continuing to Step 3.</p>
+</li>
+<li>
+<p>Stop the replication agent on the disaster recovery subscriber using the <code>ttRepStop</code> built-in procedure or the <code>ttAdmin</code> command with the <code>-repstop</code> option. For example, to stop the replication agent for the subscriber <code>drsub</code>, use:</p>
+<pre>Command&gt; call ttRepStop;
+</pre></li>
+<li>
+<p>Drop the active standby pair replication scheme on the subscriber using the <code>DROP ACTIVE STANDBY PAIR</code> statement. For example:</p>
+<pre>Command&gt; DROP ACTIVE STANDBY PAIR;
+</pre></li>
+<li>
+<p>If there are tables on the disaster recovery subscriber that were converted from read-only cache group tables on the active database, drop the tables on the disaster recovery subscriber.</p>
+</li>
+<li>
+<p>Create the read-only cache groups on the disaster recovery subscriber. Ensure that the autorefresh state is set to <code>PAUSED</code>.</p>
+</li>
+<li>
+<p>Create a new active standby pair replication scheme using the <code>CREATE ACTIVE STANDBY PAIR</code> statement, specifying the disaster recovery subscriber as the active database. For example, to create a new active standby pair with the former subscriber <code>drsub</code> as the active and the new database <code>drstandby</code> as the standby, and using the return twosafe return service, use:</p>
+<pre>Command&gt; CREATE ACTIVE STANDBY PAIR drsub, drstandby RETURN TWOSAFE;
+</pre></li>
+<li>
+<p>Set the new active standby database to the <code>ACTIVE</code> state using the <code>ttRepStateSet</code> built-in procedure. For example, on the database <code>drsub</code> in this example, call:</p>
+<pre>Command&gt; call ttRepStateSet( &#39;ACTIVE&#39; );
+</pre></li>
+<li>
+<p>Any applications which must write to the TimesTen database may now be redirected to the new active database.</p>
+</li>
+<li>
+<p>If you are replicating a read-only cache group, load the cache group using the <code>LOAD CACHE GROUP</code> statement to begin the autorefresh process. You may also load the cache group if you are replicating an AWT cache group, although it is not required.</p>
+</li>
+<li>
+<p>Duplicate the active database to the standby database. You can use either the <code>ttRepAdmin</code> <code>-duplicate</code> utility or the <code>ttRepDuplicateEx</code> C function to duplicate a database. Use the <code>-keepCG</code> command line option with <code>ttRepAdmin</code> to preserve the cache group. See <a href="definepair.htm#CBAGAJGF">&#34;Duplicating a database&#34;</a>.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the standby database and start the replication agent. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+<li>
+<p>Wait for the standby database to enter the <code>STANDBY</code> state. Use the <code>ttRepStateGet</code> built-in procedure to check the state.</p>
+</li>
+<li>
+<p>Start the cache agent for the standby database using the <code>ttCacheStart</code> built-in procedure or the <code>ttAdmin</code> <code>-cacheStart</code> utility.</p>
+</li>
+<li>
+<p>Duplicate all of the subscribers from the standby database. See <a href="setup.htm#BABFEEFF">&#34;Duplicating a master database to a subscriber&#34;</a>. Use the <code>-noKeepCG</code> command line option with <code>ttRepAdmin</code> in order to convert the cache group to regular TimesTen tables on the subscribers.</p>
+</li>
+<li>
+<p>Set up the replication agent policy on the subscribers and start the agent on each of the subscriber databases. See <a href="setup.htm#CEGIIJEB">&#34;Starting and stopping the replication agents&#34;</a>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<div id="TTREP255" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref334"></a>
+<h4 class="sect3">Switching over to a single database</h4>
+<ol>
+<li>
+<p>Any read-only applications may be redirected to the disaster recovery subscriber immediately. Redirecting applications that make updates to the database must wait until Step 5.</p>
+</li>
+<li>
+<p>Stop the replication agent on the disaster recovery subscriber using the <code>ttRepStop</code> built-in procedure or the <code>ttAdmin</code> command with the <code>-repstop</code> option. For example, to stop the replication agent for the subscriber drsub, use:</p>
+<pre>Command&gt; call ttRepStop;
+</pre></li>
+<li>
+<p>Drop the active standby pair replication scheme on the subscriber using the <code>DROP ACTIVE STANDBY PAIR</code> statement. For example:</p>
+<pre>Command&gt; DROP ACTIVE STANDBY PAIR;
+</pre></li>
+<li>
+<p>If there are tables on the disaster recovery subscriber that were converted from read-only cache group tables on the active database, drop the tables on the disaster recovery subscriber.</p>
+</li>
+<li>
+<p>Create the read-only cache groups on the disaster recovery subscriber.</p>
+</li>
+<li>
+<p>Although there is no longer an active standby pair configured, AWT cache groups require the replication agent to be started. Start the replication agent on the database using the <code>ttRepStart</code> built-in procedure or the <code>ttAdmin</code> command with the <code>-repstart</code> option. For example, to start the replication agent for the database <code>drsub</code>, use:</p>
+<pre>Command&gt; call ttRepStart;
+</pre></li>
+<li>
+<p>Any applications which must write to a TimesTen database may now be redirected to the this database.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You may choose to roll out an active standby pair at the disaster recovery site at a later time. You may do this by following the steps in <a href="#CBAEECED">&#34;Creating a new active standby pair after switching to the disaster recovery site&#34;</a>, starting at Step 2 and skipping Step 4.</div>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<div id="TTREP256" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref335"></a>
+<h3 class="sect2">Returning to the original configuration at the primary site</h3>
+<p>When the primary site is usable again, you may want to move the working active standby pair from the disaster recovery site back to the primary site. You can do this with a minimal interruption of service by reversing the process that was used to create and switch over to the original disaster recovery site. Follow these steps:</p>
+<ol>
+<li>
+<p>Destroy original active database at the primary site, if necessary, using the <code>ttDestroy</code> utility. For example, to destroy a database called <code>mast1</code>, use:</p>
+<pre>ttDestroy mast1
+</pre></li>
+<li>
+<p>Create a disaster recovery subscriber at the primary site, following the steps detailed in <a href="#CBADGDFJ">&#34;Rolling out a disaster recovery subscriber&#34;</a>. Use the original active database for the new disaster recovery subscriber.</p>
+</li>
+<li>
+<p>Switch over to the new disaster recovery subscriber at primary site, as detailed in <a href="#CBACGHGG">&#34;Switching over to the disaster recovery site&#34;</a>. Roll out the standby database as well.</p>
+</li>
+<li>
+<p>Roll out a new disaster recovery subscriber at the disaster recovery site, as detailed in <a href="#CBADGDFJ">&#34;Rolling out a disaster recovery subscriber&#34;</a>.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5803">
+<tr>
+<td class="cellalignment5812">
+<table class="cellalignment5808">
+<tr>
+<td class="cellalignment5807"><a href="standby.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5807"><a href="alterpair.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2012, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5814">
+<table class="cellalignment5806">
+<tr>
+<td class="cellalignment5807"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5807"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5807"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5807"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5807"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5807"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

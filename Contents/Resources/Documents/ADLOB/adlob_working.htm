@@ -1,0 +1,694 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-150"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Working%20with%20LOBs"></a><title>Working with LOBs</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="LOB column states, LOB column cells, accessing, locking a row containing a LOB, LOBs, locking rows, LOBS, opening and closing, opening and closing LOBs, locator, value, locators, BFILEs, internal LOBs, external LOBs (BFILEs), PM schema, print_media table definition, setting to contain a locator, setting column to contain, LOB columns, initializing to contain locator, initializing, using EMPTY_CLOB(), EMPTY_BLOB(), EMPTY_CLOB()/BLOB(), to initialize internal LOB, accesing with SQL, accessing using the data interface, accessing a LOB, using the LOB APIs, accessing using the locator interface, LOB restrictions, restrictions, multithreaded server, DBMS_LOB package, multithreaded server mode"/>
+<meta name="dcterms.created" content="2017-03-16T22:27:47Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SecureFiles and Large Objects Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E17605-12"/>
+<meta name="dcterms.isVersionOf" content="ADLOB"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2015, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="adlob_intro.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="adlob_managing.htm" title="Next" type="text/html"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-CEB47FC6-D0E4-4227-9862-74D568622867"></a> <span id="PAGE" style="display:none;">7/34</span> <!-- End Header -->
+<a id="ADLOB002"></a>
+<h1 id="ADLOB-GUID-CEB47FC6-D0E4-4227-9862-74D568622867" class="sect1"><span class="enumeration_chapter">2</span> Working with LOBs</h1>
+<div>
+<p>Working with LOBs for application development requires that you understand LOB semantics and various techniques used with LOBs.</p>
+<p>Most of the discussions regarding persistent LOBs assume that you are dealing with existing LOBs in tables. The task of creating tables with LOB columns is typically performed by your database administrator.</p>
+<div class="infoboxnotealso" id="GUID-CEB47FC6-D0E4-4227-9862-74D568622867__GUID-254E6E37-1E8B-4939-954A-E0CD83CF2A9C">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_smart.htm#GUID-EC76077B-3EE9-491E-AC6D-171DA919B84C" title="Oracle LOB storage has two types, SecureFiles LOB storage and BasicFiles LOB storage, which are used with different types of tablespaces.">Using Oracle LOB Storage</a> for creating LOBs using the SecureFiles paradigm</p>
+</li>
+<li>
+<p><a href="adlob_tables.htm#GUID-A81490D2-D92D-4513-81B3-FD672D0D267C">LOB Storage with Applications</a> for storage parameters used in creating LOBs</p>
+</li>
+</ul>
+</div>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_working.htm#GUID-7016B1B2-A666-4567-8083-16D89CB2F52A" title="The techniques you use when accessing a cell in a LOB column differ depending on the state of the given cell.">LOB Column States</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-CCAB8D75-BFE7-4B42-8E44-8BF7A9FFD40C" title="You can lock a row containing a LOB to prevent other database users from writing to the LOB during a transaction.">Locking a Row Containing a LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-20013E7E-EAAC-40C5-B190-20A759DBFF11" title="The LOB APIs include operations that enable you to explicitly open and close a LOB instance.">LOB Open and Close Operations0.</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-A823D2F7-EDBA-45AE-A16A-08CB2307DE37" title="You can use two different techniques to access and modify LOB values.">LOB Locator and LOB Value</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-747411EC-7E86-4756-A8DC-CE19923BF8A6" title="There are differences between the semantics of locators for the LOB types BLOB, CLOB, and NCLOB, and the semantics of locators for the BFILE type:">LOB Locators and BFILE Locators</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-53946DA7-9F07-482C-BD1A-9F35FF2D63D8" title="You can access LOBs using SQL.You can access LOBs using the data interface.You can access and manipulate a LOB instance by passing the LOB locator to the LOB APIs supplied with the database.">LOB Access</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-BA662EA5-4955-4582-B12E-3312FE4B1D6A" title="This section provides details on LOB rules and restrictions.">LOB Rules and Restrictions</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45133"></a>
+<div class="props_rev_3"><a id="GUID-7016B1B2-A666-4567-8083-16D89CB2F52A"></a>
+<h2 id="ADLOB-GUID-7016B1B2-A666-4567-8083-16D89CB2F52A" class="sect2">LOB Column States</h2>
+<div>
+<p>The techniques you use when accessing a cell in a LOB column differ depending on the state of the given cell.</p>
+<p>A cell in a LOB Column can be in one of the following states:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="bold">NULL</span></p>
+<p>The table cell is created, but the cell holds no locator or value.</p>
+</li>
+<li>
+<p><span class="bold">Empty</span></p>
+<p>A LOB instance with a locator exists in the cell, but it has no value. The length of the LOB is zero.</p>
+</li>
+<li>
+<p><span class="bold">Populated</span></p>
+<p>A LOB instance with a locator and a value exists in the cell.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADLOB45134"></a>
+<div class="props_rev_3"><a id="GUID-CCAB8D75-BFE7-4B42-8E44-8BF7A9FFD40C"></a>
+<h2 id="ADLOB-GUID-CCAB8D75-BFE7-4B42-8E44-8BF7A9FFD40C" class="sect2">Locking a Row Containing a LOB</h2>
+<div>
+<p>You can lock a row containing a LOB to prevent other database users from writing to the LOB during a transaction.</p>
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>To lock the row, specify the <code class="codeph">FOR UPDATE</code> clause when you select the row. While the row is locked, other users cannot lock or update the LOB until you end your transaction.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45135"></a>
+<div class="props_rev_3"><a id="GUID-20013E7E-EAAC-40C5-B190-20A759DBFF11"></a>
+<h2 id="ADLOB-GUID-20013E7E-EAAC-40C5-B190-20A759DBFF11" class="sect2">LOB Open and Close Operations</h2>
+<div>
+<p>The LOB APIs include operations that enable you to explicitly open and close a LOB instance.</p>
+<p>You can open and close a persistent LOB instance of any type: <code class="codeph">BLOB</code>, <code class="codeph">CLOB</code>, <code class="codeph">NCLOB</code>, or <code class="codeph">BFILE</code>. You open a LOB to achieve one or both of the following results:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Open the LOB in read-only mode</p>
+<p>This ensures that the LOB (both the LOB locator and LOB value) cannot be changed in your session until you explicitly close the LOB. For example, you can open the LOB to ensure that the LOB is not changed by some other part of your program while you are using the LOB in a critical operation. After you perform the operation, you can then close the LOB.</p>
+</li>
+<li>
+<p>Open the LOB in read write/mode, for persistent <code class="codeph">BLOB</code>, <code class="codeph">CLOB</code>, or <code class="codeph">NCLOB</code> instances only</p>
+<p>Opening a LOB in read/write mode defers any index maintenance on the LOB column until you close the LOB. Opening a LOB in read/write mode is only useful if there is an extensible index on the LOB column, and you do not want the database to perform index maintenance every time you write to the LOB. This technique can increase the performance of your application if you are doing several write operations on the LOB while it is open.</p>
+</li>
+</ul>
+<p>If you open a LOB, then you must close the LOB at some point later in your session. This is the only requirement for an open LOB. While a LOB instance is open, you can perform as many operations as you want on the LOB&mdash;provided the operations are allowed in the given mode.</p>
+<div class="infoboxnotealso" id="GUID-20013E7E-EAAC-40C5-B190-20A759DBFF11__GUID-A34819EE-C359-4E63-BF6D-156D0FD0187D">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_design.htm#GUID-B161D891-886D-4D53-89F0-BB42BD22C102">Opening Persistent LOBs with the OPEN and CLOSE Interfaces</a>&#34;</span> for details on usage of these APIs</p>
+</div>
+</div>
+</div>
+<a id="ADLOB45136"></a>
+<div class="props_rev_3"><a id="GUID-A823D2F7-EDBA-45AE-A16A-08CB2307DE37"></a>
+<h2 id="ADLOB-GUID-A823D2F7-EDBA-45AE-A16A-08CB2307DE37" class="sect2">LOB Locator and LOB Value</h2>
+<div>
+<p>You can use two different techniques to access and modify LOB values.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_working.htm#GUID-07E0D92B-211A-4677-828D-E8817A9A9E60" title="You can perform bind and define operations on CLOB and BLOB columns in C applications using the data interface for LOBs in OCI.">Using the Data Interface for LOBs</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-002780AA-D809-4FBD-8D94-0C52D0DD7045" title="You can use the LOB locator to access and modify LOB values.">Use the LOB Locator to Access and Modify LOB Values</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45137"></a>
+<div class="props_rev_3"><a id="GUID-07E0D92B-211A-4677-828D-E8817A9A9E60"></a>
+<h3 id="ADLOB-GUID-07E0D92B-211A-4677-828D-E8817A9A9E60" class="sect3">Using the Data Interface for LOBs</h3>
+<div>
+<p>You can perform bind and define operations on <code class="codeph">CLOB</code> and <code class="codeph">BLOB</code> columns in C applications using the data interface for LOBs in OCI.</p>
+<div class="section">
+<p>Using the data interface enables you to insert or select out data in a LOB column without using a LOB locator as follows:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Use a bind variable associated with a LOB column to insert character data into a <code class="codeph">CLOB</code>, or <code class="codeph">RAW</code> data into a <code class="codeph">BLOB</code>.</p>
+</li>
+<li>
+<p>Use a define operation to define an output buffer in your application that holds character data selected from a <code class="codeph">CLOB</code> or <code class="codeph">RAW</code> data selected from a <code class="codeph">BLOB</code>.</p>
+<div class="infoboxnotealso" id="GUID-07E0D92B-211A-4677-828D-E8817A9A9E60__GUID-9492263E-F42E-43C1-AA80-19C323116CE3">
+<p class="notep1">See Also:</p>
+<p><a href="adlob_data_interface.htm#GUID-4BFDD493-F3FE-451C-9B03-21669D635586">Data Interface for Persistent LOBs</a> for more information on implicit assignment of LOBs to other data types</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45138"></a>
+<div class="props_rev_3"><a id="GUID-002780AA-D809-4FBD-8D94-0C52D0DD7045"></a>
+<h3 id="ADLOB-GUID-002780AA-D809-4FBD-8D94-0C52D0DD7045" class="sect3">Use the LOB Locator to Access and Modify LOB Values</h3>
+<div>
+<p>You can use the LOB locator to access and modify LOB values.</p>
+<p>A LOB locator, which is a reference to the location of the LOB value, can access the value of a LOB instanced stored in the database. Database tables store only locators in <code class="codeph">CLOB</code>, <code class="codeph">BLOB</code>, <code class="codeph">NCLOB</code> and <code class="codeph">BFILE</code> columns.</p>
+<p>Note the following with respect to LOB locators and values:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>LOB locators are passed to various LOB APIs to access or manipulate a LOB value.</p>
+</li>
+<li>
+<p>A LOB locator can be assigned to any LOB instance of the same type.</p>
+</li>
+<li>
+<p>LOB instances are characterized as temporary or persistent, but the locator is not.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="ADLOB45139"></a>
+<div class="props_rev_3"><a id="GUID-747411EC-7E86-4756-A8DC-CE19923BF8A6"></a>
+<h2 id="ADLOB-GUID-747411EC-7E86-4756-A8DC-CE19923BF8A6" class="sect2">LOB Locators and BFILE Locators</h2>
+<div>
+<p>There are differences between the semantics of locators for the LOB types <code class="codeph">BLOB</code>, <code class="codeph">CLOB</code>, and <code class="codeph">NCLOB</code>, and the semantics of locators for the <code class="codeph">BFILE</code> type:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>For LOB types <code class="codeph">BLOB</code>, <code class="codeph">CLOB</code>, and <code class="codeph">NCLOB</code>, the LOB column stores a locator to the LOB value. Each LOB instance has its own distinct LOB locator and also a distinct copy of the LOB value.</p>
+</li>
+<li>
+<p>For initialized <code class="codeph">BFILE</code> columns, the row stores a locator to the external operating system file that holds the value of the <code class="codeph">BFILE</code>. Each <code class="codeph">BFILE</code> instance in a given row has its own distinct locator; however, two different rows can contain a <code class="codeph">BFILE</code> locator that points to the same operating system file.</p>
+</li>
+</ul>
+<p>Regardless of where the value of a LOB is stored, a locator is stored in the table row of any initialized LOB column. Also, when you select a LOB from a table, the LOB returned is always a temporary LOB. For more information on locators for temporary LOBs, see <span class="q">&#34;<a href="adlob_sql_semantics.htm#GUID-58CA6FE9-CCB2-4239-ABDB-46016DD3C7F5">LOBs Returned from SQL Functions</a> &#34;</span>.</p>
+<div class="infobox-note" id="GUID-747411EC-7E86-4756-A8DC-CE19923BF8A6__GUID-EFE484FE-BC2D-4689-8011-B866D0C6C08A">
+<p class="notep1">Note:</p>
+<p>When the term locator is used without an identifying prefix term, it refers to both LOB locators and <code class="codeph">BFILE</code> locators.</p>
+</div>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_working.htm#GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1" title="Many Oracle LOB examples use the print_media table of the Oracle Database Sample Schema PM.">Table for LOB Examples: The PM Schema print_media Table</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-004F906A-BF0F-4274-B5EE-1ECF9B9562D4" title="LOB instances that are NULL do not have a locator.">LOB Column InitializationLOB Column Initialization</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45140"></a>
+<div class="props_rev_3"><a id="GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1"></a>
+<h3 id="ADLOB-GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1" class="sect3">Table for LOB Examples: The PM Schema print_media Table</h3>
+<div>
+<p>Many Oracle LOB examples use the <code class="codeph">print_media</code> table of the Oracle Database Sample Schema <code class="codeph">PM</code>.</p>
+<div class="section">
+<p>The <code class="codeph">print_media</code> table is defined as:</p>
+<pre dir="ltr">CREATE TABLE print_media
+    ( product_id        NUMBER(6)
+    , ad_id             NUMBER(6)
+    , ad_composite      BLOB
+    , ad_sourcetext     CLOB
+    , ad_finaltext      CLOB
+    , ad_fltextn        NCLOB
+    , ad_textdocs_ntab  textdoc_tab
+    , ad_photo          BLOB
+    , ad_graphic        BFILE
+    , ad_header         adheader_typ
+    ) NESTED TABLE ad_textdocs_ntab STORE AS textdocs_nestedtab;
+</pre>
+<div class="infoboxnotealso" id="GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1__GUID-1240AA5B-B918-4A22-B954-32E0023A8341">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_ddl.htm#GUID-571A3ACF-DEBF-4C83-B7F9-4F0889B08203">Creating a Table Containing One or More LOB Columns</a>&#34;</span> for information about creating <code class="codeph">print_media</code> and its associated tables and files</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<div class="props_rev_3"><a id="GUID-004F906A-BF0F-4274-B5EE-1ECF9B9562D4"></a>
+<h3 id="ADLOB-GUID-004F906A-BF0F-4274-B5EE-1ECF9B9562D4" class="sect3">LOB Column Initialization</h3>
+<div>
+<p>LOB instances that are <code class="codeph">NULL</code> do not have a locator.</p>
+<p>Before you can pass a LOB instance to any LOB API routine, the instance must contain a locator. For example, you can select a <code class="codeph">NULL</code> LOB from a row, but you cannot pass the instance to the PL/SQL <code class="codeph">DBMS_LOB.READ</code> procedure. You must initialize a LOB instance, which provides it with a locator, to make it non-<code class="codeph">NULL</code>. Then you can pass the LOB instance.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_working.htm#GUID-F61CA075-8CB1-4E0B-B538-D886F6CAE263" title="Before you can start writing data to a persistent LOB using supported programmatic environment interfaces such as PL/SQL, OCI, Visual Basic, or Java, you must make the LOB column/attribute non-NULL.">Initializing a Persistent LOB Column</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-BBB6551B-8A26-4E7A-9242-E236F3D9A8D5" title="Before you can access BFILE values using LOB APIs, the BFILE column or attribute must be made non-NULL.">Initializing BFILEs</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45142"></a>
+<div class="props_rev_3"><a id="GUID-F61CA075-8CB1-4E0B-B538-D886F6CAE263"></a>
+<h4 id="ADLOB-GUID-F61CA075-8CB1-4E0B-B538-D886F6CAE263" class="sect4">Initializing a Persistent LOB Column</h4>
+<div>
+<p>Before you can start writing data to a persistent LOB using supported programmatic environment interfaces such as PL/SQL, OCI, Visual Basic, or Java, you must make the LOB column/attribute non-<code class="codeph">NULL</code>.</p>
+<div class="section">
+<p>You can make a LOB column/attribute non-<code class="codeph">NULL</code> by initializing the persistent LOB to empty, using an <code class="codeph">INSERT</code>/<code class="codeph">UPDATE</code> statement with the function <code class="codeph">EMPTY_BLOB</code> for <code class="codeph">BLOB</code>s or <code class="codeph">EMPTY_CLOB</code> for <code class="codeph">CLOB</code>s and <code class="codeph">NCLOB</code>s.</p>
+<div class="infobox-note" id="GUID-F61CA075-8CB1-4E0B-B538-D886F6CAE263__GUID-7BD75422-34A9-4F69-A105-D3FCD02415CB">
+<p class="notep1">Note:</p>
+<p>You can use SQL to populate a LOB column with data even if it contains a <code class="codeph">NULL</code> value.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-F61CA075-8CB1-4E0B-B538-D886F6CAE263__GUID-FB3ACB67-67D0-447A-9DEF-73D27660932B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_tables.htm#GUID-A81490D2-D92D-4513-81B3-FD672D0D267C">LOB Storage with Applications</a> for more information on initializing LOB columns</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_api_overview.htm#GUID-95AD6D66-6C1D-4C83-B58B-9BF608C7331E">Programmatic Environments That Support LOBs</a>&#34;</span> for all supported interfaces</p>
+</li>
+</ul>
+</div>
+<p>Running the <code class="codeph">EMPTY_BLOB()</code> or <code class="codeph">EMPTY_CLOB()</code> function in and of itself does not raise an exception. However, using a LOB locator that was set to empty to access or manipulate the LOB value in any PL/SQL <code class="codeph">DBMS_LOB</code> or OCI function raises an exception.</p>
+<p>Valid places where <span class="italic">empty</span> LOB locators may be used include the <code class="codeph">VALUES</code> clause of an <code class="codeph">INSERT</code> statement and the <code class="codeph">SET</code> clause of an <code class="codeph">UPDATE</code> statement.</p>
+<div class="infoboxnotealso" id="GUID-F61CA075-8CB1-4E0B-B538-D886F6CAE263__GUID-11C7D669-A877-454B-B5A3-70E2BA38E56B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="adlob_bfile_ops.htm#GUID-F7440C27-C7F0-4874-8C3C-F3BC1534CBE0">Directory Objects</a>&#34;</span> for details of <code class="codeph">CREATE DIRECTORY</code> and <code class="codeph">BFILENAME</code> usage</p>
+</li>
+<li>
+<p><a class="olink SQLRF01207" target="_blank" href="../SQLRF/statements_5008.htm#SQLRF01207"><span class="italic">Oracle Database SQL Language Reference</span></a>, <code class="codeph">CREATE</code> <code class="codeph">DIRECTORY</code> statement</p>
+</li>
+</ul>
+</div>
+<div class="infobox-note" id="GUID-F61CA075-8CB1-4E0B-B538-D886F6CAE263__GUID-310F6DBA-9FD7-4DD4-A007-5A06F05643E0">
+<p class="notep1">Note:</p>
+<p>Character strings are inserted using the default character set for the instance.</p>
+</div>
+<p>The <code class="codeph">INSERT</code> statement in the next example uses the <code class="codeph">print_media</code> table described in <span class="q">&#34;<a href="adlob_working.htm#GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1" title="Many Oracle LOB examples use the print_media table of the Oracle Database Sample Schema PM.">Table for LOB Examples: The PM Schema print_media Table</a>&#34;</span> and does the following:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Populates <code class="codeph">ad_sourcetext</code> with the character string <code class="codeph">&#39;my Oracle&#39;</code></p>
+</li>
+<li>
+<p>Sets <code class="codeph">ad_composite</code><span class="italic">,</span> <code class="codeph">ad_finaltext</code><span class="italic">,</span> and <code class="codeph">ad_fltextn</code> to an empty value</p>
+</li>
+<li>
+<p>Sets <code class="codeph">ad_photo</code> to <code class="codeph">NULL</code></p>
+</li>
+<li>
+<p>Initializes <code class="codeph">ad_graphic</code> to point to the file <code class="codeph">my_picture</code> located under the logical directory <code class="codeph">my_directory_object</code></p>
+</li>
+</ul>
+<pre dir="ltr">CREATE OR REPLACE DIRECTORY my_directory_object AS &#39;oracle/work/tklocal&#39;;
+INSERT INTO print_media VALUES (1726, 1, EMPTY_BLOB(), 
+    &#39;my Oracle&#39;, EMPTY_CLOB(), EMPTY_CLOB(),
+    NULL, NULL, BFILENAME(&#39;<span>my_directory_object</span>&#39;, &#39;<span>my_picture</span>&#39;), NULL);
+</pre>
+<p>Similarly, the LOB attributes for the <code class="codeph">ad_header</code> column in <code class="codeph">print_media</code> can be initialized to <code class="codeph">NULL</code>, empty, or a character/raw literal, which is shown in the following statement:</p>
+<pre dir="ltr">INSERT INTO print_media (product_id, ad_id, ad_header) 
+    VALUES (1726, 1, adheader_typ(&#39;AD FOR ORACLE&#39;, sysdate, 
+    &#39;Have Grid&#39;, EMPTY_BLOB()));
+</pre>
+<div class="infoboxnotealso" id="GUID-F61CA075-8CB1-4E0B-B538-D886F6CAE263__GUID-069E1069-266C-463E-9C96-CEC30BA86052">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="adlob_ddl.htm#GUID-C35F0A08-CF55-4097-9916-00B9CC98C7E3">Inserting a Row by Selecting a LOB From Another Table</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_ddl.htm#GUID-99294FB3-0AFA-4C33-B9C8-0532ACFE69D9">Inserting a LOB Value Into a Table</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_ddl.htm#GUID-6DF2E05A-985D-4921-B945-95FF1F85AA8D" title="You can insert a row by initializing a LOB locator bind variable.">Inserting a Row by Initializing a LOB Locator Bind Variable</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_api_overview.htm#GUID-9EECC8F1-CF40-4FF1-828C-391381D5B5B1">OCILobLocator Pointer Assignment</a>&#34;</span> for details on LOB locator semantics in OCI</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45143"></a>
+<div class="props_rev_3"><a id="GUID-BBB6551B-8A26-4E7A-9242-E236F3D9A8D5"></a>
+<h4 id="ADLOB-GUID-BBB6551B-8A26-4E7A-9242-E236F3D9A8D5" class="sect4">Initializing BFILEs</h4>
+<div>
+<p>Before you can access <code class="codeph">BFILE</code> values using LOB APIs, the <code class="codeph">BFILE</code> column or attribute must be made non-<code class="codeph">NULL</code>.</p>
+<div class="section">
+<p>You can initialize the <code class="codeph">BFILE</code> column to point to an external operating system file by using the <a id="d6690e1518" class="indexterm-anchor"></a><code class="codeph">BFILENAME</code> function.</p>
+<div class="infoboxnotealso" id="GUID-BBB6551B-8A26-4E7A-9242-E236F3D9A8D5__GUID-742A7D74-D4E2-4DB4-8CFA-DCD3DC08CB4A">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_bfile_ops.htm#GUID-171CD60A-ADAB-4DB4-8E1C-60A3074EFEFF">About Accessing BFILEs</a>&#34;</span> for more information on initializing BFILE columns</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="ADLOB45144"></a>
+<div class="props_rev_3"><a id="GUID-53946DA7-9F07-482C-BD1A-9F35FF2D63D8"></a>
+<h2 id="ADLOB-GUID-53946DA7-9F07-482C-BD1A-9F35FF2D63D8" class="sect2">LOB Access</h2>
+<div>
+<p>You can access a LOB instance with several techniques.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_working.htm#GUID-F1058C05-46C5-475E-9331-5A777E5B9EA5" title="You can access LOBs using SQL.">Accessing a LOB Using SQL</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-DB6BDFCE-D443-4481-B100-BAB4B56AF5F9" title="You can access LOBs using the data interface.">Accessing a LOB Using the Data Interface</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-90853FD8-DC15-4FD1-A8D5-5B57FE0270CB" title="You can access and manipulate a LOB instance by passing the LOB locator to the LOB APIs supplied with the database.">Accessing a LOB Using the Locator Interface</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45145"></a>
+<div class="props_rev_3"><a id="GUID-F1058C05-46C5-475E-9331-5A777E5B9EA5"></a>
+<h3 id="ADLOB-GUID-F1058C05-46C5-475E-9331-5A777E5B9EA5" class="sect3">Accessing a LOB Using SQL</h3>
+<div>
+<p>You can access LOBs using SQL.</p>
+<div class="section">
+<p>The support for columns that use LOB data types that is built into many SQL functions enables you to use SQL semantics to access LOB columns. In most cases, you can use the same SQL semantics on a LOB column that you would use on a <code class="codeph">VARCHAR2</code> column.</p>
+<div class="infoboxnotealso" id="GUID-F1058C05-46C5-475E-9331-5A777E5B9EA5__GUID-06647424-8B8F-40F4-A9A1-E48BC1B82A77">
+<p class="notep1">See Also:</p>
+<p>For details on SQL semantics support for LOBs, see <a href="adlob_sql_semantics.htm#GUID-47B94072-7782-40DD-BFD7-7D3D8A65B502" title="Various SQL semantics are supported for LOBs.">SQL Semantics and LOBs</a></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45146"></a>
+<div class="props_rev_3"><a id="GUID-DB6BDFCE-D443-4481-B100-BAB4B56AF5F9"></a>
+<h3 id="ADLOB-GUID-DB6BDFCE-D443-4481-B100-BAB4B56AF5F9" class="sect3">Accessing a LOB Using the Data Interface</h3>
+<div>
+<p>You can access LOBs using the data interface.</p>
+<div class="section">
+<p>You can select a LOB directly into <code class="codeph">CHAR</code> or <code class="codeph">RAW</code> buffers using LONG-to-LOB APIs in OCI and PL/SQL interfaces. In the following PL/SQL example, <code class="codeph">ad_finaltext</code> is selected into a <code class="codeph">VARCHAR2</code> buffer <code class="codeph">final_ad</code>.</p>
+<pre dir="ltr">DECLARE
+    final_ad VARCHAR2(32767);
+BEGIN
+    SELECT ad_finaltext INTO final_ad FROM print_media
+        WHERE product_id = 2056 and ad_id = 12001 ; 
+    /* PUT_LINE can only output up to 255 characters at a time  */
+    ...
+    DBMS_OUTPUT.PUT_LINE(final_ad);
+    /* more calls to read final_ad */
+    ...
+END;
+</pre>
+<div class="infoboxnotealso" id="GUID-DB6BDFCE-D443-4481-B100-BAB4B56AF5F9__GUID-8E7525DF-D55A-4A7A-B251-A3EFA1B445E9">
+<p class="notep1">See Also:</p>
+<p>For more details on accessing LOBs using the data interface, see <a href="adlob_data_interface.htm#GUID-4BFDD493-F3FE-451C-9B03-21669D635586">Data Interface for Persistent LOBs</a></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45147"></a>
+<div class="props_rev_3"><a id="GUID-90853FD8-DC15-4FD1-A8D5-5B57FE0270CB"></a>
+<h3 id="ADLOB-GUID-90853FD8-DC15-4FD1-A8D5-5B57FE0270CB" class="sect3">Accessing a LOB Using the Locator Interface</h3>
+<div>
+<p>You can access and manipulate a LOB instance by passing the LOB locator to the LOB APIs supplied with the database.</p>
+<div class="section">
+<p>To access the LOB instance, use the extensive set of LOB APIs provided with each supported programmatic environment. In OCI, a LOB locator is mapped to a locator pointer, which is used to access the LOB value.</p>
+<div class="infobox-note" id="GUID-90853FD8-DC15-4FD1-A8D5-5B57FE0270CB__GUID-28114E24-B394-4B7F-B13B-F3A0BDA3047C">
+<p class="notep1">Note:</p>
+<p>In all environments, including OCI, the LOB APIs operate on the LOB value implicitly&mdash;there is no requirement to dereference the LOB locator.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-90853FD8-DC15-4FD1-A8D5-5B57FE0270CB__GUID-66F41E77-8C93-4AA1-82A3-B4BF12BA4D77">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_api_overview.htm#GUID-54BD371D-4486-48FD-BBCE-6374D03E5697">Overview of Supplied LOB APIs</a></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_api_overview.htm#GUID-9EECC8F1-CF40-4FF1-828C-391381D5B5B1">OCILobLocator Pointer Assignment</a>&#34;</span> for details on LOB locator semantics in OCI</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADLOB2010"></a>
+<div class="props_rev_3"><a id="GUID-BA662EA5-4955-4582-B12E-3312FE4B1D6A"></a>
+<h2 id="ADLOB-GUID-BA662EA5-4955-4582-B12E-3312FE4B1D6A" class="sect2">LOB Rules and Restrictions</h2>
+<div>
+<p>This section provides details on LOB rules and restrictions.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_working.htm#GUID-E9EA88B2-C8E8-48A0-BCE3-CA0FEB24101A" title="LOB columns are subject to the following rules and restrictions:">Rules for LOB Columns</a></p>
+</li>
+<li>
+<p><a href="adlob_working.htm#GUID-5BC19227-1392-4765-ACE9-52FA04F0E33E" title="LOB operations have certain restrictions.">Restrictions for LOB Operations</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45148"></a>
+<div class="props_rev_3"><a id="GUID-E9EA88B2-C8E8-48A0-BCE3-CA0FEB24101A"></a>
+<h3 id="ADLOB-GUID-E9EA88B2-C8E8-48A0-BCE3-CA0FEB24101A" class="sect3">Rules for LOB Columns</h3>
+<div>
+<p>LOB columns are subject to the following rules and restrictions:</p>
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>You cannot specify a LOB as a primary key column.</p>
+</li>
+<li>
+<p>Oracle Database has limited support for remote LOBs and ORA-22992 errors can occur when remote LOBs are used in ways that are not supported.<a id="d6690e2068" class="indexterm-anchor"></a><a id="d6690e2070" class="indexterm-anchor"></a><a id="d6690e2072" class="indexterm-anchor"></a></p>
+<p>Remote LOBs are supported in these ways:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Create table as select or insert as select</p>
+<p>Only standalone LOB columns are allowed in the select list for separate statements structured in the following manner:</p>
+<pre dir="ltr">CREATE TABLE t AS SELECT * FROM table1@remote_site;
+</pre>
+<pre dir="ltr">INSERT INTO t SELECT * FROM table1@remote_site;
+</pre>
+<pre dir="ltr">UPDATE t SET lobcol = (SELECT lobcol FROM table1@remote_site);
+</pre>
+<pre dir="ltr">INSERT INTO table1@remote_site SELECT * FROM local_table;
+</pre>
+<pre dir="ltr">UPDATE table1@remote_site SET lobcol = (SELECT lobcol FROM local_table);
+</pre>
+<pre dir="ltr">DELETE FROM table1@remote_site <span class="italic">&lt;WHERE clause involving non_lob_columns&gt;</span>
+</pre></li>
+<li>
+<p>Functions on remote LOBs returning scalars</p>
+<p>SQL and PL/SQL functions having a LOB parameter and returning a scalar data type are supported. Other SQL functions and <code class="codeph">DBMS_LOB</code> APIs are not supported for use with remote LOB columns. For example, the following statement is supported:</p>
+<pre dir="ltr">CREATE TABLE tab AS SELECT DBMS_LOB.GETLENGTH@dbs2(clob_col) len FROM tab@dbs2;
+CREATE TABLE tab AS SELECT LENGTH(clob_col) len FROM tab@dbs2;
+</pre>
+<p>However, the following statement is not supported because <code class="codeph">DBMS_LOB.SUBSTR</code> returns a LOB:</p>
+<pre dir="ltr">CREATE TABLE tab AS SELECT DBMS_LOB.SUBSTR(clob_col) from tab@dbs2; 
+</pre></li>
+<li>
+<p>Data Interface for remote LOBs</p>
+<p>You can insert a character or binary buffer into a remote <code class="codeph">CLOB</code> or <code class="codeph">BLOB</code>, and select a remote <code class="codeph">CLOB</code> or <code class="codeph">BLOB</code> into a character or binary buffer, for example, using PL/SQL:</p>
+<pre dir="ltr">SELECT clobcol1, type1.blobattr INTO varchar_buf1, raw_buf2 FROM
+   table1@remote_site;
+INSERT INTO table1@remotesite (clobcol1, type1.blobattr) VALUES varchar_buf1,
+   raw_buf2;
+INSERT INTO table1@remotesite (lobcol) VALUES (&#39;test&#39;);
+UPDATE table1 SET lobcol = &#39;xxx&#39;;
+</pre></li>
+</ul>
+</li>
+</ul>
+<ul style="list-style-type: disc;">
+<li>
+<p>Clusters cannot contain LOBs, either as key or nonkey columns.</p>
+</li>
+<li>
+<p>The following data structures are supported only as temporary instances. You cannot store these instances in database tables: <a id="d6690e2139" class="indexterm-anchor"></a></p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">VARRAY</code> of any LOB type</p>
+</li>
+<li>
+<p><code class="codeph">VARRAY</code> of any type containing a LOB type, such as an object type with a LOB attribute</p>
+</li>
+<li>
+<p><code class="codeph">ANYDATA</code> of any LOB type</p>
+</li>
+<li>
+<p><code class="codeph">ANYDATA</code> of any type containing a LOB</p>
+</li>
+</ul>
+</li>
+<li>
+<p>You cannot specify LOB columns in the <code class="codeph">ORDER</code> <code class="codeph">BY</code> clause of a query, the <code class="codeph">GROUP</code> <code class="codeph">BY</code> clause of a query, or an aggregate function.</p>
+</li>
+<li>
+<p>You cannot specify a LOB column in a <code class="codeph">SELECT</code>... <code class="codeph">DISTINCT</code> or <code class="codeph">SELECT</code>... <code class="codeph">UNIQUE</code> statement or in a join. However, you can specify a LOB attribute of an object type column in a <code class="codeph">SELECT</code>... <code class="codeph">DISTINCT</code> statement, a query that uses the <code class="codeph">UNION</code>, or a <code class="codeph">MINUS</code> set operator if the object type of the column has a <code class="codeph">MAP</code> or <code class="codeph">ORDER</code> function defined on it.</p>
+</li>
+<li>
+<p>The first (<code class="codeph">INITIAL</code>) extent of a LOB segment must contain at least three database blocks.</p>
+</li>
+<li>
+<p>The minimum extent size is 14 blocks. For an 8K block size (the default), this is equivalent to 112K.</p>
+</li>
+<li>
+<p>When creating an <code class="codeph">AFTER UPDATE</code> DML trigger, you cannot specify a LOB column in the <code class="codeph">UPDATE</code> <code class="codeph">OF</code> clause.</p>
+</li>
+<li>
+<p>You cannot specify a LOB column as part of an index key. However, you can specify a LOB column in the indextype specification of a domain index. In addition, Oracle Text lets you define an index on a <code class="codeph">CLOB</code> column.</p>
+</li>
+<li>
+<p>In an <code class="codeph">INSERT</code>... <code class="codeph">AS</code> <code class="codeph">SELECT</code> operation, you can bind up to 4000 bytes of data to LOB columns and attributes. There is no length restriction when you do<code class="codeph">INSERT</code>... <code class="codeph">AS</code> <code class="codeph">SELECT</code> from one table to another table using SQL with no bind variables.</p>
+</li>
+<li>
+<p>If a table has both <code class="codeph">LONG</code> and LOB columns, you cannot bind more than 4000 bytes of data to both the <code class="codeph">LONG</code> and LOB columns in the same SQL statement. However, you can bind more than 4000 bytes of data to either the <code class="codeph">LONG</code> or the LOB column.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-E9EA88B2-C8E8-48A0-BCE3-CA0FEB24101A__GUID-A35E1DB4-29A2-4BAF-A8B8-EA3F2BFEECD1">
+<p class="notep1">Note:</p>
+<p>For a table on which you have defined an <code class="codeph">AFTER</code> <code class="codeph">UPDATE</code> DML trigger, if you use OCI functions or the <code class="codeph">DBMS_LOB</code> package to change the value of a LOB column or the LOB attribute of an object type column, the database does not fire the DML trigger.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-E9EA88B2-C8E8-48A0-BCE3-CA0FEB24101A__GUID-F3A2AC0E-EC5B-4936-9591-EBCAD6DBE4ED">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_smart.htm#GUID-EC76077B-3EE9-491E-AC6D-171DA919B84C" title="Oracle LOB storage has two types, SecureFiles LOB storage and BasicFiles LOB storage, which are used with different types of tablespaces.">Using Oracle LOB Storage</a> for SecureFiles capabilities (encryption, compression, and deduplication)</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_tables.htm#GUID-FD9C0216-EACF-4F21-B298-11336B4F4E75">Restrictions for LOBs in Partitioned Index-Organized Tables</a> &#34;</span></p>
+</li>
+<li>
+<p><a href="adlob_long_lob.htm#GUID-C6FC4583-4E71-4BDA-97CB-709EBC707773">Migrating Columns from LONGs to LOBs</a> under <span class="q">&#34;<a href="adlob_long_lob.htm#GUID-4B971F7F-5D26-4D82-923D-C1DF78B88822">Migrating Applications from LONGs to LOBs</a>&#34;</span>, for migration limitations on clustered tables, replication, triggers, domain indexes, and function-based indexes</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_sql_semantics.htm#GUID-8287AF94-2E69-4BB7-B4EB-0584D10DD144">Unsupported Use of LOBs in SQL</a>&#34;</span> for restrictions on SQL semantics</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_tables.htm#GUID-D3001FAF-1C46-4913-964B-61BCC14039B8">Restriction on First Extent of a LOB Segment</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_data_interface.htm#GUID-8EC0212A-BFB6-441B-AEAE-976FDDD11EAB">The Data Interface Used with Remote LOBs</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45149"></a>
+<div class="props_rev_3"><a id="GUID-5BC19227-1392-4765-ACE9-52FA04F0E33E"></a>
+<h3 id="ADLOB-GUID-5BC19227-1392-4765-ACE9-52FA04F0E33E" class="sect3">Restrictions for LOB Operations</h3>
+<div>
+<p>LOB operations have certain restrictions.</p>
+<div class="section">
+<p>General LOB restrictions include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In SQL Loader, a field read from a LOB cannot be used as an argument to a clause. See <span class="q">&#34;<a href="adlob_managing.htm#GUID-BBEE2D3E-909B-4FBE-B6CE-3F3970ED051E" title="Certain utilities are recommended for bulk loading data into LOB columns as part of database setup or maintenance tasks.">Database Utilities for Loading Data into LOBs</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Session migration is not supported for <code class="codeph">BFILE</code>s in shared server (multithreaded server) mode. This implies that operations on open <code class="codeph">BFILE</code>s can persist beyond the end of a call to a shared server. In shared server sessions, <code class="codeph">BFILE</code> operations are bound to one shared server, they cannot migrate from one server to another.</p>
+</li>
+<li>
+<p>Case-insensitive searches on <code class="codeph">CLOB</code> columns often do not succeed. For example, to do a case-insensitive search on a <code class="codeph">CLOB</code> column:</p>
+<pre dir="ltr">ALTER SESSION SET NLS_COMP=LINGUISTIC;
+ALTER SESSION SET NLS_SORT=BINARY_CI;
+SELECT * FROM ci_test WHERE LOWER(clob_col) LIKE &#39;aa%&#39;;
+</pre>
+<p>The select fails without the <code class="codeph">LOWER</code> function. You can do case-insensitive searches with Oracle Text or <code class="codeph">DBMS_LOB.INSTR()</code>. See <a href="adlob_sql_semantics.htm#GUID-47B94072-7782-40DD-BFD7-7D3D8A65B502" title="Various SQL semantics are supported for LOBs.">SQL Semantics and LOBs</a>.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2782">
+<tr>
+<td class="cellalignment2794">
+<table class="cellalignment2787">
+<tr>
+<td class="cellalignment2786"><a href="adlob_intro.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2786"><a href="adlob_managing.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2015, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2796">
+<table class="cellalignment2785">
+<tr>
+<td class="cellalignment2786"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2786"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2786"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2786"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2786"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2786"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

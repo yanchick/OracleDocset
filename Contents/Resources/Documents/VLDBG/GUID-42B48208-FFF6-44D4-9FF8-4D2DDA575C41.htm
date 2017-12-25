@@ -1,0 +1,212 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114265"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/A%20Sample%20Scenario%20for%20Managing%20Statements%20in%20the%20Parallel%20Queue"></a><title>A Sample Scenario for Managing Statements in the Parallel Queue</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="parallel statement queue, sample scenario for managing parallel statements"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-FB21AA5A-6CEE-4845-98C4-FB5BFF877A9E.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-A50AB580-F0D7-467F-8E71-69ABE5129D09.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-42B48208-FFF6-44D4-9FF8-4D2DDA575C41"></a> <span id="PAGE" style="display:none;">366/481</span> <!-- End Header --><a id="VLDBG14090"></a><a id="VLDBG14089"></a>
+<h1 id="VLDBG-GUID-42B48208-FFF6-44D4-9FF8-4D2DDA575C41" class="sect1">A Sample Scenario for Managing Statements in the Parallel Queue</h1>
+<div>
+<p>This scenario discusses how to manage statements in the parallel queue with consumer groups set up with Oracle Database Resource Manager. For this scenario, consider a data warehouse workload that consists of three types of SQL statements:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Short-running SQL statements</p>
+<p>Short-running identifies statements running less than one minute. You expect these statements to have very good response times.</p>
+</li>
+<li>
+<p>Medium-running SQL statements</p>
+<p>Medium-running identifies statements running more than one minute, but less than 15 minutes. You expect these statements to have reasonably good response times.</p>
+</li>
+<li>
+<p>Long-running SQL statements</p>
+<p>Long-running identifies statements that are ad-hoc or complex queries running more than 15 minutes. You expect these statements to take a long time.</p>
+</li>
+</ul>
+<p>For this data warehouse workload, you want better response times for the short-running statements. To achieve this goal, you must ensue that:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Long-running statements do not use all of the parallel server resources, forcing shorter statements to wait in the parallel statement queue.</p>
+</li>
+<li>
+<p>When both short-running and long-running statements are queued, short-running statements should be dequeued ahead of long-running statements.</p>
+</li>
+<li>
+<p>The DOP for short-running queries is limited because the speedup from a very high DOP is not significant enough to justify the use of a large number of parallel servers.</p>
+</li>
+</ul>
+<p><a href="GUID-42B48208-FFF6-44D4-9FF8-4D2DDA575C41.htm#GUID-42B48208-FFF6-44D4-9FF8-4D2DDA575C41__BEIIGBCJ">Example 8-3</a> shows how to set up consumer groups using Oracle Database Resource Manager to set priorities for statements in the parallel statement queue. Note the following for this example:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>By default, users are assigned to the OTHER_GROUPS consumer group. If the estimated execution time of a SQL statement is longer than 1 minute (60 seconds), then the user switches to MEDIUM_SQL_GROUP. Because <code>switch_for_call</code> is set to <code>TRUE</code>, the user returns to OTHER_GROUPS when the statement has completed. If the user is in MEDIUM_SQL_GROUP and the estimated execution time of the statement is longer than 15 minutes (900 seconds), the user switches to LONG_SQL_GROUP. Similarly, because <code>switch_for_call</code> is set to TRUE, the user returns to OTHER_GROUPS when the query has completed. The directives used to accomplish the switch process are <code>switch_time</code>, <code>switch_estimate</code>, <code>switch_for_call</code>, and <code>switch_group</code>.</p>
+</li>
+<li>
+<p>After the number of active parallel servers reaches the value of the <code>PARALLEL_SERVERS_TARGET</code> initialization parameter, subsequent parallel statements are queued. The <code>mgmt_p[1-8]</code> directives control the order in which parallel statements are dequeued when parallel servers become available. Because <code>mgmt_p1</code> is set to <code>100%</code> for SYS_GROUP in this example, parallel statements from SYS_GROUP are always dequeued first. If no parallel statements from SYS_GROUP are queued, then parallel statements from OTHER_GROUPS are dequeued with probability 70%, from MEDIUM_SQL_GROUP with probability 20%, and LONG_SQL_GROUP with probability 10%.</p>
+</li>
+<li>
+<p>Parallel statements issued from OTHER_GROUPS are limited to a DOP of 4 with the setting of the <code>parallel_degree_limit_p1</code> directive.</p>
+</li>
+<li>
+<p>To prevent parallel statements of the LONG_SQL_GROUP group from using all of the parallel servers, which could potentially cause parallel statements from OTHER_GROUPS or MEDIUM_SQL_GROUP to wait for long periods of time, its <code>parallel_server_limit</code> directive is set to <code>50%</code>. This setting means that after LONG_SQL_GROUP has used up 50% of the parallel servers set with the <code>PARALLEL_SERVERS_TARGET</code> initialization parameter, its parallel statements are forced to wait in the queue.</p>
+</li>
+<li>
+<p>Because parallel statements of the LONG_SQL_GROUP group may be queued for a significant amount of time, a timeout is configured for 14400 seconds (4 hours). When a parallel statement from LONG_SQL_GROUP has waited in the queue for 4 hours, the statement is terminated with the error ORA-7454.</p>
+</li>
+</ul>
+<div class="example" id="GUID-42B48208-FFF6-44D4-9FF8-4D2DDA575C41__BEIIGBCJ">
+<p class="titleinexample">Example 8-3 Using consumer groups to set priorities in the parallel statement queue</p>
+<pre dir="ltr">BEGIN
+  DBMS_RESOURCE_MANAGER.CREATE_PENDING_AREA();
+ 
+  /* Create consumer groups.
+   * By default, users start in OTHER_GROUPS, which is automatically
+   * created for every database.
+   */
+  DBMS_RESOURCE_MANAGER.CREATE_CONSUMER_GROUP(
+    &#39;MEDIUM_SQL_GROUP&#39;,
+    &#39;Medium-running SQL statements, between 1 and 15 minutes.  Medium priority.&#39;);
+
+  DBMS_RESOURCE_MANAGER.CREATE_CONSUMER_GROUP(
+    &#39;LONG_SQL_GROUP&#39;,
+    &#39;Long-running SQL statements of over 15 minutes.  Low priority.&#39;);
+ 
+  /* Create a plan to manage these consumer groups */
+  DBMS_RESOURCE_MANAGER.CREATE_PLAN(
+    &#39;REPORTS_PLAN&#39;,
+    &#39;Plan for daytime that prioritizes short-running queries&#39;);
+ 
+  DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE(
+    &#39;REPORTS_PLAN&#39;, &#39;SYS_GROUP&#39;, &#39;Directive for sys activity&#39;,
+    mgmt_p1 =&gt; 100);
+ 
+  DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE(
+    &#39;REPORTS_PLAN&#39;, &#39;OTHER_GROUPS&#39;, &#39;Directive for short-running queries&#39;,
+    mgmt_p2 =&gt; 70,
+    parallel_degree_limit_p1 =&gt; 4,
+    switch_time =&gt; 60, switch_estimate =&gt; TRUE, switch_for_call =&gt; TRUE,
+    switch_group =&gt; &#39;MEDIUM_SQL_GROUP&#39;);
+ 
+  DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE(
+    &#39;REPORTS_PLAN&#39;, &#39;MEDIUM_SQL_GROUP&#39;, &#39;Directive for medium-running queries&#39;,
+    mgmt_p2 =&gt; 20,
+    parallel_server_limit =&gt; 80,
+    switch_time =&gt; 900, switch_estimate =&gt; TRUE, switch_for_call =&gt; TRUE,
+    switch_group =&gt; &#39;LONG_SQL_GROUP&#39;);
+ 
+  DBMS_RESOURCE_MANAGER.CREATE_PLAN_DIRECTIVE(
+    &#39;REPORTS_PLAN&#39;, &#39;LONG_SQL_GROUP&#39;, &#39;Directive for medium-running queries&#39;,
+    mgmt_p2 =&gt; 10,
+    parallel_server_limit =&gt; 50,
+    parallel_queue_timeout =&gt; 14400);
+ 
+  DBMS_RESOURCE_MANAGER.SUBMIT_PENDING_AREA();
+END;
+/
+
+/* Allow all users to run in these consumer groups */
+EXEC DBMS_RESOURCE_MANAGER_PRIVS.GRANT_SWITCH_CONSUMER_GROUP(
+  &#39;public&#39;, &#39;MEDIUM_SQL_GROUP&#39;, FALSE);
+ 
+EXEC DBMS_RESOURCE_MANAGER_PRIVS.GRANT_SWITCH_CONSUMER_GROUP(
+  &#39;public&#39;, &#39;LONG_SQL_GROUP&#39;, FALSE);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-FB21AA5A-6CEE-4845-98C4-FB5BFF877A9E.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-A50AB580-F0D7-467F-8E71-69ABE5129D09.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,15 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Preinstallation Checklist", anchor: "RILIN960", file: "chklist.htm" },
+  { topic: "chapter", section: "2", title: "Installing Oracle RAC and Oracle RAC One Node", anchor: "RILIN1006", file: "racinstl.htm" },
+  { topic: "chapter", section: "3", title: "Creating Oracle RAC or Oracle RAC One Node Databases with DBCA", anchor: "RILIN004", file: "dbcacrea.htm" },
+  { topic: "chapter", section: "4", title: "Deploying Oracle RAC Databases with Rapid Home Provisioning", anchor: "RILIN0006", file: "racrhp.htm" },
+  { topic: "chapter", section: "5", title: "Oracle Real Application Clusters Postinstallation Procedures", anchor: "RILIN1038", file: "postinst.htm" },
+  { topic: "chapter", section: "6", title: "Using Server Pools with Oracle RAC", anchor: "RILIN1063", file: "srvpool.htm" },
+  { topic: "chapter", section: "7", title: "Understanding the Oracle RAC Installed Configuration", anchor: "RILIN006", file: "undrstnd.htm" },
+  { topic: "chapter", section: "8", title: "Removing Oracle Real Application Clusters Software", anchor: "RILIN1099", file: "rem_orcl.htm" },
+  { topic: "appendix", section: "A", title: "Troubleshooting Oracle Real Application Clusters Installations", anchor: "RILIN1106", file: "trouble.htm" },
+  { topic: "appendix", section: "B", title: "Using Scripts or Response Files to Create Oracle RAC Databases", anchor: "RILIN1116", file: "scripts.htm" },
+  { topic: "appendix", section: "C", title: "Directory Structure for Oracle RAC Environments", anchor: "RILIN009", file: "apa.htm" },
+  { topic: "appendix", section: "D", title: "How to Stop Processes in an Existing Oracle RAC Database", anchor: "RILIN1168", file: "procstop.htm" },
+  { topic: "appendix", section: "E", title: "Managing Oracle Database Port Numbers", anchor: "RILIN1178", file: "ports.htm" },
+  { } ];

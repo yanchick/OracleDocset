@@ -1,0 +1,1173 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-47"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20Pipelined%20and%20Parallel%20Table%20Functions"></a><title>Using Pipelined and Parallel Table Functions</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="autonomous transaction restriction"/>
+<meta name="dcterms.created" content="2017-06-09T01:57:02Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Data Cartridge Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E15882-06"/>
+<meta name="dcterms.isVersionOf" content="ADDCI"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="aggr_functions.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="cart_design.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E15882-06.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-EFB94CFB-3E44-4236-B490-ADBB480C94D4"></a> <span id="PAGE" style="display:none;">19/33</span> <!-- End Header -->
+<a id="ADDCI2140"></a>
+<h1 id="ADDCI-GUID-EFB94CFB-3E44-4236-B490-ADBB480C94D4" class="sect1"><span class="enumeration_chapter">13</span> Using Pipelined and Parallel Table Functions</h1>
+<div>
+<p>Consider table functions and the generic datatypes <code class="codeph">ANYTYPE</code>, <code class="codeph">ANYDATA</code>, and <code class="codeph">ANYDATASET</code>, which are often used with table functions.</p>
+</div>
+<a id="ADDCI4678"></a><a id="ADDCI4679"></a><a id="ADDCI4677"></a>
+<div class="props_rev_3"><a id="GUID-67CEE062-4AEE-4E06-87A3-609DAF0DFC0C"></a>
+<h2 id="ADDCI-GUID-67CEE062-4AEE-4E06-87A3-609DAF0DFC0C" class="sect2">Overview of Table Functions</h2>
+<div>
+<p>Table functions are functions that produce a collection of rows (either a nested table or a varray) that can be queried like a physical database table. You use a table function like the name of a database table, in the <code class="codeph">FROM</code> clause of a query.</p>
+<p>A table function can take a collection of rows as input. An input collection parameter can be either a collection type or a <code class="codeph">REF CURSOR</code>.</p>
+<p>Table function may be executed in parallel, and returned rows can be streamed directly to the next process without intermediate staging. Rows from a collection returned by a table function can also be pipelined; this means that they are iteratively returned as they are produced, instead of being returned in a single batch after all processing of the table function&#39;s input is completed.</p>
+<p>Streaming, pipelining, and parallel execution of table functions can improve performance in the following manner:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>By enabling multithreaded, concurrent execution of table functions</p>
+</li>
+<li>
+<p>By eliminating intermediate staging between processes</p>
+</li>
+<li>
+<p>By improving query response time: With non-pipelined table functions, the entire collection returned by a table function must be constructed and returned to the server before the query can return a single result row. Pipelining enables rows to be returned iteratively, as they are produced. This also reduces the memory that a table function requires, as the object cache does not have to materialize the entire collection.</p>
+</li>
+<li>
+<p>By iteratively providing result rows from the collection returned by a table function as the rows are produced instead of waiting until the entire collection is staged in tables or memory and then returning the entire collection</p>
+</li>
+</ul>
+<p><a href="pipe_paral_tbl.htm#GUID-67CEE062-4AEE-4E06-87A3-609DAF0DFC0C__CIHHJFCF">Figure 12-1</a> shows a typical data-processing scenario in which data goes through several (in this case, three) transformations, implemented by table functions, before finally being loaded into a database. In this scenario, the table functions are not run in parallel, and the entire result collection must be staged after each transformation.</p>
+<div class="figure" id="GUID-67CEE062-4AEE-4E06-87A3-609DAF0DFC0C__CIHHJFCF">
+<p class="titleinfigure">Figure 12-1 Typical Data Processing with Non-Parallel, Non-Pipelined Table Functions</p>
+<img width="515" height="94" src="img/GUID-E3A0013D-F1BB-44A5-AF09-BF70DF586D94-default.gif" alt="Description of Figure 12-1 follows" title="Description of Figure 12-1 follows"/><br/>
+<a href="img_text/GUID-E3A0013D-F1BB-44A5-AF09-BF70DF586D94-print.htm">Description of &#34;Figure 12-1 Typical Data Processing with Non-Parallel, Non-Pipelined Table Functions&#34;</a></div>
+<!-- class="figure" -->
+<p>By contrast, <a href="pipe_paral_tbl.htm#GUID-67CEE062-4AEE-4E06-87A3-609DAF0DFC0C__I1006439">Figure 12-2</a> shows how streaming and parallel execution can streamline the same scenario.</p>
+<div class="figure" id="GUID-67CEE062-4AEE-4E06-87A3-609DAF0DFC0C__I1006439">
+<p class="titleinfigure">Figure 12-2 Data Processing Using Pipelining and Parallel Execution</p>
+<img width="509" height="114" src="img/GUID-1013D932-6503-4357-B5B1-609576339F77-default.gif" alt="Description of Figure 12-2 follows" title="Description of Figure 12-2 follows"/><br/>
+<a href="img_text/GUID-1013D932-6503-4357-B5B1-609576339F77-print.htm">Description of &#34;Figure 12-2 Data Processing Using Pipelining and Parallel Execution&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="ADDCI4680"></a>
+<div class="props_rev_3"><a id="GUID-DA4B586B-A7EC-4B2B-80D0-A48298806FEF"></a>
+<h2 id="ADDCI-GUID-DA4B586B-A7EC-4B2B-80D0-A48298806FEF" class="sect2">Table Function Concepts</h2>
+<div>
+<p>Consider table functions and some concepts related to pipelining and parallel execution of these table functions.</p>
+</div>
+<a id="ADDCI4682"></a><a id="ADDCI4683"></a><a id="ADDCI4684"></a><a id="ADDCI4685"></a><a id="ADDCI4681"></a>
+<div class="props_rev_3"><a id="GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED"></a>
+<h3 id="ADDCI-GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED" class="sect3">Table Functions</h3>
+<div>
+<p>Table functions return a collection type instance and can be queried like a table by calling the function in the <code class="codeph">FROM</code> clause of a query. Table functions use the <code class="codeph">TABLE</code> keyword.</p>
+<p>The following example shows a table function <code class="codeph">GetBooks</code> that takes a <code class="codeph">CLOB</code> as input and returns an instance of the collection type <code class="codeph">BookSet_t</code>. The <code class="codeph">CLOB</code> column stores a catalog listing of books in some format (either proprietary or following a standard such as XML). The table function returns all the catalogs and their corresponding book listings. The collection type <code class="codeph">BookSet_t</code> is defined in <a href="pipe_paral_tbl.htm#GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED__CIHBGIFJ">Example 12-1</a>.</p>
+<p>The <code class="codeph">CLOB</code>s are stored in a table <code class="codeph">Catalogs</code>, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED__CIHECFFI">Example 12-2</a>.</p>
+<p>Function <code class="codeph">GetBooks()</code> is defined in <a href="pipe_paral_tbl.htm#GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED__CIHBIIEH">Example 12-3</a>.</p>
+<p>The query in <a href="pipe_paral_tbl.htm#GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED__CIHEJHJB">Example 12-4</a> returns all the catalogs and their corresponding book listings.</p>
+<div class="example" id="GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED__CIHBGIFJ">
+<p class="titleinexample">Example 12-1 Creating a Collection Type</p>
+<pre dir="ltr">CREATE TYPE Book_t AS OBJECT
+( name VARCHAR2(100),
+  author VARCHAR2(30),
+  abstract VARCHAR2(1000));
+
+CREATE TYPE BookSet_t AS TABLE OF Book_t;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED__CIHECFFI">
+<p class="titleinexample">Example 12-2 Storing a Clob in a Table</p>
+<pre dir="ltr">CREATE TABLE Catalogs
+( name VARCHAR2(30), 
+  cat CLOB);
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED__CIHBIIEH">
+<p class="titleinexample">Example 12-3 Creating a Function that Returns a Collection Type</p>
+<pre dir="ltr">CREATE FUNCTION GetBooks(a CLOB) RETURN BookSet_t;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-B3C5E3EC-9041-428D-AD25-0C3BA6F09BED__CIHEJHJB">
+<p class="titleinexample">Example 12-4 Using a Collection Type in a Query</p>
+<pre dir="ltr">SELECT c.name, Book.name, Book.author, Book.abstract
+  FROM Catalogs c, TABLE(GetBooks(c.cat)) Book;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4686"></a>
+<div class="props_rev_3"><a id="GUID-4382D7CF-942A-479F-9726-2C801BE614FB"></a>
+<h3 id="ADDCI-GUID-4382D7CF-942A-479F-9726-2C801BE614FB" class="sect3">Pipelined Table Functions</h3>
+<div>
+<p>Data is said to be pipelined if it is consumed by a consumer (transformation) as soon as the producer (transformation) produces it, without being staged in tables or a cache before being input to the next transformation.</p>
+<p>Pipelining enables a table function to return rows faster and can reduce the memory required to cache a table function&#39;s results.</p>
+<p>A pipelined table function can return the table function&#39;s result collection in subsets. The returned collection behaves like a stream that can be fetched from on demand. This makes it possible to use a table function like a virtual table.</p>
+<p>Pipelined table functions can be implemented in two ways:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In the native PL/SQL approach, the consumer and producers can run on separate execution threads (either in the same or different process context) and communicate through a pipe or queuing mechanism. This approach is similar to co-routine execution.</p>
+</li>
+<li>
+<p>In the interface approach, the consumer and producers run on the same execution thread. Producer explicitly returns the control back to the consumer after producing a set of results. In addition, the producer caches the current state so that it can resume where it left off when the consumer invokes it again.</p>
+<p>The interface approach requires you to implement a set of well-defined interfaces in a procedural language.</p>
+</li>
+</ul>
+<p>The co-routine execution model provides a simpler, native PL/SQL mechanism for implementing pipelined table functions, but this model cannot be used for table functions written in C or Java. The interface approach, on the other hand, can. The interface approach requires the producer to save the current state information in a context object before returning so that this state can be restored on the next invocation.</p>
+<p>In this discussion, the term <span class="italic">table function</span> refers to a <span class="italic">pipelined</span> table function&mdash; a table function that returns a collection in an iterative, pipelined way.</p>
+</div>
+</div>
+<a id="ADDCI4690"></a><a id="ADDCI4688"></a><a id="ADDCI4689"></a><a id="ADDCI4687"></a>
+<div class="props_rev_3"><a id="GUID-A11569C5-BBF7-4838-9AE6-8BAEAEB58265"></a>
+<h3 id="ADDCI-GUID-A11569C5-BBF7-4838-9AE6-8BAEAEB58265" class="sect3">Pipelined Table Functions with REF CURSOR Arguments</h3>
+<div>
+<p>A <a id="d37876e470" class="indexterm-anchor"></a>pipelined table function can accept any argument that regular functions accept. A table function that accepts a <code class="codeph">REF CURSOR</code> as an argument can serve as a transformation function. That is, it can use the <code class="codeph">REF CURSOR</code> to fetch the input rows, perform some transformation on them, and then pipeline the results out (using either the interface approach or the native PL/SQL approach).</p>
+<p>For example, the following code sketches the declarations that define a <code class="codeph">StockPivot</code> function. This function converts a row of the type (<code class="codeph">Ticker, OpenPrice, ClosePrice</code>) into two rows of the form (<code class="codeph">Ticker, PriceType, Price</code>). Calling <code class="codeph">StockPivot</code> for the row (<code class="codeph">&#34;ORCL&#34;, 41, 42</code>) generates two rows: (<code class="codeph">&#34;ORCL&#34;, &#34;O&#34;, 41</code>) and (<code class="codeph">&#34;ORCL&#34;, &#34;C&#34;, 42</code>).</p>
+<p>Input data for the table function might come from a source such as table <code class="codeph">StockTable</code>:</p>
+<pre dir="ltr">CREATE TABLE StockTable (
+  ticker VARCHAR(4),
+  openprice NUMBER,
+  closeprice NUMBER
+);
+</pre>
+<p>The declarations are in <a href="pipe_paral_tbl.htm#GUID-A11569C5-BBF7-4838-9AE6-8BAEAEB58265__CIHEGADE">Example 12-5</a>.</p>
+<p><a href="pipe_paral_tbl.htm#GUID-A11569C5-BBF7-4838-9AE6-8BAEAEB58265__CIHIGGCC">Example 12-6</a> uses the <code class="codeph">StockPivot</code> table function.</p>
+<p>In the preceding query, the pipelined table function <code class="codeph">StockPivot</code> fetches rows from the <code class="codeph">CURSOR</code> subquery <code class="codeph">SELECT * FROM StockTable</code>, performs the transformation, and pipelines the results back to the user as a table. The function produces two output rows (collection elements) for each input row.</p>
+<p>Note that when a <code class="codeph">CURSOR</code> subquery is passed from SQL to a <code class="codeph">REF CURSOR</code> function argument as in the preceding example, the referenced cursor is open when the function begins executing.</p>
+<div class="section">
+<p>Note also that cursor operations are not allowed for <code class="codeph">REF CURSOR</code> variables based on table functions: <code class="codeph">SELECT FOR UPDATE</code>, and <code class="codeph">WHERE CURRENT OF</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-A11569C5-BBF7-4838-9AE6-8BAEAEB58265__GUID-1CB8B210-E43C-4EF3-9103-7979E2F93286">
+<p class="notep1">See Also:</p>
+<p><a href="pipelined_example.htm#GUID-B4BE4F35-B893-45D6-B8B4-235E23F80C6B">Pipelined Table Functions: Interface Approach Example</a> for a complete implementation of this table function using the interface approach, in both C and Java.</p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-A11569C5-BBF7-4838-9AE6-8BAEAEB58265__CIHEGADE">
+<p class="titleinexample">Example 12-5 Declaring a Pipelined Table Function with REF CURSOR Arguments</p>
+<pre dir="ltr">-- Create the types for the table function&#39;s output collection 
+-- and collection elements
+
+CREATE TYPE TickerType AS OBJECT 
+(
+  ticker VARCHAR2(4),
+  PriceType VARCHAR2(1),
+  price NUMBER
+);
+
+CREATE TYPE TickerTypeSet AS TABLE OF TickerType;
+
+-- Define the ref cursor type
+
+CREATE PACKAGE refcur_pkg IS
+  TYPE refcur_t IS REF CURSOR RETURN StockTable%ROWTYPE;
+END refcur_pkg;
+/
+
+-- Create the table function
+
+CREATE FUNCTION StockPivot(p refcur_pkg.refcur_t) RETURN TickerTypeSet
+PIPELINED ... ;
+/
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-A11569C5-BBF7-4838-9AE6-8BAEAEB58265__CIHIGGCC">
+<p class="titleinexample">Example 12-6 Using a Pipelined Table Function with REF CURSOR Arguments</p>
+<pre dir="ltr">SELECT * FROM TABLE(StockPivot(CURSOR(SELECT * FROM StockTable)));
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4691"></a>
+<div class="props_rev_3"><a id="GUID-15ED880C-113D-4B44-8732-D70A0AAAD405"></a>
+<h3 id="ADDCI-GUID-15ED880C-113D-4B44-8732-D70A0AAAD405" class="sect3">Parallel Execution of Table Functions</h3>
+<div>
+<p>With <a id="d37876e624" class="indexterm-anchor"></a>parallel execution of a function that appears in the <code class="codeph">SELECT</code> list, execution of the function is pushed down to and conducted by multiple slave scan processes. These each execute the function on a segment of the function&#39;s input data.</p>
+<p>For example, the query</p>
+<pre dir="ltr">SELECT f(col1) FROM tab;
+</pre>
+<p>is parallelized if <code class="codeph">f</code> is a pure function. The SQL executed by a slave scan process is similar to:</p>
+<pre dir="ltr">SELECT f(col1) FROM tab WHERE ROWID BETWEEN :b1 AND :b2;
+</pre>
+<p>Each slave scan operates on a range of rowids and applies function <code class="codeph">f</code> to each contained row. Function <code class="codeph">f</code> is then executed by the scan processes; it does not run independently of them.</p>
+<p>Unlike a function that appears in the <code class="codeph">SELECT</code> list, a table function is called in the <code class="codeph">FROM</code> clause and returns a collection. This affects the way that table function input data is partitioned among slave scans because the partitioning approach must be appropriate for the operation that the table function performs. (For example, an <code class="codeph">ORDER BY</code> operation requires input to be range-partitioned, whereas a <code class="codeph">GROUP BY</code> operation requires input to be hash partitioned.)</p>
+<p>A table function itself specifies in its declaration the partitioning approach that is appropriate for it, as described in <span class="q">&#34;<a href="pipe_paral_tbl.htm#GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0">Input Data Partitioning</a>&#34;</span>. The function is then executed in a two-stage operation. First, one set of slave processes partitions the data as directed in the function&#39;s declaration; then a second set of slave scans executes the table function in parallel on the partitioned data. The table function in the following query has a <code class="codeph">REF CURSOR</code> parameter:</p>
+<pre dir="ltr">SELECT * FROM TABLE(f(CURSOR(SELECT * FROM tab)));
+</pre>
+<p>The scan is performed by one set of slave processes, which redistributes the rows (based on the partitioning method specified in the function declaration) to a second set of slave processes that actually executes function <code class="codeph">f</code> in parallel.</p>
+</div>
+</div>
+</div>
+<a id="ADDCI4692"></a>
+<div class="props_rev_3"><a id="GUID-6785018C-8D7E-453B-A6D0-843648118EA6"></a>
+<h2 id="ADDCI-GUID-6785018C-8D7E-453B-A6D0-843648118EA6" class="sect2">Pipelined Table Functions</h2>
+<div>
+<p>Consider issues involved in implementing pipelined table functions.</p>
+</div>
+<a id="ADDCI4693"></a>
+<div class="props_rev_3"><a id="GUID-B322B116-1D3D-4E5B-9625-2B31189589AF"></a>
+<h3 id="ADDCI-GUID-B322B116-1D3D-4E5B-9625-2B31189589AF" class="sect3">Implementation Choices for Pipelined Table Functions</h3>
+<div>
+<p>As noted previously, two approaches are supported for implementing <a id="d37876e789" class="indexterm-anchor"></a>pipelined table functions: the interface approach and the PL/SQL approach.</p>
+<p>The interface approach requires the user to supply a type that implements a predefined Oracle interface consisting of start, fetch, and close operations. The type is associated with the table function when the table function is created. During query execution, the <code class="codeph">fetch</code> method is invoked repeatedly to iteratively retrieve the results. With the interface approach, the methods of the implementation type associated with the table function can be implemented in any of the supported internal or external languages (including PL/SQL, C/C++, and Java).</p>
+<p>With the PL/SQL approach, a single PL/SQL function includes a special instruction to pipeline results (single elements of the collection) out of the function instead of returning the whole collection as a single value. The native PL/SQL approach is simpler to implement because it requires writing only one PL/SQL function.</p>
+<p>The approach used to implement pipelined table functions does not affect the way they are used. Pipelined table functions are used in SQL statements in exactly the same way regardless of the approach used to implement them.</p>
+</div>
+</div>
+<a id="ADDCI4695"></a><a id="ADDCI4696"></a><a id="ADDCI4694"></a>
+<div class="props_rev_3"><a id="GUID-E82D6DF1-721B-401C-8BF6-5ECD068FAE67"></a>
+<h3 id="ADDCI-GUID-E82D6DF1-721B-401C-8BF6-5ECD068FAE67" class="sect3">Declaring Pipelined Table Functions</h3>
+<div>
+<div class="section">
+<p>You declare a pipelined table function by specifying the <code class="codeph">PIPELINED</code> keyword. This keyword indicates that the function returns rows iteratively. The return type of the pipelined table function must be a collection type (a nested <code class="codeph">table</code> or a <code class="codeph">varray</code>).</p>
+<p><a href="pipe_paral_tbl.htm#GUID-E82D6DF1-721B-401C-8BF6-5ECD068FAE67__CIHCGIAE">Example 12-7</a> shows declarations of pipelined table functions implemented using the interface approach. The interface routines for functions <code class="codeph">GetBooks</code> and <code class="codeph">StockPivot</code> have been implemented in the types <code class="codeph">BookMethods</code> and <code class="codeph">StockPivotImpl</code>, respectively.</p>
+<p><a href="pipe_paral_tbl.htm#GUID-E82D6DF1-721B-401C-8BF6-5ECD068FAE67__CIHEIAEC">Example 12-8</a> shows declarations of the same table functions implemented using the native PL/SQL approach.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-E82D6DF1-721B-401C-8BF6-5ECD068FAE67__CIHCGIAE">
+<p class="titleinexample">Example 12-7 Declaring Pipelined Table Functions for the Interface Approach</p>
+<pre dir="ltr">CREATE FUNCTION GetBooks(cat CLOB) RETURN BookSet_t PIPELINED USING BookMethods;
+
+CREATE FUNCTION StockPivot(p refcur_pkg.refcur_t) 
+  RETURN TickerTypeSet PIPELINED USING StockPivotImpl;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-E82D6DF1-721B-401C-8BF6-5ECD068FAE67__CIHEIAEC">
+<p class="titleinexample">Example 12-8 Declaring Pipelined Table Functions for the Native PL/SQL Approach</p>
+<pre dir="ltr">CREATE FUNCTION GetBooks(cat CLOB) RETURN BookSet_t <span class="bold">PIPELINED IS</span> ...;
+
+CREATE FUNCTION StockPivot(p refcur_pkg.refcur_t) RETURN TickerTypeSet
+<span class="bold">PIPELINED IS...</span>;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4698"></a><a id="ADDCI4697"></a>
+<div class="props_rev_3"><a id="GUID-708EEC7E-7DCF-478C-9AB1-A630446B708D"></a>
+<h3 id="ADDCI-GUID-708EEC7E-7DCF-478C-9AB1-A630446B708D" class="sect3">Implementing the Native PL/SQL Approach</h3>
+<div>
+<div class="section">
+<p>In PL/SQL, the <code class="codeph">PIPE ROW</code> statement causes a table function to pipe a row and continue processing. The statement enables a PL/SQL table function to return rows as soon as they are produced. This is demonstrated in <a href="pipe_paral_tbl.htm#GUID-708EEC7E-7DCF-478C-9AB1-A630446B708D__CIHDGJAF">Example 12-9</a>. For performance reasons, the PL/SQL run-time system provides the rows to the consumer in batches.</p>
+<p>In <a href="pipe_paral_tbl.htm#GUID-708EEC7E-7DCF-478C-9AB1-A630446B708D__CIHDGJAF">Example 12-9</a>, the <code class="codeph">PIPE ROW(out_rec)</code> statement pipelines data out of the PL/SQL table function.</p>
+<p>The <code class="codeph">PIPE ROW</code> statement may be used only in the body of pipelined table functions; an error is raised if it is used anywhere else. The <code class="codeph">PIPE ROW</code> statement can be omitted for a pipelined table function that returns no rows.</p>
+<p>A pipelined table function must have a <code class="codeph">RETURN</code> statement that does not return a value. The <code class="codeph">RETURN</code> statement transfers the control back to the consumer and ensures that the next fetch gets a <code class="codeph">NO_DATA_FOUND</code> exception.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-708EEC7E-7DCF-478C-9AB1-A630446B708D__CIHDGJAF">
+<p class="titleinexample">Example 12-9 Implementing a Pipelined Table Function for the Native PL/SQL Approach</p>
+<pre dir="ltr">CREATE FUNCTION StockPivot(p refcur_pkg.refcur_t) RETURN TickerTypeSet
+PIPELINED IS
+  out_rec TickerType := TickerType(NULL,NULL,NULL);
+  in_rec p%ROWTYPE;
+BEGIN
+  LOOP
+    FETCH p INTO in_rec; 
+    EXIT WHEN p%NOTFOUND;
+    -- first row
+    out_rec.ticker := in_rec.Ticker;
+    out_rec.PriceType := &#39;O&#39;;
+    out_rec.price := in_rec.OpenPrice;
+    PIPE ROW(out_rec);
+    -- second row
+    out_rec.PriceType := &#39;C&#39;;   
+    out_rec.Price := in_rec.ClosePrice;
+    PIPE ROW(out_rec);
+  END LOOP;
+  CLOSE p;
+  RETURN;
+END;
+/
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4700"></a><a id="ADDCI4699"></a>
+<div class="props_rev_3"><a id="GUID-FDB7769F-62F1-4C8E-8356-70629FACDE0A"></a>
+<h3 id="ADDCI-GUID-FDB7769F-62F1-4C8E-8356-70629FACDE0A" class="sect3">Pipelining Between PL/SQL Table Functions</h3>
+<div>
+<div class="section">
+<p>With serial execution, results are <a id="d37876e1049" class="indexterm-anchor"></a>pipelined from one PL/SQL table function to another using an approach similar to co-routine execution. <a href="pipe_paral_tbl.htm#GUID-FDB7769F-62F1-4C8E-8356-70629FACDE0A__CIHBGDJD">Example 12-10</a> pipelines results from function <code class="codeph">g</code> to function <code class="codeph">f</code>.</p>
+<p>Parallel execution works similarly, except that each function executes in a different process or set of processes.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-FDB7769F-62F1-4C8E-8356-70629FACDE0A__CIHBGDJD">
+<p class="titleinexample">Example 12-10 Pipelining Function Results from One Function to Another</p>
+<pre dir="ltr">SELECT * FROM TABLE(f(CURSOR(SELECT * FROM TABLE(g()))));
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4701"></a>
+<div class="props_rev_3"><a id="GUID-B3132BF8-26CC-4DE7-A778-92D558BD59EA"></a>
+<h3 id="ADDCI-GUID-B3132BF8-26CC-4DE7-A778-92D558BD59EA" class="sect3">Combining PIPE ROW with AUTONOMOUS_TRANSACTION</h3>
+<div>
+<p>Because table functions pass control back and forth to a calling routine as rows are produced, there is a restriction on combining table functions and <code class="codeph">PRAGMA AUTONOMOUS_TRANSACTION</code>s. If a table function is part of an autonomous transaction, it must <code class="codeph">COMMIT</code> or <code class="codeph">ROLLBACK</code> before each <code class="codeph">PIPE ROW</code> statement, to avoid an error in the calling subprogram.</p>
+</div>
+</div>
+<a id="ADDCI4702"></a>
+<div class="props_rev_3"><a id="GUID-43335D83-F0E2-4ECC-91D6-DB2C639399D6"></a>
+<h3 id="ADDCI-GUID-43335D83-F0E2-4ECC-91D6-DB2C639399D6" class="sect3">Implementing the Interface Approach</h3>
+<div>
+<div class="section">
+<p>To use the interface approach, you must define an implementation type that implements the <code class="codeph">ODCITable</code> interface. This interface consists of start, fetch, and close routines whose signatures are specified by Oracle and which you implement as methods of the type.</p>
+<p>Oracle invokes the methods to perform the following steps in the execution of a query that contains a table function:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li><span>Start by initializing the scan context parameter, using the <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a> function.</span></li>
+<li><span>Fetch to produce a subset of the rows in the result collection. The <a href="pipe_paral_tbl_ref.htm#GUID-54F5311D-8708-44AB-85A9-9CFE3EE79C76">ODCITableFetch()</a> method is invoked as many times as necessary to return the entire collection.</span></li>
+<li><span>Close and clean up (release memory and so on) using <a href="pipe_paral_tbl_ref.htm#GUID-9814FCDE-05BE-4F25-9861-FDC640F43E5C">ODCITableClose()</a> after the last <a href="pipe_paral_tbl_ref.htm#GUID-54F5311D-8708-44AB-85A9-9CFE3EE79C76">ODCITableFetch()</a>.</span></li>
+</ol>
+<div class="section">
+<p>The <code class="codeph">ODCITable</code> interface also defines two optional routines, <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> and <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a>, that are invoked at compilation time:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a> determines the structure of the data type the table function returns, in situations where this cannot be defined in a static manner.</p>
+</li>
+<li>
+<p><a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> initializes the scan context parameter. If this method is implemented, the scan context it prepares is passed to the <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a> routine, and the context is maintained between restarts of the table function. It also provides projection information and supports the return of transient anonymous types.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="ADDCI4703"></a>
+<div class="props_rev_3"><a id="GUID-93026BCE-7C11-4333-AA7F-19120ADFA135"></a>
+<h4 id="ADDCI-GUID-93026BCE-7C11-4333-AA7F-19120ADFA135" class="sect4">Scan Context</h4>
+<div>
+<p>For the fetch method to produce the next set of rows, a table function must be able to maintain context between successive invocations of the interface routines to fetch another set of rows. This context, called the scan context, is defined by the attributes of the implementation type. A table function preserves the scan context by modeling it in an object instance of the implementation type.</p>
+</div>
+</div>
+<a id="ADDCI4704"></a>
+<div class="props_rev_3"><a id="GUID-B9109CC7-E2BD-48EB-AF91-C6ABEF0BB855"></a>
+<h4 id="ADDCI-GUID-B9109CC7-E2BD-48EB-AF91-C6ABEF0BB855" class="sect4">Start Routine</h4>
+<div>
+<p>The start routine <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a> is the first routine that is invoked to begin retrieving rows from a table function. This routine typically performs the setup needed for the scan, creating the scan context (as an object instance <code class="codeph">sctx</code>) and returning it to Oracle. However, if <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> is implemented, it creates the scan context, which is then passed to the <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a> routine. The arguments to the table function, specified by the user in the <code class="codeph">SELECT</code> statement, are passed in as parameters to this routine.</p>
+<p>Note that any <code class="codeph">REF CURSOR</code> arguments of a table function must be declared as <code class="codeph">SYS_REFCURSOR</code> type in the declaration of the <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a>. Ordinary <code class="codeph">REF CURSOR</code> types cannot be used as formal argument types in <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a>. Ordinary <code class="codeph">REF CURSOR</code> types can only be declared in a package, and types defined in a package cannot be used as formal argument types in a type method. To use a <code class="codeph">REF CURSOR</code> type in <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a>, you must use the system-defined <code class="codeph">SYS_REFCURSOR</code> type.</p>
+</div>
+</div>
+<a id="ADDCI4705"></a>
+<div class="props_rev_3"><a id="GUID-29D181AC-ECD0-4F68-8AE3-E4365CF3AD0C"></a>
+<h4 id="ADDCI-GUID-29D181AC-ECD0-4F68-8AE3-E4365CF3AD0C" class="sect4">Fetch Routine</h4>
+<div>
+<p>The fetch routine <a href="pipe_paral_tbl_ref.htm#GUID-54F5311D-8708-44AB-85A9-9CFE3EE79C76">ODCITableFetch()</a> is invoked one or more times by Oracle to retrieve all the rows in the table function&#39;s result set. The scan context is passed in as a parameter. This routine returns the next subset of one or more rows.</p>
+<p>The fetch routine is called by Oracle repeatedly until all the rows have been returned by the table function. Returning more rows in each invocation of <a href="pipe_paral_tbl_ref.htm#GUID-54F5311D-8708-44AB-85A9-9CFE3EE79C76">ODCITableFetch()</a> reduces the number of fetch calls that must be made and thus improves performance. The table function should return a null collection to indicate that all rows have been returned.</p>
+<p>The <code class="codeph">nrows</code> parameter indicates the number of rows that are required to satisfy the current OCI call. For example, if the current OCI call is an <a href="pipe_paral_tbl_ref.htm#GUID-54F5311D-8708-44AB-85A9-9CFE3EE79C76">ODCITableFetch()</a> that requested <code class="codeph">100</code> rows, and <code class="codeph">20</code> rows have been returned, then the <code class="codeph">nrows</code> parameter is equal to <code class="codeph">80</code>. The fetch function is allowed to return a different number of rows. The main purpose of this parameter is to prevent <a href="pipe_paral_tbl_ref.htm#GUID-54F5311D-8708-44AB-85A9-9CFE3EE79C76">ODCITableFetch()</a> from returning more rows than actually required. If <a href="pipe_paral_tbl_ref.htm#GUID-54F5311D-8708-44AB-85A9-9CFE3EE79C76">ODCITableFetch()</a> returns more rows than the value of this parameter, the rows are cached and returned in subsequent <a href="pipe_paral_tbl_ref.htm#GUID-54F5311D-8708-44AB-85A9-9CFE3EE79C76">ODCITableFetch()</a> calls, or they are discarded if the OCI statement handle is closed before they are all fetched.</p>
+</div>
+</div>
+<a id="ADDCI4707"></a><a id="ADDCI4706"></a>
+<div class="props_rev_3"><a id="GUID-A8636931-4B13-4D68-8289-3F29D1B687D7"></a>
+<h4 id="ADDCI-GUID-A8636931-4B13-4D68-8289-3F29D1B687D7" class="sect4">Close Routine</h4>
+<div>
+<p>The close routine <a href="pipe_paral_tbl_ref.htm#GUID-9814FCDE-05BE-4F25-9861-FDC640F43E5C">ODCITableClose()</a> is invoked by Oracle after the last fetch invocation. The scan context is passed in as a parameter. This routine performs the necessary cleanup operations.</p>
+<div class="figure" id="GUID-A8636931-4B13-4D68-8289-3F29D1B687D7__GUID-517CBAB1-37B7-42BA-95D7-38C2D04D333F">
+<p class="titleinfigure">Figure 12-3 Flowchart of Table Function Row Source Execution</p>
+<img width="266" height="349" src="img/GUID-25A64CC3-6728-49A9-8B4B-22F80358DD3A-default.gif" alt="Description of Figure 12-3 follows" title="Description of Figure 12-3 follows"/><br/>
+<a href="img_text/GUID-25A64CC3-6728-49A9-8B4B-22F80358DD3A-print.htm">Description of &#34;Figure 12-3 Flowchart of Table Function Row Source Execution&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="ADDCI4709"></a><a id="ADDCI4710"></a><a id="ADDCI4711"></a><a id="ADDCI4708"></a>
+<div class="props_rev_3"><a id="GUID-A55E0878-7F31-4317-B599-3188035020B7"></a>
+<h4 id="ADDCI-GUID-A55E0878-7F31-4317-B599-3188035020B7" class="sect4">Describing Returned Data Sructures; Describe Method</h4>
+<div>
+<p>Sometimes it is not possible to define the structure of the return type from the table function statically. If the shape of the rows is different in different queries, it may depend on the actual arguments with which the table function is invoked. Such table functions can be declared to return <code class="codeph">AnyDataSet</code>. <code class="codeph">AnyDataSet</code> is a generic collection type. It can be used to model any collection (of any element type) and has an associated set of APIs (both PL/SQL and C) that enable you to construct <code class="codeph">AnyDataSet</code> instances and access the elements.</p>
+<p>The following example shows a table function declared to return an <code class="codeph">AnyDataSet</code> collection whose structure is not fixed at function creation time:</p>
+<pre dir="ltr">CREATE FUNCTION AnyDocuments(VARCHAR2) RETURN ANYDATASET 
+PIPELINED USING DocumentMethods;
+</pre>
+<p>You can implement a <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a> routine to determine the format of the elements in the result collection when the format depends on the actual parameters to the table function. <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a> is invoked by Oracle at query compilation time to retrieve the specific type information. Typically, the routine uses the user arguments to determine the shape of the return rows. The format of elements in the returned collection is conveyed to Oracle by returning an instance of <code class="codeph">AnyType</code>.</p>
+<p>The <code class="codeph">AnyType</code> instance specifies the actual structure of the returned rows of the specific query. Like <code class="codeph">AnyDataSet</code>, <code class="codeph">AnyType</code> has an associated set of PL/SQL and C interfaces with which to construct and access the metadata information.</p>
+<p>The query in <a href="pipe_paral_tbl.htm#GUID-A55E0878-7F31-4317-B599-3188035020B7__CIHCGJII">Example 12-11</a>, for an <code class="codeph">AnyDocuments</code> function, returns information on either books or magazines.</p>
+<p><a href="pipe_paral_tbl.htm#GUID-A55E0878-7F31-4317-B599-3188035020B7__CIHCEHGC">Example 12-12</a> is an implementation of the <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a> method, which consults the DTD of the XML documents at the specified location to return the appropriate <code class="codeph">AnyType</code> value, either a book or a magazine. The <code class="codeph">AnyType</code> instance is constructed by invoking the constructor APIs with the field name and data type information.</p>
+<p>When Oracle invokes <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a>, it uses the type information that is returned in the <code class="codeph">AnyType</code> <code class="codeph">OUT</code> argument to resolve references in the command line, such as the reference to the <code class="codeph">x.Abstract</code> attribute in <a href="pipe_paral_tbl.htm#GUID-A55E0878-7F31-4317-B599-3188035020B7__CIHCEHGC">Example 12-12</a>. This functionality is applicable only when the returned type is a named type, and therefore has named attributes.</p>
+<p>Another feature of <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a> is its ability to describe <code class="codeph">SELECT</code> list parameters, such as using OCI interfaces, when executing a <code class="codeph">SELECT *</code> query. The information retrieved reflects one <code class="codeph">SELECT</code> list item for each top-level attribute of the type returned by <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a>.</p>
+<p>Because the <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a> method is called at compile time, the table function should have at least one argument that has a value at compile time, like a constant. By using the table function with different arguments, you can get different return types from the function, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-A55E0878-7F31-4317-B599-3188035020B7__CIHCHGAB">Example 12-13</a>.</p>
+<p>The <a href="pipe_paral_tbl_ref.htm#GUID-C45BF680-3EBE-4E53-8A08-193ED22F61C8">ODCITableDescribe()</a> functionality is available only if the table function is implemented using the interface approach. A native PL/SQL implementation of a table function that returns <code class="codeph">ANYDATASET</code> returns rows whose structure is opaque to the server.</p>
+<div class="example" id="GUID-A55E0878-7F31-4317-B599-3188035020B7__CIHCGJII">
+<p class="titleinexample">Example 12-11 Querying for AnyType Data</p>
+<pre dir="ltr">SELECT * FROM 
+  TABLE(AnyDocuments(&#39;http://.../documents.xml&#39;)) x
+  WHERE x.Abstract like &#39;%internet%&#39;;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-A55E0878-7F31-4317-B599-3188035020B7__CIHCEHGC">
+<p class="titleinexample">Example 12-12 Implementing the ODCITableDescribe() Method</p>
+<pre dir="ltr">CREATE TYPE Mag_t AS OBJECT
+(   name VARCHAR2(100),
+    publisher VARCHAR2(30),
+    abstract VARCHAR2(1000)
+);
+
+STATIC FUNCTION ODCITableDescribe(rtype OUT ANYTYPE, 
+                                        url VARCHAR2)
+IS BEGIN    
+    Contact specified web server and retrieve document...
+    Check XML doc schema to determine if books or mags...
+    IF books THEN
+        rtype=AnyType.AnyTypeGetPersistent(&#39;SYS&#39;,&#39;BOOK_T&#39;);
+    ELSE
+        rtype=AnyType.AnyTypeGetPersistent(&#39;SYS&#39;,&#39;MAG_T&#39;);
+    END IF;
+END;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-A55E0878-7F31-4317-B599-3188035020B7__CIHCHGAB">
+<p class="titleinexample">Example 12-13 Using Functions that Return AnyType</p>
+<pre dir="ltr">-- Issue a query for books
+SELECT x.Name, x.Author
+FROM TABLE(AnyDocuments(&#39;Books.xml&#39;)) x;
+
+-- Issue a query for magazines
+SELECT x.Name, x.Publisher
+FROM TABLE(AnyDocuments(&#39;Magazines.xml&#39;)) x;
+</pre></div>
+<!-- class="example" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-A55E0878-7F31-4317-B599-3188035020B7__GUID-C49DFFED-0420-4587-AE63-2B5E0688E241">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="pipe_paral_tbl.htm#GUID-7008AB9F-4C2B-4896-AF2D-1AB39910C9A0">Transient and Generic Types</a>&#34;</span> for information on <code class="codeph">AnyDataSet</code> and <code class="codeph">AnyType</code></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADDCI4713"></a><a id="ADDCI4712"></a>
+<div class="props_rev_3"><a id="GUID-1F6600B2-073F-444B-AF2C-4F3A760795D7"></a>
+<h4 id="ADDCI-GUID-1F6600B2-073F-444B-AF2C-4F3A760795D7" class="sect4">Preparing a Query for Execution; Prepare Method</h4>
+<div>
+<p><a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> is invoked at query compilation time. It generates and saves information to decrease the execution time of the query.</p>
+<p>If you do not implement <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a>, <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a> initializes the context each time it is called. However, if you do implement <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a>, it initializes the scan context, which is passed to the <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a> when the query is executed, reducing startup time. In addition, when <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> is implemented, <a href="pipe_paral_tbl_ref.htm#GUID-9814FCDE-05BE-4F25-9861-FDC640F43E5C">ODCITableClose()</a> is called only one time during the query, rather than each time the table function is restarted. This has the following benefits:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>It decreases execution time by reducing the number of calls to <a href="pipe_paral_tbl_ref.htm#GUID-9814FCDE-05BE-4F25-9861-FDC640F43E5C">ODCITableClose()</a>.</p>
+</li>
+<li>
+<p>It allows the scan context to be maintained between table function restarts.</p>
+</li>
+</ul>
+<p><a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> also provides projection information to the table function. If you do not implement <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> for table functions that return collections of user-defined types (UDTs), your table function must set every attribute of the UDT of each element, because it has no way of knowing which attributes are used. In contrast, selecting from a regular table fetches only the required columns, which is naturally faster in most cases. However, if you do implement <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a>, it can build an array of attribute positions, record the return type information in an argument of type <code class="codeph">ODCITabFuncInfo</code>, and save this information in the scan context, as described in <a href="pipe_paral_tbl.htm#GUID-1F6600B2-073F-444B-AF2C-4F3A760795D7__CIHEHBAJ">Example 12-14</a>.</p>
+<p>Implementing <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> also allows your table function to return transient anonymous types. <a href="pipe_paral_tbl_ref.htm#GUID-6022AD7F-BDE5-4D42-B8F9-D2B18AB6AD84">ODCITablePrepare()</a> is called at the end of query compilation, so it can be passed the table descriptor object (TDO) built by the describe method. The describe method can build and return a transient anonymous TDO. Oracle transforms this TDO so that it can be used during query execution, and passes the transformed TDO to the prepare method in the <code class="codeph">RetType</code> attribute. If the describe method returns a TDO for a type that is not anonymous, that TDO is identical to the transformed TDO. Thus, if a table function returns:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A named collection type, the <code class="codeph">RetType</code> attribute contains the TDO of this type.</p>
+</li>
+<li>
+<p><code class="codeph">AnyDataSet</code>, and the describe method returns a named type, the <code class="codeph">RetType</code> attribute contains the TDO of the named type.</p>
+</li>
+<li>
+<p><code class="codeph">AnyDataSet</code>, and the describe method returns an anonymous type, Oracle transforms this type, and <code class="codeph">RetType</code> contains the transformed TDO.</p>
+</li>
+</ul>
+<div class="example" id="GUID-1F6600B2-073F-444B-AF2C-4F3A760795D7__CIHEHBAJ">
+<p class="titleinexample">Example 12-14 Building an Array of Attribute Positions and Save it in a Scan Context</p>
+<pre dir="ltr">CREATE TYPE SYS.ODCITabFuncInto AS OBJECT (
+  Attrs SYS.ODCINumberList,
+  RetType SYS.AnyType
+);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4715"></a><a id="ADDCI4714"></a>
+<div class="props_rev_3"><a id="GUID-127A407D-4EDC-4860-B3CA-2B978E153FF1"></a>
+<h3 id="ADDCI-GUID-127A407D-4EDC-4860-B3CA-2B978E153FF1" class="sect3">Querying Table Functions</h3>
+<div>
+<div class="section">
+<p>Pipelined <a id="d37876e1981" class="indexterm-anchor"></a>table functions are used in the <code class="codeph">FROM</code> clause of <code class="codeph">SELECT</code> statements independently from implementation, either in native PL/SQL or through the interface approach. The result rows are retrieved by Oracle iteratively from the table function implementation, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-127A407D-4EDC-4860-B3CA-2B978E153FF1__CIHJCECB">Example 12-15</a>.</p>
+<p>However, if the output of a table function is determined solely by the values passed into it as arguments, such that the function always produces exactly the same result value for each respective combination of values passed in, you can declare the function <code class="codeph">DETERMINISTIC</code>, and Oracle automatically buffers rows for it. Note, though, that the database has no way of knowing whether a function marked <code class="codeph">DETERMINISTIC</code> really is <code class="codeph">DETERMINISTIC</code>, and if one is not, results are unpredictable.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-127A407D-4EDC-4860-B3CA-2B978E153FF1__CIHJCECB">
+<p class="titleinexample">Example 12-15 Using a Table Function to Iteratively Retrieve Rows</p>
+<pre dir="ltr">SELECT x.Ticker, x.Price 
+FROM TABLE(StockPivot(CURSOR(SELECT * FROM StockTable))) x
+WHERE x.PriceType=&#39;C&#39;;
+</pre></div>
+<!-- class="example" --></div>
+<a id="ADDCI4717"></a><a id="ADDCI4716"></a>
+<div class="props_rev_3"><a id="GUID-6197E7B3-8E7C-4C0E-BCC4-1C02C9F7BA9C"></a>
+<h4 id="ADDCI-GUID-6197E7B3-8E7C-4C0E-BCC4-1C02C9F7BA9C" class="sect4">Implementing Multiple Calls to Table Functions</h4>
+<div>
+<div class="section">
+<p>Multiple invocations of a table function, either within the same query or in separate queries result in multiple executions of the underlying implementation. That is, in general, there is no buffering or reuse of rows, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-6197E7B3-8E7C-4C0E-BCC4-1C02C9F7BA9C__CIHJAEHD">Example 12-16</a>.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-6197E7B3-8E7C-4C0E-BCC4-1C02C9F7BA9C__CIHJAEHD">
+<p class="titleinexample">Example 12-16 Using Multiple Invocations of a Table Function</p>
+<pre dir="ltr">SELECT * FROM TABLE(f(...)) t1, TABLE(f(...)) t2 
+  WHERE t1.id = t2.id;
+  
+SELECT * FROM TABLE(f());
+
+SELECT * FROM TABLE(f());
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4719"></a><a id="ADDCI4720"></a><a id="ADDCI4721"></a><a id="ADDCI4718"></a>
+<div class="props_rev_3"><a id="GUID-9AC506C7-030B-495F-A910-51640E2C9CEE"></a>
+<h4 id="ADDCI-GUID-9AC506C7-030B-495F-A910-51640E2C9CEE" class="sect4">Using PL/SQL REF CURSOR Variables</h4>
+<div>
+<div class="section">
+<p>PL/SQL <code class="codeph">REF CURSOR</code> variables can be defined for queries over table functions, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-9AC506C7-030B-495F-A910-51640E2C9CEE__CIHJBDCA">Example 12-17</a>.</p>
+<p>Cursors over table functions have the same fetch semantics as ordinary cursors. <code class="codeph">REF CURSOR</code> assignments based on table functions do not have special semantics.</p>
+<p>However, the SQL optimizer does not optimize across PL/SQL statements; therefore, <a href="pipe_paral_tbl.htm#GUID-9AC506C7-030B-495F-A910-51640E2C9CEE__CIHICDCB">Example 12-19</a> runs better than <a href="pipe_paral_tbl.htm#GUID-9AC506C7-030B-495F-A910-51640E2C9CEE__CIHEAJDG">Example 12-18</a>.</p>
+<p>Additionally, <a href="pipe_paral_tbl.htm#GUID-9AC506C7-030B-495F-A910-51640E2C9CEE__CIHEAJDG">Example 12-18</a> is slower because of the overhead associated with executing two SQL statements, and because it does not take advantage of efficiencies realized by pipelining results between two functions, as <a href="pipe_paral_tbl.htm#GUID-9AC506C7-030B-495F-A910-51640E2C9CEE__CIHICDCB">Example 12-19</a> does.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-9AC506C7-030B-495F-A910-51640E2C9CEE__CIHJBDCA">
+<p class="titleinexample">Example 12-17 Defining REF CURSOR Variables for Table Function Queries</p>
+<pre dir="ltr">OPEN c FOR SELECT * FROM TABLE(f(...));
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-9AC506C7-030B-495F-A910-51640E2C9CEE__CIHEAJDG">
+<p class="titleinexample">Example 12-18 Using a REF CURSOR Variable</p>
+<pre dir="ltr">BEGIN
+    OPEN r FOR SELECT * FROM TABLE(f(CURSOR(SELECT * FROM tab)));
+    SELECT * BULK COLLECT INTO rec_tab FROM TABLE(g(r));
+END;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-9AC506C7-030B-495F-A910-51640E2C9CEE__CIHICDCB">
+<p class="titleinexample">Example 12-19 Using a REF CURSOR Variable More Effectively</p>
+<pre dir="ltr">SELECT * FROM TABLE(g(CURSOR(SELECT * FROM
+  TABLE(f(CURSOR(SELECT * FROM tab))))));
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4723"></a><a id="ADDCI4722"></a>
+<div class="props_rev_3"><a id="GUID-A3F00ED4-7A5A-42CA-A55F-05CCBB7DED3B"></a>
+<h3 id="ADDCI-GUID-A3F00ED4-7A5A-42CA-A55F-05CCBB7DED3B" class="sect3">Performing DML Operations Inside Table Functions</h3>
+<div>
+<div class="section">
+<p>A table function must be declared with the autonomous transaction pragma in order for the function to execute DML statements. This pragma causes the function to execute in an autonomous transaction not shared by other processes, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-A3F00ED4-7A5A-42CA-A55F-05CCBB7DED3B__CIHIFFDH">Example 12-20</a>.</p>
+<p>During parallel execution, each instance of the table function creates an independent transaction.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-A3F00ED4-7A5A-42CA-A55F-05CCBB7DED3B__CIHIFFDH">
+<p class="titleinexample">Example 12-20 Declaring a Table Function with Autonomous Transaction Pragma</p>
+<pre dir="ltr">CREATE FUNCTION f(p SYS_REFCURSOR) return CollType PIPELINED IS
+    PRAGMA AUTONOMOUS_TRANSACTION; 
+BEGIN ... END;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4725"></a><a id="ADDCI4726"></a><a id="ADDCI4724"></a>
+<div class="props_rev_3"><a id="GUID-F277FF3E-CA33-4B18-B39C-6286C5A913E7"></a>
+<h3 id="ADDCI-GUID-F277FF3E-CA33-4B18-B39C-6286C5A913E7" class="sect3">Performing DML Operations on Table Functions</h3>
+<div>
+<div class="section">
+<p>Table functions cannot be the target table in <code class="codeph">UPDATE</code>, <code class="codeph">INSERT</code>, or <code class="codeph">DELETE</code> statements. For example, the following statements raise an error:</p>
+<pre dir="ltr">UPDATE F(CURSOR(SELECT * FROM tab)) SET col = value; 
+INSERT INTO f(...) VALUES (&#39;any&#39;, &#39;thing&#39;); 
+</pre>
+<p>However, you can create a view over a table function and use <code class="codeph">INSTEAD OF</code> triggers to update it, as in <a href="pipe_paral_tbl.htm#GUID-F277FF3E-CA33-4B18-B39C-6286C5A913E7__CIHIEICC">Example 12-21</a>.</p>
+<p><a href="pipe_paral_tbl.htm#GUID-F277FF3E-CA33-4B18-B39C-6286C5A913E7__CIHDDHDG">Example 12-22</a> demonstrates how an <code class="codeph">INSTEAD OF</code> trigger is fired when the user inserts a row into the <code class="codeph">BookTable</code> view:.</p>
+<p><code class="codeph">INSTEAD OF</code> triggers can be defined for all DML operations on a view built on a table function.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-F277FF3E-CA33-4B18-B39C-6286C5A913E7__CIHIEICC">
+<p class="titleinexample">Example 12-21 Creating a View over a Table</p>
+<pre dir="ltr">CREATE VIEW BookTable AS 
+  SELECT x.Name, x.Author
+  FROM TABLE(GetBooks(&#39;data.txt&#39;)) x;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-F277FF3E-CA33-4B18-B39C-6286C5A913E7__CIHDDHDG">
+<p class="titleinexample">Example 12-22 How an INSTEAD OF Trigger is Fired when a Row is Inserted into a View</p>
+<pre dir="ltr">CREATE TRIGGER BookTable_insert
+INSTEAD OF INSERT ON BookTable
+REFERENCING NEW AS n
+FOR EACH ROW
+BEGIN
+  ...
+END;
+INSERT INTO BookTable VALUES (...);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4727"></a>
+<div class="props_rev_3"><a id="GUID-F9B720FA-351A-4B07-8409-F2E6F46B0D62"></a>
+<h3 id="ADDCI-GUID-F9B720FA-351A-4B07-8409-F2E6F46B0D62" class="sect3">Handling Exceptions in Table Functions</h3>
+<div>
+<div class="section">
+<p>Exception handling in table functions works just as it does with ordinary user-defined functions.</p>
+<p>Some languages, such as C and Java, provide a mechanism for user-supplied exception handling. If an exception raised within a table function is handled, the table function executes the exception handler and continues processing. Exiting the exception handler takes control to the enclosing scope. If the exception is cleared, execution proceeds normally.</p>
+<p>An unhandled exception in a table function causes the parent transaction to roll back.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADDCI4728"></a>
+<div class="props_rev_3"><a id="GUID-C36634BB-613C-4D88-AC58-A58E1409DF24"></a>
+<h2 id="ADDCI-GUID-C36634BB-613C-4D88-AC58-A58E1409DF24" class="sect2">Parallel Table Functions</h2>
+<div>
+<p>For a <a id="d37876e2439" class="indexterm-anchor"></a>table function to be executed in parallel, it must have a partitioned input parameter. Parallelism is turned on for a table function if, and only if, both the following conditions are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The function has a <code class="codeph">PARALLEL_ENABLE</code> clause in its declaration.</p>
+</li>
+<li>
+<p>Exactly one <code class="codeph">REF CURSOR</code> is specified with a <code class="codeph">PARTITION BY</code> clause.</p>
+<p>If the <code class="codeph">PARTITION BY</code> clause is not specified for any input <code class="codeph">REF CURSOR</code> as part of the <code class="codeph">PARALLEL_ENABLE</code> clause, the SQL compiler cannot determine how to partition the data correctly.</p>
+</li>
+</ul>
+</div>
+<a id="ADDCI4730"></a><a id="ADDCI4731"></a><a id="ADDCI4729"></a>
+<div class="props_rev_3"><a id="GUID-60D8ADBC-A689-4FA5-A806-E803AE94F112"></a>
+<h3 id="ADDCI-GUID-60D8ADBC-A689-4FA5-A806-E803AE94F112" class="sect3">Inputting Data with Cursor Variables</h3>
+<div>
+<div class="section">
+<p>You can pass a set of rows to a PL/SQL function in a <code class="codeph">REF CURSOR</code> parameter, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-60D8ADBC-A689-4FA5-A806-E803AE94F112__CIHBBFBA">Example 12-23</a>.</p>
+<p>Results of a subquery can be passed to a function directly, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-60D8ADBC-A689-4FA5-A806-E803AE94F112__CIHJHBGA">Example 12-24</a>. The <code class="codeph">CURSOR</code> keyword is required to indicate that the results of a subquery should be passed as a <code class="codeph">REF CURSOR</code> parameter.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-60D8ADBC-A689-4FA5-A806-E803AE94F112__CIHBBFBA">
+<p class="titleinexample">Example 12-23 Passing a Set of Rows to a PL/SQL Function in a REF CURSOR</p>
+<pre dir="ltr">FUNCTION f(p1 IN SYS_REFCURSOR) RETURN ... ;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-60D8ADBC-A689-4FA5-A806-E803AE94F112__CIHJHBGA">
+<p class="titleinexample">Example 12-24 Directly Passing Results from a Subquery to a Function</p>
+<pre dir="ltr">SELECT * FROM TABLE(f(CURSOR(SELECT empno FROM tab)));
+</pre></div>
+<!-- class="example" --></div>
+<a id="ADDCI4733"></a><a id="ADDCI4734"></a><a id="ADDCI4735"></a><a id="ADDCI4732"></a>
+<div class="props_rev_3"><a id="GUID-A56ECF67-9706-4140-8280-CB2135762AD3"></a>
+<h4 id="ADDCI-GUID-A56ECF67-9706-4140-8280-CB2135762AD3" class="sect4">Using Multiple REF CURSOR Input Variables</h4>
+<div>
+<div class="section">
+<p>PL/SQL functions can accept multiple <code class="codeph">REF CURSOR</code> input variables, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-A56ECF67-9706-4140-8280-CB2135762AD3__CIHIFIJG">Example 12-25</a>.</p>
+<p>Function <code class="codeph">g</code> can be invoked as demonstrated in <a href="pipe_paral_tbl.htm#GUID-A56ECF67-9706-4140-8280-CB2135762AD3__CIHFJFEH">Example 12-26</a>.</p>
+<p>You can pass table function return values to other table functions by creating a <code class="codeph">REF CURSOR</code> that iterates over the returned data, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-A56ECF67-9706-4140-8280-CB2135762AD3__CIHEEJBG">Example 12-27</a>.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-A56ECF67-9706-4140-8280-CB2135762AD3__CIHIFIJG">
+<p class="titleinexample">Example 12-25 Passing a Set of Rows to a PL/SQL Function Through REF CURSOR</p>
+<pre dir="ltr">CREATE FUNCTION g(p1 pkg.refcur_t1, p2 pkg.refcur_t2) RETURN...
+  PIPELINED ... ;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-A56ECF67-9706-4140-8280-CB2135762AD3__CIHFJFEH">
+<p class="titleinexample">Example 12-26 Invoking a Function that Uses Several REF CURSOR Parameters</p>
+<pre dir="ltr">SELECT * FROM TABLE(g(CURSOR(SELECT empno FROM tab),
+  CURSOR(SELECT * FROM emp));
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-A56ECF67-9706-4140-8280-CB2135762AD3__CIHEEJBG">
+<p class="titleinexample">Example 12-27 Using REF CURSOR to Pass Return Values Between Table Functions</p>
+<pre dir="ltr">SELECT * FROM TABLE(f(CURSOR(SELECT * FROM TABLE(g(...)))));
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4737"></a><a id="ADDCI4736"></a>
+<div class="props_rev_3"><a id="GUID-05693808-65AB-4F7C-8881-E20DF095EF2F"></a>
+<h4 id="ADDCI-GUID-05693808-65AB-4F7C-8881-E20DF095EF2F" class="sect4">Explicitly Opening a REF CURSOR for a Query</h4>
+<div>
+<p>You can explicitly open a <code class="codeph">REF CURSOR</code> for a query and pass it as a parameter to a table function, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-05693808-65AB-4F7C-8881-E20DF095EF2F__CIHJGDDE">Example 12-28</a>.</p>
+<div class="example" id="GUID-05693808-65AB-4F7C-8881-E20DF095EF2F__CIHJGDDE">
+<p class="titleinexample">Example 12-28 Explicitly Using a Query REF CURSOR as Table Function Parameter</p>
+<pre dir="ltr">BEGIN
+  OPEN r FOR SELECT * FROM TABLE(f(...));
+  -- Must return a single row result set.
+  SELECT * INTO rec FROM TABLE(g(r));
+END;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4739"></a><a id="ADDCI4738"></a>
+<div class="props_rev_3"><a id="GUID-750FEF8E-A748-44C8-B7F7-444AFACA00BC"></a>
+<h4 id="ADDCI-GUID-750FEF8E-A748-44C8-B7F7-444AFACA00BC" class="sect4">PL/SQL REF CURSOR Arguments to Java and C/C++ Functions</h4>
+<div>
+<p>Parallel and pipelined table functions may be written in C/C++, Java, or PL/SQL. Unlike PL/SQL, C/C++ and Java do not support the <code class="codeph">REF CURSOR</code> type, but you can still pass a <code class="codeph">REF CURSOR</code> argument to C/C++ and Java functions.</p>
+<p>If a table function is implemented as a C callout, then an <code class="codeph">IN REF CURSOR</code> argument passed to the callout is automatically available as an executed OCI statement handle. You can use this handle like any other executed statement handle.</p>
+<p>A <code class="codeph">REF CURSOR</code> argument to a callout passed as an <code class="codeph">IN OUT</code> parameter is converted to an executed statement handle on the way in to the callout, and the statement handle is converted back to a <code class="codeph">REF CURSOR</code> on the way out. (The inbound and outbound statement handles may be different.)</p>
+<p>If a <code class="codeph">REF CURSOR</code> type is used as an <code class="codeph">OUT</code> argument, or a return type to a call, then the call must return the statement handle, which are converted to a <code class="codeph">REF&nbsp;CURSOR</code> for the caller, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-05693808-65AB-4F7C-8881-E20DF095EF2F__CIHJGDDE">Example 12-28</a>.</p>
+<p>If the function is written as a Java call, the <code class="codeph">IN REF CURSOR</code> argument is automatically converted to an instance of the Java <code class="codeph">ResultSet</code> class. The <code class="codeph">IN REF CURSOR</code> to <code class="codeph">ResultSet</code> mapping is available only if you use a fat JDBC driver based on OCI. This mapping is not available for a thin JDBC driver. As with an executed statement handle in a C call, when a <code class="codeph">REF CURSOR</code> is either an <code class="codeph">IN OUT</code> argument, an <code class="codeph">OUT</code> argument, or a return type for the function, a Java <code class="codeph">ResultSet</code> is converted back to a PL/SQL <code class="codeph">REF CURSOR</code> on its way out to the caller.</p>
+<p>A predefined weak <code class="codeph">REF CURSOR</code> type, <code class="codeph">SYS_REFCURSOR</code>, is also supported. With <code class="codeph">SYS_REFCURSOR</code>, you do not have to first create a <code class="codeph">REF CURSOR</code> type in a package before you can use it. This weak <code class="codeph">REF CURSOR</code> type can be used in the <a href="pipe_paral_tbl_ref.htm#GUID-7C674A4F-7145-480E-883D-00C609B64DA0">ODCITableStart()</a> method, which, as a type method, cannot accept a package type.</p>
+<p>To use a strong <code class="codeph">REF CURSOR</code> type, you still must create a PL/SQL package and declare a strong <code class="codeph">REF CURSOR</code> type in it. Also, if you are using a strong <code class="codeph">REF CURSOR</code> type as an argument to a table function, then the actual type of the <code class="codeph">REF CURSOR</code> argument must match the column type, or an error is generated.</p>
+<p>To partition a weak <code class="codeph">REF CURSOR</code> argument, you must partition by <code class="codeph">ANY</code>, because a weak <code class="codeph">REF CURSOR</code> argument cannot be partitioned by <code class="codeph">RANGE</code> or <code class="codeph">HASH</code>. Oracle recommends that you not use weak <code class="codeph">REF CURSOR</code> arguments to table functions.</p>
+<div class="example" id="GUID-750FEF8E-A748-44C8-B7F7-444AFACA00BC__GUID-51BB05D7-E1F4-448E-A1D4-E142CF235D25">
+<p class="titleinexample">Example 12-29 Using a REF CURSOR in a Call</p>
+<pre dir="ltr">CREATE OR replace PACKAGE p1 AS 
+  TYPE rc IS REF cursor; 
+  END; 
+
+CREATE OR REPLACE LIBRARY MYLIB AS &#39;mylib.so&#39;; 
+
+CREATE OR REPLACE FUNCTION MyCallout (stmthp p1.rc) 
+  RETURN binary_integer AS LANGUAGE C LIBRARY MYLIB 
+  WITH CONTEXT 
+  PARAMETERS (context, stmthp ocirefcursor, RETURN sb4); 
+
+sb4 MyCallout (OCIExtProcContext *ctx, OCIStmt ** stmthp) 
+  OCIEnv *envhp;                /* env. handle */ 
+  OCISvcCtx *svchp;             /* service handle */ 
+  OCIError *errhp;              /* error handle */ 
+  OCISession *usrhp;            /* user handle */ 
+
+  int errnum = 29400;           /* choose some oracle error number */ 
+  char errmsg[512];             /* error message buffer */ 
+  size_t errmsglen;             /* Length of error message */ 
+  OCIDefine *defn1p = (OCIDefine *) 0; 
+  OCINumber *val=(OCINumber *)0; 
+
+  OCINumber *rval = (OCINumber *)0; 
+  sword status =  0; 
+  double num=0; 
+  val = (OCINumber*) OCIExtProcAllocCallMemory(ctx, sizeof(OCINumber)); 
+  /* Get OCI handles */ 
+  if (GetHandles(ctx, &amp;envhp, &amp;svchp, &amp;errhp, &amp;usrhp,&amp;rval)) 
+    return -1; 
+  /* Define the fetch buffer */ 
+  psdro_checkerr(NULL, errhp, OCIDefineByPos(*stmthp, &amp;defn1p, errhp, (ub4) 1, 
+                                            (dvoid *) &amp;num, (sb4) sizeof(num), 
+                                            SQLT_FLT, (dvoid *) 0, (ub2 *)0, 
+                                            (ub2 *)0, (ub4) OCI_DEFAULT)); 
+
+  /* Fetch loop */ 
+  while ((status = OCIStmtFetch(*stmthp, errhp, (ub4) 1,  (ub4) OCI_FETCH_NEXT, 
+                                (ub4) OCI_DEFAULT)) == OCI_SUCCESS || 
+         status == OCI_SUCCESS_WITH_INFO) 
+  { 
+    printf(&#34;val=%lf\n&#34;,num); 
+  } 
+  return 0; 
+} 
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4741"></a><a id="ADDCI4742"></a><a id="ADDCI4743"></a><a id="ADDCI4744"></a><a id="ADDCI4740"></a>
+<div class="props_rev_3"><a id="GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0"></a>
+<h3 id="ADDCI-GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0" class="sect3">Input Data Partitioning</h3>
+<div>
+<p>The <a id="d37876e2947" class="indexterm-anchor"></a>table function declaration can specify data partitioning for exactly one <code class="codeph">REF CURSOR</code> parameter, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0__CIHGECED">Example 12-30</a>. The <code class="codeph">PARTITION&nbsp;BY</code> phrase in the <code class="codeph">PARALLEL_ENABLE</code> clause specifies which one of the input cursors to partition, and what columns to use for partitioning.</p>
+<p>When explicit column names are specified in the column list, the <a id="d37876e2965" class="indexterm-anchor"></a><a id="d37876e2969" class="indexterm-anchor"></a>partitioning method may be either <code class="codeph">RANGE</code> or <code class="codeph">HASH</code>. The input rows are hash- or range-partitioned on the specified columns.</p>
+<p>The <code class="codeph">ANY</code> keyword enables you to indicate that the function behavior is independent of the partitioning of the input data. When this keyword is used, the run-time system randomly partitions the data among the slaves. This keyword is appropriate for use with functions that take in one row, manipulate its columns, and generate output row(s) based on the columns of this row only.</p>
+<p>To demonstrate, the pivot-like function <code class="codeph">StockPivot()</code> in <a href="pipe_paral_tbl.htm#GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0__CIHEDEFF">Example 12-31</a> takes as input a row of the type <code class="codeph">(Ticker&nbsp;varchar(4), OpenPrice&nbsp;number, ClosePrice&nbsp;number)</code>, and generates rows of the type <code class="codeph">(Ticker varchar(4), PriceType varchar(1), Price number)</code>. Thus, the row (<code class="codeph">&#34;ORCL&#34;,&nbsp;41,&nbsp;42</code>) generates two rows: (<code class="codeph">&#34;ORCL&#34;,&nbsp;&#34;O&#34;,&nbsp;41</code>) and (<code class="codeph">&#34;ORCL&#34;,&nbsp;&#34;C&#34;,&nbsp;42</code>).</p>
+<p>You can use directly <code class="codeph">TickerTypeSet</code>, as created in <a href="pipe_paral_tbl.htm#GUID-A11569C5-BBF7-4838-9AE6-8BAEAEB58265__CIHEGADE">Example 12-5</a>, instead of <code class="codeph">rec_tab_type</code> or define it the same way.</p>
+<p>The function <code class="codeph">f()</code> may be used to generate another table from <code class="codeph">Stocks</code> table, as shown in <a href="pipe_paral_tbl.htm#GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0__CIHCCJBG">Example 12-32</a>.</p>
+<p>If <code class="codeph">StockTable</code> is scanned in parallel and partitioned on <code class="codeph">OpenPrice</code>, then the function <code class="codeph">StockPivot()</code> is combined with the data-flow operator that scans <code class="codeph">StockTable</code> and therefore sees the same partitioning.</p>
+<p>If <code class="codeph">StockTable</code> is not partitioned, and the scan on it does not execute in parallel, the insert into <code class="codeph">AlternateStockTable</code> also runs sequentially, as demonstrated in <a href="pipe_paral_tbl.htm#GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0__CIHGIDHB">Example 12-33</a>.</p>
+<p>If function <code class="codeph">g()</code> runs in parallel and is partitioned by <code class="codeph">ANY</code>, then the parallel insert can belong in the same data-flow operator as <code class="codeph">g()</code>.</p>
+<p>Whenever the <code class="codeph">ANY</code> keyword is specified, the data is partitioned randomly among the slaves. This effectively means that the function is executed in the same slave set which does the scan associated with the input parameter.</p>
+<p>No redistribution or repartitioning of the data is required here. In the case, when the cursor <code class="codeph">p</code> itself is not parallel-enabled, the incoming data is randomly partitioned on the columns in the column list. The round-robin table queue is used for this partitioning.</p>
+<p>If you create an <code class="codeph">XMLIndex</code> index on a partitioned <code class="codeph">XMLType</code> table, or a partitioned table with an <code class="codeph">XMLType</code> column using range, list, or hash partitioning, that index is equipartitioned with the base table.</p>
+<div class="example" id="GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0__CIHGECED">
+<p class="titleinexample">Example 12-30 Specifying Data Partitioning for a REF CURSOR Parameter</p>
+<pre dir="ltr">CREATE FUNCTION f(p <span class="italic">ref_cursor_type</span>) RETURN rec_tab_type PIPELINED
+  PARALLEL_ENABLE(PARTITION p BY [{HASH | RANGE} (<span class="italic">column_list</span>) | ANY ]) IS
+BEGIN ... END;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0__CIHEDEFF">
+<p class="titleinexample">Example 12-31 Implementing the StockPivot() Function</p>
+<pre dir="ltr">CREATE FUNCTION StockPivot(p refcur_pkg.refcur_t) RETURN rec_tab_type PIPELINED
+   PARALLEL_ENABLE(PARTITION p BY ANY) IS
+   ret_rec rec_type;
+ 
+BEGIN
+   FOR rec IN p LOOP
+      ret_rec.Ticker := rec.Ticker;
+      ret_rec.PriceType := &#34;O&#34;;
+      ret_rec.Price := rec.OpenPrice;
+      PIPE ROW(ret_rec);
+ 
+      ret_rec.Ticker := rec.Ticker;   -- Redundant; not required
+      ret_rec.PriceType := &#34;C&#34;;
+      ret_rec.Price := rec.ClosePrice;
+      PIPE ROW ret_rec;
+   END LOOP;
+   RETURN;
+ 
+END;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0__CIHCCJBG">
+<p class="titleinexample">Example 12-32 Using a REF CURSOR to Generate a Table from Another Table</p>
+<pre dir="ltr">INSERT INTO AlternateStockTable
+   SELECT * FROM 
+   TABLE(StockPivot(CURSOR(SELECT * FROM StockTable)));
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-01F8C3F7-9D0D-41A8-806E-CDF6CD2A88B0__CIHGIDHB">
+<p class="titleinexample">Example 12-33 Using a REF CURSOR to Scan and Insert</p>
+<pre dir="ltr">CREATE FUNCTION g(p refcur_pkg.refcur_t) RETURN ... PIPELINED
+  PARALLEL_ENABLE (PARTITION p BY ANY)
+BEGIN 
+  ... 
+END;
+
+INSERT INTO AlternateStockTable
+  SELECT * FROM TABLE(f(CURSOR(SELECT * FROM Stocks))), TABLE(g(CURSOR( ... )))
+    WHERE <span class="italic">join_condition</span>;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4746"></a><a id="ADDCI4745"></a>
+<div class="props_rev_3"><a id="GUID-9983C9CB-9B31-4169-A3A4-3B3DE8618AD4"></a>
+<h3 id="ADDCI-GUID-9983C9CB-9B31-4169-A3A4-3B3DE8618AD4" class="sect3">Parallel Execution of Leaf-Level Table Functions</h3>
+<div>
+<p>Parallel execution of a table function requires a <code class="codeph">REF</code> <code class="codeph">CURSOR</code> as an input parameter. If the table function does not inherently require a set of rows as input, then you must redesign the function to require a <code class="codeph">REF</code> <code class="codeph">CURSOR</code> as input.</p>
+<p>For example, the following function reads a set of external files in parallel and returns the records they contain. To provide work for a <code class="codeph">REF CURSOR</code>, you might first create a table and populate it with the filenames. A <code class="codeph">REF CURSOR</code> over this table can then be passed as a parameter to the table function <code class="codeph">readfiles()</code>, as demonstrated by <a href="pipe_paral_tbl.htm#GUID-9983C9CB-9B31-4169-A3A4-3B3DE8618AD4__CIHCAJGD">Example 12-34</a>.</p>
+<div class="example" id="GUID-9983C9CB-9B31-4169-A3A4-3B3DE8618AD4__CIHCAJGD">
+<p class="titleinexample">Example 12-34 Using a REF CURSOR to Read a Set of External FIles</p>
+<pre dir="ltr">CREATE TABLE filetab(filename VARCHAR(20));
+
+INSERT INTO filetab VALUES(&#39;file0&#39;);   
+INSERT INTO filetab VALUES(&#39;file1&#39;);  
+...
+INSERT INTO filetab VALUES(&#39;fileN&#39;);
+
+SELECT * FROM TABLE(readfiles(CURSOR(SELECT filename FROM filetab)));
+
+CREATE FUNCTION readfiles(p pkg.rc_t) RETURN coll_type
+  PARALLEL_ENABLE(PARTITION p BY ANY) IS
+  ret_rec rec_type;
+BEGIN
+  FOR rec IN p LOOP
+    done := FALSE;
+    WHILE (done = FALSE) LOOP
+         done := readfilerecord(rec.filename, ret_rec);
+         PIPE ROW(ret_rec);
+    END LOOP;
+  END LOOP;
+  RETURN;
+END;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4747"></a>
+<div class="props_rev_3"><a id="GUID-29BF4664-DC92-4ABA-810D-0998AAA33563"></a>
+<h2 id="ADDCI-GUID-29BF4664-DC92-4ABA-810D-0998AAA33563" class="sect2">Input Data Streaming for Table Functions</h2>
+<div>
+<p>Data streaming is the manner in which a table function orders or clusters rows that it fetches from cursor arguments. A function can stream its input data in any of the following ways:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Place no restriction on the ordering of the incoming rows.</p>
+</li>
+<li>
+<p>Order them on a particular key column or columns.</p>
+</li>
+<li>
+<p>Cluster them on a particular key.</p>
+</li>
+</ul>
+<p>To control the behavior of the input stream, use the syntax in <a href="pipe_paral_tbl.htm#GUID-03918C18-8C89-4D6C-AB22-F1E8FDF4728B__CIHECDFJ">Example 12-36</a>.</p>
+<p>Input streaming may be specified for either sequential or parallel execution of a function. If an <code class="codeph">ORDER BY</code> or <code class="codeph">CLUSTER BY</code> clause is not specified, rows are input in a random order. The semantics of <code class="codeph">ORDER BY</code> are different for parallel execution from the semantics of the <code class="codeph">ORDER BY</code> clause in a SQL statement. In a SQL statement, the <code class="codeph">ORDER BY</code> clause globally orders the entire data set. In a table function, the <code class="codeph">ORDER BY</code> clause orders the respective rows local to each instance of the table function running on a slave.</p>
+<p>Clustering causes rows that have the same key values to appear next to one another, but it does not otherwise do any ordering of rows.</p>
+<p><code class="codeph">expr</code> should be the <code class="codeph">REFCURSOR</code> received in the function.</p>
+<p><a href="pipe_paral_tbl.htm#GUID-03918C18-8C89-4D6C-AB22-F1E8FDF4728B__CIHGDIBD">Example 12-35</a> illustrates the syntax for ordering the input stream. In the example, function <code class="codeph">f()</code> takes in rows of the kind <code class="codeph">(Region, Sales)</code> and returns rows of the form <code class="codeph">(Region, AvgSales)</code>, showing average sales for each region.</p>
+</div>
+<a id="ADDCI4748"></a><a id="ADDCI4749"></a>
+<div class="props_rev_3"><a id="GUID-03918C18-8C89-4D6C-AB22-F1E8FDF4728B"></a>
+<h3 id="ADDCI-GUID-03918C18-8C89-4D6C-AB22-F1E8FDF4728B" class="sect3">Setting up the Input Stream</h3>
+<div>
+<div class="example" id="GUID-03918C18-8C89-4D6C-AB22-F1E8FDF4728B__CIHGDIBD">
+<p class="titleinexample">Example 12-35 Ordering the Input Stream</p>
+<pre dir="ltr">CREATE FUNCTION f(p <span class="italic">ref_cursor_type</span>) RETURN tab_rec_type PIPELINED
+  CLUSTER p BY (Region)
+  PARALLEL_ENABLE(PARTITION p BY HASH(Region)) IS
+  ret_rec rec_type;
+  cnt number;
+  sum number;
+BEGIN
+  LOOP
+  FETCH p INTO rec;
+  EXIT WHEN p%NOTFOUND;
+    IF (first rec in the group) THEN
+        cnt := 1;
+        sum := rec.Sales;
+    ELSIF (last rec in the group) THEN
+      IF (cnt &lt;&gt; 0) THEN
+        ret_rec.Region := rec.Region;
+          ret_rec.AvgSales := sum/cnt;
+          PIPE ROW(ret_rec);
+        END IF;
+    ELSE
+       cnt := cnt + 1;
+      sum := sum + rec.Sales;
+    END IF;
+  END LOOP;
+  RETURN;
+END
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-03918C18-8C89-4D6C-AB22-F1E8FDF4728B__CIHECDFJ">
+<p class="titleinexample">Example 12-36 Controlling Input Data Streaming</p>
+<pre dir="ltr">FUNCTION f(p ref_cursor_type) RETURN tab_rec_type [PIPELINED]
+         {[ORDER | CLUSTER] expr BY column_list}
+         PARALLEL_ENABLE({PARTITION p BY 
+           [ANY | {HASH | RANGE} column_list]} )
+IS
+BEGIN 
+  ...
+END;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4750"></a>
+<div class="props_rev_3"><a id="GUID-8066CFAA-7DDD-4929-8543-5F2373C1367B"></a>
+<h3 id="ADDCI-GUID-8066CFAA-7DDD-4929-8543-5F2373C1367B" class="sect3">Parallel Execution: Partitioning and Clustering</h3>
+<div>
+<p>Partitioning and clustering are easily confused, but they do different things. Sometimes partitioning can be sufficient without clustering in parallel execution.</p>
+<p>Consider a function <code class="codeph">SmallAggr</code> that performs in-memory aggregation of salary for each <code class="codeph">department_id</code>, where <code class="codeph">department_id</code> can be either <code class="codeph">1</code>, <code class="codeph">2</code>, or <code class="codeph">3</code>. The input rows to the function can be partitioned by <code class="codeph">HASH</code> on <code class="codeph">department_id</code> so that all rows with <code class="codeph">department_id</code> equal to <code class="codeph">1</code> go to one slave, all rows with <code class="codeph">department_id</code> equal to <code class="codeph">2</code> go to another slave, and so on.</p>
+<p>The input rows do not have to be clustered on <code class="codeph">department_id</code> to perform the aggregation in the function. Each slave could have a <code class="codeph">1</code> by <code class="codeph">3</code> array <code class="codeph">SmallSum[1..3]</code>, in which the aggregate sum for each <code class="codeph">department_id</code> is added in memory into <code class="codeph">SmallSum[department_id]</code>. On the other hand, if the number of unique values of <code class="codeph">department_id</code> were very large, you would want to use clustering to compute department aggregates and write them to disk one <code class="codeph">department_id</code> at a time.</p>
+</div>
+</div>
+</div>
+<a id="ADDCI4751"></a>
+<div class="props_rev_3"><a id="GUID-8A9A03F7-91B0-4205-A7AC-58CAA8852DD6"></a>
+<h2 id="ADDCI-GUID-8A9A03F7-91B0-4205-A7AC-58CAA8852DD6" class="sect2">Creating Domain Indexes in Parallel</h2>
+<div>
+<p>Creating a <a id="d37876e3547" class="indexterm-anchor"></a>domain index can be a lengthy process because of the large amount of data that a domain index typically handles. You can exploit the parallel-processing capabilities of table functions to alleviate this bottleneck by using table functions to create domain indexes in parallel.</p>
+<p>Typically, the <a href="ext_idx_ref.htm#GUID-C14A0478-6EA1-4EAE-BAA6-AA59EE5D300C">ODCIIndexCreate()</a> routine performs the following steps:</p>
+<ol>
+<li>
+<p>Creates tables for storing the index data</p>
+</li>
+<li id="GUID-8A9A03F7-91B0-4205-A7AC-58CAA8852DD6__CIHFGIID">
+<p>Fetches the relevant data, such as <code class="codeph">keycols</code> and <code class="codeph">rowid</code>, from the base table, transforms it, and inserts relevant transformed data into the table created for storing the index data.</p>
+</li>
+<li>
+<p>Builds secondary indexes on the tables that store the index data, for faster access at query time.</p>
+</li>
+</ol>
+<p>Step <a href="pipe_paral_tbl.htm#GUID-8A9A03F7-91B0-4205-A7AC-58CAA8852DD6__CIHFGIID">2</a> is the bottleneck in creating domain indexes. You can speed up this step by encapsulating these operations in a parallel table function and invoking the function from the <a href="ext_idx_ref.htm#GUID-C14A0478-6EA1-4EAE-BAA6-AA59EE5D300C">ODCIIndexCreate()</a> function. In <a href="pipe_paral_tbl.htm#GUID-A2D01076-AB16-4D79-89F3-67DBE0CB109D__CIHDDFGE">Example 12-37</a>, a table function <code class="codeph">IndexLoad()</code> is defined to do just that.</p>
+<p>where <code class="codeph">p</code> is a cursor of the form:</p>
+<pre dir="ltr">SELECT /*+ PARALLEL (<span class="italic">base_table</span>, <span class="italic">par_degree</span>) */ keycols ,rowid 
+  FROM <span class="italic">base_table</span>
+</pre>
+<p>The <span class="italic"><code class="codeph">par_degree</code></span> value can be explicitly specified; otherwise, it is derived from the parallel degree of the base table.</p>
+<p>The function <code class="codeph">IndexMerge()</code>, defined in <a href="pipe_paral_tbl.htm#GUID-A2D01076-AB16-4D79-89F3-67DBE0CB109D__CIHGHDIB">Example 12-38</a>, is needed to merge the results from the several instances of <code class="codeph">IndexLoad()</code>.</p>
+<p>The new steps in <a href="ext_idx_ref.htm#GUID-C14A0478-6EA1-4EAE-BAA6-AA59EE5D300C">ODCIIndexCreate()</a> would be:</p>
+<ol>
+<li>
+<p>Create metadata structures for the index (tables to store the index data).</p>
+</li>
+<li>
+<p>Explicitly commit the transaction so that the <code class="codeph">IndexLoad()</code> function can access the committed data.</p>
+</li>
+<li>
+<p>Invoke <code class="codeph">IndexLoad()</code> in parallel, as shown in the following code example.</p>
+<p>Invoking the Merging of Parallel Domain Index Loads</p>
+<pre dir="ltr">status := ODCIIndexMerge(CURSOR(
+  SELECT * FROM TABLE(ODCIIndexLoad(ia, parms, CURSOR(
+    SELECT <span class="italic">key_cols</span>, ROWID FROM <span class="italic">basetable</span>)))))
+</pre></li>
+<li>
+<p>Create secondary index structures.</p>
+</li>
+</ol>
+</div>
+<a id="ADDCI4753"></a><a id="ADDCI4752"></a>
+<div class="props_rev_3"><a id="GUID-A2D01076-AB16-4D79-89F3-67DBE0CB109D"></a>
+<h3 id="ADDCI-GUID-A2D01076-AB16-4D79-89F3-67DBE0CB109D" class="sect3">Loading Domain Indexes</h3>
+<div>
+<div class="section">
+<p>The formation of secondary indexes is very time consuming, and Oracle recommends that you implement parallel loading of domain index, as illustrated in <a href="pipe_paral_tbl.htm#GUID-A2D01076-AB16-4D79-89F3-67DBE0CB109D__CIHDDFGE">Example 12-37</a>, and subsequently recombine them as shown in <a href="pipe_paral_tbl.htm#GUID-A2D01076-AB16-4D79-89F3-67DBE0CB109D__CIHGHDIB">Example 12-38</a>.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-A2D01076-AB16-4D79-89F3-67DBE0CB109D__CIHDDFGE">
+<p class="titleinexample">Example 12-37 Loading a Domain Index in Parallel</p>
+<pre dir="ltr">CREATE FUNCTION IndexLoad(ia ODCIIndexInfo, parms VARCHAR2,
+                          p refcur-type)
+RETURN status_code_type
+PARALLEL_ENABLE(PARTITION p BY ANY)  
+PRAGMA AUTONOMOUS_TRANSACTION
+IS
+BEGIN
+  FOR rec IN p LOOP
+    - process each rec and determine the index entry
+    - derive name of index storage table from parameter ia
+    - insert into table created in ODCIIndexCreate
+  END LOOP;
+  COMMIT; -- explicitly commit the autonomous txn
+  RETURN ODCIConst.Success;
+END;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-A2D01076-AB16-4D79-89F3-67DBE0CB109D__CIHGHDIB">
+<p class="titleinexample">Example 12-38 Merging the Results from Parallel Domain Index Loads</p>
+<pre dir="ltr">CREATE FUNCTION IndexMerge(p refcur-type) 
+RETURN NUMBER
+IS
+BEGIN
+  FOR rec IN p LOOP
+    IF (rec != ODCIConst.Success)
+      RETURN Error;
+  END LOOP;
+  RETURN Success; 
+END;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4756"></a><a id="ADDCI4755"></a>
+<div class="props_rev_3"><a id="GUID-7008AB9F-4C2B-4896-AF2D-1AB39910C9A0"></a>
+<h2 id="ADDCI-GUID-7008AB9F-4C2B-4896-AF2D-1AB39910C9A0" class="sect2">Transient and Generic Types</h2>
+<div>
+<p>Oracle has three special SQL <a id="d37876e3780" class="indexterm-anchor"></a>data types that <a id="d37876e3785" class="indexterm-anchor"></a>enable you to <a id="d37876e3790" class="indexterm-anchor"></a>dynamically encapsulate and access type descriptions, data instances, and sets of data instances of any other SQL type, including object and collection types. You can also use these three special types to create anonymous, or unnamed, types, including anonymous collection types. See <a href="pipe_paral_tbl.htm#GUID-7008AB9F-4C2B-4896-AF2D-1AB39910C9A0__CIHDHEEI" title="Type and its description">Table 12-1</a>.</p>
+<p>The three SQL types are implemented as opaque types; the internal structure of these types is not known to the database: their data can be queried only by implementing functions, typically 3GL routines. Oracle provides both an OCI and a PL/SQL API for implementing such functions.</p>
+<div class="tblformal" id="GUID-7008AB9F-4C2B-4896-AF2D-1AB39910C9A0__CIHDHEEI">
+<p class="titleintable">Table 12-1 Generic SQL Types</p>
+<table class="cellalignment5987" title="Generic SQL Types" summary="Type and its description">
+<thead>
+<tr class="cellalignment5978">
+<th class="cellalignment6004" id="d37876e3810">Type</th>
+<th class="cellalignment6005" id="d37876e3813">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment5978">
+<td class="cellalignment6006" id="d37876e3818" headers="d37876e3810">
+<p><code class="codeph">SYS.ANYTYPE</code></p>
+</td>
+<td class="cellalignment6007" headers="d37876e3818 d37876e3813">
+<p>A type description type. A <code class="codeph">SYS.ANYTYPE</code> can contain a type description of any SQL type, named or unnamed, including object types and collection types.</p>
+<p>An <code class="codeph">ANYTYPE</code> can contain a type description of a persistent type, but an <code class="codeph">ANYTYPE</code> itself is transient: the value in an <code class="codeph">ANYTYPE</code> itself is not automatically stored in the database. To create a persistent type, use a <code class="codeph">CREATE TYPE</code> statement from SQL.</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6006" id="d37876e3843" headers="d37876e3810">
+<p><code class="codeph">SYS.ANYDATA</code></p>
+</td>
+<td class="cellalignment6007" headers="d37876e3843 d37876e3813">
+<p>A self-describing data instance type. A <code class="codeph">SYS.ANYDATA</code> contains an instance of a given type, with data, plus a description of the type. In this sense, a <code class="codeph">SYS.ANYDATA</code> is self-describing. An <code class="codeph">ANYDATA</code> can be persistently stored in the database.</p>
+</td>
+</tr>
+<tr class="cellalignment5978">
+<td class="cellalignment6006" id="d37876e3860" headers="d37876e3810">
+<p><code class="codeph">SYS.ANYDATASET</code></p>
+</td>
+<td class="cellalignment6007" headers="d37876e3860 d37876e3813">
+<p>A self-describing data set type. A <code class="codeph">SYS.ANYDATASET</code> type contains a description of a given type plus a set of data instances of that type. An <code class="codeph">ANYDATASET</code> can be persistently stored in the database.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Each of these three types can be used with any built-in type native to the database with object types and collection types, both named and unnamed. The types provide a generic way to work dynamically with type descriptions, lone instances, and sets of instances of other types. Using the APIs, you can create a transient <code class="codeph">ANYTYPE</code> description of any kind of type. Similarly, you can create or convert (cast) a data value of any SQL type to an <code class="codeph">ANYDATA</code> and can convert an <code class="codeph">ANYDATA</code> (back) to a SQL type. And similarly again with sets of values and <code class="codeph">ANYDATASET</code>.</p>
+<p>The generic types simplify working with stored procedures. You can use the generic types to encapsulate descriptions and data of standard types and pass the encapsulated information into parameters of the generic types. In the body of the procedure, you can detail how to handle the encapsulated data and type descriptions of whatever type.</p>
+<p>You can also store encapsulated data of a variety of underlying types in one table column of type <code class="codeph">ANYDATA</code> or <code class="codeph">ANYDATASET</code>. For example, you can use <code class="codeph">ANYDATA</code> with advanced queuing to model queues of heterogeneous types of data. You can query the data of the underlying data types like any other data.</p>
+<p>Note, however, that <code class="codeph">ANYDATA</code> and <code class="codeph">ANYDATASET</code> objects that were created on a transient type, such as unnamed type constructed through an <code class="codeph">ANYTYPE</code> API, cannot be stored persistently in an <code class="codeph">ANYDATA</code> or <code class="codeph">ANYDATASET</code> table column.</p>
+<p>Corresponding to the three generic SQL types are three OCI types that model them. Each has a set of functions for creating and accessing the respective type:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">OCIType</code>, corresponding to <code class="codeph">SYS.ANYTYPE</code></p>
+</li>
+<li>
+<p><code class="codeph">OCIAnyData</code>, corresponding to <code class="codeph">SYS.ANYDATA</code></p>
+</li>
+<li>
+<p><code class="codeph">OCIAnyDataSet</code>, corresponding to <code class="codeph">SYS.ANYDATASET</code></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-7008AB9F-4C2B-4896-AF2D-1AB39910C9A0__GUID-2E932ECB-22AD-4EF7-8872-A7D2E7286CD5">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink LNOCI" target="_blank" href="../LNOCI/toc.htm"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> for the <code class="codeph">OCIType</code>, <code class="codeph">OCIAnyData</code>, and <code class="codeph">OCIAnyDataSet</code> APIs and details on how to use them</p>
+</li>
+<li>
+<p><a class="olink ARPLS" target="_blank" href="../ARPLS/toc.htm"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for information about the interfaces to the <code class="codeph">ANYTYPE</code>, <code class="codeph">ANYDATA</code>, and <code class="codeph">ANYDATASET</code> types and about the <code class="codeph">DBMS_TYPES</code> package, which defines constants for built-in and user-defined types, for use with <code class="codeph">ANYTYPE</code>, <code class="codeph">ANYDATA</code>, and <code class="codeph">ANYDATASET</code></p>
+</li>
+<li>
+<p><a class="olink ADOBJ010" target="_blank" href="../ADOBJ/adobjadv.htm#ADOBJ010"><span class="italic">Oracle Database Object-Relational Developer&#39;s Guide</span></a> for definition of generic, transient, and opaque types.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5977">
+<tr>
+<td class="cellalignment5984">
+<table class="cellalignment5982">
+<tr>
+<td class="cellalignment5981"><a href="aggr_functions.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5981"><a href="cart_design.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5986">
+<table class="cellalignment5980">
+<tr>
+<td class="cellalignment5981"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5981"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5981"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5981"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5981"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5981"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114357"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Full%20Partition-Wise%20Joins%3A%20Composite%20-%20Single-Level"></a><title>Full Partition-Wise Joins: Composite - Single-Level</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-508516A8-F72F-4F92-A377-6902F0EBBFDC.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC"></a> <span id="PAGE" style="display:none;">72/481</span> <!-- End Header --><a id="VLDBG1245"></a><a id="VLDBG1244"></a>
+<h1 id="VLDBG-GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC" class="sect1">Full Partition-Wise Joins: Composite - Single-Level</h1>
+<div>
+<p><a id="d15481e62" class="indexterm-anchor"></a>This method is a variation of the single-level - single-level method. In this scenario, one table (typically the larger table) is composite partitioned on two dimensions, using the join columns as the subpartition key. In the example, the <code>sales</code> table is a typical example of a table storing historical data. Using range partitioning is a logical initial partitioning method for a table storing historical information.</p>
+<p>For example, assume you want to partition the <code>sales</code> table into eight partitions by range on the column <code>time_id</code>. Also assume you have two years and that each partition represents a quarter. Instead of using range partitioning, you can use composite partitioning to enable a full partition-wise join while preserving the partitioning on <code>time_id</code>. For example, partition the <code>sales</code> table by range on <code>time_id</code> and then subpartition each partition by hash on <code>cust_id</code> using 16 subpartitions for each partition, for a total of 128 subpartitions. The <code>customers</code> table can use hash partitioning with 16 partitions.</p>
+<p>When you use the method just described, a full partition-wise join works similarly to the one created by a single-level - single-level hash-hash method. The join is still divided into 16 smaller joins between hash partition pairs from both tables. The difference is that now each hash partition in the <code>sales</code> table is composed of a set of 8 subpartitions, one from each range partition.</p>
+<p><a href="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC.htm#GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC__i1006952">Figure 3-2</a> illustrates how the hash partitions are formed in the <code>sales</code> table. Each cell represents a subpartition. Each row corresponds to one range partition, for a total of 8 range partitions. Each range partition has 16 subpartitions. Each column corresponds to one hash partition for a total of 16 hash partitions; each hash partition has 8 subpartitions. Hash partitions can be defined only if all partitions have the same number of subpartitions, in this case, 16.</p>
+<p>Hash partitions are implicit in a composite table. However, Oracle does not record them in the data dictionary, and you cannot manipulate them with DDL commands as you can range or list partitions.</p>
+<div class="figure" id="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC__i1006952">
+<p class="titleinfigure">Figure 3-2 Range and Hash Partitions of a Composite Table</p>
+<img width="510" height="459" src="img/GUID-C5813AF1-25AF-48E0-B875-A73827EDDDFB-default.gif" alt="Description of Figure 3-2 follows" title="Description of Figure 3-2 follows"/><br/>
+<a href="img_text/GUID-C5813AF1-25AF-48E0-B875-A73827EDDDFB-default.htm">Description of &#34;Figure 3-2 Range and Hash Partitions of a Composite Table&#34;</a></div>
+<!-- class="figure" -->
+<p>The following example shows the execution plan for the full partition-wise join with the <code>sales</code> table range partitioned by <code>time_id</code>, and subpartitioned by hash on <code>cust_id</code>.</p>
+<pre dir="ltr">----------------------------------------------------------------------------------------------
+| Id  | Operation                            | Name      | Pstart| Pstop |IN-OUT| PQ Distrib |
+----------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                     |           |       |       |      |            |
+|   1 |  PX COORDINATOR                      |           |       |       |      |            |
+|   2 |   PX SEND QC (RANDOM)                | :TQ10001  |       |       | P-&gt;S | QC (RAND)  |
+|*  3 |    FILTER                            |           |       |       | PCWC |            |
+|   4 |     HASH GROUP BY                    |           |       |       | PCWP |            |
+|   5 |      PX RECEIVE                      |           |       |       | PCWP |            |
+|   6 |       PX SEND HASH                   | :TQ10000  |       |       | P-&gt;P | HASH       |
+|   7 |        HASH GROUP BY                 |           |       |       | PCWP |            |
+|   8 |         PX PARTITION HASH ALL        |           |     1 |    16 | PCWC |            |
+|*  9 |          HASH JOIN                   |           |       |       | PCWP |            |
+|  10 |           TABLE ACCESS FULL          | CUSTOMERS |     1 |    16 | PCWP |            |
+|  11 |           PX PARTITION RANGE ITERATOR|           |     8 |     9 | PCWC |            |
+|* 12 |            TABLE ACCESS FULL         | SALES     |   113 |   144 | PCWP |            |
+----------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - filter(COUNT(SYS_OP_CSR(SYS_OP_MSR(COUNT(*)),0))&gt;100)
+   9 - access(&#34;S&#34;.&#34;CUST_ID&#34;=&#34;C&#34;.&#34;CUST_ID&#34;)
+  12 - filter(&#34;S&#34;.&#34;TIME_ID&#34;&lt;=TO_DATE(&#39; 1999-10-01 00:00:00&#39;, &#39;syyyy-mm-dd hh24:mi:ss&#39;) AND 
+&#34;S&#34;.&#34;TIME_ID&#34;&gt;=TO_DATE(&#39; 1999-07-01
+              00:00:00&#39;, &#39;syyyy-mm-dd hh24:mi:ss&#39;))
+</pre>
+<div class="infobox-note" id="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC__GUID-B1BC6179-2EE1-4578-9383-9FB681564254">
+<p class="notep1">Note:</p>
+<p>The <code>Rows</code>, <code>Cost (%CPU)</code>, <code>Time</code>, and <code>TQ</code> columns were removed from the plan table output in this example.</p>
+</div>
+<p>Composite - single-level partitioning is effective because it enables you to combine pruning on one dimension with a full partition-wise join on another dimension. In the previous example query, pruning is achieved by scanning only the subpartitions corresponding to Q3 of 1999, in other words, row number 3 in <a href="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC.htm#GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC__i1006952">Figure 3-2</a>. Oracle then joins these subpartitions with the customer table, using a full partition-wise join.</p>
+<p>All characteristics of the single-level - single-level partition-wise join apply to the composite - single-level partition-wise join. In particular, for this example, these two points are common to both methods:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The degree of parallelism for this full partition-wise join cannot exceed 16. Even though the <code>sales</code> table has 128 subpartitions, it has only 16 <span class="italic">hash</span> <span class="italic">partitions</span>.</p>
+</li>
+<li>
+<p>A partition is now a collection of subpartitions. For example, in <a href="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC.htm#GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC__i1006952">Figure 3-2</a>, store hash partition 9 of the <code>sales</code> table shown by the eight circled subpartitions, on the same node as hash partition 9 of the <code>customers</code> table.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-508516A8-F72F-4F92-A377-6902F0EBBFDC.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

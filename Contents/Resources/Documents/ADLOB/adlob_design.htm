@@ -1,0 +1,1570 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-137"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Advanced%20Design%20Considerations"></a><title>Advanced Design Considerations</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="LOB Buffering SubSystem (LBS), LOBs, buffering subsystem, LBS, See Lob Buffering Subsystem (LBS), LOB buffering, guidelines, buffering usage notes, usage notes, LOB Buffering Subsystem (LBS), usage, physical structure of buffer, example, example, buffering, LOB buffering subsystem, flushing the buffer, flushing the buffer, flushing, LOB buffer, updated locators, locators, updated, flushing the updated LOB through LBS, updated LOB, buffer-enabled locators, buffer-enabled locators, buffer-enabled, saving the state to avoid reselect, saving the state of locator to avoid reselect, OCI example, buffering example using OCI, OCI, LOB buffering example, read-consistent locators, examples, repercussions of mixing SQL DML with DBMS_LOB, updating, LOBs using SQL and DBMS_LOB, updated LOB locators, LOB values using one locator, updating a LOB with a PL/SQL variable, LOB with PL/SQL bind variable, DBMS_LOB, updating LOB with bind variable, transaction boundaries, LOB locators, reading and writing to a LOB using, transaction IDs, selecting without current transaction, selecting within a transaction, transactions, LOB locators cannot span, LOB, cannot span transactions, in the object cache, object cache, creating an object in, BFILEs, creating an object in object cache, internal, attributes and object cache"/>
+<meta name="dcterms.created" content="2017-03-16T22:27:47Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SecureFiles and Large Objects Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E17605-12"/>
+<meta name="dcterms.isVersionOf" content="ADLOB"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2015, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="adlob_tables.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="adlob_api_overview.htm" title="Next" type="text/html"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-1153755A-C4F4-4462-B592-6EE520F1C6A7"></a> <span id="PAGE" style="display:none;">19/34</span> <!-- End Header -->
+<a id="ADLOB45318"></a>
+<h1 id="ADLOB-GUID-1153755A-C4F4-4462-B592-6EE520F1C6A7" class="sect1"><span class="enumeration_chapter">12</span> Advanced Design Considerations</h1>
+<div>
+<p>There are design considerations for more advanced application development issues.</p>
+<p>Topicss:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_design.htm#GUID-7094DFC9-03B9-46D8-95DB-B80741AB755A">LOB Buffering Subsystem</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-B161D891-886D-4D53-89F0-BB42BD22C102">Opening Persistent LOBs with the OPEN and CLOSE Interfaces</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-B1E476A2-F3FE-4D13-BC2B-FFB809698ED3">Read-Consistent Locators</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-4DDA92CE-8C94-4DD1-9BA3-C6FC5ED7CAE0">LOB Locators and Transaction Boundaries</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-4AA63439-3BCD-41A8-98D0-40923BFE0309">LOBs in the Object Cache</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-FD6659DC-8792-4D7C-AC07-9EABEA02DF91">Terabyte-Size LOB Support</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-B8E82069-4847-4116-9DA1-BFE6F99288C2">Guidelines for Creating Gigabyte LOBs</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45319"></a>
+<div class="props_rev_3"><a id="GUID-7094DFC9-03B9-46D8-95DB-B80741AB755A"></a>
+<h2 id="ADLOB-GUID-7094DFC9-03B9-46D8-95DB-B80741AB755A" class="sect2">LOB Buffering Subsystem</h2>
+<div>
+<p>The database provides a <a id="d33762e174" class="indexterm-anchor"></a>LOB buffering subsystem (LBS) for advanced OCI-based applications such as Data Cartridges, Web servers, and other client-based applications that must buffer the contents of one or more LOBs in the client address space.</p>
+<p>For the buffering subsystem during its maximum usage, the client-side memory requirement is <code class="codeph">512</code> KBytes. This is also the maximum amount that you can specify for a single read or write operation on a LOB that has been enabled for buffered access.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_design.htm#GUID-0381ABE8-4CE4-4DA3-9AB3-8568BB8A9E71">Advantages of LOB Buffering</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-8782EADD-A5F1-4248-81C4-ED19117AA64A">Guidelines for Using LOB Buffering</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-15E36536-59E2-4525-BBF3-6226A8C2DB92">LOB Buffering Subsystem Usage</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-6F31C0E1-53DF-464F-BEB3-A781639000D6">About Flushing the LOB Buffer</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-D10442D2-243B-4B4A-BEE7-8BDB6A19815C">Flushing the LOB Buffer</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-E7F90926-C1F2-440E-98C3-C6832A44EB86">About Flushing the Updated LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-36C3D9C4-1DC5-4F2D-8F09-A5CC13779379">Flushing the Updated LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-C9D0637C-3F95-40C3-A18E-0A8783AA812F">Use of Buffer-Enabled Locators</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-C0A9FBF5-011D-4DFA-9094-4667DBCB30AA">Saving Locator State to Avoid a Reselect</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-F04C896B-5610-4928-B8BA-B75D0D69F231">OCI Example of LOB Buffering</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45320"></a>
+<div class="props_rev_3"><a id="GUID-0381ABE8-4CE4-4DA3-9AB3-8568BB8A9E71"></a>
+<h3 id="ADLOB-GUID-0381ABE8-4CE4-4DA3-9AB3-8568BB8A9E71" class="sect3">Advantages of LOB Buffering</h3>
+<div>
+<p>The advantages of <a id="d33762e301" class="indexterm-anchor"></a>buffering, especially for client applications that perform a series of small reads and writes (often repeatedly) to specific regions of the LOB, are:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Buffering enables deferred writes to the server. You can buffer up several writes in the LOB buffer in the client address space and eventually<a id="d33762e310" class="indexterm-anchor"></a><a id="d33762e314" class="indexterm-anchor"></a><a id="d33762e318" class="indexterm-anchor"></a> <span class="italic">flush</span> the buffer to the server. This reduces the number of network <a id="d33762e328" class="indexterm-anchor"></a>round-trips from your client application to the server, and hence, makes for better overall performance for LOB updates.</p>
+</li>
+<li>
+<p>Buffering reduces the overall number of LOB updates on the server, thereby reducing the number of LOB versions and amount of logging. This results in better overall LOB performance and disk space usage.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADLOB45321"></a>
+<div class="props_rev_3"><a id="GUID-8782EADD-A5F1-4248-81C4-ED19117AA64A"></a>
+<h3 id="ADLOB-GUID-8782EADD-A5F1-4248-81C4-ED19117AA64A" class="sect3">Guidelines for Using LOB Buffering</h3>
+<div>
+<p>The following caveats apply to buffered LOB operations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Explicitly flush LOB buffer contents:</p>
+<p>The LOB buffering subsystem is not a cache. The contents of a LOB buffer are not always the same as the LOB value in the server. Unless you explicitly flush the contents of a LOB buffer, you do not see the results of your buffered writes reflected in the actual LOB on the server.</p>
+</li>
+<li>
+<p>Error recovery for buffered LOB operations is your responsibility:</p>
+<p>Owing to the deferred nature of the actual LOB update, error reporting for a particular buffered read or write operation is deferred until the next access to the server based LOB.</p>
+</li>
+<li>
+<p>LOB Buffering is Single User, Single Threaded:</p>
+<p>Transactions involving buffered LOB operations cannot migrate across user sessions &mdash; the LBS is a single user, single threaded system.</p>
+</li>
+<li>
+<p>Maintain logical savepoints to rollback to:</p>
+<p>Oracle does not guarantee transactional support for buffered LOB operations. To ensure transactional <span class="italic">semantics</span> for buffered LOB updates, you must maintain logical savepoints in your application to rollback all the changes made to the buffered LOB in the event of an error. You should always wrap your buffered LOB updates within a logical savepoint (see <span class="q">&#34;<a href="adlob_design.htm#GUID-F04C896B-5610-4928-B8BA-B75D0D69F231">OCI Example of LOB Buffering</a>&#34;</span>).</p>
+</li>
+<li>
+<p>Ensure LOB is not updated by another bypassing transaction:</p>
+<p>In any given transaction, once you have begun updating a LOB using buffered writes, it is your responsibility to ensure that the same LOB is not updated through any other operation within the scope of the same transaction <span class="italic">that bypasses the buffering subsystem</span>.</p>
+<p>You could potentially do this by using an SQL statement to update the server-based LOB. Oracle cannot distinguish, and hence prevent, such an operation. This seriously affects the correctness and integrity of your application.</p>
+</li>
+<li>
+<p>Updating buffer-enabled LOB locators:</p>
+<p>Buffered operations on a LOB are done through its locator, just as in the conventional case. A locator that is enabled for buffering provides a consistent read version of the LOB, until you perform a write operation on the LOB through that locator. See also, <span class="q">&#34;<a href="adlob_design.htm#GUID-B1E476A2-F3FE-4D13-BC2B-FFB809698ED3">Read-Consistent Locators</a>&#34;</span>.</p>
+<p>Once the locator becomes an updated locator by virtue of its being used for a buffered write, it always provides access to the most up-to-date version of the LOB <span class="italic">as seen through the buffering subsystem.</span> Buffering also imposes an additional significance to this updated locator; all further buffered writes to the LOB can be done <span class="italic">only through this updated locator</span>. Oracle returns an error if you attempt to write to the LOB through other locators enabled for buffering. See also, <span class="q">&#34;<a href="adlob_design.htm#GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD">Example of Updating LOBs Through Updated Locators</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Passing a buffer-enabled LOB locator an IN OUT or OUT parameter:</p>
+<p>You can pass an updated locator that was enabled for buffering as an <code class="codeph">IN</code> parameter to a PL/SQL procedure. However, passing an <code class="codeph">IN</code> <code class="codeph">OUT</code> or an <code class="codeph">OUT</code> parameter, or an attempt to return an updated locator, produces an error.</p>
+</li>
+<li>
+<p>You cannot assign an updated locator that was enabled for buffering to another locator:</p>
+<p>There are different ways that assignment of locators may occur: through <code class="codeph">OCILobAssign()</code>, through assignment of PL/SQL variables, through <code class="codeph">OCIObjectCopy()</code> where the object contains the LOB attribute, and so on. Assigning a consistent read locator that was enabled for buffering to a locator that did not have buffering enabled, turns buffering on for the target locator. By the same token, assigning a locator that was not enabled for buffering to a locator that did have buffering enabled, turns buffering off for the target locator.</p>
+<p>Similarly, if you <code class="codeph">SELECT</code> into a locator for which buffering was originally enabled, then the locator becomes overwritten with the new locator value, thereby turning buffering off.</p>
+</li>
+<li>
+<p>When two or more locators point to the same LOB do not enable both for buffering:</p>
+<p>If two or more different locators point to the same LOB, then it is your responsibility to make sure that you do not enable both the locators for buffering. Otherwise Oracle does not guarantee the contents of the LOB.</p>
+</li>
+<li>
+<p>Buffer-enable LOBs do not support appends that create zero-byte fillers or spaces:</p>
+<p>Appending to the LOB value using buffered write(s) is allowed, but only if the starting offset of these write(s) is exactly one byte (or character) past the end of the <code class="codeph">BLOB</code> (or <code class="codeph">CLOB</code>/<code class="codeph">NCLOB</code>). In other words, the buffering subsystem does not support appends that involve creation of zero-byte fillers or spaces in the server based LOB.</p>
+</li>
+<li>
+<p>For CLOBs, Oracle requires the client side character set form for the locator bind variable be the same as that of the LOB in the server:</p>
+<p>This is usually the case in most OCI LOB programs. The exception is when the locator is selected from a <span class="italic">remote</span> database, which may have a different character set form from the database which is currently being accessed by the <code class="codeph">OCI</code> program. In such a case, an error is returned. If there is no character set form input by the user, then Oracle assumes it is <code class="codeph">SQLCS_IMPLICIT</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADLOB45322"></a>
+<div class="props_rev_3"><a id="GUID-15E36536-59E2-4525-BBF3-6226A8C2DB92"></a>
+<h3 id="ADLOB-GUID-15E36536-59E2-4525-BBF3-6226A8C2DB92" class="sect3">LOB Buffering Subsystem Usage</h3>
+<div>
+<p>The LOB buffering subsystem has many details.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_design.htm#GUID-790E09C5-7F12-41DD-9473-59238AD602BB">LOB Buffer Physical Structure</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-6021ADEA-6F12-49B2-B3A5-5A534668EA26">LOB Buffering Subsystem Usage Scenario</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45323"></a>
+<div class="props_rev_3"><a id="GUID-790E09C5-7F12-41DD-9473-59238AD602BB"></a>
+<h4 id="ADLOB-GUID-790E09C5-7F12-41DD-9473-59238AD602BB" class="sect4">LOB Buffer Physical Structure</h4>
+<div>
+<p>Each user session has the following structure:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Fixed page pool of 16 pages, shared by all LOBs accessed in buffering mode from that session.</p>
+</li>
+<li>
+<p>Each page has a fixed size of up to 32K bytes (not characters) where page size = n x <code class="codeph">CHUNK</code> ~= 32K.</p>
+</li>
+</ul>
+<p>A LOB buffer consists of one or more of these pages, up to a maximum of 16 in each session. The maximum amount that you ought to specify for any given buffered read or write operation is 512K bytes, remembering that under different circumstances the maximum amount you may read/write could be smaller.</p>
+</div>
+</div>
+<a id="ADLOB45324"></a>
+<div class="props_rev_3"><a id="GUID-6021ADEA-6F12-49B2-B3A5-5A534668EA26"></a>
+<h4 id="ADLOB-GUID-6021ADEA-6F12-49B2-B3A5-5A534668EA26" class="sect4">LOB Buffering Subsystem Usage Scenario</h4>
+<div>
+<p>A LOB is divided into fixed-size, logical regions. Each page is mapped to one of these fixed size regions, and is in essence, their in-memory copy. Depending on the input <code class="codeph">offset</code> and <code class="codeph">amount</code> specified for a read or write operation, the database allocates one or more of the free pages in the page pool to the LOB buffer. A <span class="italic">free page</span> is one that has not been read or written by a buffered read or write operation.</p>
+<p>For example, assuming a page size of 32KBytes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>For an input offset of 1000 and a specified read/write amount of 30000, Oracle reads the first 32K byte region of the LOB into a page in the LOB buffer.</p>
+</li>
+<li>
+<p>For an input offset of 33000 and a read/write amount of 30000, the second 32K region of the LOB is read into a page.</p>
+</li>
+<li>
+<p>For an input offset of 1000, and a read/write amount of 35000, the LOB buffer contains two pages &mdash; the first mapped to the region 1 &mdash; 32K, and the second to the region 32K+1 &mdash; 64K of the LOB.</p>
+</li>
+</ul>
+<p>This mapping between a page and the LOB region is temporary until Oracle maps another region to the page. When you attempt to access a region of the LOB that is not available in full in the LOB buffer, Oracle allocates any available free page(s) from the page pool to the LOB buffer. If there are no free pages available in the page pool, then Oracle reallocates the pages as follows. It ages out the <span class="italic">least recently used</span> page among the <span class="italic">unmodified</span> pages in the LOB buffer and reallocates it for the current operation.</p>
+<p>If no such page is available in the LOB buffer, then it ages out the least recently used page among the <span class="italic">unmodified</span> pages of <span class="italic">other</span> buffered LOBs in the same session. Again, if no such page is available, then it implies that all the pages in the page pool are <span class="italic">modified</span>, and either the currently accessed LOB, or one of the other LOBs, must be flushed. Oracle notifies this condition to the user as an error. Oracle <span class="italic">never</span> flushes and reallocates a modified page implicitly. You can either flush them explicitly, or discard them by disabling buffering on the LOB.</p>
+<p>To illustrate the preceding discussion, consider two LOBs being accessed in buffered mode &mdash; L1 and L2, each with buffers of size 8 pages. Assume that 6 of the 8 pages in the L1 buffer are dirty, with the remaining 2 containing unmodified data read in from the server. Assume similar conditions in the <code class="codeph">L2</code> buffer. Now, for the next buffered operation on <code class="codeph">L1</code>, Oracle reallocates the least recently used page from the two unmodified pages in the <code class="codeph">L1</code> buffer. Once all the 8 pages in the L1 buffer are used up for LOB writes, Oracle can service two more operations on L1 by allocating the two unmodified pages from the <code class="codeph">L2</code> buffer using the least recently used policy. But for any further buffered operations on <code class="codeph">L1</code> or <code class="codeph">L2</code>, Oracle returns an error.</p>
+<p>If all the buffers are dirty and you attempt another read from or write to a buffered LOB, then you receive the following error:</p>
+<pre dir="ltr">Error 22280: no more buffers available for operation
+</pre>
+<p>There are two possible causes:</p>
+<ol>
+<li>
+<p>All buffers in the buffer pool have been used up by previous operations.</p>
+<p>In this case, flush the LOBs through the locator that is being used to update the LOB.</p>
+</li>
+<li>
+<p>You are trying to flush a LOB without any previous buffered update operations.</p>
+<p>In this case, write to the LOB through a locator enabled for buffering before attempting to flush buffers.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="ADLOB45325"></a>
+<div class="props_rev_3"><a id="GUID-6F31C0E1-53DF-464F-BEB3-A781639000D6"></a>
+<h3 id="ADLOB-GUID-6F31C0E1-53DF-464F-BEB3-A781639000D6" class="sect3">About Flushing the LOB Buffer</h3>
+<div>
+<p>The term flush refers to a set of processes. Writing data to the LOB in the buffer through the locator transforms the locator into an updated locator. After you have updated the LOB data in the buffer through the updated locator, a flush call performs the following actions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Writes the dirty pages in the LOB buffer to the server-based LOB, thereby updating the LOB value.</p>
+</li>
+<li>
+<p>Resets the updated locator to be a read-consistent locator.</p>
+</li>
+<li>
+<p>Frees the flushed buffers or turns the status of the buffer pages back from dirty to unmodified.</p>
+</li>
+</ul>
+<p>After the flush, the locator becomes a read-consistent locator and can be assigned to another locator (<code class="codeph">L2 := L1</code>).</p>
+<p>For instance, suppose you have two locators, <code class="codeph">L1</code> and <code class="codeph">L2</code>. Let us say that they are both read-consistent locators and consistent with the state of the LOB data in the server. If you then update the LOB by writing to the buffer, <code class="codeph">L1</code> becomes an updated locator. <code class="codeph">L1</code> and <code class="codeph">L2</code> now refer to different versions of the LOB value. If you want to update the LOB in the server, then you must use <code class="codeph">L1</code> to retain the read-consistent state captured in <code class="codeph">L2</code>. The flush operation writes a new snapshot environment into the locator used for the flush. The important point to remember is that you must use the updated locator (<code class="codeph">L1</code>), when you flush the LOB buffer. Trying to flush a <a id="d33762e991" class="indexterm-anchor"></a><a id="d33762e993" class="indexterm-anchor"></a>read-consistent locator generates an error.</p>
+</div>
+</div>
+<div class="props_rev_3"><a id="GUID-D10442D2-243B-4B4A-BEE7-8BDB6A19815C"></a>
+<h3 id="ADLOB-GUID-D10442D2-243B-4B4A-BEE7-8BDB6A19815C" class="sect3">Flushing the LOB Buffer</h3>
+<div>
+<div class="section">
+<p>The technique you use to flush the LOB buffer determines whether data in the buffer is cleared and has performance implications as follows:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>In the default mode, data is retained in the pages that were modified when the flush operation occurs. In this case, when you read or write to the same range of bytes, <a id="d33762e1067" class="indexterm-anchor"></a>no round-trip to the server is necessary. Note that flushing the buffer, in this context, does not clear the data in the buffer. It also does not return the memory occupied by the flushed buffer to the client address space.</p>
+<div class="infobox-note" id="GUID-D10442D2-243B-4B4A-BEE7-8BDB6A19815C__GUID-C625917E-7EC8-4CB7-86E3-4099D6FE083B">
+<p class="notep1">Note:</p>
+<p>Unmodified pages may now be aged out if necessary.</p>
+</div>
+</li>
+<li>
+<p>In the second case, you set the flag parameter in <code class="codeph">OCILobFlushBuffer()</code> to <code class="codeph">OCI_LOB_BUFFER_FREE</code> to free the buffer pages, and so return the memory to the client address space. Flushing the buffer using this technique updates the LOB value on the server, returns a read-consistent locator, and frees the buffer pages.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<div class="props_rev_3"><a id="GUID-E7F90926-C1F2-440E-98C3-C6832A44EB86"></a>
+<h3 id="ADLOB-GUID-E7F90926-C1F2-440E-98C3-C6832A44EB86" class="sect3">About Flushing the Updated LOB</h3>
+<div>
+<p>You must flush a LOB that has been updated through the LOB buffering subsystem in certain situations.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Before committing the transaction</p>
+</li>
+<li>
+<p>Before migrating from the current <a id="d33762e1157" class="indexterm-anchor"></a>transaction to another</p>
+</li>
+<li>
+<p>Before disabling buffering operations on a LOB</p>
+</li>
+<li>
+<p><a id="d33762e1167" class="indexterm-anchor"></a>Before returning from an external callout execution into the calling function, procedure, or method in PL/SQL</p>
+<p>Note that when the external callout is called from a PL/SQL block and the locator is passed as a parameter, all buffering operations, including the enable call, should be made within the callout itself.</p>
+<p>Follow the sequence described in <a href="adlob_design.htm#GUID-36C3D9C4-1DC5-4F2D-8F09-A5CC13779379">Flushing the Updated LOB</a></p>
+</li>
+</ul>
+<p>Remember that the database never implicitly flushes the LOB buffer.</p>
+</div>
+</div>
+<a id="ADLOB45326"></a>
+<div class="props_rev_3"><a id="GUID-36C3D9C4-1DC5-4F2D-8F09-A5CC13779379"></a>
+<h3 id="ADLOB-GUID-36C3D9C4-1DC5-4F2D-8F09-A5CC13779379" class="sect3">Flushing the Updated LOB</h3>
+<div>
+<div class="section">
+<p>If you are in a situation where the external callout is called from a PL/SQL block and the locator is passed as a parameter, all buffering operations, including the enable call, should be made within the callout itself in the following sequence. See <a href="adlob_design.htm#GUID-E7F90926-C1F2-440E-98C3-C6832A44EB86">About Flushing the Updated LOB</a>.</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li><span>Call the external callout.</span></li>
+<li><span>Enable the locator for buffering.</span></li>
+<li><span>Read or write using the locator.</span></li>
+<li><span>Flush the LOB.</span></li>
+<li><span>Disable the locator for buffering.</span></li>
+<li><span>Return to the calling function, procedure, or method in PL/SQL.</span></li>
+</ol>
+</div>
+</div>
+<a id="ADLOB45327"></a>
+<div class="props_rev_3"><a id="GUID-C9D0637C-3F95-40C3-A18E-0A8783AA812F"></a>
+<h3 id="ADLOB-GUID-C9D0637C-3F95-40C3-A18E-0A8783AA812F" class="sect3">Use of Buffer-Enabled Locators</h3>
+<div>
+<p>Note that there are several cases in which you can use buffer-enabled locators and others in which you cannot.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>When it is OK to Use Buffer-Enabled Locators:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="italic"><span class="bold">OCI &mdash;</span></span> A locator that is enabled for buffering can only be used with the following OCI APIs:</p>
+<p><code class="codeph">OCILobRead2(), OCILobWrite2(), OCILobAssign(), OCILobIsEqual(), OCILobLocatorIsInit(), OCILobCharSetId(), OCILobCharSetForm()</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>When it is Not OK to Use Buffer-Enabled Locators:</p>
+<p>The following OCI APIs return errors if used with a locator enabled for buffering:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>OCI:</p>
+<p><code class="codeph">OCILobCopy2(), OCILobAppend(), OCILobErase2(), OCILobGetLength2(), OCILobTrim2(), OCILobWriteAppend2()</code></p>
+<p>These APIs also return errors when used with a locator which has not been enabled for buffering, but the LOB that the locator represents is being accessed in buffered mode through some other locator.</p>
+</li>
+<li>
+<p>PL/SQL (DBMS_LOB):</p>
+<p>An error is returned from <code class="codeph">DBMS_LOB</code> APIs if the input lob locator has buffering enabled.</p>
+</li>
+</ul>
+<p>As in the case of all other locators, buffer-enabled locators cannot span transactions.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADLOB45328"></a>
+<div class="props_rev_3"><a id="GUID-C0A9FBF5-011D-4DFA-9094-4667DBCB30AA"></a>
+<h3 id="ADLOB-GUID-C0A9FBF5-011D-4DFA-9094-4667DBCB30AA" class="sect3">Saving Locator State to Avoid a Reselect</h3>
+<div>
+<div class="section">
+<p>You may want to save the current state of the LOB before further writing to the LOB buffer. In performing updates while using LOB buffering, writing to an existing buffer does not make a round-trip to the server, and so does not refresh the snapshot environment in the locator.</p>
+<p>This would not be the case if you were updating the LOB directly without using LOB buffering. In that case, every update would involve a round-trip to the server, and so would refresh the snapshot in the locator.</p>
+<p>Therefore, to save the state of a LOB that has been written through the LOB buffer, follow these steps:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li><span>Flush the LOB, thereby updating the LOB and the snapshot environment in the locator (L1). At this point, the state of the locator (L1) and the LOB are the same. </span></li>
+<li><span>Assign the locator (L1) used for flushing and updating to another locator (L2). At this point, the states of the two locators (L1 and L2), and the LOB are all identical.</span></li>
+</ol>
+<div class="section">
+<p>L2 now becomes a <a id="d33762e1487" class="indexterm-anchor"></a><a id="d33762e1489" class="indexterm-anchor"></a>read-consistent locator with which you are able to access the changes made through L1 up until the time of the flush, but not after. This assignment <a id="d33762e1494" class="indexterm-anchor"></a>avoids incurring a round-trip to the server to reselect the locator into L2.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADLOB45329"></a>
+<div class="props_rev_3"><a id="GUID-F04C896B-5610-4928-B8BA-B75D0D69F231"></a>
+<h3 id="ADLOB-GUID-F04C896B-5610-4928-B8BA-B75D0D69F231" class="sect3">OCI Example of LOB Buffering</h3>
+<div>
+<p>This is a OCI pseudocode example based on the PM schema included with the Oracle Database Sample Schemas.</p>
+<p>The example uses the <code class="codeph">print_media</code> table described in <span class="q">&#34;<a href="adlob_working.htm#GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1" title="Many Oracle LOB examples use the print_media table of the Oracle Database Sample Schema PM.">Table for LOB Examples: The PM Schema print_media Table</a>&#34;</span></p>
+<pre dir="ltr">OCI_BLOB_buffering_program()
+{
+   int            amount;
+   int            offset;
+   OCILobLocator  lbs_loc1, lbs_loc2, lbs_loc3;
+   void          *buffer;
+   int            bufl;
+
+   -- Standard OCI initialization operations - logging on to
+   -- server, creating and initializing bind variables...
+
+   init_OCI();
+
+   -- Establish a savepoint before start of LOB buffering subsystem
+   -- operations
+   exec_statement(&#34;savepoint lbs_savepoint&#34;);
+
+   -- Initialize bind variable to BLOB columns from buffered
+   -- access:
+   exec_statement(&#34;select ad_composite into lbs_loc1 from Print_media
+       where ad_id = 12001&#34;);
+   exec_statement(&#34;select ad_composite into lbs_loc2 from Print_media
+       where ad_id = 12001 for update&#34;);
+   exec_statement(&#34;select ad_composite into lbs_loc2 from Print_media
+       where ad_id = 12001 for update&#34;);
+
+   -- Enable locators for buffered mode access to LOB:
+   OCILobEnableBuffering(..., lbs_loc1);
+   OCILobEnableBuffering(..., lbs_loc2);
+   OCILobEnableBuffering(..., lbs_loc3);
+
+   -- Read 4K bytes through lbs_loc1 starting from offset 1:
+   amount = 4096; offset = 1; bufl = 4096;
+   OCILobRead2(.., lbs_loc1, &amp;amount, 0, offset, buffer, bufl, ...);
+      if (exception)
+          goto exception_handler;
+          -- This reads the first 32K bytes of the LOB from
+          -- the server into a page (call it page_A) in the LOB
+          -- client-side buffer.
+          -- lbs_loc1 is a read-consistent locator.
+
+          -- Write 4K of the LOB throgh lbs_loc2 starting from
+          -- offset 1:
+          amount = 4096; offset = 1; bufl = 4096;
+          buffer = populate_buffer(4096);
+          OCILobWrite2(.., lbs_loc2, &amp;amount, 0, offset, buffer, bufl, ..);
+
+      if (exception)
+          goto exception_handler;
+          -- This reads the first 32K bytes of the LOB from
+          -- the server into a new page (call it page_B) in the
+          -- LOB buffer, and modify the contents of this page
+          -- with input buffer contents.
+          -- lbs_loc2 is an updated locator.
+
+          -- Read 20K bytes through lbs_loc1 starting from
+          -- offset 10K
+          amount = 20480; offset = 10240;
+          OCILobRead2(.., lbs_loc1, &amp;amount, 0, offset, buffer, bufl, ..);
+
+      if (exception)
+        goto exception_handler;
+          -- Read directly from page_A into the user buffer.
+          -- There is no round-trip to the server because the
+          -- data is in the client-side buffer.
+
+          -- Write 20K bytes through lbs_loc2 starting from offset
+          -- 10K
+          amount = 20480; offset = 10240; bufl = 20480;
+          buffer = populate_buffer(20480);
+          OCILobWrite2(.., lbs_loc2, &amp;amount, 0, offset, buffer, bufl, ..);
+
+      if (exception)
+          goto exception_handler;
+          -- The contents of the user buffer are now written
+          -- into page_B without involving a round-trip to the
+          -- server.  This avoids making a new LOB version on the
+          -- server and writing redo to the log.
+
+          -- The following write through lbs_loc3 also
+          -- results in an error:
+          amount = 20000; offset = 1000; bufl = 20000;
+          buffer = populate_buffer(20000);
+          OCILobWrite2(.., lbs_loc3, amount, 0, offset,buffer, bufl, ..);
+
+      if (exception)
+          goto exception_handler;
+          -- No two locators can be used to update a buffered LOB
+          -- through the buffering subsystem
+
+      -- The following update through lbs_loc3 also
+      -- results in an error
+      OCILobFileCopy(.., lbs_loc3, lbs_loc2, ..);
+
+      if (exception)
+          goto exception_handler;
+          -- Locators enabled for buffering cannot be used with
+          -- operations like Append, Copy, Trim and so on
+          -- When done, flush the LOB buffer to the server:
+      OCILobFlushBuffer(.., lbs_loc2, OCI_LOB_BUFFER_NOFREE);
+
+      if (exception)
+         goto exception_handler;
+         -- This flushes all the modified pages in the LOB buffer,
+         -- and resets lbs_loc2 from updated to read-consistent
+         -- locator. The modified pages remain in the buffer
+         -- without freeing memory.  These pages can be aged
+         -- out if necessary.
+
+      -- Disable locators for buffered mode access to LOB */
+      OCILobDisableBuffering(..., lbs_loc1);
+      OCILobDisableBuffering(..., lbs_loc2);
+      OCILobDisableBuffering(..., lbs_loc3);
+
+      if (exception)
+         goto exception_handler;
+         -- This disables the three locators for buffered access,
+         -- and frees up the LOB buffer resources.
+        exception_handler:
+      handle_exception_reporting();
+      exec_statement(&#34;rollback to savepoint lbs_savepoint&#34;);
+}
+</pre></div>
+</div>
+</div>
+<a id="ADLOB1002"></a>
+<div class="props_rev_3"><a id="GUID-B161D891-886D-4D53-89F0-BB42BD22C102"></a>
+<h2 id="ADLOB-GUID-B161D891-886D-4D53-89F0-BB42BD22C102" class="sect2">Opening Persistent LOBs with the OPEN and CLOSE Interfaces</h2>
+<div>
+<div class="section">
+<p>The <code class="codeph">OPEN</code> and <code class="codeph">CLOSE</code> interfaces enable you to explicitly open a persistent LOB instance.</p>
+<p>When you open a LOB instance with the <code class="codeph">OPEN</code> interface, the instance remains open until you explicitly close the LOB using the <code class="codeph">CLOSE</code> interface. The <code class="codeph">ISOPEN</code> interface enables you to determine whether a persistent LOB is open.</p>
+<p>Note that the open state of a LOB is associated with the LOB instance, not the LOB locator. The locator does not save any information indicating whether the LOB instance that it points to is open.</p>
+<div class="infoboxnotealso" id="GUID-B161D891-886D-4D53-89F0-BB42BD22C102__GUID-7D365222-2E5E-407D-A4AC-74958528C67B">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_working.htm#GUID-20013E7E-EAAC-40C5-B190-20A759DBFF11" title="The LOB APIs include operations that enable you to explicitly open and close a LOB instance.">LOB Open and Close Operations0.</a>&#34;</span>.</p>
+</div>
+<p>Topics:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_design.htm#GUID-156DDAB9-8B9A-461B-9194-A91987198ECF">Index Performance Benefits of Explicitly Opening a LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-16CB7CF0-C7E9-4D91-88E6-DD2C9FD49783">Closing Explicitly Open LOB Instances</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="ADLOB45330"></a>
+<div class="props_rev_3"><a id="GUID-156DDAB9-8B9A-461B-9194-A91987198ECF"></a>
+<h3 id="ADLOB-GUID-156DDAB9-8B9A-461B-9194-A91987198ECF" class="sect3">Index Performance Benefits of Explicitly Opening a LOB</h3>
+<div>
+<p>Explicitly opening a LOB instance can benefit performance of a persistent LOB in an indexed column.</p>
+<p>If you do not explicitly open the LOB instance, then every modification to the LOB implicitly opens and closes the LOB instance. Any triggers on a domain index are fired each time the LOB is closed. Note that in this case, any domain indexes on the LOB are updated as soon as any modification to the LOB instance is made; the domain index is always valid and can be used at any time.</p>
+<p>When you explicitly open a LOB instance, index triggers do not fire until you explicitly close the LOB. Using this technique can increase performance on index columns by eliminating unneeded indexing events until you explicitly close the LOB. Note that any index on the LOB column is not valid until you explicitly close the LOB.</p>
+</div>
+</div>
+<a id="ADLOB45331"></a>
+<div class="props_rev_3"><a id="GUID-16CB7CF0-C7E9-4D91-88E6-DD2C9FD49783"></a>
+<h3 id="ADLOB-GUID-16CB7CF0-C7E9-4D91-88E6-DD2C9FD49783" class="sect3">Closing Explicitly Open LOB Instances</h3>
+<div>
+<div class="section">
+<p>If you explicitly open a LOB instance, then you must close the LOB before you commit the transaction.</p>
+<p>Committing a transaction on the open LOB instance causes an error. When this error occurs, the LOB instance is closed implicitly, any modifications to the LOB instance are saved, and the transaction is committed, but any indexes on the LOB column are not updated. In this situation, you must rebuild your indexes on the LOB column.</p>
+<p>If you subsequently rollback the transaction, then the LOB instance is rolled back to its previous state, but the LOB instance is no longer explicitly open.</p>
+<p>You must close any LOB instance that you explicitly open:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Between DML statements that start a transaction, including <code class="codeph">SELECT</code> ... <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> and <code class="codeph">COMMIT</code></p>
+</li>
+<li>
+<p>Within an autonomous transaction block</p>
+</li>
+<li>
+<p>Before the end of a session (when there is no transaction involved)</p>
+<p>If you do not explicitly close the LOB instance, then it is implicitly closed at the end of the session and no index triggers are fired.</p>
+</li>
+</ul>
+<p>Keep track of the open or closed state of LOBs that you explicitly open. The following actions cause an error:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Explicitly opening a LOB instance that has been explicitly open earlier.</p>
+</li>
+<li>
+<p>Explicitly closing a LOB instance that is has been explicitly closed earlier.</p>
+</li>
+</ul>
+<p>This occurs whether you access the LOB instance using the same locator or different locators.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADLOB45332"></a>
+<div class="props_rev_3"><a id="GUID-B1E476A2-F3FE-4D13-BC2B-FFB809698ED3"></a>
+<h2 id="ADLOB-GUID-B1E476A2-F3FE-4D13-BC2B-FFB809698ED3" class="sect2">Read-Consistent Locators</h2>
+<div>
+<p>Oracle Database provides the same read consistency mechanisms for LOBs as for all other database reads and updates of scalar quantities. Refer to <a class="olink CNCPT221" target="_blank" href="../CNCPT/consist.htm#CNCPT221"><span class="italic">Oracle Database Concepts</span></a> for general information about read consistency.</p>
+<p>Read consistency has some special applications to LOB locators that you must understand. The following sections discuss read consistency and include examples which should be looked at in relationship to each other.</p>
+<p>Additionally, the examples refer to the <code class="codeph">print_media</code> table described in <span class="q">&#34;<a href="adlob_working.htm#GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1" title="Many Oracle LOB examples use the print_media table of the Oracle Database Sample Schema PM.">Table for LOB Examples: The PM Schema print_media Table</a>&#34;</span>,</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_design.htm#GUID-34EC32F1-51A9-4E72-ADDC-AA5B3D5E4BBC">A Selected Locator Becomes a Read-Consistent Locator</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-0320FCED-13FE-4F6F-A68B-8A275F224780">Example of Updating LOBs and Read-Consistency</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD">Example of Updating LOBs Through Updated Locators</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-A67D2857-7F83-4BCC-BF43-A0BA9C5EF9A0">Example of Updating a LOB Using SQL DML and DBMS_LOB</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-58DED834-DFEB-4ED2-B24C-D1C0634F6A39">Example of Using One Locator to Update the Same LOB Value</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-348E9FD8-2C50-4172-81B0-8BCC0D23144D">Example of Updating a LOB with a PL/SQL (DBMS_LOB) Bind Variable</a></p>
+</li>
+</ul>
+</div>
+<a id="ADLOB45333"></a>
+<div class="props_rev_3"><a id="GUID-34EC32F1-51A9-4E72-ADDC-AA5B3D5E4BBC"></a>
+<h3 id="ADLOB-GUID-34EC32F1-51A9-4E72-ADDC-AA5B3D5E4BBC" class="sect3">A Selected Locator Becomes a Read-Consistent Locator</h3>
+<div>
+<p><a id="d33762e2069" class="indexterm-anchor"></a><a id="d33762e2073" class="indexterm-anchor"></a><a id="d33762e2077" class="indexterm-anchor"></a><a id="d33762e2081" class="indexterm-anchor"></a><a id="d33762e2085" class="indexterm-anchor"></a><a id="d33762e2089" class="indexterm-anchor"></a>A selected locator, regardless of the existence of the <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> clause, becomes a <span class="italic">read-consistent locator,</span> and remains a read-consistent locator until the LOB value is <a id="d33762e2104" class="indexterm-anchor"></a><a id="d33762e2108" class="indexterm-anchor"></a>updated through that locator.</p>
+<p>A read-consistent locator contains the snapshot environment as of the point in time of the <code class="codeph">SELECT</code> operation.</p>
+<p>This has some complex implications. Suppose you have created a read-consistent locator (<code class="codeph">L1</code>) by way of a <code class="codeph">SELECT</code> operation. In reading the value of the persistent LOB through <code class="codeph">L1</code>, note the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The LOB is read as of the point in time of the <code class="codeph">SELECT</code> statement even if the <code class="codeph">SELECT</code> statement includes a <code class="codeph">FOR</code> <code class="codeph">UPDATE</code>.</p>
+</li>
+<li>
+<p>If the LOB value is updated through a different locator (<code class="codeph">L2</code>) in the same transaction, then <code class="codeph">L1</code> does not see the <code class="codeph">L2</code> updates.</p>
+</li>
+<li>
+<p><code class="codeph">L1</code> does not see committed updates made to the LOB through another transaction.</p>
+</li>
+<li>
+<p>If the <a id="d33762e2165" class="indexterm-anchor"></a><a id="d33762e2167" class="indexterm-anchor"></a>read-consistent locator <code class="codeph">L1</code> is copied to another locator <code class="codeph">L2</code> (for example, by a PL/SQL assignment of two locator variables &mdash; <code class="codeph">L2:= L1</code>), then <code class="codeph">L2</code> becomes a read-consistent locator along with <code class="codeph">L1</code> and any data read is read as of the point in&nbsp;time of the <code class="codeph">SELECT</code> for <code class="codeph">L1</code>.</p>
+</li>
+</ul>
+<p>You can use the existence of <a id="d33762e2196" class="indexterm-anchor"></a>multiple locators to access different transformations of the LOB value. However, in doing so, you must keep track of the different values accessed by different locators.</p>
+</div>
+</div>
+<a id="ADLOB45334"></a>
+<div class="props_rev_3"><a id="GUID-0320FCED-13FE-4F6F-A68B-8A275F224780"></a>
+<h3 id="ADLOB-GUID-0320FCED-13FE-4F6F-A68B-8A275F224780" class="sect3">Example of Updating LOBs and Read-Consistency</h3>
+<div>
+<p>Read-consistent locators provide the same LOB value regardless of when the <code class="codeph">SELECT</code> occurs.</p>
+<p>The following example demonstrates the relationship between read-consistency and updating in a simple example. Using the <code class="codeph">print_media</code> table described in <span class="q">&#34;<a href="adlob_working.htm#GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1" title="Many Oracle LOB examples use the print_media table of the Oracle Database Sample Schema PM.">Table for LOB Examples: The PM Schema print_media Table</a>&#34;</span> and PL/SQL, three <code class="codeph">CLOB</code> instances are created as potential locators: <code class="codeph">clob_selected</code>, <code class="codeph">clob_update</code>, and <code class="codeph">clob_copied</code>.</p>
+<p>Observe these progressions in the code, from times <code class="codeph">t1</code> through <code class="codeph">t6</code>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>At the time of the first <code class="codeph">SELECT</code> <code class="codeph">INTO</code> (at <code class="codeph">t1</code>), the value in <code class="codeph">ad_sourcetext</code> is associated with the locator <code class="codeph">clob_selected</code><span class="italic">.</span></p>
+</li>
+<li>
+<p>In the second operation (at <code class="codeph">t2</code>), the value in <code class="codeph">ad_sourcetext</code> is associated with the locator <code class="codeph">clob_updated</code><span class="italic">.</span> Because there has been no change in the value of <code class="codeph">ad_sourcetext</code> between <code class="codeph">t1</code> and <code class="codeph">t2</code>, both <code class="codeph">clob_selected</code> and <code class="codeph">clob_updated</code> are read-consistent locators that effectively have the same value even though they reflect snapshots taken at different moments in time.</p>
+</li>
+<li>
+<p>The third operation (at <code class="codeph">t3</code>) copies the value in <code class="codeph">clob_selected</code> to <code class="codeph">clob_copied</code>. At this juncture, all three locators see the same value. The example demonstrates this with a series of <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> calls.</p>
+</li>
+<li>
+<p>At time <code class="codeph">t4</code>, the program uses <code class="codeph">DBMS_LOB</code>.<code class="codeph">WRITE()</code> to alter the value in <code class="codeph">clob_updated</code>, and a <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> reveals a new value.</p>
+</li>
+<li>
+<p>However, a <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> of the value through <code class="codeph">clob_selected</code> (at <code class="codeph">t5</code>) reveals that it is a read-consistent locator, continuing to refer to the same value as of the time of its <code class="codeph">SELECT</code>.</p>
+</li>
+<li>
+<p>Likewise, a <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> of the value through <code class="codeph">clob_copied</code> (at <code class="codeph">t6</code>) reveals that it is a read-consistent locator, continuing to refer to the same value as <code class="codeph">clob_selected</code>.</p>
+</li>
+</ul>
+<div class="example" id="GUID-0320FCED-13FE-4F6F-A68B-8A275F224780__GUID-8E9FDC39-B5CE-4D31-8770-A7471CC2113E">
+<p class="titleinexample">Example 12-1</p>
+<pre dir="ltr">INSERT INTO PRINT_MEDIA VALUES (2056, 20020, EMPTY_BLOB(), 
+    &#39;abcd&#39;, EMPTY_CLOB(), EMPTY_CLOB(), NULL, NULL, NULL, NULL);
+
+COMMIT;
+
+DECLARE
+  num_var           INTEGER;
+  clob_selected     CLOB;
+  clob_updated      CLOB;
+  clob_copied       CLOB;
+  read_amount       INTEGER;
+  read_offset       INTEGER;
+  write_amount      INTEGER;
+  write_offset      INTEGER;
+  buffer            VARCHAR2(20);
+
+BEGIN
+  -- At time t1:
+  SELECT ad_sourcetext INTO clob_selected
+     FROM Print_media
+     WHERE ad_id = 20020;
+
+  -- At time t2:
+  SELECT ad_sourcetext INTO clob_updated
+     FROM Print_media
+     WHERE ad_id = 20020
+     FOR UPDATE;
+
+  -- At time t3:
+  clob_copied := clob_selected;
+  -- After the assignment, both the clob_copied and the
+  -- clob_selected have the same snapshot as of the point in time
+  -- of the SELECT into clob_selected
+
+  -- Reading from the clob_selected and the clob_copied does
+  -- return the same LOB value. clob_updated also sees the same
+  -- LOB value as of its select:
+  read_amount := 10;
+  read_offset := 1;
+  dbms_lob.read(clob_selected, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_selected value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  read_amount := 10;
+  dbms_lob.read(clob_copied, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_copied value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  read_amount := 10;
+  dbms_lob.read(clob_updated, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_updated value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  -- At time t4:
+  write_amount := 3;
+  write_offset := 5;
+  buffer := &#39;efg&#39;;
+  dbms_lob.write(clob_updated, write_amount, write_offset, buffer);
+
+  read_amount := 10;
+  dbms_lob.read(clob_updated, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_updated value: &#39; || buffer);
+  -- Produces the output &#39;abcdefg&#39;
+
+  -- At time t5:
+  read_amount := 10;
+  dbms_lob.read(clob_selected, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_selected value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  -- At time t6:
+  read_amount := 10;
+  dbms_lob.read(clob_copied, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_copied value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+END;
+/
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADLOB45335"></a>
+<div class="props_rev_3"><a id="GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD"></a>
+<h3 id="ADLOB-GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD" class="sect3">Example of Updating LOBs Through Updated Locators</h3>
+<div>
+<p><a id="d33762e2519" class="indexterm-anchor"></a>When you update the value of the persistent LOB through the LOB locator (<code class="codeph">L1</code>), <code class="codeph">L1</code> is updated to contain the current snapshot environment.</p>
+<p>This snapshot is as of the time after the operation was completed on the LOB value through locator <code class="codeph">L1</code>. <code class="codeph">L1</code> is then termed an updated locator. This operation enables you to see your own changes to the LOB value on the next read through the same locator, <code class="codeph">L1</code>.</p>
+<div class="infobox-note" id="GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD__GUID-752D9A48-DEAE-43FE-89E3-C7A3E91C0D5A">
+<p class="notep1">Note:</p>
+<p>The snapshot environment in the locator is <span class="italic">not</span> updated if the locator is used to merely read the LOB value. It is only updated when you modify the LOB value through the locator using the PL/SQL <code class="codeph">DBMS_LOB</code> package or the OCI LOB APIs.</p>
+</div>
+<p>Any committed updates made by a different transaction are seen by L1 only if your transaction is a read-committed transaction and if you use L1 to update the LOB value after the other transaction committed.</p>
+<div class="infobox-note" id="GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD__GUID-F5B165F6-9804-478E-B238-8A09441E318D">
+<p class="notep1">Note:</p>
+<p>When you update a persistent LOB value, the modification is always made to the most current LOB value.</p>
+</div>
+<p>Updating the value of the persistent LOB through any of the available methods, such as OCI LOB APIs or PL/SQL <code class="codeph">DBMS_LOB</code> package, updates the LOB value <span class="italic">and then reselects</span> the locator that refers to the new LOB value.</p>
+<div class="infobox-note" id="GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD__GUID-8AF165C7-9268-4D1A-B1ED-A4D2A3D4BBA3">
+<p class="notep1">Note:</p>
+<p>Once you have selected out a LOB locator by whatever means, you can read from the locator but not write into it.</p>
+<p>Note that updating the LOB value through SQL is merely an <code class="codeph">UPDATE</code> statement. It is up to you to do the reselect of the LOB locator or use the <code class="codeph">RETURNING</code> clause in the <code class="codeph">UPDATE</code> statement so that the locator can see the changes made by the <code class="codeph">UPDATE</code> statement. Unless you reselect the LOB locator or use the <code class="codeph">RETURNING</code> clause, you may think you are reading the latest value when this is not the case. For this reason you should avoid mixing SQL DML with <code class="codeph">OCI</code> and <code class="codeph">DBMS_LOB</code> <a id="d33762e2593" class="indexterm-anchor"></a>piecewise operations.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-9E8A72FB-D1A7-4151-B184-BB1FEC850BBD__GUID-673A1EC2-9B4A-4212-805C-A07C62B163A7">
+<p class="notep1">See Also:</p>
+<p><a class="olink LNPLS" target="_blank" href="../LNPLS/toc.htm"><span class="italic">Oracle Database PL/SQL Language Reference</span></a></p>
+</div>
+</div>
+</div>
+<a id="ADLOB45336"></a>
+<div class="props_rev_3"><a id="GUID-A67D2857-7F83-4BCC-BF43-A0BA9C5EF9A0"></a>
+<h3 id="ADLOB-GUID-A67D2857-7F83-4BCC-BF43-A0BA9C5EF9A0" class="sect3">Example of Updating a LOB Using SQL DML and DBMS_LOB</h3>
+<div>
+<p>Using the <code class="codeph">Print_media</code> table in the following example, a <code class="codeph">CLOB</code> locator is created as <code class="codeph">clob_selected</code>. Note the following progressions in the example, from times <code class="codeph">t1</code> through <code class="codeph">t3</code>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>At the time of the first <code class="codeph">SELECT</code> <code class="codeph">INTO</code> (at <code class="codeph">t1</code>), the value in <code class="codeph">ad_sourcetext</code> is associated with the locator <code class="codeph">clob_selected</code>.</p>
+</li>
+<li>
+<p>In the second operation (at <code class="codeph">t2</code>), the value in <code class="codeph">ad_sourcetext</code> is modified through the <code class="codeph">SQL</code> <code class="codeph">UPDATE</code> statement, without affecting the <code class="codeph">clob_selected</code> locator. The locator still sees the value of the LOB as of the point in time of the original <code class="codeph">SELECT</code>. In other words, the locator does not see the update made using the SQL <code class="codeph">UPDATE</code> statement. This is illustrated by the subsequent <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> call.</p>
+</li>
+<li>
+<p>The third operation (at <code class="codeph">t3</code>) re-selects the LOB value into the locator <code class="codeph">clob_selected</code>. The locator is thus updated with the latest snapshot environment which allows the locator to see the change made by the previous SQL <code class="codeph">UPDATE</code> statement. Therefore, in the next <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code>, an error is returned because the LOB value is empty, that is, it does not contain any data.</p>
+</li>
+</ul>
+<pre dir="ltr">INSERT INTO Print_media VALUES (3247, 20010, EMPTY_BLOB(), 
+    &#39;abcd&#39;, EMPTY_CLOB(), EMPTY_CLOB(), NULL, NULL, NULL, NULL);
+
+COMMIT;
+
+DECLARE
+  num_var           INTEGER;
+  clob_selected     CLOB;
+  read_amount       INTEGER;
+  read_offset       INTEGER;
+  buffer            VARCHAR2(20);
+
+BEGIN
+
+  -- At time t1:
+  SELECT ad_sourcetext INTO clob_selected
+  FROM Print_media
+  WHERE ad_id = 20010;
+
+  read_amount := 10;
+  read_offset := 1;
+  dbms_lob.read(clob_selected, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_selected value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  -- At time t2:
+  UPDATE Print_media SET ad_sourcetext = empty_clob()
+      WHERE ad_id = 20010;
+  -- although the most current LOB value is now empty,
+  -- clob_selected still sees the LOB value as of the point
+  -- in time of the SELECT
+
+  read_amount := 10;
+  dbms_lob.read(clob_selected, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_selected value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  -- At time t3:
+  SELECT ad_sourcetext INTO clob_selected FROM Print_media WHERE
+       ad_id = 20010;
+  -- the SELECT allows clob_selected to see the most current
+  -- LOB value
+
+  read_amount := 10;
+  dbms_lob.read(clob_selected, read_amount, read_offset, buffer);
+  -- ERROR: ORA-01403: no data found
+END;
+/
+</pre></div>
+</div>
+<a id="ADLOB45337"></a>
+<div class="props_rev_3"><a id="GUID-58DED834-DFEB-4ED2-B24C-D1C0634F6A39"></a>
+<h3 id="ADLOB-GUID-58DED834-DFEB-4ED2-B24C-D1C0634F6A39" class="sect3">Example of Using One Locator to Update the Same LOB Value</h3>
+<div>
+<div class="infobox-note" id="GUID-58DED834-DFEB-4ED2-B24C-D1C0634F6A39__GUID-D926ECC0-DEF7-49B0-B23E-E4022CE5EACF">
+<p class="notep1">Note:</p>
+<p>Avoid <a id="d33762e2838" class="indexterm-anchor"></a>updating the same LOB with different locators. You may avoid many pitfalls if you use only one locator to update a given LOB value.</p>
+</div>
+<p>In the following example, using table <code class="codeph">Print_media</code>, two <code class="codeph">CLOB</code>s are created as potential locators: clob_updated and clob_copied.</p>
+<p>Note these progressions in the example at times t1 through t5:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>At the time of the first <code class="codeph">SELECT</code> <code class="codeph">INTO</code> (at <code class="codeph">t1</code>), the value in <code class="codeph">ad_sourcetext</code> is associated with the locator <code class="codeph">clob_updated</code>.</p>
+</li>
+<li>
+<p>The second operation (at time <code class="codeph">t2</code>) copies the value in <code class="codeph">clob_updated</code> to <code class="codeph">clob_copied</code>. At this time, both locators see the same value. The example demonstrates this with a series of <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> calls.</p>
+</li>
+<li>
+<p>At time <code class="codeph">t3</code>, the program uses <code class="codeph">DBMS_LOB</code>.<code class="codeph">WRITE()</code> to alter the value in <code class="codeph">clob_updated</code>, and a <code class="codeph">DBMS_LOB.READ()</code> reveals a new value.</p>
+</li>
+<li>
+<p>However, a <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> of the value through <code class="codeph">clob_copied</code> (at time <code class="codeph">t4</code>) reveals that it still sees the value of the LOB as of the point in time of the assignment from <code class="codeph">clob_updated</code> (at <code class="codeph">t2</code>).</p>
+</li>
+<li>
+<p>It is not until <code class="codeph">clob_updated</code> is assigned to <code class="codeph">clob_copied</code> (<code class="codeph">t5</code>) that <code class="codeph">clob_copied</code> sees the modification made by <code class="codeph">clob_updated</code>.</p>
+</li>
+</ul>
+<pre dir="ltr">INSERT INTO PRINT_MEDIA VALUES (2049, 20030, EMPTY_BLOB(), 
+    &#39;abcd&#39;, EMPTY_CLOB(), EMPTY_CLOB(), NULL, NULL, NULL, NULL);
+
+COMMIT;
+
+DECLARE
+  num_var          INTEGER;
+  clob_updated     CLOB;
+  clob_copied      CLOB;
+  read_amount      INTEGER;
+  read_offset      INTEGER;
+  write_amount     INTEGER;
+  write_offset     INTEGER;
+  buffer           VARCHAR2(20);
+BEGIN
+
+-- At time t1:
+  SELECT ad_sourcetext INTO clob_updated FROM PRINT_MEDIA
+      WHERE ad_id = 20030
+      FOR UPDATE;
+
+  -- At time t2:
+  clob_copied := clob_updated;
+  -- after the assign, clob_copied and clob_updated see the same
+  -- LOB value
+
+  read_amount := 10;
+  read_offset := 1;
+  dbms_lob.read(clob_updated, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_updated value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  read_amount := 10;
+  dbms_lob.read(clob_copied, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_copied value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  -- At time t3:
+  write_amount := 3;
+  write_offset := 5;
+  buffer := &#39;efg&#39;;
+  dbms_lob.write(clob_updated, write_amount, write_offset,
+        buffer);
+
+  read_amount := 10;
+  dbms_lob.read(clob_updated, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_updated value: &#39; || buffer);
+  -- Produces the output &#39;abcdefg&#39;
+
+
+  -- At time t4:
+  read_amount := 10;
+  dbms_lob.read(clob_copied, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_copied value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  -- At time t5:
+  clob_copied := clob_updated;
+
+  read_amount := 10;
+  dbms_lob.read(clob_copied, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_copied value: &#39; || buffer);
+  -- Produces the output &#39;abcdefg&#39;
+END;
+/
+</pre></div>
+</div>
+<a id="ADLOB45338"></a>
+<div class="props_rev_3"><a id="GUID-348E9FD8-2C50-4172-81B0-8BCC0D23144D"></a>
+<h3 id="ADLOB-GUID-348E9FD8-2C50-4172-81B0-8BCC0D23144D" class="sect3">Example of Updating a LOB with a PL/SQL (DBMS_LOB) Bind Variable</h3>
+<div>
+<p>When a LOB locator is used as the source to update another persistent LOB (as in a SQL <code class="codeph">INSERT</code> or <code class="codeph">UPDATE</code> statement, the <code class="codeph">DBMS_LOB</code>.<code class="codeph">COPY</code> routine, and so on), the snapshot environment in the source LOB locator determines the LOB value that is used as the source.</p>
+<p>If the source locator (for example <code class="codeph">L1</code>) is a <a id="d33762e3052" class="indexterm-anchor"></a><a id="d33762e3054" class="indexterm-anchor"></a>read-consistent locator, then the LOB value as of the time of the <code class="codeph">SELECT</code> of <code class="codeph">L1</code> is used. If the source locator (for example <code class="codeph">L2</code>) is an updated locator, then the LOB value associated with the <code class="codeph">L2</code> snapshot environment at the time of the operation is used.</p>
+<p>In the following example, three <code class="codeph">CLOB</code>s are created as potential locators: <code class="codeph">clob_selected</code>, clob_updated, and clob_copied.</p>
+<p>Note these progressions in the example at times <code class="codeph">t1</code> through <code class="codeph">t5</code>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>At the time of the first <code class="codeph">SELECT</code> <code class="codeph">INTO</code> (at <code class="codeph">t1</code>), the value in <code class="codeph">ad_sourcetext</code> is associated with the locator <code class="codeph">clob_updated</code>.</p>
+</li>
+<li>
+<p>The second operation (at <code class="codeph">t2</code>) copies the value in <code class="codeph">clob_updated</code> to <code class="codeph">clob_copied</code>. At this juncture, both locators see the same value.</p>
+</li>
+<li>
+<p>Then (at <code class="codeph">t3</code>), the program uses <code class="codeph">DBMS_LOB</code>.<code class="codeph">WRITE()</code> to alter the value in <code class="codeph">clob_updated</code><span class="italic">,</span> and a <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> reveals a new value.</p>
+</li>
+<li>
+<p>However, a <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> of the value through <code class="codeph">clob_copied</code> (at <code class="codeph">t4</code>) reveals that <code class="codeph">clob_copied</code> does not see the change made by <code class="codeph">clob_updated</code>.</p>
+</li>
+<li>
+<p>Therefore (at <code class="codeph">t5</code>), when <code class="codeph">clob_copied</code> is used as the source for the value of the <code class="codeph">INSERT</code> statement, the value associated with <code class="codeph">clob_copied</code> (for example, without the new changes made by <code class="codeph">clob_updated</code>) is inserted. This is demonstrated by the subsequent <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ()</code> of the value just inserted.</p>
+</li>
+</ul>
+<pre dir="ltr">INSERT INTO PRINT_MEDIA VALUES (2056, 20020, EMPTY_BLOB(), 
+    &#39;abcd&#39;, EMPTY_CLOB(), EMPTY_CLOB(), NULL, NULL, NULL, NULL);
+
+COMMIT;
+
+DECLARE
+  num_var           INTEGER;
+  clob_selected     CLOB;
+  clob_updated      CLOB;
+  clob_copied       CLOB;
+  read_amount       INTEGER;
+  read_offset       INTEGER;
+  write_amount      INTEGER;
+  write_offset      INTEGER;
+  buffer            VARCHAR2(20);
+BEGIN
+
+  -- At time t1:
+  SELECT ad_sourcetext INTO clob_updated FROM PRINT_MEDIA
+      WHERE ad_id = 20020
+      FOR UPDATE;
+
+  read_amount := 10;
+  read_offset := 1;
+  dbms_lob.read(clob_updated, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_updated value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  -- At time t2:
+  clob_copied := clob_updated;
+
+
+  -- At time t3:
+  write_amount := 3;
+  write_offset := 5;
+  buffer := &#39;efg&#39;;
+  dbms_lob.write(clob_updated, write_amount, write_offset, buffer);
+
+  read_amount := 10;
+  dbms_lob.read(clob_updated, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_updated value: &#39; || buffer);
+  -- Produces the output &#39;abcdefg&#39;
+  -- note that clob_copied does not see the write made before
+  -- clob_updated
+
+
+  -- At time t4:
+  read_amount := 10;
+  dbms_lob.read(clob_copied, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_copied value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+
+  -- At time t5:
+  -- the insert uses clob_copied view of the LOB value which does
+  -- not include clob_updated changes
+  INSERT INTO PRINT_MEDIA VALUES (2056, 20022, EMPTY_BLOB(), 
+    clob_copied, EMPTY_CLOB(), EMPTY_CLOB(), NULL, NULL, NULL, NULL)
+    RETURNING ad_sourcetext INTO clob_selected;
+
+  read_amount := 10;
+  dbms_lob.read(clob_selected, read_amount, read_offset, buffer);
+  dbms_output.put_line(&#39;clob_selected value: &#39; || buffer);
+  -- Produces the output &#39;abcd&#39;
+END;
+/
+</pre></div>
+</div>
+</div>
+<a id="ADLOB45339"></a>
+<div class="props_rev_3"><a id="GUID-4DDA92CE-8C94-4DD1-9BA3-C6FC5ED7CAE0"></a>
+<h2 id="ADLOB-GUID-4DDA92CE-8C94-4DD1-9BA3-C6FC5ED7CAE0" class="sect2">LOB Locators and Transaction Boundaries</h2>
+<div>
+<p>LOB locators can be used in transactions and transaction IDs. A basic description of LOB locators and their operations is given in <span class="q">&#34;<a href="adlob_working.htm#GUID-747411EC-7E86-4756-A8DC-CE19923BF8A6" title="There are differences between the semantics of locators for the LOB types BLOB, CLOB, and NCLOB, and the semantics of locators for the BFILE type:">LOB Locators and BFILE Locators</a>&#34;</span>.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_design.htm#GUID-C4E6C558-239B-474C-B587-31D8452EBAB1">About LOB Locators and Transaction Boundaries</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-F4B23AD1-2E5F-49ED-ABBE-10E6B109BE3E">Read and Write Operations on a LOB Using Locators</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-1A6259F3-2F83-4AD5-B79F-0B0130D3608F">Selecting the Locator Outside of the Transaction Boundary</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-5E2C762D-F4B4-4D03-AE92-0940671C21E3">Selecting the Locator Within a Transaction Boundary</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-0FFBCC15-1C19-4B48-A570-F6BF197BB2B8">LOB Locators Cannot Span Transactions</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-F973C33A-EA4D-4B1B-A7EA-C258BE6B44A8">Example of Locator Not Spanning a Transaction</a></p>
+</li>
+</ul>
+</div>
+<div class="props_rev_3"><a id="GUID-C4E6C558-239B-474C-B587-31D8452EBAB1"></a>
+<h3 id="ADLOB-GUID-C4E6C558-239B-474C-B587-31D8452EBAB1" class="sect3">About LOB Locators and Transaction Boundaries</h3>
+<div>
+<p>Note the following regarding LOB locators and transactions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Locators contain <a id="d33762e3386" class="indexterm-anchor"></a>transaction IDs when:</p>
+<p>You Begin the Transaction, Then Select Locator: If you begin a transaction and subsequently select a locator, then the locator contains the transaction ID. Note that you can implicitly be in a transaction without explicitly beginning one. For example, <code class="codeph">SELECT</code>... <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> implicitly begins a transaction. In such a case, the locator contains a transaction ID.</p>
+</li>
+<li>
+<p>Locators Do Not Contain Transaction IDs When...</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You are Outside the Transaction, Then Select Locator: By contrast, if you select a locator outside of a transaction, then the locator does not contain a transaction ID.</p>
+</li>
+<li>
+<p>When Selected Prior to DML Statement Execution: A transaction ID is not assigned until the first DML statement executes. Therefore, locators that are selected prior to such a DML statement do not contain a transaction ID.</p>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADLOB45340"></a>
+<div class="props_rev_3"><a id="GUID-F4B23AD1-2E5F-49ED-ABBE-10E6B109BE3E"></a>
+<h3 id="ADLOB-GUID-F4B23AD1-2E5F-49ED-ABBE-10E6B109BE3E" class="sect3">Read and Write Operations on a LOB Using Locators</h3>
+<div>
+<p>You can always read LOB data using the locator irrespective of whether or not the locator contains a transaction ID.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Cannot Write Using Locator:</p>
+<p>If the locator contains a transaction ID, then you cannot write to the LOB outside of that particular transaction.</p>
+</li>
+<li>
+<p>Can Write Using Locator:</p>
+<p>If the locator <span class="italic">does not</span> contain a transaction ID, then you can write to the LOB after beginning a transaction either explicitly or implicitly.</p>
+</li>
+<li>
+<p>Cannot Read or Write Using Locator With Serializable <a id="d33762e3504" class="indexterm-anchor"></a>Transactions:</p>
+<p>If the locator contains a transaction ID of an older transaction, and the current transaction is serializable, then you cannot read or write using that locator.</p>
+</li>
+<li>
+<p>Can Read, Not Write Using Locator With Non-Serializable <a id="d33762e3514" class="indexterm-anchor"></a>Transactions:</p>
+<p>If the transaction is non-serializable, then you can read, but not write outside of that transaction.</p>
+</li>
+</ul>
+<p>The examples <a href="adlob_design.htm#GUID-1A6259F3-2F83-4AD5-B79F-0B0130D3608F">Selecting the Locator Outside of the Transaction Boundary</a>, <a href="adlob_design.htm#GUID-5E2C762D-F4B4-4D03-AE92-0940671C21E3">Selecting the Locator Within a Transaction Boundary</a>, <a href="adlob_design.htm#GUID-0FFBCC15-1C19-4B48-A570-F6BF197BB2B8">LOB Locators Cannot Span Transactions</a>, and <a href="adlob_design.htm#GUID-F973C33A-EA4D-4B1B-A7EA-C258BE6B44A8">Example of Locator Not Spanning a Transaction</a> show the relationship between locators and <span class="italic">non-serializable</span> transactions</p>
+</div>
+</div>
+<a id="ADLOB45342"></a><a id="ADLOB45343"></a><a id="ADLOB45341"></a>
+<div class="props_rev_3"><a id="GUID-1A6259F3-2F83-4AD5-B79F-0B0130D3608F"></a>
+<h3 id="ADLOB-GUID-1A6259F3-2F83-4AD5-B79F-0B0130D3608F" class="sect3">Selecting the Locator Outside of the Transaction Boundary</h3>
+<div>
+<div class="section">
+<p>Two scenarios describe techniques for using locators in non-serializable transactions when the locator is selected outside of a transaction.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">First Scenario:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ol>
+<li>
+<p>Select the locator with no current transaction. At this point, the locator does not contain a transaction id.</p>
+</li>
+<li>
+<p>Begin the transaction.</p>
+</li>
+<li>
+<p>Use the locator to read data from the LOB.</p>
+</li>
+<li>
+<p>Commit or rollback the transaction.</p>
+</li>
+<li>
+<p>Use the locator to read data from the LOB.</p>
+</li>
+<li>
+<p>Begin a transaction. The locator does not contain a transaction id.</p>
+</li>
+<li>
+<p>Use the locator to write data to the LOB. This operation is valid because the locator did not contain a transaction id prior to the write. After this call, the locator contains a transaction id.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Second Scenario:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li><span>Select the locator with no current transaction. At this point, the locator does not contain a transaction id.</span></li>
+<li><span>Begin the transaction. The locator does not contain a transaction id.</span></li>
+<li><span>Use the locator to read data from the LOB. The locator does not contain a transaction id.</span></li>
+<li><span>Use the locator to write data to the LOB. This operation is valid because the locator did not contain a transaction id prior to the write. After this call, the locator contains a transaction id. You can continue to read from or write to the LOB.</span></li>
+<li><span>Commit or rollback the transaction. The locator continues to contain the transaction id.</span></li>
+<li><span>Use the locator to read data from the LOB. This is a valid operation.</span></li>
+<li><span>Begin a transaction. The locator contains the previous transaction id.</span></li>
+<li><span>Use the locator to write data to the LOB. This write operation fails because the locator does not contain the transaction id that matches the current transaction.</span></li>
+</ol>
+</div>
+</div>
+<a id="ADLOB45345"></a><a id="ADLOB45346"></a><a id="ADLOB45344"></a>
+<div class="props_rev_3"><a id="GUID-5E2C762D-F4B4-4D03-AE92-0940671C21E3"></a>
+<h3 id="ADLOB-GUID-5E2C762D-F4B4-4D03-AE92-0940671C21E3" class="sect3">Selecting the Locator Within a Transaction Boundary</h3>
+<div>
+<div class="section">
+<p>Two scenarios describe techniques for using locators in non-serializable transactions when the locator is selected within a transaction.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">First Scenario:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ol>
+<li>
+<p>Select the locator within a transaction. At this point, the locator contains the transaction id.</p>
+</li>
+<li>
+<p>Begin the transaction. The locator contains the previous transaction id.</p>
+</li>
+<li>
+<p>Use the locator to read data from the LOB. This operation is valid even though the transaction id in the locator does not match the current transaction.</p>
+<div class="infoboxnotealso" id="GUID-5E2C762D-F4B4-4D03-AE92-0940671C21E3__GUID-5ACAA208-E7F4-4FD7-9161-54BD3A6311CD">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_design.htm#GUID-B1E476A2-F3FE-4D13-BC2B-FFB809698ED3">Read-Consistent Locators</a>&#34;</span> for more information about using the locator to read LOB data.</p>
+</div>
+</li>
+<li>
+<p>Use the locator to write data to the LOB. This operation fails because the transaction id in the locator does not match the current transaction.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Second Scenario:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li><span>Begin a transaction.</span></li>
+<li><span>Select the locator. The locator contains the transaction id because it was selected within a transaction.</span></li>
+<li><span>Use the locator to read from or write to the LOB. These operations are valid.</span></li>
+<li><span>Commit or rollback the transaction. The locator continues to contain the transaction id.</span></li>
+<li><span>Use the locator to read data from the LOB. This operation is valid even though there is a transaction id in the locator and the transaction was previously committed or rolled back.</span></li>
+<li><span>Use the locator to write data to the LOB. This operation fails because the transaction id in the locator is for a transaction that was previously committed or rolled back.</span></li>
+</ol>
+</div>
+</div>
+<a id="ADLOB45347"></a>
+<div class="props_rev_3"><a id="GUID-0FFBCC15-1C19-4B48-A570-F6BF197BB2B8"></a>
+<h3 id="ADLOB-GUID-0FFBCC15-1C19-4B48-A570-F6BF197BB2B8" class="sect3">LOB Locators Cannot Span Transactions</h3>
+<div>
+<p><a id="d33762e3862" class="indexterm-anchor"></a><a id="d33762e3866" class="indexterm-anchor"></a>Modifying a persistent LOB value through the LOB locator using <code class="codeph">DBMS_LOB</code>, OCI, or SQL <code class="codeph">INSERT</code> or <code class="codeph">UPDATE</code> statements changes the locator from a <a id="d33762e3880" class="indexterm-anchor"></a><a id="d33762e3882" class="indexterm-anchor"></a>read-consistent locator to an updated locator.</p>
+<p>The <code class="codeph">INSERT</code> or <code class="codeph">UPDATE</code> statement automatically starts a transaction and locks the row. Once this has occurred, the locator cannot be used outside the current transaction to modify the LOB value. In other words, LOB locators that are used to write data cannot span transactions. However, the locator can be used to read the LOB value unless you are in a serializable transaction.</p>
+<div class="infoboxnotealso" id="GUID-0FFBCC15-1C19-4B48-A570-F6BF197BB2B8__GUID-1B2250EF-98F1-40FF-BA86-94D58FEA560F">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_design.htm#GUID-4DDA92CE-8C94-4DD1-9BA3-C6FC5ED7CAE0">LOB Locators and Transaction Boundaries</a> &#34;</span>, for more information about the relationship between LOBs and transaction boundaries.</p>
+</div>
+<p>In <a href="adlob_design.htm#GUID-F973C33A-EA4D-4B1B-A7EA-C258BE6B44A8">Example of Locator Not Spanning a Transaction</a> , a <code class="codeph">CLOB</code> locator is created: <code class="codeph">clob_updated</code></p>
+<ul style="list-style-type: disc;">
+<li>
+<p>At the time of the first <code class="codeph">SELECT</code> <code class="codeph">INTO</code> (at t1), the value in <code class="codeph">ad_sourcetext</code> is associated with the locator <code class="codeph">clob_updated</code>.</p>
+</li>
+<li>
+<p>The second operation (at t2), uses the <code class="codeph">DBMS_LOB</code>.<code class="codeph">WRITE</code> function to alter the value in <code class="codeph">clob_updated</code>, and a <code class="codeph">DBMS_LOB</code>.<code class="codeph">READ</code> reveals a new value.</p>
+</li>
+<li>
+<p>The <code class="codeph">commit</code> statement (at t3) ends the current transaction.</p>
+</li>
+<li>
+<p>Therefore (at t4), the subsequent <code class="codeph">DBMS_LOB</code>.<code class="codeph">WRITE</code> operation fails because the <code class="codeph">clob_updated</code> locator refers to a different (already committed) transaction. This is noted by the error returned. You must re-select the LOB locator before using it in further <code class="codeph">DBMS_LOB</code> (and OCI) modify operations.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADLOB45348"></a>
+<div class="props_rev_3"><a id="GUID-F973C33A-EA4D-4B1B-A7EA-C258BE6B44A8"></a>
+<h3 id="ADLOB-GUID-F973C33A-EA4D-4B1B-A7EA-C258BE6B44A8" class="sect3">Example of Locator Not Spanning a Transaction</h3>
+<div>
+<p>The example uses the <code class="codeph">print_media</code> table described in <span class="q">&#34;<a href="adlob_working.htm#GUID-D71F0CBE-0717-41A2-BCD4-71E1DDF895D1" title="Many Oracle LOB examples use the print_media table of the Oracle Database Sample Schema PM.">Table for LOB Examples: The PM Schema print_media Table</a>&#34;</span></p>
+<pre dir="ltr">INSERT INTO PRINT_MEDIA VALUES (2056, 20010, EMPTY_BLOB(), 
+    &#39;abcd&#39;, EMPTY_CLOB(), EMPTY_CLOB(), NULL, NULL, NULL, NULL);
+
+COMMIT;
+
+DECLARE
+  num_var          INTEGER;
+  clob_updated     CLOB;
+  read_amount      INTEGER;
+  read_offset      INTEGER;
+  write_amount     INTEGER;
+  write_offset     INTEGER;
+  buffer           VARCHAR2(20);
+
+BEGIN
+          -- At time t1:
+     SELECT      ad_sourcetext
+     INTO        clob_updated
+     FROM        PRINT_MEDIA
+     WHERE       ad_id = 20010
+     FOR UPDATE;
+     read_amount := 10;
+     read_offset := 1;
+     dbms_lob.read(clob_updated, read_amount, read_offset, buffer);
+     dbms_output.put_line(&#39;clob_updated value: &#39; || buffer);
+     -- This produces the output &#39;abcd&#39;
+
+     -- At time t2:
+     write_amount := 3;
+     write_offset := 5;
+     buffer := &#39;efg&#39;;
+     dbms_lob.write(clob_updated, write_amount, write_offset, buffer);
+     read_amount := 10;
+     dbms_lob.read(clob_updated, read_amount, read_offset, buffer);
+     dbms_output.put_line(&#39;clob_updated value: &#39; || buffer);
+     -- This produces the output &#39;abcdefg&#39;
+
+    -- At time t3:
+    COMMIT;
+
+     -- At time t4:
+    dbms_lob.write(clob_updated , write_amount, write_offset, buffer);
+    -- ERROR: ORA-22990: LOB locators cannot span transactions
+END;
+/
+</pre></div>
+</div>
+</div>
+<a id="ADLOB45349"></a>
+<div class="sect2"><a id="GUID-4AA63439-3BCD-41A8-98D0-40923BFE0309"></a>
+<h2 id="ADLOB-GUID-4AA63439-3BCD-41A8-98D0-40923BFE0309" class="sect2">LOBs in the Object Cache</h2>
+<div>
+<p>When you copy one object to another in the object cache with a LOB locator attribute, only the LOB locator is copied.</p>
+<p>This means that the LOB attribute in these two different objects contain exactly the same locator which refers to <span class="italic">one and the same</span> LOB <span class="italic">value</span>. Only when the target object is flushed is a separate, physical copy of the LOB value made, which is distinct from the source LOB value.</p>
+<div class="infoboxnotealso" id="GUID-4AA63439-3BCD-41A8-98D0-40923BFE0309__GUID-157C222F-614E-43AE-A1D2-BB6C241C3E2F">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_design.htm#GUID-0320FCED-13FE-4F6F-A68B-8A275F224780">Example of Updating LOBs and Read-Consistency</a>&#34;</span> for a description of what version of the LOB value is seen by each object if a write is performed through one of the locators.</p>
+</div>
+<p>Therefore, in cases where you want to modify the LOB that was the target of the copy, <span class="italic"><span class="bold">you must flush the target object, refresh the target object, and then</span></span> write to the LOB through the locator attribute.</p>
+<p>Consider these object cache issues for internal and external LOB attributes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Persistent LOB attributes: Creating an object in object cache, sets the LOB attribute to empty. <a id="d33762e4168" class="indexterm-anchor"></a><a id="d33762e4172" class="indexterm-anchor"></a><a id="d33762e4176" class="indexterm-anchor"></a></p>
+<p>When you create an object in the object cache that contains a persistent LOB attribute, the LOB attribute is implicitly set to empty. You may not use this empty LOB locator to write data to the LOB. You must first flush the object, thereby inserting a row into the table and creating an empty LOB &mdash; that is, a LOB with 0 length. Once the object is refreshed in the object cache (use <code class="codeph">OCI_PIN_LATEST</code>), the real LOB locator is read into the attribute, and you can then call the OCI LOB API to write data to the LOB.</p>
+</li>
+<li>
+<p>External LOB (<code class="codeph">BFILE</code>) attributes: Creating an object in object cache, sets the <code class="codeph">BFILE</code> attribute to <code class="codeph">NULL</code>.</p>
+<p>When creating an object with an external LOB (<code class="codeph">BFILE)</code> attribute, the <code class="codeph">BFILE</code> is set to <code class="codeph">NULL</code>. It must be updated with a valid directory object name and file name before reading from the <code class="codeph">BFILE</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADLOB102"></a>
+<div class="props_rev_3"><a id="GUID-FD6659DC-8792-4D7C-AC07-9EABEA02DF91"></a>
+<h2 id="ADLOB-GUID-FD6659DC-8792-4D7C-AC07-9EABEA02DF91" class="sect2">Terabyte-Size LOB Support</h2>
+<div>
+<p><a id="d33762e4275" class="indexterm-anchor"></a><a id="d33762e4279" class="indexterm-anchor"></a><a id="d33762e4283" class="indexterm-anchor"></a>Terabyte-size LOBs are LOBs that are up to a maximum size of 8 to 128 terabytes depending on database block size.</p>
+<p>Topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="adlob_design.htm#GUID-74618664-CE35-48FB-85C6-E03CD2063BD1">About Terabyte-Size LOB Support</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-A84520F4-05EF-48F3-B2A4-9CC001192B23">Maximum Storage Limit for Terabyte-Size LOBs</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-0A6B471E-85EC-429C-AA20-29944A96939E">Using Terabyte-Size LOBs with JDBC</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-1DEA56D9-5CBD-4211-88DB-87B4329B02F6">Using Terabyte-Size LOBs with the DBMS_LOB Package</a></p>
+</li>
+<li>
+<p><a href="adlob_design.htm#GUID-A40086A3-2F4D-4153-B4DE-7C02C7CE08A8">Using Terabyte-Size LOBs with OCI</a></p>
+</li>
+</ul>
+</div>
+<div class="props_rev_3"><a id="GUID-74618664-CE35-48FB-85C6-E03CD2063BD1"></a>
+<h3 id="ADLOB-GUID-74618664-CE35-48FB-85C6-E03CD2063BD1" class="sect3">About Terabyte-Size LOB Support</h3>
+<div>
+<p>Terabyte-size LOBs are supported by the following APIs:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Java using JDBC (Java Database Connectivity)</p>
+</li>
+<li>
+<p>PL/SQL using the DBMS_LOB Package</p>
+</li>
+<li>
+<p>C using OCI (Oracle Call Interface)</p>
+</li>
+</ul>
+<p>You cannot create and use LOB instances of size greater than 4 gigabytes &#34;terabyte-size LOBs&#34;&mdash; in the following programmatic environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>COBOL using the Pro*COBOL Precompiler</p>
+</li>
+<li>
+<p>C or C++ using the Pro*C/C++ Precompiler</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-74618664-CE35-48FB-85C6-E03CD2063BD1__GUID-11FE0E82-93ED-4571-B971-850B5123866D">
+<p class="notep1">Note:</p>
+<p>Oracle Database does not support <code class="codeph">BFILE</code>s larger than 2^64-1 bytes (<code class="codeph">UB8MAXVAL</code> in OCI) in any programmatic environment. Any additional file size limit imposed by your operating system also applies to <code class="codeph">BFILE</code>s.</p>
+</div>
+</div>
+</div>
+<a id="ADLOB45350"></a>
+<div class="props_rev_3"><a id="GUID-A84520F4-05EF-48F3-B2A4-9CC001192B23"></a>
+<h3 id="ADLOB-GUID-A84520F4-05EF-48F3-B2A4-9CC001192B23" class="sect3">Maximum Storage Limit for Terabyte-Size LOBs</h3>
+<div>
+<p>In supported environments, you can create and manipulate LOBs that are up to the maximum storage size limit for your database configuration.</p>
+<p>Oracle Database lets you create tablespaces with block sizes different from the database block size, and the maximum size of a LOB depends on the size of the tablespace blocks. <code class="codeph">CHUNK</code> is a parameter of LOB storage whose value is controlled by the block size of the tablespace in which the LOB is stored.</p>
+<div class="infobox-note" id="GUID-A84520F4-05EF-48F3-B2A4-9CC001192B23__GUID-69693601-CFB9-42B9-B1B0-6F8CFD131081">
+<p class="notep1">Note:</p>
+<p>The <code class="codeph">CHUNK</code> parameter does not apply to SecureFiles. It is only used for BasicFiles LOBs.</p>
+</div>
+<p>When you create a LOB column, you can specify a value for <code class="codeph">CHUNK</code>, which is the number of bytes to be allocated for LOB manipulation. The value must be a multiple of the tablespace block size, or Oracle Database rounds up to the next multiple. (If the tablespace block size is the same as the database block size, then <code class="codeph">CHUNK</code> is also a multiple of the database block size.)</p>
+<p>The maximum allowable storage limit for your configuration depends on the tablespace block size setting, and is calculated as (4 gigabytes - 1) times the value obtained from <a id="d33762e4495" class="indexterm-anchor"></a><code class="codeph">DBMS_LOB.GETCHUNKSIZE</code> or <a id="d33762e4500" class="indexterm-anchor"></a><code class="codeph">OCILobGetChunkSize()</code>. This value, in number of bytes for <code class="codeph">BLOB</code>s or number of characters for <code class="codeph">CLOB</code>s, is actually less than the size of the <code class="codeph">CHUNK</code> parameter due to internal storage overhead. With the current allowable range for the tablespace block size from 2K to 32K, the storage limit ranges from 8 terabytes to 128 terabytes.</p>
+<p>For example, suppose your database block size is 32K bytes and you create a tablespace with a nonstandard block size of 8K. Further suppose that you create a table with a LOB column and specify a CHUNK size of 16K (which is a multiple of the 8K tablespace block size). Then the maximum size of a LOB in this column is (4 gigabytes - 1) * 16K.</p>
+<div class="infoboxnotealso" id="GUID-A84520F4-05EF-48F3-B2A4-9CC001192B23__GUID-EA64EA3E-77FC-4BEC-A5C2-5946839B3D61">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADMIN11099" target="_blank" href="../ADMIN/create.htm#ADMIN11099"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for details on the initialization parameter setting for your database installation</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="adlob_tables.htm#GUID-A3D50A10-E688-4DB3-A3EB-07AC7D0019A6">CHUNK</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+<p>This storage limit applies to all LOB types in environments that support terabyte-size LOBs. However, note that <code class="codeph">CLOB</code> and <code class="codeph">NCLOB</code> types are sized in characters, while the <code class="codeph">BLOB</code> type is sized in bytes.</p>
+</div>
+</div>
+<a id="ADLOB45351"></a>
+<div class="props_rev_3"><a id="GUID-0A6B471E-85EC-429C-AA20-29944A96939E"></a>
+<h3 id="ADLOB-GUID-0A6B471E-85EC-429C-AA20-29944A96939E" class="sect3">Using Terabyte-Size LOBs with JDBC</h3>
+<div>
+<p>You can use the LOB APIs included in the Oracle JDBC classes to access terabyte-size LOBs.</p>
+<div class="infoboxnotealso" id="GUID-0A6B471E-85EC-429C-AA20-29944A96939E__GUID-1CD9F739-D2C0-4054-A23A-F66CED511B1C">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="adlob_api_overview.htm#GUID-02CAA51A-FD04-4A40-8227-0B9108FAED8E">Using Java (JDBC) to Work With LOBs</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="ADLOB45352"></a>
+<div class="props_rev_3"><a id="GUID-1DEA56D9-5CBD-4211-88DB-87B4329B02F6"></a>
+<h3 id="ADLOB-GUID-1DEA56D9-5CBD-4211-88DB-87B4329B02F6" class="sect3">Using Terabyte-Size LOBs with the DBMS_LOB Package</h3>
+<div>
+<p>You can access terabyte-size LOBs with all APIs in the DBMS_LOB PL/SQL package.</p>
+<p>Use <code class="codeph">DBMS_LOB.GETCHUNKSIZE</code> to obtain the value to be used in reading and writing LOBs. The number of bytes stored in a chunk is actually less than the size of the <code class="codeph">CHUNK</code> parameter due to internal storage overhead. The <a id="d33762e4689" class="indexterm-anchor"></a><code class="codeph">DBMS_LOB.GET_STORAGE_LIMIT</code> function returns the storage limit for your database configuration. This is the maximum allowable size for LOBs. <code class="codeph">BLOB</code>s are sized in bytes, while <code class="codeph">CLOB</code>s and <code class="codeph">NCLOB</code>s are sized in characters.</p>
+<div class="infobox-note" id="GUID-1DEA56D9-5CBD-4211-88DB-87B4329B02F6__GUID-D169ED0A-8BE4-4AEB-81BF-AB23BA553589">
+<p class="notep1">Note:</p>
+<p><a class="olink ARPLS601" target="_blank" href="../ARPLS/d_lob.htm#ARPLS601"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for details on the initialization parameter setting for your database installation.</p>
+</div>
+</div>
+</div>
+<a id="ADLOB45353"></a>
+<div class="props_rev_3"><a id="GUID-A40086A3-2F4D-4153-B4DE-7C02C7CE08A8"></a>
+<h3 id="ADLOB-GUID-A40086A3-2F4D-4153-B4DE-7C02C7CE08A8" class="sect3">Using Terabyte-Size LOBs with OCI</h3>
+<div>
+<p>The Oracle Call Interface API provides a set of functions for operations on LOBs of all sizes.</p>
+<p><code class="codeph">OCILobGetChunkSize()</code> returns the value, in bytes for <code class="codeph">BLOB</code>s, or in characters for <code class="codeph">CLOB</code>s, to be used in reading and writing LOBs. For varying-width character sets, the value is the number of Unicode characters that fit. The number of bytes stored in a chunk is actually less than the size of the <code class="codeph">CHUNK</code> parameter due to internal storage overhead. The function <code class="codeph">OCILobGetStorageLimit()</code> returns the maximum allowable size, in bytes, of internal LOBs in the current database installation. If streaming mode is used, where the whole LOB is read, there is no requirement to get the chunk size.</p>
+<div class="infobox-note" id="GUID-A40086A3-2F4D-4153-B4DE-7C02C7CE08A8__GUID-6793BAA5-DB0F-4BE7-911D-6F0C6418CBC2">
+<p class="notep1">Note:</p>
+<p><a class="olink LNOCI070" target="_blank" href="../LNOCI/oci07lob.htm#LNOCI070"><span class="italic">Oracle Call Interface Programmer&#39;s Guide,</span></a> the chapter &#34;LOB and BFILE Operations&#34;, section &#34;Using LOBs of Size Greater than 4GB&#34; for details on OCI functions that support LOBs.</p>
+</div>
+</div>
+</div>
+</div>
+<a id="ADLOB45354"></a>
+<div class="props_rev_3"><a id="GUID-B8E82069-4847-4116-9DA1-BFE6F99288C2"></a>
+<h2 id="ADLOB-GUID-B8E82069-4847-4116-9DA1-BFE6F99288C2" class="sect2">Guidelines for Creating Gigabyte LOBs</h2>
+<div>
+<div class="section">
+<p>To create gigabyte LOBs in supported environments, use the following guidelines to make use of all available space in the tablespace for LOB storage:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Single Data File Size Restrictions:</p>
+<p>There are restrictions on the size of a single data file for each operating system. For example, Solaris 2.5 only allows operating system files of up to 2 gigabytes. Hence, add more data files to the tablespace when the LOB grows larger than the maximum allowed file size of the operating system on which your Oracle Database runs.</p>
+</li>
+<li>
+<p>Set PCT INCREASE Parameter to Zero:</p>
+<p><code class="codeph">PCTINCREASE</code> parameter in the LOB storage clause specifies the percent growth of the new extent size. When a LOB is being filled up piece by piece in a tablespace, numerous new extents get created in the process. If the extent sizes keep increasing by the default value of 50 percent every time, then extents become unmanageable and eventually waste space in the tablespace. Therefore, the <code class="codeph">PCTINCREASE</code> parameter should be set to zero or a small value.</p>
+</li>
+<li>
+<p>Set MAXEXTENTS to a Suitable Value or UNLIMITED:</p>
+<p>The <code class="codeph">MAXEXTENTS</code> parameter limits the number of extents allowed for the LOB column. A large number of extents are created incrementally as the LOB size grows. Therefore, the parameter should be set to a value that is large enough to hold all the LOBs for the column. Alternatively, you could set it to <code class="codeph">UNLIMITED</code>.</p>
+</li>
+<li>
+<p>Use a Large Extent Size:</p>
+<p>For every new extent created, Oracle generates undo information for the header and other metadata for the extent. If the number of extents is large, then the rollback segment can be saturated. To get around this, choose a large extent size, say 100 megabytes, to reduce the frequency of extent creation, or commit the transaction more often to reuse the space in the rollback segment.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="ADLOB45355"></a>
+<div class="sect3"><a id="GUID-D32C170D-F7A9-4338-B7C9-7384BC757166"></a>
+<h3 id="ADLOB-GUID-D32C170D-F7A9-4338-B7C9-7384BC757166" class="sect3">Creating a Tablespace and Table to Store Gigabyte LOBs</h3>
+<div>
+<p>The following example illustrates how to create a tablespace and table to store gigabyte LOBs.</p>
+<pre dir="ltr">CREATE TABLESPACE lobtbs1 DATAFILE &#39;/your/own/data/directory/lobtbs_1.dat&#39;
+SIZE 2000M REUSE ONLINE NOLOGGING DEFAULT STORAGE (MAXEXTENTS UNLIMITED);
+ALTER TABLESPACE lobtbs1 ADD DATAFILE
+&#39;/your/own/data/directory/lobtbs_2.dat&#39; SIZE 2000M REUSE;
+
+CREATE TABLE print_media_backup
+  (product_id NUMBER(6), 
+   ad_id NUMBER(6), 
+   ad_composite BLOB, 
+   ad_sourcetext CLOB, 
+   ad_finaltext CLOB, 
+   ad_fltextn NCLOB, 
+   ad_textdocs_ntab textdoc_tab, 
+   ad_photo BLOB, 
+   ad_graphic BLOB, 
+   ad_header adheader_typ)
+   NESTED TABLE ad_textdocs_ntab STORE AS textdocs_nestedtab5 
+   LOB(ad_sourcetext) STORE AS (TABLESPACE lobtbs1 CHUNK 32768 PCTVERSION 0 
+                                NOCACHE NOLOGGING
+                                STORAGE(INITIAL 100M NEXT 100M MAXEXTENTS 
+                                UNLIMITED PCTINCREASE 0));
+</pre>
+<p>Note the following with respect to this example:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The storage clause in this example is specified in the <code class="codeph">CREATE TABLESPACE</code> statement.</p>
+</li>
+<li>
+<p>You can specify the storage clause in the <code class="codeph">CREATE TABLE</code> statement as an alternative.</p>
+</li>
+<li>
+<p>The storage clause is not allowed in the <code class="codeph">CREATE TEMPORARY TABLESPACE</code> statement.</p>
+</li>
+<li>
+<p>Setting the <code class="codeph">PCTINCREASE</code> parameter to 0 is recommended for gigabyte LOBs. For small, or medium size lobs, the default <code class="codeph">PCTINCREASE</code> value of 50 is recommended as it reduces the number of extent allocations.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2782">
+<tr>
+<td class="cellalignment2794">
+<table class="cellalignment2787">
+<tr>
+<td class="cellalignment2786"><a href="adlob_tables.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2786"><a href="adlob_api_overview.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2015, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2796">
+<table class="cellalignment2785">
+<tr>
+<td class="cellalignment2786"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2786"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2786"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2786"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2786"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2786"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114248"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Full%20Partition-Wise%20Joins%3A%20Single-Level%20-%20Single-Level"></a><title>Full Partition-Wise Joins: Single-Level - Single-Level</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-9575CBEC-9BC5-45E0-8F18-DE403AE1AA17.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73"></a> <span id="PAGE" style="display:none;">71/481</span> <!-- End Header --><a id="VLDBG1243"></a><a id="VLDBG1242"></a>
+<h1 id="VLDBG-GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73" class="sect1">Full Partition-Wise Joins: Single-Level - Single-Level</h1>
+<div>
+<p><a id="d15268e62" class="indexterm-anchor"></a>This is the simplest method: two tables are both partitioned by the join column. In the example, the <code>customers</code> and <code>sales</code> tables are both partitioned on the <code>cust_id</code> columns. This partitioning method enables full partition-wise joins when the tables are joined on <code>cust_id</code>, both representing the same customer identification number. This scenario is available for range-range, list-list, and hash-hash partitioning. Interval-range and interval-interval full partition-wise joins are also supported and can be compared to range-range.</p>
+<p>In serial, this join is performed between pairs of matching hash partitions, one at a time. When one partition pair has been joined, the join of another partition pair begins. The join completes when all partition pairs have been processed. To ensure a good workload distribution, you should either have many more partitions than the requested degree of parallelism or use equisize partitions with as many partitions as the requested degree of parallelism. Using hash partitioning on a unique or almost-unique column, with the number of partitions equal to a power of 2, is a good way to create equisized partitions.</p>
+<div class="infobox-note" id="GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73__GUID-7284F070-1DEB-403C-8FBA-FE68EBDAA2D6">
+<p class="notep1">Note:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A pair of matching hash partitions is defined as one partition with the same partition number from each table. For example, with full partition-wise joins based on hash partitioning, the database joins partition 0 of <code>sales</code> with partition 0 of <code>customers</code>, partition 1 of <code>sales</code> with partition 1 of <code>customers</code>, and so on.</p>
+</li>
+<li>
+<p>Reference partitioning is an easy way to co-partition two tables so that the optimizer can always consider a full partition-wise join if the tables are joined in a statement.</p>
+</li>
+</ul>
+</div>
+<p>Parallel execution of a full partition-wise join is a straightforward parallelization of the serial execution. Instead of joining one partition pair at a time, partition pairs are joined in parallel by the query servers. <a href="GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73.htm#GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73__i1006910">Figure 3-1</a> illustrates the parallel execution of a full partition-wise join.</p>
+<div class="figure" id="GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73__i1006910">
+<p class="titleinfigure">Figure 3-1 Parallel Execution of a Full Partition-wise Join</p>
+<img width="422" height="219" src="img/GUID-CFBA7A7B-9861-445A-8C03-436F17DC6664-default.gif" alt="Description of Figure 3-1 follows" title="Description of Figure 3-1 follows"/><br/>
+<a href="img_text/GUID-CFBA7A7B-9861-445A-8C03-436F17DC6664-default.htm">Description of &#34;Figure 3-1 Parallel Execution of a Full Partition-wise Join&#34;</a></div>
+<!-- class="figure" -->
+<p>The following example shows the execution plan for <code>sales</code> and <code>customers</code> co-partitioned by hash with the same number of partitions. The plan shows a full partition-wise join.</p>
+<pre dir="ltr">explain plan for SELECT c.cust_last_name, COUNT(*)
+FROM sales s, customers c
+WHERE s.cust_id = c.cust_id AND 
+s.time_id BETWEEN TO_DATE(&#39;01-JUL-1999&#39;, &#39;DD-MON-YYYY&#39;) AND 
+     (TO_DATE(&#39;01-OCT-1999&#39;, &#39;DD-MON-YYYY&#39;))
+GROUP BY c.cust_last_name HAVING COUNT(*) &gt; 100;
+
+-------------------------------------------------------------------------------------------------------------
+| Id  | Operation                    | Name      | Rows  | Bytes | Pstart| Pstop|    TQ  |IN-OUT| PQ Distrib|
+-------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT             |           |    46 |  1196 |       |      |        |      |           |
+|   1 |  PX COORDINATOR              |           |       |       |       |      |        |      |           |
+|   2 |   PX SEND QC (RANDOM)        | :TQ10001  |    46 |  1196 |       |      |  Q1,01 | P-&gt;S | QC (RAND) |
+|*  3 |    FILTER                    |           |       |       |       |      |  Q1,01 | PCWC |           |
+|   4 |     HASH GROUP BY            |           |    46 |  1196 |       |      |  Q1,01 | PCWP |           |
+|   5 |      PX RECEIVE              |           |    46 |  1196 |       |      |  Q1,01 | PCWP |           |
+|   6 |       PX SEND HASH           | :TQ10000  |    46 |  1196 |       |      |  Q1,00 | P-&gt;P | HASH      |
+|   7 |        HASH GROUP BY         |           |    46 |  1196 |       |      |  Q1,00 | PCWP |           |
+|   8 |         PX PARTITION HASH ALL|           | 59158 |  1502K|     1 |   16 |  Q1,00 | PCWC |           |
+|*  9 |          HASH JOIN           |           | 59158 |  1502K|       |      |  Q1,00 | PCWP |           |
+|  10 |           TABLE ACCESS FULL  | CUSTOMERS | 55500 |   704K|     1 |   16 |  Q1,00 | PCWP |           |
+|* 11 |           TABLE ACCESS FULL  | SALES     | 59158 |   751K|     1 |   16 |  Q1,00 | PCWP |           |
+-------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   3 - filter(COUNT(SYS_OP_CSR(SYS_OP_MSR(COUNT(*)),0))&gt;100)
+   9 - access(&#34;S&#34;.&#34;CUST_ID&#34;=&#34;C&#34;.&#34;CUST_ID&#34;)
+  11 - filter(&#34;S&#34;.&#34;TIME_ID&#34;&lt;=TO_DATE(&#39; 1999-10-01 00:00:00&#39;, &#39;syyyy-mm-dd hh24:mi:ss&#39;) AND 
+&#34;S&#34;.&#34;TIME_ID&#34;&gt;=TO_DATE(&#39; 1999-07-01
+              00:00:00&#39;, &#39;syyyy-mm-dd hh24:mi:ss&#39;))
+</pre>
+<div class="infobox-note" id="GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73__GUID-6130D6F1-F8DA-4DD7-9887-5BD409C849C3">
+<p class="notep1">Note:</p>
+<p>The <code>Cost (%CPU)</code> and <code>Time</code> columns were removed from the plan table output in this example.</p>
+</div>
+<p>In Oracle RAC environments running on massive parallel processing (MPP) platforms, placing partitions on nodes is critical to achieving good scalability. To avoid remote I/O, both matching partitions should have affinity to the same node. Partition pairs should be spread over all of the nodes to avoid bottlenecks and to use all CPU resources available on the system.</p>
+<p>Nodes can host multiple pairs when there are more pairs than nodes. For example, with an 8-node system and 16 partition pairs, each node receives two pairs.</p>
+<div class="infoboxnotealso" id="GUID-36B5A01D-849E-44A3-B6D7-2B82DD23DB73__GUID-680B2693-0F37-43AF-8C28-02FFD4AC15AA">
+<p class="notep1">See Also:</p>
+<p><a class="olink RACAD1111" target="_blank" href="../RACAD/GUID-5A1B02A2-A327-42DD-A1AD-20610B2A9D92.htm#RACAD1111"><span class="italic">Oracle Real Application Clusters Administration and Deployment Guide</span></a> for more information about data affinity</p>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-9575CBEC-9BC5-45E0-8F18-DE403AE1AA17.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-704577A7-20B9-47F5-8BFB-A9CA3BA6D7DC.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

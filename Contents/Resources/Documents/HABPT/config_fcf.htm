@@ -1,0 +1,913 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-46432"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Client%20Failover%20Best%20Practices%20for%20Highly%20Available%20Oracle%20Databases"></a><title>Client Failover Best Practices for Highly Available Oracle Databases</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1060"/>
+<meta name="dcterms.created" content="2015-07-15T12:40:32Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database High Availability Best Practices"/>
+<meta name="dcterms.identifier" content="E40019-02"/>
+<meta name="dcterms.isVersionOf" content="HABPT"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2005, 2015,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="config_gg.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="monitor.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E40019-02.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">15/20</span> <!-- End Header -->
+<div id="HABPT4967" class="chapter"><a id="BDCFJEHD"></a>
+<h1 class="chapter"><span class="secnum">10</span> Client Failover Best Practices for Highly Available Oracle Databases</h1>
+<p><a id="sthref600"></a>This section describes Oracle Database 12c configuration best practices to automatically transition application connections from a failed primary database to a new primary database after a Data Guard / Active Data Guard role transition has occurred. This configuration also applies to client&#39;s connection to Real Application Clusters databases. In addition it also describes best practices for Application Continuity and Transaction Guard, new with Oracle Database 12c.</p>
+<p>At a high level, automating client failover in a Data Guard configuration includes relocating database services to the new primary database as part of a Data Guard failover, notifying clients that a failure has occurred to break them out of TCP timeout, and redirecting clients to the new primary database.</p>
+<p>The sections below describe how to create role-based database services for both OCI and JDBC applications in a Data Guard configuration. Subsequent sections provide detailed configuration steps for enabling OCI and JDBC clients to receive FAN notifications and reconnect to a new primary database.</p>
+<p class="subhead2"><a id="HABPT5380"></a>Types of Failures</p>
+<p>Unplanned failures of an Oracle Database instance fall into these general categories:</p>
+<ul>
+<li>
+<p>A server failure or other fault that causes the crash of an individual Oracle instance in an Oracle RAC database. To maintain availability, application clients connected to the failed instance must quickly be notified of the failure and immediately establish a new connection to the surviving instances of the Oracle RAC database.</p>
+</li>
+<li>
+<p>A complete-site failure that results in both the application and database tiers being unavailable. To maintain availability users must be redirected to a secondary site that hosts a redundant application tier and a synchronized copy of the production database.</p>
+</li>
+<li>
+<p>A partial-site failure where the primary database, a single-instance database, or all nodes in an Oracle RAC database become unavailable but the application tier at the primary site remains intact.</p>
+</li>
+</ul>
+<p>Configure Fast Connection Failover as a best practice to fully benefit from fast instance and database failover and switchover with Oracle RAC and Oracle Data Guard. Fast Connection Failover enables clients, mid-tier applications, or any program that connects directly to a database to failover quickly and seamlessly to an available database service when a database service becomes unavailable.</p>
+<p>This chapter contains the following topics:</p>
+<ul>
+<li>
+<p><a href="#BDCBEDBE">Automating Client Failover - JDBC, OCI, and ODP.Net</a></p>
+</li>
+<li>
+<p><a href="#BDCJGHFE">Configuring Oracle RAC Databases for Failover</a></p>
+</li>
+<li>
+<p><a href="#BDCHBEJE">Configuring the Oracle Data Guard Environment</a></p>
+</li>
+<li>
+<p><a href="#BDCDJABB">Client Transition During Switchover Operations</a></p>
+</li>
+<li>
+<p><a href="#BDCDJIDC">Preventing Login Storms</a></p>
+</li>
+<li>
+<p><a href="#CACFFBFH">Configuring Global Data Services</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<pre dir="ltr"></pre>
+<ul>
+<li>The MAA white paper &#34;Client Failover Best Practices for Highly Available Oracle Databases: Oracle Database 12c from the MAA Best Practices area for Oracle Database at
+<p><code dir="ltr"><a href="http://www.oracle.com/goto/maa/">http://www.oracle.com/goto/maa</a></code></p>
+</li>
+<li>
+<p>&#34;Application High Availability with Services and FAN&#34; in <a class="olink ADMIN13180" href="../ADMIN/restart.htm#ADMIN13180"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a></p>
+</li>
+</ul>
+</div>
+<a id="BDCBEDBE"></a>
+<div id="HABPT4969" class="sect1">
+<h2 class="sect1"><span class="secnum">10.1</span> Automating Client Failover - JDBC, OCI, and ODP.Net</h2>
+<p><a id="sthref601"></a>You can enable OCI and JDBC, and ODP.Net application clients to receive FAN notifications and quickly reconnect to a new primary database. The configuration best practices to enable fast connection failover differ depending on the client type.</p>
+<ul>
+<li>
+<p><a href="#CACFFECD">Configuring Fast Connection Failover for JDBC Clients</a></p>
+</li>
+<li>
+<p><a href="#CACJAAJA">Configuring Application Continuity</a></p>
+</li>
+<li>
+<p><a href="#CACCDEIF">Configuring Fast Connection Failover for OCI Clients</a></p>
+</li>
+<li>
+<p><a href="#CACBDDBH">Configuring Automatic Failover for ODP.Net Clients</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink ADMIN13195" href="../ADMIN/restart.htm#ADMIN13195"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for more information about Enabling Fast Connection Failover for Oracle Call Interface Clients</p>
+</li>
+<li>
+<p><a class="olink LNOCI16679" href="../LNOCI/oci09adv.htm#LNOCI16679"><span class="italic">Oracle Call Interface Programmer&#39;s Guide</span></a> for more information about Transparent Application Failover in OCI</p>
+</li>
+<li>
+<p>&#34;Client Failover Best Practices for Highly Available Oracle Databases - Oracle Database 12c&#34; at <a href="http://www.oracle.com/technetwork/database/availability/client-failover-2280805.pdf"><code dir="ltr">http://www.oracle.com/technetwork/database/availability/client-failover-2280805.pdf</code></a></p>
+</li>
+<li>
+<p>&#34;Client Failover Best Practices for Data Guard 11g Release 2&#34; at <a href="http://www.oracle.com/technetwork/database/features/availability/maa-wp-11gr2-client-failover-173305.pdf"><code dir="ltr">http://www.oracle.com/technetwork/database/features/availability/maa-wp-11gr2-client-failover-173305.pdf</code></a></p>
+</li>
+</ul>
+</div>
+<a id="CACFFECD"></a>
+<div id="HABPT5381" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">10.1.1</span> Configuring Fast Connection Failover for JDBC Clients</h3>
+<p>Prerequisites:</p>
+<ul>
+<li>
+<p>The Universal Connection Pool (UCP) is enabled (UCP 12.1.0.2 or later)</p>
+</li>
+<li>
+<p>The application uses service names to connect to the database</p>
+</li>
+<li>
+<p>Oracle Notification Service (ONS) is configured and available on the node where JDBC is running</p>
+</li>
+<li>
+<p>The Java Virtual Machine (JVM) in which your JDBC instance runs must have oracle.ons.oraclehome set to point to your ORACLE_HOME</p>
+</li>
+</ul>
+<ol>
+<li>
+<p>Enable Fast Connection Failover (FCF) and configure the JDBC application to connect to all ONS daemons for both the primary and standby clusters using the setONSConfiguration property. The setONSConfiguration property should point to all primary and standby ONS daemons.</p>
+<pre dir="ltr">pds.setONSConfiguration(&#34;nodes=adczatdb01:6200,adczatdb02:6200,slcc17adm01:6200,slcc17adm02:6200&#34;); 
+pds.setFastConnectionFailoverEnabled(true); 
+</pre></li>
+<li>
+<p>By default the JDBC application will randomly pick three hosts from the setONSConfiguration property and create connections to those three ONS daemons. This default must be changed so that connections are made to all ONS daemons. This is done by setting the following property when the JDBC application is invoked to the total number of ONS daemons in the configuration:</p>
+<pre dir="ltr">java -Doracle.ons.maxconnections=4 
+</pre></li>
+<li>
+<p>The JDBC client must set the oracle.net.ns.SQLnetDef.TCP_CONNTIMEOUT_STR property. This property enables the JDBC client to quickly traverse an ADDRESS_LIST in the event of a failure. For example, if the client attempts to connect to a host that is unavailable, the connection attempt will be bounded to the time specified by the SQLnetDef.TCP_CONNTIMEOUT_STR property after which the client attempts to connect to the next host in the ADDRESS_LIST. The behavior continues for each host in the ADDRESS_LIST until a connection is made. Setting the property to a value of 3 seconds will suffice in most environments. It is important to note that the SQLnetDef.TCP_CONNTIMEOUT_STR property should be set on the data source and not on the Universal Connection Pool.</p>
+<pre dir="ltr">Properties prop = new Properties();  prop.put(oracle.net.ns.SQLnetDef.TCP_CONNTIMEOUT_STR, &#34;&#34;+3000); // 3000ms 
+pds.setConnectionProperties(prop);
+</pre></li>
+<li>
+<p>Set the thinForceDNSLoadBalancing property to get the correct behavior from SCAN load balancing:</p>
+<pre dir="ltr">// need to set oracle.jdbc.thinForceDNSLoadBalancing
+prop.put(&#34;oracle.jdbc.thinForceDNSLoadBalancing&#34;,&#34;true&#34;);
+</pre></li>
+<li>
+<p>Configure JDBC clients to use a connect descriptor that includes an address list that in turn includes the SCAN address for each site and connects to an existing service. Do not configure both TAF and JDBC FCF when using JDBC thick clients.</p>
+<p>The following URL we search both primary and standby sites looking for the appropriate service with very little overhead. This URL configuration is the recommended approach:</p>
+<pre dir="ltr">PoolDataSource pds = PoolDataSourceFactory.getPoolDataSource();
+pds.setConnectionFactoryClassName(&#34;oracle.jdbc.pool.OracleDataSource&#34;); pds.setUser(&#34;system&#34;); 
+ pds.setPassword(&#34;oracle&#34;); 
+ String dbURL = 
+ &#34;jdbc:oracle:thin:@&#34; + 
+ &#34;(DESCRIPTION=&#34; + 
+&#34;(FAILOVER=on)&#34; + 
+ &#34;(ADDRESS_LIST=&#34; + 
+ &#34;(LOAD_BALANCE=on)&#34; + 
+ &#34;(CONNECT_TIMEOUT=3)(RETRY_COUNT=3)&#34; +
+ &#34;(ADDRESS=(PROTOCOL=TCP)(HOST=prmy-scan)(PORT=1521))&#34;+     &#34;(ADDRESS=(PROTOCOL=TCP)(HOST= stby-scan)(PORT=1521)))&#34; + 
+ &#34;(CONNECT_DATA=(SERVICE_NAME=oltpworkload)))&#34; 
+ System.out.println(&#34;Url=&#34; + dbURL); 
+ pds.setURL(dbURL); 
+</pre>
+<p>The following URL should be used if it is very rare for the primary to ever run on the secondary site and you wish to have connections connect as fast as possible:</p>
+<pre dir="ltr">PoolDataSource pds = PoolDataSourceFactory.getPoolDataSource();
+pds.setConnectionFactoryClassName(&#34;oracle.jdbc.pool.OracleDataSource&#34;); pds.setUser(&#34;system&#34;); 
+ pds.setPassword(&#34;oracle&#34;); 
+ String dbURL = 
+ &#34;jdbc:oracle:thin:@&#34; + 
+ &#34;(DESCRIPTION_LIST=&#34; + 
+ &#34;(LOAD_BALANCE=off)&#34; + 
+ &#34;(FAILOVER=on)&#34; + 
+ &#34;(DESCRIPTION=&#34; +
+ &#34;(CONNECT_TIMEOUT=3)(RETRY_COUNT=3)&#34; +
+ &#34;(ADDRESS_LIST=&#34; + 
+ &#34;(LOAD_BALANCE=on)&#34; + 
+ &#34;(ADDRESS=(PROTOCOL=TCP)(HOST=prmy-scan)(PORT=1521)))&#34; + 
+ &#34;(CONNECT_DATA=(SERVICE_NAME=oltpworkload)))&#34; + 
+ &#34;(DESCRIPTION=&#34; + 
+ &#34;(ADDRESS_LIST=&#34; + 
+ &#34;(LOAD_BALANCE=on)&#34; + 
+ &#34;(ADDRESS=(PROTOCOL=TCP)(HOST= stby-scan)(PORT=1521)))&#34; + 
+ &#34;(CONNECT_DATA=(SERVICE_NAME=oltpworkload))))&#34;; 
+ System.out.println(&#34;Url=&#34; + dbURL); 
+ pds.setURL(dbURL); 
+</pre>
+<p>Note that if a switchover or failover occurs the above URL will force all connections to go through the old prmy-scan before using the stby scan where the primary currently runs.</p>
+</li>
+</ol>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<pre dir="ltr"></pre>
+<ul>
+<li><a class="olink ADMIN13194" href="../ADMIN/restart.htm#ADMIN13194"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for more information about Enabling Fast Connection Failover for JDBC Clients</li>
+<li>
+<p>&#34;Application High Availability with Services and FAN&#34; in <a class="olink ADMIN13180" href="../ADMIN/restart.htm#ADMIN13180"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" -->
+<a id="CACJAAJA"></a>
+<div id="HABPT5382" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">10.1.2</span> Configuring Application Continuity</h3>
+<p>Application Continuity with Oracle Database 12c is used to mask outages for planned maintenance that is performed in rolling fashion across Oracle RAC instances or across a Data Guard primary and standby database. Application Continuity also masks unplanned outages of an Oracle RAC instance or a Data Guard primary database configured in Maximum Availability (zero data loss failover) with Data Guard Fast-Start Failover (automatic database failover). Use of Application Continuity for a Data Guard failover requires that both source and target databases be at Oracle 12.1.0.2 or later.</p>
+<p>Application Continuity is available for:</p>
+<ul>
+<li>
+<p>Oracle JDBC Replay Driver 12c or later. This is a JDBC driver feature provided with Oracle Database 12c for Application Continuity, referred to as the &#34;replay driver&#34; onwards (OCI support is planned for a future release).</p>
+</li>
+<li>
+<p>Oracle Universal Connection Pool, Oracle WebLogic Server 12c (12.1.2) or later, and third-party Java connection pools or standalone Java applications - using Oracle JDBC- Replay Driver 12c or later.</p>
+</li>
+<li>
+<p>Standard 3rd Party Java application servers using the pooled connection interface - including IBM WebSphere and Apache Tomcat, from 12.1.0.2</p>
+</li>
+<li>
+<p>Standard 3rd Party Java application servers supporting the Universal Connection Pool as the pooled data source - including IBM WebSphere, Apache Tomcat, and RedHat JBoss</p>
+</li>
+<li>
+<p>Third-party Java connection pools or standalone Java applications - using Oracle JDBC- Replay Driver 12c or later and embedding their own request boundaries</p>
+</li>
+</ul>
+<p>Application Continuity uses Transaction Guard to reliably determine if the last transaction was committed or not. Without Transaction Guard, applications and users who attempt to retry operations following an outage can cause logical corruption by committing duplicate transactions or committing transactions out of order.</p>
+<p>The following sections describe the options to configure Application Continuity using the Oracle JDBC 12c Replay Driver depending on your configuration:</p>
+<ul>
+<li>
+<p><a href="#CACDAFHA">Configuring Oracle UCP 12c</a></p>
+</li>
+<li>
+<p><a href="#CACICIBJ">Configuring Oracle WebLogic Server 12c</a></p>
+</li>
+<li>
+<p><a href="#CACIECBH">Configuring Standalone Java Applications or Third-party Connection Pools</a></p>
+</li>
+<li>
+<p><a href="#CACHEFIA">Configuring Connections for High Availability (Failover and Failback)</a></p>
+</li>
+<li>
+<p><a href="#CACFHGBH">Configuring Services for Application Continuity</a></p>
+</li>
+<li>
+<p><a href="#CACCCEDB">Checking Resource Allocation</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p>MAA white paper http://www.oracle.com/technetwork/database/database-cloud/private/application-continuity-wp-12c-1966213.pdf</p>
+</li>
+<li>
+<p>MAA white paper http://www.oracle.com/technetwork/database/database-cloud/private/transaction-guard-wp-12c-1966209.pdf</p>
+</li>
+</ul>
+</div>
+<a id="CACDAFHA"></a>
+<div id="HABPT5383" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">10.1.2.1</span> Configuring Oracle UCP 12c</h4>
+<p>To configure the Oracle JDBC 12c Replay Data Source as a connection factory on UCP PoolDataSource:</p>
+<pre dir="ltr">setConnectionFactoryClassName(&#34;oracle.jdbc.replay.OracleDataSourceImpl&#34;);
+</pre></div>
+<!-- class="sect3" -->
+<a id="CACICIBJ"></a>
+<div id="HABPT5384" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">10.1.2.2</span> Configuring Oracle WebLogic Server 12c</h4>
+<p>To configure the Oracle 12c JDBC Replay Data Source use the Oracle WebLogic Server Administration Console.</p>
+</div>
+<!-- class="sect3" -->
+<a id="CACIECBH"></a>
+<div id="HABPT5385" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">10.1.2.3</span> Configuring Standalone Java Applications or Third-party Connection Pools</h4>
+<p>To configure the Oracle JDBC 12c Replay Data Source in the property file or in the thin JDBC application</p>
+<pre dir="ltr">replay datasource=oracle.jdbc.replay.OracleDataSourceImpl
+</pre></div>
+<!-- class="sect3" -->
+<a id="CACHEFIA"></a>
+<div id="HABPT5386" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">10.1.2.4</span> Configuring Connections for High Availability (Failover and Failback)</h4>
+<ol>
+<li>
+<p>The REMOTE_LISTENER setting for the database must include the addresses in the ADDRESS_LISTs for all URL used for client connection:</p>
+<ul>
+<li>
+<p>If any URL uses the SCAN Names, then REMOTE_LISTENERS must include the SCAN Name.</p>
+</li>
+<li>
+<p>If any URL uses an ADDRESS_LIST of host VIPs, then REMOTE_LISTENERS must include an ADDRESS list including all SCAN VIPs and all host VIPs</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Set RETRY_COUNT, CONNECT_TIMEOUT parameters in the URL to allow new incoming connections to retry. For a complete discussion on this attributes please consult the JDBC Application Configuration Section later in this paper. For example,</p>
+<pre dir="ltr">&#34;jdbc:oracle:thin:@&#34; + 
+ &#34;(DESCRIPTION=&#34; + 
+&#34;(FAILOVER=on)&#34; + 
+ &#34;(ADDRESS_LIST=&#34; + 
+ &#34;(LOAD_BALANCE=on)&#34; + 
+ &#34;(CONNECT_TIMEOUT=3)(RETRY_COUNT=3)&#34; +
+ &#34;(ADDRESS=(PROTOCOL=TCP)(HOST=prmy-scan)(PORT=1521))&#34;+     &#34;(ADDRESS=(PROTOCOL=TCP)(HOST= stby-scan)(PORT=1521)))&#34; + 
+ &#34;(CONNECT_DATA=(SERVICE_NAME=oltpworkload)))&#34; 
+</pre></li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="CACFHGBH"></a>
+<div id="HABPT5387" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">10.1.2.5</span> Configuring Services for Application Continuity</h4>
+<ol>
+<li>
+<p>Set the service attributes using SRVCTL / GDSCTL to use Application Continuity.</p>
+</li>
+<li>
+<p>Set FAILOVER_TYPE to TRANSACTION to enable Application Continuity.</p>
+</li>
+<li>
+<p>Set COMMIT_OUTCOME to TRUE to enable Transaction Guard (mandatory).</p>
+</li>
+<li>
+<p>Review the following service attributes:</p>
+<ul>
+<li>
+<p>REPLAY_INITIATION_TIMEOUT : Set this to the duration in seconds after which replay is not started (e.g. 180, 300, 1800 seconds - the override to cancel replay). This timer starts at beginRequest. (default 300 seconds)</p>
+</li>
+<li>
+<p>FAILOVER_RETRIES : Set this to specify the number of connection retries for each replay attempt. (default 30 retries, applied at replay driver)</p>
+</li>
+<li>
+<p>FAILOVER_DELAY : Set this to specify the delay in seconds between connection retries (default 10 seconds, applied at replay driver)</p>
+</li>
+<li>
+<p>AQ_HA_NOTIFICATIONS: Set this to TRUE to enable FAN (default TRUE)</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>The following is an example of configuring services for Application Continuity:</p>
+<pre dir="ltr">srvctl add service -db mts -service oltpworkload -role PRIMARY -notification TRUE -session_state dynamic -failovertype transaction -failovermethod basic -commit_outcome TRUE -failoverretry 30 -failoverdelay 10 -replay_init_time 900 -clbgoal SHORT -rlbgoal SERVICE_TIME -preferred mts1,mts2  -retention 3600 -verbose
+</pre></div>
+<!-- class="sect3" -->
+<a id="CACCCEDB"></a>
+<div id="HABPT5388" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">10.1.2.6</span> Checking Resource Allocation</h4>
+<ul>
+<li>
+<p>Ensure that the system has the necessary memory and CPU resources.</p>
+</li>
+<li>
+<p>Memory: The JDBC replay driver uses more memory than the base JDBC driver because the calls are retained until the end of a database request. If the number of calls retained is small, then the memory consumption of the replay driver is comparable to the base driver. At the end of a request, the calls are released to the garbage collector. This action differs from the base driver that releases as calls are closed.</p>
+</li>
+<li>
+<p>For good performance, if there is sufficient memory, allocate 4 to 8 GB (or more) of memory for the Virtual Machine (VM), for example, by setting - Xms4096m for 4 GB.</p>
+</li>
+<li>
+<p>CPU: The JDBC replay driver uses some additional CPU for building proxy objects, managing queues, and for garbage collection. The server uses some additional CPU for managing the validation. CPU overhead is red.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CACCDEIF"></a>
+<div id="HABPT5389" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">10.1.3</span> Configuring Fast Connection Failover for OCI Clients</h3>
+<p>Prerequisites</p>
+<ul>
+<li>
+<p>An Oracle RAC environment with Oracle Clusterware set up and enabled or a single node (non-Oracle RAC) database with Oracle Restart</p>
+</li>
+<li>
+<p>The application must have been linked with the threads library</p>
+</li>
+<li>
+<p>The OCI environment must be created in OCI_EVENTS and OCI_THREADED mode</p>
+</li>
+</ul>
+<p>Enable FAN for OCI clients by initializing the environment with the OCI_EVENTS parameter, as in the following example:</p>
+<pre dir="ltr">OCIEnvCreate(...OCI_EVENTS...)
+</pre>
+<ol>
+<li>
+<p>Link the OCI client applications with thread library libthread or libpthread.</p>
+</li>
+<li>
+<p>Your application will need the ability to check if an event has occurred by using code similar to that used in the following example:</p>
+<pre dir="ltr">void evtcallback_fn(ha_ctx, eventhp)
+...  
+printf(&#34;HA Event received.\n&#34;);
+  if (OCIHandleAlloc( (dvoid *)envhp, (dvoid **)&amp;errhp, (ub4) OCI_HTYPE_ERROR, 
+                      (size_t) 0, (dvoid **) 0))
+    return;
+  if (retcode = OCIAttrGet(eventhp, OCT_HTYPE_EVENT, (dvoid *)&amp;srvhp, (ub4 *)0,
+                           OCI_ATTR_HA_SRVFIRST, errhp))
+    checkerr (errhp, (sword)retcode;
+  else {
+     printf(&#34;found first server handle.\n&#34;);
+     /*get associated instance name */
+     if (retcode = OCIAttrGet(srvhp, OCI_HTYPE_SERVER, (dvoid *)&amp;instname,
+                           (ub4 *)&amp;sizep, OCI_ATTR_INSTNAME, errhp))
+       checkerr (errhp, (sword)retcode);
+     else
+       printf(&#34;instance name is %s.\n&#34;, instname);
+</pre></li>
+<li>
+<p>Clients and applications can register a callback that is invoked whenever a high availability event occurs, as shown in the following example:</p>
+<pre dir="ltr">/*Registering HA callback function */
+  if (checkerr(errhp, OCIAttrSet(envhp, (ub4) OCI_HTYPE_ENV, 
+                             (dvoid *)evtcallback_fn, (ub4) 0,
+                             (ub4)OCI_ATTR_EVTCBK, errhp)))
+  {
+    printf(&#34;Failed to set register EVENT callback.\n&#34;);
+    return EX_FAILURE;
+  }
+  if (checkerr(errhp, OCIAttrSet(envhp, (ub4) OCI_HTYPE_ENV,
+                                (dvoid *)evtctx, (ub4) 0, 
+                                (ub4)OCI_ATTR_EVTCTX, errhp)))
+  {
+    printf(&#34;Failed to set register EVENT callback context.\n&#34;);
+    return EX_FAILURE;
+  }
+return EX_SUCCESS;
+</pre>
+<p>After registering an event callback and context, OCI will call the registered function once for each high availability event.</p>
+</li>
+<li>
+<p>Configure an Oracle Net alias that the OCI application will use to connect to the database. The Oracle Net alias should specify both the primary and standby SCAN hostnames. For best performance while creating new connections the Oracle Net alias should have LOAD_BALANCE=OFF for the DESCRIPTION_LIST so that DESCRIPTIONs are tried in an ordered list, top to bottom. With this configuration the second DESCRIPTION is only attempted if all connection attempts to the first DESCRIPTION have failed.</p>
+<pre dir="ltr">SALES=
+ (DESCRIPTION_LIST=
+  (LOAD_BALANCE=off)
+  (FAILOVER=on)
+  (DESCRIPTION=     (CONNECT_TIMEOUT=5)(TRANSPORT_CONNECT_TIMEOUT=3)(RETRY_COUNT=3)
+    (ADDRESS_LIST=
+      (LOAD_BALANCE=on) 
+      (ADDRESS=(PROTOCOL=TCP)(HOST=prmy-scan)(PORT=1521)))
+    (CONNECT_DATA=(SERVICE_NAME=oltpworkload)))
+  (DESCRIPTION=
+(CONNECT_TIMEOUT=5)(TRANSPORT_CONNECT_TIMEOUT=3)(RETRY_COUNT=3)
+    (ADDRESS_LIST=
+      (LOAD_BALANCE=on)      
+      (ADDRESS=(PROTOCOL=TCP)(HOST=stby-scan)(PORT=1521)))
+    (CONNECT_DATA=(SERVICE_NAME=oltpworkload))))
+</pre>
+<p>When a new connection is made using the above Oracle Net alias the following logic is used:</p>
+<ol>
+<li>
+<p>Oracle Net contacts DNS and resolves prmy-scan to a total of three IP addresses.</p>
+</li>
+<li>
+<p>Oracle Net randomly picks one of the three IP address and attempts to make a connection. If the connection attempt to the IP address does not respond in three seconds (TRANSPORT_CONNECT_TIMEOUT) the next IP address is attempted. All three IP addresses will be tried a total of four times (initial attempt plus RETRY_COUNT in the above example).</p>
+</li>
+<li>
+<p>If the connection to primary site is unsuccessful, it then contacts DNS and resolves stby-scan to three addresses.</p>
+</li>
+<li>
+<p>The same sequence is performed for the standby stby-scan as it was for the prmy-scan.</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>The following is some additional information about the Oracle Net parameters used in the above alias:</p>
+<ul>
+<li>
+<p>LOAD_BALANCE is ON by default for DESCRIPTION_LIST only. This parameter by default is OFF for an address list within a DESCRIPTION. Setting this ON for a SCAN-based address implies that new connections will be randomly assigned to one of the 3 SCAN-based IP addresses resolved by DNS.</p>
+</li>
+<li>
+<p>The RETRY_COUNT parameter specifies the number of times an address list is traversed before the new connection attempt is terminated. The default value is 0. With respect to SCAN, with FAILOVER = on, setting this RETRY_COUNT parameter to a value of 2, for example, means the three SCAN IP addresses are traversed thrice (i.e. 3*3=9 connect attempts), before the connection is terminated:</p>
+<ul>
+<li>
+<p>When the connection request initially comes in, the first randomly assigned IP address tries to service that request, followed by the two remaining IP addresses. (This behavior is controlled by the FAILOVER parameter.)</p>
+</li>
+<li>
+<p>The retries then kick in and the list of three IP addresses is tried two more times. RETRY_COUNT is only supported at DESCRIPTION level in connect string, but not at global (i.e. sqlnet.ora) level.</p>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="CACBDDBH"></a>
+<div id="HABPT5390" class="sect2">
+<h3 class="sect2"><span class="secnum">10.1.4</span> Configuring Automatic Failover for ODP.Net Clients</h3>
+<p>Prerequisites:</p>
+<ul>
+<li>
+<p>Namespace: Oracle.DataAccess.Client, Assembly: Oracle.DataAccess.dll.</p>
+</li>
+<li>
+<p>Microsoft .NET Framework Version 2.0 or later.</p>
+</li>
+<li>
+<p>Configure Oracle Net alias as described in <a href="#CACCDEIF">Section 10.1.3, &#34;Configuring Fast Connection Failover for OCI Clients.&#34;</a></p>
+</li>
+</ul>
+<ol>
+<li>
+<p>Enable Fast Connection Failover for ODP.NET connection pools by subscribing to FAN high availability events. To enable Fast Connection Failover, include &#34;HA Events=true&#34; and &#34;pooling=true&#34; in the connection string, as shown in the following example where user_name is the name of the database user and password is the password for that user:</p>
+<pre dir="ltr">con.ConnectionString =
+   &#34;User Id=user_name;Password=password;Data Source=sales;&#34; +
+   &#34;Min Pool Size=10;Connection Lifetime=120;Connection Timeout=60;&#34; +
+   &#34;HA Events=true;Incr Pool Size=5;Decr Pool Size=2&#34;;
+</pre></li>
+<li>
+<p>To take advantage of load balancing events with ODP.NET connection pools, set the load balancing attribute in the ConnectionString to TRUE (the default is FALSE). You can do this at connect time. This only works if you are using connection pools, or when the pooling attribute is set to TRUE which is the default.</p>
+<p>The following example demonstrates how to configure the ConnectionString to enable load balancing</p>
+<pre dir="ltr">con.ConnectionString =
+  &#34;User Id=user_name;Password=password;Data Source=odpapp;&#34; +
+  &#34;Min Pool Size=10;Connection Lifetime=120;Connection Timeout=60;&#34; +
+  &#34;Load Balancing=true;Incr Pool Size=5;Decr Pool Size=2&#34;;
+</pre></li>
+<li>
+<p>Configure the service to enable FAN and HA events as described in <a href="#CACHAIHJ">Section 10.2.1, &#34;Configuring Database Services.&#34;</a></p>
+</li>
+</ol>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p>&#34;Client Failover Best Practices for Highly Available Oracle Databases - Oracle Database 12c&#34; at <a href="http://www.oracle.com/technetwork/database/availability/client-failover-2280805.pdf"><code dir="ltr">http://www.oracle.com/technetwork/database/availability/client-failover-2280805.pdf</code></a></p>
+</li>
+<li>
+<p>&#34;Client Failover Best Practices for Data Guard 11g Release 2&#34; at <a href="http://www.oracle.com/technetwork/database/features/availability/maa-wp-11gr2-client-failover-173305.pdf"><code dir="ltr">http://www.oracle.com/technetwork/database/features/availability/maa-wp-11gr2-client-failover-173305.pdf</code></a></p>
+</li>
+<li>
+<p><a class="olink ADMIN13196" href="../ADMIN/restart.htm#ADMIN13196"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BDCJGHFE"></a>
+<div id="HABPT4970" class="sect1">
+<h2 class="sect1"><span class="secnum">10.2</span> Configuring Oracle RAC Databases for Failover</h2>
+<p>Oracle Database 12<span class="italic">c</span> provides the infrastructure to make your application data highly available with Oracle Real Application Clusters (Oracle RAC) and with the Oracle Data Guard. At the database tier you must configure fast application failover.</p>
+<a id="CACHAIHJ"></a>
+<div id="HABPT5300" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">10.2.1</span> Configuring Database Services</h3>
+<p>At a high level, automating client failover in an Oracle RAC configuration includes relocating database services to new or surviving instances, notifying clients that a failure has occurred to break the clients out of TCP timeout, and redirecting clients to a surviving instance (Oracle Clusterware sends FAN messages to applications; applications can respond to FAN events and take immediate action). For more information about FAN, see <a href="config_cw.htm#CEGIDECG">Section 5.1.1, &#34;Client Configuration and Migration Concepts&#34;</a>.</p>
+<p>For services on an Oracle RAC database, Oracle Enterprise Manager or the SRVCTL utility are the recommended tools to manage services. A service can span one or more instances of an Oracle database and a single instance can support multiple services. The number of instances offering the service is managed by the database administrator independent of the application.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a href="config_cw.htm#CEGIDECG">Section 5.1.1, &#34;Client Configuration and Migration Concepts&#34;</a></p>
+</li>
+<li>
+<p><a href="config_cw.htm#CEGGDIHA">Section 5.2.5, &#34;Connect to Database Using Services and Single Client Access Name (SCAN)&#34;</a></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" -->
+<div id="HABPT5301" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref602"></a>
+<h3 class="sect2"><span class="secnum">10.2.2</span> Optionally Configure FAN Server Side Callouts</h3>
+<p>Server-side callouts provide a simple, yet powerful integration mechanism with the High Availability Framework that is part of Oracle Clusterware. You can use server side callouts to log trouble tickets or page Administrators to alert them of a failure. For Up events, when services and instances are started, new connections can be created so the application can immediately take advantage of the extra resources</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink RACAD076" href="../RACAD/GUID-8DC4D5E0-CA9D-47BC-BAD0-8769405AFEC5.htm#RACAD076"><span class="italic">Oracle Real Application Clusters Administration and Deployment Guide</span></a> for an Introduction to Automatic Workload Management.</p>
+</li>
+<li>
+<p>For more information about client failover best practices and details on deploying FAN server side callouts, see the Technical Article, &#34;Automatic Workload Management with Oracle Real Application Clusters 11<span class="italic">g</span> Release 2&#34; on the Oracle Technology Network at</p>
+<p><code dir="ltr"><a href="http://www.oracle.com/technetwork/database/clustering/overview/index.html">http://www.oracle.com/technetwork/database/clustering/overview/index.html</a></code></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BDCHBEJE"></a>
+<div id="HABPT5302" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">10.3</span> Configuring the Oracle Data Guard Environment</h2>
+<p>The following topics describe how to configure the Oracle Data Guard environment:</p>
+<ul>
+<li>
+<p><a href="#BDCJFBDE">Configuring Database Services</a></p>
+</li>
+<li>
+<p><a href="#BDCGBIAJ">Use Data Guard Broker</a></p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+The MAA white paper &#34;Client Failover Best Practices for Highly Available Oracle Databases - Oracle Database 12<span class="italic">c</span>&#34; from the MAA Best Practices area for Oracle Database at
+<p><code dir="ltr"><a href="http://www.oracle.com/goto/maa/">http://www.oracle.com/goto/maa</a></code></p>
+</div>
+</li>
+</ul>
+<a id="BDCJFBDE"></a>
+<div id="HABPT5303" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">10.3.1</span> Configuring Database Services</h3>
+<p>In an Oracle Data Guard configuration you should only run primary application services on the primary database and run standby application services on the standby database. You can automatically control the startup of database services on primary and standby databases by assigning a database role to each service (roles include: <code dir="ltr">PRIMARY</code>, <code dir="ltr">PHYSICAL_STANDBY</code>, <code dir="ltr">LOGICAL_STANDBY</code>, and <code dir="ltr">SNAPSHOT_STANDBY</code>).</p>
+<p>A database service automatically starts upon database startup if the management policy for the service is <code dir="ltr">AUTOMATIC</code> and if a role assigned to that service matches the current role of the database.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink ADMIN12738" href="../ADMIN/restart.htm#ADMIN12738"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for information about Creating and Deleting Database Services with SRVCTL</p>
+</li>
+<li>
+<p><a class="olink ADMIN12830" href="../ADMIN/start.htm#ADMIN12830"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for information About Automatic Startup of Database Services</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" -->
+<a id="BDCGBIAJ"></a>
+<div id="HABPT5304" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">10.3.2</span> Use Data Guard Broker</h3>
+<p>The best practice is to configure Oracle Data Guard to manage the configuration with Oracle Data Guard Broker. Oracle Data Guard Broker is responsible for sending FAN events to client applications to clean up their connections to the down database and reconnect to the new production database.</p>
+<p>Oracle Clusterware must be installed and active on the primary and standby sites for both single instance (using Oracle Restart) and Oracle RAC databases. Oracle Data Guard broker coordinates with Oracle Clusterware to properly fail over role-based services to a new primary database after a Data Guard failover has occurred.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a href="config_cw.htm#CEGIDECG">Section 5.1.1, &#34;Client Configuration and Migration Concepts&#34;</a> for more information about FAN.</p>
+</li>
+<li>
+<p><a href="config_dg.htm#CEGFIBDE">Section 8.3.1, &#34;Use Oracle Data Guard Broker with Oracle Data Guard&#34;</a></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BDCDJABB"></a>
+<div id="HABPT5305" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">10.4</span> Client Transition During Switchover Operations</h2>
+<p>In Oracle Data Guard, the term &#34;switchover&#34; describes a planned event where a primary and standby database switch roles, usually to minimize the downtime while performing planned maintenance. The configuration best practices to address unplanned failovers also address most of the requirements for a planned switchover, except for several additional manual steps that apply to logical standby databases (SQL Apply).</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+There are no additional considerations for switchovers using Oracle Active Data Guard.</div>
+<p>The following steps describe the additional manual switchover steps for Oracle Data Guard 11<span class="italic">g</span> Release 2:</p>
+<ol>
+<li>
+<p>The primary database is converted to a standby database. This disconnects all sessions and brings the database to the mount state. Oracle Data Guard Broker shuts down any read/write services.</p>
+</li>
+<li>
+<p>Client sessions receive a ORA-3113 and begin going through their retry logic (TAF for OCI and application code logic for JDBC).</p>
+</li>
+<li>
+<p>The standby database is converted to a primary database and any existing sessions are disconnected. Oracle Data Guard Broker shuts down read-only services.</p>
+</li>
+<li>
+<p>Read-only connections receive an ORA-3113 and begin going through their retry logic (TAF for OCI and application code logic for JDBC).</p>
+</li>
+<li>
+<p>As the new primary and the new standby are opened, the respective services are started for each role and clients performing retries now see the services available and connect.</p>
+</li>
+</ol>
+<p>For logical standby switchover:</p>
+<ol>
+<li>
+<p>Ensure that the proper reconnection logic has been configured (for more information, see <a href="#BDCBEDBE">Section 10.1, &#34;Automating Client Failover - JDBC, OCI, and ODP.Net&#34;</a> and <a href="#BDCJGHFE">Section 10.2, &#34;Configuring Oracle RAC Databases for Failover&#34;</a>). For example, configure <code dir="ltr">TAF</code> and <code dir="ltr">RETRY_COUNT</code> for OCI applications and code retry logic for JDBC applications.</p>
+</li>
+<li>
+<p>Stop the services that the primary application uses and the read-only applications enabled on the standby database.</p>
+</li>
+<li>
+<p>Disconnect or shutdown the primary and read-only application sessions.</p>
+</li>
+<li>
+<p>Once the switchover has completed, restart the services used by the primary application and the read-only application.</p>
+</li>
+<li>
+<p>Sessions that were terminated reconnect once the service becomes available as part of the retry mechanism.</p>
+</li>
+<li>
+<p>Restart the application if an application shuts down.</p>
+</li>
+</ol>
+<p>Note that FAN is not needed to transition clients during a switchover operation if the application performs retries. FAN is only needed to break clients out of TCP timeout, a state that should only occur during unplanned outages.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="schedule_outage.htm#BABIGAAB">Section 13.2.1.3, &#34;How to Perform Data Guard Switchover&#34;</a></div>
+</div>
+<!-- class="sect1" -->
+<a id="BDCDJIDC"></a>
+<div id="HABPT4972" class="sect1">
+<h2 class="sect1"><span class="secnum">10.5</span> Preventing Login Storms<a id="sthref603"></a><a id="sthref604"></a><a id="sthref605"></a></h2>
+<p>The process of failing over an application that has a large number of connections may create a login storm. A <span class="italic">login storm</span> is a sudden spike in the number of connections to a database instance, which drains CPU resources. As CPU resources are depleted, application timeouts and application response times are likely to increase.</p>
+<p>To control login storms:</p>
+<ul>
+<li>
+<p>Implement the Connection Rate Limiter<a id="sthref606"></a><a id="sthref607"></a></p>
+<p>The primary method of controlling login storms is to implement the Connection Rate Limiter feature of the Oracle listener. This feature limits the number of connections that can be processed in seconds. Slowing down the rate of connections ensures that CPU resources remain available and that the system remains responsive.</p>
+</li>
+<li>
+<p>Configure Oracle Database for shared server<a id="sthref608"></a><a id="sthref609"></a><a id="sthref610"></a> operations</p>
+<p>In addition to implementing the Connection Rate Limiter, some applications can control login storms by configuring Oracle Database for shared server operations. By using shared server, the number of processes that must be created at failover time are greatly reduced, thereby avoiding a login storm.</p>
+</li>
+<li>
+<p>Adjust the maximum number of connections in the mid tier connection pool</p>
+<p>If such a capability is available in your application mid tier, try limiting the number of connections by adjusting the <a id="sthref611"></a><a id="sthref612"></a><a id="sthref613"></a>maximum number of connections in the mid tier connection pool.<a id="sthref614"></a><a id="sthref615"></a><a id="sthref616"></a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink ADMIN00502" href="../ADMIN/manproc.htm#ADMIN00502"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for more information about configuring and controlling shared server operations</p>
+</li>
+<li>
+<p>The &#34;Oracle Net Listener Connection Rate Limiter&#34; white paper for information about the Connection Rate Limiter at</p>
+<p><code dir="ltr"><a href="http://www.oracle.com/technetwork/database/enterprise-edition/oraclenetservices-connectionratelim-133050.pdf">http://www.oracle.com/technetwork/database/enterprise-edition/oraclenetservices-connectionratelim-133050.pdf</a></code></p>
+</li>
+<li>
+<p>The &#34;Best Practices for Optimizing Availability During Unplanned Outages Using Oracle Clusterware and Oracle Real Application Clusters&#34; white paper for information and examples about <a id="sthref617"></a>listener connection rate throttling from the MAA Best Practices area for Oracle Database at</p>
+<p><code dir="ltr"><a href="http://www.oracle.com/goto/maa/">http://www.oracle.com/goto/maa</a></code></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect1" -->
+<a id="CACFFBFH"></a>
+<div id="HABPT5391" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">10.6</span> Configuring Global Data Services</h2>
+<p>Global Data Services enables administrators to automatically and transparently manage client workloads across replicated databases that offer common services. A database service is a named representation of one or more database instances. Services enable you to group database workloads and route a particular work request to an appropriate instance. A global service is a service provided by multiple databases synchronized through data replication.</p>
+<p>Global Data Services provides dynamic load balancing, failover, and centralized service management for a set of replicated databases that offer common services. The set of databases can include Oracle RAC and noncluster Oracle databases interrelated through Oracle Data Guard, databases consolidated under Oracle Multitenant, Oracle GoldenGate, or any other replication technology.</p>
+<p>The global services management framework is built around the following preexisting Oracle Database technologies:</p>
+<ul>
+<li>
+<p>Oracle Real Application Clusters (Oracle RAC) - Enables dynamic load balancing and workload management in a cluster</p>
+</li>
+<li>
+<p>Oracle Active Data Guard - Enables high-performance farms of read-only databases</p>
+</li>
+<li>
+<p>Data Guard Broker - Enables creation, management, and monitoring of Data Guard configurations that include a primary database and up to 30 standby databases</p>
+</li>
+<li>
+<p>Oracle GoldenGate - Enables replication updates among multiple databases</p>
+</li>
+</ul>
+<p>Oracle GDS provides the following key capabilities for a set of replicated databases that are globally distributed or located within the same data center:</p>
+<ul>
+<li>
+<p>Region-based workload routing</p>
+</li>
+<li>
+<p>Connect-time Load balancing</p>
+</li>
+<li>
+<p>Provides Run-time load balancing advisory for Oracle integrated clients</p>
+</li>
+<li>
+<p>Inter-database Service failover</p>
+</li>
+<li>
+<p>Replication lag based workload routing for Active Data Guard</p>
+</li>
+<li>
+<p>Role-based global Services for Active Data Guard</p>
+</li>
+<li>
+<p>Centralized workload management framework</p>
+</li>
+</ul>
+<p>At a high level, configuring the Global Data Services Framework involves the following:</p>
+<ul>
+<li>
+<p>Installing a Global Service Manager. You must install at least one global service manager for each Global Data Services region. Global service managers can be hosted on physical or virtual environments. For high availability, Oracle recommends installing multiple (typically 3) global service managers in each region running on separate hosts.</p>
+</li>
+<li>
+<p>Creating a Global Data Services Catalog. The catalog must reside in a 12c database and it is recommended that database be outside the GDS configuration. GDS catalog may be co-hosted along with catalogs of RMAN or Oracle Enterprise Manager. Oracle recommends that you use Oracle high availability features such as Oracle Real Application Clusters (Oracle RAC) and Oracle Data Guard to protect the Global Data Services catalog against outages.</p>
+</li>
+<li>
+<p>Registering a Global Service Manager to the catalog.</p>
+</li>
+<li>
+<p>Adding a Global Services Pool. A GDS pool is a subset of databases that provide a set of global services that belong to an administrative domain. This simplifies service management and provides for high security by allowing each pool to be administered by a different administrator.</p>
+</li>
+<li>
+<p>Adding a Global Data Services Region. A region is a set of databases that share the same network proximity and network latency. A region normally corresponds to a local area network. For high availability purposes, each region in a GDS configuration should have a designated buddy region, which is a region that contains global service managers that can provide continued access to a GDS configuration if the global services managers in the local region become unavailable.</p>
+</li>
+<li>
+<p>Adding databases to the GDS pool. To be part of a Global Data Services pool, a database must use a server parameter file (SPFILE). An Oracle RAC database should also have SCAN set up.</p>
+</li>
+<li>
+<p>Add a service to a GDS pool. A global service name must be unique within a GDS pool and must also be unique within a GDS configuration. A global service cannot be created at a database if a local or global service with the same name already exists at that database.</p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink GSMUG" href="../GSMUG/toc.htm"><span class="italic">Oracle Database Global Data Services Concepts and Administration Guide</span></a></p>
+</li>
+<li>
+<p>MAA white paper &#34;Oracle Database 12c - Global Data Services&#34; at <a href="http://www.oracle.com/technetwork/database/availability/global-data-services-12c-wp-1964780.pdf"><code dir="ltr">http://www.oracle.com/technetwork/database/availability/global-data-services-12c-wp-1964780.pdf</code></a></p>
+</li>
+</ul>
+</div>
+<div id="HABPT5392" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref618"></a>
+<h3 class="sect2"><span class="secnum">10.6.1</span> Configuring the Database Client</h3>
+<p>When clients connect to the database they do so using an Oracle Net connect string that specifys a service. The connect string used when connecting to a global service is unique in the following ways:</p>
+<ul>
+<li>
+<p>Service name parameter must specify a global service</p>
+</li>
+<li>
+<p>Multiple SCAN addresses are used to point to global service manager endpoints</p>
+</li>
+<li>
+<p>The database client&#39;s region may be specified in the connection data section</p>
+</li>
+</ul>
+<p>Consider the following connect string:</p>
+<pre dir="ltr">(DESCRIPTION=
+  (FAILOVER=on)
+  (ADDRESS_LIST=
+    (LOAD_BALANCE=ON)
+    (ADDRESS=(host=sales-east1)(port=1522))
+    (ADDRESS=(host=sales-east2)(port=1522))
+    (ADDRESS=(host=sales-east3)(port=1522)))
+  (ADDRESS_LIST=
+    (LOAD_BALANCE=ON)
+    (ADDRESS=(host=sales-west1)(port=1522))
+    (ADDRESS=(host=sales-west2)(port=1522))
+    (ADDRESS=(host=sales-west3)(port=1522)))
+  (CONNECT_DATA=
+   (SERVICE_NAME=sales)
+   (REGION=east)))
+</pre>
+<p>Client-side load balancing is enabled across the global service managers within each region by setting the LOAD_BALANCE parameter to ON in the address list for each region. Connect-time failover between regions is enabled by setting the FAILOVER parameter to ON.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2579">
+<tr>
+<td class="cellalignment2586">
+<table class="cellalignment2584">
+<tr>
+<td class="cellalignment2583"><a href="config_gg.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2583"><a href="monitor.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2005, 2015,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2588">
+<table class="cellalignment2582">
+<tr>
+<td class="cellalignment2583"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2583"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2583"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2583"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2583"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2583"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114233"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Creating%20a%20Multicolumn%20Range-Partitioned%20Table%20to%20Enforce%20Equal-Sized%20Partitions"></a><title>Creating a Multicolumn Range-Partitioned Table to Enforce Equal-Sized Partitions</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-814DE2FF-7147-42DE-9CAF-5E019BAB8C18.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-AF6D08D7-5E0F-4E08-B682-74CCCAEC64D1.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-2E03ED66-312F-422A-9352-2128B34DEE8E"></a> <span id="PAGE" style="display:none;">146/481</span> <!-- End Header -->
+<h1 id="VLDBG-GUID-2E03ED66-312F-422A-9352-2128B34DEE8E" class="sect1">Creating a Multicolumn Range-Partitioned Table to Enforce Equal-Sized Partitions</h1>
+<div>
+<div class="section">
+<p>The following example illustrates the use of a multicolumn partitioned approach for table <code>supplier_parts</code>, storing the information about which suppliers deliver which parts. To distribute the data in equal-sized partitions, it is not sufficient to partition the table based on the <code>supplier_id</code>, because some suppliers might provide hundreds of thousands of parts, while others provide only a few specialty parts. Instead, you partition the table on (<code>supplier_id</code>, <code>partnum</code>) to manually enforce equal-sized partitions.</p>
+<p>Every row with <code>supplier_id</code> &lt; 10 is stored in partition <code>p1</code>, regardless of the <code>partnum</code> value. The column <code>partnum</code> is evaluated only if <code>supplier_id</code> =10, and the corresponding rows are inserted into partition <code>p1</code>, <code>p2</code>, or even into <code>p3</code> when <code>partnum</code> &gt;=200. To achieve equal-sized partitions for ranges of <code>supplier_parts</code>, you could choose a composite range-hash partitioned table, range partitioned by <code>supplier_id</code>, hash subpartitioned by <code>partnum</code>.</p>
+<p>Defining the partition boundaries for multicolumn partitioned tables must obey some rules. For example, consider a table that is range partitioned on three columns <code>a</code>, <code>b</code>, and <code>c</code>. The individual partitions have range values represented as follows:</p>
+<pre dir="ltr">P0(a0, b0, c0)
+P1(a1, b1, c1)
+P2(a2, b2, c2)
+...
+Pn(an, bn, cn)
+</pre>
+<p>The range values you provide for each partition must follow these rules:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><code>a0</code> must be less than or equal to <code>a1</code>, and <code>a1</code> must be less than or equal to <code>a2</code>, and so on.</p>
+</li>
+<li>
+<p>If <code>a0</code>=<code>a1</code>, then <code>b0</code> must be less than or equal to <code>b1</code>. If <code>a0</code> &lt; <code>a1</code>, then <code>b0</code> and <code>b1</code> can have any values. If <code>a0</code>=<code>a1</code> and <code>b0</code>=<code>b1</code>, then <code>c0</code> must be less than or equal to <code>c1</code>. If <code>b0</code>&lt;<code>b1</code>, then <code>c0</code> and <code>c1</code> can have any values, and so on.</p>
+</li>
+<li>
+<p>If <code>a1</code>=<code>a2</code>, then <code>b1</code> must be less than or equal to <code>b2</code>. If <code>a1</code>&lt;<code>a2</code>, then <code>b1</code> and <code>b2</code> can have any values. If <code>a1</code>=<code>a2</code> and <code>b1</code>=<code>b2</code>, then <code>c1</code> must be less than or equal to <code>c2</code>. If <code>b1</code>&lt;<code>b2</code>, then <code>c1</code> and <code>c2</code> can have any values, and so on.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<pre dir="ltr">CREATE TABLE supplier_parts (
+   supplier_id      NUMBER, 
+   partnum          NUMBER,
+   price            NUMBER)
+PARTITION BY RANGE (supplier_id, partnum)
+  (PARTITION p1 VALUES LESS THAN  (10,100),
+   PARTITION p2 VALUES LESS THAN (10,200),
+   PARTITION p3 VALUES LESS THAN (MAXVALUE,MAXVALUE));
+</pre>
+<p>The following three records are inserted into the table:</p>
+<pre dir="ltr">INSERT INTO supplier_parts VALUES (5,5, 1000);
+INSERT INTO supplier_parts VALUES (5,150, 1000);
+INSERT INTO supplier_parts VALUES (10,100, 1000);
+</pre>
+<p>The first two records are inserted into partition <code>p1</code>, uniquely identified by <code>supplier_id</code>. However, the third record is inserted into partition <code>p2</code>; it matches all range boundary values of partition <code>p1</code> exactly and the database therefore considers the following partition for a match. The value of <code>partnum</code> satisfies the criteria &lt; 200, so it is inserted into partition <code>p2</code>.</p>
+<pre dir="ltr">SELECT * FROM supplier_parts PARTITION (p1);
+
+SUPPLIER_ID    PARTNUM      PRICE
+----------- ---------- ----------
+          5          5       1000
+          5        150       1000
+
+SELECT * FROM supplier_parts PARTITION (p2);
+
+SUPPLIER_ID    PARTNUM      PRICE
+----------- ---------- ----------
+          10       100       1000
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-814DE2FF-7147-42DE-9CAF-5E019BAB8C18.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-AF6D08D7-5E0F-4E08-B682-74CCCAEC64D1.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

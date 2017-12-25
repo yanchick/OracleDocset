@@ -1,0 +1,392 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-88160"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Comparing%20SQL%20Tuning%20Sets%20Using%20APIs"></a><title>Comparing SQL Tuning Sets Using APIs</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-01-24T11:32:44Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Testing Guide"/>
+<meta name="dcterms.identifier" content="E55028-05"/>
+<meta name="dcterms.isVersionOf" content="RATUG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-42B29CF3-8A16-4025-9E27-085C5FFDF88D.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-B85471DE-CC06-4E02-AFA6-AD207D94C8C8.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E55028-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47"></a> <span id="PAGE" style="display:none;">54/309</span> <!-- End Header -->
+<a id="RATUG306"></a><a id="RATUG307"></a><a id="RATUG308"></a><a id="RATUG305"></a>
+<h1 id="RATUG-GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47" class="sect1"><span class="enumeration_section">6.2.3</span> Comparing SQL Tuning Sets Using APIs</h1>
+<div>
+<p>You can compare two <a id="d12306e80" class="indexterm-anchor"></a>SQL tuning sets using the <code>DBMS_SQLPA</code> package. For example, while using Database Replay, you may have captured a SQL tuning set on the production system during workload capture, and another SQL tuning set on a test system during workload replay. You can then use SQL Performance Analyzer to compare these SQL tuning sets, without having to re-execute the SQL statements. This is useful in cases where you already have another utility to run your workload before and after making the system change, such as a custom script.</p>
+<p>When comparing SQL tuning sets, SQL Performance Analyzer uses the runtime statistics captured in the SQL tuning sets to perform its comparison analysis, and reports on any new or missing SQL statements that are found in one SQL tuning set, but not in the other. Any changes in execution plans between the two SQL tuning sets are also reported. For each SQL statement in both SQL tuning sets, improvement and regression findings are reported for each SQL statement&mdash;calculated based on the average statistic value per execution&mdash;and for the entire workload&mdash;calculated based on the cumulative statistic value.</p>
+<div class="section">
+<p class="subhead1">To compare SQL tuning sets using APIs:</p>
+<ol>
+<li>
+<p>Create a SQL Performance Analyzer task:</p>
+<pre dir="ltr">VAR aname varchar2(30);
+EXEC :aname := &#39;compare_s2s&#39;;
+EXEC :aname := DBMS_SQLPA.CREATE_ANALYSIS_TASK(task_name =&gt; :aname);
+</pre>
+<p>It is not necessary to associate a SQL tuning set to the task during creation.</p>
+</li>
+<li>
+<p>Create the first SQL trial and convert the first SQL tuning set:</p>
+<pre dir="ltr">EXEC DBMS_SQLPA.EXECUTE_ANALYSIS_TASK(task_name =&gt; :aname, -
+          execution_type =&gt; &#39;convert sqlset&#39;, -
+          execution_name =&gt; &#39;first trial&#39;, -
+          execution_params =&gt; DBMS_ADVISOR.ARGLIST(
+                               &#39;sqlset_name&#39;, &#39;my_first_sts&#39;, -
+                               &#39;sqlset_owner&#39;, &#39;APPS&#39;));
+</pre>
+<p>Specify the name and owner of the SQL tuning set using the <code>SQLSET_NAME</code> and <code>SQLSET_OWNER</code> task parameters. The content of the SQL tuning set will not be duplicated by the SQL Performance Analyzer task. Instead, a reference to the SQL tuning set is recorded in association to the new SQL trial, which in this example is &#34;first trial&#34;.</p>
+</li>
+<li>
+<p>Create a second SQL trial and associate it to the second SQL tuning second to which you want to compare:</p>
+<pre dir="ltr">EXEC DBMS_SQLPA.EXECUTE_ANALYSIS_TASK(task_name =&gt; :aname, -
+          execution_type =&gt; &#39;convert sqlset&#39;, -
+          execution_name =&gt; &#39;second trial&#39;, -
+          execution_params =&gt; DBMS_ADVISOR.ARGLIST(
+                               &#39;sqlset_name&#39;, &#39;my_second_sts&#39;, -
+                               &#39;sqlset_owner&#39;, &#39;APPS&#39;));
+</pre></li>
+<li>
+<p>Compare the performance data from the two SQL trials (or SQL tuning sets) by running a comparison analysis:</p>
+<pre dir="ltr">EXEC DBMS_SQLPA.EXECUTE_ANALYSIS_TASK(task_name =&gt; :aname, -
+          execution_type =&gt; &#39;compare&#39;, -
+          execution_name =&gt; &#39;comparison&#39;, -
+          execution_params =&gt; DBMS_ADVISOR.ARGLIST(
+                               &#39;workload_impact_threshold&#39;, 0, -
+                               &#39;sql_impact_threshold&#39;, 0));
+</pre>
+<p>In this example, the workload and per-SQL impact threshold are set to 0% for comparison (the default value is 1%).</p>
+</li>
+<li>
+<p>After the comparison analysis is complete, generate a SQL Performance Analyzer report using the <code>DBMS_SQLPA.REPORT_ANALYSIS_TASK</code> function.</p>
+<p>For information about generating a SQL Performance Analyzer report using APIs, see <span class="q">&#34;<a href="GUID-BA40A195-CB93-459E-B365-BFB2BA40BD30.htm">Analyzing SQL Performance Using APIs</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<p>Once the report is generated, review it to identify any differences between the contents of the two SQL tuning sets. <a href="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47.htm#GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDIIHJC">Example 6-8</a> shows the Analysis Information and Report Summary sections of a sample report generated by comparing two SQL tuning sets:</p>
+<div class="example" id="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDIIHJC">
+<p class="titleinexample">Example 6-8 Analysis Information and Report Summary</p>
+<pre dir="ltr">Analysis Information:
+------------------------------------------------------------------------------------------------
+ Before Change Execution:                          After Change Execution:
+ ---------------------------------------------     ---------------------------------------------
+  Execution Name      : first trial                 Execution Name      : second trial
+  Execution Type      : CONVERT SQLSET              Execution Type      : CONVERT SQLSET
+  Status              : COMPLETED                   Status              : COMPLETED
+  Started             : &hellip;
+  Last Updated        : &hellip;
+ 
+ Before Change Workload:                           After Change Workload:
+ ---------------------------------------------     ---------------------------------------------
+  SQL Tuning Set Name        : my_first_sts         SQL Tuning Set Name        : my_second_sts
+  SQL Tuning Set Owner       : APPS                 SQL Tuning Set Owner       : APPS
+  Total SQL Statement Count  : 5                    Total SQL Statement Count  : 6
+ 
+------------------------------------------------------------------------------------------------
+Report Summary
+------------------------------------------------------------------------------------------------
+ 
+Projected Workload Change Impact:
+-------------------------------------------
+ Overall Impact      :  72.32%
+ Improvement Impact  :  47.72%
+ Regression Impact   :   -.02%
+ Missing-SQL Impact  :   33.1%
+ New-SQL Impact      :  -8.48%
+ 
+SQL Statement Count
+-------------------------------------------
+ SQL Category   SQL Count  Plan Change Count
+ Overall                7                  1
+ Common                 4                  1
+  Improved              3                  1
+  Regressed             1                  0
+ Different              3                  0
+  Missing SQL           1                  0
+  New SQL               2                  0
+</pre></div>
+<!-- class="example" -->
+<p>As shown in <a href="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47.htm#GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDIIHJC">Example 6-8</a>, this report contains two additional categories that are not found in standard SQL Performance Analyzer reports; both categories are grouped under the heading Different:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Missing SQL</p>
+<p>This category represents all SQL statements that are present in the first SQL tuning set, but are not found in the second SQL tuning set. In this example, only one SQL statement is missing. As shown in <a href="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47.htm#GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDDEHJA">Example 6-9</a>, this SQL statement has:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A <code>sql_id</code> value of gv7xb8tyd1v91</p>
+</li>
+<li>
+<p>A performance impact on the workload of 33.1% based on the change</p>
+</li>
+<li>
+<p>No performance impact on the SQL statement based on the change because its &#34;Total Metric After&#34; change value is missing</p>
+</li>
+</ul>
+</li>
+<li>
+<p>New SQL</p>
+<p>This category represents all SQL statements that are present in the second SQL tuning set, but are not found in the first SQL tuning set. In this example, only two SQL statements are new in the second SQL tuning set. As shown in <a href="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47.htm#GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDDEHJA">Example 6-9</a>, these SQL statements have:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>sql_id</code> values of 4c8nrqxhtb2sf and 9utadgu5udmh4</p>
+</li>
+<li>
+<p>A total performance impact on the workload of -8.48%</p>
+</li>
+<li>
+<p>Missing &#34;Total Metric Before&#34; change values</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><a href="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47.htm#GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDDEHJA">Example 6-9</a> shows a table in the sample report that lists the missing and new SQL statements, as well as other top SQL statements as determined by their impact on the workload:</p>
+<div class="example" id="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDDEHJA">
+<p class="titleinexample">Example 6-9 Top 7 SQL Sorted by Absolute Value of Change Impact on the Workload</p>
+<pre dir="ltr">Top 7 SQL Sorted by Absolute Value of Change Impact on the Workload
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+|           |               | Impact on | Total Metric | Total Metric | Impact  | Plan   |
+| object_id | sql_id        | Workload  |    Before    |    After     | on SQL  | Change |
+------------------------------------------------------------------------------------------
+|         4 | 7gj3w9ya4d9sj |    41.04% |       812791 |        36974 |     95% | y      |
+|         7 | gv7xb8tyd1v91 |     33.1% |       625582 |              |         | n      |
+|         2 | 4c8nrqxhtb2sf |    -8.35% |              |       157782 |         | n      |
+|         1 | 22u3tvrt0yr6g |     4.58% |       302190 |       215681 |  28.63% | n      |
+|         6 | fgdd0fd56qmt0 |      2.1% |       146128 |       106369 |  27.21% | n      |
+|         5 | 9utadgu5udmh4 |     -.13% |              |         2452 |         | n      |
+|         3 | 4dtv43awxnmv3 |     -.02% |         3520 |         3890 | -47.35% | n      |
+------------------------------------------------------------------------------------------
+</pre></div>
+<!-- class="example" -->
+<p>Once you have identified a SQL statement of interest, you can generate a report for the SQL statement to perform more detailed investigation. For example, you may want to investigate the SQL statement with the <code>sql_id</code> value of 7gj3w9ya4d9sj and <code>object_id</code> value of 4 because it has the highest impact on the workload:</p>
+<pre dir="ltr">SELECT DBMS_SQLPA.REPORT_ANALYSIS_TASK(task_name =&gt; :aname, object_id =&gt; 4) rep
+FROM dual;
+</pre>
+<p><a href="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47.htm#GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDFGHJE">Example 6-10</a> shows a sample report generated for this SQL statement:</p>
+<div class="example" id="GUID-F3DC6B55-4070-4F2F-AB63-DFEE8AFEDA47__CHDFGHJE">
+<p class="titleinexample">Example 6-10 Sample Report for SQL Statement</p>
+<pre dir="ltr">SQL Details:
+-----------------------------
+ Object ID  : 4
+ SQL ID     : 7gj3w9ya4d9sj
+ SQL Text   : /* my_csts_query1 */ select * FROM emp where empno=2
+ 
+SQL Execution Statistics (average):
+---------------------------------------
+---------------------------------------------------------
+|              | Impact on | Value   | Value   | Impact |
+| Stat Name    | Workload  | Before  | After   | on SQL |
+---------------------------------------------------------
+| elapsed_time |    41.04% | .036945 | .001849 |    95% |
+| cpu_time     |    13.74% | .004772 |  .00185 | 61.24% |
+| buffer_gets  |     9.59% |       8 |       2 | 69.01% |
+| cost         |    11.76% |       1 |       1 |    10% |
+| reads        |     4.08% |       0 |       0 | 63.33% |
+| writes       |        0% |       0 |       0 |     0% |
+| rows         |           |       0 |       0 |        |
+| executions   |           |      22 |      20 |        |
+| plan_count   |           |       3 |       2 |        |
+---------------------------------------------------------
+Findings (2):
+-----------------------------
+ 1. The performance of this SQL has improved.
+ 2. The structure of the SQL execution plan has changed.
+ 
+Plan Execution Statistics (average):
+---------------------------------------
+----------------------------------------------------------------------------------
+| Statistic Name  | Plans Before Change              | Plans After Change        |
+----------------------------------------------------------------------------------
+| plan hash value | 440231712  571903972  3634526668 | 571903972  3634526668     |
+| --------------- | ---------  ---------  ---------- | ---------  ----------     |
+|  schema name    | APPS1      APPS2      APPS2      | APPS2      APPS2          |
+|  executions     | 7          5          10         | 10         10             |
+|  cost           | 2          1          2          | 1          2              |
+|  elapsed_time   | .108429    .000937    .00491     | .000503    .003195        |
+|  cpu_time       | .00957     .0012      .0032      | .0005      .0032          |
+|  buffer_gets    | 18         0          5          | 0          5              |
+|  reads          | 0          0          0          | 0          0              |
+|  writes         | 0          0          0          | 0          0              |
+|  rows           | 0          0          0          | 0          0              |
+----------------------------------------------------------------------------------
+Execution Plans Before Change:
+-----------------------------
+Plan Hash Value  : 440231712
+---------------------------------------------------------------------------
+| Id | Operation              | Name     | Rows | Bytes | Cost | Time     |
+---------------------------------------------------------------------------
+|  0 | SELECT STATEMENT       |          |      |       |    2 |          |
+|  1 |   PX COORDINATOR       |          |      |       |      |          |
+|  2 |    PX SEND QC (RANDOM) | :TQ10000 |    1 |    87 |    2 | 00:00:01 |
+|  3 |     PX BLOCK ITERATOR  |          |    1 |    87 |    2 | 00:00:01 |
+|  4 |      TABLE ACCESS FULL | EMP      |    1 |    87 |    2 | 00:00:01 |
+---------------------------------------------------------------------------
+Note
+-----
+- dynamic sampling used for this statement
+Plan Hash Value  : 571903972
+----------------------------------------------------------------------------------
+| Id | Operation                     | Name       | Rows | Bytes | Cost | Time   |
+----------------------------------------------------------------------------------
+|  0 | SELECT STATEMENT              |            |      |       |    1 |        |
+|  1 |   TABLE ACCESS BY INDEX ROWID | EMP        |    1 |    87 |    1 |00:00:01|
+|  2 |    INDEX UNIQUE SCAN          | MY_EMP_IDX |    1 |       |    0 |        |
+----------------------------------------------------------------------------------
+Plan Hash Value  : 3634526668
+--------------------------------------------------------------------
+| Id | Operation           | Name | Rows | Bytes | Cost | Time     |
+--------------------------------------------------------------------
+|  0 | SELECT STATEMENT    |      |      |       |    2 |          |
+|  1 |   TABLE ACCESS FULL | EMP  |    1 |    87 |    2 | 00:00:01 |
+--------------------------------------------------------------------
+Note
+-----
+- dynamic sampling used for this statement
+ 
+Executions Plan After Change:
+-----------------------------
+Plan Hash Value  : 571903972
+----------------------------------------------------------------------------------
+| Id | Operation                     | Name       | Rows | Bytes | Cost | Time   |
+----------------------------------------------------------------------------------
+|  0 | SELECT STATEMENT              |            |      |       |    1 |        |
+|  1 |   TABLE ACCESS BY INDEX ROWID | EMP        |    1 |    87 |    1 |00:00:01|
+|  2 |    INDEX UNIQUE SCAN          | MY_EMP_IDX |    1 |       |    0 |        |
+----------------------------------------------------------------------------------
+Plan Hash Value  : 3634526668
+--------------------------------------------------------------------
+| Id | Operation           | Name | Rows | Bytes | Cost | Time     |
+--------------------------------------------------------------------
+|  0 | SELECT STATEMENT    |      |      |       |    2 |          |
+|  1 |   TABLE ACCESS FULL | EMP  |    1 |    87 |    2 | 00:00:01 |
+--------------------------------------------------------------------
+Note
+-----
+- dynamic sampling used for this statement
+----------------------------------------------------------------------------------
+</pre></div>
+<!-- class="example" -->
+<p>The SQL Execution Statistics section shows the average runtime statistics (per execution) of the SQL statement. The data in this table reveals that this SQL statement is present in both SQL tuning sets, but that it has only three execution plans in the first SQL tuning set and two execution plans in the second SQL tuning set. Furthermore, the SQL statement was executed 22 times in the first SQL tuning set, but only 20 times in the second SQL tuning set.</p>
+<p>The Plan Execution Statistics section shows runtime statistics per execution plan (or plan hash value). The Plans Before Change column lists plans and their associated execution statistics for the first SQL tuning set; the Plans After Change columns lists these values for the second SQL tuning set. Execution plans structures for both SQL tuning sets are shown at the end of the report.</p>
+<p>You can use these sections in the report to identify changes in execution plans between two SQL tuning sets. This is important because changes in execution plans may be a result of test changes that can have a direct impact to performance. When comparing two SQL tuning sets, SQL Performance Analyzer reports execution plan changes when a SQL statement has:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>One plan in both SQL tuning sets, but the plan structure is different</p>
+</li>
+<li>
+<p>More than one plan, and the number of plans in both SQL tuning sets are:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The same, but at least one plan in the second SQL tuning set is different from all plans in the first SQL tuning set</p>
+</li>
+<li>
+<p>Different</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>After evaluating the SQL statement and plan changes, determine if further action is required. If the SQL statement has regressed, perform one of the following actions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Tune the regressed SQL statement, as described in <span class="q">&#34;<a href="GUID-B85471DE-CC06-4E02-AFA6-AD207D94C8C8.htm">Tuning Regressed SQL Statements Using APIs</a>&#34;</span></p>
+</li>
+<li>
+<p>Create SQL plan baselines, as described in <span class="q">&#34;<a href="GUID-48F67DD6-70B6-49CC-B4B3-72F2D80E6DDD.htm">Creating SQL Plan Baselines Using APIs</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2747">
+<tr>
+<td class="cellalignment2754">
+<table class="cellalignment2752">
+<tr>
+<td class="cellalignment2751"><a href="GUID-42B29CF3-8A16-4025-9E27-085C5FFDF88D.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2751"><a href="GUID-B85471DE-CC06-4E02-AFA6-AD207D94C8C8.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2756">
+<table class="cellalignment2750">
+<tr>
+<td class="cellalignment2751"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2751"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2751"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2751"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2751"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2751"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

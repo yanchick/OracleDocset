@@ -1,0 +1,621 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-71040"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Calling%20Stored%20Procedures"></a><title>Calling Stored Procedures</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="This book describes how to develop, load, and run Java applications in Oracle Database."/>
+<meta name="dcterms.created" content="2014-06-30T4:25:1Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Java Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E50793-03"/>
+<meta name="dcterms.isVersionOf" content="JJDEV"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="chsix.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="cheight.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E50793-03.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">14/23</span> <!-- End Header -->
+<div id="JJDEV13280" class="chapter"><a id="CACIBAHF"></a>
+<h1 class="chapter"><span class="secnum">7</span> Calling <a id="sthref441"></a>Stored Procedures</h1>
+<p>After you load and publish a Java stored procedure, you can call it. This chapter describes the procedure for calling Java stored procedures in various contexts. It also describes how Oracle JVM handles SQL exceptions.</p>
+<p>This chapter contains the following sections:</p>
+<ul>
+<li>
+<p><a href="#CACFFHJH">Calling Java from the Top Level</a></p>
+</li>
+<li>
+<p><a href="#CACJEHJG">Calling Java from Database Triggers</a></p>
+</li>
+<li>
+<p><a href="#CACBBDBD">Calling Java from SQL DML</a></p>
+</li>
+<li>
+<p><a href="#CACEIHGC">Calling Java from PL/SQL</a></p>
+</li>
+<li>
+<p><a href="#CACJDIAC">Calling PL/SQL from Java</a></p>
+</li>
+<li>
+<p><a href="#CACGIFAD">How Oracle JVM Handles Exceptions</a></p>
+</li>
+</ul>
+<a id="CACFFHJH"></a>
+<div id="JJDEV13281" class="sect1">
+<h2 class="sect1"><a id="sthref442"></a>Calling Java from the Top Level</h2>
+<p>The SQL <code>CALL</code> statement lets you call Java methods, which are published at the top level, in PL/SQL packages, or in SQL object types. In SQL*Plus, you can run the <code>CALL</code> statement interactively using the following syntax:</p>
+<pre>CALL [schema_name.][{package_name | object_type_name}][@dblink_name]
+  { procedure_name ([param[, param]...])
+   | function_name ([param[, param]...]) INTO :host_variable};
+</pre>
+<p>where <code>param</code> is represented by the following syntax:</p>
+<pre>{literal | :host_variable}
+</pre>
+<p>Host variables are variables that are declared in a host environment. They must be prefixed with a colon. The following examples show that a host variable cannot appear twice in the same <code>CALL</code> statement and that a subprogram without parameters must be called with an empty parameter list:</p>
+<pre>CALL swap(:x, :x); -- illegal, duplicate host variables
+CALL balance() INTO :current_balance; -- () required
+</pre>
+<p>This section covers the following topics:</p>
+<ul>
+<li>
+<p><a href="#CACJDCIG">Redirecting Output</a></p>
+</li>
+<li>
+<p><a href="#CACCHEAA">Examples of Calling Java Stored Procedures From the Top Level</a></p>
+</li>
+</ul>
+<a id="CACJDCIG"></a>
+<div id="JJDEV13282" class="sect2">
+<h3 class="sect2"><a id="sthref443"></a><a id="sthref444"></a>Redirecting Output</h3>
+<p>On the server, the default output device is a trace file and not the user screen. As a result, <code>System.out</code> and <code>System.err</code> print output to the current trace files. To redirect output to the SQL*Plus text buffer, you must call the <code>set_output()</code> procedure in the <a id="sthref445"></a><a id="sthref446"></a><code>DBMS_JAVA</code> package, as follows:</p>
+<pre>SQL&gt; SET SERVEROUTPUT ON
+SQL&gt; CALL dbms_java.set_output(2000);
+</pre>
+<p>The minimum buffer size is 2,000 bytes, which is also the default size, and the maximum buffer size is 1,000,000 bytes. In the following example, the buffer size is increased to 5,000 bytes:</p>
+<pre>SQL&gt; SET SERVEROUTPUT ON SIZE 5000
+SQL&gt; CALL dbms_java.set_output(5000);
+</pre>
+<p>The output is displayed when the stored procedure exits.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CACCHEAA"></a>
+<div id="JJDEV13283" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Examples of Calling Java Stored Procedures From the Top Level</h3>
+<p>This section provides the following examples</p>
+<ul>
+<li>
+<p><a href="#CACGCGCB">Example 7-1, &#34;A Simple JDBC Stored Procedure&#34;</a></p>
+</li>
+<li>
+<p><a href="#CACFHDEI">Example 7-2, &#34;Fibonacci Sequence&#34;</a></p>
+</li>
+</ul>
+<div id="JJDEV13284" class="example">
+<p class="titleinexample"><a id="CACGCGCB"></a>Example 7-1 A Simple JDBC Stored Procedure</p>
+<p>In the following example, the <code>main()</code> method accepts the name of a database table, such as <code>employees</code>, and an optional <code>WHERE</code> clause specifying a condition, such as <code>salary &gt; 1500</code>. If you omit the condition, then the method deletes all rows from the table, else it deletes only those rows that meet the condition.</p>
+<pre>import java.sql.*;
+import oracle.jdbc.*;
+
+public class Deleter
+{
+  public static void main (String[] args) throws SQLException
+  {
+    Connection conn = DriverManager.getConnection(&#34;jdbc:default:connection:&#34;);
+    String sql = &#34;DELETE FROM &#34; + args[0];
+    if (args.length &gt; 1)
+      sql += &#34; WHERE &#34; + args[1];
+    try
+    {
+      Statement stmt = conn.createStatement();
+      stmt.executeUpdate(sql);
+      stmt.close();
+    }
+    catch (SQLException e)
+    {
+      System.err.println(e.getMessage());
+    }
+  }
+}
+</pre>
+<p>The <code>main()</code> method can take either one or two arguments. Usually, the <code>DEFAULT</code> clause is used to vary the number of arguments passed to a PL/SQL subprogram. However, this clause is not allowed in a call specification. As a result, you must overload two packaged procedures, as follows:</p>
+<pre>CREATE OR REPLACE PACKAGE pkg AS
+PROCEDURE delete_rows (table_name VARCHAR2);
+PROCEDURE delete_rows (table_name VARCHAR2, condition VARCHAR2);
+END;
+
+CREATE OR REPLACE PACKAGE BODY pkg AS
+PROCEDURE delete_rows (table_name VARCHAR2)
+AS LANGUAGE JAVA
+NAME &#39;Deleter.main(java.lang.String[])&#39;;
+
+PROCEDURE delete_rows (table_name VARCHAR2, condition VARCHAR2)
+AS LANGUAGE JAVA
+NAME &#39;Deleter.main(java.lang.String[])&#39;;
+END;
+</pre>
+<p>Now, you can call the <code>delete_rows</code> procedure, as follows:</p>
+<pre>SQL&gt; CALL pkg.delete_rows(&#39;employees&#39;, &#39;salary &gt; 1500&#39;);
+
+Call completed.
+
+SQL&gt; SELECT first_name, salary FROM employees;
+
+FIRST_NAME  SALARY
+--------- --------
+SMITH          800
+WARD          1250
+MARTIN        1250
+TURNER        1500
+ADAMS         1100
+JAMES          950
+MILLER        1300
+
+7 rows selected.
+</pre></div>
+<!-- class="example" -->
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You cannot overload top-level procedures.</div>
+<div id="JJDEV13285" class="example">
+<p class="titleinexample"><a id="CACFHDEI"></a>Example 7-2 Fibonacci Sequence</p>
+<p>Assume that the executable for the following Java class is stored in Oracle Database:</p>
+<pre>public class Fibonacci
+{
+  public static int fib (int n)
+  {
+    if (n == 1 || n == 2)
+      return 1;
+    else
+      return fib(n - 1) + fib(n - 2);
+  }
+}
+</pre>
+<p>The <code>Fibonacci</code> class has a method, <code>fib()</code>, which returns the <span class="italic">n</span>th Fibonacci number. The Fibonacci sequence, 1, 1, 2, 3, 5, 8, 13, 21, . . ., is recursive. Each term in the sequence, after the second term, is the sum of the two terms that immediately precede it. Because <code>fib()</code> returns a value, you must publish it as a function, as follows:</p>
+<pre>CREATE OR REPLACE FUNCTION fib (n NUMBER) RETURN NUMBER
+AS LANGUAGE JAVA
+NAME &#39;Fibonacci.fib(int) return int&#39;;
+</pre>
+<p>Next, you declare two SQL*Plus host variables and initialize the first one:</p>
+<pre>SQL&gt; VARIABLE n NUMBER
+SQL&gt; VARIABLE f NUMBER
+SQL&gt; EXECUTE :n := 7;
+
+PL/SQL procedure successfully completed.
+</pre>
+<p>Now, you can call the <code>fib()</code> function. In a <code>CALL</code> statement, host variables must be prefixed with a colon. The function can be called, as follows:</p>
+<pre>SQL&gt; CALL fib(:n) INTO :f;
+
+Call completed.
+
+SQL&gt; PRINT f
+
+F
+----------
+13
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CACJEHJG"></a>
+<div id="JJDEV13286" class="sect1">
+<h2 class="sect1">Calling Java from <a id="sthref447"></a><a id="sthref448"></a><a id="sthref449"></a>Database Triggers</h2>
+<p>A <a id="sthref450"></a><a id="sthref451"></a>database trigger is a stored program that is associated with a specific table or view. Oracle Database runs the trigger automatically whenever a data manipulation language (DML) operation affects the table or view.</p>
+<p>When a triggering event occurs, the trigger runs and either a PL/SQL block or a <code>CALL</code> <a id="sthref452"></a><a id="sthref453"></a>statement performs the action. A statement trigger runs once, before or after the <a id="sthref454"></a><a id="sthref455"></a>triggering event. A row trigger runs once for each row affected by the triggering event.</p>
+<p>In a database trigger, you can reference the new and old values of changing rows by using the correlation names <code>new</code> and <code>old</code>. In the trigger-action block or <code>CALL</code> statement, column names must be prefixed with <code>:new</code> or <code>:old</code>.</p>
+<p>The following are examples of calling Java stored procedures from a database trigger:</p>
+<ul>
+<li>
+<p><a href="#CACCDAAF">Example 7-3, &#34;Calling Java Stored Procedure from Database Trigger - I&#34;</a></p>
+</li>
+<li>
+<p><a href="#CACBBIIC">Example 7-4, &#34;Calling Java Stored Procedure from Database Trigger - II&#34;</a></p>
+</li>
+</ul>
+<div id="JJDEV13287" class="example">
+<p class="titleinexample"><a id="CACCDAAF"></a>Example 7-3 Calling Java Stored Procedure from Database Trigger - I</p>
+<p>Assume you want to create a database trigger that uses the following Java class to log out-of-range salary increases:</p>
+<pre>import java.sql.*;
+import java.io.*;
+import oracle.jdbc.*;
+
+public class DBTrigger
+{
+  public static void logSal (int empID, float oldSal, float newSal)
+                                                        throws SQLException
+  {
+    Connection conn = DriverManager.getConnection(&#34;jdbc:default:connection:&#34;);
+    String sql = &#34;INSERT INTO sal_audit VALUES (?, ?, ?)&#34;;
+    try
+    {
+      PreparedStatement pstmt = conn.prepareStatement(sql);
+      pstmt.setInt(1, empID);
+      pstmt.setFloat(2, oldSal);
+      pstmt.setFloat(3, newSal);
+      pstmt.executeUpdate();
+      pstmt.close();
+    }
+    catch (SQLException e)
+    {
+      System.err.println(e.getMessage());
+    }
+  }
+}
+</pre>
+<p>The <code>DBTrigger</code> class has one method, <code>logSal()</code>, which inserts a row into the <code>sal_audit</code> table. Because <code>logSal()</code> is a <code>void</code> method, you must publish it as a procedure:</p>
+<pre>CREATE OR REPLACE PROCEDURE log_sal (
+ emp_id NUMBER,
+ old_sal NUMBER,
+ new_sal NUMBER
+)
+AS LANGUAGE JAVA
+NAME &#39;DBTrigger.logSal(int, float, float)&#39;;
+</pre>
+<p>Next, create the <code>sal_audit</code> table, as follows:</p>
+<pre>CREATE TABLE sal_audit (
+ empno NUMBER,
+ oldsal NUMBER,
+ newsal NUMBER
+);
+</pre>
+<p>Finally, create the database trigger, which fires when a salary increase exceeds 20 percent:</p>
+<pre>CREATE OR REPLACE TRIGGER sal_trig
+AFTER UPDATE OF salary ON employees
+FOR EACH ROW
+WHEN (new.salary &gt; 1.2 * old.salary)
+CALL log_sal(:new.employee_id, :old.salary, :new.salary);
+</pre>
+<p>When you run the following <code>UPDATE</code> statement, it updates all rows in the <code>employees</code> table:</p>
+<pre>SQL&gt; UPDATE employee SET salary = salary + 300;
+</pre>
+<p>For each row that meets the condition set in the <code>WHEN</code> clause of the trigger, the trigger runs and the Java method inserts a row into the <code>sal_audit</code> table.</p>
+<pre>SQL&gt; SELECT * FROM sal_audit;
+
+     EMPNO     OLDSAL     NEWSAL
+---------- ---------- ----------
+      7369        800       1100
+      7521       1250       1550
+      7654       1250       1550
+      7876       1100       1400
+      7900        950       1250
+      7934       1300       1600
+
+6 rows selected.
+</pre></div>
+<!-- class="example" -->
+<div id="JJDEV13288" class="example">
+<p class="titleinexample"><a id="CACBBIIC"></a>Example 7-4 Calling Java Stored Procedure from Database Trigger - II</p>
+<p>Assume you want to create a trigger that inserts rows into a database view, which is defined as follows:</p>
+<pre>CREATE VIEW emps AS
+SELECT empno, ename, &#39;Sales&#39; AS dname FROM sales
+UNION ALL
+SELECT empno, ename, &#39;Marketing&#39; AS dname FROM mktg;
+</pre>
+<p>The <code>sales</code> and <code>mktg</code> database tables are defined as:</p>
+<pre>CREATE TABLE sales (empno NUMBER(4), ename VARCHAR2(10));
+CREATE TABLE mktg (empno NUMBER(4), ename VARCHAR2(10));
+</pre>
+<p>You must write an <code>INSTEAD OF</code> trigger because rows cannot be inserted into a view that uses set operators, such as <code>UNION ALL</code>. Instead, the trigger will insert rows into the base tables.</p>
+<p>First, add the following Java method to the <code>DBTrigger</code> class, which is defined in <a href="#CACCDAAF">Example 7-3</a>:</p>
+<pre>public static void addEmp (int empNo, String empName, String deptName)
+                                                              throws SQLException
+{
+  Connection conn = DriverManager.getConnection(&#34;jdbc:default:connection:&#34;);
+  String tabName = (deptName.equals(&#34;Sales&#34;) ? &#34;sales&#34; : &#34;mktg&#34;);
+  String sql = &#34;INSERT INTO &#34; + tabName + &#34; VALUES (?, ?)&#34;;
+  try
+  {
+    PreparedStatement pstmt = conn.prepareStatement(sql);
+    pstmt.setInt(1, empNo);
+    pstmt.setString(2, empName);
+    pstmt.executeUpdate();
+    pstmt.close();
+  }
+  catch (SQLException e)
+  {
+    System.err.println(e.getMessage());
+  }
+}
+</pre>
+<p>The <code>addEmp()</code> method inserts a row into the <code>sales</code> or <code>mktg</code> table depending on the value of the <code>deptName</code> parameter. Write the call specification for this method, as follows:</p>
+<pre>CREATE OR REPLACE PROCEDURE add_emp (
+ emp_no NUMBER,
+ emp_name VARCHAR2,
+ dept_name VARCHAR2
+)
+AS LANGUAGE JAVA
+NAME &#39;DBTrigger.addEmp(int, java.lang.String, java.lang.String)&#39;;
+</pre>
+<p>Next, create the <code>INSTEAD OF</code> trigger, as follows:</p>
+<pre>CREATE OR REPLACE TRIGGER emps_trig
+INSTEAD OF INSERT ON emps
+FOR EACH ROW
+CALL add_emp(:new.empno, :new.ename, :new.dname);
+</pre>
+<p>When you run each of the following <code>INSERT</code> statements, the trigger runs and the Java method inserts a row into the appropriate base table:</p>
+<pre>SQL&gt; INSERT INTO emps VALUES (8001, &#39;Chand&#39;, &#39;Sales&#39;);
+SQL&gt; INSERT INTO emps VALUES (8002, &#39;Van Horn&#39;, &#39;Sales&#39;);
+SQL&gt; INSERT INTO emps VALUES (8003, &#39;Waters&#39;, &#39;Sales&#39;);
+SQL&gt; INSERT INTO emps VALUES (8004, &#39;Bellock&#39;, &#39;Marketing&#39;);
+SQL&gt; INSERT INTO emps VALUES (8005, &#39;Perez&#39;, &#39;Marketing&#39;);
+SQL&gt; INSERT INTO emps VALUES (8006, &#39;Foucault&#39;, &#39;Marketing&#39;);
+
+SQL&gt; SELECT * FROM sales;
+
+     EMPNO ENAME
+---------- ----------
+      8001 Chand
+      8002 Van Horn
+      8003 Waters
+
+SQL&gt; SELECT * FROM mktg;
+
+     EMPNO ENAME
+---------- ----------
+      8004 Bellock
+      8005 Perez
+      8006 Foucault
+
+SQL&gt; SELECT * FROM emps;
+
+     EMPNO ENAME      DNAME
+---------- ---------- ---------
+      8001 Chand      Sales
+      8002 Van Horn   Sales
+      8003 Waters     Sales
+      8004 Bellock    Marketing
+      8005 Perez      Marketing
+      8006 Foucault   Marketing
+</pre></div>
+<!-- class="example" --></div>
+<!-- class="sect1" -->
+<a id="CACBBDBD"></a>
+<div id="JJDEV13289" class="sect1">
+<h2 class="sect1"><a id="sthref456"></a>Calling Java from SQL DML</h2>
+<p>If you publish Java methods as functions, then you can call them from SQL <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>CALL</code>, <code>EXPLAIN PLAN</code>, <code>LOCK TABLE</code>, and <code>MERGE</code> statements. For example, assume that the executable for the following Java class is stored in Oracle Database:</p>
+<pre>public class Formatter
+{
+  public static String formatEmp (String empName, String jobTitle)
+  {
+    empName = empName.substring(0,1).toUpperCase() +
+                                     empName.substring(1).toLowerCase();
+    jobTitle = jobTitle.toLowerCase();
+    if (jobTitle.equals(&#34;analyst&#34;))
+      return (new String(empName + &#34; is an exempt analyst&#34;));
+    else
+      return (new String(empName + &#34; is a non-exempt &#34; + jobTitle));
+  }
+}
+</pre>
+<p>The <code>Formatter</code> class has the <code>formatEmp()</code> method, which returns a formatted string containing a staffer&#39;s name and job status. Write the call specification for this method, as follows:</p>
+<pre>CREATE OR REPLACE FUNCTION format_emp (ename VARCHAR2, job VARCHAR2)
+RETURN VARCHAR2
+AS LANGUAGE JAVA
+NAME &#39;Formatter.formatEmp (java.lang.String, java.lang.String)
+return java.lang.String&#39;;
+</pre>
+<p>Now, call the <code>format_emp</code> function to format a list of employees:</p>
+<pre>SQL&gt; SELECT format_emp(first_name, job_id) AS &#34;Employees&#34; FROM employees
+  2   WHERE job_id NOT IN (&#39;AC_MGR&#39;, &#39;AD_PRES&#39;) ORDER BY first_name;
+
+Employees
+--------------------------------------------
+Adams is a non-exempt clerk
+Allen is a non-exempt salesman
+Ford is an exempt analyst
+James is a non-exempt clerk
+Martin is a non-exempt salesman
+Miller is a non-exempt clerk
+Scott is an exempt analyst
+Smith is a non-exempt clerk
+Turner is a non-exempt salesman
+Ward is a non-exempt salesman
+</pre>
+<p class="subhead2"><a id="JJDEV13290"></a><a id="sthref457"></a>Restrictions</p>
+<p>A Java method must adhere to the following rules, which are meant to control side effects:</p>
+<ul>
+<li>
+<p>When you call a method from a <code>SELECT</code> statement or parallel <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> statements, the method cannot modify any database tables.</p>
+</li>
+<li>
+<p>When you call a method from an <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> statement, the method cannot query or modify any database tables modified by that statement.</p>
+</li>
+<li>
+<p>When you call a method from a <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> statement, the method cannot run SQL transaction control statements, such as <code>COMMIT</code>, session control statements, such as <code>SET ROLE</code>, or system control statements, such as <code>ALTER SYSTEM</code>. In addition, the method cannot run data definition language (DDL) statements, such as <code>CREATE</code>, because they are followed by an automatic commit.</p>
+</li>
+</ul>
+<p>If any SQL statement inside the method violates any of the preceding rules, then you get an error at run time.</p>
+</div>
+<!-- class="sect1" -->
+<a id="CACEIHGC"></a>
+<div id="JJDEV13291" class="sect1">
+<h2 class="sect1"><a id="sthref458"></a>Calling <a id="sthref459"></a>Java from PL/SQL</h2>
+<p>You can call Java stored procedures from any PL/SQL block, subprogram, or package. For example, assume that the executable for the following Java class is stored in Oracle Database:</p>
+<pre>import java.sql.*;
+import oracle.jdbc.*;
+
+public class Adjuster
+{
+  public static void raiseSalary (int empNo, float percent) throws SQLException
+  {
+    Connection conn = DriverManager.getConnection(&#34;jdbc:default:connection:&#34;);
+    String sql = &#34;UPDATE employees SET salary = salary * ? WHERE employee_id = ?&#34;;
+    try
+    {
+      PreparedStatement pstmt = conn.prepareStatement(sql);
+      pstmt.setFloat(1, (1 + percent / 100));
+      pstmt.setInt(2, empNo);
+      pstmt.executeUpdate();
+      pstmt.close();
+    }
+    catch (SQLException e)
+    {
+      System.err.println(e.getMessage());
+    }
+  }
+}
+</pre>
+<p>The <code>Adjuster</code> class has one method, which raises the salary of an employee by a given percentage. Because <code>raiseSalary()</code> is a <code>void</code> method, you must publish it as a procedure, as follows:</p>
+<pre>CREATE OR REPLACE PROCEDURE raise_salary (empno NUMBER, pct NUMBER)
+AS LANGUAGE JAVA
+NAME &#39;Adjuster.raiseSalary(int, float)&#39;;
+</pre>
+<p>In the following example, you call the <code>raise_salary</code> procedure from an anonymous PL/SQL block:</p>
+<pre>DECLARE
+emp_id NUMBER;
+percent NUMBER;
+BEGIN
+-- get values for emp_id and percent
+raise_salary(emp_id, percent);
+...
+END;
+</pre>
+<p>In the following example, you call the <code>row_count</code> function, which defined in <a href="chsix.htm#BABIBHCI">Example 6-3</a>, from a standalone PL/SQL stored procedure:</p>
+<pre>CREATE PROCEDURE calc_bonus (emp_id NUMBER, bonus OUT NUMBER) AS
+emp_count NUMBER;
+...
+BEGIN
+emp_count := row_count(&#39;employees&#39;);
+...
+END;
+</pre>
+<p>In the following example, you call the <code>raise_sal</code> method of the <code>Employee</code> object type, which is defined in <a href="chsix.htm#BABDJIHE">&#34;Implementing Object Type Methods&#34;</a>, from an anonymous PL/SQL block:</p>
+<pre>DECLARE
+emp_id NUMBER(4);
+v emp_type;
+BEGIN
+-- assign a value to emp_id
+SELECT VALUE(e) INTO v FROM emps e WHERE empno = emp_id;
+v.raise_sal(500);
+UPDATE emps e SET e = v WHERE empno = emp_id;
+...
+END;
+</pre></div>
+<!-- class="sect1" -->
+<a id="CACJDIAC"></a>
+<div id="JJDEV13292" class="sect1">
+<h2 class="sect1">Calling PL/SQL from Java</h2>
+<p>Java Database Connectivity (JDBC) and SQLJ enable you to call PL/SQL stored functions and procedures. For example, you want to call the following stored function, which returns the balance of a specified bank account:</p>
+<pre>FUNCTION balance (acct_id NUMBER) RETURN NUMBER IS
+acct_bal NUMBER;
+BEGIN
+SELECT bal INTO acct_bal FROM accts
+WHERE acct_no = acct_id;
+RETURN acct_bal;
+END;
+</pre>
+<p>In a JDBC program, a call to the <code>balance</code> function can be written as follows:</p>
+<pre>...
+CallableStatement cstmt = conn.prepareCall(&#34;{? = CALL balance(?)}&#34;);
+cstmt.registerOutParameter(1, Types.FLOAT);
+cstmt.setInt(2, acctNo);
+cstmt.executeUpdate();
+float acctBal = cstmt.getFloat(1);
+...
+</pre>
+<p>In a SQLJ program, the call can be written as follows:</p>
+<pre>...
+#sql acctBal = {VALUES(balance(:IN acctNo))};
+...
+</pre></div>
+<!-- class="sect1" -->
+<a id="CACGIFAD"></a>
+<div id="JJDEV13293" class="sect1">
+<h2 class="sect1">How <a id="sthref460"></a>Oracle JVM Handles Exceptions</h2>
+<p>Java exceptions are objects and have a naming and inheritance hierarchy. As a result, you can substitute a subexception, that is, a subclass of an exception class, for its superexception, that is, the superclass of an exception class.</p>
+<p>All Java exception objects support the <code>toString()</code> method, which returns the fully qualified name of the exception class concatenated to an optional string. Typically, the string contains data-dependent information about the exceptional condition. Usually, the code that constructs the exception associates the string with it.</p>
+<p>When a Java stored procedure runs a SQL statement, any exception thrown is materialized to the procedure as a subclass of <code>java.sql.SQLException</code>. This class has the <code>getErrorCode()</code> and <code>getMessage()</code> methods, which return the Oracle error code and message, respectively.</p>
+<p>If a stored procedure called from SQL or PL/SQL throws an exception and is not caught by Java, then the following error message appears:</p>
+<pre>ORA-29532 Java call terminated by uncaught Java exception
+</pre>
+<p>This is how all uncaught exceptions, including non-SQL exceptions, are reported.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment3995">
+<tr>
+<td class="cellalignment4004">
+<table class="cellalignment4000">
+<tr>
+<td class="cellalignment3999"><a href="chsix.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment3999"><a href="cheight.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4006">
+<table class="cellalignment3998">
+<tr>
+<td class="cellalignment3999"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment3999"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment3999"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment3999"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment3999"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment3999"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

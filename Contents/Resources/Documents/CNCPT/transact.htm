@@ -1,0 +1,1294 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-4110"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Transactions"></a><title>Transactions</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="This chapter defines a transaction and describes how the database processes transactions."/>
+<meta name="keywords" content="transactions, ACID properties, transaction ID, SQL, definition, committing transactions, defined, rolling back, tables, transaction, transaction tables, undo segments, SET TRANSACTION statement, executable, beginning, terminating the application and, ending transactions, ending, deadlocks and, triggers, effect of rollbacks, savepoints, implicit, rollback, statement-level, statement-level rollback, execution, atomicity, statement-level, statement-level atomicity, SAVEPOINT statement, ROLLBACK statement, naming, distributed transactions, distributed, SGA (system global area), redo log buffer, rollback segments and, active, active transactions, savepoints in, to a savepoint, partially, rolling back to, enqueued, enqueued transactions, lost commit problem, committing, Application Continuity, benefits, Transaction Guard, APIs (application program interfaces), JDBC, architecture, pragmas, PL/SQL, autonomous, within a PL/SQL block, recoverer process (RECO), in-doubt transactions, in-doubt, resolving automatically"/>
+<meta name="dcterms.created" content="2017-07-10T11:33:29Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Concepts"/>
+<meta name="dcterms.identifier" content="E41396-15"/>
+<meta name="dcterms.isVersionOf" content="CNCPT"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1993, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="consist.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="part_dbarch.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41396-15.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-B97790CB-DF82-442D-B9D5-50CCE6BF9FBD"></a> <span id="PAGE" style="display:none;">17/34</span> <!-- End Header -->
+<script>
+//<![CDATA[
+window.name='transact'
+//]]>
+</script> <script>
+    function footdisplay(footnum,footnote) {
+    var msg = window.open('about:blank', 'NewWindow' + footnum,
+        'directories=no,height=100,location=no,menubar=no,resizable=yes,' +
+        'scrollbars=yes,status=no,toolbar=no,width=598');
+    msg.document.open('text/html');
+    msg.document.write('<!DOCTYPE html ');
+    msg.document.write('PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" ');
+    msg.document.write('"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'); 
+    msg.document.write('<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" ><head><title>');
+   
+    msg.document.write('Footnote&amp;nbsp; ' + footnum);
+    msg.document.write('<\/title><meta http-equiv="Content-Type" ');
+    msg.document.write('content="text/html; charset=utf-8" />');
+    msg.document.write('');
+    msg.document.write('<style> <![CDATA[ ');
+    msg.document.write('h1 {text-align: center; font-size: 14pt;}');
+    msg.document.write('fieldset {border: none;}');
+    msg.document.write('form {text-align: center;}');
+    msg.document.write(' ]]\u003e <\/style>');
+    msg.document.write('<\/head><body><div id="footnote"><h1>Footnote&nbsp; ' + footnum + '<\/h1><p>');
+    msg.document.write(footnote);
+    msg.document.write('<\/p><form action="" method="post"><fieldset>');
+    msg.document.write('<input type="button" value="OK" ');
+    msg.document.write('onclick="window.close();" />');
+    msg.document.write('<\/fieldset><\/form><\/div><\/body><\/html>');
+    msg.document.close();
+    setTimeout(function() {
+        var height = msg.document.getElementById('footnote').offsetHeight;
+        msg.resizeTo(598, height + 100);
+    }
+    , 100);
+    msg.focus();
+}
+</script><noscript>
+<p>The script content on this page is for navigation purposes only and does not alter the content in any way.</p>
+</noscript><a id="CNCPT016"></a>
+<h1 id="CNCPT-GUID-B97790CB-DF82-442D-B9D5-50CCE6BF9FBD" class="sect1"><span class="enumeration_chapter">10</span> Transactions</h1>
+<div>
+<p>This chapter defines a transaction and describes how the database processes transactions.</p>
+<p>This chapter contains the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="transact.htm#GUID-31319EA7-994C-4D25-8814-0214ABD3CBDA" title="A transaction is a logical, atomic unit of work that contains one or more SQL statements.">Introduction to Transactions</a></p>
+</li>
+<li>
+<p><a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361" title="Transaction control is the management of changes made by DML statements and the grouping of DML statements into transactions.">Overview of Transaction Control</a></p>
+</li>
+<li>
+<p><a href="transact.htm#GUID-47BCD081-8FFF-4D13-A0B1-F531521BC6C3" title="When designing for idempotence, developers must address the problem of communication failures after submission of commit statements. Commit messages do not persist in the database and so cannot be retrieved after a failure.In this scenario, the commit message is lost because of a recoverable error.">Overview of Transaction Guard</a></p>
+</li>
+<li>
+<p><a href="transact.htm#GUID-0B463F72-73C9-4EB6-B98D-5EC828CDB1E7" title="Application Continuity attempts to mask outages from applications by replaying incomplete application requests after unplanned and planned outages. In this context, a request is a unit of work from the application. Typically, a request corresponds to the DML statements and other database calls of a single web request on a single database connection. In general, a request is demarcated by the calls made between check-out and check-in of a database connection from a connection pool.">Overview of Application Continuity</a></p>
+</li>
+<li>
+<p><a href="transact.htm#GUID-C0C61571-5175-400D-AEFC-FDBFE4F87188" title="An autonomous transaction is an independent transaction that can be called from another transaction, which is the main transaction. You can suspend the calling transaction, perform SQL operations and commit or undo them in the autonomous transaction, and then resume the calling transaction.">Overview of Autonomous Transactions</a></p>
+</li>
+<li>
+<p><a href="transact.htm#GUID-47231512-4A3E-4E59-86BD-332E1FB88A88" title="An in-doubt distributed transaction occurs when a two-phase commit was interrupted by any type of system or network failure.">Overview of Distributed Transactions</a></p>
+</li>
+</ul>
+</div>
+<a id="CNCPT117"></a>
+<div class="props_rev_3"><a id="GUID-31319EA7-994C-4D25-8814-0214ABD3CBDA"></a>
+<h2 id="CNCPT-GUID-31319EA7-994C-4D25-8814-0214ABD3CBDA" class="sect2">Introduction to Transactions</h2>
+<div>
+<p>A <span class="bold">transaction</span> is a logical, atomic unit of work that contains one or more SQL statements.</p>
+<p>A transaction groups SQL statements so that they are either all committed, which means they are applied to the database, or all rolled back, which means they are undone from the database. Oracle Database assigns every transaction a unique identifier called a <a href="glossary.htm#GUID-71C31D71-F2E8-4FB9-9010-062C1C407CEF"><span class="xrefglossterm">transaction ID</span></a>.</p>
+<p>All Oracle transactions obey the basic properties of a database transaction, known as <a href="glossary.htm#GUID-2684886B-AB0E-4F65-9B24-688511AED791"><span class="xrefglossterm">ACID properties</span></a>. ACID is an acronym for the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Atomicity</p>
+<p>All tasks of a transaction are performed or none of them are. There are no partial transactions. For example, if a transaction starts updating 100 rows, but the system fails after 20 updates, then the database rolls back the changes to these 20 rows.</p>
+</li>
+<li>
+<p>Consistency</p>
+<p>The transaction takes the database from one consistent state to another consistent state. For example, in a banking transaction that debits a savings account and credits a checking account, a failure must not cause the database to credit only one account, which would lead to inconsistent data.</p>
+</li>
+<li>
+<p>Isolation</p>
+<p>The effect of a transaction is not visible to other transactions until the transaction is committed. For example, one user updating the <code class="codeph">hr.employees</code> table does not see the uncommitted changes to <code class="codeph">employees</code> made concurrently by another user. Thus, it appears to users as if transactions are executing serially.</p>
+</li>
+<li>
+<p>Durability</p>
+<p>Changes made by committed transactions are permanent. After a transaction completes, the database ensures through its recovery mechanisms that changes from the transaction are not lost.</p>
+</li>
+</ul>
+<p>The use of transactions is one of the most important ways that a database management system differs from a file system.</p>
+</div>
+<a id="CNCPT88951"></a><a id="CNCPT037"></a>
+<div class="props_rev_3"><a id="GUID-A049FE81-8B67-4386-B599-9CDD7E6B6C59"></a>
+<h3 id="CNCPT-GUID-A049FE81-8B67-4386-B599-9CDD7E6B6C59" class="sect3">Sample Transaction: Account Debit and Credit</h3>
+<div>
+<p>To illustrate the concept of a transaction, consider a banking database.</p>
+<p>When a customer transfers money from a savings account to a checking account, the transaction must consist of three separate operations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Decrement the savings account</p>
+</li>
+<li>
+<p>Increment the checking account</p>
+</li>
+<li>
+<p>Record the transaction in the transaction journal</p>
+</li>
+</ul>
+<p>Oracle Database must allow for two situations. If all three SQL statements maintain the accounts in proper balance, then the effects of the transaction can be applied to the database. However, if a problem such as insufficient funds, invalid account number, or a hardware failure prevents one or two of the statements in the transaction from completing, then the database must roll back the entire transaction so that the balance of all accounts is correct.</p>
+<p>The following graphic illustrates a banking transaction. The first statement subtracts $500 from savings account 3209. The second statement adds $500 to checking account 3208. The third statement inserts a record of the transfer into the journal table. The final statement commits the transaction.</p>
+<div class="figure" id="GUID-A049FE81-8B67-4386-B599-9CDD7E6B6C59__I974">
+<p class="titleinfigure">Figure 10-1 A Banking Transaction</p>
+<img width="504" height="368" src="img/GUID-ABBF8589-449F-44BA-946B-858569B2ECB6-default.gif" alt="Description of Figure 10-1 follows" title="Description of Figure 10-1 follows"/><br/>
+<a href="img_text/GUID-ABBF8589-449F-44BA-946B-858569B2ECB6-print.htm">Description of &#34;Figure 10-1 A Banking Transaction&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="CNCPT038"></a>
+<div class="props_rev_3"><a id="GUID-7690181F-8293-47B9-ADC1-905BD9C3AF57"></a>
+<h3 id="CNCPT-GUID-7690181F-8293-47B9-ADC1-905BD9C3AF57" class="sect3">Structure of a Transaction</h3>
+<div>
+<p>A database transaction consists of one or more statements. Specifically, a transaction consists of one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>One or more data manipulation language (DML) statements that together constitute an atomic change to the database</p>
+</li>
+<li>
+<p>One data definition language (DDL) statement</p>
+</li>
+</ul>
+<p>A transaction has a beginning and an end.</p>
+<div class="infoboxnotealso" id="GUID-7690181F-8293-47B9-ADC1-905BD9C3AF57__GUID-FA8AAADC-7384-4FF1-9D20-FDD1F0662E7E">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="sqllangu.htm#GUID-662EE4B0-7D5E-43F5-806D-A2AE404D77BF" title="All operations performed on the information in an Oracle database are run using SQL statements. A SQL statement is a computer program or instruction that consists of identifiers, parameters, variables, names, data types, and SQL reserved words.">Overview of SQL Statements</a>&#34;</span></p>
+</div>
+</div>
+<a id="CNCPT88952"></a>
+<div class="props_rev_3"><a id="GUID-E3FB3DC3-3317-4589-BADD-D89A3547F87D"></a>
+<h4 id="CNCPT-GUID-E3FB3DC3-3317-4589-BADD-D89A3547F87D" class="sect4">Beginning of a Transaction</h4>
+<div>
+<p>A transaction begins when the first executable SQL statement is encountered.</p>
+<p>An <a href="glossary.htm#GUID-2F2F02A4-2405-4A0A-ABAF-91DB48DD4B82"><span class="xrefglossterm">executable SQL statement</span></a> is a SQL statement that generates calls to a <a href="glossary.htm#GUID-CFB1A30E-76B6-44EA-839E-9E63C8DA31AC"><span class="xrefglossterm">database instance</span></a>, including DML and DDL statements and the <code class="codeph">SET TRANSACTION</code> statement.</p>
+<p>When a transaction begins, Oracle Database assigns the transaction to an available <a href="glossary.htm#GUID-297B963A-989C-4720-B061-A2352FF72892"><span class="xrefglossterm">undo data</span></a> segment to record the undo entries for the new transaction. A transaction ID is not allocated until an undo segment and <a href="glossary.htm#GUID-BFF71130-2760-4C64-8829-7772C803FBE7"><span class="xrefglossterm">transaction table</span></a> slot are allocated, which occurs during the first DML statement. A transaction ID is unique to a transaction and represents the undo segment number, slot, and sequence number.</p>
+<p>The following example execute an <code class="codeph">UPDATE</code> statement to begin a transaction and queries <code class="codeph">V$TRANSACTION</code> for details about the transaction:</p>
+<pre dir="ltr">SQL&gt; UPDATE hr.employees SET salary=salary; 
+
+107 rows updated.
+ 
+SQL&gt; SELECT XID AS &#34;txn id&#34;, XIDUSN AS &#34;undo seg&#34;, XIDSLOT AS &#34;slot&#34;, 
+  2  XIDSQN AS &#34;seq&#34;, STATUS AS &#34;txn status&#34;
+  3  FROM V$TRANSACTION;
+ 
+txn id             undo seg       slot        seq txn status
+---------------- ---------- ---------- ---------- ----------------
+0600060037000000          6          6         55 ACTIVE
+</pre>
+<div class="infoboxnotealso" id="GUID-E3FB3DC3-3317-4589-BADD-D89A3547F87D__GUID-A3625BA5-F209-4844-88DE-84C49CDBCFCF">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="logical.htm#GUID-6E206D3A-E0E7-4B23-9C41-516FB35BC3FE" title="Oracle Database maintains records of the actions of transactions, collectively known as undo data.">Undo Segments</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="CNCPT88953"></a>
+<div class="props_rev_3"><a id="GUID-510DF997-BA9C-4431-95EF-A0622881EC9C"></a>
+<h4 id="CNCPT-GUID-510DF997-BA9C-4431-95EF-A0622881EC9C" class="sect4">End of a Transaction</h4>
+<div>
+<p>A transaction can end under different circumstances.</p>
+<p>A transaction ends when any of the following actions occurs:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A user issues a <code class="codeph">COMMIT</code> or <code class="codeph">ROLLBACK</code> statement <span class="italic">without</span> a <code class="codeph">SAVEPOINT</code> clause.</p>
+<p>In a <a href="glossary.htm#GUID-0680EB2C-ADF4-431A-A259-FB2227E5AA93"><span class="xrefglossterm">commit</span></a>, a user explicitly or implicitly requested that the changes in the transaction be made permanent. Changes made by the transaction are permanent and visible to other users only after a transaction commits. The transaction shown in <span class="q">&#34;<a href="transact.htm#GUID-A049FE81-8B67-4386-B599-9CDD7E6B6C59" title="To illustrate the concept of a transaction, consider a banking database.">Sample Transaction: Account Debit and Credit</a>&#34;</span> ends with a commit.</p>
+</li>
+<li>
+<p>A user runs a DDL command such as <code class="codeph">CREATE</code>, <code class="codeph">DROP</code>, <code class="codeph">RENAME</code>, or <code class="codeph">ALTER</code>.</p>
+<p>The database issues an implicit <code class="codeph">COMMIT</code> statement before and after every DDL statement. If the current transaction contains DML statements, then Oracle Database first commits the transaction and then runs and commits the DDL statement as a new, single-statement transaction.</p>
+</li>
+<li>
+<p>A user exits normally from most Oracle Database utilities and tools, causing the current transaction to be implicitly committed. The commit behavior when a user disconnects is application-dependent and configurable.</p>
+<div class="infobox-note" id="GUID-510DF997-BA9C-4431-95EF-A0622881EC9C__GUID-FE2BC2EA-ECED-4B0E-BAD7-B60F09830E6B">
+<p class="notep1">Note:</p>
+<p>Applications should always explicitly commit or undo transactions before program termination.</p>
+</div>
+</li>
+<li>
+<p>A client process terminates abnormally, causing the transaction to be implicitly rolled back using metadata stored in the transaction table and the undo segment.</p>
+</li>
+</ul>
+<p>After one transaction ends, the next executable SQL statement automatically starts the following transaction. The following example executes an <code class="codeph">UPDATE</code> to start a transaction, ends the transaction with a <code class="codeph">ROLLBACK</code> statement, and then executes an <code class="codeph">UPDATE</code> to start a new transaction (note that the transaction IDs are different):</p>
+<pre dir="ltr">SQL&gt; UPDATE hr.employees SET salary=salary; 
+107 rows updated.
+ 
+SQL&gt; SELECT XID, STATUS FROM V$TRANSACTION;
+ 
+XID              STATUS
+---------------- ----------------
+0800090033000000 ACTIVE
+ 
+SQL&gt; ROLLBACK;
+ 
+Rollback complete.
+ 
+SQL&gt; SELECT XID FROM V$TRANSACTION;
+ 
+no rows selected
+ 
+SQL&gt; UPDATE hr.employees SET last_name=last_name;
+ 
+107 rows updated.
+ 
+SQL&gt; SELECT XID, STATUS FROM V$TRANSACTION;
+ 
+XID              STATUS
+---------------- ----------------
+0900050033000000 ACTIVE
+</pre>
+<div class="infoboxnotealso" id="GUID-510DF997-BA9C-4431-95EF-A0622881EC9C__GUID-53EDFBB7-6436-4DB3-9CA6-617DFB9BA4F3">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="cncptdba.htm#GUID-FA659979-25B7-4611-AA8D-48B5404301FE" title="Oracle provides several tools to simplify the task of installing and configuring Oracle Database software. Oracle Net Services provides enterprise wide connectivity solutions in distributed, heterogeneous computing environments. Oracle Net, a component of Oracle Net Services, enables a network session from a client application to a database.SQL*Loader loads data from external files, called data files (not to be confused with the internal database data files), into database tables. It has a powerful data parsing engine that puts little limitation on the format of the data in the data file. Oracle Data Pump enables high-speed movement of data and metadata from one database to another.ADRCI is a command-line utility that enables you to investigate problems, view health check reports, and package and upload first-failure data to Oracle Support.">Tools for Database Administrators</a>&#34;</span> and <span class="q">&#34;<a href="cncptdev.htm#GUID-D1C1BC1D-03C7-4A18-BB88-0D76F311DAF0" title="Oracle provides several tools for use in developing database applications. This section describes some commonly used development tools.">Tools for Database Developers</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink SQLRF01110" target="_blank" href="../SQLRF/statements_4011.htm#SQLRF01110"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about <code class="codeph">COMMIT</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1115"></a>
+<div class="props_rev_3"><a id="GUID-5A632477-AC9E-4BC7-BB06-26B64837BF90"></a>
+<h3 id="CNCPT-GUID-5A632477-AC9E-4BC7-BB06-26B64837BF90" class="sect3">Statement-Level Atomicity</h3>
+<div>
+<p>Oracle Database supports <span class="bold">statement-level atomicity</span>, which means that a SQL statement is an atomic unit of work and either completely succeeds or completely fails.</p>
+<p>A successful statement is different from a committed transaction. A single SQL statement executes successfully if the database parses and runs it without error as an atomic unit, as when all rows are changed in a multirow update.</p>
+<p>If a SQL statement causes an error during execution, then it is not successful and so all effects of the statement are rolled back. This operation is a <a href="glossary.htm#GUID-187EACC0-1FDD-498A-BEAD-892AC03B50D0"><span class="xrefglossterm">statement-level rollback</span></a>. This operation has the following characteristics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A SQL statement that does not succeed causes the loss only of work it would have performed itself.</p>
+<p>The unsuccessful statement does not cause the loss of any work that preceded it in the current transaction. For example, if the execution of the second <code class="codeph">UPDATE</code> statement in <span class="q">&#34;<a href="transact.htm#GUID-A049FE81-8B67-4386-B599-9CDD7E6B6C59" title="To illustrate the concept of a transaction, consider a banking database.">Sample Transaction: Account Debit and Credit</a>&#34;</span> causes an error and is rolled back, then the work performed by the first <code class="codeph">UPDATE</code> statement is not rolled back. The first <code class="codeph">UPDATE</code> statement can be committed or rolled back explicitly by the user.</p>
+</li>
+<li>
+<p>The effect of the rollback is as if the statement had never been run.</p>
+<p>Any side effects of an atomic statement, for example, triggers invoked upon execution of the statement, are considered part of the atomic statement. Either all work generated as part of the atomic statement succeeds or none does.</p>
+</li>
+</ul>
+<p>An example of an error causing a statement-level rollback is an attempt to insert a duplicate <a href="glossary.htm#GUID-8640EFA5-276C-4812-A078-1F21F55F4200"><span class="xrefglossterm">primary key</span></a>. Single SQL statements involved in a <a href="glossary.htm#GUID-E33D1853-7F99-4FDD-9CC7-D6308E943D61"><span class="xrefglossterm">deadlock</span></a>, which is competition for the same data, can also cause a statement-level rollback. However, errors discovered during SQL statement parsing, such as a syntax error, have not yet been run and so do not cause a statement-level rollback.</p>
+<div class="infoboxnotealso" id="GUID-5A632477-AC9E-4BC7-BB06-26B64837BF90__GUID-601E894B-FB32-4487-8EAF-8D2714D16083">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="sqllangu.htm#GUID-B3F2B5B8-B679-4A7C-B1E8-286F36319FCB" title="The first stage of SQL processing is SQL parsing. This stage involves separating the pieces of a SQL statement into a data structure that can be processed by other routines.">SQL Parsing</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="consist.htm#GUID-C1971E9B-849A-4634-9575-4F8FAD697750" title="A deadlock is a situation in which two or more users are waiting for data locked by each other. Deadlocks prevent some transactions from continuing to work.">Locks and Deadlocks</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="srvrside.htm#GUID-40297ADF-0968-42F8-B8B9-84AD6ADCBE63" title="A database trigger is a compiled stored program unit, written in either PL/SQL or Java, that Oracle Database invokes (&#34;fires&#34;) automatically in certain situations.">Overview of Triggers</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT039"></a>
+<div class="props_rev_3"><a id="GUID-A2615547-94D2-4346-B156-64C534C5E9E4"></a>
+<h3 id="CNCPT-GUID-A2615547-94D2-4346-B156-64C534C5E9E4" class="sect3">System Change Numbers (SCNs)</h3>
+<div>
+<p><a id="d50672e2316" class="indexterm-anchor"></a>A <a href="glossary.htm#GUID-B421FB8D-EA59-4CC3-B9D7-8B149BDC2D5C"><span class="xrefglossterm">system change number (SCN)</span></a> is a logical, internal time stamp used by Oracle Database. SCNs order events that occur within the database, which is necessary to satisfy the ACID properties of a transaction. Oracle Database uses SCNs to mark the SCN before which all changes are known to be on disk so that recovery avoids applying unnecessary redo. The database also uses SCNs to mark the point at which no redo exists for a set of data so that recovery can stop.</p>
+<p>SCNs occur in a monotonically increasing sequence. Oracle Database can use an SCN like a clock because an observed SCN indicates a logical point in time, and repeated observations return equal or greater values. If one event has a lower SCN than another event, then it occurred at an earlier time in the database. Several events may share the same SCN, which means that they occurred at the same time in the database.</p>
+<p>Every transaction has an SCN. For example, if a transaction updates a row, then the database records the SCN at which this update occurred. Other modifications in this transaction have the same SCN. When a transaction commits, the database records an SCN for this commit.</p>
+<p>Oracle Database increments SCNs in the <a href="glossary.htm#GUID-78C0E867-233A-4857-B9FE-A3852A9B7BDF"><span class="xrefglossterm">system global area (SGA)</span></a>. When a transaction modifies data, the database writes a new SCN to the undo data segment assigned to the transaction. The log writer process then writes the commit record of the transaction immediately to the <a href="glossary.htm#GUID-2A8BC112-AB70-4B06-9F85-FE975861CEE0"><span class="xrefglossterm">online redo log</span></a>. The commit record has the unique SCN of the transaction. Oracle Database also uses SCNs as part of its <a href="glossary.htm#GUID-FFDBC27D-CE99-49C7-8BB9-C8C2D8D52801"><span class="xrefglossterm">instance recovery</span></a> and <a href="glossary.htm#GUID-938A3E7D-CC65-496C-9DB3-3CFC45AFA8DD"><span class="xrefglossterm">media recovery</span></a> mechanisms.</p>
+<div class="infoboxnotealso" id="GUID-A2615547-94D2-4346-B156-64C534C5E9E4__GUID-F2FF6329-8DAD-4392-845D-8A832BFD50E8">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="startup.htm#GUID-728C6BE1-5687-4DC5-B570-D2042C88F935" title="Instance recovery is the process of applying records in the online redo log to data files to reconstruct changes made after the most recent checkpoint.">Overview of Instance Recovery</a>&#34;</span> and <span class="q">&#34;<a href="cncptdba.htm#GUID-DCE361D9-B486-43B4-B4FD-5722A93203F0" title="Backup and recovery is the set of concepts, procedures, and strategies involved in protecting the database against data loss caused by media failure or users errors. In general, the purpose of a backup and recovery strategy is to protect the database against data loss and reconstruct lost data.">Backup and Recovery</a>&#34;</span></p>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT88954"></a><a id="CNCPT1118"></a>
+<div class="props_rev_3"><a id="GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361"></a>
+<h2 id="CNCPT-GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361" class="sect2">Overview of Transaction Control</h2>
+<div>
+<p><span class="bold">Transaction control</span> is the management of changes made by DML statements and the grouping of DML statements into transactions.</p>
+<p>In general, application designers are concerned with transaction control so that work is accomplished in logical units and data is kept consistent.</p>
+<p>Transaction control involves using the following statements, as described in <span class="q">&#34;<a href="sqllangu.htm#GUID-73F24816-881A-4849-B8A7-EA9B446A24A7" title="Transaction control statements manage the changes made by DML statements and group DML statements into transactions.">Transaction Control Statements</a>&#34;</span>:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">COMMIT</code> statement ends the current transaction and makes all changes performed in the transaction permanent. <code class="codeph">COMMIT</code> also erases all savepoints in the transaction and releases transaction locks.</p>
+</li>
+<li>
+<p>The <code class="codeph">ROLLBACK</code> statement reverses the work done in the current transaction; it causes all data changes since the last <code class="codeph">COMMIT</code> or <code class="codeph">ROLLBACK</code> to be discarded. The <code class="codeph">ROLLBACK TO SAVEPOINT</code> statement undoes the changes since the last savepoint but does not end the entire transaction.</p>
+</li>
+<li>
+<p>The <code class="codeph">SAVEPOINT</code> statement identifies a point in a transaction to which you can later roll back.</p>
+</li>
+</ul>
+<p>The session in <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a> illustrates the basic concepts of transaction control.</p>
+<div class="tblformalwide" id="GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA">
+<p class="titleintable">Table 10-1 Transaction Control</p>
+<table class="cellalignment1211" title="Transaction Control" summary="This table shows a session that illustrates the basic concepts of transaction control.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1212" id="d50672e2667">T</th>
+<th class="cellalignment1213" id="d50672e2670">Session</th>
+<th class="cellalignment1214" id="d50672e2673">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2678" headers="d50672e2667">
+<p>t0</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2678 d50672e2670">
+<pre dir="ltr">COMMIT;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2678 d50672e2673">
+<p>This statement ends any existing transaction in the session.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2688" headers="d50672e2667">
+<p>t1</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2688 d50672e2670">
+<pre dir="ltr">SET TRANSACTION NAME &#39;sal_update&#39;;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2688 d50672e2673">
+<p>This statement begins a transaction and names it <code class="codeph">sal_update</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2701" headers="d50672e2667">
+<p>t2</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2701 d50672e2670">
+<pre dir="ltr">UPDATE employees
+    SET salary = 7000 
+    WHERE last_name = &#39;Banda&#39;;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2701 d50672e2673">
+<p>This statement updates the salary for Banda to 7000.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2711" headers="d50672e2667">
+<p>t3</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2711 d50672e2670">
+<pre dir="ltr">SAVEPOINT after_banda_sal;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2711 d50672e2673">
+<p>This statement creates a savepoint named <code class="codeph">after_banda_sal</code>, enabling changes in this transaction to be rolled back to this point.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2724" headers="d50672e2667">
+<p>t4</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2724 d50672e2670">
+<pre dir="ltr">UPDATE employees
+    SET salary = 12000 
+    WHERE last_name = &#39;Greene&#39;;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2724 d50672e2673">
+<p>This statement updates the salary for Greene to 12000.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2734" headers="d50672e2667">
+<p>t5</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2734 d50672e2670">
+<pre dir="ltr">SAVEPOINT after_greene_sal;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2734 d50672e2673">
+<p>This statement creates a savepoint named <code class="codeph">after_greene_sal</code>, enabling changes in this transaction to be rolled back to this point.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2747" headers="d50672e2667">
+<p>t6</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2747 d50672e2670">
+<pre dir="ltr">ROLLBACK TO SAVEPOINT
+    after_banda_sal;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2747 d50672e2673">
+<p>This statement rolls back the transaction to t3, undoing the update to Greene&#39;s salary at t4. The <code class="codeph">sal_update</code> transaction has <span class="italic">not</span> ended.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2763" headers="d50672e2667">
+<p>t7</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2763 d50672e2670">
+<pre dir="ltr">UPDATE employees
+    SET salary = 11000 
+    WHERE last_name = &#39;Greene&#39;;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2763 d50672e2673">
+<p>This statement updates the salary for Greene to 11000 in transaction <code class="codeph">sal_update</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2776" headers="d50672e2667">
+<p>t8</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2776 d50672e2670">
+<pre dir="ltr">ROLLBACK;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2776 d50672e2673">
+<p>This statement rolls back all changes in transaction <code class="codeph">sal_update</code>, ending the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2789" headers="d50672e2667">
+<p>t9</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2789 d50672e2670">
+<pre dir="ltr">SET TRANSACTION NAME &#39;sal_update2&#39;;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2789 d50672e2673">
+<p>This statement begins a new transaction in the session and names it <code class="codeph">sal_update2</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2802" headers="d50672e2667">
+<p>t10</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2802 d50672e2670">
+<pre dir="ltr">UPDATE employees
+    SET salary = 7050 
+    WHERE last_name = &#39;Banda&#39;;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2802 d50672e2673">
+<p>This statement updates the salary for Banda to 7050.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2813" headers="d50672e2667">
+<p>t11</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2813 d50672e2670">
+<pre dir="ltr">UPDATE employees
+    SET salary = 10950 
+    WHERE last_name = &#39;Greene&#39;;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2813 d50672e2673">
+<p>This statement updates the salary for Greene to 10950.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e2823" headers="d50672e2667">
+<p>t12</p>
+</td>
+<td class="cellalignment1216" headers="d50672e2823 d50672e2670">
+<pre dir="ltr">COMMIT;
+</pre></td>
+<td class="cellalignment1217" headers="d50672e2823 d50672e2673">
+<p>This statement commits all changes made in transaction <code class="codeph">sal_update2</code>, ending the transaction. The commit guarantees that the changes are saved in the online redo log files.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__GUID-047002A0-E2E5-44C1-8C97-7CCC9D5EBED0">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF30043" target="_blank" href="../SQLRF/statements_1001.htm#SQLRF30043"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about transaction control statements</p>
+</div>
+</div>
+<a id="CNCPT1122"></a>
+<div class="props_rev_3"><a id="GUID-0B3F11E3-5C3E-4BB4-9E13-E1EC07D3FD2B"></a>
+<h3 id="CNCPT-GUID-0B3F11E3-5C3E-4BB4-9E13-E1EC07D3FD2B" class="sect3">Transaction Names</h3>
+<div>
+<p>A transaction name is an optional, user-specified tag that serves as a reminder of the work that the transaction is performing. You name a transaction with the <code class="codeph">SET TRANSACTION</code> <code class="codeph">...</code> <code class="codeph">NAME</code> statement, which if used must be first statement of the transaction.</p>
+<p>In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, the first transaction was named <code class="codeph">sal_update</code> and the second was named <code class="codeph">sal_update2</code>.</p>
+<p>Transaction names provide the following advantages:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>It is easier to monitor long-running transactions and to resolve in-doubt distributed transactions.</p>
+</li>
+<li>
+<p>You can view transaction names along with transaction IDs in applications. For example, a database administrator can view transaction names in Oracle Enterprise Manager (Enterprise Manager) when monitoring system activity.</p>
+</li>
+<li>
+<p>The database writes transaction names to the transaction auditing redo record, so you can use LogMiner to search for a specific transaction in the redo log.</p>
+</li>
+<li>
+<p>You can use transaction names to find a specific transaction in data dictionary views such as <code class="codeph">V$TRANSACTION</code>.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-0B3F11E3-5C3E-4BB4-9E13-E1EC07D3FD2B__GUID-C5CD08B4-812B-40B4-89BB-25DFF035C285">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="cncptdba.htm#GUID-BE08A8FA-501A-418E-AD32-3E42AE762026">Oracle Enterprise Manager</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN30291" target="_blank" href="../REFRN/GUID-FAE908F8-24B1-4B90-8FC5-86FCB532431C.htm#REFRN30291"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">V$TRANSACTION</code></p>
+</li>
+<li>
+<p><a class="olink SQLRF01705" target="_blank" href="../SQLRF/statements_10005.htm#SQLRF01705"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about <code class="codeph">SET TRANSACTION</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT88955"></a>
+<div class="props_rev_3"><a id="GUID-E34DAE8D-6632-4B41-948C-13AD8312410D"></a>
+<h3 id="CNCPT-GUID-E34DAE8D-6632-4B41-948C-13AD8312410D" class="sect3">Active Transactions</h3>
+<div>
+<p>An <span class="bold">active transaction</span> is one that has started but not yet committed or rolled back.</p>
+<p>In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, the first statement to modify data in the <code class="codeph">sal_update</code> transaction is the update to Banda&#39;s salary. From the successful execution of this update until the <code class="codeph">ROLLBACK</code> statement ends the transaction, the <code class="codeph">sal_update</code> transaction is active.</p>
+<p>Data changes made by a transaction are temporary until the transaction is committed or rolled back. Before the transaction ends, the state of the data is as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Oracle Database has generated undo information in the SGA.</p>
+<p>The undo data contains the old data values changed by the SQL statements of the transaction. See <span class="q">&#34;<a href="consist.htm#GUID-432C4EDC-F7F2-467C-B85F-4E82D3D58A2F">Read Consistency in the Read Committed Isolation Level</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Oracle Database has generated redo in the online redo log buffer of the SGA.</p>
+<p>The redo log record contains the change to the data block and the change to the undo block. See <span class="q">&#34;<a href="memory.htm#GUID-C2AD1BF6-A5AE-42E9-9677-0AA08126864B" title="The redo log buffer is a circular buffer in the SGA that stores redo entries describing changes made to the database.">Redo Log Buffer</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Changes have been made to the database buffers of the SGA.</p>
+<p>The data changes for a committed transaction, stored in the database buffers of the SGA, are not necessarily written immediately to the data files by the <a href="glossary.htm#GUID-C27AAA54-E60B-49BC-AB04-7B3848EBAFD6"><span class="xrefglossterm">database writer (DBW)</span></a>. The disk write can happen before or after the commit. See <span class="q">&#34;<a href="memory.htm#GUID-4FF66585-E469-4631-9225-29D75594CD14" title="The database buffer cache, also called the buffer cache, is the memory area that stores copies of data blocks read from data files.">Database Buffer Cache</a>&#34;</span>.</p>
+</li>
+<li>
+<p>The rows affected by the data change are locked.</p>
+<p>Other users cannot change the data in the affected rows, nor can they see the uncommitted changes. See <span class="q">&#34;<a href="consist.htm#GUID-1D60EFCC-03F4-4A04-B099-1B4DE5D02C47" title="The database maintains several different types of locks, depending on the operation that acquired the lock.">Summary of Locking Behavior</a>&#34;</span>.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="CNCPT1121"></a>
+<div class="props_rev_3"><a id="GUID-55081904-2D79-430B-9E37-D4127F0BBF7D"></a>
+<h3 id="CNCPT-GUID-55081904-2D79-430B-9E37-D4127F0BBF7D" class="sect3">Savepoints</h3>
+<div>
+<p>A <span class="bold">savepoint</span> is a user-declared intermediate marker within the context of a transaction.</p>
+<p>Internally, the savepoint marker resolves to an SCN. Savepoints divide a long transaction into smaller parts.</p>
+<p>If you use savepoints in a long transaction, then you have the option later of rolling back work performed before the current point in the transaction but after a declared savepoint within the transaction. Thus, if you make an error, you do not need to resubmit every statement. <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a> creates savepoint <code class="codeph">after_banda_sal</code> so that the update to the Greene salary can be rolled back to this savepoint.</p>
+</div>
+<a id="CNCPT88956"></a>
+<div class="props_rev_3"><a id="GUID-D0B75614-4720-4586-9ABF-99E894FA68BD"></a>
+<h4 id="CNCPT-GUID-D0B75614-4720-4586-9ABF-99E894FA68BD" class="sect4">Rollback to Savepoint</h4>
+<div>
+<p>A rollback to a savepoint in an uncommitted transaction means undoing any changes made after the specified savepoint, but it does not mean a rollback of the transaction itself.</p>
+<p>When a transaction is rolled back to a savepoint, as when the <code class="codeph">ROLLBACK TO SAVEPOINT after_banda_sal</code> is run in <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, the following occurs:</p>
+<ol>
+<li>
+<p>Oracle Database rolls back only the statements run after the savepoint.</p>
+<p>In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, the <code class="codeph">ROLLBACK TO SAVEPOINT</code> causes the <code class="codeph">UPDATE</code> for Greene to be rolled back, but not the <code class="codeph">UPDATE</code> for Banda.</p>
+</li>
+<li>
+<p>Oracle Database preserves the savepoint specified in the <code class="codeph">ROLLBACK TO SAVEPOINT</code> statement, but all subsequent savepoints are lost.</p>
+<p>In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, the <code class="codeph">ROLLBACK TO SAVEPOINT</code> causes the <code class="codeph">after_greene_sal</code> savepoint to be lost.</p>
+</li>
+<li>
+<p>Oracle Database releases all table and row locks acquired after the specified savepoint but retains all data locks acquired before the savepoint.</p>
+</li>
+</ol>
+<p>The transaction remains active and can be continued.</p>
+<div class="infoboxnotealso" id="GUID-D0B75614-4720-4586-9ABF-99E894FA68BD__GUID-9F3FEA8F-4C01-43B4-BE0C-5B854CBFDA13">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF01610" target="_blank" href="../SQLRF/statements_9023.htm#SQLRF01610"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about the <code class="codeph">ROLLBACK</code> and <code class="codeph">SAVEPOINT</code> statements</p>
+</li>
+<li>
+<p><a class="olink LNPLS00608" target="_blank" href="../LNPLS/static.htm#LNPLS00608"><span><cite>Oracle Database PL/SQL Language Reference</cite></span></a> to learn about transaction processing and control</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT88958"></a><a id="CNCPT88957"></a>
+<div class="props_rev_3"><a id="GUID-07517D95-D5F9-4851-B737-B076336CED13"></a>
+<h4 id="CNCPT-GUID-07517D95-D5F9-4851-B737-B076336CED13" class="sect4">Enqueued Transactions</h4>
+<div>
+<p>Depending on the scenario, transactions waiting for previously locked resources may still be blocked after a rollback to savepoint.</p>
+<p>When a transaction is blocked by another transaction it enqueues on the blocking transaction itself, so that the entire blocking transaction must commit or roll back for the blocked transaction to continue.</p>
+<p>In the scenario shown in the following table, session 1 rolls back to a savepoint created before it executed a DML statement. However, session 2 is still blocked because it is waiting for the session 1 transaction to complete.</p>
+<div class="tblformalwide" id="GUID-07517D95-D5F9-4851-B737-B076336CED13__CHDGIIFB">
+<p class="titleintable">Table 10-2 Rollback to Savepoint Example</p>
+<table class="cellalignment1211" title="Rollback to Savepoint Example" summary="This table shows an extended example showing a rollback to savepoint.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1212" id="d50672e4325">T</th>
+<th class="cellalignment1218" id="d50672e4328">Session 1</th>
+<th class="cellalignment1218" id="d50672e4331">Session 2</th>
+<th class="cellalignment1218" id="d50672e4334">Session 3</th>
+<th class="cellalignment1219" id="d50672e4337">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e4342" headers="d50672e4325">
+<p>t0</p>
+</td>
+<td class="cellalignment1220" headers="d50672e4342 d50672e4328">
+<pre dir="ltr">UPDATE employees 
+  SET salary=7000 
+  WHERE last_name= 
+  &#39;Banda&#39;;
+</pre></td>
+<td class="cellalignment1220" headers="d50672e4342 d50672e4331">&nbsp;</td>
+<td class="cellalignment1220" headers="d50672e4342 d50672e4334">&nbsp;</td>
+<td class="cellalignment1221" headers="d50672e4342 d50672e4337">
+<p>Session 1 begins a transaction. The session places an exclusive lock on the <code class="codeph">Banda</code> row (TX) and a subexclusive table lock (SX) on the table.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e4357" headers="d50672e4325">
+<p>t1</p>
+</td>
+<td class="cellalignment1220" headers="d50672e4357 d50672e4328">
+<pre dir="ltr">SAVEPOINT 
+ after_banda_sal;
+</pre></td>
+<td class="cellalignment1220" headers="d50672e4357 d50672e4331">&nbsp;</td>
+<td class="cellalignment1220" headers="d50672e4357 d50672e4334">&nbsp;</td>
+<td class="cellalignment1221" headers="d50672e4357 d50672e4337">
+<p>Session 1 creates a savepoint named <code class="codeph">after_banda_sal</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e4372" headers="d50672e4325">
+<p>t2</p>
+</td>
+<td class="cellalignment1220" headers="d50672e4372 d50672e4328">
+<pre dir="ltr">UPDATE employees 
+ SET salary=12000 
+ WHERE last_name=  
+ &#39;Greene&#39;;
+</pre></td>
+<td class="cellalignment1220" headers="d50672e4372 d50672e4331">&nbsp;</td>
+<td class="cellalignment1220" headers="d50672e4372 d50672e4334">&nbsp;</td>
+<td class="cellalignment1221" headers="d50672e4372 d50672e4337">
+<p>Session 1 locks the <code class="codeph">Greene</code> row.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e4387" headers="d50672e4325">
+<p>t3</p>
+</td>
+<td class="cellalignment1220" headers="d50672e4387 d50672e4328">&nbsp;</td>
+<td class="cellalignment1220" headers="d50672e4387 d50672e4331">
+<pre dir="ltr">UPDATE employees 
+ SET salary=14000 
+ WHERE last_name=
+ &#39;Greene&#39;;
+</pre></td>
+<td class="cellalignment1220" headers="d50672e4387 d50672e4334">&nbsp;</td>
+<td class="cellalignment1221" headers="d50672e4387 d50672e4337">
+<p>Session 2 attempts to update the <code class="codeph">Greene</code> row, but fails to acquire a lock because session 1 has a lock on this row. No transaction has begun in session 2.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e4402" headers="d50672e4325">
+<p>t4</p>
+</td>
+<td class="cellalignment1220" headers="d50672e4402 d50672e4328">
+<pre dir="ltr">ROLLBACK
+ TO SAVEPOINT 
+ after_banda_sal;
+</pre></td>
+<td class="cellalignment1220" headers="d50672e4402 d50672e4331">&nbsp;</td>
+<td class="cellalignment1220" headers="d50672e4402 d50672e4334">&nbsp;</td>
+<td class="cellalignment1221" headers="d50672e4402 d50672e4337">
+<p>Session 1 rolls back the update to the salary for <code class="codeph">Greene</code>, which releases the row lock for <code class="codeph">Greene</code>. The table lock acquired at t0 is not released.</p>
+<p>At this point, session 2 is <span class="italic">still</span> blocked by session 1 because session 2 enqueues on the session 1 <span class="italic">transaction</span>, which has not yet completed.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e4428" headers="d50672e4325">
+<p>t5</p>
+</td>
+<td class="cellalignment1220" headers="d50672e4428 d50672e4328">&nbsp;</td>
+<td class="cellalignment1220" headers="d50672e4428 d50672e4331">&nbsp;</td>
+<td class="cellalignment1220" headers="d50672e4428 d50672e4334">
+<pre dir="ltr">UPDATE employees 
+ SET salary=11000
+ WHERE last_name=
+ &#39;Greene&#39;;
+</pre></td>
+<td class="cellalignment1221" headers="d50672e4428 d50672e4337">
+<p>The <code class="codeph">Greene</code> row is currently unlocked, so session 3 acquires a lock for an update to the <code class="codeph">Greene</code> row. This statement begins a transaction in session 3.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1215" id="d50672e4446" headers="d50672e4325">
+<p>t6</p>
+</td>
+<td class="cellalignment1220" headers="d50672e4446 d50672e4328">
+<pre dir="ltr">COMMIT;
+</pre></td>
+<td class="cellalignment1220" headers="d50672e4446 d50672e4331">&nbsp;</td>
+<td class="cellalignment1220" headers="d50672e4446 d50672e4334">&nbsp;</td>
+<td class="cellalignment1221" headers="d50672e4446 d50672e4337">
+<p>Session 1 commits, ending its transaction. Session 2 is now enqueued for its update to the <code class="codeph">Greene</code> row behind the transaction in session 3.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-07517D95-D5F9-4851-B737-B076336CED13__GUID-4082A562-5884-4A65-BDD6-49719B340308">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="consist.htm#GUID-DB33AD91-8A4E-44CE-A6B2-654909143E5F">Lock Duration</a>&#34;</span> to learn more about when Oracle Database releases locks</p>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1120"></a>
+<div class="props_rev_3"><a id="GUID-C289D507-93F1-412E-8AAC-C9B758212CEC"></a>
+<h3 id="CNCPT-GUID-C289D507-93F1-412E-8AAC-C9B758212CEC" class="sect3">Rollback of Transactions</h3>
+<div>
+<p>A rollback <a id="d50672e4697" class="indexterm-anchor"></a><a id="d50672e4699" class="indexterm-anchor"></a><a id="d50672e4703" class="indexterm-anchor"></a><a id="d50672e4707" class="indexterm-anchor"></a><a id="d50672e4709" class="indexterm-anchor"></a>of an uncommitted transaction undoes any changes to data that have been performed by SQL statements within the transaction. After a transaction has been rolled back, the effects of the work done in the transaction no longer exist.</p>
+<p>In rolling back an entire transaction, without referencing any savepoints, Oracle Database performs the following actions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Undoes all changes made by all the SQL statements in the transaction by using the corresponding undo segments</p>
+<p>The transaction table entry for every active transaction contains a pointer to all the undo data (in reverse order of application) for the transaction. The database reads the data from the undo segment, reverses the operation, and then marks the undo entry as applied. Thus, if a transaction inserts a row, then a rollback deletes it. If a transaction updates a row, then a rollback reverses the update. If a transaction deletes a row, then a rollback reinserts it. In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, the <code class="codeph">ROLLBACK</code> reverses the updates to the salaries of Greene and Banda.</p>
+</li>
+<li>
+<p>Releases all the locks of data held by the transaction</p>
+</li>
+<li>
+<p>Erases all savepoints in the transaction</p>
+<p>In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, the <code class="codeph">ROLLBACK</code> deletes the savepoint <code class="codeph">after_banda_sal</code>. The <code class="codeph">after_greene_sal</code> savepoint was removed by the <code class="codeph">ROLLBACK TO SAVEPOINT</code> statement.</p>
+</li>
+<li>
+<p>Ends the transaction</p>
+<p>In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, the <code class="codeph">ROLLBACK</code> leaves the database in the same state as it was after the initial <code class="codeph">COMMIT</code> was executed.</p>
+</li>
+</ul>
+<p>The duration of a rollback is a function of the amount of data modified.</p>
+<div class="infoboxnotealso" id="GUID-C289D507-93F1-412E-8AAC-C9B758212CEC__GUID-62DA8A3D-986C-4F05-BBDF-72E42830532E">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="logical.htm#GUID-6E206D3A-E0E7-4B23-9C41-516FB35BC3FE" title="Oracle Database maintains records of the actions of transactions, collectively known as undo data.">Undo Segments</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="CNCPT1119"></a>
+<div class="props_rev_3"><a id="GUID-C3FE1082-94AA-4BE8-98F2-480205D99DCA"></a>
+<h3 id="CNCPT-GUID-C3FE1082-94AA-4BE8-98F2-480205D99DCA" class="sect3">Commits of Transactions</h3>
+<div>
+<p>A commit ends the current transaction and makes permanent all changes performed in the transaction. In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, a second transaction begins with <code class="codeph">sal_update2</code> and ends with an explicit <code class="codeph">COMMIT</code> statement. The changes that resulted from the two <code class="codeph">UPDATE</code> statements are now made permanent.</p>
+<p>When a transaction commits, the following actions occur:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a id="d50672e5036" class="indexterm-anchor"></a><a id="d50672e5040" class="indexterm-anchor"></a>The database generates an SCN for the <code class="codeph">COMMIT</code>.</p>
+<p>The i<a id="d50672e5050" class="indexterm-anchor"></a><a id="d50672e5054" class="indexterm-anchor"></a>nternal transaction table for the associated <a href="glossary.htm#GUID-78A7FBF2-2EB5-4BD6-AECC-D61A5AEF1158"><span class="xrefglossterm">undo tablespace</span></a> records that the transaction has committed. The corresponding unique SCN of the transaction is assigned and recorded in the transaction table. See <span class="q">&#34;<a href="consist.htm#GUID-8DA9A191-4CA3-4B1A-995F-4B17471C2738" title="In the serializable isolation level, a transaction sees only changes committed at the time the transaction&mdash;not the query&mdash;began and changes made by the transaction itself. A serializable transaction operates in an environment that makes it appear as if no other users were modifying data in the database.">Serializable Isolation Level</a>&#34;</span>.</p>
+</li>
+<li>
+<p>The <a href="glossary.htm#GUID-E96BC851-0B78-4250-8EAB-26EBDF4FE5A6"><span class="xrefglossterm">log writer process (LGWR)</span></a> process writes remaining redo log entries in the redo log buffers to the online redo log and writes the transaction SCN to the online redo log. <span class="italic">This atomic event constitutes the commit of the transaction.</span></p>
+</li>
+<li>
+<p><a id="d50672e5085" class="indexterm-anchor"></a>Oracle Database releases locks held on rows and tables.</p>
+<p>Users who were enqueued waiting on locks held by the uncommitted transaction are allowed to proceed with their work.</p>
+</li>
+<li>
+<p>Oracle Database deletes savepoints.</p>
+<p>In <a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361__CHDCIJGA" title="This table shows a session that illustrates the basic concepts of transaction control.">Table 10-1</a>, no savepoints existed in the <code class="codeph">sal_update</code> transaction so no savepoints were erased.</p>
+</li>
+<li>
+<p>Oracle Database performs a <a href="glossary.htm#GUID-5E20E19B-FC72-40E3-A129-306B52DC9607"><span class="xrefglossterm">commit cleanout</span></a>.</p>
+<p>If modified blocks containing data from the committed transaction are still in the SGA, and if no other session is modifying them, then the database removes lock-related transaction information (the ITL entry) from the blocks.</p>
+<p>Ideally, the <code class="codeph">COMMIT</code> cleans the blocks so that a subsequent <code class="codeph">SELECT</code> does not have to perform this task. If no ITL entry exists for a specific row, then it is not locked. If an ITL entry exists for a specific row, then it is possibly locked, so a session must check the undo segment header to determine whether this interested transaction has committed. If the interested transaction has committed, then the session cleans out the block, which generates redo. However, if the <code class="codeph">COMMIT</code> cleaned out the ITL previously, then the check and cleanout are unnecessary.</p>
+<div class="infobox-note" id="GUID-C3FE1082-94AA-4BE8-98F2-480205D99DCA__GUID-26D30903-DFCE-48DD-BA67-9895B3BFB233">
+<p class="notep1">Note:</p>
+<p>Because a block cleanout generates redo, a query may generate redo and thus cause blocks to be written during the next <a href="glossary.htm#GUID-95DBDA37-4C57-444F-B660-D52B4A99D919"><span class="xrefglossterm">checkpoint</span></a>.</p>
+</div>
+</li>
+<li>
+<p><a id="d50672e5134" class="indexterm-anchor"></a>Oracle Database marks the transaction complete.</p>
+</li>
+</ul>
+<p>After a transaction commits, users can view the changes.</p>
+<p>Typically, a commit is a fast operation, regardless of the transaction size. The speed of a commit does not increase with the size of the data modified in the transaction. The lengthiest part of the commit is the physical disk I/O performed by LGWR. However, the amount of time spent by LGWR is reduced because it has been incrementally writing the contents of the redo log buffer in the background.</p>
+<p>The default behavior is for LGWR to write redo to the online redo log synchronously and for transactions to wait for the buffered redo to be on disk before returning a commit to the user. However, for lower transaction commit latency, application developers can specify that redo be written asynchronously so that transactions need not wait for the redo to be on disk and can return from the <code class="codeph">COMMIT</code> call immediately.</p>
+<div class="infoboxnotealso" id="GUID-C3FE1082-94AA-4BE8-98F2-480205D99DCA__GUID-5FA0B3EF-8402-42EF-9FDB-676602149DDF">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="consist.htm#GUID-AD960556-7F7B-4242-8B91-6DA22AABA27D">Locking Mechanisms</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="process.htm#GUID-D8AE1B78-69D5-4F0F-8BE3-C91AA2514F2D" title="Background processes are additional processes used by a multiprocess Oracle database. The background processes perform maintenance tasks required to operate the database and to maximize performance for multiple users.">Overview of Background Processes</a>&#34;</span> for more information about LGWR</p>
+</li>
+<li>
+<p><a class="olink LNPLS592" target="_blank" href="../LNPLS/static.htm#LNPLS592"><span class="italic">Oracle Database PL/SQL Language Reference</span></a> for more information on asynchronous commit</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89217"></a>
+<div class="props_rev_3"><a id="GUID-47BCD081-8FFF-4D13-A0B1-F531521BC6C3"></a>
+<h2 id="CNCPT-GUID-47BCD081-8FFF-4D13-A0B1-F531521BC6C3" class="sect2">Overview of Transaction Guard</h2>
+<div>
+<p><a id="d50672e5403" class="indexterm-anchor"></a><a href="glossary.htm#GUID-FA547925-576A-4FD8-BA44-AED3AE438856"><span class="xrefglossterm">Transaction Guard</span></a> is an API that applications can use to provide <a id="d50672e5409" class="indexterm-anchor"></a><a href="glossary.htm#GUID-09AF097B-326A-454D-8125-43BA717DAC0E"><span class="xrefglossterm">transaction idempotence</span></a>, which is the ability of the database to preserve a guaranteed commit outcome that indicates whether a transaction committed and completed. Oracle Database provides the API for JDBC thin, OCI, OCCI, and ODP.Net.</p>
+<p><a id="d50672e5418" class="indexterm-anchor"></a><a id="d50672e5420" class="indexterm-anchor"></a><a id="d50672e5422" class="indexterm-anchor"></a>A <a href="glossary.htm#GUID-2F7DE61F-BD7C-4A89-91E6-CE0D193E8294"><span class="xrefglossterm">recoverable error</span></a> is caused by an external system failure, independent of the application session logic that is executing. Recoverable errors occur following planned and unplanned outages of foreground processes, networks, nodes, storage, and databases. If an outage breaks the connection between a client application and the database, then the application receives a disconnection error message. The transaction that was running when the connection broke is called an <a id="d50672e5429" class="indexterm-anchor"></a><a id="d50672e5433" class="indexterm-anchor"></a><a href="glossary.htm#GUID-4A49C543-CD3B-4F01-BF01-21F15CEABEE1"><span class="xrefglossterm">in-flight transaction</span></a>.</p>
+<p>To decide whether to resubmit the transaction or to return the result (committed or uncommited) to the client, the application must determine the outcome of the in-flight transaction. Before Oracle Database 12<span class="italic">c</span>, commit messages returned to the client were not persistent. Checking a transaction was no guarantee that it would not commit after being checked, permitting duplicate transactions and other forms of logical corruption. For example, a user might refresh a web browser when purchasing a book online and be charged twice for the same book.</p>
+<div class="infoboxnotealso" id="GUID-47BCD081-8FFF-4D13-A0B1-F531521BC6C3__GUID-43A398FD-1438-4ADC-90BF-9293420ADFFC">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="transact.htm#GUID-31319EA7-994C-4D25-8814-0214ABD3CBDA" title="A transaction is a logical, atomic unit of work that contains one or more SQL statements.">Introduction to Transactions</a> &#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADFNS1062" target="_blank" href="../ADFNS/adfns_trans_idemp_guard.htm#ADFNS1062"><span class="italic">Oracle Database Development Guide</span></a> to learn about <a id="d50672e5465" class="indexterm-anchor"></a>Transaction Guard</p>
+</li>
+<li>
+<p><a class="olink RACAD8423" target="_blank" href="../RACAD/GUID-097A5067-8CCF-4FF0-B97B-BF109DFA1841.htm#RACAD8423"><span class="italic">Oracle Real Application Clusters Administration and Deployment Guide</span></a> to learn how to configure services for Transaction Guard</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="CNCPT89319"></a>
+<div class="props_rev_3"><a id="GUID-DDABC6A2-4CFC-4934-8294-BC44772BC5BC"></a>
+<h3 id="CNCPT-GUID-DDABC6A2-4CFC-4934-8294-BC44772BC5BC" class="sect3">Benefits of Transaction Guard</h3>
+<div>
+<p>Starting in Oracle Database 12<span class="italic">c</span>, Transaction Guard provides applications with a tool for determining the status of an in-flight transaction following a recoverable outage. Using Transaction Guard, an application can ensure that a transaction executes no more than once. For example, if an online bookstore application determines that the previously submitted commit failed, then the application can safely resubmit.</p>
+<p>Transaction Guard provides a tool for at-most-once execution to avoid the application executing duplicate submissions. Transaction Guard provides a known outcome for every transaction.</p>
+<p>Transaction Guard is a core Oracle Database capability. Application Continuity uses Transaction Guard when masking outages from end users. Without Transaction Guard, an application retrying after an error may cause duplicate transactions to be committed.</p>
+<div class="infoboxnotealso" id="GUID-DDABC6A2-4CFC-4934-8294-BC44772BC5BC__GUID-38F71CC2-49CD-4EF0-B459-2755C76B2724">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADFNS924" target="_blank" href="../ADFNS/adfns_avail.htm#ADFNS924"><span class="italic">Oracle Database Development Guide</span></a> to learn about Transaction Guard, including the types of supported and included transactions</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="transact.htm#GUID-0B463F72-73C9-4EB6-B98D-5EC828CDB1E7" title="Application Continuity attempts to mask outages from applications by replaying incomplete application requests after unplanned and planned outages. In this context, a request is a unit of work from the application. Typically, a request corresponds to the DML statements and other database calls of a single web request on a single database connection. In general, a request is demarcated by the calls made between check-out and check-in of a database connection from a connection pool.">Overview of Application Continuity</a>&#34;</span> to learn about Application Continuity, which works with Transaction Guard to help developers achieve high application availability</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89320"></a>
+<div class="props_rev_3"><a id="GUID-BB758CA1-B046-463E-969F-69C3E87E5DAF"></a>
+<h3 id="CNCPT-GUID-BB758CA1-B046-463E-969F-69C3E87E5DAF" class="sect3">How Transaction Guard Works</h3>
+<div>
+<p>This section explains the problem of lost commit messages and how Transaction Guard uses logical transaction IDs to solve the problem.</p>
+</div>
+<a id="CNCPT89219"></a><a id="CNCPT89218"></a>
+<div class="props_rev_3"><a id="GUID-E567DC50-32EC-440E-9352-18E8AD79340B"></a>
+<h4 id="CNCPT-GUID-E567DC50-32EC-440E-9352-18E8AD79340B" class="sect4">Lost Commit Messages</h4>
+<div>
+<p>When designing for idempotence, developers must address the problem of communication failures after submission of commit statements. Commit messages do not persist in the database and so cannot be retrieved after a failure.</p>
+<p>The following graphic is a high-level representation of an interaction between a client application and a database.</p>
+<div class="figure" id="GUID-E567DC50-32EC-440E-9352-18E8AD79340B__CIHEHJGB">
+<p class="titleinfigure">Figure 10-2 Lost Commit Message</p>
+<img width="462" height="141" src="img/GUID-A13D6AC3-1310-4FFF-B2BB-3878EB6A9341-default.png" alt="Description of Figure 10-2 follows" title="Description of Figure 10-2 follows"/><br/>
+<a href="img_text/GUID-A13D6AC3-1310-4FFF-B2BB-3878EB6A9341-print.htm">Description of &#34;Figure 10-2 Lost Commit Message&#34;</a></div>
+<!-- class="figure" -->
+<p>In the standard commit case, the database commits a transaction and returns a success message to the client. In <a href="transact.htm#GUID-E567DC50-32EC-440E-9352-18E8AD79340B__CIHEHJGB">Figure 10-2</a>, the client submits a commit statement and receives a message stating that communication failed. This type of failure can occur for several reasons, including a database instance failure or network outage. In this scenario, the client does not know the state of the transaction.</p>
+<p>Following a communication failure, the database may still be running the submission and be unaware that the client disconnected. Checking the transaction state does not guarantee that an active transaction will not commit after being checked. If the client resends the commit because of this out-of-date information, then the database may repeat the transaction, resulting in logical corruption.</p>
+</div>
+</div>
+<a id="CNCPT89220"></a>
+<div class="props_rev_3"><a id="GUID-10F207C2-C59A-4707-A9A0-BDA3B19DE8D3"></a>
+<h4 id="CNCPT-GUID-10F207C2-C59A-4707-A9A0-BDA3B19DE8D3" class="sect4">Logical Transaction ID</h4>
+<div>
+<p><a id="d50672e6450" class="indexterm-anchor"></a><a id="d50672e6454" class="indexterm-anchor"></a>Oracle Database solves the communication failure by using a globally unique identifier called a <a href="glossary.htm#GUID-B87A5F1E-E193-4A3D-AEAE-5EFE8DFFB3DA"><span class="xrefglossterm">logical transaction ID</span></a>. This ID contains the logical session number allocated when a session first connects, and a running commit number that is updated each time the session commits or rolls back.<a id="fn_1" href="#fn_1" onclick="footdisplay(1,&#34;For Oracle Real Application Clusters (Oracle RAC), the logical transaction ID includes the database instance number as a prefix. &#34;)"><sup>Foot&nbsp;1</sup></a> From the application perspective, the logical transaction ID uniquely identifies the last database transaction submitted on the session that failed.</p>
+<p>For each round trip from the client in which one or more transactions are committed, the database persists a logical transaction ID. This ID can provide transaction idempotence for interactions between the application and the database for each round trip that commits data.</p>
+<p>The at-most-once protocol enables access to the commit outcome by requiring the database to do the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Maintain the logical transaction ID for the retention period agreed for retry</p>
+</li>
+<li>
+<p>Persist the logical transaction ID on commit</p>
+</li>
+</ul>
+<p>While a transaction is running, both the database and client hold the logical transaction ID. The database gives the client a logical transaction ID at authentication, when borrowing from a connection pool, and at each round trip from the client driver that executes one or more commit operations.</p>
+<p>Before the application can determine the outcome of the last transaction following a recoverable error, the application obtains the logical transaction ID held at the client using Java, OCI, OCCI, or ODP.Net APIs. The application then invokes the PL/SQL procedure <code class="codeph">DBMS_APP_CONT.GET_LTXID_OUTCOME</code> with the logical transaction ID to determine the outcome of the last submission: committed (<code class="codeph">true</code> or <code class="codeph">false</code>) and user call completed (<code class="codeph">true</code> or <code class="codeph">false</code>).</p>
+<p>When using Transaction Guard, the application can replay transactions when the error is recoverable and the last transaction on the session has not committed. The application can continue when the last transaction has committed and the user call has completed. The application can use Transaction Guard to return the known outcome to the client so that the client can decide the next action to take.</p>
+<div class="infoboxnotealso" id="GUID-10F207C2-C59A-4707-A9A0-BDA3B19DE8D3__GUID-6116E843-6CE2-47FA-B081-0B0C4CCC5707">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADFNS324" target="_blank" href="../ADFNS/adfns_trans_idemp_guard.htm#ADFNS324"><span class="italic">Oracle Database Development Guide</span></a> to learn about logical transaction IDs</p>
+</li>
+<li>
+<p><a class="olink ARPLS73456" target="_blank" href="../ARPLS/d_app_cont.htm#ARPLS73456"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn more about the <code class="codeph">DBMS_APP_CONT.GET_LTXID_OUTCOME</code> procedure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89221"></a><a id="CNCPT89321"></a>
+<div class="props_rev_3"><a id="GUID-6AEE7250-D39B-4DB7-BF71-E2C1841BF598"></a>
+<h3 id="CNCPT-GUID-6AEE7250-D39B-4DB7-BF71-E2C1841BF598" class="sect3">Transaction Guard: Example</h3>
+<div>
+<p>In this scenario, the commit message is lost because of a recoverable error.</p>
+<p>Transaction Guard uses the logical transaction ID to preserve the outcome of the <code class="codeph">COMMIT</code> statement, ensuring that there is a known outcome for the transaction.</p>
+<div class="figure" id="GUID-6AEE7250-D39B-4DB7-BF71-E2C1841BF598__CIHGGHBA">
+<p class="titleinfigure">Figure 10-3 Check of Logical Transaction Status</p>
+<img width="630" height="180" src="img/GUID-0164150C-892E-4FF7-8524-E817DD6BD7C9-default.png" alt="Description of Figure 10-3 follows" title="Description of Figure 10-3 follows"/><br/>
+<a href="img_text/GUID-0164150C-892E-4FF7-8524-E817DD6BD7C9-print.htm">Description of &#34;Figure 10-3 Check of Logical Transaction Status&#34;</a></div>
+<!-- class="figure" -->
+<p>In <a href="transact.htm#GUID-6AEE7250-D39B-4DB7-BF71-E2C1841BF598__CIHGGHBA">Figure 10-3</a>, the database informs the application whether the transaction committed and whether the last user call completed. The application can then return the result to the end user. The possibilities are:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the transaction committed and the user call completed, then the application can return the result to the end user and continue.</p>
+</li>
+<li>
+<p>If the transaction committed but the user call did not complete, then the application can return the result to the end user with warnings. Examples include a lost out bind or lost number of rows processed. Some applications depend on the extra information, whereas others do not.</p>
+</li>
+<li>
+<p>If the user call was not committed, then the application can return this information to the end user, or safely resubmit. The protocol is guaranteed. When the commit status returns false, the last submission is blocked from committing.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-6AEE7250-D39B-4DB7-BF71-E2C1841BF598__GUID-C73C378A-C218-4717-9792-9EC257CE4A23">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADFNS8000" target="_blank" href="../ADFNS/adfns_trans_idemp_guard.htm#ADFNS8000"><span><cite>Oracle Database Development Guide</cite></span></a> to learn how to use Transaction Guard</p>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT89322"></a>
+<div class="props_rev_3"><a id="GUID-0B463F72-73C9-4EB6-B98D-5EC828CDB1E7"></a>
+<h2 id="CNCPT-GUID-0B463F72-73C9-4EB6-B98D-5EC828CDB1E7" class="sect2">Overview of Application Continuity</h2>
+<div>
+<p><span class="bold">Application Continuity</span> attempts to mask outages from applications by replaying incomplete application requests after unplanned and planned outages. In this context, a request is a unit of work from the application. Typically, a request corresponds to the DML statements and other database calls of a single web request on a single database connection. In general, a request is demarcated by the calls made between check-out and check-in of a database connection from a connection pool.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="transact.htm#GUID-0B2F6AD0-92ED-431D-BEB6-10DFC3715FCC" title="Application Continuity attempts to solve the lost session problem by restoring the database session when any component disrupts the conversation between database and client.">Benefits of Application Continuity</a></p>
+</li>
+<li>
+<p><a href="transact.htm#GUID-2E973242-2B39-42FC-AA16-CD97B460B6D2" title="The Application Continuity architecture includes the JDBC replay driver and the continuity director.">Application Continuity Architecture</a></p>
+</li>
+<li>
+<p><a href="transact.htm#GUID-4B6C5116-D396-45C6-8FA0-F7B607BDBBF6">How Application Continuity Works</a></p>
+</li>
+</ul>
+</div>
+<a id="CNCPT89323"></a>
+<div class="props_rev_3"><a id="GUID-0B2F6AD0-92ED-431D-BEB6-10DFC3715FCC"></a>
+<h3 id="CNCPT-GUID-0B2F6AD0-92ED-431D-BEB6-10DFC3715FCC" class="sect3">Benefits of Application Continuity</h3>
+<div>
+<p>Application Continuity attempts to solve the lost session problem by restoring the database session when any component disrupts the conversation between database and client.</p>
+<p>In a typical case, a client has submitted a request to the database, which has built up both transactional and nontransactional states. The state at the client remains current, potentially with entered data, returned data, and cached data and variables. However, the database session state, which the application needs to operate within, is lost.</p>
+<p>If the client request has initiated one or more transactions, then the application is faced with the following possibilities:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If a commit <span class="italic">has</span> been issued, then the commit message returned to the client is not durable. The client does not know whether the request committed, and where in the nontransactional processing state it reached.</p>
+</li>
+<li>
+<p>If a commit has <span class="italic">not</span> been issued, or if it was issued but did not execute, then the in-flight transaction is rolled back and must be resubmitted using a session in the correct state.</p>
+</li>
+</ul>
+<p>If the replay is successful, then database user service for planned and unplanned outages is not interrupted. The restored database session includes all states, cursors, variables, and the most recent transaction when one exists.</p>
+<p>If the database detects changes in the data seen and potentially acted on by the application, then the replay is rejected. Replay is not attempted when the time allowed for starting replay is exceeded, the application uses a restricted call, or the application has explicitly disabled replay using the <code class="codeph">disableReplay</code> method.</p>
+<div class="infoboxnotealso" id="GUID-0B2F6AD0-92ED-431D-BEB6-10DFC3715FCC__GUID-33A601A4-B4A2-4AA6-98D3-761603DB514E">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADFNS1058" target="_blank" href="../ADFNS/adfns_app_continuity.htm#ADFNS1058"><span class="italic">Oracle Database Development Guide</span></a> to learn more about the benefits of application continuity</p>
+</div>
+</div>
+</div>
+<a id="CNCPT89325"></a><a id="CNCPT89324"></a>
+<div class="props_rev_3"><a id="GUID-2E973242-2B39-42FC-AA16-CD97B460B6D2"></a>
+<h3 id="CNCPT-GUID-2E973242-2B39-42FC-AA16-CD97B460B6D2" class="sect3">Application Continuity Architecture</h3>
+<div>
+<p>The Application Continuity architecture includes the JDBC replay driver and the continuity director.</p>
+<p>The components work together to execute capture and replay as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>JDBC replay driver</p>
+<p>The JDBC replay driver intercepts execution errors and, when these errors are recoverable, automatically replays the user calls from the beginning of the request. When successful, the replay appears to the application as a delayed database interaction.</p>
+<p>In collaboration with the database, the JDBC replay driver maintains a history of calls during a conversation between a client and the database. For each call made at run time, the driver retains the context required for a subsequent replay.</p>
+</li>
+<li>
+<p>Continuity director</p>
+<p>The continuity director directs the run time and replay, working in collaboration with the JDBC client-side replay driver to determine what to do. The director knows what is repeatable and how to repeat it, and applies this knowledge as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>During run time, saving protocol and validation information (and mutables sufficient for replaying), or directing the replay drivers to keep or purge calls</p>
+</li>
+<li>
+<p>During replay, rejecting a replay that:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Runs on a different database or a database that has lost transactions and potentially diverged</p>
+</li>
+<li>
+<p>Violates protocols</p>
+</li>
+<li>
+<p>Fails to reproduce the same client-visible data (rows, <code class="codeph">OUT</code> binds, and messages) that the application or client saw and potentially made decisions on during the original execution</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Replay context</p>
+<p>The <a href="glossary.htm#GUID-5D479146-7FD2-486E-8DAA-9C2C13DC379E"><span class="xrefglossterm">replay context</span></a> is opaque information that the database returns to the client driver during normal application run time. The JDBC replay driver saves the context with each SQL or PL/SQL call that the database has instructed the driver to hold. The replay context contains sufficient knowledge to protect and validate<a id="fn_2" href="#fn_2" onclick="footdisplay(2,&#34;This validation is hardware-assisted in the database for platforms using current Intel and Sparc chips. &#34;)"><sup>Foot&nbsp;2</sup></a> replay of each call, and to apply mutables when mutable values exist. When a call is no longer needed for replaying the session, the driver discards the replay context along with the call itself.</p>
+</li>
+<li>
+<p>Transaction Guard (see <span class="q">&#34;<a href="transact.htm#GUID-47BCD081-8FFF-4D13-A0B1-F531521BC6C3" title="When designing for idempotence, developers must address the problem of communication failures after submission of commit statements. Commit messages do not persist in the database and so cannot be retrieved after a failure.In this scenario, the commit message is lost because of a recoverable error.">Overview of Transaction Guard</a>&#34;</span>)</p>
+</li>
+</ul>
+<p><a href="transact.htm#GUID-2E973242-2B39-42FC-AA16-CD97B460B6D2__CIHHBCIC">Figure 10-4</a> depicts the basic architecture of Application Continuity. In the diagram, <code class="codeph">LTXID</code> refers to the logical transaction ID in Transaction Guard (see <span class="q">&#34;<a href="transact.htm#GUID-10F207C2-C59A-4707-A9A0-BDA3B19DE8D3">Logical Transaction ID</a>&#34;</span>).</p>
+<div class="figure" id="GUID-2E973242-2B39-42FC-AA16-CD97B460B6D2__CIHHBCIC">
+<p class="titleinfigure">Figure 10-4 Application Continuity Architecture</p>
+<img width="509" height="440" src="img/GUID-E621106A-4066-41B6-A09B-D8AA037940DC-default.png" alt="Description of Figure 10-4 follows" title="Description of Figure 10-4 follows"/><br/>
+<a href="img_text/GUID-E621106A-4066-41B6-A09B-D8AA037940DC-print.htm">Description of &#34;Figure 10-4 Application Continuity Architecture&#34;</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-2E973242-2B39-42FC-AA16-CD97B460B6D2__GUID-FEF124B5-3D23-4397-B025-393E3F4127A5">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADFNS1201" target="_blank" href="../ADFNS/adfns_app_continuity.htm#ADFNS1201"><span class="italic">Oracle Database Development Guide</span></a> to learn more about Application Continuity</p>
+</li>
+<li>
+<p><a class="olink JJDBC29059" target="_blank" href="../JJDBC/appcontnew.htm#JJDBC29059"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> and <a class="olink JAJDB" target="_blank" href="../JAJDB/toc.htm"><span class="italic">Oracle Database JDBC Java API Reference</span></a> to learn more about JDBC and application continuity</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT89327"></a><a id="CNCPT89326"></a>
+<div class="props_rev_3"><a id="GUID-4B6C5116-D396-45C6-8FA0-F7B607BDBBF6"></a>
+<h3 id="CNCPT-GUID-4B6C5116-D396-45C6-8FA0-F7B607BDBBF6" class="sect3">How Application Continuity Works</h3>
+<div>
+<p><a href="transact.htm#GUID-4B6C5116-D396-45C6-8FA0-F7B607BDBBF6__CIHIGBHC">Figure 10-5</a> shows the basic model for a conversation between a client application and a database using Application Continuity when an outage occurs. In the figure, the &#34;X&#34; indicates the location of the outage.</p>
+<div class="figure" id="GUID-4B6C5116-D396-45C6-8FA0-F7B607BDBBF6__CIHIGBHC">
+<p class="titleinfigure">Figure 10-5 Application Continuity in a Planned or Unplanned Outage</p>
+<img width="659" height="695" src="img/GUID-D82923F1-A1D9-44F4-A391-B20CAF927EC7-default.png" alt="Description of Figure 10-5 follows" title="Description of Figure 10-5 follows"/><br/>
+<a href="img_text/GUID-D82923F1-A1D9-44F4-A391-B20CAF927EC7-print.htm">Description of &#34;Figure 10-5 Application Continuity in a Planned or Unplanned Outage&#34;</a></div>
+<!-- class="figure" -->
+<p>The steps in the conversation are as follows:</p>
+<ol>
+<li>
+<p>The client application submits a request that the JDBC replay driver receives.</p>
+</li>
+<li>
+<p>The replay driver sends the calls that form the request to the database, receiving directions for each call from the database.</p>
+</li>
+<li>
+<p>The replay driver receives a Fast Application Notification (FAN) or recoverable error.</p>
+</li>
+<li>
+<p>The replay driver performs the following actions:</p>
+<ol>
+<li>
+<p>Obtains a new database session, and if a registered callback exists, runs this callback to initialize the session</p>
+</li>
+<li>
+<p>Checks with the database to determine whether replay can progress (for example, because the database rolled back the transaction)</p>
+</li>
+</ol>
+</li>
+<li>
+<p>If the continuity directory requires replay, then the replay driver resubmits calls under instruction from the database.</p>
+<p>Each call must establish the same client-visible state as the original.<a id="fn_3" href="#fn_3" onclick="footdisplay(3,&#34;Validation is hardware-assisted when using current Intel and Sparc chips. &#34;)"><sup>Foot&nbsp;3</sup></a> Before replaying the last call, the replay driver ends the replay, and then returns to run-time mode under instruction from the database.</p>
+</li>
+<li>
+<p>The JDBC driver relays the response to the client application:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the replay is successful, then the database returns the response to the application. The replay appears as a delayed execution.</p>
+</li>
+<li>
+<p>If the replay is unsuccessful, then the application receives the original error.</p>
+</li>
+</ul>
+</li>
+</ol>
+<div class="infoboxnotealso" id="GUID-4B6C5116-D396-45C6-8FA0-F7B607BDBBF6__GUID-5B22BC91-A190-4CA1-A3E4-4D8D2507037A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADFNS1201" target="_blank" href="../ADFNS/adfns_app_continuity.htm#ADFNS1201"><span class="italic">Oracle Database Development Guide</span></a> to learn more about Application Continuity</p>
+</li>
+<li>
+<p><a class="olink RACAD8424" target="_blank" href="../RACAD/GUID-921494A6-330F-44D1-A24E-774AFB3152E1.htm#RACAD8424"><span class="italic">Oracle Real Application Clusters Administration and Deployment Guide</span></a> to learn more about configuring Application Continuity in an Oracle RAC environment</p>
+</li>
+<li>
+<p><a class="olink JJDBC29059" target="_blank" href="../JJDBC/appcontnew.htm#JJDBC29059"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> and <a class="olink JAJDB" target="_blank" href="../JAJDB/toc.htm"><span class="italic">Oracle Database JDBC Java API Reference</span></a> to learn more about JDBC and application continuity</p>
+</li>
+<li>
+<p><a class="olink ADFNS538" target="_blank" href="../ADFNS/adfns_avail.htm#ADFNS538"><span class="italic">Oracle Database Development Guide</span></a> to learn more about FAN</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT88959"></a><a id="CNCPT417"></a>
+<div class="props_rev_3"><a id="GUID-C0C61571-5175-400D-AEFC-FDBFE4F87188"></a>
+<h2 id="CNCPT-GUID-C0C61571-5175-400D-AEFC-FDBFE4F87188" class="sect2">Overview of Autonomous Transactions</h2>
+<div>
+<p>An <span class="bold">autonomous transaction</span> is an independent transaction that can be called from another transaction, which is the main transaction. You can suspend the calling transaction, perform SQL operations and commit or undo them in the autonomous transaction, and then resume the calling transaction.</p>
+<p>Autonomous transactions are useful for actions that must be performed independently, regardless of whether the calling transaction commits or rolls back. For example, in a stock purchase transaction, you want to commit customer data regardless of whether the overall stock purchase goes through. Additionally, you want to log error messages to a debug table even if the overall transaction rolls back.</p>
+<p>Autonomous transactions have the following characteristics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The autonomous transaction does not see uncommitted changes made by the main transaction and does not share locks or resources with the main transaction.</p>
+</li>
+<li>
+<p>Changes in an autonomous transaction are visible to other transactions upon commit of the autonomous transactions. Thus, users can access the updated information without having to wait for the main transaction to commit.</p>
+</li>
+<li>
+<p>Autonomous transactions can start other autonomous transactions. There are no limits, other than resource limits, on how many levels of autonomous transactions can be called.</p>
+</li>
+</ul>
+<p>In PL/SQL, an autonomous transaction executes within an <span class="italic">autonomous scope</span>, which is a routine marked with the pragma <code class="codeph">AUTONOMOUS_TRANSACTION</code>. In this context, routines include top-level anonymous PL/SQL blocks and PL/SQL subprograms and triggers. A <a href="glossary.htm#GUID-0ED5CC20-407D-42A1-AF92-8816691861DE"><span class="xrefglossterm">pragma</span></a> is a directive that instructs the compiler to perform a compilation option. The pragma <code class="codeph">AUTONOMOUS_TRANSACTION</code> instructs the database that this procedure, when executed, is to be executed as a new autonomous transaction that is independent of its parent transaction.</p>
+<p>The following graphic shows how control flows from the main routine (MT) to an autonomous routine and back again. The main routine is <code class="codeph">proc1</code> and the autonomous routine is <code class="codeph">proc2</code>. The autonomous routine can commit multiple transactions (AT1 and AT2) before control returns to the main routine.</p>
+<div class="figure" id="GUID-C0C61571-5175-400D-AEFC-FDBFE4F87188__CHDDGDCJ">
+<p class="titleinfigure">Figure 10-6 Transaction Control Flow</p>
+<img width="504" height="236" src="img/GUID-7DFAB7C0-B6BC-4F65-8F17-BB57F1A241AE-default.gif" alt="Description of Figure 10-6 follows" title="Description of Figure 10-6 follows"/><br/>
+<a href="img_text/GUID-7DFAB7C0-B6BC-4F65-8F17-BB57F1A241AE-print.htm">Description of &#34;Figure 10-6 Transaction Control Flow&#34;</a></div>
+<!-- class="figure" -->
+<p>When you enter the executable section of an autonomous routine, the main routine suspends. When you exit the autonomous routine, the main routine resumes.</p>
+<p>In <a href="transact.htm#GUID-C0C61571-5175-400D-AEFC-FDBFE4F87188__CHDDGDCJ">Figure 10-6</a>, the <code class="codeph">COMMIT</code> inside <code class="codeph">proc1</code> makes permanent not only its own work but any outstanding work performed in its session. However, a <code class="codeph">COMMIT</code> in <code class="codeph">proc2</code> makes permanent only the work performed in the <code class="codeph">proc2</code> transaction. Thus, the <code class="codeph">COMMIT</code> statements in transactions AT1 and AT2 have no effect on the MT transaction.</p>
+<div class="infoboxnotealso" id="GUID-C0C61571-5175-400D-AEFC-FDBFE4F87188__GUID-63C487E4-2F98-469C-AB0F-032499AB7EC3">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADFNS00205" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS00205"><span><cite>Oracle Database Development Guide</cite></span></a> and <a class="olink LNPLS00609" target="_blank" href="../LNPLS/static.htm#LNPLS00609"><span><cite>Oracle Database PL/SQL Language Reference</cite></span></a> to learn how to use autonomous transactions</p>
+</div>
+</div>
+</div>
+<a id="CNCPT1125"></a>
+<div class="props_rev_3"><a id="GUID-47231512-4A3E-4E59-86BD-332E1FB88A88"></a>
+<h2 id="CNCPT-GUID-47231512-4A3E-4E59-86BD-332E1FB88A88" class="sect2">Overview of Distributed Transactions</h2>
+<div>
+<p><a id="d50672e8521" class="indexterm-anchor"></a>A <a href="glossary.htm#GUID-DB7296DF-74E0-45E1-9BC2-5052DD543214"><span class="xrefglossterm">distributed database</span></a> is a set of databases in a distributed system that can appear to applications as a single data source. <a id="d50672e8530" class="indexterm-anchor"></a><a id="d50672e8532" class="indexterm-anchor"></a>A <span class="bold"><a href="glossary.htm#GUID-C4B9A58D-077E-4846-9625-65F5B37F5649"><span class="xrefglossterm">distributed transaction</span></a></span> is a transaction that includes one or more statements that update data on two or more distinct nodes of a distributed database, using a schema object called a <a href="glossary.htm#GUID-1C8C6E07-BE1F-4BC9-93C3-CF6D1D15DC42"><span class="xrefglossterm">database link</span></a>. A database link describes how one database instance can log in to another database instance.</p>
+<p>Unlike a transaction on a local database, a distributed transaction alters data on multiple databases. Consequently, distributed transaction processing is more complicated because the database must coordinate the committing or rolling back of the changes in a transaction as an atomic unit. The entire transaction must commit or roll back. Oracle Database must coordinate transaction control over a network and maintain data consistency, even if a network or system failure occurs. <a id="d50672e8548" class="indexterm-anchor"></a><a id="d50672e8552" class="indexterm-anchor"></a></p>
+<div class="infoboxnotealso" id="GUID-47231512-4A3E-4E59-86BD-332E1FB88A88__GUID-150122D2-6DFE-469A-88F4-FEAC2131BC02">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADMIN031" target="_blank" href="../ADMIN/ds_txns.htm#ADMIN031"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a></p>
+</div>
+</div>
+<a id="CNCPT041"></a>
+<div class="props_rev_3"><a id="GUID-0F0E4F21-1522-449C-9532-DD26AB9EECA1"></a>
+<h3 id="CNCPT-GUID-0F0E4F21-1522-449C-9532-DD26AB9EECA1" class="sect3">Two-Phase Commit</h3>
+<div>
+<p><a id="d50672e8792" class="indexterm-anchor"></a>The <a href="glossary.htm#GUID-567B55F6-9A89-4F86-9711-B157C309CDF6"><span class="xrefglossterm">two-phase commit mechanism</span></a> guarantees that <span class="italic">all</span> databases participating in a distributed transaction either all commit or all undo the statements in the transaction. The mechanism also protects implicit DML performed by integrity constraints, remote procedure calls, and triggers.</p>
+<p>In a two-phase commit among multiple databases, one database coordinates the distributed transaction. The initiating node is called the <span class="italic">global coordinator</span>. The coordinator asks the other databases if they are prepared to commit. If any database responds with a no, then the entire transaction is rolled back. If all databases vote yes, then the coordinator broadcasts a message to make the commit permanent on each of the databases.</p>
+<p>The two-phase commit mechanism is transparent to users who issue distributed transactions. In fact, users need not even know the transaction is distributed. A <code class="codeph">COMMIT</code> statement denoting the end of a transaction automatically triggers the two-phase commit mechanism. No coding or complex statement syntax is required to include distributed transactions within the body of a database application.</p>
+<div class="infoboxnotealso" id="GUID-0F0E4F21-1522-449C-9532-DD26AB9EECA1__GUID-10839962-C13A-48BA-88DC-484BCE26E684">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADMIN12222" target="_blank" href="../ADMIN/ds_txns.htm#ADMIN12222"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to learn about the two-phase commit mechanism</p>
+</div>
+</div>
+</div>
+<a id="CNCPT042"></a>
+<div class="props_rev_3"><a id="GUID-20FEB719-8BB3-49C3-834E-E0FF156BB681"></a>
+<h3 id="CNCPT-GUID-20FEB719-8BB3-49C3-834E-E0FF156BB681" class="sect3">In-Doubt Transactions</h3>
+<div>
+<p>An <span class="bold">in-doubt distributed transaction</span> occurs when a two-phase commit was interrupted by any type of system or network failure.</p>
+<p>For example, two databases report to the coordinating database that they were prepared to commit, but the coordinating database instance fails immediately after receiving the messages. The two databases who are prepared to commit are now left hanging while they await notification of the outcome.</p>
+<p>The recoverer (<code class="codeph">RECO</code>) background process automatically resolves the outcome of in-doubt distributed transactions. After the failure is repaired and communication is reestablished, the <code class="codeph">RECO</code> process of each local Oracle database automatically commits or rolls back any in-doubt distributed transactions consistently on all involved nodes.</p>
+<p>In the event of a long-term failure, Oracle Database enables each local administrator to manually commit or undo any distributed transactions that are in doubt because of the failure. This option enables the local database administrator to free any locked resources that are held indefinitely because of the long-term failure.</p>
+<p>If a database must be recovered to a past time, then database recovery facilities enable database administrators at other sites to return their databases to the earlier point in time. This operation ensures that the global database remains consistent.</p>
+<div class="infoboxnotealso" id="GUID-20FEB719-8BB3-49C3-834E-E0FF156BB681__GUID-8AD9A053-0233-458E-B9DD-5DA4F472EA20">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="process.htm#GUID-9FF900D1-7DB8-4D41-8D34-8E99AF650CEC" title="In a distributed database, the recoverer process (RECO) automatically resolves failures in distributed transactions.">Recoverer Process (RECO)</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADMIN12252" target="_blank" href="../ADMIN/ds_txnman.htm#ADMIN12252"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn how to manage in-doubt transactions</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<hr/>
+<br/>
+<p style="text-decoration:underline">Footnote Legend</p>
+Footnote&nbsp;1:
+<p>For Oracle Real Application Clusters (Oracle RAC), the logical transaction ID includes the database instance number as a prefix.</p>
+<br/>
+Footnote&nbsp;2:
+<p>This validation is hardware-assisted in the database for platforms using current Intel and Sparc chips.</p>
+<br/>
+Footnote&nbsp;3:
+<p>Validation is hardware-assisted when using current Intel and Sparc chips.</p>
+<br/></div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1196">
+<tr>
+<td class="cellalignment1203">
+<table class="cellalignment1201">
+<tr>
+<td class="cellalignment1200"><a href="consist.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1200"><a href="part_dbarch.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1993, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1205">
+<table class="cellalignment1199">
+<tr>
+<td class="cellalignment1200"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1200"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1200"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1200"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1200"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1200"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+
+
+</body></html>

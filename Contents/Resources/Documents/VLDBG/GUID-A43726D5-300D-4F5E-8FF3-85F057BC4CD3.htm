@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114466"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Performance%20Implications%20of%20Prefixed%20and%20Nonprefixed%20Indexes"></a><title>Performance Implications of Prefixed and Nonprefixed Indexes</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-4FB3C818-D107-491C-955D-1772E2F64A00.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-48E980C5-AC1D-4140-AE6A-531BE38108E0.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-A43726D5-300D-4F5E-8FF3-85F057BC4CD3"></a> <span id="PAGE" style="display:none;">86/481</span> <!-- End Header --><a id="VLDBG1264"></a><a id="VLDBG1263"></a>
+<h1 id="VLDBG-GUID-A43726D5-300D-4F5E-8FF3-85F057BC4CD3" class="sect1">Performance Implications of Prefixed and Nonprefixed Indexes</h1>
+<div>
+<p><a id="d17987e62" class="indexterm-anchor"></a><a id="d17987e66" class="indexterm-anchor"></a>It is more expensive to probe into a nonprefixed index than to probe into a prefixed index. <a id="d17987e71" class="indexterm-anchor"></a><a id="d17987e75" class="indexterm-anchor"></a><a id="d17987e79" class="indexterm-anchor"></a><a id="d17987e83" class="indexterm-anchor"></a>If an index is prefixed (either local or global) and Oracle is presented with a predicate involving the index columns, then partition pruning can restrict application of the predicate to a subset of the index partitions.</p>
+<p>For example, in <a href="GUID-3E69237B-A13B-4AAE-B7DC-E029310B0B03.htm#GUID-3E69237B-A13B-4AAE-B7DC-E029310B0B03__i1008832">Figure 3-4</a>, if the predicate is <code>deptno=15</code>, the optimizer knows to apply the predicate only to the second partition of the index. (If the predicate involves a bind variable, the optimizer does not know exactly which partition but it may still know there is only one partition involved, in which case at run time, only one index partition is accessed.)</p>
+<p>When an index is nonprefixed, Oracle often has to apply a predicate involving the index columns to all <code>N</code> index partitions. This is required to look up a single key, or to do an index range scan. For a range scan, Oracle must also combine information from <code>N</code> index partitions. For example, in <a href="GUID-D1777721-B535-4D1F-904E-BFEC27FC12AB.htm#GUID-D1777721-B535-4D1F-904E-BFEC27FC12AB__i1008834">Figure 3-5</a>, a local index is partitioned on <code>chkdate</code> with an index key on <code>acctno</code>. If the predicate is <code>acctno=31</code>, Oracle probes all 12 index partitions.</p>
+<p>Of course, if there is also a predicate on the partitioning columns, then multiple index probes might not be necessary. Oracle takes advantage of the fact that a local index is equipartitioned with the underlying table to prune partitions based on the partition key. For example, if the predicate in <a href="GUID-D1777721-B535-4D1F-904E-BFEC27FC12AB.htm#GUID-D1777721-B535-4D1F-904E-BFEC27FC12AB__i1008834">Figure 3-5</a> is <code>chkdate&lt;3/97</code>, Oracle only has to probe two partitions.</p>
+<p>So for a nonprefixed index, if the partition key is a part of the <code>WHERE</code> clause but not of the index key, then the optimizer determines which index partitions to probe based on the underlying table partition.</p>
+<p>When many queries and DML statements using keys of local, nonprefixed, indexes have to probe all index partitions, this effectively reduces the degree of partition independence provided by such indexes.</p>
+<div class="tblformal" id="GUID-A43726D5-300D-4F5E-8FF3-85F057BC4CD3__GUID-1E91B2E8-7C72-4C74-B29E-527B388DBD66">
+<hr/>
+<p class="titleintable">Table 3-2 Comparing Prefixed Local, Nonprefixed Local, and Global Indexes</p>
+<table class="cellalignment2967" title="Comparing Prefixed Local, Nonprefixed Local, and Global Indexes" summary="Comparing Prefixed Local, Nonprefixed Local, and Global Indexes">
+<thead align="left">
+<tr>
+<th class="cellalignment2985" id="d17987e141">Index Characteristics</th>
+<th class="cellalignment2985" id="d17987e144">Prefixed Local</th>
+<th class="cellalignment2985" id="d17987e147">Nonprefixed Local</th>
+<th class="cellalignment2986" id="d17987e150">Global</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="cellalignment2985" id="d17987e155" headers="d17987e141">
+<p>Unique possible?</p>
+</td>
+<td class="cellalignment2985" headers="d17987e155 d17987e144">
+<p>Yes</p>
+</td>
+<td class="cellalignment2985" headers="d17987e155 d17987e147">
+<p>Yes</p>
+</td>
+<td class="cellalignment2986" headers="d17987e155 d17987e150">
+<p>Yes. Must be global if using indexes on columns other than the partitioning columns</p>
+</td>
+</tr>
+<tr>
+<td class="cellalignment2985" id="d17987e168" headers="d17987e141">
+<p>Manageability</p>
+</td>
+<td class="cellalignment2985" headers="d17987e168 d17987e144">
+<p>Easy to manage</p>
+</td>
+<td class="cellalignment2985" headers="d17987e168 d17987e147">
+<p>Easy to manage</p>
+</td>
+<td class="cellalignment2986" headers="d17987e168 d17987e150">
+<p>Harder to manage</p>
+</td>
+</tr>
+<tr>
+<td class="cellalignment2985" id="d17987e181" headers="d17987e141">
+<p>OLTP</p>
+</td>
+<td class="cellalignment2985" headers="d17987e181 d17987e144">
+<p>Good</p>
+</td>
+<td class="cellalignment2985" headers="d17987e181 d17987e147">
+<p>Bad</p>
+</td>
+<td class="cellalignment2986" headers="d17987e181 d17987e150">
+<p>Good</p>
+</td>
+</tr>
+<tr>
+<td class="cellalignment2985" id="d17987e194" headers="d17987e141">
+<p>Long Running (DSS)</p>
+</td>
+<td class="cellalignment2985" headers="d17987e194 d17987e144">
+<p>Good</p>
+</td>
+<td class="cellalignment2985" headers="d17987e194 d17987e147">
+<p>Good</p>
+</td>
+<td class="cellalignment2986" headers="d17987e194 d17987e150">
+<p>Not Good</p>
+</td>
+</tr>
+</tbody>
+</table>
+<hr/></div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-4FB3C818-D107-491C-955D-1772E2F64A00.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-48E980C5-AC1D-4140-AE6A-531BE38108E0.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

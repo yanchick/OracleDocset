@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-105343"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Minimizing%20Use%20of%20the%20Redo%20Log"></a><title>Minimizing Use of the Redo Log</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="archiving, disabling, effect on direct path loads"/>
+<meta name="dcterms.created" content="2017-07-10T17:06:49Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Utilities"/>
+<meta name="dcterms.identifier" content="E41528-09"/>
+<meta name="dcterms.isVersionOf" content="SUTIL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-A2FC1A81-CFC0-410E-92FE-F3B4C07E36CE.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-CEBD2E84-5348-46B5-AAAD-0790109F6741.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41528-09.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-4F224723-D836-4713-9BEE-E7B88424EB8A"></a> <span id="PAGE" style="display:none;">501/1019</span> <!-- End Header -->
+<a id="SUTIL1322"></a>
+<h1 id="SUTIL-GUID-4F224723-D836-4713-9BEE-E7B88424EB8A" class="sect1">Minimizing Use of the Redo Log</h1>
+<div>
+<p>One way to speed a direct load dramatically is to minimize<a id="d100721e30" class="indexterm-anchor"></a> use of the redo log. There are three ways to do this. You can disable archiving, you can specify that the load is unrecoverable, or you can set the SQL <code class="codeph">NOLOGGING</code> parameter for the objects being loaded. This section discusses all methods.<a id="d100721e38" class="indexterm-anchor"></a></p>
+</div>
+<a id="SUTIL1323"></a>
+<div class="props_rev_3"><a id="GUID-36F7E175-8B08-4F9F-8998-954ADDE4B0B3"></a>
+<h2 id="SUTIL-GUID-36F7E175-8B08-4F9F-8998-954ADDE4B0B3" class="sect2">Disabling Archiving</h2>
+<div>
+<div class="section">
+<p>If archiving is disabled, then direct path loads do not generate full image redo. Use the SQL <code class="codeph">ARCHIVELOG</code> and <code class="codeph">NOARCHIVELOG</code> parameters to set the archiving mode. See the <a class="olink ADMIN008" target="_blank" href="../ADMIN/archredo.htm#ADMIN008"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> for more information about archiving.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="SUTIL1324"></a>
+<div class="props_rev_3"><a id="GUID-75EE26ED-6B2F-4A44-AC72-2AF0D326131B"></a>
+<h2 id="SUTIL-GUID-75EE26ED-6B2F-4A44-AC72-2AF0D326131B" class="sect2">Specifying the SQL*Loader UNRECOVERABLE Clause</h2>
+<div>
+<p>To save time and space in the redo log file, use the SQL*Loader <code class="codeph">UNRECOVERABLE</code> clause in the control file when you load data. An unrecoverable load does not record loaded data in the redo log file; instead, it generates invalidation redo.</p>
+<p>The <code class="codeph">UNRECOVERABLE</code> clause applies to all objects loaded during the load session (both data and index segments). Therefore, media recovery is disabled for the loaded table, although database changes by other users may continue to be logged.<a id="d100721e134" class="indexterm-anchor"></a><a id="d100721e138" class="indexterm-anchor"></a></p>
+<div class="infobox-note" id="GUID-75EE26ED-6B2F-4A44-AC72-2AF0D326131B__GUID-2BF5E01B-6E3D-418E-875F-A6829FE89791">
+<p class="notep1">Note:</p>
+<p>Because the data load is not logged, you may want to make a backup of the data after loading.</p>
+</div>
+<p>If media recovery becomes necessary on data that was loaded with the <code class="codeph">UNRECOVERABLE</code> clause, then the data blocks that were loaded are marked as logically corrupted.</p>
+<p>To recover the data, drop and re-create the data. It is a good idea to do backups immediately after the load to preserve the otherwise unrecoverable data.</p>
+<p>By default, a direct path load is <code class="codeph">RECOVERABLE</code>.</p>
+<p>The following is an example of specifying the <code class="codeph">UNRECOVERABLE</code> clause in the control file:</p>
+<pre dir="ltr">UNRECOVERABLE
+LOAD DATA
+INFILE &#39;sample.dat&#39;
+INTO TABLE emp
+(ename VARCHAR2(10), empno NUMBER(4));
+</pre></div>
+</div>
+<a id="SUTIL1325"></a>
+<div class="props_rev_3"><a id="GUID-C6F49A28-3318-4173-8488-81DF6F83D5E0"></a>
+<h2 id="SUTIL-GUID-C6F49A28-3318-4173-8488-81DF6F83D5E0" class="sect2">Setting the SQL NOLOGGING Parameter</h2>
+<div>
+<p>If a data or index segment has the SQL <code class="codeph">NOLOGGING</code> parameter set, then full image redo logging is disabled for that segment (invalidation redo is generated). Use of the <code class="codeph">NOLOGGING</code> parameter allows a finer degree of control over the objects that are not logged.</p>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2015">
+<tr>
+<td class="cellalignment2022">
+<table class="cellalignment2020">
+<tr>
+<td class="cellalignment2019"><a href="GUID-A2FC1A81-CFC0-410E-92FE-F3B4C07E36CE.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2019"><a href="GUID-CEBD2E84-5348-46B5-AAAD-0790109F6741.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2024">
+<table class="cellalignment2018">
+<tr>
+<td class="cellalignment2019"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2019"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2019"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2019"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2019"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2019"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

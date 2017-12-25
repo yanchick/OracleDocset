@@ -1,0 +1,1292 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-71031"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Distributed%20Transactions"></a><title>Distributed Transactions</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="This book describes how to use Oracle JDBC drivers to develop powerful Java database applications."/>
+<meta name="dcterms.created" content="2014-06-30T1:22:37Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database JDBC Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49300-05"/>
+<meta name="dcterms.isVersionOf" content="JJDBC"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="part7.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="part8.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49300-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">44/55</span> <!-- End Header -->
+<div id="JJDBC28000" class="chapter"><a id="g1077100"></a>
+<h1 class="chapter"><span class="secnum">30</span> Distributed Transactions</h1>
+<p>This chapter discusses the Oracle Java Database Connectivity (JDBC) implementation of distributed transactions. These are multiphased transactions, often using multiple databases, which must be committed in a coordinated way. There is also related discussion of XA, which is a general standard, and not specific to Java, for distributed transactions.</p>
+<p>The following topics are discussed:</p>
+<ul>
+<li>
+<p><a href="#i1066628">Overview of Distributed Transactions</a></p>
+</li>
+<li>
+<p><a href="#i1066632">XA Components</a></p>
+</li>
+<li>
+<p><a href="#i1067967">Error Handling and Optimizations</a></p>
+</li>
+<li>
+<p><a href="#i1066640">Implementing a Distributed Transaction</a></p>
+</li>
+<li>
+<p><a href="#BGBIDIGD">Native-XA in Oracle JDBC Drivers</a></p>
+</li>
+</ul>
+<p>For further introductory and general information about distributed transactions, refer to the specifications for the JDBC 2.0 Optional Package and the Java Transaction API (JTA).</p>
+<a id="i1066628"></a>
+<div id="JJDBC28843" class="sect1">
+<h2 class="sect1">Over<a id="sthref906"></a><a id="sthref907"></a>view of Distributed Transactions</h2>
+<p>A <span class="bold">distributed transaction</span>, sometimes referred to as a <span class="bold">global transaction</span>, is a set of two or more related transactions that must be managed in a coordinated way. The transactions that constitute a distributed transaction might be in the same database, but more typically are in different databases and often in different locations. Each individual transaction of a distributed transaction is referred to as a <span class="bold">transac<a id="sthref908"></a>tion branch</span>.</p>
+<p>For example, a distributed transaction might consist of money being transferred from an account in one bank to an account in another bank. You would not want either transaction committed without assurance that both will complete successfully.</p>
+<p>In JDBC, distributed transaction functionality is built on top of connection pooling functionality. This distributed transaction functionality is also built upon the open XA standard for distributed transactions. X<a id="sthref909"></a>A is part of the X/Open standard and is not specific to Java.</p>
+<p>JDBC is used to connect to database resources. However, to include all changes to multiple databases within a transaction, you must use the JDBC connections within a JTA global transaction. The process of including database SQL updates within a transaction is referred to as enlisting a database resource.</p>
+<p>The section covers the following topics:</p>
+<ul>
+<li>
+<p><a href="#i1066398">Distributed Transaction Components and Scenarios</a></p>
+</li>
+<li>
+<p><a href="#i1066403">Distributed Transaction Concepts</a></p>
+</li>
+<li>
+<p><a href="#i1068757">Switching Between Global and Local Transactions</a></p>
+</li>
+<li>
+<p><a href="#i1066408">Oracle XA Packages</a></p>
+</li>
+</ul>
+<a id="i1066398"></a>
+<div id="JJDBC28844" class="sect2">
+<h3 class="sect2">Distributed Tran<a id="sthref910"></a>saction Components and Scenarios</h3>
+<p>In reading the remainder of the distributed transactions section, it will be helpful to keep the following points in mind:</p>
+<ul>
+<li>
+<p>A distributed transaction system typically relies on an external trans<a id="sthref911"></a>action manager, such as a software component that implements standard JTA functionality, to coordinate the individual transactions.</p>
+<p>Many vendors offer XA-compliant JTA modules, including Oracle, which includes JTA in Oracle9<span class="italic">i</span> Application Server and Oracle Application Server 10<span class="italic">g</span>.</p>
+</li>
+<li>
+<p>XA functionality is usually isolated from a client application, being implemented instead in a middle-tier environment, such as an application server.</p>
+<p>In many scenarios, the application server and transaction manager will be together on the middle tier, possibly together with some of the application code as well.</p>
+</li>
+<li>
+<p>Discussion throughout this section is intended mostly for middle-tier developers.</p>
+</li>
+<li>
+<p>The term resour<a id="sthref912"></a>ce manager is often used in discussing distributed transactions. A resource manager is simply an entity that manages data or some other kind of resource. Wherever the term is used in this chapter, it refers to a database.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Using JTA functionality requires <code>jta.jar</code> to be in the <code>CLASSPATH</code> environment variable. This file is located at <code><span class="codeinlineitalic">ORACLE_HOME</span></code><code>/jlib</code>. Oracle includes this file with the JDBC product.</div>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="i1066403"></a>
+<div id="JJDBC28845" class="sect2">
+<h3 class="sect2"><a id="sthref913"></a>Distributed Transaction Concepts</h3>
+<p>When you use XA functionality, the transaction manager uses XA resource instances to prepare and coordinate each transaction branch and then to commit or roll back all transaction branches appropriately.</p>
+<p>XA functionality includes the following key components:</p>
+<ul>
+<li>
+<p>XA <a id="sthref914"></a>data sources</p>
+<p>These are extensions of connection pool data sources and other data sources, and similar in concept and functionality.</p>
+<p>There will be one XA data source instance for each resource manager that will be used in the distributed transaction. You will typically create XA data source instances in your middle-tier software.</p>
+<p>XA data sources produce XA connections.</p>
+</li>
+<li>
+<p>XA con<a id="sthref915"></a>nections</p>
+<p>These are extensions of pooled connections and similar in concept and functionality. An XA connection encapsulates a physical database connection. Individual connection instances are temporary handles to these physical connections.</p>
+<p>An XA connection instance corresponds to a single Oracle session, although the session can be used in sequence by multiple logical connection instances, as with pooled connection instances.</p>
+<p>You will typically get an XA connection instance from an XA data source instance in your middle-tier software. You can get multiple XA connection instances from a single XA data source instance if the distributed transaction will involve multiple sessions in the same database.</p>
+<p>XA connections produce <code>OracleXAResource</code> instances and JDBC connection instances.</p>
+</li>
+<li>
+<p>XA res<a id="sthref916"></a>ources</p>
+<p>These are used by a transaction manager in coordinating the transaction branches of a distributed transaction.</p>
+<p>You will get one <code>OracleXAResource</code> instance from each XA connection instance, typically in your middle-tier software. There is a one-to-one correlation between <code>OracleXAResource</code> instances and XA connection instances. Equivalently, there is a one-to-one correlation between <code>OracleXAResource</code> instances and Oracle sessions.</p>
+<p>In a typical scenario, the middle-tier component will hand off <code>OracleXAResource</code> instances to the transaction manager, for use in coordinating distributed transactions.</p>
+<p>Each <code>OracleXAResource</code> instance corresponds to a single Oracle session. So, there can be only a single active transaction branch associated with an <code>OracleXAResource</code> instance at any given time. However, there can be additional suspended transaction branches.</p>
+<p>Each <code>OracleXAResource</code> instance has the functionality to start, end, prepare, commit, or roll back the operations of the transaction branch running in the session with which the <code>OracleXAResource</code> instance is associated.</p>
+<p>The prepare step is the first step of a two-phase commit operation. The transaction manager will issue a <code>PREPARE</code> to each <code>OracleXAResource</code> instance. Once the transaction manager sees that the operations of each transaction branch have prepared successfully, it will issue a <code>COMMIT</code> to each <code>OracleXAResource</code> instance to commit all the changes.</p>
+</li>
+<li>
+<p>Transactio<a id="sthref917"></a>n IDs</p>
+<p>These are used to identify transaction branches. Each ID includes a transaction branch ID component and a distributed transaction ID component. This is how a branch is associated with a distributed transaction. All <code>OracleXAResource</code> instances associated with a given distributed transaction would have a transaction ID that includes the same distributed transaction ID component.</p>
+</li>
+<li>
+<p><code>OracleXAResource.ORATRANSLOOSE</code></p>
+<p>Start a loosely coupled transaction with transaction ID <code>xid</code>.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="i1068757"></a>
+<div id="JJDBC28846" class="sect2">
+<h3 class="sect2">Switching Between Global and Local Transactions</h3>
+<p><a id="ABC1070480"></a>Applications can share connections between local and global transactions. Applications can also switch connections between local transactions and global transactions.</p>
+<p>A connection is always in one of the following modes:</p>
+<ul>
+<li>
+<p><code>NO_TXN</code></p>
+<p>No transaction is actively using this connection.</p>
+</li>
+<li>
+<p><code>LOCAL_TXN</code></p>
+<p>A local transaction with auto-commit turned off or disabled is actively using this connection.</p>
+</li>
+<li>
+<p><code>GLOBAL_TXN</code></p>
+<p>A global transaction is actively using this connection.</p>
+</li>
+</ul>
+<p>Each connection switches automatically between these modes depending on the operations carried out on the connection. A connection is always in <code>NO_TXN</code> mode when it is instantiated.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The modes are maintained internally by the JDBC drivers in association with Oracle Database.</div>
+<p><a href="#CHDGEBDI">Table 30-1</a> describes the connection mode transition rules.</p>
+<div id="JJDBC28847" class="tblformal">
+<p class="titleintable"><a id="sthref918"></a><a id="CHDGEBDI"></a>Table 30-1 Connection Mode Transitions</p>
+<table class="cellalignment2244" title="Connection Mode Transitions" summary="table" dir="ltr">
+<thead>
+<tr class="cellalignment2238">
+<th class="cellalignment2245" id="r1c1-t4">Current Mode</th>
+<th class="cellalignment2245" id="r1c2-t4">Switches to<br/>
+NO_TXN When</th>
+<th class="cellalignment2245" id="r1c3-t4">Switches to LOCAL_TXN When</th>
+<th class="cellalignment2245" id="r1c4-t4">Switches to GLOBAL_TXN When</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r2c1-t4" headers="r1c1-t4">
+<p><code>NO_TXN</code></p>
+</td>
+<td class="cellalignment2246" headers="r2c1-t4 r1c2-t4">
+<p>NA</p>
+</td>
+<td class="cellalignment2246" headers="r2c1-t4 r1c3-t4">
+<p>Auto-commit mode is false and an Oracle data manipulation language (DML) statement is run.</p>
+</td>
+<td class="cellalignment2246" headers="r2c1-t4 r1c4-t4">
+<p>The <code>start</code> method is called on an <code>XAResource</code> obtained from the <code>XAconnection</code> that provided the current connection.</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r3c1-t4" headers="r1c1-t4">
+<p><code>LOCAL_TXN</code></p>
+</td>
+<td class="cellalignment2246" headers="r3c1-t4 r1c2-t4">
+<p>Any of the following happens:</p>
+<ul>
+<li>
+<p>An Oracle data definition language (DDL) statement is run.</p>
+</li>
+<li>
+<p><code>commit</code> is called.</p>
+</li>
+<li>
+<p><code>rollback</code> is called, but without parameters.</p>
+</li>
+</ul>
+</td>
+<td class="cellalignment2246" headers="r3c1-t4 r1c3-t4">
+<p>NA</p>
+</td>
+<td class="cellalignment2246" headers="r3c1-t4 r1c4-t4">
+<p>The <code>start</code> method is called on an <code>XAResource</code> obtained from the <code>XAconnection</code> that provided the current connection. This feature is available starting from Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.2).</p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r4c1-t4" headers="r1c1-t4">
+<p><code>GLOBAL_TXN</code></p>
+</td>
+<td class="cellalignment2246" headers="r4c1-t4 r1c2-t4">
+<p>Within a global transaction open on this connection, <code>end</code> is called on an <code>XAResource</code> obtained from the <code>XAconnection</code> that provided this connection.</p>
+</td>
+<td class="cellalignment2246" headers="r4c1-t4 r1c3-t4">
+<p>NEVER</p>
+</td>
+<td class="cellalignment2246" headers="r4c1-t4 r1c4-t4">
+<p>NA</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" -->
+<p>If none of these rules is applicable, then the mode does not change.</p>
+<p class="subhead2"><a id="JJDBC28848"></a>Mode Restrictions on Operations</p>
+<p>The current connection mode restricts which operations are valid within a transaction.</p>
+<ul>
+<li>
+<p>In the <code>LOCAL_TXN</code> mode, applications must not call <code>prepare</code>, <code>commit</code>, <code>rollback</code>, <code>forget</code>, or <code>end</code> on an <code>XAResource</code>. Doing so causes an <code>XAException</code> to be thrown.</p>
+</li>
+<li>
+<p>In the <code>GLOBAL_TXN</code> mode, applications must not call <code>commit</code>, <code>rollback</code>, <code>rollback(Savepoint)</code>, <code>setAutoCommit(true)</code>, or <code>setSavepoint</code> on a <code>java.sql.Connection</code>, and must not call <code>OracleSetSavepoint</code> or <code>oracleRollback</code> on an <code>oracle.jdbc.OracleConnection</code>. Doing so causes a <code>SQLException</code> to be thrown.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+This mode-restriction error checking is in addition to the standard error checking on the transaction and savepoint APIs.<a id="sthref919"></a></div>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="i1066408"></a>
+<div id="JJDBC28849" class="sect2">
+<h3 class="sect2">Oracle XA P<a id="sthref920"></a>ackages</h3>
+<p>Oracle supplies the following three packages that have classes to implement distributed transaction functionality according to the XA standard:</p>
+<ul>
+<li>
+<p><code>oracle.jdbc.xa</code></p>
+</li>
+<li>
+<p><code>oracle.jdbc.xa.client</code></p>
+</li>
+<li>
+<p><code>oracle.jdbc.xa.server</code></p>
+</li>
+</ul>
+<p>Classes for XA data sources, XA connections, and XA resources are in both the <code>client</code> package and the <code>server</code> package. An abstract class for each is in the top-level package. The <code>OracleXid</code> and <code>OracleXAException</code> classes are in the top-level <code>oracle.jdbc.xa</code> package, because their functionality does not depend on where the code is running.</p>
+<p>In middle-tier scenarios, you will import <code>OracleXid</code>, <code>OracleXAException</code>, and the <code>oracle.jdbc.xa.client</code> package.</p>
+<p>If you intend your XA code to run in the target Oracle Database, however, you will import the <code>oracle.jdbc.xa.server</code> package instead of the <code>client</code> package.</p>
+<p>If code that will run inside a target database must also access remote databases, then do not import either package. Instead, you must fully qualify the names of any classes that you use from the <code>client</code> package to access a remote database or from the <code>server</code> package to access the local database. Class names are duplicated between these packages.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="i1066632"></a>
+<div id="JJDBC28850" class="sect1">
+<h2 class="sect1">XA Components</h2>
+<p>This section discusses the XA components, that is, the standard XA interfaces specified in the JDBC standard, and the Oracle classes that implement them. The following topics are covered:</p>
+<ul>
+<li>
+<p><a href="#i1066469">XADatasource Interface and Oracle Implementation</a></p>
+</li>
+<li>
+<p><a href="#i1066474">XAConnection Interface and Oracle Implementation</a></p>
+</li>
+<li>
+<p><a href="#i1066479">XAResource Interface and Oracle Implementation</a></p>
+</li>
+<li>
+<p><a href="#i1060342">OracleXAResource Method Functionality and Input Parameters</a></p>
+</li>
+<li>
+<p><a href="#i1060463">Xid Interface and Oracle Implementation</a></p>
+</li>
+</ul>
+<a id="i1066469"></a>
+<div id="JJDBC28851" class="sect2">
+<h3 class="sect2"><a id="sthref921"></a><a id="sthref922"></a><a id="sthref923"></a><a id="sthref924"></a>XADatasource Interface and Oracle Implementation</h3>
+<p>The <code>javax.sql.XADataSource</code> interface outlines standard functionality of XA data sources, which are factories for XA connections. The overloaded <code>getXAConnection</code> method returns an XA connection instance and optionally takes a user name and password as input:</p>
+<pre>public interface XADataSource
+{
+   XAConnection getXAConnection() throws SQLException;
+   XAConnection getXAConnection(String user, String password)
+      throws SQLException;
+   ...
+}
+</pre>
+<p>Oracle JDBC implements the <code>XADataSource</code> interface with the <code>OracleXADataSource</code> class, located both in the <code>oracle.jdbc.xa.client package</code> and the <code>oracle.jdbc.xa.server</code> package.</p>
+<p>The <code>OracleXADataSource</code> classes also extend the <code>OracleConnectionPoolDataSource</code> class, which extends the <code>OracleDataSource</code> class, and therefore, include all the connection properties.</p>
+<p>The <code>getXAConnection</code> methods of the <code>OracleXADataSource</code> class returns the Oracle implementation of XA connection instances, which are <code>OracleXAConnection</code> instances.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+You can register XA data sources in Java Naming Directory and Interface (JNDI) using the same naming conventions as discussed previously for nonpooling data sources.</div>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+For information about Fast Connection Failover, refer to <a class="olink JJUCP08100" href="../JJUCP/rac.htm#JJUCP08100"><span class="italic">Oracle Universal Connection Pool for JDBC Developer&#39;s Guide</span></a>.</div>
+</div>
+<!-- class="sect2" -->
+<a id="i1066474"></a>
+<div id="JJDBC28852" class="sect2">
+<h3 class="sect2">XACon<a id="sthref925"></a><a id="sthref926"></a><a id="sthref927"></a><a id="sthref928"></a>nection Interface and Oracle Implementation</h3>
+<p>An XA connection instance, as with a pooled connection instance, encapsulates a physical connection to a database. This would be the database specified in the connection properties of the XA data source instance that produced the XA connection instance.</p>
+<p>Each XA connection instance also has the facility to produce the <code>OracleXAResource</code> instance that will correspond to it for use in coordinating the distributed transaction.</p>
+<p>An XA connection instance is an instance of a class that implements the standard <code>javax.sql.XAConnection</code> interface:</p>
+<pre>public interface XAConnection extends PooledConnection
+{
+   javax.jta.xa.XAResource getXAResource() throws SQLException;
+}
+</pre>
+<p>As you see, the <code>XAConnection</code> interface extends the <code>javax.sql.PooledConnection</code> interface, so it also includes the <code>getConnection</code>, <code>close</code>, <code>addConnectionEventListener</code>, and <code>removeConnectionEventListener</code> methods.</p>
+<p>Oracle JDBC implements the <code>XAConnection</code> interface with the <code>OracleXAConnection</code> class, located both in the <code>oracle.jdbc.xa.client package</code> and the <code>oracle.jdbc.xa.server</code> package.</p>
+<p>The <code>OracleXAConnection</code> classes also extend the <code>OraclePooledConnection</code> class.</p>
+<p>The <code>OracleXAConnection</code> class <code>getXAResource</code> method returns the Oracle implementation of an <code>OracleXAResource</code> instance, which is an <code>OracleXAResource</code> instance. The <code>getConnection</code> method returns an <code>OracleConnection</code> instance.</p>
+<p>A JDBC connection instance returned by an XA connection instance acts as a temporary handle to the physical connection, as opposed to encapsulating the physical connection. The physical connection is encapsulated by the XA connection instance. The connection obtained from an <code>XAConnection</code> object behaves exactly like a regular connection, until it participates in a global transaction. At that time, auto-commit status is set to <code>false</code>. After the global transaction ends, auto-commit status is returned to the value it had before the global transaction. The default auto-commit status on a connection obtained from <code>XAConnection</code> is <code>false</code> in all releases prior to Oracle Database 10<span class="italic">g</span>. Starting from Oracle Database 10<span class="italic">g</span>, the default status is <code>true</code>.</p>
+<p>Each time an XA connection instance <code>getConnection</code> method is called, it returns a new connection instance that exhibits the default behavior, and closes any previous connection instance that still exists and had been returned by the same XA connection instance. However, it is advisable to explicitly close any previous connection instance before opening a new one.</p>
+<p>Calling the <code>close</code> method of an XA connection instance closes the physical connection to the database. This is typically performed in the middle tier.</p>
+</div>
+<!-- class="sect2" -->
+<a id="i1066479"></a>
+<div id="JJDBC28853" class="sect2">
+<h3 class="sect2">XARes<a id="sthref929"></a><a id="sthref930"></a><a id="sthref931"></a><a id="sthref932"></a>ource Interface and Oracle Implementation</h3>
+<p>The transaction manager uses <code>OracleXAResource</code> instances to coordinate all the transaction branches that constitute a distributed transaction.</p>
+<p>Each <code>OracleXAResource</code> instance provides the following key functionality, typically invoked by the transaction manager:</p>
+<ul>
+<li>
+<p>It associates and disassociates distributed transactions with the transaction branch operating in the XA connection instance that produced this <code>OracleXAResource</code> instance. Essentially, it associates distributed transactions with the physical connection or session encapsulated by the XA connection instance. This is done through use of transaction IDs.</p>
+</li>
+<li>
+<p>It performs the two-phase commit functionality of a distributed transaction to ensure that changes are not committed in one transaction branch before there is assurance that the changes will succeed in all transaction branches.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<ul>
+<li>
+<p>Because there must always be a one-to-one correlation between XA connection instances and <code>OracleXAResource</code> instances, an <code>OracleXAResource</code> instance is implicitly closed when the associated XA connection instance is closed.</p>
+</li>
+<li>
+<p>If a transaction is opened by a given <code>OracleXAResource</code> instance, then it must also be closed by the same <code>OracleXAResource</code> instance.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+<p>An <code>OracleXAResource</code> instance is an instance of a class that implements the standard <code>javax.transaction.xa.XAResource</code> interface. Oracle JDBC implements the <code>XAResource</code> interface with the <code>OracleXAResource</code> class, located both in the <code>oracle.jdbc.xa.client</code> package and the <code>oracle.jdbc.xa.server</code> package.</p>
+<p>Oracle JDBC driver creates and returns an <code>OracleXAResource</code> instance whenever the <code>getXAResource</code> method of the <code>OracleXAConnection</code> class is called, and it is Oracle JDBC driver that associates an <code>OracleXAResource</code> instance with a connection instance and the transaction branch being run through that connection.</p>
+<p>This method is how an <code>OracleXAResource</code> instance is associated with a particular connection and with the transaction branch being run in that connection.</p>
+</div>
+<!-- class="sect2" -->
+<a id="i1060342"></a>
+<div id="JJDBC28854" class="sect2">
+<h3 class="sect2">OracleXARes<a id="sthref933"></a>ource Method Functionality and Input Parameters</h3>
+<p>The <code><a id="sthref934"></a>OracleXAResource</code> class has several methods to coordinate a transaction branch with the distributed transaction with which it is associated. This functionality usually involves two-phase commit operations.</p>
+<p>A transaction manager, receiving <code>OracleXAResource</code> instances from a middle-tier component, such as an application server, typically invokes this functionality.</p>
+<p>Each of these methods takes a transaction ID as input, in the form of an <code>Xid</code> instance, which includes a transaction branch ID component and a distributed transaction ID component. Every transaction branch has a unique transaction ID, but transaction branches belonging to the same global transaction have the same global transaction component as part of their transaction IDs.</p>
+<p class="subhead2"><a id="JJDBC28855"></a>st<a id="sthref935"></a><a id="sthref936"></a>art</p>
+<p>Starts work on behalf of a transaction branch, associating the transaction branch with a distributed transaction.</p>
+<pre>void start(Xid xid, int flags)
+</pre>
+<p>The <code>flags</code> parameter must be one or more of the following values:</p>
+<ul>
+<li>
+<p><code>XAResource.TMNOFLAGS</code></p>
+<p>Flags the start of a new transaction branch for subsequent operations in the session associated with this XA resource instance. This branch will have the transaction ID <code>xid</code>, which is an <code>OracleXid</code> instance created by the transaction manager. This will map the transaction branch to the appropriate distributed transaction.</p>
+</li>
+<li>
+<p><code>XAResource.TMJOIN</code></p>
+<p>Joins subsequent operations in the session associated with this XA resource instance to the existing transaction branch specified by <code>xid</code>.</p>
+</li>
+<li>
+<p><code>XAResource.TMRESUME</code></p>
+<p>Resumes the transaction branch specified by <code>xid</code>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+A transaction branch can be resumed only if it had been suspended earlier.</div>
+</li>
+<li>
+<p><code>OracleXAResource.TMPROMOTE</code></p>
+<p>Promotes a local transaction to a global transaction</p>
+</li>
+<li>
+<p><code>OracleXAResource.ORATMSERIALIZABLE</code></p>
+<p>Starts a serializable transaction with transaction ID <code>xid</code>.</p>
+</li>
+<li>
+<p><code>OracleXAResource.ORATMREADONLY</code></p>
+<p>Starts a read-only transaction with transaction ID <code>xid</code>.</p>
+</li>
+<li>
+<p><code>OracleXAResource.ORATMREADWRITE</code></p>
+<p>Starts a read/write transaction with transaction ID <code>xid</code>.</p>
+</li>
+<li>
+<p><code>OracleXAResource.ORATRANSLOOSE</code></p>
+<p>Starts a loosely coupled transaction with transaction ID <code>xid</code>.</p>
+</li>
+</ul>
+<p><code>TMNOFLAGS</code>, <code>TMJOIN</code>, <code>TMRESUME</code>, <code>TMPROMOTE</code>, <code>ORATMSERIALIZABLE</code>, <code>ORATMREADONLY</code>, and <code>ORATMREADWRITE</code> are defined as <code>static</code> members of the <code>XAResource</code> interface and <code>OracleXAResource</code> class. <code>ORATMSERIALIZABLE</code>, <code>ORATMREADONLY</code>, and <code>ORATMREADWRITE</code> are the isolation-mode flags. The default isolation behavior is <code>READ COMMITTED</code>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<ul>
+<li>
+<p>Instead of using the <code>start</code> method with <code>TMRESUME</code>, the transaction manager can cast to <code>OracleXAResource</code> and use the <code>resume(Xid xid)</code> method, an Oracle extension.</p>
+</li>
+<li>
+<p>If you use <code>TMRESUME</code>, then you must also use <code>TMNOMIGRATE</code>, as in <code>start(xid, XAResource.TMRESUME | OracleXAResource.TMNOMIGRATE)</code>. This prevents the application from receiving the error <code>ORA 1002: fetch out of sequence</code>.</p>
+</li>
+<li>
+<p>If you use the isolation-mode flags incorrectly, then an exception with code <code>XAER_INVAL</code> is raised. Furthermore, you cannot use isolation-mode flags when resuming a global transaction, because you cannot set the isolation level of an existing transaction. If you try to use the isolation-mode flags when resuming a transaction, then an external Oracle exception with code ORA-24790 is raised.</p>
+</li>
+<li>
+<p>In order to avoid <code>Error ORA 1002: fetch out of sequence</code>, include the <code>TMNOMIGRATE</code> flag as part of the <code>start</code> method. For example:</p>
+<pre>start(xid, XAResource.TMSUSPEND | OracleXAResource.TMNOMIGRATE);
+</pre></li>
+<li>
+<p>All the flags defined in <code>OracleXAResource</code> are Oracle extensions. When writing a transaction manager that uses these flags, you should be mindful of this.</p>
+</li>
+</ul>
+</div>
+<p>Note that to create an appropriate transaction ID in starting a transaction branch, the transaction manager must know to which distributed transaction the transaction branch belongs. The mechanics of this are handled between the middle tier and transaction manager.</p>
+<p class="subhead2"><a id="JJDBC28856"></a>en<a id="sthref937"></a><a id="sthref938"></a>d</p>
+<p>Ends work on behalf of the transaction branch specified by <code>xid</code>, disassociating the transaction branch from its distributed transaction.</p>
+<pre>void end(Xid xid, int flags)
+</pre>
+<p>The <code>flags</code> parameter can have one of the following values:</p>
+<ul>
+<li>
+<p><code>XAResource.TMSUCCESS</code></p>
+<p>This is to indicate that this transaction branch is known to have succeeded.</p>
+</li>
+<li>
+<p><code>XAResource.TMFAIL</code></p>
+<p>This is to indicate that this transaction branch is known to have failed.</p>
+</li>
+<li>
+<p><code>XAResource.TMSUSPEND</code></p>
+<p>This is to suspend the transaction branch specified by <code>xid</code>. By suspending transaction branches, you can have multiple transaction branches in a single session. Only one can be active at any given time, however. Also, this tends to be more expensive in terms of resources than having two sessions.</p>
+</li>
+</ul>
+<p><code>TMSUCCESS</code>, <code>TMFAIL</code>, and <code>TMSUSPEND</code> are defined as static members of the <code>XAResource</code> interface and <code>OracleXAResource</code> class.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<ul>
+<li>
+<p>Instead of using the <code>end</code> method with <code>TMSUSPEND</code>, the transaction manager can cast to <code>OracleXAResource</code> and use the <code>suspend(Xid xid)</code> method, an Oracle extension.</p>
+</li>
+<li>
+<p>This XA functionality to suspend a transaction provides a way to switch between various transactions within a single JDBC connection. You can use the XA classes to accomplish this, even if you are not in a distributed transaction environment and would otherwise have no need for the XA classes.</p>
+</li>
+<li>
+<p>If you use <code>TMSUSPEND</code>, then you must also use <code>TMNOMIGRATE</code>, as in <code>end(xid, XAResource.TMSUSPEND | OracleXAResource.TMNOMIGRATE)</code>. This prevents the application from receiving the error <code>ORA 1002: fetch out of sequence</code>.</p>
+</li>
+<li>
+<p>In order to avoid <code>Error ORA 1002: fetch out of sequence</code>, include the <code>TMNOMIGRATE</code> flag as part of the end method. For example:</p>
+<pre>end(xid, XAResource.TMSUSPEND | OracleXAResource.TMNOMIGRATE);
+</pre>
+<pre></pre></li>
+<li>
+<p>All the flags defined in <code>OracleXAResource</code> are Oracle extensions. Any transaction manager that uses these flags should take heed of this.</p>
+</li>
+</ul>
+</div>
+<p class="subhead2"><a id="JJDBC28857"></a>pr<a id="sthref939"></a><a id="sthref940"></a>epare</p>
+<p>Prepares the changes performed in the transaction branch specified by <code>xid</code>. This is the first phase of a two-phase commit operation, to ensure that the database is accessible and that the changes can be committed successfully.</p>
+<pre>int prepare(Xid xid)
+</pre>
+<p>This method returns an integer value as follows:</p>
+<ul>
+<li>
+<p><code>XAResource.XA_RDONLY</code></p>
+<p>This is returned if the transaction branch runs only read-only operations such as <code>SELECT</code> statements.</p>
+</li>
+<li>
+<p><code>XAResource.XA_OK</code></p>
+<p>This is returned if the transaction branch runs updates that are all prepared without error.</p>
+</li>
+<li>
+<p>NA (no value returned)</p>
+<p>No value is returned if the transaction branch runs updates and any of them encounters errors during preparation. In this case, an XA exception is thrown.</p>
+</li>
+</ul>
+<p><code>XA_RDONLY</code> and <code>XA_OK</code> are defined as <code>static</code> members of the <code>XAResource</code> interface and <code>OracleXAResource</code> class.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<ul>
+<li>
+<p>Always call the <code>end</code> method on a branch before calling the <code>prepare</code> method.</p>
+</li>
+<li>
+<p>If there is only one transaction branch in a distributed transaction, then there is no need to call the <code>prepare</code> method. You can call the <code>OracleXAResource</code> <code>commit</code> method without preparing first.</p>
+</li>
+</ul>
+</div>
+<p class="subhead2"><a id="JJDBC28858"></a>com<a id="sthref941"></a><a id="sthref942"></a>mit</p>
+<p>Commits prepared changes in the transaction branch specified by <code>xid</code>. This is the second phase of a two-phase commit and is performed only after all transaction branches have been successfully prepared.</p>
+<pre>void commit(Xid xid, boolean onePhase)
+</pre>
+<p>Set the <code>onePhase</code> parameter as follows:</p>
+<ul>
+<li>
+<p><code>true</code></p>
+<p>This is to use one-phase instead of two-phase protocol in committing the transaction branch. This is appropriate if there is only one transaction branch in the distributed transaction; the <code>prepare</code> step would be skipped.</p>
+</li>
+<li>
+<p><code>false</code></p>
+<p>This is to use two-phase protocol in committing the transaction branch.</p>
+</li>
+</ul>
+<p class="subhead2"><a id="JJDBC28859"></a>ro<a id="sthref943"></a><a id="sthref944"></a>llback</p>
+<p>Rolls back prepared changes in the transaction branch specified by <code>xid</code>.</p>
+<pre>void rollback(Xid xid)
+</pre>
+<p class="subhead2"><a id="JJDBC28860"></a>fo<a id="sthref945"></a>rget</p>
+<p>Tells the resource manager to forget about a heuristically completed transaction branch.</p>
+<pre>public void forget(Xid xid)
+</pre>
+<p class="subhead2"><a id="JJDBC28861"></a>re<a id="sthref946"></a><a id="sthref947"></a>cover</p>
+<p>The transaction manager calls this method during recovery to obtain the list of transaction branches that are currently in prepared or heuristically completed states.</p>
+<pre>public Xid[] recover(int flag)
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Values for <code>flag</code> other than <code>TMSTARTRSCAN</code>, <code>TMENDRSCAN</code>, or <code>TMNOFLAGS</code>, cause an exception to be thrown, otherwise <code>flag</code> is ignored.</div>
+<p>The resource manager returns zero or more <code><a id="sthref948"></a>Xid</code>s for the transaction branches that are currently in a prepared or heuristically completed state. If an error occurs during the operation, then the resource manager throws the appropriate <code><a id="sthref949"></a>XAException</code>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The <code>recover</code> method requires SELECT privilege on <code>DBA_PENDING_TRANSACTIONS</code> and EXECUTE privilege on <code>SYS.DBMS_XA</code> in Oracle database server. For database versions prior to Oracle Database 11<span class="italic">g</span> Release 1, where an Oracle patch including a fix for bug 5945463 is not available, or it is infeasible to apply the patch for the particular application scenario, the <code>recover</code> method requires <code>SYSBDBA</code> privilege. Regular use of <code>SYSDBA</code> privilege is a security risk. So, Oracle strongly recommends that you upgrade your Database or apply the fix for bug 5945463, if you need to use the <code>recover</code> method.</div>
+<p class="subhead2"><a id="JJDBC28862"></a>is<a id="sthref950"></a><a id="sthref951"></a>SameRM</p>
+<p>To determine if two <code>OracleXAResource</code> instances correspond to the same resource manager, call the <code>isSameRM</code> method from one <code>OracleXAResource</code> instance, specifying the other <code>OracleXAResource</code> instance as input. In the following example, presume <code>xares1</code> and <code>xares2</code> are <code>OracleXAResource</code> instances:</p>
+<pre>boolean sameRM = xares1.isSameRM(xares2);
+</pre></div>
+<!-- class="sect2" -->
+<a id="i1060463"></a>
+<div id="JJDBC28863" class="sect2">
+<h3 class="sect2">Xid Inter<a id="sthref952"></a><a id="sthref953"></a><a id="sthref954"></a><a id="sthref955"></a><a id="sthref956"></a>face and Oracle Implementation</h3>
+<p>The transaction manager creates transaction ID instances and uses them in coordinating the branches of a distributed transaction. Each transaction branch is assigned a unique transaction ID, which includes the following information:</p>
+<ul>
+<li>
+<p>For<a id="sthref957"></a><a id="sthref958"></a>mat identifier</p>
+<p>A format identifier specifies a Java transaction manager. For example, there could be a format identifier <code>orcl</code>. This field <span class="italic">cannot</span> be null. The size of a format identifier is 4 bytes.</p>
+</li>
+<li>
+<p>Glo<a id="sthref959"></a><a id="sthref960"></a><a id="sthref961"></a><a id="sthref962"></a>bal transaction identifier</p>
+<p>It is also known as a distributed transaction ID component. The size of a global transaction identifier is 64 bytes.</p>
+</li>
+<li>
+<p>Bra<a id="sthref963"></a><a id="sthref964"></a><a id="sthref965"></a><a id="sthref966"></a>nch qualifier</p>
+<p>It is also known as transaction branch ID component. The size of a branch qualifier is 64 bytes.</p>
+</li>
+</ul>
+<p>The 64-byte global transaction identifier value will be identical in the transaction IDs of all transaction branches belonging to the same distributed transaction. However, the overall transaction ID is unique for every transaction branch.</p>
+<p>An XA transaction ID instance is an instance of a class that implements the standard <code>javax.transaction.xa.Xid</code> interface, which is a Java mapping of the X/Open transaction identifier XID structure.</p>
+<p>Oracle implements this interface with the <code>OracleXid</code> class in the <code>oracle.jdbc.xa</code> package. <code>OracleXid</code> instances are employed only in a transaction manager, transparent to application programs or an application server.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Oracle does not require the use of <code>OracleXid</code> for <code>OracleXAResource</code> calls. Instead, use any class that implements the <code>javax.transaction.xa.Xid</code> interface.</div>
+<p>A transaction manager may use the following in creating an <code>OracleXid</code> instance:</p>
+<pre>public OracleXid(int fId, byte gId[], byte bId[]) throws XAException
+</pre>
+<p><code>fId</code> is an integer value for the format identifier, <code>gId[]</code> is a byte array for the global transaction identifier, and <code>bId[]</code> is a byte array for the branch qualifier.</p>
+<p>The <code>Xid</code> interface specifies the following getter methods:</p>
+<ul>
+<li>
+<p><code>public int getFormatId()</code></p>
+</li>
+<li>
+<p><code>public byte[] getGlobalTransactionId()</code></p>
+</li>
+<li>
+<p><code>public type[] getBranchQualifier()</code></p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="i1067967"></a>
+<div id="JJDBC28864" class="sect1">
+<h2 class="sect1">Error Handling and Optimizations</h2>
+<p>This section focuses on the functionality of XA exceptions and error handling and the Oracle optimizations in its XA implementation. It covers the following topics:</p>
+<ul>
+<li>
+<p><a href="#i1066620">XAException Classes and Methods</a></p>
+</li>
+<li>
+<p><a href="#i1066947">Mapping Between Oracle Errors and XA Errors</a></p>
+</li>
+<li>
+<p><a href="#i1066952">XA Error Handling</a></p>
+</li>
+<li>
+<p><a href="#i1061749">Oracle XA Optimizations</a></p>
+</li>
+</ul>
+<p>The exception and error-handling discussion includes the standard XA exception class and the Oracle-specific XA exception class, as well as particular XA error codes and error-handling techniques.</p>
+<a id="i1066620"></a>
+<div id="JJDBC28865" class="sect2">
+<h3 class="sect2">XAEx<a id="sthref967"></a><a id="sthref968"></a>ception Classes and Methods</h3>
+<p>XA methods throw XA exceptions, as opposed to general exceptions or <code>SQLExceptions</code>. An XA exception is an instance of the standard class <code>javax.transaction.xa.XAException</code> or a subclass.</p>
+<p>An Oracle XAException is an instance that consists of an Oracle error portion and an XA error portion. Oracle provides the <code>oracle.jdbc.xa.OracleXAException</code> subclasses of the standard <code>javax.transaction.xa.XAException</code> class. An <code>OracleXAException</code> instance is constructed using one of the following constructors:</p>
+<pre>public OracleXAException()
+
+public OracleXAException(int error)
+</pre>
+<p>The error value is an error code that combines an Oracle SQL error value and an XA error value. The JDBC driver determines exactly how to combine the Oracle and XA error values.</p>
+<p>The <code>OracleXAException</code> class has the following methods:</p>
+<ul>
+<li>
+<p><code>public int getOracleError()</code></p>
+<p>This method returns the Oracle SQL error code pertaining to the exception, a standard ORA error number or 0 if there is no Oracle SQL error.</p>
+</li>
+<li>
+<p><code>public int getXAError()</code></p>
+<p>This method returns the XA error code pertaining to the exception. XA error values are defined in the <code>javax.transaction.xa.XAException</code> class.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="i1066947"></a>
+<div id="JJDBC28866" class="sect2">
+<h3 class="sect2">Mapping Between Oracle Errors and XA Errors</h3>
+<p>Oracle errors correspond to XA errors in <code>OracleXAException</code> instances as documented in <a href="#CFHEEBFF">Table 30-2</a>.</p>
+<div id="JJDBC28867" class="tblformal">
+<p class="titleintable"><a id="sthref969"></a><a id="CFHEEBFF"></a>Table 30-2 Oracle-XA Error Mapping</p>
+<table class="cellalignment2244" title="Oracle-XA Error Mapping" summary="table" dir="ltr">
+<thead>
+<tr class="cellalignment2238">
+<th class="cellalignment2245" id="r1c1-t16">Oracle Error Code</th>
+<th class="cellalignment2245" id="r1c2-t16">XA Error Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r2c1-t16" headers="r1c1-t16">
+<p><code>ORA 24756</code></p>
+</td>
+<td class="cellalignment2246" headers="r2c1-t16 r1c2-t16">
+<p><code>XAException.XAER_NOTA</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r3c1-t16" headers="r1c1-t16">
+<p><code>ORA 24764</code></p>
+</td>
+<td class="cellalignment2246" headers="r3c1-t16 r1c2-t16">
+<p><code>XAException.XA_HEURCOM</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r4c1-t16" headers="r1c1-t16">
+<p><code>ORA 24765</code></p>
+</td>
+<td class="cellalignment2246" headers="r4c1-t16 r1c2-t16">
+<p><code>XAException.XA_HEURRB</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r5c1-t16" headers="r1c1-t16">
+<p><code>ORA 24766</code></p>
+</td>
+<td class="cellalignment2246" headers="r5c1-t16 r1c2-t16">
+<p><code>XAException.XA_HEURMIX</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r6c1-t16" headers="r1c1-t16">
+<p><code>ORA 24767</code></p>
+</td>
+<td class="cellalignment2246" headers="r6c1-t16 r1c2-t16">
+<p><code>XAException.XA_RDONLY</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r7c1-t16" headers="r1c1-t16">
+<p><code>ORA 25351</code></p>
+</td>
+<td class="cellalignment2246" headers="r7c1-t16 r1c2-t16">
+<p><code>XAException.XA_RETRY</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r8c1-t16" headers="r1c1-t16">
+<p><code>ORA 30006</code></p>
+</td>
+<td class="cellalignment2246" headers="r8c1-t16 r1c2-t16">
+<p><code>XAException.XA_RETRY</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r9c1-t16" headers="r1c1-t16">
+<p><code>ORA 24763</code></p>
+</td>
+<td class="cellalignment2246" headers="r9c1-t16 r1c2-t16">
+<p><code>XAException.XAER_PROTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r10c1-t16" headers="r1c1-t16">
+<p><code>ORA 24769</code></p>
+</td>
+<td class="cellalignment2246" headers="r10c1-t16 r1c2-t16">
+<p><code>XAException.XAER_PROTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r11c1-t16" headers="r1c1-t16">
+<p><code>ORA 24770</code></p>
+</td>
+<td class="cellalignment2246" headers="r11c1-t16 r1c2-t16">
+<p><code>XAException.XAER_PROTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r12c1-t16" headers="r1c1-t16">
+<p><code>ORA 24776</code></p>
+</td>
+<td class="cellalignment2246" headers="r12c1-t16 r1c2-t16">
+<p><code>XAException.XAER_PROTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r13c1-t16" headers="r1c1-t16">
+<p><code>ORA 2056</code></p>
+</td>
+<td class="cellalignment2246" headers="r13c1-t16 r1c2-t16">
+<p><code>XAException.XAER_PROTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r14c1-t16" headers="r1c1-t16">
+<p><code>ORA 17448</code></p>
+</td>
+<td class="cellalignment2246" headers="r14c1-t16 r1c2-t16">
+<p><code>XAException.XAER_PROTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r15c1-t16" headers="r1c1-t16">
+<p><code>ORA 24768</code></p>
+</td>
+<td class="cellalignment2246" headers="r15c1-t16 r1c2-t16">
+<p><code>XAException.XAER_PROTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r16c1-t16" headers="r1c1-t16">
+<p><code>ORA 24775</code></p>
+</td>
+<td class="cellalignment2246" headers="r16c1-t16 r1c2-t16">
+<p><code>XAException.XAER_PROTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r17c1-t16" headers="r1c1-t16">
+<p><code>ORA 24761</code></p>
+</td>
+<td class="cellalignment2246" headers="r17c1-t16 r1c2-t16">
+<p><code>XAException.XA_RBROLLBACK</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r18c1-t16" headers="r1c1-t16">
+<p><code>ORA 2091</code></p>
+</td>
+<td class="cellalignment2246" headers="r18c1-t16 r1c2-t16">
+<p><code>XAException.XA_RBROLLBACK</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r19c1-t16" headers="r1c1-t16">
+<p><code>ORA 2092</code></p>
+</td>
+<td class="cellalignment2246" headers="r19c1-t16 r1c2-t16">
+<p><code>XAException.XA_RBROLLBACK</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r20c1-t16" headers="r1c1-t16">
+<p><code>ORA 24780</code></p>
+</td>
+<td class="cellalignment2246" headers="r20c1-t16 r1c2-t16">
+<p><code>XAException.XAER_RMERR</code></p>
+</td>
+</tr>
+<tr class="cellalignment2238">
+<td class="cellalignment2246" id="r21c1-t16" headers="r1c1-t16">
+<p>All other <code>ORA</code> errors</p>
+</td>
+<td class="cellalignment2246" headers="r21c1-t16 r1c2-t16">
+<p><code>XAException.XAER_RMFAIL</code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" --></div>
+<!-- class="sect2" -->
+<a id="i1066952"></a>
+<div id="JJDBC28868" class="sect2">
+<h3 class="sect2">XA Err<a id="sthref970"></a><a id="sthref971"></a>or Handling</h3>
+<p>The following example uses the <code>OracleXAException</code> class to process an XA exception:</p>
+<pre>try {
+   ...
+   ...<span class="italic">Perform XA operations</span>...
+   ...
+} catch(OracleXAException oxae) { 
+  int oraerr = oxae.getOracleError();
+  System.out.println(&#34;Error &#34; + oraerr);
+} 
+  catch(XAException xae)
+{...<span class="italic">Process generic XA exception</span>...}
+</pre>
+<p>In case the XA operations did not throw an Oracle-specific XA exception, the code drops through to process a generic XA exception.</p>
+</div>
+<!-- class="sect2" -->
+<a id="i1061749"></a>
+<div id="JJDBC28869" class="sect2">
+<h3 class="sect2">Oracle XA Op<a id="sthref972"></a><a id="sthref973"></a>timizations</h3>
+<p>Oracle JDBC has functionality to improve performance if two or more branches of a distributed transaction use the same database instance, meaning that the <code>OracleXAResource</code> instances associated with these branches are associated with the same resource manager.</p>
+<p>In such a circumstance, the <code>prepare</code> method of only one of these <code>OracleXAResource</code> instances will return <code>XA_OK</code> or will fail. The rest will return <code>XA_RDONLY</code>, even if updates are made. This allows the transaction manager to implicitly join all the transaction branches and commit or roll back, in case of failure, the joined transaction through the <code>OracleXAResource</code> instance that returned <code>XA_OK</code> or failed.</p>
+<p>The transaction manager can use the <code>OracleXAResource</code> class <code>isSameRM</code> method to determine if two <code>OracleXAResource</code> instances are using the same resource manager. This way it can interpret the meaning of <code>XA_RDONLY</code> return values.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="i1066640"></a>
+<div id="JJDBC28870" class="sect1">
+<h2 class="sect1">Imple<a id="sthref974"></a><a id="sthref975"></a>menting a Distributed Transaction</h2>
+<p>This section provides an example of how to implement a distributed transaction using Oracle XA functionality. This section covers the following topics:</p>
+<ul>
+<li>
+<p><a href="#BGBHIAGI">Summary of Imports for Oracle XA</a></p>
+</li>
+<li>
+<p><a href="#BGBIDFJA">Oracle XA Code Sample</a></p>
+</li>
+</ul>
+<a id="BGBHIAGI"></a>
+<div id="JJDBC28871" class="sect2">
+<h3 class="sect2">Summary of Imports for Oracle XA</h3>
+<p>You must import the following for Oracle XA functionality:</p>
+<pre>import oracle.jdbc.xa.OracleXid;
+import oracle.jdbc.xa.OracleXAException;
+import oracle.jdbc.pool.*;
+import oracle.jdbc.xa.client.*;
+import javax.transaction.xa.*;
+</pre>
+<p>The <code>oracle.jdbc.pool</code> package has classes for connection pooling functionality, some of which have XA-related classes as subclasses.</p>
+<p>Alternatively, if the code will run inside Oracle Database and access that database for SQL operations, you must import <code>oracle.jdbc.xa.server</code> instead of <code>oracle.jdbc.xa.client</code>.</p>
+<pre>import oracle.jdbc.xa.server.*;
+</pre>
+<p>If your application must access another Oracle Database as part of an XA transaction using the server-side Thin driver, then your code can use the fully qualified names of the <code>oracle.xa.client</code> classes.</p>
+<p>The <code>client</code> and <code>server</code> packages each have versions of the <code>OracleXADataSource</code>, <code>OracleXAConnection</code>, and <code>OracleXAResource</code> classes. Abstract versions of these three classes are in the top-level <code>oracle.jdbc.xa</code> package.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BGBIDFJA"></a>
+<div id="JJDBC28872" class="sect2">
+<h3 class="sect2">Oracle XA Code Sample</h3>
+<p>This example uses a two-phase distributed transaction with two transaction branches, each to a separate database.</p>
+<p>Note that for simplicity, this example combines code that would typically be in a middle tier with code that would typically be in a transaction manager, such as the <code>OracleXAResource</code> method invocations and the creation of transaction IDs.</p>
+<p>For brevity, the specifics of creating transaction IDs and performing SQL operations are not shown here. The complete example is shipped with the product.</p>
+<p>This example performs the following sequence:</p>
+<ol>
+<li>
+<p>Start transaction branch #1.</p>
+</li>
+<li>
+<p>Start transaction branch #2.</p>
+</li>
+<li>
+<p>Execute DML operations on branch #1.</p>
+</li>
+<li>
+<p>Execute DML operations on branch #2.</p>
+</li>
+<li>
+<p>End transaction branch #1.</p>
+</li>
+<li>
+<p>End transaction branch #2.</p>
+</li>
+<li>
+<p>Prepare branch #1.</p>
+</li>
+<li>
+<p>Prepare branch #2.</p>
+</li>
+<li>
+<p>Commit branch #1.</p>
+</li>
+<li>
+<p>Commit branch #2.</p>
+</li>
+</ol>
+<pre>// You need to import the java.sql package to use JDBC
+import java.sql.*;
+import javax.sql.*;
+import oracle.jdbc.*;
+import oracle.jdbc.pool.*;
+import oracle.jdbc.xa.OracleXid;
+import oracle.jdbc.xa.OracleXAException;
+import oracle.jdbc.xa.client.*;
+import javax.transaction.xa.*;
+
+class XA4
+{
+  public static void main (String args [])
+       throws SQLException 
+  {
+
+    try
+    {
+        String URL1 = &#34;jdbc:oracle:oci:@&#34;;
+        // You can put a database name after the @ sign in the connection URL.
+        String URL2 =&#34;jdbc:oracle:thin:@(description=(address=(host=localhost)
+                     (protocol=tcp)(port=5521))(connect_data=(service_name=orcl)))&#34;;
+        // Create first DataSource and get connection
+        OracleDataSource ods1 = new OracleDataSource();
+        ods1.setURL(URL1);
+        ods1.setUser(&#34;HR&#34;);
+        ods1.setPassword(&#34;hr&#34;);
+        Connection conna = ods1.getConnection();
+
+        // Create second DataSource and get connection
+        OracleDataSource ods2 = new OracleDataSource();
+        ods2.setURL(URL2);
+        ods2.setUser(&#34;HR&#34;);
+        ods2.setPassword(&#34;hr&#34;);
+        Connection connb = ods2.getConnection();
+
+        // Prepare a statement to create the table
+        Statement stmta = conna.createStatement ();
+
+        // Prepare a statement to create the table
+        Statement stmtb = connb.createStatement ();
+
+        try
+        {
+          // Drop the test table
+          stmta.execute (&#34;drop table my_table&#34;);
+        }
+        catch (SQLException e)
+        {
+          // Ignore an error here
+        }
+
+        try
+        {   
+          // Create a test table
+          stmta.execute (&#34;create table my_table (col1 int)&#34;);
+        }
+        catch (SQLException e)
+        {
+          // Ignore an error here too
+        }
+
+        try
+        {
+          // Drop the test table
+          stmtb.execute (&#34;drop table my_tab&#34;);
+        }
+        catch (SQLException e)
+        {
+          // Ignore an error here
+        }
+
+        try
+        {   
+          // Create a test table
+          stmtb.execute (&#34;create table my_tab (col1 char(30))&#34;);
+        }
+        catch (SQLException e)
+        {
+          // Ignore an error here too
+        }
+
+        // Create XADataSource instances and set properties.
+        OracleXADataSource oxds1 = new OracleXADataSource();
+        oxds1.setURL(&#34;jdbc:oracle:oci:@&#34;);
+        oxds1.setUser(&#34;HR&#34;);
+        oxds1.setPassword(&#34;hr&#34;);
+
+        OracleXADataSource oxds2 = new OracleXADataSource();
+
+        oxds2.setURL(&#34;jdbc:oracle:thin:@(description=(address=(host=localhost)
+                   (protocol=tcp)(port=5521))(connect_data=(service_name=orcl)))&#34;);
+        oxds2.setUser(&#34;HR&#34;);
+        oxds2.setPassword(&#34;hr&#34;);
+    
+        // Get XA connections to the underlying data sources
+        XAConnection pc1  = oxds1.getXAConnection();
+        XAConnection pc2  = oxds2.getXAConnection();
+
+        // Get the physical connections
+        Connection conn1 = pc1.getConnection();
+        Connection conn2 = pc2.getConnection();
+
+        // Get the XA resources
+        XAResource oxar1 = pc1.getXAResource();
+        XAResource oxar2 = pc2.getXAResource();
+
+        // Create the Xids With the Same Global Ids
+        Xid xid1 = createXid(1);
+        Xid xid2 = createXid(2);
+
+        // Start the Resources
+        oxar1.start (xid1, XAResource.TMNOFLAGS);
+        oxar2.start (xid2, XAResource.TMNOFLAGS);
+
+        // Execute SQL operations with conn1 and conn2
+        doSomeWork1 (conn1);
+        doSomeWork2 (conn2);
+
+        // END both the branches -- IMPORTANT
+        oxar1.end(xid1, XAResource.TMSUCCESS);
+        oxar2.end(xid2, XAResource.TMSUCCESS);
+
+        // Prepare the RMs
+        int prp1 =  oxar1.prepare (xid1);
+        int prp2 =  oxar2.prepare (xid2);
+
+        System.out.println(&#34;Return value of prepare 1 is &#34; + prp1);
+        System.out.println(&#34;Return value of prepare 2 is &#34; + prp2);
+
+        boolean do_commit = true;
+
+        if (!((prp1 == XAResource.XA_OK) || (prp1 == XAResource.XA_RDONLY)))
+           do_commit = false;
+
+        if (!((prp2 == XAResource.XA_OK) || (prp2 == XAResource.XA_RDONLY)))
+           do_commit = false;
+
+       System.out.println(&#34;do_commit is &#34; + do_commit);
+        System.out.println(&#34;Is oxar1 same as oxar2 ? &#34; + oxar1.isSameRM(oxar2));
+
+        if (prp1 == XAResource.XA_OK)
+          if (do_commit)
+             oxar1.commit (xid1, false);
+          else
+             oxar1.rollback (xid1);
+
+        if (prp2 == XAResource.XA_OK)
+          if (do_commit)
+             oxar2.commit (xid2, false);
+          else
+             oxar2.rollback (xid2);
+
+         // Close connections
+        conn1.close();
+        conn1 = null;
+        conn2.close();
+        conn2 = null;
+
+        pc1.close();
+        pc1 = null;
+        pc2.close();
+        pc2 = null;
+
+        ResultSet rset = stmta.executeQuery (&#34;select col1 from my_table&#34;);
+        while (rset.next())
+          System.out.println(&#34;Col1 is &#34; + rset.getInt(1));
+  
+        rset.close();
+        rset = null;
+
+        rset = stmtb.executeQuery (&#34;select col1 from my_tab&#34;);
+        while (rset.next())
+          System.out.println(&#34;Col1 is &#34; + rset.getString(1));
+  
+        rset.close();
+        rset = null;
+
+        stmta.close();
+        stmta = null;
+        stmtb.close();
+        stmtb = null;
+
+        conna.close();
+        conna = null;
+        connb.close();
+        connb = null;
+
+    } catch (SQLException sqe)
+    {
+      sqe.printStackTrace();
+    } catch (XAException xae)
+    {
+      if (xae instanceof OracleXAException) {
+        System.out.println(&#34;XA Error is &#34; +
+                      ((OracleXAException)xae).getXAError());
+        System.out.println(&#34;SQL Error is &#34; +
+                      ((OracleXAException)xae).getOracleError());
+      }
+    }
+  }
+
+  static Xid createXid(int bids)
+    throws XAException
+  {...<span class="italic">Create transaction IDs</span>...}
+
+  private static void doSomeWork1 (Connection conn)
+   throws SQLException
+  {...<span class="italic">Execute SQL operations</span>...}
+
+  private static void doSomeWork2 (Connection conn)
+   throws SQLException
+  {...<span class="italic">Execute SQL operations</span>...}
+}
+</pre></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BGBIDIGD"></a>
+<div id="JJDBC28873" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Native-XA in Oracle JDBC Drivers</h2>
+<p>In general, XA commands can be sent to the server in the following ways:</p>
+<ul>
+<li>
+<p>Through non-native APIs</p>
+</li>
+<li>
+<p>Through native APIs</p>
+</li>
+</ul>
+<p>There is a huge performance difference between the two methods of sending XA commands to the server. The use of native APIs provide high performance gains as compared to the use of non-native APIs.</p>
+<p>Prior to Oracle Database 10<span class="italic">g</span>, the Thin driver used non-native APIs to send XA commands to the server because Thin native APIs were not available. The non-native APIs use PL/SQL procedures, so they have the following disadvantages:</p>
+<ul>
+<li>
+<p>They require different messages on the wire.</p>
+</li>
+<li>
+<p>They cause more round-trips to the database.</p>
+</li>
+<li>
+<p>They cause more cursors to remain open.</p>
+</li>
+<li>
+<p>They damage statement caching by occupying space in the Statement Cache.</p>
+</li>
+</ul>
+<p>Moreover, the implementation of non-native APIs is in the server. So, in order to solve any problem in sending XA commands, it requires a server patch. This creates a major issue because sometimes the patch requires restarting the server.</p>
+<p>Starting from Oracle Database 10<span class="italic">g</span>, the Thin native APIs are available and are used to send XA commands, by default. Native APIs are more than 10 times faster than the non-native ones.</p>
+<p>This section covers the following topics:</p>
+<ul>
+<li>
+<p><a href="#BGBGBEEF">OCI Native XA</a></p>
+</li>
+<li>
+<p><a href="#BGBBHCFC">Thin Native XA</a></p>
+</li>
+</ul>
+<a id="BGBGBEEF"></a>
+<div id="JJDBC28874" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">OCI Native XA</h3>
+<p>Native XA is enabled through the use of the <code><a id="sthref976"></a>tnsEntry</code> and <code><a id="sthref977"></a>nativeXA</code> properties of the <code>OracleXADataSource</code> class.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="urls.htm#g1073263">Table 8-2, &#34;Oracle Extended Data Source Properties&#34;</a> for explanation of these properties.</div>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Currently, OCI Native XA does not work in a multithreaded environment. The OCI driver uses the C/XA library of Oracle to support distributed transactions, which requires that an XAConnection be obtained for each thread before resuming a global transaction.</div>
+<p class="subhead2"><a id="JJDBC28875"></a>Configuration and Installation</p>
+<p>On a <a id="sthref978"></a>Solaris or Linux system, you need the <code><a id="sthref979"></a>libheteroxa11.so</code> shared library to enable the Native XA feature. This library must be installed and available in the search path for the Native XA feature to work properly.</p>
+<p>On a Microsoft Windows system, you need the <code>heteroxa11.dll</code> file to enable the Native XA feature. This file must be installed and available in the Windows DLL path for the Native XA feature to work properly.</p>
+<p class="subhead2"><a id="JJDBC28876"></a>Exception Handling</p>
+<p>When using the Native XA feature in distributed transactions, it is recommended that the application simply check for <code>XAException</code> or <code>SQLException</code>, rather than <code>OracleXAException</code> or <code>OracleSQLException</code>.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="apxermsg.htm#i628082">&#34;Native XA Messages&#34;</a> for a listing of Native XA messages.</div>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The mapping from SQL error codes to standard XA error codes does not apply to the Native XA feature.</div>
+<p class="subhead2"><a id="JJDBC28877"></a>Native XA Code Example</p>
+<p>The following portion of code shows how to enable the Native XA feature:</p>
+<pre>...
+// Create a XADataSource instance
+OracleXADataSource oxds = new OracleXADataSource();
+oxds.setURL(url);
+
+// Set the nativeXA property to use Native XA feature
+oxds.setNativeXA(true);
+
+// Set the tnsEntry property to an older DB as required
+oxds.setTNSEntryName(&#34;ora805&#34;);
+...
+</pre></div>
+<!-- class="sect2" -->
+<a id="BGBBHCFC"></a>
+<div id="JJDBC28878" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Thin Native XA</h3>
+<p>Like the JDBC OCI driver, the JDBC Thin driver also provides support for Native XA. However, the JDBC Thin driver provides support for Native XA by default. This is unlike the case of the JDBC OCI driver in which the support for Native XA is not enabled by default.</p>
+<p>You can disable Native XA by calling <code>setNativeXA(false)</code> on the XA data source as follows:</p>
+<pre>...
+// Create a XADataSource instance
+OracleXADataSource oxds = new OracleXADataSource();
+...
+// Disabling Native XA
+oxds.setNativeXA(false);
+...
+</pre>
+<p>For example, you may need to disable Native XA as a workaround for a bug in the Native XA code.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2237">
+<tr>
+<td class="cellalignment2246">
+<table class="cellalignment2242">
+<tr>
+<td class="cellalignment2241"><a href="part7.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2241"><a href="part8.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2249">
+<table class="cellalignment2240">
+<tr>
+<td class="cellalignment2241"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2241"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2241"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2241"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2241"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2241"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

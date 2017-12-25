@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-79212"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20Transaction%20Guard%20to%20Prevent%20Logical%20Corruption"></a><title>Using Transaction Guard to Prevent Logical Corruption</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="dcterms.created" content="2014-10-14T19:43:25Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Data Provider for .NET Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E17732-11"/>
+<meta name="dcterms.isVersionOf" content="ODPNT"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2002, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="featRAC.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="featOraCommand.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E17732-11.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">26/172</span> <!-- End Header --><a id="BABCCJHJ"></a>
+<div id="ODPNT8183" class="sect1">
+<h1 class="sect1">Using Transaction Guard to Prevent Logical Corruption<a id="sthref290"></a><a id="sthref291"></a><a id="sthref292"></a><a id="sthref293"></a></h1>
+<p>Transaction Guard allows ODP.NET applications to use at-most-once execution in case of planned and unplanned outages and repeated submissions.</p>
+<p>ODP.NET returns a logical transaction object, <code>OracleLogicalTransaction</code>, which is used to determine the outcome of the last open transaction in a database session following an outage. Without Transaction Guard, applications that attempt to retry operations following outages can cause logical corruption by committing duplicate transactions.</p>
+<p>After an outage, one of the traditional problems for recovering applications had been the non-durable commit message sent back to the client. If there is a break between the client and the server, the client sees an error message indicating that the communication failed (also known as a recoverable error). This error does not inform the application if the submission executed any commit operations, or if a procedural call ran to completion while executing all expected commits. The error also does not indicate session state changes or intermittent failures. The client is left wondering if the transaction committed and if it fully completed.</p>
+<p>These recoverable errors can cause end users or applications to attempt replay by issuing duplicate transaction submissions or other forms of <span class="italic">logical corruption</span>. The transaction cannot be validly resubmitted if the non-transactional state is incorrect or if it is committed. Continuing to process a committed but not completed call can result in the application using a database session that is in the wrong state.</p>
+<p>Transaction Guard allows ODP.NET to eliminate duplicate transactions automatically and transparently, and in a manner that scales. ODP.NET uses the logical transaction object to identify the last open transaction. At runtime, Oracle retains the transaction status automatically. At commit, the logical transaction object persists. The database maintains the logical transaction status post-commit for as long as the administrator has set the retention period. ODP.NET can then use the logical transaction object to track the next transaction.</p>
+<p>When a failure occurs, such as a node, network, or database failure, ODP.NET applications can deterministically conclude whether the transaction committed by querying its status using the logical transaction object. If not committed, the ODP.NET application can learn what state the transaction is in and whether it is recoverable and can be retried through the returned <code>OracleException</code>. ODP.NET applications can then take the appropriate action, such as resubmitting the transaction if it is not committed.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<ul>
+<li>
+<p>ODP.NET, Unmanaged Driver supports Transaction Guard and recoverable error detection. ODP.NET, Managed Driver currently does not support either.</p>
+</li>
+<li>
+<p>Transaction Guard supports only local transactions. It does not support distributed transactions.</p>
+</li>
+</ul>
+</div>
+<p>The Transaction Guard feature is enabled or disabled through the Oracle service-level configuration through the <code>COMMIT_OUTCOME</code> setting. By default, it is not enabled. This setting can be changed without bringing down the database. Only new connections created against the service will use the new setting.</p>
+<p>The following is an example ODP.NET Transaction Guard application scenario:</p>
+<p>An ODP.NET application receives a FAN down event or error. FAN automatically aborts the dead session and the application receives an <code>OracleException</code>. A Transaction Guard application built to handle errors transparently would do the following:</p>
+<ol>
+<li>
+<p>Check the value of the <code>OracleException.IsRecoverable</code> property. If the value is true, that application can chose to re-submit the existing transaction based on the current transaction status as described in the following steps. If the value is false, the application should roll-back, re-execute, and re-submit the current transaction.</p>
+</li>
+<li>
+<p>The application retrieves the last logical transaction from the failed session.</p>
+<p><code>OracleConnection.OracleLogicalTransaction</code></p>
+</li>
+<li>
+<p>The application retrieves the transaction status, <code>OracleLogicalTransaction.GetOutcome()</code>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Grant the <code>EXECUTE</code> privilege on the <code>DBMS_APP_CONT</code> package to the database users that retrieve the transaction status.</div>
+</li>
+<li>
+<p>The transaction status indicates two aspects of the outcome:</p>
+<ul>
+<li>
+<p>Did it commit successfully? <code>OracleLogicalTransaction.Committed</code></p>
+</li>
+<li>
+<p>Did it complete successfully? <code>OracleLogicalTransaction.UserCallCompleted</code></p>
+</li>
+</ul>
+</li>
+</ol>
+<div class="inftblinformal">
+<table class="cellalignment4229" summary="values" dir="ltr">
+<thead>
+<tr class="cellalignment4220">
+<th class="cellalignment4230" id="r1c1-t38">Committed Value</th>
+<th class="cellalignment4230" id="r1c2-t38">UserCallCompleted Value</th>
+<th class="cellalignment4230" id="r1c3-t38">Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4220">
+<td class="cellalignment4226" id="r2c1-t38" headers="r1c1-t38"><code>True</code></td>
+<td class="cellalignment4226" headers="r2c1-t38 r1c2-t38"><code>True</code></td>
+<td class="cellalignment4226" headers="r2c1-t38 r1c3-t38">The transaction was successful. The result can be returned to the application.</td>
+</tr>
+<tr class="cellalignment4220">
+<td class="cellalignment4226" id="r3c1-t38" headers="r1c1-t38"><code>False</code></td>
+<td class="cellalignment4226" headers="r3c1-t38 r1c2-t38"><code>False</code></td>
+<td class="cellalignment4226" headers="r3c1-t38 r1c3-t38">The transaction was not successful. The application can resubmit the transaction again.</td>
+</tr>
+<tr class="cellalignment4220">
+<td class="cellalignment4226" id="r4c1-t38" headers="r1c1-t38"><code>True</code></td>
+<td class="cellalignment4226" headers="r4c1-t38 r1c2-t38"><code>False</code></td>
+<td class="cellalignment4226" headers="r4c1-t38 r1c3-t38">The transaction committed, but there may be additional state, such as row counts or nested PL/SQL logic, that prevents the application from continuing as expected.</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblinformal" -->
+<p class="subhead2"><a id="ODPNT8184"></a>Sample Code</p>
+<pre>using System;
+using Oracle.DataAccess.Client;
+ 
+class Test
+{
+  static void Main()
+  {
+    bool bReadyToCommit = false;
+    string constr = &#34;user id=scott;password=tiger;data source=inst1&#34;;
+    OracleConnection con = new OracleConnection(constr);
+    OracleTransaction txn = null;
+    OracleCommand cmd = null;
+ 
+    try
+    {
+      con.Open();
+      txn = con.BeginTransaction();
+      cmd = new OracleCommand(con, &#34;update emp set dept=10 where empno=7654&#34;);
+      cmd.ExecuteNonQuery();
+      bReadyToCommit = true;
+    }
+    catch(Exception ex)
+    {
+      Console.WriteLine(ex.ToString());
+    }
+ 
+    try
+    {
+      if (bReadyToCommit)
+        txn.Commit();
+    }
+    catch(Exception ex)
+    {
+      if (ex.IsRecoverable)
+      {
+        OracleLogicalTransaction olt = con.OracleLogicalTransaction;
+        olt.GetOutcome(); // or olt.GetOutcome(&#34;scott&#34;, &#34;tiger&#34;, &#34;inst1&#34;);
+         
+        if (!olt.Committed &amp;&amp; !olt.UserCallCompleted)
+        {
+          // any chosen processing here if a retry is desired.
+        }
+        else
+        {
+        // transaction committed, but was not full completed
+        }
+      }
+      else
+      {
+        // Not recoverable transaction. Rollback (and re-execute).
+      }
+    }
+    finally
+    {
+      txn.Dispose();
+      cmd.Dispose();
+      con.Dispose();
+    }
+  }
+}
+</pre>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a href="OracleLogicalTransactionStatusClass.htm#BABDAFGA">&#34;OracleLogicalTransactionStatus Class&#34;</a></p>
+</li>
+<li>
+<p><a href="OracleConnectionClass.htm#BABBHADC">&#34;GetLogicalTransactionStatus&#34;</a></p>
+</li>
+<li>
+<p><a href="OracleConnectionClass.htm#BABEJBFI">&#34;LogicalTransactionId&#34;</a></p>
+</li>
+<li>
+<p><a href="OracleExceptionClass.htm#DAFDFDEF">&#34;IsRecoverable&#34;</a></p>
+</li>
+<li>
+<p><a class="olink ADFNS8000" href="../ADFNS/adfns_trans_idemp_guard.htm#ADFNS8000"><span class="italic">Oracle Database Development Guide</span></a> for more information on Transaction Guard</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4219">
+<tr>
+<td class="cellalignment4226">
+<table class="cellalignment4224">
+<tr>
+<td class="cellalignment4223"><a href="featRAC.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4223"><a href="featOraCommand.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2002, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4228">
+<table class="cellalignment4222">
+<tr>
+<td class="cellalignment4223"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4223"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4223"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4223"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4223"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4223"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

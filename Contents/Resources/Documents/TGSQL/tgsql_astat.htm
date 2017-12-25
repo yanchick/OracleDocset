@@ -1,0 +1,2863 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106777"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Managing%20Optimizer%20Statistics%3A%20Advanced%20Topics"></a><title>Managing Optimizer Statistics: Advanced Topics</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="This chapter explains advanced concepts and tasks relating to optimizer statistics management, including extended statistics."/>
+<meta name="keywords" content="SQL, recursive, dynamic statistics, controlling, optimizer statistics, dynamic, statistics, optimizer, process, sampling levels, setting statistics level, when to use, SQL plan directives, adaptive statistics, column groups, expression statistics, creating, exporting and importing, Data Pump, Import utility, copying statistics, Export utility, statistics on system-generated columns names, managing"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_stats.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_pt_infl.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-F1399D77-7E2E-434F-A67C-6ADB4C648D95"></a> <span id="PAGE" style="display:none;">22/40</span> <!-- End Header -->
+<a id="TGSQL449"></a>
+<h1 id="TGSQL-GUID-F1399D77-7E2E-434F-A67C-6ADB4C648D95" class="sect1"><span class="enumeration_chapter">13</span> Managing Optimizer Statistics: Advanced Topics</h1>
+<div>
+<p>This chapter explains advanced concepts and tasks relating to optimizer statistics management, including <span class="bold">extended statistics</span>.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_astat.htm#GUID-F1C666DC-5450-4F92-83AA-607327DB5FD8" title="By default, when optimizer statistics are missing, stale, or insufficient, dynamic statistics automatically run recursive SQL during parsing to scan a small random sample of table blocks.">Controlling Dynamic Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-8FF503A2-5E50-4054-AC3A-5672343BDFE3" title="The database stores pending statistics in the data dictionary just as for published statistics.">Publishing Pending Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-BD0F0B71-DD8B-44A0-888E-495830FC09A4" title="DBMS_STATS enables you to collect extended statistics, which are statistics that can improve cardinality estimates when multiple predicates exist on different columns of a table, or when predicates use expressions. An extension is either a column group or an expression.">Managing Extended Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-1147FF89-68F0-4B0F-831A-A7E5D151D02F">Locking and Unlocking Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-D3050CB5-C0FA-4BD7-B7FF-88566437D461" title="Whenever statistics in the data dictionary are modified, the database automatically saves old versions of statistics. If newly collected statistics lead to suboptimal execution plans, then you may want to revert to the previous statistics.">Restoring Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-DEEE6740-F601-4B77-B4D3-AF03F5883456">Managing Optimizer Statistics Retention</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-7F8EE1CC-A173-4B87-AA2E-CD22198EF4F8" title="You can export and import optimizer statistics from the data dictionary to user-defined statistics tables. You can also copy statistics from one database to another database.">Importing and Exporting Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-4274A976-0185-4113-844F-1F818CD916CA" title="You can run the DBMS_STATS statistics gathering procedures in reporting mode. In this case, the optimizer does not actually gather statistics, but reports objects that would be processed if you were to use a specified statistics gathering function.">Running Statistics Gathering Functions in Reporting Mode</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-48022C00-9B87-4470-BC23-AECFCDA0E434" title="You can use DBMS_STATS functions to report on a specific statistics gathering operation or on operations that occurred during a specified time.">Reporting on Past Statistics Gathering Operations</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E" title="The database automatically manages SQL plan directives. If the directives are not used in 53 weeks, then the database automatically purges them.">Managing SQL Plan Directives</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-F1399D77-7E2E-434F-A67C-6ADB4C648D95__GUID-C25FDCC1-7313-423A-BC07-E041B7B1AC52">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-245F23B2-24AF-44D8-9F12-99FD1215E878" title="This chapter explains basic tasks relating to optimizer statistics management.">Managing Optimizer Statistics: Basic Topics</a>&#34;</span></p>
+</div>
+</div>
+<a id="TGSQL450"></a>
+<div class="props_rev_3"><a id="GUID-F1C666DC-5450-4F92-83AA-607327DB5FD8"></a>
+<h2 id="TGSQL-GUID-F1C666DC-5450-4F92-83AA-607327DB5FD8" class="sect2">Controlling Dynamic Statistics</h2>
+<div>
+<p>By default, when optimizer statistics are missing, stale, or insufficient, <span class="bold">dynamic statistics</span> automatically run recursive SQL during parsing to scan a small random sample of table blocks.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_astat.htm#GUID-DEE2AF8B-5F4B-4FE7-9F0E-7D188921EBCC" title="The dynamic statistics level controls both when the database gathers dynamic statistics, and the size of the sample that the optimizer uses to gather the statistics.">About Dynamic Statistics Levels</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-B92327C9-9B33-4E9C-8813-7E7BC86202C3" title="Determining a database-level setting that would be beneficial to all SQL statements can be difficult. When setting the level for dynamic statistics, Oracle recommends setting the OPTIMIZER_DYNAMIC_SAMPLING initialization parameter at the session level.">Setting Dynamic Statistics Levels Manually</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-0D188B48-179D-4496-AEB8-C46016D5D0B2" title="In general, the best practice is not to incur the cost of dynamic statistics for queries whose compile times must be as fast as possible, for example, unrepeated OLTP queries.">Disabling Dynamic Statistics</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-F1C666DC-5450-4F92-83AA-607327DB5FD8__GUID-7A6F5D09-DCB0-4FE6-AA0B-984CD2B9A9F9">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-620CB826-10A2-4937-8DAD-2B41475AE47F" title="By default, when optimizer statistics are missing, stale, or insufficient, the database automatically gathers dynamic statistics during a parse. The database uses recursive SQL to scan a small random sample of table blocks.">Supplemental Dynamic Statistics</a>&#34;</span></p>
+</div>
+</div>
+<a id="TGSQL452"></a><a id="TGSQL451"></a>
+<div class="props_rev_3"><a id="GUID-DEE2AF8B-5F4B-4FE7-9F0E-7D188921EBCC"></a>
+<h3 id="TGSQL-GUID-DEE2AF8B-5F4B-4FE7-9F0E-7D188921EBCC" class="sect3">About Dynamic Statistics Levels</h3>
+<div>
+<p>The <span class="bold">dynamic statistics level</span> controls both when the database gathers dynamic statistics, and the size of the sample that the optimizer uses to gather the statistics.</p>
+<p>Set the dynamic statistics level using either the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter or a statement hint.</p>
+<div class="infobox-note" id="GUID-DEE2AF8B-5F4B-4FE7-9F0E-7D188921EBCC__GUID-2AF06ABF-5E5A-4D61-BE30-58C099276CDF">
+<p class="notep1">Note:</p>
+<p>Dynamic statistics were called <span class="italic">dynamic sampling</span> in releases earlier than Oracle Database 12<span class="italic">c</span> Release 1 (12.1).</p>
+</div>
+<p>The following table describes the levels for dynamic statistics. Note the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If dynamic statistics are not disabled, then the database may choose to use dynamic statistics when a SQL statement uses parallel execution.</p>
+</li>
+<li>
+<p>If the <code class="codeph">OPTIMIZER_ADAPTIVE_FEATURES</code> initialization parameter is <code class="codeph">true</code>, then the optimizer uses dynamic statistics when relevant SQL plan directives exist. The database maintains the resulting statistics in the server result cache, making them available to other queries.</p>
+</li>
+</ul>
+<div class="tblformalwide" id="GUID-DEE2AF8B-5F4B-4FE7-9F0E-7D188921EBCC__CHDFEHGA">
+<p class="titleintable">Table 13-1 Dynamic Statistics Levels</p>
+<table class="cellalignment4813" title="Dynamic Statistics Levels" summary="Dynamic sampling levels">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4842" id="d82605e444">Level</th>
+<th class="cellalignment4837" id="d82605e447">When the Optimizer Uses Dynamic Statistics</th>
+<th class="cellalignment4843" id="d82605e450">Sample Size (Blocks)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e455" headers="d82605e444">
+<p>0</p>
+</td>
+<td class="cellalignment4838" headers="d82605e455 d82605e447">
+<p>Do not use dynamic statistics.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e455 d82605e450">
+<p>n/a</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e465" headers="d82605e444">
+<p>1</p>
+</td>
+<td class="cellalignment4838" headers="d82605e465 d82605e447">
+<p>Use dynamic statistics for all tables that do not have statistics, but only if the following criteria are met:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>At least one nonpartitioned table in the query does not have statistics.</p>
+</li>
+<li>
+<p>This table has no indexes.</p>
+</li>
+<li>
+<p>This table has more blocks than the number of blocks that would be used for dynamic statistics of this table.</p>
+</li>
+</ul>
+</td>
+<td class="cellalignment4845" headers="d82605e465 d82605e450">
+<p>32</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e485" headers="d82605e444">
+<p>2</p>
+</td>
+<td class="cellalignment4838" headers="d82605e485 d82605e447">
+<p>Use dynamic statistics if at least one table in the statement has no statistics. This is the default value.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e485 d82605e450">
+<p>64</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e495" headers="d82605e444">
+<p>3</p>
+</td>
+<td class="cellalignment4838" headers="d82605e495 d82605e447">
+<p>Use dynamic statistics if any of the following conditions is true:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>At least one table in the statement has no statistics.</p>
+</li>
+<li>
+<p>The statement has one or more expressions used in the <code class="codeph">WHERE</code> clause predicates, for example, <code class="codeph">WHERE SUBSTR(CUSTLASTNAME,1,3)</code>.</p>
+</li>
+</ul>
+</td>
+<td class="cellalignment4845" headers="d82605e495 d82605e450">
+<p>64</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e518" headers="d82605e444">
+<p>4</p>
+</td>
+<td class="cellalignment4838" headers="d82605e518 d82605e447">
+<p>Use dynamic statistics if any of the following conditions is true:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>At least one table in the statement has no statistics.</p>
+</li>
+<li>
+<p>The statement has one or more expressions used in the <code class="codeph">WHERE</code> clause predicates, for example, <code class="codeph">WHERE SUBSTR(CUSTLASTNAME,1,3)</code>.</p>
+</li>
+<li>
+<p>The statement uses complex predicates (an <code class="codeph">OR</code> or <code class="codeph">AND</code> operator between multiple predicates on the same table).</p>
+</li>
+</ul>
+</td>
+<td class="cellalignment4845" headers="d82605e518 d82605e450">
+<p>64</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e550" headers="d82605e444">
+<p>5</p>
+</td>
+<td class="cellalignment4838" headers="d82605e550 d82605e447">
+<p>The criteria are identical to level 4, but the database uses a different sample size.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e550 d82605e450">
+<p>128</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e560" headers="d82605e444">
+<p>6</p>
+</td>
+<td class="cellalignment4838" headers="d82605e560 d82605e447">
+<p>The criteria are identical to level 4, but the database uses a different sample size.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e560 d82605e450">
+<p>256</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e570" headers="d82605e444">
+<p>7</p>
+</td>
+<td class="cellalignment4838" headers="d82605e570 d82605e447">
+<p>The criteria are identical to level 4, but the database uses a different sample size.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e570 d82605e450">
+<p>512</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e580" headers="d82605e444">
+<p>8</p>
+</td>
+<td class="cellalignment4838" headers="d82605e580 d82605e447">
+<p>The criteria are identical to level 4, but the database uses a different sample size.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e580 d82605e450">
+<p>1024</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e590" headers="d82605e444">
+<p>9</p>
+</td>
+<td class="cellalignment4838" headers="d82605e590 d82605e447">
+<p>The criteria are identical to level 4, but the database uses a different sample size.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e590 d82605e450">
+<p>4086</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e600" headers="d82605e444">
+<p>10</p>
+</td>
+<td class="cellalignment4838" headers="d82605e600 d82605e447">
+<p>The criteria are identical to level 4, but the database uses a different sample size.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e600 d82605e450">
+<p>All blocks</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4844" id="d82605e611" headers="d82605e444">
+<p>11</p>
+</td>
+<td class="cellalignment4838" headers="d82605e611 d82605e447">
+<p>The database uses adaptive dynamic sampling automatically when the optimizer deems it necessary.</p>
+</td>
+<td class="cellalignment4845" headers="d82605e611 d82605e450">
+<p>Automatically determined</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-DEE2AF8B-5F4B-4FE7-9F0E-7D188921EBCC__GUID-E2EC4E7E-2391-473F-A9CA-8CCDBB80F6C8">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9" title="Starting in Oracle Database 12c, the optimizer automatically decides whether dynamic statistics are useful and which sample size to use for all SQL statements. In earlier releases, dynamic statistics were called dynamic sampling.">When the Database Samples Data</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN10140" target="_blank" href="../REFRN/GUID-43655FC3-3C32-486B-8B11-8C20C152618D.htm#REFRN10140"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL454"></a><a id="TGSQL453"></a>
+<div class="props_rev_3"><a id="GUID-B92327C9-9B33-4E9C-8813-7E7BC86202C3"></a>
+<h3 id="TGSQL-GUID-B92327C9-9B33-4E9C-8813-7E7BC86202C3" class="sect3">Setting Dynamic Statistics Levels Manually</h3>
+<div>
+<p>Determining a database-level setting that would be beneficial to all SQL statements can be difficult. When setting the level for dynamic statistics, Oracle recommends setting the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter at the session level.</p>
+<div class="section">
+<p class="subhead3">Assumptions</p>
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want correct selectivity estimates for the following query, which has <code class="codeph">WHERE</code> clause predicates on two correlated columns:</p>
+<pre dir="ltr">  SELECT *
+  FROM   sh.customers
+  WHERE  cust_city=&#39;Los Angeles&#39;
+  AND    cust_state_province=&#39;CA&#39;;
+</pre></li>
+<li>
+<p>The preceding query uses serial processing.</p>
+</li>
+<li>
+<p>The <code class="codeph">sh.customers</code> table contains 932 rows that meet the conditions in the query.</p>
+</li>
+<li>
+<p>You have gathered statistics on the <code class="codeph">sh.customers</code> table.</p>
+</li>
+<li>
+<p>You created an index on the <code class="codeph">cust_city</code> and <code class="codeph">cust_state_province</code> columns.</p>
+</li>
+<li>
+<p>The <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter is set to the default level of <code class="codeph">2</code>.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To set the dynamic statistics level manually:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges, and then explain the execution plan as follows:</p>
+<pre dir="ltr">EXPLAIN PLAN FOR
+  SELECT *
+  FROM   sh.customers
+  WHERE  cust_city=&#39;Los Angeles&#39;
+  AND    cust_state_province=&#39;CA&#39;;
+</pre></li>
+<li>
+<p>Query the plan as follows:</p>
+<pre dir="ltr">SET LINESIZE 130
+SET PAGESIZE 0
+SELECT * 
+FROM   TABLE(DBMS_XPLAN.DISPLAY);
+</pre>
+<p>The output appears below (the example has been reformatted to fit on the page):</p>
+<pre dir="ltr">-------------------------------------------------------------------------------
+|Id| Operation                   | Name             |Rows|Bytes|Cost | Time   |
+-------------------------------------------------------------------------------
+| 0| SELECT STATEMENT            |                   | <span class="bold">53</span>| 9593|53(0)|00:00:01|
+| 1|  TABLE ACCESS BY INDEX ROWID|CUSTOMERS          | <span class="bold">53</span>| 9593|53(0)|00:00:01|
+|*2|   INDEX RANGE SCAN          |CUST_CITY_STATE_IND| <span class="bold">53</span>| 9593| 3(0)|00:00:01|
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access(&#34;CUST_CITY&#34;=&#39;Los Angeles&#39; AND &#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39;)
+</pre>
+<p>The columns in the <code class="codeph">WHERE</code> clause have a real-world correlation, but the optimizer is not aware that Los Angeles is in California and assumes both predicates reduce the number of rows returned. Thus, the table contains 932 rows that meet the conditions, but the optimizer estimates 53, as shown in bold.</p>
+<p>If the database had used dynamic statistics for this plan, then the <code class="codeph">Note</code> section of the plan output would have indicated this fact. The optimizer did not use dynamic statistics because the statement executed serially, standard statistics exist, and the parameter <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> is set to the default of <code class="codeph">2</code>.</p>
+</li>
+<li>
+<p>Set the dynamic statistics level to <code class="codeph">4</code> in the session using the following statement:</p>
+<pre dir="ltr">ALTER SESSION SET OPTIMIZER_DYNAMIC_SAMPLING=4;
+</pre></li>
+<li>
+<p>Explain the plan again:</p>
+<pre dir="ltr">EXPLAIN PLAN FOR
+  SELECT *
+  FROM   sh.customers
+  WHERE  cust_city=&#39;Los Angeles&#39;
+  AND    cust_state_province=&#39;CA&#39;;
+</pre>
+<p>The new plan shows a more accurate estimate of the number of rows, as shown by the value 932 in bold:</p>
+<pre dir="ltr">PLAN_TABLE_OUTPUT
+---------------------------------------------------------------------------
+Plan hash value: 2008213504
+ 
+---------------------------------------------------------------------------
+| Id  | Operation         | Name      |Rows | Bytes |Cost (%CPU)|Time     |
+---------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           | <span class="bold">932</span> |   271K|   406 (1)| 00:00:05 |
+|*  1 |  TABLE ACCESS FULL| CUSTOMERS | <span class="bold">932</span> |   271K|   406 (1)| 00:00:05 |
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter(&#34;CUST_CITY&#34;=&#39;Los Angeles&#39; AND &#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39;)
+ 
+Note
+-----
+   - <span class="bold">dynamic statistics used for this statement (level=4)</span>
+</pre>
+<p>The note at the bottom of the plan indicates that the sampling level is <code class="codeph">4</code>. The additional dynamic statistics made the optimizer aware of the real-world relationship between the <code class="codeph">cust_city</code> and <code class="codeph">cust_state_province</code> columns, thereby enabling it to produce a more accurate estimate for the number of rows: 932 rather than 53.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-B92327C9-9B33-4E9C-8813-7E7BC86202C3__GUID-7BB2F27F-3AE9-469F-9C9B-3CB2D803B4D4">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF50913" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF50913"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about setting sampling levels with the <code class="codeph">DYNAMIC_SAMPLING</code> hint</p>
+</li>
+<li>
+<p><a class="olink REFRN10140" target="_blank" href="../REFRN/GUID-43655FC3-3C32-486B-8B11-8C20C152618D.htm#REFRN10140"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL455"></a>
+<div class="props_rev_3"><a id="GUID-0D188B48-179D-4496-AEB8-C46016D5D0B2"></a>
+<h3 id="TGSQL-GUID-0D188B48-179D-4496-AEB8-C46016D5D0B2" class="sect3">Disabling Dynamic Statistics</h3>
+<div>
+<p>In general, the best practice is not to incur the cost of dynamic statistics for queries whose compile times must be as fast as possible, for example, unrepeated OLTP queries.</p>
+<div class="section">
+<p class="subhead3">To disable dynamic statistics at the session level:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database with the appropriate privileges.</p>
+</li>
+<li>
+<p>Set the dynamic statistics level to <code class="codeph">0</code>.</p>
+<p>For example, run the following statement:</p>
+<pre dir="ltr">ALTER SESSION SET OPTIMIZER_DYNAMIC_SAMPLING=0;
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-0D188B48-179D-4496-AEB8-C46016D5D0B2__GUID-A077E070-1D89-485F-9365-BF9B8DA33F15">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN10140" target="_blank" href="../REFRN/GUID-43655FC3-3C32-486B-8B11-8C20C152618D.htm#REFRN10140"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL456"></a>
+<div class="props_rev_3"><a id="GUID-8FF503A2-5E50-4054-AC3A-5672343BDFE3"></a>
+<h2 id="TGSQL-GUID-8FF503A2-5E50-4054-AC3A-5672343BDFE3" class="sect2">Publishing Pending Optimizer Statistics</h2>
+<div>
+<p>By default, the database automatically publishes statistics when the statistics collection ends. Alternatively, you can use <span class="bold"><a href="glossary.htm#GUID-080D2B1E-AD95-43A4-9361-D9FB9C101D11"><span class="xrefglossterm">pending statistics</span></a></span> to save the statistics and not publish them immediately after the collection. This technique is useful for testing queries in a session with pending statistics. When the test results are satisfactory, you can publish the statistics to make them available for the entire database.</p>
+</div>
+<a id="TGSQL457"></a>
+<div class="props_rev_3"><a id="GUID-8244B238-B835-4121-8FB2-D6213104E21A"></a>
+<h3 id="TGSQL-GUID-8244B238-B835-4121-8FB2-D6213104E21A" class="sect3">About Pending Optimizer Statistics</h3>
+<div>
+<p>The database stores pending statistics in the data dictionary just as for published statistics.</p>
+<p>By default, the optimizer uses published statistics. You can change the default behavior by setting the <code class="codeph">OPTIMIZER_USE_PENDING_STATISTICS</code> initialization parameter to <code class="codeph">true</code> (the default is <code class="codeph">false</code>).</p>
+<p>The top part of the following graphic shows the optimizer gathering statistics for the <code class="codeph">sh.customers</code> table and storing them in the data dictionary with pending status. The bottom part of the diagram shows the optimizer using only published statistics to process a query of <code class="codeph">sh.customers</code>.</p>
+<div class="figure" id="GUID-8244B238-B835-4121-8FB2-D6213104E21A__CHDEDCHI">
+<p class="titleinfigure">Figure 13-1 Published and Pending Statistics</p>
+<img width="494" height="618" src="img/GUID-8D1A4110-427D-46E2-8371-AF5383CBCB21-default.png" alt="Description of Figure 13-1 follows" title="Description of Figure 13-1 follows"/><br/>
+<a href="img_text/GUID-8D1A4110-427D-46E2-8371-AF5383CBCB21-print.htm">Description of &#34;Figure 13-1 Published and Pending Statistics&#34;</a></div>
+<!-- class="figure" -->
+<p>In some cases, the optimizer can use a combination of published and pending statistics. For example, the database stores both published and pending statistics for the <code class="codeph">customers</code> table. For the <code class="codeph">orders</code> table, the database stores only published statistics. If <code class="codeph">OPTIMIZER_USE_PENDING_STATS = true</code>, then the optimizer uses pending statistics for <code class="codeph">customers</code> and published statistics for <code class="codeph">orders</code>. If <code class="codeph">OPTIMIZER_USE_PENDING_STATS = false</code>, then the optimizer uses published statistics for <code class="codeph">customers</code> and <code class="codeph">orders</code>.</p>
+<div class="infoboxnotealso" id="GUID-8244B238-B835-4121-8FB2-D6213104E21A__GUID-931891E4-EA6B-4C2E-AEF3-C25003C64E38">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN10288" target="_blank" href="../REFRN/GUID-4BAC5EDD-3466-4E48-83D0-C00E28E1E90A.htm#REFRN10288"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">OPTIMIZER_USE_PENDING_STATISTICS</code> initialization parameter</p>
+</div>
+</div>
+</div>
+<a id="TGSQL459"></a><a id="TGSQL94929"></a><a id="TGSQL458"></a>
+<div class="props_rev_3"><a id="GUID-A511A414-B777-4CCC-A5B8-AA2F74A3A663"></a>
+<h3 id="TGSQL-GUID-A511A414-B777-4CCC-A5B8-AA2F74A3A663" class="sect3">User Interfaces for Publishing Optimizer Statistics</h3>
+<div>
+<div class="section">
+<p>You can use the <code class="codeph">DBMS_STATS</code> package to perform operations relating to publishing statistics. <a href="tgsql_astat.htm#GUID-A511A414-B777-4CCC-A5B8-AA2F74A3A663__CHDEFDGF" title="Parameters for the create_extended_statistics Function">Table 13-2</a> lists the relevant program units.</p>
+</div>
+<!-- class="section" -->
+<div class="tblformal" id="GUID-A511A414-B777-4CCC-A5B8-AA2F74A3A663__CHDEFDGF">
+<p class="titleintable">Table 13-2 DBMS_STATS Program Units Relevant for Publishing Optimizer Statistics</p>
+<table class="cellalignment4808" title="DBMS_STATS Program Units Relevant for Publishing Optimizer Statistics" summary="Parameters for the create_extended_statistics Function">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4846" id="d82605e1324">Program Unit</th>
+<th class="cellalignment4847" id="d82605e1327">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4848" id="d82605e1332" headers="d82605e1324">
+<p><code class="codeph">GET_PREFS</code></p>
+</td>
+<td class="cellalignment4849" headers="d82605e1332 d82605e1327">
+<p>Check whether the statistics are automatically published as soon as <code class="codeph">DBMS_STATS</code> gathers them. For the parameter <code class="codeph">PUBLISH</code>, <code class="codeph">true</code> indicates that the statistics must be published when the database gathers them, whereas <code class="codeph">false</code> indicates that the database must keep the statistics pending.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4848" id="d82605e1352" headers="d82605e1324">
+<p><code class="codeph">SET_TABLE_PREFS</code></p>
+</td>
+<td class="cellalignment4849" headers="d82605e1352 d82605e1327">
+<p>Set the <code class="codeph">PUBLISH</code> setting to <code class="codeph">true</code> or <code class="codeph">false</code> at the table level.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4848" id="d82605e1369" headers="d82605e1324">
+<p><code class="codeph">SET_SCHEMA_PREFS</code></p>
+</td>
+<td class="cellalignment4849" headers="d82605e1369 d82605e1327">
+<p>Set the <code class="codeph">PUBLISH</code> setting to <code class="codeph">true</code> or <code class="codeph">false</code> at the schema level.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4848" id="d82605e1386" headers="d82605e1324">
+<p><code class="codeph">PUBLISH_PENDING_STATS</code></p>
+</td>
+<td class="cellalignment4849" headers="d82605e1386 d82605e1327">
+<p>Publish valid pending statistics for all objects or only specified objects.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4848" id="d82605e1394" headers="d82605e1324">
+<p><code class="codeph">DELETE_PENDING_STATS</code></p>
+</td>
+<td class="cellalignment4849" headers="d82605e1394 d82605e1327">
+<p>Delete pending statistics.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4848" id="d82605e1402" headers="d82605e1324">
+<p><code class="codeph">EXPORT_PENDING_STATS</code></p>
+</td>
+<td class="cellalignment4849" headers="d82605e1402 d82605e1327">
+<p>Export pending statistics.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<p>The initialization parameter <code class="codeph">OPTIMIZER_USE_PENDING_STATISTICS</code> determines whether the database uses pending statistics when they are available. The default value is <code class="codeph">false</code>, which means that the optimizer uses only published statistics. Set to <code class="codeph">true</code> to specify that the optimizer uses any existing pending statistics instead. The best practice is to set this parameter at the session level rather than at the database level.</p>
+<p>You can use access information about published statistics from data dictionary views. <a href="tgsql_astat.htm#GUID-A511A414-B777-4CCC-A5B8-AA2F74A3A663__CHDJFDDD" title="Parameters for the create_extended_statistics Function">Table 13-3</a> lists relevant views.</p>
+</div>
+<!-- class="section" -->
+<div class="tblformal" id="GUID-A511A414-B777-4CCC-A5B8-AA2F74A3A663__CHDJFDDD">
+<p class="titleintable">Table 13-3 Views Relevant for Publishing Optimizer Statistics</p>
+<table class="cellalignment4808" title="Views Relevant for Publishing Optimizer Statistics" summary="Parameters for the create_extended_statistics Function">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4850" id="d82605e1438">View</th>
+<th class="cellalignment4851" id="d82605e1441">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e1446" headers="d82605e1438">
+<p><code class="codeph">USER_TAB_STATISTICS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e1446 d82605e1441">
+<p>Displays optimizer statistics for the tables accessible to the current user.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e1454" headers="d82605e1438">
+<p><code class="codeph">USER_TAB_COL_STATISTICS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e1454 d82605e1441">
+<p>Displays column statistics and histogram information extracted from <code class="codeph">ALL_TAB_COLUMNS</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e1465" headers="d82605e1438">
+<p><code class="codeph">USER_PART_COL_STATISTICS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e1465 d82605e1441">
+<p>Displays column statistics and histogram information for the table partitions owned by the current user.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e1473" headers="d82605e1438">
+<p><code class="codeph">USER_SUBPART_COL_STATISTICS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e1473 d82605e1441">
+<p>Describes column statistics and histogram information for subpartitions of partitioned objects owned by the current user.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e1481" headers="d82605e1438">
+<p><code class="codeph">USER_IND_STATISTICS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e1481 d82605e1441">
+<p>Displays optimizer statistics for the indexes accessible to the current user.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e1489" headers="d82605e1438">
+<p><code class="codeph">USER_TAB_PENDING_STATS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e1489 d82605e1441">
+<p>Describes pending statistics for tables, partitions, and subpartitions accessible to the current user.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e1497" headers="d82605e1438">
+<p><code class="codeph">USER_COL_PENDING_STATS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e1497 d82605e1441">
+<p>Describes the pending statistics of the columns accessible to the current user.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e1505" headers="d82605e1438">
+<p><code class="codeph">USER_IND_PENDING_STATS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e1505 d82605e1441">
+<p>Describes the pending statistics for tables, partitions, and subpartitions accessible to the current user collected using the <code class="codeph">DBMS_STATS</code> package.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-A511A414-B777-4CCC-A5B8-AA2F74A3A663__GUID-A1266D17-5F8E-40E7-B3E0-C238F2B47DD8">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS</code> package</p>
+</li>
+<li>
+<p><a class="olink REFRN26639" target="_blank" href="../REFRN/GUID-0092BEC9-BC86-42FA-A83A-12D5FE3172AC.htm#REFRN26639"><span class="italic">Oracle Database Reference</span></a> to learn about <code class="codeph">USER_TAB_PENDING_STATS</code> and related views</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL461"></a><a id="TGSQL460"></a>
+<div class="props_rev_3"><a id="GUID-28D2C31D-889F-4C21-8618-100BC3A72856"></a>
+<h3 id="TGSQL-GUID-28D2C31D-889F-4C21-8618-100BC3A72856" class="sect3">Managing Published and Pending Statistics</h3>
+<div>
+<div class="section">
+<p>This section explains how to use <code class="codeph">DBMS_STATS</code> program units to change the publishing behavior of optimizer statistics, and also to export and delete these statistics.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to change the preferences for the <code class="codeph">sh.customers</code> and <code class="codeph">sh.sales</code> tables so that newly collected statistics have pending status.</p>
+</li>
+<li>
+<p>You want the current session to use pending statistics.</p>
+</li>
+<li>
+<p>You want to gather and publish pending statistics on the <code class="codeph">sh.customers</code> table.</p>
+</li>
+<li>
+<p>You gather the pending statistics on the <code class="codeph">sh.sales</code> table, but decide to delete them without publishing them.</p>
+</li>
+<li>
+<p>You want to change the preferences for the <code class="codeph">sh.customers</code> and <code class="codeph">sh.sales</code> tables so that newly collected statistics are published.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To manage published and pending statistics:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as user <code class="codeph">sh</code>.</p>
+</li>
+<li>
+<p>Query the global optimizer statistics publishing setting.</p>
+<p>Run the following query (sample output included):</p>
+<pre dir="ltr">sh@PROD&gt; SELECT DBMS_STATS.GET_PREFS(&#39;PUBLISH&#39;) PUBLISH FROM DUAL;
+
+PUBLISH
+-------
+TRUE
+</pre>
+<p>The value <code class="codeph">true</code> indicates that the database publishes statistics as it gathers them. Every table uses this value unless a specific table preference has been set.</p>
+<p>When using <code class="codeph">GET_PREFS</code>, you can also specify a schema and table name. The function returns a table preference if it is set. Otherwise, the function returns the global preference.</p>
+</li>
+<li>
+<p>Query the pending statistics.</p>
+<p>For example, run the following query (sample output included):</p>
+<pre dir="ltr">sh@PROD&gt; SELECT * FROM USER_TAB_PENDING_STATS;
+ 
+no rows selected
+</pre>
+<p>This example shows that the database currently stores no pending statistics for the <code class="codeph">sh</code> schema.</p>
+</li>
+<li>
+<p>Change the publishing preferences for the <code class="codeph">sh.customers</code> table.</p>
+<p>For example, execute the following procedure so that statistics are marked as pending:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.SET_TABLE_PREFS(&#39;sh&#39;, &#39;customers&#39;, &#39;publish&#39;, &#39;false&#39;);
+END;
+/
+</pre>
+<p>Subsequently, when you gather statistics on the <code class="codeph">customers</code> table, the database does not automatically publish statistics when the gather job completes. Instead, the database stores the newly gathered statistics in the <code class="codeph">USER_TAB_PENDING_STATS</code> table.</p>
+</li>
+<li>
+<p>Gather statistics for <code class="codeph">sh.customers</code>.</p>
+<p>For example, run the following program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.GATHER_TABLE_STATS(&#39;sh&#39;,&#39;customers&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Query the pending statistics.</p>
+<p>For example, run the following query (sample output included):</p>
+<pre dir="ltr">sh@PROD&gt; SELECT TABLE_NAME, NUM_ROWS FROM USER_TAB_PENDING_STATS;
+ 
+TABLE_NAME                       NUM_ROWS
+------------------------------ ----------
+CUSTOMERS                           55500
+</pre>
+<p>This example shows that the database now stores pending statistics for the <code class="codeph">sh.customers</code> table.</p>
+</li>
+<li>
+<p>Instruct the optimizer to use the pending statistics in this session.</p>
+<p>Set the initialization parameter <code class="codeph">OPTIMIZER_USE_PENDING_STATISTICS</code> to <code class="codeph">true</code> as shown:</p>
+<pre dir="ltr">ALTER SESSION SET OPTIMIZER_USE_PENDING_STATISTICS = true;
+</pre></li>
+<li>
+<p>Run a workload.</p>
+<p>The following example changes the email addresses of all customers named Bruce Chalmers:</p>
+<pre dir="ltr">UPDATE  sh.customers 
+  SET   cust_email=&#39;ChalmersB@company.com&#39; 
+  WHERE cust_first_name = &#39;Bruce&#39; 
+  AND   cust_last_name = &#39;Chalmers&#39;;
+COMMIT;
+</pre>
+<p>The optimizer uses the pending statistics instead of the published statistics when compiling all SQL statements in this session.</p>
+</li>
+<li>
+<p>Publish the pending statistics for <code class="codeph">sh.customers</code>.</p>
+<p>For example, execute the following program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.PUBLISH_PENDING_STATS(&#39;SH&#39;,&#39;CUSTOMERS&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Change the publishing preferences for the <code class="codeph">sh.sales</code> table.</p>
+<p>For example, execute the following program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.SET_TABLE_PREFS(&#39;sh&#39;, &#39;sales&#39;, &#39;publish&#39;, &#39;false&#39;);
+END;
+/
+</pre>
+<p>Subsequently, when you gather statistics on the <code class="codeph">sh.sales</code> table, the database does not automatically publish statistics when the gather job completes. Instead, the database stores the statistics in the <code class="codeph">USER_TAB_PENDING_STATS</code> table.</p>
+</li>
+<li>
+<p>Gather statistics for <code class="codeph">sh.sales</code>.</p>
+<p>For example, run the following program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.GATHER_TABLE_STATS(&#39;sh&#39;,&#39;sales&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Delete the pending statistics for <code class="codeph">sh.sales</code>.</p>
+<p>Assume you change your mind and now want to delete pending statistics for <code class="codeph">sh.sales</code>. Run the following program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.DELETE_PENDING_STATS(&#39;sh&#39;,&#39;sales&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Change the publishing preferences for the <code class="codeph">sh.customers</code> and <code class="codeph">sh.sales</code> tables back to their default setting.</p>
+<p>For example, execute the following program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.SET_TABLE_PREFS(&#39;sh&#39;, &#39;customers&#39;, &#39;publish&#39;, null);
+  DBMS_STATS.SET_TABLE_PREFS(&#39;sh&#39;, &#39;sales&#39;, &#39;publish&#39;, null);
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL94634"></a>
+<div class="props_rev_3"><a id="GUID-BD0F0B71-DD8B-44A0-888E-495830FC09A4"></a>
+<h2 id="TGSQL-GUID-BD0F0B71-DD8B-44A0-888E-495830FC09A4" class="sect2">Managing Extended Statistics</h2>
+<div>
+<p><code class="codeph">DBMS_STATS</code> enables you to collect <span class="bold">extended statistics</span>, which are statistics that can improve cardinality estimates when multiple predicates exist on different columns of a table, or when predicates use expressions. An <span class="bold">extension</span> is either a column group or an expression.</p>
+<p>Oracle Database supports the following types of extended statistics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Column group statistics</p>
+<p>This type of extended statistics can improve cardinality estimates when multiple columns from the same table occur together in a SQL statement. An example might be a car make and model, or a city and state. See <span class="q">&#34;<a href="tgsql_astat.htm#GUID-CE34B506-94B6-4346-8AB6-6B17BC52B782" title="A column group is a set of columns that is treated as a unit.">Managing Column Group Statistics</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Expression statistics</p>
+<p>This type of extended statistics improves optimizer estimates when predicates use expressions, for example, built-in or user-defined functions. An example might be the <code class="codeph">UPPER</code> function applied to an employee last name.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-BD0F0B71-DD8B-44A0-888E-495830FC09A4__GUID-14612EBF-A23B-4449-98C4-5C39511756BD">
+<p class="notep1">Note:</p>
+<p>You cannot create extended statistics on virtual columns.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-BD0F0B71-DD8B-44A0-888E-495830FC09A4__GUID-041F9628-C126-41F5-990B-7C4AAEE286AE">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-FC50E35E-AF6A-4ECD-919D-8E020011DAB6" title="For an expression in the form (function(col)=constant) applied to a WHERE clause column, the optimizer does not know how this function affects predicate cardinality unless a function-based index exists. However, you can gather expression statistics on the expression(function(col) itself.You can use DBMS_STATS to create statistics for a user-specified expression.">Managing Expression Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink SQLRF54467" target="_blank" href="../SQLRF/statements_7002.htm#SQLRF54467"><span><cite>Oracle Database SQL Language Reference</cite></span></a> for a list of restrictions on virtual columns</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL462"></a>
+<div class="props_rev_3"><a id="GUID-CE34B506-94B6-4346-8AB6-6B17BC52B782"></a>
+<h3 id="TGSQL-GUID-CE34B506-94B6-4346-8AB6-6B17BC52B782" class="sect3">Managing Column Group Statistics</h3>
+<div>
+<p>A <span class="bold">column group</span> is a set of columns that is treated as a unit.</p>
+<p>Essentially, a column group is a virtual column. By gathering statistics on a column group, the optimizer can more accurately determine the cardinality estimate when a query groups these columns together.</p>
+<p>The following sections provide an overview of <a href="glossary.htm#GUID-FB763B43-B5C7-47D0-8B0D-47CED4922501"><span class="xrefglossterm">column group statistics</span></a>, and explain how to manage them manually:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_astat.htm#GUID-858E0BDA-06C6-471F-B9E8-888C3AD29673" title="Individual column statistics are useful for determining the selectivity of a single predicate in a WHERE clause. However, when the WHERE clause includes multiple predicates on different columns from the same table, individual column statistics do not show the relationship between the columns. This is the problem solved by a column group.">About Statistics on Column Groups</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-E1F39134-24F1-4EF7-B614-82F9428CA762">Detecting Useful Column Groups for a Specific Workload</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-783A8687-EDB3-437E-AE99-3F12369BA10A">Creating Column Groups Detected During Workload Monitoring</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-D070C3B3-C356-4630-8EB3-766A790866F3">Creating and Gathering Statistics on Column Groups Manually</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-532D06C9-C6A2-4018-B496-AD87003B682E">Displaying Column Group Information</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-DBBB6C91-4450-457D-A612-71E835D6159C">Dropping a Column Group</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-CE34B506-94B6-4346-8AB6-6B17BC52B782__GUID-D18E04D2-1CD3-45AA-A480-13C2AEBE0DA0">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_STATS</code> package</p>
+</div>
+</div>
+<a id="TGSQL464"></a><a id="TGSQL463"></a>
+<div class="props_rev_3"><a id="GUID-858E0BDA-06C6-471F-B9E8-888C3AD29673"></a>
+<h4 id="TGSQL-GUID-858E0BDA-06C6-471F-B9E8-888C3AD29673" class="sect4">About Statistics on Column Groups</h4>
+<div>
+<p>Individual column statistics are useful for determining the selectivity of a single predicate in a <code class="codeph">WHERE</code> clause. However, when the <code class="codeph">WHERE</code> clause includes multiple predicates on different columns from the same table, individual column statistics do not show the relationship between the columns. This is the problem solved by a column group.</p>
+<p>The optimizer calculates the selectivity of the predicates independently, and then combines them. However, if a correlation between the individual columns exists, then the optimizer cannot take it into account when determining a cardinality estimate, which it creates by multiplying the selectivity of each table predicate by the number of rows.</p>
+<p>The following graphic contrasts two ways of gathering statistics on the <code class="codeph">cust_state_province</code> and <code class="codeph">country_id</code> columns of the <code class="codeph">sh.customers</code> table. The diagram shows <code class="codeph">DBMS_STATS</code> collecting statistics on each column individually and on the group. The column group has a system-generated name.</p>
+<div class="figure" id="GUID-858E0BDA-06C6-471F-B9E8-888C3AD29673__CHDCHFGJ">
+<p class="titleinfigure">Figure 13-2 Column Group Statistics</p>
+<img width="452" height="288" src="img/GUID-1D80ABF8-2463-4488-AF84-037EFB72602F-default.png" alt="Description of Figure 13-2 follows" title="Description of Figure 13-2 follows"/><br/>
+<a href="img_text/GUID-1D80ABF8-2463-4488-AF84-037EFB72602F-print.htm">Description of &#34;Figure 13-2 Column Group Statistics&#34;</a></div>
+<!-- class="figure" -->
+<div class="infobox-note" id="GUID-858E0BDA-06C6-471F-B9E8-888C3AD29673__GUID-8EF05E98-5277-48C5-AE05-1B4A6706E01C">
+<p class="notep1">Note:</p>
+<p>The optimizer uses column group statistics for equality predicates, inlist predicates, and for estimating the <code class="codeph">GROUP BY</code> cardinality.</p>
+</div>
+</div>
+<a id="TGSQL465"></a>
+<div class="props_rev_3"><a id="GUID-F2E85913-120F-4F6A-99AD-D4B221344E7E"></a>
+<h5 id="TGSQL-GUID-F2E85913-120F-4F6A-99AD-D4B221344E7E" class="sect5">Why Column Group Statistics Are Needed: Example</h5>
+<div>
+<p>The following query of the <code class="codeph">DBA_TAB_COL_STATISTICS</code> table shows information about statistics that have been gathered on the columns <code class="codeph">cust_state_province</code> and <code class="codeph">country_id</code> from the <code class="codeph">sh.customers</code> table:</p>
+<pre dir="ltr">COL COLUMN_NAME FORMAT a20
+COL NDV FORMAT 999
+
+SELECT COLUMN_NAME, NUM_DISTINCT AS &#34;NDV&#34;, HISTOGRAM
+FROM   DBA_TAB_COL_STATISTICS
+WHERE  OWNER = &#39;SH&#39;
+AND    TABLE_NAME = &#39;CUSTOMERS&#39;
+AND    COLUMN_NAME IN (&#39;CUST_STATE_PROVINCE&#39;, &#39;COUNTRY_ID&#39;);
+</pre>
+<p>Sample output is as follows:</p>
+<pre dir="ltr">COLUMN_NAME                 NDV HISTOGRAM
+-------------------- ---------- ---------------
+CUST_STATE_PROVINCE         145 FREQUENCY
+COUNTRY_ID                   19 FREQUENCY
+</pre>
+<p>As shown in the following query, 3341 customers reside in California:</p>
+<pre dir="ltr">SELECT COUNT(*)
+FROM   sh.customers 
+WHERE  cust_state_province = &#39;CA&#39;;
+
+ COUNT(*)
+----------
+    3341
+</pre>
+<p>Consider an explain plan for a query of customers in the state <code class="codeph">CA</code> and in the country with ID <code class="codeph">52790</code> (USA):</p>
+<pre dir="ltr">EXPLAIN PLAN FOR
+  SELECT *
+  FROM   sh.customers
+  WHERE  cust_state_province = &#39;CA&#39;
+  AND    country_id=52790;
+ 
+Explained.
+ 
+sys@PROD&gt; SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+Plan hash value: 1683234692
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |   128 | 24192 |   442   (7)| 00:00:06 |
+|*  1 |  TABLE ACCESS FULL| CUSTOMERS |   <span class="bold">128</span> | 24192 |   442   (7)| 00:00:06 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------
+ 
+   1 - filter(&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39; AND &#34;COUNTRY_ID&#34;=52790)
+ 
+13 rows selected.
+</pre>
+<p>Based on the single-column statistics for the <code class="codeph">country_id</code> and <code class="codeph">cust_state_province</code> columns, the optimizer estimates that the query of California customers in the USA will return 128 rows. In fact, 3341 customers reside in California, but the optimizer does not know that California is in the USA, and so greatly underestimates cardinality by assuming that both predicates reduce the number of returned rows.</p>
+<p>You can make the optimizer aware of the real-world relationship between values in <code class="codeph">country_id</code> and <code class="codeph">cust_state_province</code> by gathering column group statistics. These statistics enable the optimizer to give a more accurate cardinality estimate.</p>
+<div class="infoboxnotealso" id="GUID-F2E85913-120F-4F6A-99AD-D4B221344E7E__GUID-B098CCF2-C74B-4AD8-9BD3-CBE14C736748">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-E1F39134-24F1-4EF7-B614-82F9428CA762">Detecting Useful Column Groups for a Specific Workload</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-783A8687-EDB3-437E-AE99-3F12369BA10A">Creating Column Groups Detected During Workload Monitoring</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-D070C3B3-C356-4630-8EB3-766A790866F3">Creating and Gathering Statistics on Column Groups Manually</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL94635"></a><a id="TGSQL466"></a>
+<div class="props_rev_3"><a id="GUID-0A7D5A85-7813-4803-9BAC-3110B2CFB9E1"></a>
+<h5 id="TGSQL-GUID-0A7D5A85-7813-4803-9BAC-3110B2CFB9E1" class="sect5">User Interface for Column Group Statistics</h5>
+<div>
+<p>Several <code class="codeph">DBMS_STATS</code> program units have preferences that are relevant for column groups.</p>
+<div class="tblformal" id="GUID-0A7D5A85-7813-4803-9BAC-3110B2CFB9E1__CHDFAJCH">
+<p class="titleintable">Table 13-4 DBMS_STATS Column Group Program Units</p>
+<table class="cellalignment4808" title="DBMS_STATS Column Group Program Units" summary="DBMS_STATS Multicolumn Program Units">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4854" id="d82605e2514">Program Unit</th>
+<th class="cellalignment4855" id="d82605e2517">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4856" id="d82605e2522" headers="d82605e2514">
+<p><code class="codeph">SEED_COL_USAGE</code></p>
+</td>
+<td class="cellalignment4857" headers="d82605e2522 d82605e2517">
+<p>Iterates over the SQL statements in the specified workload, compiles them, and then seeds column usage information for the columns that appear in these statements.</p>
+<p>To determine the appropriate column groups, the database must observe a representative workload. You do not need to run the queries themselves during the monitoring period. Instead, you can run <code class="codeph">EXPLAIN PLAN</code> for some longer-running queries in your workload to ensure that the database is recording column group information for these queries.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4856" id="d82605e2535" headers="d82605e2514">
+<p><code class="codeph">REPORT_COL_USAGE</code></p>
+</td>
+<td class="cellalignment4857" headers="d82605e2535 d82605e2517">
+<p>Generates a report that lists the columns that were seen in filter predicates, join predicates, and <code class="codeph">GROUP BY</code> clauses in the workload.</p>
+<p>You can use this function to review column usage information recorded for a specific table.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4856" id="d82605e2548" headers="d82605e2514">
+<p><code class="codeph">CREATE_EXTENDED_STATS</code></p>
+</td>
+<td class="cellalignment4857" headers="d82605e2548 d82605e2517">
+<p>Creates extensions, which are either column groups or expressions. The database gathers statistics for the extension when either a user-generated or automatic statistics gathering job gathers statistics for the table.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-0A7D5A85-7813-4803-9BAC-3110B2CFB9E1__GUID-58DEC0BB-9DF1-4909-B08E-3E677077DD24">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_STATS</code> package</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL470"></a><a id="TGSQL468"></a>
+<div class="props_rev_3"><a id="GUID-E1F39134-24F1-4EF7-B614-82F9428CA762"></a>
+<h4 id="TGSQL-GUID-E1F39134-24F1-4EF7-B614-82F9428CA762" class="sect4">Detecting Useful Column Groups for a Specific Workload</h4>
+<div>
+<div class="section">
+<p>You can use <code class="codeph">DBMS_STATS.SEED_COL_USAGE</code> and <code class="codeph">REPORT_COL_USAGE</code> to determine which <a id="d82605e2654" class="indexterm-anchor"></a><a id="d82605e2656" class="indexterm-anchor"></a>column groups are required for a table based on a specified workload. This technique is useful when you do not know which extended statistics to create. This technique does not work for expression statistics.</p>
+<div class="infobox-note" id="GUID-E1F39134-24F1-4EF7-B614-82F9428CA762__GUID-B7DF9CB0-77E6-4F45-8C6D-DF0753BF28A9">
+<p class="notep1">Note:</p>
+<p>You can seed column usage from a SQL tuning set (see <a href="tgsql_sts.htm#GUID-91D1B886-A6D7-40B8-93D5-112B8C6E6AFE" title="A SQL tuning set (STS) is a database object that you can use as input to tuning tools.To create an STS, you must load SQL statements into an STS from a source.You can use either Oracle Enterprise Manager Cloud Control (Cloud Control) or PL/SQL packages to manage SQL tuning sets. Oracle recommends Cloud Control.The SQL Tuning Sets page in Cloud Control is the starting page from which you can perform most operations relating to SQL tuning sets.DBMS_SQLTUNE provides the procedures necessary for creating, using, and deleting SQL tuning sets.Use the DBMS_SQLTUNE.DELETE_SQLSET procedure to delete SQL statements from an STS. Transporting SQL tuning sets between databases means copying the SQL tuning sets to and from a staging table, and then using other tools to move the staging table to the destination database. The most common tools are Oracle Data Pump or a database link.Transporting SQL tuning sets requires exporting the STS, transporting the dump file, and then importing the dump file.When transporting an STS, you must remap the con_dbid of each SQL statement in the STS when the con_dbid of the source database and the destination database are different.You can transport SQL tuning sets using three subprograms in the DBMS_SQLTUNE package.To drop an STS from the database, execute the DBMS_SQLTUNE.DROP_SQLSET procedure.">Managing SQL Tuning Sets</a> ).</p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Cardinality estimates have been incorrect for queries of the <code class="codeph">sh.customers_test</code> table (created from the <code class="codeph">customers</code> table) that use predicates referencing the columns <code class="codeph">country_id</code> and <code class="codeph">cust_state_province</code>.</p>
+</li>
+<li>
+<p>You want the database to monitor your workload for 5 minutes (300 seconds).</p>
+</li>
+<li>
+<p>You want the database to determine which column groups are needed automatically.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To detect column groups:</p>
+<ol>
+<li>
+<p>Connect SQL*Plus to the database as user <code class="codeph">sh</code>, and then create the <code class="codeph">customers_test</code> table and gather statistics for it:</p>
+<pre dir="ltr">CONNECT SH/SH
+DROP TABLE customers_test;
+CREATE TABLE customers_test AS SELECT * FROM customer;
+EXEC DBMS_STATS.GATHER_TABLE_STATS(user, &#39;customers_test&#39;);
+</pre></li>
+<li>
+<p>Enable workload monitoring.</p>
+<p>In a different SQL*Plus session, connect as <code class="codeph">SYS</code> and run the following PL/SQL program to enable monitoring for 300 seconds:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.SEED_COL_USAGE(null,null,300);
+END;
+/
+</pre></li>
+<li>
+<p>As user <code class="codeph">sh</code>, run explain plans for two queries in the workload.</p>
+<p>The following examples show the explain plans for two queries on the <code class="codeph">customers_test</code> table:</p>
+<pre dir="ltr">EXPLAIN PLAN FOR
+  SELECT *
+  FROM   customers_test
+  WHERE  cust_city = &#39;Los Angeles&#39;
+  AND    cust_state_province = &#39;CA&#39;
+  AND    country_id = 52790;
+ 
+SELECT PLAN_TABLE_OUTPUT 
+FROM   TABLE(DBMS_XPLAN.DISPLAY(&#39;plan_table&#39;, null,&#39;basic rows&#39;));
+ 
+EXPLAIN PLAN FOR
+  SELECT   country_id, cust_state_province, count(cust_city)
+  FROM     customers_test
+  GROUP BY country_id, cust_state_province;
+ 
+SELECT PLAN_TABLE_OUTPUT 
+FROM   TABLE(DBMS_XPLAN.DISPLAY(&#39;plan_table&#39;, null,&#39;basic rows&#39;));
+</pre>
+<p>Sample output appears below:</p>
+<pre dir="ltr">PLAN_TABLE_OUTPUT
+---------------------------------------------------------------------------
+Plan hash value: 4115398853
+ 
+----------------------------------------------------
+| Id  | Operation         | Name           | Rows  |
+----------------------------------------------------
+|   0 | SELECT STATEMENT  |                |     1 |
+|   1 |  TABLE ACCESS FULL| CUSTOMERS_TEST |     <span class="bold">1</span> |
+----------------------------------------------------
+ 
+8 rows selected.
+ 
+PLAN_TABLE_OUTPUT
+---------------------------------------------------------------------------
+Plan hash value: 3050654408
+ 
+-----------------------------------------------------
+| Id  | Operation          | Name           | Rows  |
+-----------------------------------------------------
+|   0 | SELECT STATEMENT   |                |  1949 |
+|   1 |  HASH GROUP BY     |                |  <span class="bold">1949</span> |
+|   2 |   TABLE ACCESS FULL| CUSTOMERS_TEST | 55500 |
+-----------------------------------------------------
+ 
+9 rows selected.
+</pre>
+<p>The first plan shows a cardinality of 1 row for a query that returns 932 rows. The second plan shows a cardinality of 1949 rows for a query that returns 145 rows.</p>
+</li>
+<li>
+<p>Optionally, review the column usage information recorded for the table.</p>
+<p>Call the <code class="codeph">DBMS_STATS.REPORT_COL_USAGE</code> function to generate a report:</p>
+<pre dir="ltr">SET LONG 100000
+SET LINES 120
+SET PAGES 0
+SELECT DBMS_STATS.REPORT_COL_USAGE(user, &#39;customers_test&#39;)
+FROM   DUAL;
+</pre>
+<p>The report appears below:</p>
+<pre dir="ltr">LEGEND:
+.......
+ 
+EQ         : Used in single table EQuality predicate
+RANGE      : Used in single table RANGE predicate
+LIKE       : Used in single table LIKE predicate
+NULL       : Used in single table is (not) NULL predicate
+EQ_JOIN    : Used in EQuality JOIN predicate
+NONEQ_JOIN : Used in NON EQuality JOIN predicate
+FILTER     : Used in single table FILTER predicate
+JOIN       : Used in JOIN predicate
+GROUP_BY   : Used in GROUP BY expression
+...........................................................................
+ 
+###########################################################################
+ 
+COLUMN USAGE REPORT FOR SH.CUSTOMERS_TEST
+.........................................
+ 
+1. COUNTRY_ID                          : <span class="bold">EQ</span>
+2. CUST_CITY                           : <span class="bold">EQ</span>
+3. CUST_STATE_PROVINCE                 : <span class="bold">EQ</span>
+4. (CUST_CITY, CUST_STATE_PROVINCE,
+    COUNTRY_ID)                        : <span class="bold">FILTER</span>
+5. (CUST_STATE_PROVINCE, COUNTRY_ID)   : <span class="bold">GROUP_BY</span>
+###########################################################################
+</pre>
+<p>In the preceding report, the first three columns were used in equality predicates in the first monitored query:</p>
+<pre dir="ltr">...
+WHERE  cust_city = &#39;Los Angeles&#39;
+AND    cust_state_province = &#39;CA&#39;
+AND    country_id = 52790;
+</pre>
+<p>All three columns appeared in the same <code class="codeph">WHERE</code> clause, so the report shows them as a group filter. In the second query, two columns appeared in the <code class="codeph">GROUP BY</code> clause, so the report labels them as <code class="codeph">GROUP_BY</code>. The sets of columns in the <code class="codeph">FILTER</code> and <code class="codeph">GROUP_BY</code> report are candidates for column groups.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-E1F39134-24F1-4EF7-B614-82F9428CA762__GUID-708EFEB2-5A8A-4378-89AC-3794CF44E8C8">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS</code> package</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94637"></a><a id="TGSQL94636"></a>
+<div class="props_rev_3"><a id="GUID-783A8687-EDB3-437E-AE99-3F12369BA10A"></a>
+<h4 id="TGSQL-GUID-783A8687-EDB3-437E-AE99-3F12369BA10A" class="sect4">Creating Column Groups Detected During Workload Monitoring</h4>
+<div>
+<div class="section">
+<p>As explained in <a href="tgsql_astat.htm#GUID-0A7D5A85-7813-4803-9BAC-3110B2CFB9E1__CHDFAJCH" title="DBMS_STATS Multicolumn Program Units">Table 13-4</a>, you can use the <code class="codeph">DBMS_STATS.CREATE_EXTENDED_STATS</code> function to create column groups that were detected previously by executing <code class="codeph">DBMS_STATS.SEED_COL_USAGE</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes that you have performed the steps in <span class="q">&#34;<a href="tgsql_astat.htm#GUID-E1F39134-24F1-4EF7-B614-82F9428CA762">Detecting Useful Column Groups for a Specific Workload</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To create column groups:</p>
+<ol>
+<li>
+<p>Create column groups for the <code class="codeph">customers_test</code> table based on the usage information captured during the monitoring window.</p>
+<p>For example, run the following query:</p>
+<pre dir="ltr">SELECT DBMS_STATS.CREATE_EXTENDED_STATS(user, &#39;customers_test&#39;) FROM DUAL;
+</pre>
+<p>Sample output appears below:</p>
+<pre dir="ltr">###########################################################################
+EXTENSIONS FOR SH.CUSTOMERS_TEST
+................................
+1. (CUST_CITY, CUST_STATE_PROVINCE,
+    COUNTRY_ID)                     :SYS_STUMZ$C3AIHLPBROI#SKA58H_N <span class="bold">created</span>
+2. (CUST_STATE_PROVINCE, COUNTRY_ID):SYS_STU#S#WF25Z#QAHIHE#MOFFMM_ <span class="bold">created</span>
+###########################################################################
+</pre>
+<p>The database created two column groups for <code class="codeph">customers_test</code>: one column group for the filter predicate and one group for the <code class="codeph">GROUP BY</code> operation.</p>
+</li>
+<li>
+<p>Regather table statistics.</p>
+<p>Run <code class="codeph">GATHER_TABLE_STATS</code> to regather the statistics for <code class="codeph">customers_test</code>:</p>
+<pre dir="ltr">EXEC DBMS_STATS.GATHER_TABLE_STATS(user,&#39;customers_test&#39;);
+</pre></li>
+<li>
+<p>As user <code class="codeph">sh</code>, run explain plans for two queries in the workload.</p>
+<p>Check the <code class="codeph">USER_TAB_COL_STATISTICS</code> view to determine which additional statistics were created by the database:</p>
+<pre dir="ltr">SELECT COLUMN_NAME, NUM_DISTINCT, HISTOGRAM
+FROM   USER_TAB_COL_STATISTICS
+WHERE  TABLE_NAME = &#39;CUSTOMERS_TEST&#39;
+ORDER BY 1;
+</pre>
+<p>Partial sample output appears below:</p>
+<pre dir="ltr">CUST_CITY                               620 HEIGHT BALANCED
+...
+SYS_STU#S#WF25Z#QAHIHE#MOFFMM_          145 NONE
+SYS_STUMZ$C3AIHLPBROI#SKA58H_N          620 HEIGHT BALANCED
+</pre>
+<p>This example shows the two column group names returned from the <code class="codeph">DBMS_STATS.CREATE_EXTENDED_STATS</code> function. The column group created on <code class="codeph">CUST_CITY</code>, <code class="codeph">CUST_STATE_PROVINCE</code>, and <code class="codeph">COUNTRY_ID</code> has a height-balanced histogram.</p>
+</li>
+<li>
+<p>Explain the plans again.</p>
+<p>The following examples show the explain plans for two queries on the <code class="codeph">customers_test</code> table:</p>
+<pre dir="ltr">EXPLAIN PLAN FOR
+  SELECT *
+  FROM   customers_test
+  WHERE  cust_city = &#39;Los Angeles&#39;
+  AND    cust_state_province = &#39;CA&#39;
+  AND    country_id = 52790;
+ 
+SELECT PLAN_TABLE_OUTPUT 
+FROM   TABLE(DBMS_XPLAN.DISPLAY(&#39;plan_table&#39;, null,&#39;basic rows&#39;));
+ 
+EXPLAIN PLAN FOR
+  SELECT   country_id, cust_state_province, count(cust_city)
+  FROM     customers_test
+  GROUP BY country_id, cust_state_province;
+ 
+SELECT PLAN_TABLE_OUTPUT 
+FROM   TABLE(DBMS_XPLAN.DISPLAY(&#39;plan_table&#39;, null,&#39;basic rows&#39;));
+</pre>
+<p>The new plans show more accurate cardinality estimates:</p>
+<pre dir="ltr">----------------------------------------------------
+| Id  | Operation         | Name           | Rows  |
+----------------------------------------------------
+|   0 | SELECT STATEMENT  |                |  1093 |
+|   1 |  TABLE ACCESS FULL| CUSTOMERS_TEST |  <span class="bold">1093</span> |
+----------------------------------------------------
+ 
+8 rows selected.
+ 
+Plan hash value: 3050654408
+ 
+-----------------------------------------------------
+| Id  | Operation          | Name           | Rows  |
+-----------------------------------------------------
+|   0 | SELECT STATEMENT   |                |   145 |
+|   1 |  HASH GROUP BY     |                |   <span class="bold">145</span> |
+|   2 |   TABLE ACCESS FULL| CUSTOMERS_TEST | 55500 |
+-----------------------------------------------------
+9 rows selected.
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-783A8687-EDB3-437E-AE99-3F12369BA10A__GUID-D04A8D31-BDF4-4D9F-93AF-42230ABF8F11">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS</code> package</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL472"></a><a id="TGSQL471"></a>
+<div class="props_rev_3"><a id="GUID-D070C3B3-C356-4630-8EB3-766A790866F3"></a>
+<h4 id="TGSQL-GUID-D070C3B3-C356-4630-8EB3-766A790866F3" class="sect4">Creating and Gathering Statistics on Column Groups Manually</h4>
+<div>
+<div class="section">
+<p>In some cases, you may know the column group that you want to create. The <code class="codeph">METHOD_OPT</code> argument of the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> function can create and gather statistics on a column group automatically. You can create a new column group by specifying the group of columns using <code class="codeph">FOR COLUMNS</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to create a column group for the <code class="codeph">cust_state_province</code> and <code class="codeph">country_id</code> columns in the <code class="codeph">customers</code> table in <code class="codeph">sh</code> schema.</p>
+</li>
+<li>
+<p>You want to gather statistics (including histograms) on the entire table and the new column group.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To create a column group and gather statistics for this group:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as the <code class="codeph">sh</code> user.</p>
+</li>
+<li>
+<p>Create the column group and gather statistics.</p>
+<p>For example, execute the following PL/SQL program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.GATHER_TABLE_STATS( &#39;sh&#39;,&#39;customers&#39;,
+  METHOD_OPT =&gt; &#39;FOR ALL COLUMNS SIZE SKEWONLY &#39; ||
+                &#39;FOR COLUMNS SIZE SKEWONLY (cust_state_province,country_id)&#39; );
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-D070C3B3-C356-4630-8EB3-766A790866F3__GUID-F8294B58-5F0B-4A25-897B-548FA3AA2D4B">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68582" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68582"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL475"></a><a id="TGSQL474"></a>
+<div class="props_rev_3"><a id="GUID-532D06C9-C6A2-4018-B496-AD87003B682E"></a>
+<h4 id="TGSQL-GUID-532D06C9-C6A2-4018-B496-AD87003B682E" class="sect4">Displaying Column Group Information</h4>
+<div>
+<div class="section">
+<p>To obtain the name of a column group, use the <code class="codeph">DBMS_STATS.SHOW_EXTENDED_STATS_NAME</code> function or a database view. You can also use views to obtain information such as the number of distinct values, and whether the column group has a histogram.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You created a column group for the <code class="codeph">cust_state_province</code> and <code class="codeph">country_id</code> columns in the <code class="codeph">customers</code> table in <code class="codeph">sh</code> schema.</p>
+</li>
+<li>
+<p>You want to determine the column group name, the number of distinct values, and whether a histogram has been created for a column group.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To monitor a column group:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as the <code class="codeph">sh</code> user.</p>
+</li>
+<li>
+<p>To determine the column group name, do one of the following.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Execute the <code class="codeph">SHOW_EXTENDED_STATS_NAME</code> function.</p>
+<p>For example, run the following PL/SQL program:</p>
+<pre dir="ltr">SELECT SYS.DBMS_STATS.SHOW_EXTENDED_STATS_NAME( &#39;sh&#39;,&#39;customers&#39;,
+       &#39;(cust_state_province,country_id)&#39; ) col_group_name 
+FROM   DUAL;
+</pre>
+<p>The output is similar to the following:</p>
+<pre dir="ltr">COL_GROUP_NAME
+----------------
+SYS_STU#S#WF25Z#QAHIHE#MOFFMM_
+</pre></li>
+<li>
+<p>Query the <code class="codeph">USER_STAT_EXTENSIONS</code> view.</p>
+<p>For example, run the following query:</p>
+<pre dir="ltr">SELECT EXTENSION_NAME, EXTENSION 
+FROM   USER_STAT_EXTENSIONS 
+WHERE  TABLE_NAME=&#39;CUSTOMERS&#39;;
+</pre>
+<pre dir="ltr">EXTENSION_NAME                     EXTENSION
+-----------------------------------------------------------------------
+SYS_STU#S#WF25Z#QAHIHE#MOFFMM_     (&#34;CUST_STATE_PROVINCE&#34;,&#34;COUNTRY_ID&#34;)
+</pre></li>
+</ul>
+</li>
+<li>
+<p>Query the number of distinct values and find whether a histogram has been created for a column group.</p>
+<p>For example, run the following query:</p>
+<pre dir="ltr">SELECT e.EXTENSION col_group, t.NUM_DISTINCT, t.HISTOGRAM
+FROM   USER_STAT_EXTENSIONS e, USER_TAB_COL_STATISTICS t
+WHERE  e.EXTENSION_NAME=t.COLUMN_NAME
+AND    e.TABLE_NAME=t.TABLE_NAME
+AND    t.TABLE_NAME=&#39;CUSTOMERS&#39;;
+</pre>
+<pre dir="ltr">COL_GROUP                             NUM_DISTINCT        HISTOGRAM
+-------------------------------------------------------------------
+(&#34;COUNTRY_ID&#34;,&#34;CUST_STATE_PROVINCE&#34;)  145                 FREQUENCY
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-532D06C9-C6A2-4018-B496-AD87003B682E__GUID-6EE3159D-9BF9-4E3C-A52B-F740D19883B2">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.SHOW_EXTENDED_STATS_NAME</code> function</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL477"></a><a id="TGSQL476"></a>
+<div class="props_rev_3"><a id="GUID-DBBB6C91-4450-457D-A612-71E835D6159C"></a>
+<h4 id="TGSQL-GUID-DBBB6C91-4450-457D-A612-71E835D6159C" class="sect4">Dropping a Column Group</h4>
+<div>
+<div class="section">
+<p>Use the <code class="codeph">DBMS_STATS.DROP_EXTENDED_STATS</code> function to delete a column group from a table.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You created a column group for the <code class="codeph">cust_state_province</code> and <code class="codeph">country_id</code> columns in the <code class="codeph">customers</code> table in <code class="codeph">sh</code> schema.</p>
+</li>
+<li>
+<p>You want to drop the column group.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To drop a column group:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as the <code class="codeph">sh</code> user.</p>
+</li>
+<li>
+<p>Drop the column group.</p>
+<p>For example, the following PL/SQL program deletes a column group from the <code class="codeph">customers</code> table:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.DROP_EXTENDED_STATS( &#39;sh&#39;, &#39;customers&#39;, 
+                                  &#39;(cust_state_province, country_id)&#39; );
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-DBBB6C91-4450-457D-A612-71E835D6159C__GUID-BA03AA34-31A9-4AA5-8422-22F8DB596127">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.DROP_EXTENDED_STATS</code> function</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL478"></a>
+<div class="props_rev_3"><a id="GUID-FC50E35E-AF6A-4ECD-919D-8E020011DAB6"></a>
+<h3 id="TGSQL-GUID-FC50E35E-AF6A-4ECD-919D-8E020011DAB6" class="sect3">Managing Expression Statistics</h3>
+<div>
+<p>The type of extended statistics known as <span class="bold"><a href="glossary.htm#GUID-A9B75947-C461-4368-A8AF-074866A262C4"><span class="xrefglossterm">expression statistics</span></a></span> improve optimizer estimates when a <code class="codeph">WHERE</code> clause has predicates that use expressions.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_astat.htm#GUID-A3B906A6-BB2B-400D-96F0-73E970758096" title="For an expression in the form (function(col)=constant) applied to a WHERE clause column, the optimizer does not know how this function affects predicate cardinality unless a function-based index exists. However, you can gather expression statistics on the expression(function(col) itself.">About Expression Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-69CE9581-1865-4E08-A471-910148B96458" title="You can use DBMS_STATS to create statistics for a user-specified expression.">Creating Expression Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-D016F91D-39A5-4290-AFB6-7271B4D31621">Displaying Expression Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-C23883A8-DA95-482E-9954-EF4B5EBCA7B7">Dropping Expression Statistics</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL480"></a><a id="TGSQL479"></a>
+<div class="props_rev_3"><a id="GUID-A3B906A6-BB2B-400D-96F0-73E970758096"></a>
+<h4 id="TGSQL-GUID-A3B906A6-BB2B-400D-96F0-73E970758096" class="sect4">About Expression Statistics</h4>
+<div>
+<p>For an <span class="bold">expression</span> in the form <code class="codeph">(<span class="codeinlineitalic">function</span>(<span class="codeinlineitalic">col</span>)=<span class="codeinlineitalic">constant</span>)</code> applied to a <code class="codeph">WHERE</code> clause column, the optimizer does not know how this function affects predicate cardinality unless a function-based index exists. However, you can gather expression statistics on the expression<code class="codeph">(<span class="codeinlineitalic">function</span>(<span class="codeinlineitalic">col</span>)</code> itself.</p>
+<p>The following graphic shows the optimizer using statistics to generate a plan for a query that uses a function. The top shows the optimizer checking statistics for the column. The bottom shows the optimizer checking statistics corresponding to the expression used in the query. The expression statistics yield more accurate estimates.</p>
+<div class="figure" id="GUID-A3B906A6-BB2B-400D-96F0-73E970758096__CHDBFFCH">
+<p class="titleinfigure">Figure 13-3 Expression Statistics</p>
+<img width="572" height="386" src="img/GUID-BAF2877C-2D6C-4AB9-9BD9-29A32E7A1CC5-default.png" alt="Description of Figure 13-3 follows" title="Description of Figure 13-3 follows"/><br/>
+<a href="img_text/GUID-BAF2877C-2D6C-4AB9-9BD9-29A32E7A1CC5-print.htm">Description of &#34;Figure 13-3 Expression Statistics&#34;</a></div>
+<!-- class="figure" -->
+<p>As shown in <a href="tgsql_astat.htm#GUID-A3B906A6-BB2B-400D-96F0-73E970758096__CHDBFFCH">Figure 13-3</a>, when expression statistics are not available, the optimizer can produce suboptimal plans.</p>
+<div class="infoboxnotealso" id="GUID-A3B906A6-BB2B-400D-96F0-73E970758096__GUID-491A27ED-7127-455D-AE9F-C23A35470B7D">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF51173" target="_blank" href="../SQLRF/functions001.htm#SQLRF51173"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about SQL functions</p>
+</div>
+</div>
+<a id="TGSQL481"></a>
+<div class="props_rev_3"><a id="GUID-E2105B53-38E4-452C-A9D0-B3D44CCBFBE9"></a>
+<h5 id="TGSQL-GUID-E2105B53-38E4-452C-A9D0-B3D44CCBFBE9" class="sect5">When Expression Statistics Are Useful: Example</h5>
+<div>
+<p>The following query of the <code class="codeph">sh.customers</code> table shows that 3341 customers are in the state of California:</p>
+<pre dir="ltr">sys@PROD&gt; SELECT COUNT(*) FROM sh.customers WHERE cust_state_province=&#39;CA&#39;;
+ 
+  COUNT(*)
+----------
+      3341
+</pre>
+<p>Consider the plan for the same query with the <code class="codeph">LOWER()</code> function applied:</p>
+<pre dir="ltr">sys@PROD&gt; EXPLAIN PLAN FOR
+  2  SELECT * FROM sh.customers WHERE LOWER(cust_state_province)=&#39;ca&#39;;
+Explained.
+
+sys@PROD&gt; select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+-------------------------------------------------------------------------------
+Plan hash value: 2008213504
+
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |   555 |   108K|   406   (1)| 00:00:05 |
+|*  1 |  TABLE ACCESS FULL| CUSTOMERS |   555 |   108K|   406   (1)| 00:00:05 |
+-------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(LOWER(&#34;CUST_STATE_PROVINCE&#34;)=&#39;ca&#39;)
+</pre>
+<p>Because no expression statistics exist for <code class="codeph">LOWER(cust_state_province)=&#39;ca&#39;</code>, the optimizer estimate is significantly off. You can use <code class="codeph">DBMS_STATS</code> procedures to correct these estimates.</p>
+</div>
+</div>
+</div>
+<a id="TGSQL484"></a><a id="TGSQL483"></a>
+<div class="props_rev_3"><a id="GUID-69CE9581-1865-4E08-A471-910148B96458"></a>
+<h4 id="TGSQL-GUID-69CE9581-1865-4E08-A471-910148B96458" class="sect4">Creating Expression Statistics</h4>
+<div>
+<p>You can use <code class="codeph">DBMS_STATS</code> to create statistics for a user-specified expression.</p>
+<div class="section">
+<p>You can use either of the following program units:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">GATHER_TABLE_STATS</code> procedure</p>
+</li>
+<li>
+<p><code class="codeph">CREATE_EXTENDED_STATISTICS</code> function followed by the <code class="codeph">GATHER_TABLE_STATS</code> procedure</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Selectivity estimates are inaccurate for queries of <code class="codeph">sh.customers</code> that use the <code class="codeph">UPPER(cust_state_province)</code> function.</p>
+</li>
+<li>
+<p>You want to gather statistics on the <code class="codeph">UPPER(cust_state_province)</code> expression.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To create expression statistics:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as the <code class="codeph">sh</code> user.</p>
+</li>
+<li>
+<p>Gather table statistics.</p>
+<p>For example, run the following command, specifying the function in the <code class="codeph">method_opt</code> argument:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.GATHER_TABLE_STATS( 
+    &#39;sh&#39;
+,   &#39;customers&#39;
+,   method_opt =&gt; &#39;FOR ALL COLUMNS SIZE SKEWONLY &#39; || 
+                  &#39;FOR COLUMNS (LOWER(cust_state_province)) SIZE SKEWONLY&#39; 
+);
+END;
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-69CE9581-1865-4E08-A471-910148B96458__GUID-673611C4-D07D-4627-AEC2-97273A4BC46E">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68582" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68582"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL486"></a><a id="TGSQL485"></a>
+<div class="props_rev_3"><a id="GUID-D016F91D-39A5-4290-AFB6-7271B4D31621"></a>
+<h4 id="TGSQL-GUID-D016F91D-39A5-4290-AFB6-7271B4D31621" class="sect4">Displaying Expression Statistics</h4>
+<div>
+<div class="section">
+<p>You can use the database view <code class="codeph">DBA_STAT_EXTENSIONS</code> and the <code class="codeph">DBMS_STATS.SHOW_EXTENDED_STATS_NAME</code> function to obtain information about expression statistics. You can also use views to obtain information such as the number of distinct values, and whether the column group has a histogram.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You created extended statistics for the <code class="codeph">LOWER(cust_state_province)</code> expression.</p>
+</li>
+<li>
+<p>You want to determine the column group name, the number of distinct values, and whether a histogram has been created for a column group.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To monitor expression statistics:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as the <code class="codeph">sh</code> user.</p>
+</li>
+<li>
+<p>Query the name and definition of the statistics extension.</p>
+<p>For example, run the following query:</p>
+<pre dir="ltr">COL EXTENSION_NAME FORMAT a30
+COL EXTENSION FORMAT a35
+
+SELECT EXTENSION_NAME, EXTENSION
+FROM   USER_STAT_EXTENSIONS
+WHERE  TABLE_NAME=&#39;CUSTOMERS&#39;;
+</pre>
+<p>Sample output appears as follows:</p>
+<pre dir="ltr">EXTENSION_NAME                 EXTENSION
+------------------------------ ------------------------------
+SYS_STUBPHJSBRKOIK9O2YV3W8HOUE (LOWER(&#34;CUST_STATE_PROVINCE&#34;))
+</pre></li>
+<li>
+<p>Query the number of distinct values and find whether a histogram has been created for the expression.</p>
+<p>For example, run the following query:</p>
+<pre dir="ltr">SELECT e.EXTENSION expression, t.NUM_DISTINCT, t.HISTOGRAM
+FROM   USER_STAT_EXTENSIONS e, USER_TAB_COL_STATISTICS t
+WHERE  e.EXTENSION_NAME=t.COLUMN_NAME
+AND    e.TABLE_NAME=t.TABLE_NAME
+AND    t.TABLE_NAME=&#39;CUSTOMERS&#39;;
+</pre>
+<pre dir="ltr">EXPRESSION                            NUM_DISTINCT        HISTOGRAM
+-------------------------------------------------------------------
+(LOWER(&#34;CUST_STATE_PROVINCE&#34;))        145                 FREQUENCY
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-D016F91D-39A5-4290-AFB6-7271B4D31621__GUID-EAB1380A-7CBF-4B37-B970-4E3DF0D50A5C">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS68678" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68678"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.SHOW_EXTENDED_STATS_NAME</code> procedure</p>
+</li>
+<li>
+<p><a class="olink REFRN23695" target="_blank" href="../REFRN/GUID-1677F9C2-1EC4-4FA5-876D-2F6B5EAB6CC6.htm#REFRN23695"><span class="italic">Oracle Database Reference</span></a> to learn about the <code class="codeph">DBA_STAT_EXTENSIONS</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL488"></a><a id="TGSQL487"></a>
+<div class="props_rev_3"><a id="GUID-C23883A8-DA95-482E-9954-EF4B5EBCA7B7"></a>
+<h4 id="TGSQL-GUID-C23883A8-DA95-482E-9954-EF4B5EBCA7B7" class="sect4">Dropping Expression Statistics</h4>
+<div>
+<div class="section">
+<p>Use the <code class="codeph">DBMS_STATS.DROP_EXTENDED_STATS</code> function to delete a column group from a table.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You created extended statistics for the <code class="codeph">LOWER(cust_state_province)</code> expression.</p>
+</li>
+<li>
+<p>You want to drop the expression statistics.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To drop expression statistics:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as the <code class="codeph">sh</code> user.</p>
+</li>
+<li>
+<p>Drop the column group.</p>
+<p>For example, the following PL/SQL program deletes a column group from the <code class="codeph">customers</code> table:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.DROP_EXTENDED_STATS(
+    &#39;sh&#39;
+,   &#39;customers&#39;
+,   &#39;(LOWER(cust_state_province))&#39;
+);
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-C23883A8-DA95-482E-9954-EF4B5EBCA7B7__GUID-DCCF27AB-3C95-43AF-AAC7-DB58838AE445">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68540" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68540"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.DROP_EXTENDED_STATS</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="TGSQL489"></a>
+<div class="props_rev_3"><a id="GUID-1147FF89-68F0-4B0F-831A-A7E5D151D02F"></a>
+<h2 id="TGSQL-GUID-1147FF89-68F0-4B0F-831A-A7E5D151D02F" class="sect2">Locking and Unlocking Optimizer Statistics</h2>
+<div>
+<p>You can lock statistics to prevent them from changing. After statistics are locked, you cannot make modifications to the statistics until the statistics have been unlocked.</p>
+<p>Locking procedures are useful in a static environment when you want to guarantee that the statistics and resulting plan never change. For example, you may want to prevent new statistics from being gathered on a table or schema by the <code class="codeph">DBMS_STATS_JOB</code> process, such as highly volatile tables.</p>
+<p>When you lock statistics on a table, all dependent statistics are locked. The locked statistics include table statistics, column statistics, histograms, and dependent index statistics. To overwrite statistics even when they are locked, you can set the value of the <code class="codeph">FORCE</code> argument in various <code class="codeph">DBMS_STATS</code> procedures, for example, <code class="codeph">DELETE_*_STATS</code> and <code class="codeph">RESTORE_*_STATS</code>, to <code class="codeph">true</code>.</p>
+</div>
+<a id="TGSQL491"></a><a id="TGSQL490"></a>
+<div class="props_rev_3"><a id="GUID-F9BB2D09-BAED-466A-9953-B93442AD8E4A"></a>
+<h3 id="TGSQL-GUID-F9BB2D09-BAED-466A-9953-B93442AD8E4A" class="sect3">Locking Statistics</h3>
+<div>
+<div class="section">
+<p>The <code class="codeph">DBMS_STATS</code> package provides two procedures for locking statistics: <code class="codeph">LOCK_SCHEMA_STATS</code> and <code class="codeph">LOCK_TABLE_STATS</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You gathered statistics on the <code class="codeph">oe.orders</code> table and on the <code class="codeph">hr</code> schema.</p>
+</li>
+<li>
+<p>You want to prevent the <code class="codeph">oe.orders</code> table statistics and <code class="codeph">hr</code> schema statistics from changing.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To lock statistics:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as the <code class="codeph">oe</code> user.</p>
+</li>
+<li>
+<p>Lock the statistics on <code class="codeph">oe.orders</code>.</p>
+<p>For example, execute the following PL/SQL program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.LOCK_TABLE_STATS(&#39;OE&#39;,&#39;ORDERS&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Connect to the database as the <code class="codeph">hr</code> user.</p>
+</li>
+<li>
+<p>Lock the statistics in the <code class="codeph">hr</code> schema.</p>
+<p>For example, execute the following PL/SQL program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.LOCK_SCHEMA_STATS(&#39;HR&#39;);
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-F9BB2D09-BAED-466A-9953-B93442AD8E4A__GUID-74D20336-6542-4E43-AED3-7C159A12F281">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68628" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68628"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.LOCK_TABLE_STATS</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL493"></a><a id="TGSQL492"></a>
+<div class="props_rev_3"><a id="GUID-C6ACF2CB-DD6F-4977-863F-0ECE04BEF8B0"></a>
+<h3 id="TGSQL-GUID-C6ACF2CB-DD6F-4977-863F-0ECE04BEF8B0" class="sect3">Unlocking Statistics</h3>
+<div>
+<div class="section">
+<p>The <code class="codeph">DBMS_STATS</code> package provides two procedures for unlocking statistics: <code class="codeph">UNLOCK_SCHEMA_STATS</code> and <code class="codeph">UNLOCK_TABLE_STATS</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You locked statistics on the <code class="codeph">oe.orders</code> table and on the <code class="codeph">hr</code> schema.</p>
+</li>
+<li>
+<p>You want to unlock these statistics.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To unlock statistics:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database as the <code class="codeph">oe</code> user.</p>
+</li>
+<li>
+<p>Unlock the statistics on <code class="codeph">oe.orders</code>.</p>
+<p>For example, execute the following PL/SQL program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.UNLOCK_TABLE_STATS(&#39;OE&#39;,&#39;ORDERS&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Connect to the database as the <code class="codeph">hr</code> user.</p>
+</li>
+<li>
+<p>Unlock the statistics in the <code class="codeph">hr</code> schema.</p>
+<p>For example, execute the following PL/SQL program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.UNLOCK_SCHEMA_STATS(&#39;HR&#39;);
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-C6ACF2CB-DD6F-4977-863F-0ECE04BEF8B0__GUID-B1E91BD1-0A2C-4099-A72A-8A08E9FADB3E">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68684" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68684"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.UNLOCK_TABLE_STATS</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL502"></a>
+<div class="props_rev_3"><a id="GUID-D3050CB5-C0FA-4BD7-B7FF-88566437D461"></a>
+<h2 id="TGSQL-GUID-D3050CB5-C0FA-4BD7-B7FF-88566437D461" class="sect2">Restoring Optimizer Statistics</h2>
+<div>
+<p>This topic contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_astat.htm#GUID-20CDFDE1-96AA-4F70-9C12-70912E62EDBA" title="Whenever statistics in the data dictionary are modified, the database automatically saves old versions of statistics. If newly collected statistics lead to suboptimal execution plans, then you may want to revert to the previous statistics.">About Restore Operations for Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-77E3F1DF-919C-45EE-B515-1E7C6D3382D7">Guidelines for Restoring Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-61DB66DE-7967-4453-9898-FC903A704B5D">Restrictions for Restoring Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-8AAE84DA-487B-41AB-92A5-F41215DDAF52">Restoring Optimizer Statistics Using DBMS_STATS</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL503"></a>
+<div class="props_rev_3"><a id="GUID-20CDFDE1-96AA-4F70-9C12-70912E62EDBA"></a>
+<h3 id="TGSQL-GUID-20CDFDE1-96AA-4F70-9C12-70912E62EDBA" class="sect3">About Restore Operations for Optimizer Statistics</h3>
+<div>
+<p>Whenever statistics in the data dictionary are modified, the database automatically saves old versions of statistics. If newly collected statistics lead to suboptimal execution plans, then you may want to revert to the previous statistics.</p>
+<p>Restoring optimizer statistics can aid in troubleshooting suboptimal plans. The following graphic illustrates a timeline for restoring statistics. In the graphic, statistics collection occurs on August 10 and August 20. On August 24, the DBA determines that the current statistics may be causing the optimizer to generate suboptimal plans. On August 25, the administrator restores the statistics collected on August 10.</p>
+<div class="figure" id="GUID-20CDFDE1-96AA-4F70-9C12-70912E62EDBA__CHDEHCDA">
+<p class="titleinfigure">Figure 13-4 Restoring Optimizer Statistics</p>
+<img width="501" height="126" src="img/GUID-9D9329E3-005D-4458-B395-662448102FD0-default.png" alt="Description of Figure 13-4 follows" title="Description of Figure 13-4 follows"/><br/>
+<a href="img_text/GUID-9D9329E3-005D-4458-B395-662448102FD0-print.htm">Description of &#34;Figure 13-4 Restoring Optimizer Statistics&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TGSQL504"></a>
+<div class="props_rev_3"><a id="GUID-77E3F1DF-919C-45EE-B515-1E7C6D3382D7"></a>
+<h3 id="TGSQL-GUID-77E3F1DF-919C-45EE-B515-1E7C6D3382D7" class="sect3">Guidelines for Restoring Optimizer Statistics</h3>
+<div>
+<div class="section">
+<p>Restoring statistics is similar to importing and exporting statistics. In general, restore statistics instead of exporting them in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to recover older versions of the statistics. For example, you want to restore the optimizer behavior to an earlier date.</p>
+</li>
+<li>
+<p>You want the database to manage the retention and purging of statistics histories.</p>
+</li>
+</ul>
+<p>Export statistics rather than restoring them in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to experiment with multiple sets of statistics and change the values back and forth.</p>
+</li>
+<li>
+<p>You want to move the statistics from one database to another database. For example, moving statistics from a production system to a test system.</p>
+</li>
+<li>
+<p>You want to preserve a known set of statistics for a longer period than the desired retention date for restoring statistics.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-77E3F1DF-919C-45EE-B515-1E7C6D3382D7__GUID-FC7D7F55-EFC3-4D62-A87A-36EE36F9757E">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68491" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68491"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for an overview of the procedures for restoring and importing statistics</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL505"></a>
+<div class="props_rev_3"><a id="GUID-61DB66DE-7967-4453-9898-FC903A704B5D"></a>
+<h3 id="TGSQL-GUID-61DB66DE-7967-4453-9898-FC903A704B5D" class="sect3">Restrictions for Restoring Optimizer Statistics</h3>
+<div>
+<div class="section">
+<p><a id="d82605e5090" class="indexterm-anchor"></a>When restoring previous versions of statistics, the following limitations apply:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">DBMS_STATS.RESTORE_*_STATS</code> procedures cannot restore user-defined statistics.</p>
+</li>
+<li>
+<p>Old versions of statistics are not stored when the <code class="codeph">ANALYZE</code> command has been used for collecting statistics.</p>
+</li>
+<li>
+<p>When you drop a table, workload information used by the auto-histogram gathering feature and saved statistics history used by the <code class="codeph">RESTORE_*_STATS</code> procedures is lost. Without this data, these features do not function properly. To remove all rows from a table, and to restore these statistics with <code class="codeph">DBMS_STATS</code>, use <code class="codeph">TRUNCATE</code> instead of dropping and re-creating the same table.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL507"></a><a id="TGSQL508"></a><a id="TGSQL506"></a>
+<div class="props_rev_3"><a id="GUID-8AAE84DA-487B-41AB-92A5-F41215DDAF52"></a>
+<h3 id="TGSQL-GUID-8AAE84DA-487B-41AB-92A5-F41215DDAF52" class="sect3">Restoring Optimizer Statistics Using DBMS_STATS</h3>
+<div>
+<div class="section">
+<p>You can restore statistics using the <code class="codeph">DBMS_STATS.RESTORE_*_STATS</code> procedures. The procedures listed in <a href="tgsql_astat.htm#GUID-8AAE84DA-487B-41AB-92A5-F41215DDAF52__CHDIHEAE" title="DBMS_STATS restore procedures">Table 13-5</a> accept a timestamp as an argument and restore statistics as of the specified time (<code class="codeph">as_of_timestamp</code>).</p>
+<div class="tblformal" id="GUID-8AAE84DA-487B-41AB-92A5-F41215DDAF52__CHDIHEAE">
+<p class="titleintable">Table 13-5 DBMS_STATS Restore Procedures</p>
+<table class="cellalignment4808" title="DBMS_STATS Restore Procedures" summary="DBMS_STATS restore procedures">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4850" id="d82605e5221">Procedure</th>
+<th class="cellalignment4851" id="d82605e5224">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e5229" headers="d82605e5221">
+<p><code class="codeph">RESTORE_DICTIONARY_STATS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e5229 d82605e5224">
+<p>Restores statistics of all dictionary tables (tables of <code class="codeph">SYS</code>, <code class="codeph">SYSTEM</code>, and <code class="codeph">RDBMS</code> component schemas) as of a specified timestamp.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e5246" headers="d82605e5221">
+<p><code class="codeph">RESTORE_FIXED_OBJECTS_STATS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e5246 d82605e5224">
+<p>Restores statistics of all fixed tables as of a specified timestamp.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e5254" headers="d82605e5221">
+<p><code class="codeph">RESTORE_SCHEMA_STATS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e5254 d82605e5224">
+<p>Restores statistics of all tables of a schema as of a specified timestamp.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e5262" headers="d82605e5221">
+<p><code class="codeph">RESTORE_SYSTEM_STATS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e5262 d82605e5224">
+<p>Restores system statistics as of a specified timestamp.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4852" id="d82605e5270" headers="d82605e5221">
+<p><code class="codeph">RESTORE_TABLE_STATS</code></p>
+</td>
+<td class="cellalignment4853" headers="d82605e5270 d82605e5224">
+<p>Restores statistics of a table as of a specified timestamp. The procedure also restores statistics of associated indexes and columns. If the table statistics were locked at the specified timestamp, then the procedure locks the statistics.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Dictionary views display the time of statistics modifications. You can use the following views to determine the time stamp to be use for the restore operation:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">DBA_OPTSTAT_OPERATIONS</code> view contain history of statistics operations performed at schema and database level using <code class="codeph">DBMS_STATS</code>.</p>
+</li>
+<li>
+<p>The <code class="codeph">DBA_TAB_STATS_HISTORY</code> views contains a history of table statistics modifications.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>After the most recent statistics collection for the <code class="codeph">oe.orders</code> table, the optimizer began choosing suboptimal plans for queries of this table.</p>
+</li>
+<li>
+<p>You want to restore the statistics from before the most recent statistics collection to see if the plans improve.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To restore optimizer statistics:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database with administrator privileges.</p>
+</li>
+<li>
+<p>Query the statistics history for <code class="codeph">oe.orders</code>.</p>
+<p>For example, run the following query:</p>
+<pre dir="ltr">COL TABLE_NAME FORMAT a10
+SELECT TABLE_NAME,
+       TO_CHAR(STATS_UPDATE_TIME,&#39;YYYY-MM-DD:HH24:MI:SS&#39;) AS STATS_MOD_TIME
+FROM   DBA_TAB_STATS_HISTORY 
+WHERE  TABLE_NAME=&#39;ORDERS&#39;
+AND    OWNER=&#39;OE&#39;
+ORDER BY STATS_UPDATE_TIME DESC;
+</pre>
+<p>Sample output is as follows:</p>
+<pre dir="ltr">TABLE_NAME STATS_MOD_TIME
+---------- -------------------
+ORDERS     2012-08-20:11:36:38
+ORDERS     2012-08-10:11:06:20
+</pre></li>
+<li>
+<p>Restore the optimizer statistics to the previous modification time.</p>
+<p>For example, restore the <code class="codeph">oe.orders</code> table statistics to August 10, 2012:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.RESTORE_TABLE_STATS( &#39;OE&#39;,&#39;ORDERS&#39;, 
+               TO_TIMESTAMP(&#39;2012-08-10:11:06:20&#39;,&#39;YYYY-MM-DD:HH24:MI:SS&#39;) );
+END;
+/
+</pre>
+<p>You can specify any date between 8/10 and 8/20 because <code class="codeph">DBMS_STATS</code> restores statistics as of the specified time.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-8AAE84DA-487B-41AB-92A5-F41215DDAF52__GUID-2A1CFADE-0412-4887-AC18-16AC0D0AEE56">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68658" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68658"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn more about the <code class="codeph">DBMS_STATS.RESTORE_TABLE_STATS</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL494"></a>
+<div class="props_rev_3"><a id="GUID-DEEE6740-F601-4B77-B4D3-AF03F5883456"></a>
+<h2 id="TGSQL-GUID-DEEE6740-F601-4B77-B4D3-AF03F5883456" class="sect2">Managing Optimizer Statistics Retention</h2>
+<div>
+<p>By default, the database retains optimizer statistics for 31 days, after which time the statistics are scheduled for purging. You can use the <code class="codeph">DBMS_STATS</code> package to determine the retention period, change the period, and manually purge old statistics.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_astat.htm#GUID-D5C8B818-5D69-4F18-B504-A96433310C48">Obtaining Optimizer Statistics History</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-7522E2BD-1FCF-4FD0-B62F-CFB7858D53C1">Changing the Optimizer Statistics Retention Period</a></p>
+</li>
+<li>
+<p><a href="tgsql_astat.htm#GUID-46AC849E-6C18-494B-9E5E-E6F87879610A">Purging Optimizer Statistics</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL495"></a>
+<div class="props_rev_3"><a id="GUID-D5C8B818-5D69-4F18-B504-A96433310C48"></a>
+<h3 id="TGSQL-GUID-D5C8B818-5D69-4F18-B504-A96433310C48" class="sect3">Obtaining Optimizer Statistics History</h3>
+<div>
+<div class="section">
+<p>You can use <code class="codeph">DBMS_STATS</code> procedures to obtain historical information for optimizer statistics. This information is useful when you want to determine how long the database retains optimizer statistics, and how far back these statistics can be restored.</p>
+<p>You can use the following procedure to obtain information about the optimizer statistics history:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">GET_STATS_HISTORY_RETENTION</code></p>
+<p>This function can retrieve the current statistics history retention value.</p>
+</li>
+<li>
+<p><code class="codeph">GET_STATS_HISTORY_AVAILABILITY</code></p>
+<p>This function retrieves the oldest time stamp when statistics history is available. Users cannot restore statistics to a time stamp older than the oldest time stamp.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To obtain optimizer statistics history information:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database with the necessary privileges.</p>
+</li>
+<li>
+<p>Execute the following PL/SQL program:</p>
+<pre dir="ltr">DECLARE
+  v_stats_retn  NUMBER;
+  v_stats_date  DATE;
+BEGIN
+  v_stats_retn := DBMS_STATS.GET_STATS_HISTORY_RETENTION;
+  DBMS_OUTPUT.PUT_LINE(&#39;The retention setting is &#39; || v_stats_retn || &#39;.&#39;);
+  v_stats_date := DBMS_STATS.GET_STATS_HISTORY_AVAILABILITY;
+  DBMS_OUTPUT.PUT_LINE(&#39;Earliest restore date is &#39; || v_stats_date || &#39;.&#39;);
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-D5C8B818-5D69-4F18-B504-A96433310C48__GUID-2D3DE7F4-4C36-431C-B160-25D853DEE617">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68597" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68597"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.GET_STATS_HISTORY_RETENTION</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL497"></a><a id="TGSQL498"></a><a id="TGSQL496"></a>
+<div class="props_rev_3"><a id="GUID-7522E2BD-1FCF-4FD0-B62F-CFB7858D53C1"></a>
+<h3 id="TGSQL-GUID-7522E2BD-1FCF-4FD0-B62F-CFB7858D53C1" class="sect3">Changing the Optimizer Statistics Retention Period</h3>
+<div>
+<div class="section">
+<p>By default, the database retains optimizer statistics for 31 days. You can configure the retention period using the <code class="codeph">DBMS_STATS.ALTER_STATS_HISTORY_RETENTION</code> procedure.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Prerequisites</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>To run this procedure, you must have either the <code class="codeph">SYSDBA</code> privilege, or both the <code class="codeph">ANALYZE ANY DICTIONARY</code> and <code class="codeph">ANALYZE ANY</code> system privileges.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The current retention period for optimizer statistics is 31 days.</p>
+</li>
+<li>
+<p>You run queries annually as part of an annual report. To keep the statistics history for more than 365 days so that you have access to last year&#39;s plan (in case a suboptimal plan occurs now), you set the retention period to 366 days.</p>
+</li>
+<li>
+<p>You want to create a PL/SQL procedure <code class="codeph">set_opt_stats_retention</code> that you can use to change the optimizer statistics retention period.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To change the optimizer statistics retention period:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database with the necessary privileges.</p>
+</li>
+<li>
+<p>Create a procedure that changes the retention period.</p>
+<p>For example, create the following procedure:</p>
+<pre dir="ltr">CREATE OR REPLACE PROCEDURE set_opt_stats_retention
+  ( p_stats_retn   IN NUMBER )
+IS
+  v_stats_retn NUMBER;
+BEGIN
+  v_stats_retn := DBMS_STATS.GET_STATS_HISTORY_RETENTION;
+  DBMS_OUTPUT.PUT_LINE(&#39;Old retention setting is &#39; ||v_stats_retn|| &#39;.&#39;);
+  DBMS_STATS.ALTER_STATS_HISTORY_RETENTION(p_stats_retn);
+  v_stats_retn := DBMS_STATS.GET_STATS_HISTORY_RETENTION;
+  DBMS_OUTPUT.PUT_LINE(&#39;New retention setting is &#39; ||v_stats_retn|| &#39;.&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Change the retention period to 366 days.</p>
+<p>For example, execute the procedure that you created in the previous step (sample output included):</p>
+<pre dir="ltr">SQL&gt; EXECUTE set_opt_stats_retention(366)
+
+The old retention setting is 31.
+The new retention setting is 366.
+ 
+PL/SQL procedure successfully completed.
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-7522E2BD-1FCF-4FD0-B62F-CFB7858D53C1__GUID-5DD8309E-3CDB-4814-A6D1-15D36745E37D">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68496" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68496"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.ALTER_STATS_HISTORY_RETENTION</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL500"></a><a id="TGSQL501"></a><a id="TGSQL499"></a>
+<div class="props_rev_3"><a id="GUID-46AC849E-6C18-494B-9E5E-E6F87879610A"></a>
+<h3 id="TGSQL-GUID-46AC849E-6C18-494B-9E5E-E6F87879610A" class="sect3">Purging Optimizer Statistics</h3>
+<div>
+<div class="section">
+<p>Automatic purging is enabled when the <code class="codeph">STATISTICS_LEVEL</code> initialization parameter is set to <code class="codeph">TYPICAL</code> or <code class="codeph">ALL</code>. The database purges all history older than the older of (current time - the <code class="codeph">ALTER_STATS_HISTORY_RETENTION</code> setting) and (time of the most recent statistics gathering - 1).</p>
+<p>You can purge old statistics manually using the <code class="codeph">PURGE_STATS</code> procedure. If you do not specify an argument, then this procedure uses the automatic purging policy. If you specify the <code class="codeph">before_timestamp</code> parameter, then the database purges statistics saved before the specified timestamp.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Prerequisites</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>To run this procedure, you must have either the <code class="codeph">SYSDBA</code> privilege, or both the <code class="codeph">ANALYZE ANY DICTIONARY</code> and <code class="codeph">ANALYZE ANY</code> system privileges.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This tutorial assumes that you want to purge statistics more than one week old.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To purge optimizer statistics:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database with the necessary privileges.</p>
+</li>
+<li>
+<p>Execute the <code class="codeph">DBMS_STATS.PURGE_STATS</code> procedure.</p>
+<p>For example, execute the procedure as follows:</p>
+<pre dir="ltr">EXEC DBMS_STATS.PURGE_STATS( SYSDATE-7 );
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-46AC849E-6C18-494B-9E5E-E6F87879610A__GUID-DE884555-0FA1-40B5-B5EB-B0DE635F9A2B">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS68644" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68644"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> to learn about the <code class="codeph">DBMS_STATS.PURGE_STATS</code> procedure</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL509"></a>
+<div class="props_rev_3"><a id="GUID-7F8EE1CC-A173-4B87-AA2E-CD22198EF4F8"></a>
+<h2 id="TGSQL-GUID-7F8EE1CC-A173-4B87-AA2E-CD22198EF4F8" class="sect2">Importing and Exporting Optimizer Statistics</h2>
+<div>
+<p>You can export and import optimizer statistics from the data dictionary to user-defined statistics tables. You can also copy statistics from one database to another database.</p>
+<p>Importing and exporting are especially useful for testing an application using production statistics. You use <code class="codeph">DBMS_STATS</code> to export schema statistics from a production database to a test database so that developers can tune execution plans in a realistic environment before deploying applications.</p>
+</div>
+<a id="TGSQL511"></a><a id="TGSQL510"></a>
+<div class="props_rev_3"><a id="GUID-3404FF0F-75A7-4E19-B1BB-8C1527E515A5"></a>
+<h3 id="TGSQL-GUID-3404FF0F-75A7-4E19-B1BB-8C1527E515A5" class="sect3">About Transporting Optimizer Statistics</h3>
+<div>
+<p>When you transport optimizer statistics between databases, you must use <code class="codeph">DBMS_STATS</code> to copy the statistics to and from a staging table, and tools to make the table contents accessible to the destination database.</p>
+<p>Importing and exporting are especially useful for testing an application using production statistics. You use <code class="codeph">DBMS_STATS.EXPORT_SCHEMA_STATS</code> to export schema statistics from a production database to a test database so that developers can tune execution plans in a realistic environment before deploying applications.</p>
+<p>The following figure illustrates the process using Oracle Data Pump and <code class="codeph">ftp</code>.</p>
+<div class="figure" id="GUID-3404FF0F-75A7-4E19-B1BB-8C1527E515A5__CHDGDHHC">
+<p class="titleinfigure">Figure 13-5 Transporting Optimizer Statistics</p>
+<img width="570" height="306" src="img/GUID-2D959F74-E057-49B2-83AE-C20758C2C20F-default.png" alt="Description of Figure 13-5 follows" title="Description of Figure 13-5 follows"/><br/>
+<a href="img_text/GUID-2D959F74-E057-49B2-83AE-C20758C2C20F-print.htm">Description of &#34;Figure 13-5 Transporting Optimizer Statistics&#34;</a></div>
+<!-- class="figure" -->
+<p>As shown in <a href="tgsql_astat.htm#GUID-3404FF0F-75A7-4E19-B1BB-8C1527E515A5__CHDGDHHC">Figure 13-5</a>, the basic steps are as follows:</p>
+<ol>
+<li>
+<p>In the production database, copy the statistics from the data dictionary to a staging table using <code class="codeph">DBMS_STATS.EXPORT_SCHEMA_STATS</code>.</p>
+</li>
+<li>
+<p>Export the statistics from the staging table to a <code class="codeph">.dmp</code> file using Oracle Data Pump.</p>
+</li>
+<li>
+<p>Transfer the <code class="codeph">.dmp</code> file from the production host to the test host using a transfer tool such as <code class="codeph">ftp</code>.</p>
+</li>
+<li>
+<p>In the test database, import the statistics from the <code class="codeph">.dmp</code> file to a staging table using Oracle Data Pump.</p>
+</li>
+<li>
+<p>Copy the statistics from the staging table to the data dictionary using <code class="codeph">DBMS_STATS.IMPORT_SCHEMA_STATS</code>.</p>
+</li>
+</ol>
+</div>
+</div>
+<a id="TGSQL513"></a><a id="TGSQL514"></a><a id="TGSQL512"></a>
+<div class="props_rev_3"><a id="GUID-B24DB1B4-ECA4-4F8B-9948-E1456FAF1819"></a>
+<h3 id="TGSQL-GUID-B24DB1B4-ECA4-4F8B-9948-E1456FAF1819" class="sect3">Transporting Optimizer Statistics to a Test Database</h3>
+<div>
+<p>Transports statistics using the <code class="codeph">DBMS_STATS.EXPORT_SCHEMA_STATS</code> procedure.</p>
+<div class="section">
+<p class="subhead3">Prerequisites and Restrictions</p>
+<p>When preparing to export optimizer statistics, note the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Before exporting statistics, you must create a table to hold the statistics. The procedure <code class="codeph">DBMS_STATS.CREATE_STAT_TABLE</code> creates the statistics table.</p>
+</li>
+<li>
+<p>The optimizer does not use statistics stored in a user-owned table. The only statistics used by the optimizer are the statistics stored in the data dictionary. To make the optimizer use statistics in user-defined tables, import these statistics into the data dictionary using the <code class="codeph">DBMS_STATS</code> import procedure.</p>
+</li>
+<li>
+<p>The Data Pump Export and Import utilities export and import optimizer statistics from the database along with the table. When a column has system-generated names, Original Export (<code class="codeph">exp</code>) does not export statistics with the data, but this restriction does not apply to Data Pump Export.</p>
+<div class="infobox-note" id="GUID-B24DB1B4-ECA4-4F8B-9948-E1456FAF1819__GUID-D12605BA-B39D-452A-B1A6-56416622B71F">
+<p class="notep1">Note:</p>
+<p>Exporting and importing statistics using <code class="codeph">DBMS_STATS</code> is a distinct operation from using Data Pump Export and Import.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">Assumptions</p>
+<p>This tutorial assumes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>You want to generate representative <code class="codeph">sh</code> schema statistics on a production database and use <code class="codeph">DBMS_STATS</code> to import them into a test database.</p>
+</li>
+<li>
+<p>Administrative user <code class="codeph">dba1</code> exists on both production and test databases.</p>
+</li>
+<li>
+<p>You intend to create table <code class="codeph">opt_stats</code> to store the schema statistics.</p>
+</li>
+<li>
+<p>You intend to use Oracle Data Pump to export and import table <code class="codeph">opt_stats</code>.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To generate schema statistics and import them into a separate database:</p>
+<ol>
+<li>
+<p>On the production host, start SQL*Plus and connect to the production database as administrator <code class="codeph">dba1</code>.</p>
+</li>
+<li>
+<p>Create a table to hold the production statistics.</p>
+<p>For example, execute the following PL/SQL program to create user statistics table <code class="codeph">opt_stats</code>:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.CREATE_STAT_TABLE ( 
+    ownname =&gt; &#39;dba1&#39;
+,   stattab =&gt; &#39;opt_stats&#39;
+);
+END;
+/
+</pre></li>
+<li>
+<p>Gather schema statistics.</p>
+<p>For example, manually gather schema statistics as follows:</p>
+<pre dir="ltr">-- generate representative workload
+EXEC DBMS_STATS.GATHER_SCHEMA_STATS(&#39;SH&#39;);
+</pre></li>
+<li>
+<p>Use <code class="codeph">DBMS_STATS</code> to export the statistics.</p>
+<p>For example, retrieve schema statistics and store them in the <code class="codeph">opt_stats</code> table created previously:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.EXPORT_SCHEMA_STATS (
+    ownname =&gt; &#39;dba1&#39;
+,   stattab =&gt; &#39;opt_stats&#39;
+);
+END;
+/
+</pre></li>
+<li>
+<p>Use Oracle Data Pump to export the contents of the statistics table.</p>
+<p>For example, run the <code class="codeph">expdp</code> command at the operating schema prompt:</p>
+<pre dir="ltr">expdp dba1 DIRECTORY=dpump_dir1 DUMPFILE=stat.dmp TABLES=opt_stats
+</pre></li>
+<li>
+<p>Transfer the dump file to the test database host.</p>
+</li>
+<li>
+<p>Log in to the test host, and then use Oracle Data Pump to import the contents of the statistics table.</p>
+<p>For example, run the <code class="codeph">impdp</code> command at the operating schema prompt:</p>
+<pre dir="ltr">impdp dba1 DIRECTORY=dpump_dir1 DUMPFILE=stat.dmp TABLES=opt_stats 
+</pre></li>
+<li>
+<p>On the test host, start SQL*Plus and connect to the test database as administrator <code class="codeph">dba1</code>.</p>
+</li>
+<li>
+<p>Use <code class="codeph">DBMS_STATS</code> to import statistics from the user statistics table and store them in the data dictionary.</p>
+<p>The following PL/SQL program imports schema statistics from table <code class="codeph">opt_stats</code> into the data dictionary:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.IMPORT_SCHEMA_STATS( 
+    ownname =&gt; &#39;dba1&#39;
+,   stattab =&gt; &#39;opt_stats&#39; 
+);
+END;
+/
+</pre></li>
+</ol>
+<div class="infoboxnotealso" id="GUID-B24DB1B4-ECA4-4F8B-9948-E1456FAF1819__GUID-9374E18A-E495-4688-90D0-F6681C445C8D">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS68508" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68508"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_STATS.CREATE_STAT_TABLE</code> function</p>
+</li>
+<li>
+<p><a class="olink ARPLS68491" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68491"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> for an overview of the statistics transfer functions</p>
+</li>
+<li>
+<p><a class="olink SUTIL100" target="_blank" href="../SUTIL/GUID-17FAE261-0972-4220-A2E4-44D479F519D4.htm#SUTIL100"><span><cite>Oracle Database Utilities</cite></span></a> to learn about Oracle Data Pump</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TGSQL94639"></a><a id="TGSQL94640"></a><a id="TGSQL94638"></a>
+<div class="props_rev_3"><a id="GUID-4274A976-0185-4113-844F-1F818CD916CA"></a>
+<h2 id="TGSQL-GUID-4274A976-0185-4113-844F-1F818CD916CA" class="sect2">Running Statistics Gathering Functions in Reporting Mode</h2>
+<div>
+<p>You can run the <code class="codeph">DBMS_STATS</code> statistics gathering procedures in reporting mode. In this case, the optimizer does not actually gather statistics, but reports objects that would be processed if you were to use a specified statistics gathering function.</p>
+<div class="section">
+<p><a href="tgsql_astat.htm#GUID-4274A976-0185-4113-844F-1F818CD916CA__CHDBEFIB" title="DBMS_STATS restore procedures">Table 13-6</a> lists the <code class="codeph">DBMS_STATS.REPORT_GATHER_*_STATS</code> functions. For all functions, the input parameters are the same as for the corresponding <code class="codeph">GATHER_*_STATS</code> procedure, with the following additional parameters: <code class="codeph">detail_level</code> and <code class="codeph">format</code>. Supported formats are <code class="codeph">XML</code>, <code class="codeph">HTML</code>, and <code class="codeph">TEXT</code>.</p>
+<div class="tblformal" id="GUID-4274A976-0185-4113-844F-1F818CD916CA__CHDBEFIB">
+<p class="titleintable">Table 13-6 DBMS_STATS Reporting Mode Functions</p>
+<table class="cellalignment4808" title="DBMS_STATS Reporting Mode Functions" summary="DBMS_STATS restore procedures">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4858" id="d82605e6500">Function</th>
+<th class="cellalignment4859" id="d82605e6503">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4860" id="d82605e6508" headers="d82605e6500">
+<p><code class="codeph">REPORT_GATHER_TABLE_STATS</code></p>
+</td>
+<td class="cellalignment4861" headers="d82605e6508 d82605e6503">
+<p>Runs <code class="codeph">GATHER_TABLE_STATS</code> in reporting mode. The procedure does not collect statistics, but reports all objects that would be affected by invoking <code class="codeph">GATHER_TABLE_STATS</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4860" id="d82605e6522" headers="d82605e6500">
+<p><code class="codeph">REPORT_GATHER_SCHEMA_STATS</code></p>
+</td>
+<td class="cellalignment4861" headers="d82605e6522 d82605e6503">
+<p>Runs <code class="codeph">GATHER_SCHEMA_STATS</code> in reporting mode. The procedure does not actually collect statistics, but reports all objects that would be affected by invoking <code class="codeph">GATHER_SCHEMA_STATS</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4860" id="d82605e6536" headers="d82605e6500">
+<p><code class="codeph">REPORT_GATHER_DICTIONARY_STATS</code></p>
+</td>
+<td class="cellalignment4861" headers="d82605e6536 d82605e6503">
+<p>Runs <code class="codeph">GATHER_DICTIONARY_STATS</code> in reporting mode. The procedure does not actually collect statistics, but reports all objects that would be affected by invoking <code class="codeph">GATHER_DICTIONARY_STATS</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4860" id="d82605e6550" headers="d82605e6500">
+<p><code class="codeph">REPORT_GATHER_DATABASE_STATS</code></p>
+</td>
+<td class="cellalignment4861" headers="d82605e6550 d82605e6503">
+<p>Runs <code class="codeph">GATHER_DATABASE_STATS</code> in reporting mode. The procedure does not actually collect statistics, but reports all objects that would be affected by invoking <code class="codeph">GATHER_DATABASE_STATS</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4860" id="d82605e6564" headers="d82605e6500">
+<p><code class="codeph">REPORT_GATHER_FIXED_OBJ_STATS</code></p>
+</td>
+<td class="cellalignment4861" headers="d82605e6564 d82605e6503">
+<p>Runs <code class="codeph">GATHER_FIXED_OBJ_STATS</code> in reporting mode. The procedure does not actually collect statistics, but reports all objects that would be affected by invoking <code class="codeph">GATHER_FIXED_OBJ_STATS</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4860" id="d82605e6578" headers="d82605e6500">
+<p><code class="codeph">REPORT_GATHER_AUTO_STATS</code></p>
+</td>
+<td class="cellalignment4861" headers="d82605e6578 d82605e6503">
+<p>Runs the automatic statistics gather job in reporting mode. The procedure does not actually collect statistics, but reports all objects that would be affected by running the job.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Assumptions</p>
+<p>This tutorial assumes that you want to generate an HTML report of the objects that would be affected by running <code class="codeph">GATHER_SCHEMA_STATS</code> on the <code class="codeph">oe</code> schema.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To report on objects affected by running GATHER_SCHEMA_STATS:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database with administrator privileges.</p>
+</li>
+<li>
+<p>Run the <code class="codeph">DBMS_STATS.REPORT_GATHER_SCHEMA_STATS</code> function.</p>
+<p>For example, run the following commands in SQL*Plus:</p>
+<pre dir="ltr">SET LINES 200 PAGES 0
+SET LONG 100000
+COLUMN REPORT FORMAT A200
+
+VARIABLE my_report CLOB;
+BEGIN
+  :my_report :=DBMS_STATS.REPORT_GATHER_SCHEMA_STATS(
+    ownname      =&gt; &#39;OE&#39;       , 
+    detail_level =&gt; &#39;TYPICAL&#39;  ,
+    format       =&gt; &#39;HTML&#39;     );
+END;
+/
+</pre></li>
+</ol>
+<p>The following graphic shows a partial example report:</p>
+<div class="figure" id="GUID-4274A976-0185-4113-844F-1F818CD916CA__GUID-EAC7CF7B-73CF-4924-B9AD-56617D7F599D"><img width="736" height="533" src="img/GUID-60D84319-A99C-4FAB-9807-4FCF7AEDFDD9-default.png" alt="Description of GUID-60D84319-A99C-4FAB-9807-4FCF7AEDFDD9-default.png follows" title="Description of GUID-60D84319-A99C-4FAB-9807-4FCF7AEDFDD9-default.png follows"/><br/>
+<a href="img_text/GUID-60D84319-A99C-4FAB-9807-4FCF7AEDFDD9-default.htm">Description of the illustration GUID-60D84319-A99C-4FAB-9807-4FCF7AEDFDD9-default.png</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-4274A976-0185-4113-844F-1F818CD916CA__GUID-9F6A0147-E0CC-4175-9BC4-FADCE441481E">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn more about <code class="codeph">DBMS_STATS</code></p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL94642"></a><a id="TGSQL94643"></a><a id="TGSQL94641"></a>
+<div class="props_rev_3"><a id="GUID-48022C00-9B87-4470-BC23-AECFCDA0E434"></a>
+<h2 id="TGSQL-GUID-48022C00-9B87-4470-BC23-AECFCDA0E434" class="sect2">Reporting on Past Statistics Gathering Operations</h2>
+<div>
+<p>You can use <code class="codeph">DBMS_STATS</code> functions to report on a specific statistics gathering operation or on operations that occurred during a specified time.</p>
+<div class="section">
+<p><a href="tgsql_astat.htm#GUID-48022C00-9B87-4470-BC23-AECFCDA0E434__CHDCDHHH" title="DBMS_STATS restore procedures">Table 13-7</a> lists the functions.</p>
+<div class="tblformal" id="GUID-48022C00-9B87-4470-BC23-AECFCDA0E434__CHDCDHHH">
+<p class="titleintable">Table 13-7 DBMS_STATS Reporting Functions</p>
+<table class="cellalignment4808" title="DBMS_STATS Reporting Functions" summary="DBMS_STATS restore procedures">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4862" id="d82605e6729">Function</th>
+<th class="cellalignment4863" id="d82605e6732">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4864" id="d82605e6737" headers="d82605e6729">
+<p><code class="codeph">REPORT_STATS_OPERATIONS</code></p>
+</td>
+<td class="cellalignment4865" headers="d82605e6737 d82605e6732">
+<p>Generates a report of all statistics operations that occurred between two points in time. You can narrow the scope of the report to include only automatic statistics gathering runs. You can also provide a set of pluggable database (PDB) IDs so that the database reports only statistics operations from the specified PDBs.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4864" id="d82605e6745" headers="d82605e6729">
+<p><code class="codeph">REPORT_SINGLE_STATS_OPERATION</code></p>
+</td>
+<td class="cellalignment4865" headers="d82605e6745 d82605e6732">
+<p>Generates a report of the specified operation. Optionally, you can specify a particular PDB ID in a container database (CDB).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Assumptions</p>
+<p>This tutorial assumes that you want to generate HTML reports of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>All statistics gathering operations within the last day</p>
+</li>
+<li>
+<p>The most recent statistics gathering operation</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To report on all operations in the past day:</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to the database with administrator privileges.</p>
+</li>
+<li>
+<p>Run the <code class="codeph">DBMS_STATS.REPORT_STATS_OPERATIONS</code> function.</p>
+<p>For example, run the following commands:</p>
+<pre dir="ltr">SET LINES 200 PAGES 0
+SET LONG 100000
+COLUMN REPORT FORMAT A200
+
+VARIABLE my_report CLOB;
+BEGIN
+  :my_report := DBMS_STATS.REPORT_STATS_OPERATIONS (
+     since        =&gt; SYSDATE-1
+,    until        =&gt; SYSDATE 
+,    detail_level =&gt; &#39;TYPICAL&#39; 
+,    format       =&gt; &#39;HTML&#39;      
+);
+END;
+/
+</pre>
+<p>The following graphic shows a sample report:</p>
+<div class="figure" id="GUID-48022C00-9B87-4470-BC23-AECFCDA0E434__GUID-4F82753E-3A6E-44D7-9049-188A3962B5B1"><img width="770" height="177" src="img/GUID-8B48B83D-667B-49A2-B89B-131857EB8659-default.gif" alt="Description of GUID-8B48B83D-667B-49A2-B89B-131857EB8659-default.gif follows" title="Description of GUID-8B48B83D-667B-49A2-B89B-131857EB8659-default.gif follows"/><br/>
+<a href="img_text/GUID-8B48B83D-667B-49A2-B89B-131857EB8659-default.htm">Description of the illustration GUID-8B48B83D-667B-49A2-B89B-131857EB8659-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Run the <code class="codeph">DBMS_STATS.REPORT_SINGLE_STATS_OPERATION</code> function for an individual operation.</p>
+<p>For example, run the following program to generate a report of operation <code class="codeph">848</code>:</p>
+<pre dir="ltr">BEGIN
+  :my_report :=DBMS_STATS.REPORT_SINGLE_STATS_OPERATION (
+     OPID    =&gt; 848
+,    FORMAT  =&gt; &#39;HTML&#39;
+);
+END;
+</pre></li>
+</ol>
+<p>The following graphic shows a sample report:</p>
+<div class="figure" id="GUID-48022C00-9B87-4470-BC23-AECFCDA0E434__GUID-5C83050B-40D3-4983-9FAC-4D93ED74F9FE"><img width="760" height="328" src="img/GUID-C869C23B-BDAC-422F-BCE1-6E3F2283D5AC-default.gif" alt="Description of GUID-C869C23B-BDAC-422F-BCE1-6E3F2283D5AC-default.gif follows" title="Description of GUID-C869C23B-BDAC-422F-BCE1-6E3F2283D5AC-default.gif follows"/><br/>
+<a href="img_text/GUID-C869C23B-BDAC-422F-BCE1-6E3F2283D5AC-default.htm">Description of the illustration GUID-C869C23B-BDAC-422F-BCE1-6E3F2283D5AC-default.gif</a></div>
+<!-- class="figure" -->
+<div class="infoboxnotealso" id="GUID-48022C00-9B87-4470-BC23-AECFCDA0E434__GUID-3E9019C0-F1D8-491F-AC68-27175F68FDC7">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-7D050AB3-B3E6-4318-B9AC-B0D751131CD3" title="You can perform most necessary tasks relating to optimizer statistics through pages linked to by the Optimizer Statistics Console page.">Graphical Interface for Optimizer Statistics Management</a>&#34;</span> to learn about the Cloud Control GUI for statistics management</p>
+</li>
+<li>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn more about <code class="codeph">DBMS_STATS</code></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL95103"></a><a id="TGSQL95104"></a><a id="TGSQL95105"></a><a id="TGSQL95106"></a><a id="TGSQL95102"></a>
+<div class="props_rev_3"><a id="GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E"></a>
+<h2 id="TGSQL-GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E" class="sect2">Managing SQL Plan Directives</h2>
+<div>
+<p>The database automatically manages SQL plan directives. If the directives are not used in 53 weeks, then the database automatically purges them.</p>
+<div class="section">
+<p>You can use <code class="codeph">DBMS_SPD</code> procedures and functions to manage directives manually.</p>
+<p><a href="tgsql_astat.htm#GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E__CHDEEGEG" title="DBMS_STATS restore procedures">Table 13-8</a> lists some of the more commonly used procedures and functions. See <a class="olink ARPLS73856" target="_blank" href="../ARPLS/d_spd.htm#ARPLS73856"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> for complete syntax and semantics for the <code class="codeph">DBMS_SPD</code> package.</p>
+<div class="tblformal" id="GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E__CHDEEGEG">
+<p class="titleintable">Table 13-8 DBMS_SPD Procedures</p>
+<table class="cellalignment4808" title="DBMS_SPD Procedures" summary="DBMS_STATS restore procedures">
+<thead>
+<tr class="cellalignment4802">
+<th class="cellalignment4810" id="d82605e6946">Procedure</th>
+<th class="cellalignment4837" id="d82605e6949">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment4802">
+<td class="cellalignment4812" id="d82605e6954" headers="d82605e6946">
+<p><code class="codeph">FLUSH_SQL_PLAN_DIRECTIVE</code></p>
+</td>
+<td class="cellalignment4838" headers="d82605e6954 d82605e6949">
+<p>Forces the database to write directives from memory to persistent storage in the <code class="codeph">SYSAUX</code> tablespace.</p>
+</td>
+</tr>
+<tr class="cellalignment4802">
+<td class="cellalignment4812" id="d82605e6965" headers="d82605e6946">
+<p><code class="codeph">DROP_SQL_PLAN_DIRECTIVE</code></p>
+</td>
+<td class="cellalignment4838" headers="d82605e6965 d82605e6949">
+<p>Drops a SQL plan directive.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Prerequisites</p>
+<p>You must have the Administer SQL Management Object privilege to execute the <code class="codeph">DBMS_SPD</code> APIs.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">Assumptions</p>
+<p>This tutorial assumes that you want to do the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Write all directives for the <code class="codeph">sh</code> schema to persistent storage.</p>
+</li>
+<li>
+<p>Delete all directives for the <code class="codeph">sh</code> schema.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To write and then delete all sh schema plan directives:</p>
+<ol>
+<li>
+<p>Start SQL*Plus, and log in to the database with administrator privileges.</p>
+</li>
+<li>
+<p>Force the database to write the SQL plan directives to disk.</p>
+<p>For example, execute the following <code class="codeph">DBMS_SPD</code> program:</p>
+<pre dir="ltr">BEGIN 
+  DBMS_SPD.FLUSH_SQL_PLAN_DIRECTIVE;
+END;
+/
+</pre></li>
+<li>
+<p>Query the data dictionary for information about existing directives in the <code class="codeph">sh</code> schema.</p>
+<p><a href="tgsql_astat.htm#GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E__CHDGCEBH">Example 13-1</a> queries the data dictionary for information about the directive.</p>
+</li>
+<li>
+<p>Delete the existing SQL plan directive for the <code class="codeph">sh</code> schema.</p>
+<p>The following PL/SQL program unit deletes the SQL plan directive with the ID <code class="codeph">1484026771529551585</code>:</p>
+<pre dir="ltr">BEGIN
+  DBMS_SPD.DROP_SQL_PLAN_DIRECTIVE ( directive_id =&gt; 1484026771529551585 );
+END;
+/
+</pre></li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E__CHDGCEBH">
+<p class="titleinexample">Example 13-1 Display Directives for sh Schema</p>
+<pre dir="ltr">SELECT TO_CHAR(d.DIRECTIVE_ID) dir_id, o.OWNER, o.OBJECT_NAME, 
+       o.SUBOBJECT_NAME col_name, o.OBJECT_TYPE, d.TYPE, d.STATE, d.REASON
+FROM   DBA_SQL_PLAN_DIRECTIVES d, DBA_SQL_PLAN_DIR_OBJECTS o
+WHERE  d.DIRECTIVE_ID=o.DIRECTIVE_ID
+AND    o.OWNER IN (&#39;SH&#39;)
+ORDER BY 1,2,3,4,5;
+ 
+DIR_ID              OWN OBJECT_NA COL_NAME   OBJECT  TYPE     STATE      REASON
+------------------- --- --------- ---------- ------- -------- ---------- ------------
+1484026771529551585  SH CUSTOMERS COUNTRY_ID  COLUMN DYNAMIC_ SUPERSEDED SINGLE TABLE  
+                                                     SAMPLING            CARDINALITY 
+                                                                         MISESTIMATE
+1484026771529551585  SH CUSTOMERS CUST_STATE_ COLUMN DYNAMIC_ SUPERSEDED SINGLE TABLE
+                                  PROVINCE           SAMPLING            CARDINALITY 
+                                                                         MISESTIMATE
+1484026771529551585  SH CUSTOMERS              TABLE DYNAMIC_ SUPERSEDED SINGLE TABLE 
+                                                     SAMPLING            CARDINALITY 
+                                                                         MISESTIMATE
+</pre>
+<div class="infoboxnotealso" id="GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E__GUID-DE39E935-E157-46BC-A4EC-4E8240ED6FFE">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-F8F25E31-7113-4B91-BD81-BE6082983192" title="A SQL plan baseline is additional information and instructions that the optimizer can use to generate a more optimal plan. For example, a SQL plan directive can instruct the optimizer to record a missing extension.">SQL Plan Directives</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN23823" target="_blank" href="../REFRN/GUID-70035A22-E031-4975-A51C-871AE1F2F260.htm#REFRN23823"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">DBA_SQL_PLAN_DIRECTIVES</code></p>
+</li>
+<li>
+<p><a class="olink ARPLS74425" target="_blank" href="../ARPLS/d_spd.htm#ARPLS74425"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_SPD.FLUSH_SQL_PLAN_DIRECTIVE</code> procedure</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_stats.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_pt_infl.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,16 @@
+var chapters = [
+  { topic: "chapter", section: "", title: "  Introduction to Oracle Advanced Security", anchor: "ASOAG010", file: "introduction-to-oracle-advanced-security.htm" },
+  { topic: "chapter", section: "", title: "Introduction to Transparent Data Encryption", anchor: "ASOAG10117", file: "introduction-to-transparent-data-encryption.htm" },
+  { topic: "chapter", section: "", title: "Configuring Transparent Data Encryption", anchor: "ASOAG10474", file: "configuring-transparent-data-encryption.htm" },
+  { topic: "chapter", section: "", title: "Managing the Keystore and the TDE Master\u00A0Encryption Key", anchor: "ASOAG10475", file: "managing-keystore-and-tde-master-encryption-key.htm" },
+  { topic: "chapter", section: "", title: "General Considerations of Using\u00A0Transparent\u00A0Data Encryption", anchor: "ASOAG10478", file: "general-considerations-of-using-transparent-data-encryption.htm" },
+  { topic: "chapter", section: "", title: "Using Transparent Data Encryption with\u00A0Other\u00A0Oracle Features", anchor: "ASOAG10479", file: "using-transparent-data-encryption-with-other-oracle-features.htm" },
+  { topic: "chapter", section: "", title: "Frequently Asked Questions About Transparent Data Encryption", anchor: "ASOAG10542", file: "frequently-asked-questions-about-transparent-data-encryption.htm" },
+  { topic: "chapter", section: "", title: "Introduction to Oracle Data Redaction", anchor: "ASOAG594", file: "introduction-to-oracle-data-redaction.htm" },
+  { topic: "chapter", section: "", title: "Oracle Data Redaction Features and Capabilities", anchor: "ASOAG601", file: "oracle-data-redaction-features-and-capabilities.htm" },
+  { topic: "chapter", section: "", title: "Configuring Oracle Data Redaction Policies", anchor: "ASOAG10490", file: "configuring-oracle-data-redaction-policies.htm" },
+  { topic: "chapter", section: "", title: "Using Oracle Data Redaction in Oracle Enterprise Manager", anchor: "GUID-8267183A-1778-428E-9B6E-AB06D8CC7EAB", file: "using-oracle-data-redaction-in-oracle-enterprise-manager.htm" },
+  { topic: "chapter", section: "", title: "Oracle Data Redaction Use with Oracle Database Features", anchor: "ASOAG10491", file: "oracle-data-redaction-use-with-oracle-database-features.htm" },
+  { topic: "chapter", section: "", title: "Security Considerations for Oracle Data Redaction", anchor: "ASOAG10498", file: "security-considerations-for-using-oracle-data-redaction.htm" },
+  { topic: "glossary", section: "", title: "Glossary", anchor: "ASOAG10265", file: "glossary.htm" },
+  { } ];

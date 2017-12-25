@@ -1,0 +1,15 @@
+var chapters = [
+  { topic: "chapter", section: "", title: " Introduction ", anchor: "TDPPT002", file: "tdppt_intro.htm" },
+  { topic: "chapter", section: "", title: " Oracle Database Performance Method ", anchor: "TDPPT006", file: "tdppt_method.htm" },
+  { topic: "chapter", section: "", title: " Automatic Database Performance Monitoring", anchor: "TDPPT020", file: "tdppt_auto.htm" },
+  { topic: "chapter", section: "", title: " Monitoring Real-Time Database Performance ", anchor: "TDPPT033", file: "tdppt_realtime.htm" },
+  { topic: "chapter", section: "", title: "Monitoring Real-Time Database Operations ", anchor: "TDPPT530", file: "tdppt_realtime_dbops.htm" },
+  { topic: "chapter", section: "", title: "Monitoring Performance Alerts ", anchor: "TDPPT045", file: "tdppt_alerts.htm" },
+  { topic: "chapter", section: "", title: "Manual Database Performance Monitoring", anchor: "TDPPT050", file: "tdppt_manual.htm" },
+  { topic: "chapter", section: "", title: " Resolving Transient Performance Problems ", anchor: "TDPPT064", file: "tdppt_transient.htm" },
+  { topic: "chapter", section: "", title: " Resolving Performance Degradation Over Time ", anchor: "TDPPT089", file: "tdppt_degrade.htm" },
+  { topic: "chapter", section: "", title: "Using Automatic Workload Repository Warehouse for Generating Performance Reports ", anchor: "TDPPT145", file: "tdppt_awr_warehouse.htm" },
+  { topic: "chapter", section: "", title: "Identifying High-Load SQL Statements ", anchor: "TDPPT140", file: "tdppt_sqlid.htm" },
+  { topic: "chapter", section: "", title: "Tuning SQL Statements ", anchor: "TDPPT160", file: "tdppt_sqltune.htm" },
+  { topic: "chapter", section: "", title: " Optimizing Data Access Paths ", anchor: "TDPPT170", file: "tdppt_sqlopt.htm" },
+  { } ];

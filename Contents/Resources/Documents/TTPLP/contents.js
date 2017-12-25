@@ -1,0 +1,16 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Introduction to TimesTen-Supplied PL/SQL Packages and Types", anchor: "TTPLP001", file: "intro.htm" },
+  { topic: "chapter", section: "2", title: "DBMS_LOB", anchor: "TTPLP600", file: "d_lob.htm" },
+  { topic: "chapter", section: "3", title: "DBMS_LOCK", anchor: "TTPLP021", file: "d_lock.htm" },
+  { topic: "chapter", section: "4", title: "DBMS_OUTPUT", anchor: "TTPLP036", file: "d_output.htm" },
+  { topic: "chapter", section: "5", title: "DBMS_PREPROCESSOR", anchor: "TTPLP222", file: "d_preproc.htm" },
+  { topic: "chapter", section: "6", title: "DBMS_RANDOM", anchor: "TTPLP040", file: "d_random.htm" },
+  { topic: "chapter", section: "7", title: "DBMS_SQL", anchor: "TTPLP058", file: "d_sql.htm" },
+  { topic: "chapter", section: "8", title: "DBMS_UTILITY", anchor: "TTPLP064", file: "d_util.htm" },
+  { topic: "chapter", section: "9", title: "TT_DB_VERSION", anchor: "TTPLP223", file: "t_dbver.htm" },
+  { topic: "chapter", section: "10", title: "TT_STATS", anchor: "TTPLP71655", file: "t_stats.htm" },
+  { topic: "chapter", section: "11", title: "UTL_FILE", anchor: "TTPLP069", file: "u_file.htm" },
+  { topic: "chapter", section: "12", title: "UTL_IDENT", anchor: "TTPLP71172", file: "u_ident.htm" },
+  { topic: "chapter", section: "13", title: "UTL_RAW", anchor: "TTPLP072", file: "u_raw.htm" },
+  { topic: "chapter", section: "14", title: "UTL_RECOMP", anchor: "TTPLP380", file: "u_recomp.htm" },
+  { } ];

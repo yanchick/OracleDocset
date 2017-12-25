@@ -1,0 +1,489 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-102007"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20Extensible%20Indexing"></a><title>Using Extensible Indexing</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1093"/>
+<meta name="dcterms.created" content="2017-07-18T18:53:5Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Language Reference"/>
+<meta name="dcterms.identifier" content="E41329-25"/>
+<meta name="dcterms.isVersionOf" content="SQLRF"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="ap_examples.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="ap_examples002.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41329-25.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">553/555</span> <!-- End Header --><a id="i690409"></a>
+<div id="SQLRF55547" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h1 class="sect1">Using Extensible Indexing <a id="sthref7641"></a><a id="sthref7642"></a><a id="sthref7643"></a></h1>
+<p>This section provides examples of the steps entailed in a simple but realistic extensible indexing scenario.</p>
+<p>Suppose you want to rank the salaries in the <code dir="ltr">HR.employees</code> table and then find those that rank between 10 and 20. You could use the <code dir="ltr">DENSE_RANK</code> function, as follows:</p>
+<pre dir="ltr">SELECT last_name, salary FROM
+   (SELECT last_name, DENSE_RANK() OVER
+      (ORDER BY salary DESC) rank_val, salary FROM employees)
+   WHERE rank_val BETWEEN 10 AND 20;
+</pre>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="functions060.htm#i1064409">DENSE_RANK</a></div>
+<p>This nested query is somewhat complex, and it requires a full scan of the <code dir="ltr">employees</code> table as well as a sort. An alternative would be to use extensible indexing to achieve the same goal. The resulting query will be simpler. The query will require only an index scan and a table access by rowid, and will therefore perform much more efficiently.</p>
+<p>The first step is to create the implementation type <code dir="ltr">position_im</code>, including method headers for index definition, maintenance, and creation. Most of the type body uses PL/SQL, which is shown in italics.</p>
+<p>The type must created with the <code dir="ltr">AUTHID</code> <code dir="ltr">CURRENT_USER</code> clause because of the <code dir="ltr">EXECUTE</code> <code dir="ltr">IMMEDIATE</code> statement inside the function <code dir="ltr">ODCIINDEXCREATE()</code>. By default that function runs with the definer rights. When the function is called in the subsequent creation of the domain index, the invoker does not have the same rights.</p>
+<div class="infoboxnotealso">
+<p class="notep1"><span class="bold">See Also</span>:</p>
+<ul>
+<li>
+<p><a href="statements_8001.htm#BABHJHEB">CREATE TYPE</a> and <a href="statements_8002.htm#i2064997">CREATE TYPE BODY</a></p>
+</li>
+<li>
+<p><a class="olink ADDCI4200" href="../ADDCI/ext_idx_ref.htm#ADDCI4200"><span class="italic">Oracle Database Data Cartridge Developer&#39;s Guide</span></a> for complete information on the ODCI routines in this statement</p>
+</li>
+</ul>
+</div>
+<pre dir="ltr">CREATE OR REPLACE TYPE position_im AUTHID CURRENT_USER AS OBJECT
+(
+  curnum  NUMBER,
+  howmany NUMBER,
+  lower_bound NUMBER,  
+  upper_bound NUMBER,  
+/* lower_bound and upper_bound are used for the
+index-based functional implementation */
+  STATIC FUNCTION ODCIGETINTERFACES(ifclist OUT SYS.ODCIOBJECTLIST) RETURN NUMBER, 
+  STATIC FUNCTION ODCIINDEXCREATE 
+    (ia SYS.ODCIINDEXINFO, parms VARCHAR2, env SYS.ODCIEnv) RETURN NUMBER,
+  STATIC FUNCTION ODCIINDEXTRUNCATE (ia SYS.ODCIINDEXINFO,
+                                     env SYS.ODCIEnv) RETURN NUMBER,
+  STATIC FUNCTION ODCIINDEXDROP(ia SYS.ODCIINDEXINFO, 
+                                env SYS.ODCIEnv) RETURN NUMBER,
+  STATIC FUNCTION ODCIINDEXINSERT(ia SYS.ODCIINDEXINFO, rid ROWID,
+                                  newval NUMBER, env SYS.ODCIEnv) RETURN NUMBER,
+  STATIC FUNCTION ODCIINDEXDELETE(ia SYS.ODCIINDEXINFO, rid ROWID, oldval NUMBER,
+                                  env SYS.ODCIEnv) RETURN NUMBER,
+  STATIC FUNCTION ODCIINDEXUPDATE(ia SYS.ODCIINDEXINFO, rid ROWID, oldval NUMBER,
+                                  newval NUMBER, env SYS.ODCIEnv) RETURN NUMBER,
+  STATIC FUNCTION ODCIINDEXSTART(SCTX IN OUT position_im, ia SYS.ODCIINDEXINFO,
+                                 op SYS.ODCIPREDINFO, qi SYS.ODCIQUERYINFO,
+                                 strt NUMBER, stop NUMBER, lower_pos NUMBER,
+                                 upper_pos NUMBER, env SYS.ODCIEnv) RETURN NUMBER,
+  MEMBER FUNCTION ODCIINDEXFETCH(SELF IN OUT position_im, nrows NUMBER, 
+                                 rids OUT SYS.ODCIRIDLIST, env SYS.ODCIEnv) 
+                                 RETURN NUMBER,
+  MEMBER FUNCTION ODCIINDEXCLOSE(env SYS.ODCIEnv) RETURN NUMBER
+);
+/
+
+CREATE OR REPLACE TYPE BODY position_im
+IS
+   STATIC FUNCTION ODCIGETINTERFACES(ifclist OUT SYS.ODCIOBJECTLIST)
+       RETURN NUMBER IS
+   BEGIN
+       ifclist := SYS.ODCIOBJECTLIST(SYS.ODCIOBJECT(&#39;SYS&#39;,&#39;ODCIINDEX2&#39;));
+       RETURN ODCICONST.SUCCESS;
+   END ODCIGETINTERFACES;
+ STATIC FUNCTION ODCIINDEXCREATE (ia SYS.ODCIINDEXINFO, parms VARCHAR2, env SYS.ODCIEnv) RETURN
+ NUMBER
+  IS
+   stmt   VARCHAR2(2000);
+  BEGIN
+/* Construct the SQL statement */
+   stmt := &#39;Create Table &#39; || ia.INDEXSCHEMA || &#39;.&#39; || ia.INDEXNAME ||
+           &#39;_STORAGE_TAB&#39; || &#39;(col_val, base_rowid, constraint pk PRIMARY KEY &#39; ||
+           &#39;(col_val, base_rowid)) ORGANIZATION INDEX AS SELECT &#39; ||
+           ia.INDEXCOLS(1).COLNAME || &#39;, ROWID FROM &#39; || 
+           ia.INDEXCOLS(1).TABLESCHEMA || &#39;.&#39; || ia.INDEXCOLS(1).TABLENAME;
+   EXECUTE IMMEDIATE stmt;
+   RETURN ODCICONST.SUCCESS;
+  END;
+  STATIC FUNCTION ODCIINDEXDROP(ia SYS.ODCIINDEXINFO, env SYS.ODCIEnv) RETURN NUMBER IS
+   stmt VARCHAR2(2000);
+  BEGIN
+/* Construct the SQL statement */
+   stmt := &#39;DROP TABLE &#39; || ia.INDEXSCHEMA || &#39;.&#39; || ia.INDEXNAME ||
+   &#39;_STORAGE_TAB&#39;;
+/* Execute the statement */
+   EXECUTE IMMEDIATE stmt;
+   RETURN ODCICONST.SUCCESS;
+  END;
+  STATIC FUNCTION ODCIINDEXTRUNCATE(ia SYS.ODCIINDEXINFO, env SYS.ODCIEnv) RETURN NUMBER IS
+   stmt VARCHAR2(2000);
+  BEGIN
+/* Construct the SQL statement */
+   stmt := &#39;TRUNCATE TABLE &#39; || ia.INDEXSCHEMA || &#39;.&#39; || ia.INDEXNAME || &#39;_STORAGE_TAB&#39;;
+   
+   EXECUTE IMMEDIATE stmt;
+   RETURN ODCICONST.SUCCESS;
+  END;
+  STATIC FUNCTION ODCIINDEXINSERT(ia SYS.ODCIINDEXINFO, rid ROWID,
+                          newval NUMBER, env SYS.ODCIEnv) RETURN NUMBER IS
+   stmt VARCHAR2(2000);
+  BEGIN
+/* Construct the SQL statement */
+   stmt := &#39;INSERT INTO &#39; || ia.INDEXSCHEMA || &#39;.&#39; || ia.INDEXNAME || 
+          &#39;_STORAGE_TAB  VALUES (&#39;&#39;&#39; || newval || &#39;&#39;&#39; , &#39;&#39;&#39; || rid || &#39;&#39;&#39; )&#39;;
+/* Execute the SQL statement */
+   EXECUTE IMMEDIATE stmt;
+   RETURN ODCICONST.SUCCESS;
+  END;
+  
+  STATIC FUNCTION ODCIINDEXDELETE(ia SYS.ODCIINDEXINFO, rid ROWID, oldval NUMBER,
+                                  env SYS.ODCIEnv)
+     RETURN NUMBER IS
+   stmt VARCHAR2(2000);
+  BEGIN
+/* Construct the SQL statement */
+   stmt := &#39;DELETE FROM &#39; || ia.INDEXSCHEMA || &#39;.&#39; || ia.INDEXNAME || 
+          &#39;_STORAGE_TAB WHERE col_val = &#39;&#39;&#39; || oldval || &#39;&#39;&#39; AND base_rowid = &#39;&#39;&#39; || rid || &#39;&#39;&#39;&#39;;
+/* Execute the statement */
+   EXECUTE IMMEDIATE stmt;
+   RETURN ODCICONST.SUCCESS;
+  END;
+  STATIC FUNCTION ODCIINDEXUPDATE(ia SYS.ODCIINDEXINFO, rid ROWID, oldval NUMBER,
+                          newval NUMBER, env SYS.ODCIEnv) RETURN NUMBER IS 
+   stmt VARCHAR2(2000);
+  BEGIN
+/* Construct the SQL statement */
+   stmt := &#39;UPDATE &#39; || ia.INDEXSCHEMA || &#39;.&#39; || ia.INDEXNAME || 
+          &#39;_STORAGE_TAB SET col_val = &#39;&#39;&#39; || newval || &#39;&#39;&#39; WHERE f2 = &#39;&#39;&#39;|| rid ||&#39;&#39;&#39;&#39;;
+/* Execute the statement */
+   EXECUTE IMMEDIATE stmt;
+   RETURN ODCICONST.SUCCESS;
+  END;
+  STATIC FUNCTION ODCIINDEXSTART(SCTX IN OUT position_im, ia SYS.ODCIINDEXINFO,
+                         op SYS.ODCIPREDINFO, qi SYS.ODCIQUERYINFO,
+                         strt NUMBER, stop NUMBER, lower_pos NUMBER,
+                         upper_pos NUMBER, env SYS.ODCIEnv) RETURN NUMBER IS
+    rid              VARCHAR2(5072);
+    storage_tab_name VARCHAR2(65);
+    lower_bound_stmt VARCHAR2(2000);
+    upper_bound_stmt VARCHAR2(2000);
+    range_query_stmt VARCHAR2(2000);
+    lower_bound      NUMBER;
+    upper_bound      NUMBER;
+    cnum             INTEGER;
+    nrows            INTEGER;
+    
+  BEGIN
+/* Take care of some error cases.
+    The only predicates in which position operator can appear are
+       op() = 1     OR
+       op() = 0     OR
+       op() between 0 and 1 
+*/
+    IF (((strt != 1) AND (strt != 0)) OR
+        ((stop != 1) AND (stop != 0)) OR
+        ((strt = 1) AND (stop = 0))) THEN
+      RAISE_APPLICATION_ERROR(-20101, 
+                              &#39;incorrect predicate for position_between operator&#39;);
+    END IF;
+    IF (lower_pos &gt; upper_pos) THEN
+      RAISE_APPLICATION_ERROR(-20101, &#39;Upper Position must be greater than or
+      equal to Lower Position&#39;);
+    END IF;
+    IF (lower_pos &lt;= 0) THEN
+      RAISE_APPLICATION_ERROR(-20101, &#39;Both Positions must be greater than zero&#39;);
+    END IF;
+    storage_tab_name := ia.INDEXSCHEMA || &#39;.&#39; || ia.INDEXNAME ||
+                        &#39;_STORAGE_TAB&#39;;
+    upper_bound_stmt := &#39;Select MIN(col_val) FROM (Select /*+ INDEX_DESC(&#39; ||
+                        storage_tab_name || &#39;) */ DISTINCT &#39; ||
+                        &#39;col_val FROM &#39; || storage_tab_name || &#39; ORDER BY &#39; ||
+                        &#39;col_val DESC) WHERE rownum &lt;= &#39; || lower_pos;
+    EXECUTE IMMEDIATE upper_bound_stmt INTO upper_bound;
+    IF (lower_pos != upper_pos) THEN
+      lower_bound_stmt := &#39;Select MIN(col_val) FROM (Select /*+ INDEX_DESC(&#39; || 
+                          storage_tab_name || &#39;) */ DISTINCT &#39; ||
+                          &#39;col_val FROM &#39; || storage_tab_name ||
+                          &#39; WHERE col_val &lt; &#39; || upper_bound || &#39; ORDER BY &#39; ||
+                          &#39;col_val DESC) WHERE rownum &lt;= &#39; || 
+                          (upper_pos - lower_pos);
+      EXECUTE IMMEDIATE lower_bound_stmt INTO lower_bound;
+    ELSE
+      lower_bound := upper_bound;
+    END IF;
+    IF (lower_bound IS NULL) THEN
+      lower_bound := upper_bound;
+    END IF;
+    range_query_stmt := &#39;Select base_rowid FROM &#39; || storage_tab_name ||
+                        &#39; WHERE col_val BETWEEN &#39; || lower_bound || &#39; AND &#39; ||
+                        upper_bound;
+    cnum := DBMS_SQL.OPEN_CURSOR;
+    DBMS_SQL.PARSE(cnum, range_query_stmt, DBMS_SQL.NATIVE);
+/* set context as the cursor number */
+    SCTX := position_im(cnum, 0, 0, 0);
+/* return success */
+    RETURN ODCICONST.SUCCESS;
+  END;
+  MEMBER FUNCTION ODCIINDEXFETCH(SELF IN OUT position_im, nrows NUMBER,
+                                 rids OUT SYS.ODCIRIDLIST, env SYS.ODCIEnv)
+   RETURN NUMBER IS
+    cnum    INTEGER;
+    rid_tab DBMS_SQL.Varchar2_table;
+    rlist   SYS.ODCIRIDLIST := SYS.ODCIRIDLIST();
+    i       INTEGER;
+    d       INTEGER;
+  BEGIN
+    cnum := SELF.curnum;
+    IF self.howmany = 0 THEN
+      dbms_sql.define_array(cnum, 1, rid_tab, nrows, 1);
+      d := DBMS_SQL.EXECUTE(cnum);
+    END IF;
+    d := DBMS_SQL.FETCH_ROWS(cnum);
+    IF d = nrows THEN
+      rlist.extend(d);
+    ELSE
+      rlist.extend(d+1);
+    END IF;
+    DBMS_SQL.COLUMN_VALUE(cnum, 1, rid_tab);
+    for i in 1..d loop
+      rlist(i) := rid_tab(i+SELF.howmany);
+    end loop;
+    SELF.howmany := SELF.howmany + d;
+    rids := rlist;
+    RETURN ODCICONST.SUCCESS;
+  END;
+  MEMBER FUNCTION ODCIINDEXCLOSE(env SYS.ODCIEnv) RETURN NUMBER IS
+    cnum INTEGER;
+  BEGIN
+    cnum := SELF.curnum;
+    DBMS_SQL.CLOSE_CURSOR(cnum);
+    RETURN ODCICONST.SUCCESS;
+  END;
+END;
+/
+</pre>
+<p>The next step is to create the functional implementation <code dir="ltr">function_for_position_between</code> for the operator that will be associated with the indextype. (The PL/SQL blocks are shown in parentheses.)</p>
+<p>This function is for use with an index-based function evaluation. Therefore, it takes an index context and scan context as parameters.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink ADDCI4200" href="../ADDCI/ext_idx_ref.htm#ADDCI4200"><span class="italic">Oracle Database Data Cartridge Developer&#39;s Guide</span></a> for information on creating index-based functional implementation</p>
+</li>
+<li>
+<p><a href="statements_5012.htm#i2153260">CREATE FUNCTION</a> and <a class="olink LNPLS01322" href="../LNPLS/function.htm#LNPLS01322"><span class="italic">Oracle Database PL/SQL Language Reference</span></a></p>
+</li>
+</ul>
+</div>
+<pre dir="ltr">CREATE OR REPLACE FUNCTION function_for_position_between
+                           (col NUMBER, lower_pos NUMBER, upper_pos NUMBER,
+                            indexctx IN SYS.ODCIIndexCtx,
+                            scanctx IN OUT position_im,
+                            scanflg IN NUMBER)
+RETURN NUMBER AS
+  rid              ROWID;
+  storage_tab_name VARCHAR2(65);
+  lower_bound_stmt VARCHAR2(2000);
+  upper_bound_stmt VARCHAR2(2000);
+  col_val_stmt     VARCHAR2(2000);
+  lower_bound      NUMBER;
+  upper_bound      NUMBER;
+  column_value     NUMBER;
+BEGIN
+  IF (indexctx.IndexInfo IS NOT NULL) THEN
+    storage_tab_name := indexctx.IndexInfo.INDEXSCHEMA || &#39;.&#39; ||
+                        indexctx.IndexInfo.INDEXNAME || &#39;_STORAGE_TAB&#39;;
+    IF (scanctx IS NULL) THEN
+/* This is the first call. Open a cursor for future calls.
+   First, do some error checking
+*/
+      IF (lower_pos &gt; upper_pos) THEN
+        RAISE_APPLICATION_ERROR(-20101,
+          &#39;Upper Position must be greater than or equal to Lower Position&#39;);
+      END IF;
+      IF (lower_pos &lt;= 0) THEN
+        RAISE_APPLICATION_ERROR(-20101,
+          &#39;Both Positions must be greater than zero&#39;);
+      END IF;
+/* Obtain the upper and lower value bounds for the range we&#39;re interested in.
+*/
+      upper_bound_stmt := &#39;Select MIN(col_val) FROM (Select /*+ INDEX_DESC(&#39; ||
+                        storage_tab_name || &#39;) */ DISTINCT &#39; ||
+                        &#39;col_val FROM &#39; || storage_tab_name || &#39; ORDER BY &#39; ||
+                        &#39;col_val DESC) WHERE rownum &lt;= &#39; || lower_pos;
+      EXECUTE IMMEDIATE upper_bound_stmt INTO upper_bound;
+      IF (lower_pos != upper_pos) THEN
+        lower_bound_stmt := &#39;Select MIN(col_val) FROM (Select /*+ INDEX_DESC(&#39; ||
+                            storage_tab_name || &#39;) */ DISTINCT &#39; ||
+                            &#39;col_val FROM &#39; || storage_tab_name ||
+                            &#39; WHERE col_val &lt; &#39; || upper_bound || &#39; ORDER BY &#39; ||
+                            &#39;col_val DESC) WHERE rownum &lt;= &#39; ||
+                            (upper_pos - lower_pos);
+        EXECUTE IMMEDIATE lower_bound_stmt INTO lower_bound;
+      ELSE
+        lower_bound := upper_bound;
+      END IF;
+      IF (lower_bound IS NULL) THEN
+        lower_bound := upper_bound;
+      END IF;
+/* Store the lower and upper bounds for future function invocations for
+   the positions.
+*/
+      scanctx := position_im(0, 0, lower_bound, upper_bound);
+    END IF;
+/* Fetch the column value corresponding to the rowid, and see if it falls
+   within the determined range.
+*/
+    col_val_stmt := &#39;Select col_val FROM &#39; || storage_tab_name ||
+                    &#39; WHERE base_rowid = &#39;&#39;&#39; || indexctx.Rid || &#39;&#39;&#39;&#39;;
+    EXECUTE IMMEDIATE col_val_stmt INTO column_value;
+    IF (column_value &lt;= scanctx.upper_bound AND
+        column_value &gt;= scanctx.lower_bound AND
+        scanflg = ODCICONST.RegularCall) THEN
+      RETURN 1;
+    ELSE
+      RETURN 0;
+    END IF;
+  ELSE
+    RAISE_APPLICATION_ERROR(-20101, &#39;A column that has a domain index of&#39; ||
+                            &#39;Position indextype must be the first argument&#39;);
+  END IF;
+END;
+/
+</pre>
+<p>Next, create the <code dir="ltr">position_between</code> operator, which uses the <code dir="ltr">function_for_position_between</code> function. The operator takes an indexed <code dir="ltr">NUMBER</code> column as the first argument, followed by a <code dir="ltr">NUMBER</code> lower and upper bound as the second and third arguments.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="statements_6005.htm#i2064967">CREATE OPERATOR</a></div>
+<pre dir="ltr">CREATE OR REPLACE OPERATOR position_between
+   BINDING (NUMBER, NUMBER, NUMBER) RETURN NUMBER 
+   WITH INDEX CONTEXT, SCAN CONTEXT position_im
+   USING function_for_position_between;
+</pre>
+<p>In this <code dir="ltr">CREATE</code> <code dir="ltr">OPERATOR</code> statement, the <code dir="ltr">WITH</code> <code dir="ltr">INDEX</code> <code dir="ltr">CONTEXT</code>, <code dir="ltr">SCAN</code> <code dir="ltr">CONTEXT</code> <code dir="ltr">position_im</code> clause is included so that the index context and scan context are passed in to the functional evaluation, which is index based.</p>
+<p>Now create the <code dir="ltr">position_indextype</code> indextype for the <code dir="ltr">position_operator</code>:</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="statements_5014.htm#g2282361">CREATE INDEXTYPE</a></div>
+<pre dir="ltr">CREATE INDEXTYPE position_indextype
+   FOR position_between(NUMBER, NUMBER, NUMBER)
+   USING position_im;
+</pre>
+<pre dir="ltr"></pre>
+<p>The operator <code dir="ltr">position_between</code> uses an index-based functional implementation. Therefore, a domain index must be defined on the referenced column so that the index information can be passed into the functional evaluation. So the final step is to create the domain index <code dir="ltr">salary_index</code> using the <code dir="ltr">position_indextype</code> indextype:</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="statements_5013.htm#i2062403">CREATE INDEX</a></div>
+<pre dir="ltr">CREATE INDEX salary_index ON employees(salary) 
+   INDEXTYPE IS position_indextype;
+</pre>
+<pre dir="ltr"></pre>
+<p>Now you can use the <code dir="ltr">position_between</code> operator function to rewrite the original query as follows:</p>
+<pre dir="ltr">SELECT last_name, salary FROM employees
+   WHERE position_between(salary, 10, 20)=1
+   ORDER BY salary DESC, last_name;
+
+LAST_NAME                     SALARY
+------------------------- ----------
+Tucker                         10000
+King                           10000
+Baer                           10000
+Bloom                          10000
+Fox                             9600
+Bernstein                       9500
+Sully                           9500
+Greene                          9500
+Hunold                          9000
+Faviet                          9000
+McEwen                          9000
+Hall                            9000
+Hutton                          8800
+Taylor                          8600
+Livingston                      8400
+Gietz                           8300
+Chen                            8200
+Fripp                           8200
+Weiss                           8000
+Olsen                           8000
+Smith                           8000
+Kaufling                        7900
+</pre></div>
+<!-- class="sect1" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5862">
+<tr>
+<td class="cellalignment5869">
+<table class="cellalignment5867">
+<tr>
+<td class="cellalignment5866"><a href="ap_examples.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5866"><a href="ap_examples002.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5871">
+<table class="cellalignment5865">
+<tr>
+<td class="cellalignment5866"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5866"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5866"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5866"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5866"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5866"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-105464"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Example%206%3A%20Filtering%20Output%20by%20Time%20Range"></a><title>Example 6: Filtering Output by Time Range</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-07-10T17:06:49Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Utilities"/>
+<meta name="dcterms.identifier" content="E41528-09"/>
+<meta name="dcterms.isVersionOf" content="SUTIL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-E0DDC97C-7364-4BED-AF2A-E0B486F0E22F.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-BAB7801D-BB5E-49D8-BC5A-0C08E5F3C2B4.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41528-09.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-6BE36A8B-0078-4EB1-9D57-80E51A2DFB09"></a> <span id="PAGE" style="display:none;">796/1019</span> <!-- End Header -->
+<a id="SUTIL4260"></a><a id="SUTIL4261"></a><a id="SUTIL4262"></a><a id="SUTIL4263"></a><a id="SUTIL4264"></a><a id="SUTIL1611"></a>
+<h1 id="SUTIL-GUID-6BE36A8B-0078-4EB1-9D57-80E51A2DFB09" class="sect1">Example 6: Filtering Output by Time Range</h1>
+<div>
+<div class="section">
+<p>In the previous two examples, rows were filtered by specifying a timestamp-based predicate (timestamp &gt; &#39;10-jan-2012 15:59:53&#39;) in the query. However, a more efficient way to filter out redo records based on timestamp values is by specifying the time range in the <code class="codeph">DBMS_LOGMNR.START_LOGMNR</code> procedure call, as shown in this example.</p>
+<ol>
+<li>
+<p>Create a list of redo log files to mine.</p>
+<p>Suppose you want to mine redo log files generated since a given time. The following procedure creates a list of redo log files based on a specified time. The subsequent SQL <code class="codeph">EXECUTE</code> statement calls the procedure and specifies the starting time as 2 p.m. on Jan-13-2012.</p>
+<pre dir="ltr">--
+-- my_add_logfiles
+-- Add all archived logs generated after a specified start_time.
+--
+CREATE OR REPLACE PROCEDURE my_add_logfiles (in_start_time  IN DATE) AS
+  CURSOR  c_log IS 
+    SELECT NAME FROM V$ARCHIVED_LOG 
+      WHERE FIRST_TIME &gt;= in_start_time;
+
+count      pls_integer := 0;
+my_option  pls_integer := DBMS_LOGMNR.NEW;
+
+BEGIN
+  FOR c_log_rec IN c_log
+  LOOP
+    DBMS_LOGMNR.ADD_LOGFILE(LOGFILENAME =&gt; c_log_rec.name, 
+                            OPTIONS =&gt; my_option);
+    my_option := DBMS_LOGMNR.ADDFILE;
+    DBMS_OUTPUT.PUT_LINE(&#39;Added logfile &#39; || c_log_rec.name);
+  END LOOP;
+END;
+/
+
+EXECUTE my_add_logfiles(in_start_time =&gt; &#39;13-jan-2012 14:00:00&#39;);
+</pre></li>
+<li>
+<p>Query the <code class="codeph">V$LOGMNR_LOGS</code> to see the list of redo log files.</p>
+<p>This example includes the size of the redo log files in the output.</p>
+<pre dir="ltr">SELECT FILENAME name, LOW_TIME start_time, FILESIZE bytes 
+    FROM V$LOGMNR_LOGS;
+
+NAME                                START_TIME            BYTES
+----------------------------------- --------------------  ----------------
+/usr/orcl/arch1_310_482932022.dbf    13-jan-2012 14:02:35  23683584
+/usr/orcl/arch1_311_482932022.dbf    13-jan-2012 14:56:35  2564096
+/usr/orcl/arch1_312_482932022.dbf    13-jan-2012 15:10:43  23683584
+/usr/orcl/arch1_313_482932022.dbf    13-jan-2012 15:17:52  23683584
+/usr/orcl/arch1_314_482932022.dbf    13-jan-2012 15:23:10  23683584
+/usr/orcl/arch1_315_482932022.dbf    13-jan-2012 15:43:22  23683584
+/usr/orcl/arch1_316_482932022.dbf    13-jan-2012 16:03:10  23683584
+/usr/orcl/arch1_317_482932022.dbf    13-jan-2012 16:33:43  23683584
+/usr/orcl/arch1_318_482932022.dbf    13-jan-2012 17:23:10  23683584
+</pre></li>
+<li>
+<p>Adjust the list of redo log files.</p>
+<p>Suppose you realize that you want to mine just the redo log files generated between 3 p.m. and 4 p.m.</p>
+<p>You could use the query predicate (<code class="codeph">timestamp &gt; &#39;13-jan-2012 15:00:00&#39; and timestamp &lt; &#39;13-jan-2012 16:00:00&#39;</code>) to accomplish this. However, the query predicate is evaluated on each row returned by LogMiner, and the internal mining engine does not filter rows based on the query predicate. Thus, although you only wanted to get rows out of redo log files <code class="codeph">arch1_311_482932022.dbf</code> to <code class="codeph">arch1_315_482932022.dbf,</code> your query would result in mining all redo log files registered to the LogMiner session.</p>
+<p>Furthermore, although you could use the query predicate and manually remove the redo log files that do not fall inside the time range of interest, the simplest solution is to specify the time range of interest in the <code class="codeph">DBMS_LOGMNR.START_LOGMNR</code> procedure call.</p>
+<p>Although this does not change the list of redo log files, LogMiner will mine only those redo log files that fall in the time range specified.</p>
+<pre dir="ltr">EXECUTE DBMS_LOGMNR.START_LOGMNR(-
+   STARTTIME =&gt; &#39;13-jan-2012 15:00:00&#39;, -
+   ENDTIME   =&gt; &#39;13-jan-2012 16:00:00&#39;, -
+   OPTIONS   =&gt; DBMS_LOGMNR.DICT_FROM_ONLINE_CATALOG + -
+                DBMS_LOGMNR.COMMITTED_DATA_ONLY + -
+                DBMS_LOGMNR.PRINT_PRETTY_SQL);
+</pre></li>
+<li>
+<p>Query the <code class="codeph">V$LOGMNR_CONTENTS</code> view.</p>
+<pre dir="ltr">SELECT TIMESTAMP, (XIDUSN || &#39;.&#39; || XIDSLT || &#39;.&#39; || XIDSQN) AS XID,
+</pre>
+<pre dir="ltr"> SQL_REDO FROM V$LOGMNR_CONTENTS WHERE SEG_OWNER = &#39;OE&#39;;
+
+TIMESTAMP              XID          SQL_REDO
+---------------------  -----------  --------------------------------
+13-jan-2012 15:29:31   1.17.2376    update &#34;OE&#34;.&#34;PRODUCT_INFORMATION&#34;
+                                      set
+                                        &#34;WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+05-00&#39;)
+                                      where
+                                        &#34;PRODUCT_ID&#34; = 3399 and
+                                        &#34;WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+02-00&#39;) and
+                                        ROWID = &#39;AAAHTKAABAAAY9TAAE&#39;;
+13-jan-2012 15:29:34   1.17.2376      insert into &#34;OE&#34;.&#34;PRODUCT_TRACKING&#34;
+                                        values
+                                        &#34;PRODUCT_ID&#34; = 3399,
+                                        &#34;MODIFIED_TIME&#34; = TO_DATE(&#39;13-jan-2012 15:29:34&#39;, 
+                                        &#39;dd-mon-yyyy hh24:mi:ss&#39;),
+                                        &#34;OLD_LIST_PRICE&#34; = 815,
+                                        &#34;OLD_WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+02-00&#39;);
+
+13-jan-2012 15:52:43   1.15.1756      update &#34;OE&#34;.&#34;PRODUCT_INFORMATION&#34;
+                                        set
+                                          &#34;WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+05-00&#39;)
+                                        where
+                                          &#34;PRODUCT_ID&#34; = 1768 and
+                                          &#34;WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+02-00&#39;) and
+                                          ROWID = &#39;AAAHTKAABAAAY9UAAB&#39;;
+
+13-jan-2012 15:52:43   1.15.1756      insert into &#34;OE&#34;.&#34;PRODUCT_TRACKING&#34;
+                                        values
+                                        &#34;PRODUCT_ID&#34; = 1768,
+                                        &#34;MODIFIED_TIME&#34; = TO_DATE(&#39;13-jan-2012 16:52:43&#39;, 
+                                        &#39;dd-mon-yyyy hh24:mi:ss&#39;),
+                                        &#34;OLD_LIST_PRICE&#34; = 715,
+                                        &#34;OLD_WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+02-00&#39;);
+</pre></li>
+<li>
+<p>End the LogMiner session.</p>
+<pre dir="ltr">EXECUTE DBMS_LOGMNR.END_LOGMNR();
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2015">
+<tr>
+<td class="cellalignment2022">
+<table class="cellalignment2020">
+<tr>
+<td class="cellalignment2019"><a href="GUID-E0DDC97C-7364-4BED-AF2A-E0B486F0E22F.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2019"><a href="GUID-BAB7801D-BB5E-49D8-BC5A-0C08E5F3C2B4.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2024">
+<table class="cellalignment2018">
+<tr>
+<td class="cellalignment2019"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2019"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2019"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2019"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2019"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2019"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

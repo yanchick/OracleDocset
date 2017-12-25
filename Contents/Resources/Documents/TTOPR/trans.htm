@@ -1,0 +1,1148 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-113941"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Transaction%20Management"></a><title>Transaction Management</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Version 5.1.2 Build 748"/>
+<meta name="dcterms.created" content="2014-09-30T15:13:4Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="TimesTen In-Memory Database Operations Guide"/>
+<meta name="dcterms.identifier" content="E21633-12"/>
+<meta name="dcterms.isVersionOf" content="TTOPR"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="ttisql.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="comp.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E21633-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">11/16</span> <!-- End Header -->
+<div id="TTOPR392" class="chapter"><a id="BABIIJHF"></a>
+<h1 class="chapter"><span class="secnum">7</span> Transaction Management</h1>
+<p>TimesTen supports transactions that provide atomic, consistent, isolated and durable (ACID) access to data. The following sections describe how you can configure transaction features.</p>
+<ul>
+<li>
+<p><a href="#BABDFBAG">Transaction overview</a></p>
+</li>
+<li>
+<p><a href="#BABGEDCE">Transaction implicit commit behavior</a></p>
+</li>
+<li>
+<p><a href="#CIHEGAAG">Ensuring ACID semantics</a></p>
+</li>
+<li>
+<p><a href="#CIHIIHAA">Concurrency control through isolation and locking</a></p>
+</li>
+<li>
+<p><a href="#CIHHHHDD">Checkpoint operations</a></p>
+</li>
+<li>
+<p><a href="#BABCJCJF">Transaction logging</a></p>
+</li>
+<li>
+<p><a href="#BABHAHHF">Transaction reclaim operations</a></p>
+</li>
+<li>
+<p><a href="#BABEGGEE">Recovery with checkpoint and transaction log files</a></p>
+</li>
+</ul>
+<a id="BABDFBAG"></a>
+<div id="TTOPR678" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Transaction overview</h2>
+<p>All operations on a TimesTen database, even those that do not modify or access application data, are executed within a transaction. When running an operation and there is no outstanding transaction, one is started automatically on behalf of the application. Transactions are completed by an explicit or implicit commit or rollback. When completed, resources that were acquired or opened by the transaction are released and freed, such as locks and cursors.</p>
+<p>Use the following SQL statements to commit or rollback your transaction:</p>
+<ul>
+<li>
+<p>The SQL <code>COMMIT</code> statement commits the current transaction. Updates made in the transaction are made available to concurrent transactions.</p>
+</li>
+<li>
+<p>The SQL <code>ROLLBACK</code> statement rolls back the current transaction. All updates made in the transaction are undone.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For the syntax of the <code>COMMIT</code> and <code>ROLLBACK</code> statements, see <a class="olink TTSQL277" href="../TTSQL/state.htm#TTSQL277">&#34;SQL Statements&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.</div>
+<p>Read-only transactions do not require a commit. When executing write operations, complete transactions to release locks. When possible, keep write transactions short in duration. Any long-running transactions can reduce concurrency and decrease throughput because locks are held for a longer period of time, which blocks concurrent transactions. Also, long-running transactions can prevent transaction log files from being purged, causing these files to accumulate on disk.</p>
+<p>A connection can have only one outstanding transaction at any time and cannot be explicitly closed if it has an open transaction.</p>
+</div>
+<!-- class="sect1" -->
+<a id="BABGEDCE"></a>
+<div id="TTOPR703" class="sect1">
+<h2 class="sect1">Transaction implicit commit behavior</h2>
+<p>The following sections describe how you can configure whether the application enables implicit commit behavior or requires explicit commit behavior for DML or DDL statements:</p>
+<ul>
+<li>
+<p><a href="#BABFBJJD">Transaction autocommit behavior</a></p>
+</li>
+<li>
+<p><a href="#BABGFEFB">TimesTen DDL commit behavior</a></p>
+</li>
+<li>
+<p><a href="#BABFGAEB">Relationship between autocommit and DDLCommitBehavior</a></p>
+</li>
+</ul>
+<a id="BABFBJJD"></a>
+<div id="TTOPR679" class="sect2">
+<h3 class="sect2">Transaction autocommit behavior</h3>
+<p>Autocommit configures whether TimesTen issues an implicit commit after DML or DDL statements. By default, autocommit is enabled, following the ODBC and JDBC specifications.</p>
+<p>When autocommit is on, the following behavior occurs:</p>
+<ul>
+<li>
+<p>An implicit commit is issued immediately after a statement executes successfully.</p>
+</li>
+<li>
+<p>An implicit rollback is issued immediately after a statement execution fails, such as a primary key violation.</p>
+</li>
+<li>
+<p>If the statement generates a result set that opens a cursor, the automatic commit is not issued until that cursor and any other open cursors in the transaction have been explicitly closed. Any statements executed while a cursor is open is not committed until all cursors have been closed.</p>
+<p>Fetching all rows of a result set does not automatically close its cursor. After the result set has been processed, its cursor must be explicitly closed if using the read committed isolation level or the transaction must be explicitly committed or rolled back if using Serializable isolation level.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Even with durable commits and autocommit enabled, you could lose work if there is a failure or the application exits without closing cursors.</div>
+</li>
+<li>
+<p>If you are using ODBC or JDBC batch operations to <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code> several rows in one call when autocommit is on, a commit occurs after the entire batch operation has completed. If there is an error during the batch operation, those rows that have been successfully modified are committed within this transaction. If an error occurs due to a problem on a particular row, only the successfully modified rows preceding the row with the error are committed in this transaction. The <code>pirow</code> parameter to the ODBC <code>SQLParamOptions</code> function contains the number of the rows in the batch that had a problem.</p>
+</li>
+</ul>
+<p>Commits can be costly for performance and intrusive if they are implicitly executed after every statement. TimesTen recommends you disable autocommit so that all commits are intentional. Disabling autocommit provides control over transactional boundaries, enables multiple statements to be executed within a single transaction, and improves performance, since there is no implicit commit after every statement.</p>
+<p>If autocommit is disabled, transactions must be explicitly completed with a commit or rollback after any of the following:</p>
+<ul>
+<li>
+<p>Completing all the work that was to be done in the transaction.</p>
+</li>
+<li>
+<p>Issuing a transaction-consistent (blocking) checkpoint request.</p>
+</li>
+<li>
+<p>Updating column and table statistics to be used by the query optimizer.</p>
+</li>
+<li>
+<p>Calling a TimesTen built-in procedure that does not generate a result set in order for the new setting specified in the procedure to take effect, such as the <code>ttLockWait</code> procedure.</p>
+</li>
+</ul>
+<p>You must establish a connection to a database before changing the autocommit setting. To disable autocommit, perform one of the following:</p>
+<ul>
+<li>
+<p>In ODBC-based applications, execute <code>SQLSetConnectOption</code><a id="sthref791"></a><a id="sthref792"></a> function with <code>SQL_AUTOCOMMIT_OFF</code>.</p>
+</li>
+<li>
+<p>In JDBC applications, <code>C</code><a id="sthref793"></a><a id="sthref794"></a><a id="sthref795"></a><code>onnection.setAutoCommit</code><code>(false)</code> method.</p>
+</li>
+<li>
+<p>When running <code>ttIsql</code>, issue the <code>autocommit 0</code> command.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="BABGFEFB"></a>
+<div id="TTOPR393" class="sect2">
+<h3 class="sect2">TimesTen DDL commit behavior</h3>
+<p>Traditionally, in TimesTen databases, DDL statements are executed as part of the current transaction and are committed or rolled back along with the rest of the transaction. However, the default behavior for the Oracle Database is that it issues an implicit <code>COMMIT</code> before and after any DDL statement.</p>
+<p>You can configure for either behavior with the <code>DDLCommitBehavior</code> connection attribute, as follows:</p>
+<ul>
+<li>
+<p>0 - Oracle Database behavior. An implicit transaction commit is performed before the execution of each DDL statement and a durable commit is performed after the execution of each DDL statement. This is the default.</p>
+</li>
+<li>
+<p>1 - Traditional TimesTen behavior. Execution of DDL statements does not trigger implicit transaction commits.</p>
+</li>
+</ul>
+<p><a id="sthref796"></a><a id="sthref797"></a><a id="sthref798"></a>DDL statements include the following:</p>
+<ul>
+<li>
+<p><code>CREATE</code>, <code>ALTER</code> and <code>DROP</code> statements for any database object, including tables, views, users, procedures and indexes.</p>
+</li>
+<li>
+<p><code>TRUNCATE</code></p>
+</li>
+<li>
+<p><code>GRANT</code> and <code>REVOKE</code></p>
+</li>
+</ul>
+<p>The consequences of setting <code>DDLCommitBehavior=0</code> include the following:</p>
+<ul>
+<li>
+<p>DDL changes cannot be rolled back.</p>
+</li>
+<li>
+<p>DDL statements delete records from global temporary tables unless the tables were created with the <code>ON COMMIT PRESERVE ROWS</code> clause.</p>
+</li>
+<li>
+<p>Tables created with the <code>CREATE TABLE</code> . . . <code>AS SELECT</code> statement are visible immediately.</p>
+</li>
+<li>
+<p><code>TRUNCATE</code> statements are committed automatically. However, the truncate of the parent and child tables must be truncated in separate transactions, with the child table truncated first. You cannot truncate a parent table unless the child table is empty. The truncation of child and parent table can only be in the same transaction if you set <code>DDLCommitBehavior</code> to 1.</p>
+</li>
+</ul>
+<p>For more information, see <a class="olink TTREF157" href="../TTREF/attribute.htm#TTREF157">&#34;DDLCommitBehavior&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABFGAEB"></a>
+<div id="TTOPR704" class="sect2">
+<h3 class="sect2">Relationship between autocommit and DDLCommitBehavior</h3>
+<p>Both autocommit and <code>DDLCommitBehavior</code> configure if and when implicit commits occur for SQL statements.</p>
+<ul>
+<li>
+<p>Autocommit applies to both DDL and DML statements. Enabling for implicit commits of DDL statements overlaps in both options. If autocommit is enabled and <code>DDLCommitBehavior</code> is disabled, autocommit only commits after the DDL statement. However, if both autocommit and <code>DDLCommitBehavior</code> is enabled, an implicit commit occurs both before and after the DDL statement.</p>
+</li>
+<li>
+<p>To enable <code>DDLCommitBehavior</code>, you set the <code>DDLCommitBehavior</code> DSN attribute. To enable or disable autocommit, the application executes an ODBC function or JDBC method.</p>
+</li>
+</ul>
+<p><a href="#BABFCJGJ">Table 7-1</a> shows what behavior occurs when you enable or disable one option in conjunction with the other:</p>
+<div id="TTOPR705" class="tblhruleformal">
+<p class="titleintable"><a id="sthref799"></a><a id="BABFCJGJ"></a>Table 7-1 Relationship between autocommit and DDLCommitBehavior</p>
+<table class="cellalignment3233" title="Relationship between autocommit and DDLCommitBehavior" summary="Relationships between autocommit and DDLCommitBehavior" dir="ltr">
+<thead>
+<tr class="cellalignment3224">
+<th class="cellalignment3234" id="r1c1-t4">Autocommit</th>
+<th class="cellalignment3234" id="r1c2-t4">DDLCommitBehavior</th>
+<th class="cellalignment3234" id="r1c3-t4">Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r2c1-t4" headers="r1c1-t4">
+<p>ON</p>
+</td>
+<td class="cellalignment3230" headers="r2c1-t4 r1c2-t4">
+<p>ON</p>
+</td>
+<td class="cellalignment3230" headers="r2c1-t4 r1c3-t4">
+<p>All statements are automatically committed, unless you have an open cursor. DDL statements are implicitly committed before and after execution.</p>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r3c1-t4" headers="r1c1-t4">
+<p>OFF</p>
+</td>
+<td class="cellalignment3230" headers="r3c1-t4 r1c2-t4">
+<p>ON</p>
+</td>
+<td class="cellalignment3230" headers="r3c1-t4 r1c3-t4">
+<p>Recommended setting. DDL statements are implicitly committed before and after execution. All other statements require an explicit commit.</p>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r4c1-t4" headers="r1c1-t4">
+<p>ON</p>
+</td>
+<td class="cellalignment3230" headers="r4c1-t4 r1c2-t4">
+<p>OFF</p>
+</td>
+<td class="cellalignment3230" headers="r4c1-t4 r1c3-t4">
+<p>All statements are implicitly committed after execution, unless you have an open cursor. A commit is issued after the DDL is processed and not before.</p>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r5c1-t4" headers="r1c1-t4">
+<p>OFF</p>
+</td>
+<td class="cellalignment3230" headers="r5c1-t4 r1c2-t4">
+<p>OFF</p>
+</td>
+<td class="cellalignment3230" headers="r5c1-t4 r1c3-t4">
+<p>All statements require an explicit commit, including DDL statements.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblhruleformal" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CIHEGAAG"></a>
+<div id="TTOPR394" class="sect1">
+<h2 class="sect1">Ensuring ACID semantics</h2>
+<p>As a relational database, TimesTen is ACID compliant:</p>
+<ul>
+<li>
+<p><span class="bold">Atomic</span>: All TimesTen transactions are atomic: Either all database operations in a single transaction occur or none of them occur.</p>
+</li>
+<li>
+<p><span class="bold">Consistent</span>: Any transaction can bring the database from one consistent state to another.</p>
+</li>
+<li>
+<p><span class="bold">Isolated</span>: Transactions can be isolated. TimesTen has two isolation levels: read committed and serializable, which together with row level locking provide multi-user concurrency control.</p>
+</li>
+<li>
+<p><span class="bold">Durable</span>: Once a transaction has been committed, it remains committed.</p>
+</li>
+</ul>
+<p>The following sections detail how TimesTen ensures ACID semantics for transactions:</p>
+<ul>
+<li>
+<p><a href="#BABIHCDD">Transaction atomicity, consistency, and isolation</a></p>
+</li>
+<li>
+<p><a href="#CIHBCABF">Transaction consistency and durability</a></p>
+</li>
+</ul>
+<a id="BABIHCDD"></a>
+<div id="TTOPR760" class="sect2">
+<h3 class="sect2">Transaction atomicity, consistency, and isolation<a id="sthref800"></a></h3>
+<p>Locking and transaction logs are used to ensure ACID semantics as a transaction modifies data in a database as follows:</p>
+<ul>
+<li>
+<p><a id="sthref801"></a><span class="bold">Locking</span>: TimesTen acquires locks on data items that the transaction writes and, depending on the transaction isolation level, data items that the transaction reads. See <a href="#CIHIIHAA">&#34;Concurrency control through isolation and locking&#34;</a>.</p>
+</li>
+<li>
+<p><a id="sthref802"></a><span class="bold">Transaction logging</span>: All TimesTen transactions are atomic. Either all or none of the effects of the transaction are applied to the database. Modifications to the database are recorded in a transaction log. Atomicity is implemented by using the transaction log to undo the effects of a transaction if it is rolled back. Rollback can be caused explicitly by the application or during database recovery because the transaction was not committed at the time of failure. See <a href="#BABCJCJF">&#34;Transaction logging&#34;</a>.</p>
+</li>
+</ul>
+<p>The <a id="sthref803"></a><a id="sthref804"></a>following table shows how TimesTen uses locks and transaction logs:</p>
+<div class="inftblhruleinformal">
+<table class="cellalignment3233" title="TimesTen use of locks and logs" summary="This table shows how TimesTen uses locks and logs." dir="ltr">
+<thead>
+<tr class="cellalignment3224">
+<th class="cellalignment3234" id="r1c1-t5">If</th>
+<th class="cellalignment3234" id="r1c2-t5">Then</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r2c1-t5" headers="r1c1-t5"><a id="sthref805"></a>Transaction is terminated successfully (committed)</td>
+<td class="cellalignment3230" headers="r2c1-t5 r1c2-t5">
+<ul>
+<li>Transaction log is posted to disk if the <code>DurableCommits</code> attribute is turned on. See <a href="#CIHBCABF">&#34;Transaction consistency and durability&#34;</a> for more information.</li>
+<li>
+<p>Locks that were acquired on behalf of the transaction are released and the corresponding data becomes available to other transactions to read and modify.</p>
+</li>
+<li>
+<p>All open cursors in the transaction are automatically closed.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r3c1-t5" headers="r1c1-t5"><a id="sthref806"></a><a id="sthref807"></a>Transaction is rolled back</td>
+<td class="cellalignment3230" headers="r3c1-t5 r1c2-t5">
+<ul>
+<li>Transaction log is used to undo the effects of the transaction and to restore any modified data items to the state they were before the transaction began.</li>
+<li>
+<p>Locks that were acquired on behalf of the transaction are released.</p>
+</li>
+<li>
+<p>All open cursors in the transaction are automatically closed.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r4c1-t5" headers="r1c1-t5"><a id="sthref808"></a>System fails (data not committed)</td>
+<td class="cellalignment3230" headers="r4c1-t5 r1c2-t5">
+<ul>
+<li>On first connect, TimesTen automatically performs database recovery by reading the latest checkpoint image and applying the transaction log to restore the database to its most recent transactionally consistent state. See <a href="#CIHHHHDD">&#34;Checkpoint operations&#34;</a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment3224">
+<td class="cellalignment3230" id="r5c1-t5" headers="r1c1-t5"><a id="sthref809"></a>Application fails</td>
+<td class="cellalignment3230" headers="r5c1-t5 r1c2-t5">
+<ul>
+<li>All outstanding transactions are rolled back.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblhruleinformal" -->
+<p>TimesTen supports temporary databases, which have essentially no checkpoints. However, they do have a transaction log so that transactions can be rolled back. Recovery is never performed for such databases. They are destroyed after a database or application shuts down or fails. For information on temporary databases, see <a href="comp.htm#CHDBEDHC">&#34;Database overview&#34;</a>.</p>
+</div>
+<!-- class="sect2" -->
+<a id="CIHBCABF"></a>
+<div id="TTOPR395" class="sect2">
+<h3 class="sect2">Transaction consistency and durability</h3>
+<p>The TimesTen Data Manager provides consistency and <a id="sthref810"></a>durability with a combination of checkpointing and transaction logging.</p>
+<ul>
+<li>
+<p>A checkpoint operation writes the current in-memory database image to a checkpoint file on disk that has the effect of making all transactions that have been committed at the time of the checkpoint operation consistent and durable.</p>
+</li>
+<li>
+<p>All transactions are logged to an in-memory transaction log buffer, which is written to disk in one of the following ways:</p>
+<ul>
+<li>
+<p><a href="#CIHDFJHJ">Guaranteed durability</a> through a durable (synchronous) commit</p>
+</li>
+<li>
+<p><a href="#CIHJJHCJ">Delayed durability</a> through a non-durable (asynchronous) commit:</p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Checkpointing and logging are further described in <a href="#CIHHHHDD">&#34;Checkpoint operations&#34;</a> and <a href="#BABCJCJF">&#34;Transaction logging&#34;</a>.</div>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CIHIIHAA"></a>
+<div id="TTOPR401" class="sect1">
+<h2 class="sect1">Concurrency <a id="sthref811"></a><a id="sthref812"></a><a id="sthref813"></a>control through isolation and locking</h2>
+<p>TimesTen <a id="sthref814"></a>transactions support ANSI Serializable and ANSI Read Committed levels of isolation. ANSI Serializable isolation is the most stringent transaction isolation level. ANSI Read Committed allows greater concurrency. Read Committed is the default and is an appropriate isolation level for most applications.</p>
+<p>The following sections describe transaction isolation and locking levels:</p>
+<ul>
+<li>
+<p><a href="#BABCIHEJ">Transaction isolation levels</a></p>
+</li>
+<li>
+<p><a href="#BABIJJGI">Locking granularities</a></p>
+</li>
+</ul>
+<a id="BABCIHEJ"></a>
+<div id="TTOPR402" class="sect2">
+<h3 class="sect2">Transaction isolation levels</h3>
+<p>Transaction isolation enables each active transaction to operate as if there were no other transactions active in the system. Isolation levels determine if row-level locks are acquired when performing read operations. When a statement is issued to update a table, locks are acquired to prevent other transactions from modifying the same data until the updating transaction completes and releases its locks.</p>
+<p>The <code>Isolation</code> connection attribute sets the isolation level for a connection. Isolation levels have no effect if using database-level locking because transactions cannot be run concurrently. The isolation level cannot be changed in the middle of a transaction.</p>
+<p>TimesTen supports the following two transaction isolation levels:</p>
+<ul>
+<li>
+<p><span class="italic">ANSI Read Committed isolation</span>: The read committed isolation level is the recommended mode of operation for most applications, and is the default mode. It enables transactions that are reading data to execute concurrently with a transaction that is updating the same data. TimesTen makes multiple versions of data items to allow non-serializable read and write operations to proceed in parallel.</p>
+<p>Read operations do not block write operations and write operations do not block read operations, even when they read and write the same data. Read operations do not acquire locks on scanned rows. Write operations acquire locks that are held until the transaction commits or rolls back. Readers share a committed copy of the data, whereas a writer has its own uncommitted version. Therefore, when a transaction reads an item that is being updated by another in-progress transaction, it sees the committed version of that item. It cannot see an uncommitted version of an in-progress transaction.</p>
+<p>Read committed isolation level provides for better concurrency at the expense of decreased isolation because of the possibility of non-repeatable reads or phantom rows within a transaction. If an application executes the same query multiple times within the same transaction, the commit of an update from another transaction may cause the results from the read operation to retrieve different results. A phantom row appears in modified form in two different reads, in the same transaction, due to early release of read locks during the transaction.</p>
+<p>To set read committed isolation level, if previously modified since this is the default, do one of the following:</p>
+<ul>
+<li>
+<p>ODBC applications execute the <code>SQLSetConnectOption</code> ODBC function with the <code>SQL_TXN_ISOLATION</code> flag set to <code>SQL_TXN_READ_COMMITTED</code>.</p>
+</li>
+<li>
+<p>Connect with <code>isolation=1</code> in the connection string.</p>
+</li>
+<li>
+<p>When using <code>ttIsql</code>, execute <code>ISOLATION 1</code> or <code>ISOLATION READ_COMMITTED</code>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><span class="italic">ANSI Serializable isolation</span>: <a id="sthref815"></a><a id="sthref816"></a>All locks acquired within a transaction by a read or write operation are held until the transaction commits or rolls back. Read operations block write operations, and write operations block read operations. As a result, a row that has been read by one transaction cannot be updated or deleted by another transaction until the original transaction terminates. Similarly, a row that has been inserted, updated or deleted by one transaction cannot be accessed in any way by another transaction until the original transaction terminates.</p>
+<p>Serializable isolation level provides for repeatable reads and increased isolation at the expense of decreased concurrency. A transaction that executes the same query multiple times within the same transaction is guaranteed to see the same result set each time. Other transactions cannot update or delete any of the returned rows, nor can they insert a new row that satisfies the query predicate.</p>
+<p>To set the isolation level to Serializable, do one of the following:</p>
+<ul>
+<li>
+<p>ODBC applications execute the <code>SQLSetConnectOption</code> ODBC function with the <code>SQL_TXN_ISOLATION</code> flag set to <code>SQL_TXN_SERIALIZABLE</code>.</p>
+</li>
+<li>
+<p>Connect with <code>isolation=0</code> in the connection string.</p>
+</li>
+<li>
+<p>When using <code>ttIsql</code>, execute <code>isolation 0</code> or <code>isolation serializable</code>.</p>
+</li>
+</ul>
+<p>To ensure that materialized views are always in a consistent state, all view maintenance operations are performed under Serializable isolation, even when the transaction is in read committed isolation. This means that the transaction obtains read locks for any data items read during view maintenance. However, the transaction releases the read locks at the end of the <code>INSERT</code>, <code>UPDATE</code> or <code>CREATE VIEW</code> statement that triggered the view maintenance, instead of holding them until the end of the transaction.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The <code>ttXactAdmin</code> utility generates a report showing lock holds and lock waits for all outstanding transactions. It can be used to troubleshoot lock contention problems where operations are being blocked, or encountering lock timeout or deadlock errors. It can also be used to roll back a specified transaction.</div>
+</div>
+<!-- class="sect2" -->
+<a id="BABIJJGI"></a>
+<div id="TTOPR403" class="sect2">
+<h3 class="sect2">Locking granularities</h3>
+<p>TimesTen supports <a id="sthref817"></a><a id="sthref818"></a><a id="sthref819"></a><a id="sthref820"></a><a id="sthref821"></a><a id="sthref822"></a><a id="sthref823"></a><a id="sthref824"></a>row-level locks, table-level locks and database-level locks:</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Different connections can coexist with different levels of locking, but the presence of even one connection using database-level locking leads to reduced concurrency. For performance information, see <a href="perform.htm#BCGBEEFA">&#34;Choose the best method of locking&#34;</a>.</div>
+<ul>
+<li>
+<p><span class="italic">Row-level locking</span>: Transactions usually obtain locks on the individual rows that they access. Row-level locking is the recommended mode of operation because it provides the finest granularity of concurrency control. It allows concurrent transactions to update different rows of the same table. However, row-level locking requires space in the database&#39;s temporary memory region to store lock information.</p>
+<p>Row-level locking is the default. However, if it has been modified to another type of locking and you want to re-enable row-level locking, do one of the following:</p>
+<ul>
+<li>
+<p>Set the <code>LockLevel</code> connection attribute to 0.</p>
+</li>
+<li>
+<p>Call the <code>ttLockLevel</code> built-in procedure with the <code><span class="codeinlineitalic">lockLevel</span></code> parameter set to <code>Row</code>. This procedure changes the lock level between row-level and database-level locking on the <span class="italic">next</span> transaction and for all subsequent transactions for this connection.</p>
+</li>
+<li>
+<p>Execute the <code>ttOptSetFlag</code> procedure to set the <code><span class="codeinlineitalic">RowLock</span></code> parameter to 1, which enables the optimizer to consider using row locks.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+See <a class="olink TTREF164" href="../TTREF/attribute.htm#TTREF164">&#34;LockLevel,&#34;</a> <a class="olink TTREF259" href="../TTREF/proced.htm#TTREF259">&#34;ttLockLevel,&#34;</a> and <a class="olink TTREF271" href="../TTREF/proced.htm#TTREF271">&#34;ttOptSetFlag&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span> for more information.</div>
+</li>
+<li>
+<p><span class="italic">Table-level locking</span>: Table-level locking is recommended when concurrent transactions access different tables or a transaction accesses most of the rows of a particular table. Table-level locking provides better concurrency than database-level locking. Row-level locking provides better concurrency than table-level locking. Table-level locking requires only a small amount of space in the temporary memory region to store lock information.</p>
+<p>Table-level locking provides the best performance for the following:</p>
+<ul>
+<li>
+<p>Queries that access a significant number of rows of a table</p>
+</li>
+<li>
+<p>When there are very few concurrent transactions that access a table</p>
+</li>
+<li>
+<p>When temporary space is inadequate to contain all row locks that an operation, such as a large insert or a large delete, might acquire</p>
+</li>
+</ul>
+<p>To enable table-level locking, execute the <code>ttOptSetFlag</code> procedure to set the <code><span class="codeinlineitalic">TblLock</span></code> parameter to 1, which enables the optimizer to consider using table locks. In addition, set <code><span class="codeinlineitalic">RowLock</span></code> to 0 so that the optimizer does not consider row-level locks.</p>
+<p>If both table-level and row-level locking are disabled, TimesTen defaults to row-level locking. If both table-level and row-level locking are enabled, TimesTen chooses the locking scheme that is more likely to have better performance. Even though table-level locking provides better performance than row-level locking because of reduced locking overhead, the optimizer often chooses row-level locking for better concurrency. For more information, see <a class="olink TTREF271" href="../TTREF/proced.htm#TTREF271">&#34;ttOptSetFlag&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+When multiple locks have been obtained within the same transaction, the locks are released sequentially when the transaction ends.</div>
+</li>
+<li>
+<p><span class="italic">Database-level locking</span>: Database-level locking serializes all transactions, which effectively allows no concurrency on the database. When a transaction is started, it acquires an exclusive lock on the database, which ensures that there is no more than one active transaction in the database at any given time. It releases the lock when the transaction is completed.</p>
+<p>Database-level locking often provides better performance than row-level locking, due to reduced locking overhead. In addition, it provides higher throughput than row-level locking when running a single stream of transactions such as a bulk load operation. However, its applicability is limited to applications that never execute multiple concurrent transactions. With database-level locking, every transaction effectively runs in ANSI Serializable isolation, since concurrent transactions are disallowed.</p>
+<p>To enable database-level locking, do one of the following:</p>
+<ul>
+<li>
+<p>Set the <code>LockLevel</code> connection attribute to 1.</p>
+</li>
+<li>
+<p>Call the <code>ttLockLevel</code> built-in procedure with the <code><span class="codeinlineitalic">lockLevel</span></code> parameter set to <code>DS</code>. This procedure changes the lock level between row-level and database-level locking on the <span class="italic">next</span> transaction and for all subsequent transactions for this connection.</p>
+</li>
+</ul>
+</li>
+</ul>
+<div id="TTOPR706" class="sect3"><!-- infolevel="all" infotype="General" --><a id="sthref825"></a>
+<h4 class="sect3">Setting wait time for acquiring a lock</h4>
+<p>Set the <a id="sthref826"></a><a id="sthref827"></a><code>LockWait</code> connection attribute to the maximum amount of time that a statement waits to acquire a lock before it times out. The default is 10 seconds. For more information, see <a class="olink TTREF165" href="../TTREF/attribute.htm#TTREF165">&#34;LockWait&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+<p>If a statement within a transaction waits for a lock and the lock wait interval has elapsed, an error is returned. After receiving the error, the application can reissue the statement.</p>
+<p>Lock wait intervals are imprecise due to the scheduling of the database&#39;s managing subdaemon process to detect lock timeouts. This imprecision does not apply to zero-second timeouts, which are always immediately reported. The lock wait interval does not apply to blocking checkpoints.</p>
+<p>The database&#39;s managing subdaemon process checks every two seconds to see if there is a deadlock in the database among concurrent transactions. If a deadlock occurs, an error is returned to one of the transactions involved in the deadlock cycle. The transaction that receives the error must rollback in order to allow the other transactions involved in the deadlock to proceed.</p>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CIHHHHDD"></a>
+<div id="TTOPR405" class="sect1">
+<h2 class="sect1">Checkpoint operations</h2>
+<p>A checkpoint operation saves the in-memory image of a database to disk files, known as checkpoint files. By default, TimesTen performs background checkpoints at regular intervals. <a id="sthref828"></a>Checkpointing may generate a large amount of I/O activity and have a long execution time depending on the size of the database and the number of database changes since the most recent checkpoint.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Applications can programmatically initiate checkpoint operations. See <a href="#CIHEHJJH">&#34;Setting and managing checkpoints&#34;</a> for more details.
+<p>Temporary databases do not initiate checkpointing. See <a href="comp.htm#CHDFEAFC">&#34;Database persistence&#34;</a> for more information on temporary databases.</p>
+</div>
+<p>The following sections describe checkpoint operations and how you can manage them:</p>
+<ul>
+<li>
+<p><a href="#BABDBFHD">Purpose of checkpoints</a></p>
+</li>
+<li>
+<p><a href="#BABDGBCH">Usage of checkpoint files</a></p>
+</li>
+<li>
+<p><a href="#BABIDDHF">Types of checkpoints</a></p>
+</li>
+<li>
+<p><a href="#CIHEHJJH">Setting and managing checkpoints</a></p>
+</li>
+</ul>
+<a id="BABDBFHD"></a>
+<div id="TTOPR682" class="sect2">
+<h3 class="sect2">Purpose of checkpoints</h3>
+<p>A checkpoint operation has two primary purposes.</p>
+<ul>
+<li>
+<p>Decreases the amount of time required for database recovery, because it provides a more up-to-date database image on which recovery can begin.</p>
+</li>
+<li>
+<p>Makes a portion of the transaction log unneeded for any future database recovery operation, typically allowing one or more transaction log files to be deleted.</p>
+</li>
+</ul>
+<p>Both of these functions are very important to TimesTen applications. The reduction in recovery time is important, as the amount of a transaction log needed to recover a database has a direct impact on the amount of downtime seen by an application after a system failure. The removal of unneeded transaction log files is important because it frees disk space that can be used for new transaction log files. In addition, the fewer transaction log files you have, the less time is required to load a database into memory. If these files were never removed, they would eventually consume all available space in the transaction log directory&#39;s file system, causing database operations to fail due to log space exhaustion.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABDGBCH"></a>
+<div id="TTOPR683" class="sect2">
+<h3 class="sect2">Usage of checkpoint files</h3>
+<p>Each TimesTen database has two checkpoint files, named <code><span class="codeinlineitalic">dsname</span></code><code>.ds0</code> and <code><span class="codeinlineitalic">dsname</span></code><code>.ds1</code>, where <code><span class="codeinlineitalic">dsname</span></code> is the database path name and file name prefix specified in the database DSN. During a checkpoint operation, TimesTen determines which checkpoint file contains the most recent consistent image and then writes the next in-memory image of the database to the other file. Thus, the two files contain the two most recent database images.</p>
+<p>TimesTen uses the most recent consistent checkpoint file and the transaction log to recover the database to its most recent transaction-consistent state after a database shutdown or system failure. If any errors occur during this process, or if the more recent checkpoint image is incomplete, then recovery restarts using the other checkpoint file.</p>
+<p>When the <a id="sthref829"></a>database is created, TimesTen creates three transaction log files named <code><span class="codeinlineitalic">dsname</span></code><code>.res0</code>, <code><span class="codeinlineitalic">dsname</span></code><code>.res1</code>, and <code><span class="codeinlineitalic">dsname</span></code><code>.res2</code>. These files contain pre-allocated space that serve as reserved transaction log space. Reserved transaction log space allows for a limited continuation of transaction logging if the file system that holds the transaction log files becomes full. If the file system becomes full, transactions are prevented from writing any new log records. Transactions that attempt to write new log records are forced to rollback.</p>
+</div>
+<!-- class="sect2" -->
+<a id="BABIDDHF"></a>
+<div id="TTOPR406" class="sect2">
+<h3 class="sect2">Types of checkpoints</h3>
+<p>TimesTen supports two types of database checkpoint operations:</p>
+<ul>
+<li>
+<p><a href="#CIHIGCCF">Fuzzy or non-blocking checkpoints</a></p>
+</li>
+<li>
+<p><a href="#CIHEIIJE">Transaction-consistent checkpoints</a></p>
+</li>
+</ul>
+<a id="CIHIGCCF"></a>
+<div id="TTOPR408" class="sect3">
+<h4 class="sect3">Fuzzy or non-blocking checkpoints</h4>
+<p>Fuzzy checkpoints, or non-blocking checkpoints, allow transactions to execute against the database while the checkpoint is in progress. Fuzzy checkpoints do not obtain locks of any kind, and therefore have a minimal impact on other database activity. Because transactions may modify the database while a checkpoint operation is in progress, the resulting checkpoint file may contain both committed and uncommitted transactions. Furthermore, different portions of the checkpoint image may reflect different points in time. For example, one portion may have been written before a given transaction committed, while another portion was written afterward. The term &#34;fuzzy checkpoint&#34; derives its name from this fuzzy state of the database image.</p>
+<p>To recover the database when the checkpoint files were generated from fuzzy checkpoint operations, TimesTen requires the most recent consistent checkpoint file and the transaction log to bring the database into its most recent transaction-consistent state.</p>
+</div>
+<!-- class="sect3" -->
+<a id="CIHEIIJE"></a>
+<div id="TTOPR407" class="sect3">
+<h4 class="sect3">Transaction-consistent checkpoints</h4>
+<p>Transaction-consistent checkpoints, also known as blocking checkpoints, obtain an exclusive lock on the database for a portion of the checkpoint operation, blocking all access to the database during that time. The resulting checkpoint image contains all committed transactions prior to the time the checkpoint operations acquired the exclusive lock on the database. Because no transactions can be active while the database lock is held, no modifications made by in-progress transactions are included in the checkpoint image.</p>
+<p>TimesTen uses the most recent consistent checkpoint file to recover the database to transaction-consistent state at the time of the last successful checkpoint operation completed. It uses the transaction log files to recover the database to its most recent transaction-consistent state after a database shutdown or system failure.</p>
+<p>To request a transaction-consistent checkpoint, an application uses the <code>ttCkptBlocking</code> built-in procedure. The actual checkpoint is delayed until the requesting transaction commits or rolls back. If a transaction-consistent checkpoint is requested for a database for which both checkpoint files are already up to date then the checkpoint request is ignored.</p>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="CIHEHJJH"></a>
+<div id="TTOPR409" class="sect2">
+<h3 class="sect2"><a id="sthref830"></a>Setting and managing checkpoints</h3>
+<p>The default behavior for TimesTen checkpoints is as follows:</p>
+<ul>
+<li>
+<p>TimesTen performs periodic fuzzy checkpoints in the background. You can modify this behavior. See <a href="#BABHBHFE">&#34;Configuring or turning off background checkpointing&#34;</a> for more information.</p>
+</li>
+<li>
+<p>TimesTen performs a transaction-consistent checkpoint operation of a database just before the database is unloaded from memory. See <a href="#CIHEIIJE">&#34;Transaction-consistent checkpoints&#34;</a>.</p>
+</li>
+</ul>
+<p>You can manage and monitor checkpoints with the following connection attributes and built-in procedures:</p>
+<ul>
+<li>
+<p><code>CkptFrequency</code> attribute</p>
+</li>
+<li>
+<p><code>CkptLogVolume</code> attribute</p>
+</li>
+<li>
+<p><code>CkptRate</code> attribute</p>
+</li>
+<li>
+<p><code>CkptReadThreads</code> attribute</p>
+</li>
+<li>
+<p><code>ttCkpt</code> built-in procedure</p>
+</li>
+<li>
+<p><code>ttCkptBlocking</code> built-in procedure</p>
+</li>
+<li>
+<p><code>ttCkptConfig</code> built-in procedure</p>
+</li>
+<li>
+<p><code>ttCkptHistory</code> built-in procedure</p>
+</li>
+</ul>
+<p>The following sections describe how to manage checkpointing:</p>
+<ul>
+<li>
+<p><a href="#BABBIAJG">Programmatically performing a checkpoint</a></p>
+</li>
+<li>
+<p><a href="#BABHBHFE">Configuring or turning off background checkpointing</a></p>
+</li>
+<li>
+<p><a href="#BABGAJGA">Displaying checkpoint history and status</a></p>
+</li>
+<li>
+<p><a href="#BABHJADF">Setting the checkpoint rate</a></p>
+</li>
+<li>
+<p><a href="#BABEICAJ">Setting the number of checkpoint file read threads</a></p>
+</li>
+</ul>
+<a id="BABBIAJG"></a>
+<div id="TTOPR684" class="sect3">
+<h4 class="sect3">Programmatically performing a checkpoint</h4>
+<p>By default, TimesTen performs periodic fuzzy checkpoints in the background. Therefore, applications rarely need to issue manual checkpoints. However, if an application wishes to issue a manual checkpoint, it can call the <code>ttCkpt</code> built-in procedure to request a fuzzy checkpoint or the <code>ttCkptBlocking</code> built-in procedure to request a transaction-consistent checkpoint.</p>
+</div>
+<!-- class="sect3" -->
+<a id="BABHBHFE"></a>
+<div id="TTOPR685" class="sect3">
+<h4 class="sect3">Configuring or turning off background checkpointing</h4>
+<p>Using attributes or built-in procedures, you can configure TimesTen to checkpoint either when the transaction log files contain a certain amount of data or at a specific frequency.</p>
+<p>To configure checkpointing in TimesTen, do the following:</p>
+<p>Configure the <code>CkptFrequency</code> and <code>CkptLogVolume</code> connection attributes as follows:</p>
+<ul>
+<li>
+<p>The <code>CkptFrequency</code> connection attribute controls how often, in seconds, that TimesTen performs a background checkpoint. The default is 600 seconds. Set the <code>CkptFrequency</code> connection attribute to 0 if you want to control background checkpointing with the <code>CkptLogVolume</code> connection attribute.</p>
+</li>
+<li>
+<p>The <code>CkptLogVolume</code> connection attribute controls how much data, in megabytes, that collects in the transaction log file between background checkpoints. By increasing this amount, you can delay the frequency of the checkpoint. The default is 0. Set the <code>CkptFrequency</code> connection attribute to 0 if you want to control background checkpointing with the <code>CkptLogVolume</code> connection attribute.</p>
+</li>
+</ul>
+<p>To turn off background checkpointing, set both the <code>CkptFrequency</code> and <code>CkptLogVolume</code> connection attributes to 0.</p>
+<p>Alternatively, you can configure background checkpointing or turn it off by calling the <code>ttCkptConfig</code> built-in procedure. The values set by <code>ttCkptConfig</code> take precedence over those set with the connection attributes.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For information on default values and usage, see <a class="olink TTREF137" href="../TTREF/attribute.htm#TTREF137">&#34;CkptFrequency&#34;</a>, <a class="olink TTREF138" href="../TTREF/attribute.htm#TTREF138">&#34;CkptLogVolume&#34;</a>, and <a class="olink TTREF240" href="../TTREF/proced.htm#TTREF240">&#34;ttCkptConfig&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+</div>
+<!-- class="sect3" -->
+<a id="BABGAJGA"></a>
+<div id="TTOPR686" class="sect3">
+<h4 class="sect3">Displaying checkpoint history and status</h4>
+<p>Call the <code>ttCkptHistory</code> built-in procedure to display the information on the last eight checkpoints. You can monitor the progress of a running checkpoint with the <code>Percent_Complete</code> column.</p>
+</div>
+<!-- class="sect3" -->
+<a id="BABHJADF"></a>
+<div id="TTOPR410" class="sect3">
+<h4 class="sect3">Setting the checkpoint rate</h4>
+<p>By default, there is no limit to the rate at which checkpoint data is written to disk. You can use the <code>CkptRate</code> attribute or the <code>ttCkptConfig</code> built-in procedure to set the maximum rate at which background checkpoint data is written to disk. Checkpoints taken during recovery and final checkpoints do not honor this rate; in those situations, the rate is unlimited.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+See <a class="olink TTREF139" href="../TTREF/attribute.htm#TTREF139">&#34;CkptRate&#34;</a> and <a class="olink TTREF240" href="../TTREF/proced.htm#TTREF240">&#34;ttCkptConfig&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span> for details on using these features.</div>
+<p>Setting a rate too low can cause checkpoints to take an excessive amount of time and cause the following problems:</p>
+<ul>
+<li>
+<p>Delay the purging of unneeded transaction log files</p>
+</li>
+<li>
+<p>Delay the start of backup operations</p>
+</li>
+<li>
+<p>Increase recovery time.</p>
+</li>
+</ul>
+<p>When choosing a rate, you should take into consideration the amount of data written by a typical checkpoint and the amount of time checkpoints usually take. Both of these pieces of information are available through the <code>ttCkptHistory</code> built-in procedure.</p>
+<p>If a running checkpoint appears to be progressing too slowly when you evaluate the progress of this checkpoint with the <code>Percent_Complete</code> column of the <code>ttCkptHistory</code> result set, the rate can be increased by calling the <code>ttCkptConfig</code> built-in procedure. If a call to <code>ttCkptConfig</code> changes the rate, the new rate takes effect immediately, affecting even the running checkpoint.</p>
+<p>Perform the following to calculate the checkpoint rate:</p>
+<ol>
+<li>
+<p>Call the <code>ttCkptHistory</code> built-in procedure.</p>
+</li>
+<li>
+<p>For any given checkpoint, subtract the <span class="italic">starttime</span> from the <span class="italic">endtime</span>.</p>
+</li>
+<li>
+<p>Divide the number of bytes written by this elapsed time in seconds to get the number of bytes per second.</p>
+</li>
+<li>
+<p>Divide this number by 1024*1024 to get the number of megabytes per second.</p>
+</li>
+</ol>
+<p>When setting the checkpoint rate, you should consider the following:</p>
+<ul>
+<li>
+<p>The specified checkpoint rate is only approximate. The actual rate of the checkpoint may be below the specified rate, depending on the hardware, system load and other factors.</p>
+</li>
+<li>
+<p>The above method may underestimate the actual checkpoint rate, because the <span class="italic">starttime</span> and <span class="italic">endtime</span> interval includes other checkpoint activities in addition to the writing of dirty blocks to the checkpoint file.</p>
+</li>
+<li>
+<p>The <code>Percent_Complete</code> field of the <code>ttCkptHistory</code> call may show 100 percent before the checkpoint is actually complete. The <code>Percent_Complete</code> field shows only the progress of the writing of dirty blocks and does not include additional bookkeeping at the end of the checkpoint.</p>
+</li>
+<li>
+<p>When adjusting the checkpoint rate, you may also need to adjust the checkpoint frequency, as a slower rate makes checkpoints take longer, which effectively increases the minimum time between checkpoint beginnings.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" -->
+<a id="BABEICAJ"></a>
+<div id="TTOPR794" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3">Setting the number of checkpoint file read threads</h4>
+<p>By default, TimesTen reads checkpoint files serially with a single thread. Use the <code>CkptReadThreads</code> connection attribute to set the number of threads that TimesTen uses to read the checkpoint files when loading the database into memory.</p>
+<p>When using <code><span class="codeinlineitalic">n</span></code> number of threads, TimesTen divides the checkpoint file into <code><span class="codeinlineitalic">n</span></code> portions of equal size. Each thread concurrently reads a portion of the file into memory. Once all threads are done reading their portion of the checkpoint file successfully, TimesTen checks the database for consistency.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For more information, see <a href="perform.htm#CACCICDJ">&#34;Set CkptReadThreads&#34;</a> in this book, and <a class="olink TTREF857" href="../TTREF/attribute.htm#TTREF857">&#34;CkptReadThreads&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABCJCJF"></a>
+<div id="TTOPR681" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Transaction logging</h2>
+<p>TimesTen creates one transaction log for each database, which is shared by all concurrent connections. A transaction log record is created for each database update, commit, and rollback. However, transaction log records are not generated for read-only transactions. Log records are first written to the transaction log buffer, which resides in the same shared memory segment as the database. The contents of the log buffer are then subsequently flushed to the latest transaction log file on disk.</p>
+<p>The transaction log is used to track all updates made within a transaction, so that those updates can be undone if the transaction is rolled back.</p>
+<p>Transaction logging enables recovery of transactions from checkpoint files and the transaction log, which were committed from the time of the last checkpoint operation after a system failure. If the transaction is non-durable, any committed transactions in the log buffer that have not been flushed to disk would be lost in the event of a system failure.</p>
+<p>The following sections describe how to manage and monitor the transaction log buffers and file:</p>
+<ul>
+<li>
+<p><a href="#CIHIEJAH">Managing transaction log buffers and files</a></p>
+</li>
+<li>
+<p><a href="#BABFBBEC">Monitoring accumulation of transaction log files</a></p>
+</li>
+</ul>
+<a id="CIHIEJAH"></a>
+<div id="TTOPR400" class="sect2">
+<h3 class="sect2">Managing transaction log buffers and files</h3>
+<p><a id="sthref831"></a>The following<a id="sthref832"></a> describes how to configure transaction log buffers and files:</p>
+<ul>
+<li>
+<p>Transaction log buffers: There is one transaction log buffer for each database and the size of the transaction log buffer can be configured using the <code>LogBufMB</code> DSN attribute. Each transaction log buffer can have multiple strands. The number of transaction log buffer strands is configured with the <code>LogBufParallelism</code> attribute.</p>
+</li>
+<li>
+<p>Transaction log files: The maximum size for the transaction log files are configured with the <code>LogFileSize</code> DSN attribute. The transaction <a id="sthref833"></a><a id="sthref834"></a>log files are created in the same directory as the checkpoint files unless the <code>LogDir</code> attribute specifies a different location. The transaction log file names have the form <code><span class="codeinlineitalic">ds_name</span></code><code>.log</code><code><span class="codeinlineitalic">n</span></code>. The <code><span class="codeinlineitalic">ds_name</span></code> is the database path name that is specified by the <code>DataStore</code> DSN attribute and is provided within the database&#39;s DSN. The suffix <code><span class="codeinlineitalic">n</span></code> is the transaction log file number, starting at zero.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+For best performance, TimesTen recommends that applications use the <code>LogDir</code> attribute to place the transaction log files in a different physical device from the checkpoint files. If separated, I/O operations for checkpoints do not block I/O operations to the transaction log and vice versa.
+<p>TimesTen writes a message to the support log if the transaction log files and checkpoint files for your databases are on the same device.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="BABFBBEC"></a>
+<div id="TTOPR711" class="sect2">
+<h3 class="sect2">Monitoring accumulation of transaction log files<a id="sthref835"></a><a id="sthref836"></a><a id="sthref837"></a><a id="sthref838"></a></h3>
+<p>It is important to verify at frequent intervals that there are no transaction log holds that could result in an excessive accumulation of transaction log files. If too many transaction log files accumulate and fill up available disk space, new transactions in the TimesTen database cannot begin until the transaction log hold is advanced and transaction log files are purged by the next checkpoint operation.</p>
+<p>The following sections describe transaction log operations, log holds, and accumulation of log files:</p>
+<ul>
+<li>
+<p><a href="#BABECEEG">Purging transaction log files</a></p>
+</li>
+<li>
+<p><a href="#BABGFGEA">Log holds by TimesTen components or operations</a></p>
+</li>
+<li>
+<p><a href="#BABJECDJ">Monitoring log holds and log file accumulation</a></p>
+</li>
+</ul>
+<a id="BABECEEG"></a>
+<div id="TTOPR712" class="sect3">
+<h4 class="sect3">Purging transaction log files<a id="sthref839"></a><a id="sthref840"></a></h4>
+<p>Any transaction log file is kept until TimesTen determines it can be purged, which can occur under the following conditions:</p>
+<ul>
+<li>
+<p>Transactions writing log records to the file have been committed or rolled back. These can be either local database transactions or XA transactions.</p>
+</li>
+<li>
+<p>Changes recorded in the file have been written to both checkpoint files.</p>
+</li>
+<li>
+<p>Changes recorded in the file have been replicated, if replication is enabled.</p>
+</li>
+<li>
+<p>Changes recorded in the file have been propagated to the Oracle database, if TimesTen Cache is used and configured for that behavior.</p>
+</li>
+<li>
+<p>Changes recorded in the file have been reported to XLA, if XLA is used.</p>
+</li>
+</ul>
+<p>Under normal TimesTen operating conditions, unneeded transaction log files are purged each time a checkpoint is initiated. A checkpoint can be initiated either through a configurable time interval with the <code><a id="sthref841"></a><a id="sthref842"></a><a id="sthref843"></a><a id="sthref844"></a><a id="sthref845"></a><a id="sthref846"></a><a id="sthref847"></a>CkptFrequency<a id="sthref848"></a><a id="sthref849"></a><a id="sthref850"></a></code> connection attribute, a configurable log volume with the <code>CkptLogVolume</code> connection attribute, or by calling the <code>ttCkpt</code> built-in function, which can be called either manually or in a background checkpointing application thread.</p>
+<p>If you are running out of disk space because of log files accumulating, use the <code>CkptLogVolume</code> connection attribute instead of the <code>CkptFrequency</code> connection attribute. In addition, if you execute the <code>ttLogHolds</code> build-in procedure frequently, you can tell if log reclamation is blocked.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+To improve performance, locate your log files on a separate disk partition from the one on which the checkpoint files are located. The <code>LogDir</code> connection attribute determines where log files are stored. For more information, see <a href="#CIHIEJAH">&#34;Managing transaction log buffers and files&#34;</a> in this book or <a class="olink TTREF131" href="../TTREF/attribute.htm#TTREF131">&#34;LogDir&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</div>
+<p>See <a class="olink TTCIN201" href="../TTCIN/availability.htm#TTCIN201">&#34;Checkpointing&#34;</a> in the <span class="italic">Oracle TimesTen Application-Tier Database Cache Introduction</span> for general information. See <a href="#BABHBHFE">&#34;Configuring or turning off background checkpointing&#34;</a> for more details on <code>CkptFrequency</code> and <code>CkptLogVolume</code>. Also, see the sections for <a class="olink TTREF137" href="../TTREF/attribute.htm#TTREF137">&#34;CkptFrequency&#34;</a>, <a class="olink TTREF138" href="../TTREF/attribute.htm#TTREF138">&#34;CkptLogVolume&#34;</a>, <a class="olink TTREF238" href="../TTREF/proced.htm#TTREF238">&#34;ttCkpt&#34;</a>, and <a class="olink TTREF261" href="../TTREF/proced.htm#TTREF261">&#34;ttLogHolds&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</div>
+<!-- class="sect3" -->
+<a id="BABGFGEA"></a>
+<div id="TTOPR713" class="sect3">
+<h4 class="sect3">Log holds by TimesTen components or operations<a id="sthref851"></a><a id="sthref852"></a></h4>
+<p>Several TimesTen components or operations can cause transaction log holds. A transaction log hold prevents log files, beyond a certain point, from being purged until they are no longer needed. In normal circumstances, the log hold position is regularly advanced and log files are purged appropriately. However, if operations are not functioning properly and the hold position does not advance, there can be an excessive accumulation of log files beyond the hold position that can no longer be purged, which eventually fills available disk space.</p>
+<p>These components and operations include the following:</p>
+<ul>
+<li>
+<p>Replication: There is a transaction log hold until the transmitting replication agent confirms that the log files have been fully processed by the receiving host.</p>
+<p>Possible failure modes include the following:</p>
+<ul>
+<li>
+<p>The network is down or there is a standby crash and replication is unable to deliver data to one or more subscribers. If necessary, the application can direct that logs no longer be held, then duplicate the master database to the standby when normal operations resume. Criteria for when to do this includes the amount of time required to duplicate, the amount of available disk space on the master for log files, and the transaction log growth rate.</p>
+</li>
+<li>
+<p>The overall database transaction rate exceeds the ability of replication to keep the active and standby databases synchronized. An application can reduce the application transaction rate or the number of replicated tables.</p>
+</li>
+</ul>
+<p>For more information, see <a class="olink TTREP673" href="../TTREP/perform.htm#TTREP673">&#34;Improving Replication Performance&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Replication Guide</span> and <a class="olink TTTRB283" href="../TTTRB/rep_trouble.htm#TTTRB283">&#34;Troubleshooting Replication&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Troubleshooting Guide</span>.</p>
+</li>
+<li>
+<p>XLA: There is a transaction log hold until the XLA bookmark advances.</p>
+<p>A possible failure mode occurs when the bookmark becomes stuck, which can occur if an XLA application terminates unexpectedly or if it disconnects without first deleting its bookmark or disabling change-tracking. If a bookmark gets too far behind, the application can delete it. If the XLA reader process is still active, it must first be terminated, so that another XLA process can connect and delete the bookmark.</p>
+</li>
+<li>
+<p>Active standby pairs that replicate AWT cache groups: There is a transaction log hold until the replication agent confirms that the transaction corresponding to the log hold has been committed on the Oracle Database. With an active standby pair, the active database typically receives the confirmation from the standby database. If the standby database is down, the replication agent receives confirmation from Oracle Database directly.</p>
+<p>Possible failure modes include the following:</p>
+<ul>
+<li>
+<p>Oracle Database is down or there is a lock or resource contention.</p>
+</li>
+<li>
+<p>The network is down, slow, or saturated.</p>
+</li>
+<li>
+<p>With an active standby pair, replication to the standby database falls behind. Check log holds on the standby database.</p>
+</li>
+<li>
+<p>The transaction rate to TimesTen exceeds the maximum sustainable rate that TimesTen can propagate to Oracle Database.</p>
+</li>
+</ul>
+<p>For more information, see <a class="olink TTCAC453" href="../TTCAC/manage.htm#TTCAC453">&#34;Monitoring AWT cache groups&#34;</a> in the <span class="italic">Oracle TimesTen Application-Tier Database Cache User&#39;s Guide</span> and <a class="olink TTTRB273" href="../TTTRB/awt_trouble.htm#TTTRB273">&#34;Troubleshooting AWT Cache Groups&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Troubleshooting Guide</span>.</p>
+</li>
+<li>
+<p>Cache groups configured with <code>AUTOREFRESH</code>: There is a transaction log hold until the replication agent on the active database confirms the log files have been fully processed by the standby database.</p>
+<p>Possible failure modes include the following:</p>
+<ul>
+<li>
+<p>Replication from the active database to the standby database is impacted because the standby database falls behind due to large workloads resulting from <code>AUTOREFRESH</code> mode.</p>
+</li>
+<li>
+<p>The standby database is down or recovering, but has not been marked as <code>FAILED</code> through a call, initiated by either the user application or Oracle Clusterware, to the <code>ttRepStateSave</code> built-in procedure. The active database does not take over propagation to the Oracle Database until the state of the standby database is marked as <code>FAILED</code>. While the standby database is down or recovering, transaction log files are held for the Oracle Database.</p>
+</li>
+</ul>
+<p>For more information, see <a class="olink TTTRB247" href="../TTTRB/cache_trouble.htm#TTTRB247">&#34;Monitoring autorefresh cache groups&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Troubleshooting Guide</span>.</p>
+</li>
+<li>
+<p>Incremental TimesTen backup: There is a transaction log hold until the backup completes.</p>
+<p>A possible failure mode can occur if the incremental backup falls too far behind the most recent entries in the transaction log. For example, ensure that an unexpected burst of transaction activity cannot fill up available transaction log disk space due to the backup holding a log file that is too old. An application can perform another incremental backup to work around this situation.</p>
+</li>
+<li>
+<p>Long-running transaction or XA transaction: There is a transaction log hold until the transaction completes.</p>
+<p>A possible failure mode can occur if an application transaction does not commit or roll back for a long time, so that it becomes necessary for the application to terminate the long-running transaction.</p>
+<p>If necessary, you can roll back a transaction using the <code><a id="sthref853"></a><a id="sthref854"></a>ttXactAdmin</code> utility with the <code>-xactIdRollback</code> option. See <a class="olink TTREF376" href="../TTREF/util.htm#TTREF376">&#34;ttXactAdmin&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" -->
+<a id="BABJECDJ"></a>
+<div id="TTOPR714" class="sect3">
+<h4 class="sect3">Monitoring log holds and log file accumulation<a id="sthref855"></a><a id="sthref856"></a><a id="sthref857"></a><a id="sthref858"></a></h4>
+<p>Options for periodic monitoring of excessive transaction log accumulation include the following:</p>
+<ul>
+<li>
+<p>Call the <code><a id="sthref859"></a>ttLogHolds</code> built-in procedure, which returns a result set with details of all log holds. The information includes the following, as applicable:</p>
+<ul>
+<li>
+<p>Log file number, the offset of the hold position, and the type of hold, which can be checkpoint, replication, backup, XLA, long-running transaction, or long-running XA transaction</p>
+</li>
+<li>
+<p>Name of the checkpoint file for a checkpoint hold</p>
+</li>
+<li>
+<p>Name of the subscriber and the parallel track ID it uses for replication</p>
+</li>
+<li>
+<p>Backup path for a backup hold</p>
+</li>
+<li>
+<p>Name of the persistent subscription and process ID of the last process to open it for XLA</p>
+</li>
+<li>
+<p>Transaction ID for a long-running transaction</p>
+</li>
+<li>
+<p>XA XID for a long-running XA transaction</p>
+</li>
+</ul>
+<p>For more information, see <a class="olink TTREF261" href="../TTREF/proced.htm#TTREF261">&#34;ttLogHolds&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</li>
+<li>
+<p>Call the <code><a id="sthref860"></a>ttCkptHistory</code> built-in procedure to check the last several checkpoints to confirm none of the returned rows has a status of <code>FAILED</code>.</p>
+<p>For more information, see <a class="olink TTREF241" href="../TTREF/proced.htm#TTREF241">&#34;ttCkptHistory&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.</p>
+</li>
+<li>
+<p>Check the <code><a id="sthref861"></a><a id="sthref862"></a><a id="sthref863"></a>SYS.SYSTEMSTATS</code> table for operational metrics. Each transaction log file has a unique sequence number, which starts at 0 for the first log file and increments by 1 for each subsequent log file. The number of the current log file is available in <code>SYS.SYSTEMSTATS.log.file.latest</code>. The number of the oldest log file not yet purged is available in <code>SYS.SYSTEMSTATS.log.file.earliest</code>. You should raise an error or warning if the difference in the sequence numbers exceeds an inappropriate threshold.</p>
+<p>For more information, see <a class="olink TTSYS439" href="../TTSYS/systemtables.htm#TTSYS439">&#34;SYS.SYSTEMSTATS&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database System Tables and Views Reference</span>.</p>
+</li>
+<li>
+<p>For XLA, check the <code>SYS.TRANSACTION_LOG_API</code> table that provides bookmark information, such as the process ID of the connected application, which could help diagnose the reason why a bookmark may be stuck or lagging.</p>
+<p>For more information, see <a class="olink TTSYS383" href="../TTSYS/systemtables.htm#TTSYS383">&#34;SYS.TRANSACTION_LOG_API&#34;</a> in the <span class="italic">Oracle TimesTen In-Memory Database System Tables and Views Reference</span>.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<div id="TTOPR761" class="sect2"><a id="sthref864"></a>
+<h3 class="sect2">Durable options for logging transactions</h3>
+<p>The following sections describe durability options for logging transactions:</p>
+<ul>
+<li>
+<p><a href="#CIHDFJHJ">Guaranteed durability</a></p>
+</li>
+<li>
+<p><a href="#CIHJJHCJ">Delayed durability</a></p>
+</li>
+<li>
+<p><a href="#CIHHHFDI">Durable commit performance enhancements</a></p>
+</li>
+</ul>
+<a id="CIHDFJHJ"></a>
+<div id="TTOPR396" class="sect3">
+<h4 class="sect3">Guaranteed durability</h4>
+<p>Durability is implemented with a combination of checkpointing and logging.</p>
+<ul>
+<li>
+<p>Checkpoint files: A checkpoint operation writes the current database image to a checkpoint file on disk, which has the effect of making all transactions that committed before the checkpoint durable.</p>
+</li>
+<li>
+<p>Transaction log files: For transactions that committed after the last checkpoint, TimesTen uses conventional logging techniques to make them durable. As each transaction progresses, it records its database modifications in an in-memory transaction log. At commit time, the relevant portion of the transaction log is flushed to disk. This log flush operation makes that transaction, and all previously-committed transactions, durable.</p>
+<p>Control returns to the application after the transaction log data has been durably written to disk. A durably committed transaction is not lost even in the event of a system failure.</p>
+</li>
+</ul>
+<p>To enable guaranteed durability, set the <code>DurableCommits</code> attribute to 1.</p>
+<p>Any recovery uses the last checkpoint image together with the transaction log to reconstruct the latest transaction-consistent state of the database.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Committing a transaction durably makes that transaction and all previous transactions durable. Any non-durable transactions are no longer subject to loss in the event of a database failure, just as if it had originally been committed durably.</div>
+<p>If most of your transactions commit durably, you may want to set the <code>LogFlushMethod</code> first connect attribute to 2. This connection attribute configures how TimesTen writes and synchronizes log data to transaction log files. For more information, see <a href="perform.htm#BCGGIBBC">&#34;Use durable commits appropriately&#34;</a>.</p>
+</div>
+<!-- class="sect3" -->
+<a id="CIHJJHCJ"></a>
+<div id="TTOPR397" class="sect3">
+<h4 class="sect3">Delayed durability</h4>
+<p>In delayed durability mode, as in guaranteed durability mode, each transaction enters records into the in-memory transaction log as it makes modifications to the database. However, when a transaction commits in delayed durability mode, it does not wait for the transaction log to be posted to disk before returning control to the application. Thus, a non-durable transaction may be lost in the event of a database failure. However, they execute considerably faster than durable transactions. Eventually, transactions are flushed to disk by the database&#39;s subdaemon process or when the in-memory log buffer is full.</p>
+<p>Applications request delayed durability mode by setting the <code>DurableCommits</code> attribute to 0. This is the default and the recommended option. Connections that use delayed durability can coexist with connections that use guaranteed durability.</p>
+<p>Applications that wish to take advantage of the performance benefits of delayed durability mode, but can only tolerate the loss of a small number of transactions, can perform periodic durable commits in a background process. Only those transactions that committed non-durably after the last durable commit are vulnerable to loss in the event of a system failure.</p>
+</div>
+<!-- class="sect3" -->
+<a id="CIHHHFDI"></a>
+<div id="TTOPR398" class="sect3">
+<h4 class="sect3">Durable commit performance enhancements</h4>
+<p><a id="sthref865"></a>The performance cost for durable commits can be reduced with a group commit of multiple concurrently executing transactions. Many threads executing at the same time, if they are short transactions, may commit at almost the same time. Then, a single disk write commits a group of concurrent transactions durably. Group commit does not improve the response time of any given commit operation, as each durable commit must wait for a disk write to complete, but it can significantly improve the throughput of a series of concurrent transactions.</p>
+<p>When durable commits are used frequently, TimesTen can support more connections than there are CPUs, as long as transactions are short. Each connection spends more time waiting to commit than it spends using the CPU. Alternatively, applications that perform infrequent durable commits cause each connection to be very CPU-intensive for the TimesTen portion of its workload.</p>
+<p>Applications that do not require optimal response time and can tolerate some transaction loss may elect to perform periodic durable commits. This maintains a smaller window of vulnerability to transaction loss as opposed to all transactions being committed non-durably. By committing only every <span class="italic">n</span>th transaction durably or performing a durable commit every <span class="italic">n</span> seconds, an application can achieve a quicker response time while maintaining a small window of vulnerability to transaction loss. A user can elect to perform a durable commit of a critical transaction, such as one that deals with financial exchange, that cannot be vulnerable to loss.</p>
+<p>To enable periodic durable commits, an application does the following:</p>
+<ol>
+<li>
+<p>Connects with setting the attribute <code>DurableCommits=0</code>. This causes the transactions to commit non-durably.</p>
+</li>
+<li>
+<p>When a durable commit is needed, the application can call the <code>ttDurableCommit</code> built-in procedure before committing. The <code>ttDurableCommit</code> built-in procedure does not actually commit the transaction; it merely causes the commit to be durable when it occurs.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABHAHHF"></a>
+<div id="TTOPR762" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Tran<a id="sthref866"></a><a id="sthref867"></a>saction reclaim operations</h2>
+<p>After a transaction is marked by TimesTen as committed, there is a <span class="italic">reclaim</span> phase of the commit during which database resources are reclaimed. This section discusses these reclaim operations, covering the following topics:</p>
+<ul>
+<li>
+<p><a href="#BABDDEJA">About reclaim operations</a></p>
+</li>
+<li>
+<p><a href="#BABJEBGI">Configuring the commit buffer for reclaim operations</a></p>
+</li>
+</ul>
+<a id="BABDDEJA"></a>
+<div id="TTOPR763" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">About reclaim operations</h3>
+<p>TimesTen resource cleanup occurs during the reclaim phase of a transaction commit. Consider a transaction with <code>DELETE</code> operations, for example. The SQL operation marks the deleted rows as deleted, but the space and resources occupied by these rows are not actually freed until the reclaim phase of the transaction commit.</p>
+<p>During reclaim, TimesTen reexamines all the transaction log records starting from the beginning of the transaction to determine the reclaim operations that must be performed, then performs those operations.</p>
+<p>To improve performance, a number of transaction log records can be cached to reduce the need to access the transaction log on disk. This cache is referred to as the <span class="italic">commit buffer</span> and its size is configurable, as described in the next section, <a href="#BABJEBGI">&#34;Configuring the commit buffer for reclaim operations&#34;</a>.</p>
+<div class="infobox-note">
+<p class="notep1">Notes:</p>
+<ul>
+<li>
+<p>Once the reclaim phase has begun, the transaction is considered to be committed and can no longer be rolled back.</p>
+</li>
+<li>
+<p>If a process is terminated during the reclaim phase, the cleanup operation will complete the reclaim.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect2" -->
+<a id="BABJEBGI"></a>
+<div id="TTOPR764" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Con<a id="sthref868"></a><a id="sthref869"></a><a id="sthref870"></a>figuring the commit buffer for reclaim operations</h3>
+<p>The reclaim phase of a large transaction commit results in a large amount of processing and is very resource intensive. (For this reason, smaller transactions are generally recommended.) You can improve performance, however, by increasing the maximum size of the commit buffer, which is the cache of transaction log records used during reclaim operations.</p>
+<p>Yo<a id="sthref871"></a><a id="sthref872"></a>u can use the TimesTen <code>CommitBufferSizeMax</code> connection attribute to specify the maximum size of the commit buffer, in megabytes. This setting has the scope of your current session. For efficiency, initial memory allocation will be significantly less than the maximum, but will automatically increase as needed in order to fit all the relevant log records into the commit buffer, until the allocation reaches the maximum. The allocation is then reduced back to the initial allocation after each reclaim phase. By default, the maximum is 128 KB with an initial allocation of 16 KB. (Also see <a class="olink TTREF798" href="../TTREF/attribute.htm#TTREF798">&#34;CommitBufferSizeMax&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.)</p>
+<p>Be aware that an increase in the maximum size of the commit buffer may result in a corresponding increase in temporary space consumption. There is no particular limit to the maximum size you can specify, aside from the maximum value of an integer, but exceeding the available temporary space will result in an error.</p>
+<p>Note the following related features:</p>
+<ul>
+<li>
+<p>During the course of a session, you can use <code>ALTER SESSION</code> to change the maximum size of the commit buffer as follows, where <code><span class="codeinlineitalic">n</span></code> is the desired maximum, in megabytes. (Also see <a class="olink TTSQL285" href="../TTSQL/state.htm#TTSQL285">&#34;ALTER SESSION&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database SQL Reference</span>.)</p>
+<pre>ALTER SESSION SET COMMIT_BUFFER_SIZE_MAX = <span class="italic">n</span>
+</pre></li>
+<li>
+<p>Yo<a id="sthref873"></a><a id="sthref874"></a>u can use the <code>ttCommitBufferStats</code> built-in procedure to gather statistics for your connection to help you tune the commit buffer maximum size. This built-in takes no parameters and returns the total number of commit buffer overflows and the highest amount of memory used by reclaim operations for transaction log records, in bytes. If there are buffer overflows, you may consider increasing the commit buffer maximum size. If there are no overflows and the highest amount of memory usage is well under the commit buffer maximum size, you may consider decreasing the maximum size.</p>
+<p>The <code>ttCommitBufferStatsReset</code> built-in procedure resets these statistics to 0 (zero). This is useful, for example, if you have set a new value for the commit buffer maximum size and want to restart the statistics.</p>
+<p>(Also see <a class="olink TTREF793" href="../TTREF/proced.htm#TTREF793">&#34;ttCommitBufferStats&#34;</a> and <a class="olink TTREF794" href="../TTREF/proced.htm#TTREF794">&#34;ttCommitBufferStatsReset&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database Reference</span>.)</p>
+</li>
+<li>
+<p>The system-wide number of commit buffer overflows is also recorded in the TimesTen statistic <code>txn.commits.buf.overflowed</code> in the <code>SYS.SYSTEMSTATS</code> table. (Also see <a class="olink TTSYS439" href="../TTSYS/systemtables.htm#TTSYS439">&#34;SYS.SYSTEMSTATS&#34;</a> in <span class="italic">Oracle TimesTen In-Memory Database System Tables and Views Reference</span>.)</p>
+</li>
+<li>
+<p>You can check the current setting of <code>CommitBufferSizeMax</code> by calling the <code>ttConfiguration</code> built-in procedure.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABEGGEE"></a>
+<div id="TTOPR765" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Recovery with checkpoint and transaction log files<a id="sthref875"></a><a id="sthref876"></a></h2>
+<p>If a database becomes invalid or corrupted by a system or process failure, every connection to the database is invalidated. When an application reconnects to a failed database, the subdaemon allocates a new memory segment for the database and recovers its data from the checkpoint and transaction log files.</p>
+<p>During recovery, the latest checkpoint file is read into memory. All transactions that have been committed since the last checkpoint and whose log records are on disk are rolled forward from the appropriate transaction log files. Note that such transactions include all transactions that were committed durably as well as all transactions whose log records aged out of the in-memory log buffer. Uncommitted or rolled-back transactions are not recovered. For details on checkpoint and transaction log files, see <a href="#CIHHHHDD">&#34;Checkpoint operations&#34;</a> and <a href="#BABCJCJF">&#34;Transaction logging&#34;</a>.</p>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment3223">
+<tr>
+<td class="cellalignment3230">
+<table class="cellalignment3228">
+<tr>
+<td class="cellalignment3227"><a href="ttisql.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment3227"><a href="comp.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment3232">
+<table class="cellalignment3226">
+<tr>
+<td class="cellalignment3227"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment3227"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment3227"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment3227"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment3227"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment3227"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

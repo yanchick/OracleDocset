@@ -1,0 +1,795 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106644"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Analyzing%20Sampled%20Data"></a><title>Analyzing Sampled Data</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-01-18T01:24:57Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Performance Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49058-08"/>
+<meta name="dcterms.isVersionOf" content="TGDBA"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="compare_stats.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="pfgrf_instance_tune.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49058-08.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-E40F4358-E73D-45CB-B271-E7C3C65FA220"></a> <span id="PAGE" style="display:none;">15/27</span> <!-- End Header -->
+<a id="TGDBA276"></a>
+<h1 id="TGDBA-GUID-E40F4358-E73D-45CB-B271-E7C3C65FA220" class="sect1"><span class="enumeration_chapter">9</span> Analyzing Sampled Data</h1>
+<div>
+<p>This chapter describes how to use sampled data to identify transient performance problems in Oracle Database and contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-D6360982-465F-49B3-8021-8CCD0E3E3D3E">About Active Session History</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-A40B1029-D042-41B6-B596-C77BDCEC722B">Generating Active Session History Reports</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-36ABAF67-227B-4CCA-9B44-F3A87244E7A3">Interpreting Results from Active Session History Reports</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA277"></a>
+<div class="props_rev_3"><a id="GUID-D6360982-465F-49B3-8021-8CCD0E3E3D3E"></a>
+<h2 id="TGDBA-GUID-D6360982-465F-49B3-8021-8CCD0E3E3D3E" class="sect2">About Active Session History</h2>
+<div>
+<p>Transient performance problems<a id="d19124e86" class="indexterm-anchor"></a><a id="d19124e90" class="indexterm-anchor"></a> are short-lived and do not appear in the Automatic Database Diagnostics Monitor (ADDM) analysis. ADDM tries to report the most significant performance problems during an analysis period in terms of their impact on DB time. Whether a performance problem is captured by ADDM depends on its duration compared to the interval between AWR snapshots.</p>
+<p>If a performance problem lasts for a significant portion of the time between snapshots, it will be captured by ADDM. For example, if the snapshot interval is set to one hour, then a performance problem that lasts for 30 minutes should not be considered as a transient performance problem because its duration represents a significant portion of the snapshot interval and will likely be captured by ADDM.</p>
+<p>If a particular problem lasts for a very short duration, then its severity might be averaged out or minimized by other performance problems in the analysis period, and the problem may not appear in the ADDM findings. Using the same example where the snapshot interval is set to one hour, a performance problem that lasts for only 2 minutes may be a transient performance problem because its duration represents a small portion of the snapshot interval and will likely not show up in the ADDM findings.</p>
+<p>To facilitate the identification of transient performance problems, Oracle Database samples active sessions every second and stores the sampled data in a circular buffer in the shared global area (SGA). Any session that is connected to the database and is waiting for an event that does not belong to the Idle wait class is considered as an active session. By capturing only active sessions, a manageable set of data is represented with its size being directly related to the work being performed, rather than the number of sessions allowed on the system.</p>
+<p>Active Session History (ASH) enables you to examine and perform detailed analysis on the sampled session activity in the <code>V$ACTIVE_SESSION_HISTORY</code> view. The data present in ASH can be rolled up in various dimensions that it captures over a specified duration and gathered into an ASH report.</p>
+<div class="infobox-note" id="GUID-D6360982-465F-49B3-8021-8CCD0E3E3D3E__GUID-BE46714C-B9C5-4EEE-9335-BFC959A5FC6F">
+<p class="notep1">Note:</p>
+<p>Data visibility and privilege requirements may differ when using ASH features with pluggable databases (PDBs). For information about how manageability features&mdash;including ASH features&mdash;work in a multitenant container database (CDB), see <a class="olink ADMIN13885" target="_blank" href="../ADMIN/cdb_admin.htm#ADMIN13885"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a>.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-D6360982-465F-49B3-8021-8CCD0E3E3D3E__GUID-FA0553AF-D680-4456-AB86-20AF0A5F7D48">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="measure_db.htm#GUID-270E36D0-D7D7-4235-8280-CA3EDD68F8E6">Active Session History Statistics</a>&#34;</span> for information about ASH</p>
+</div>
+</div>
+</div>
+<a id="TGDBA278"></a>
+<div class="props_rev_3"><a id="GUID-A40B1029-D042-41B6-B596-C77BDCEC722B"></a>
+<h2 id="TGDBA-GUID-A40B1029-D042-41B6-B596-C77BDCEC722B" class="sect2">Generating Active Session History Reports</h2>
+<div>
+<p>ASH reports<a id="d19124e157" class="indexterm-anchor"></a> enable you to perform analysis of:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Transient performance problems that typically last for a few minutes</p>
+</li>
+<li>
+<p>Scoped or targeted performance analysis by various dimensions or their combinations, such as time, session, module, action, or SQL identifier</p>
+</li>
+</ul>
+<p>ASH reports are divided into multiple sections. The HTML report includes links that can be used to navigate quickly between sections. The content of the report contains ASH information used to identify blocker and waiter identities, their associated transaction identifiers, and SQL statements for a specified duration.</p>
+<p>This section describes how to generate ASH reports and contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-79A4D6D7-2CE3-402B-8167-4FF0B1A0301C">User Interfaces for Generating ASH Reports</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-04DEE928-D1F7-43E8-A74E-F8C8B9CB046B">Generating an ASH Report Using the Command-Line Interface</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA279"></a>
+<div class="props_rev_3"><a id="GUID-79A4D6D7-2CE3-402B-8167-4FF0B1A0301C"></a>
+<h3 id="TGDBA-GUID-79A4D6D7-2CE3-402B-8167-4FF0B1A0301C" class="sect3">User Interfaces for Generating ASH Reports</h3>
+<div>
+<p>The primary interface for generating ASH reports is Oracle Enterprise Manager. Whenever possible, generate ASH reports using Oracle Enterprise Manager.</p>
+<p>If Oracle Enterprise Manager is unavailable, then generate ASH reports by running SQL scripts. The DBA role is required to run these scripts.</p>
+<div class="infoboxnotealso" id="GUID-79A4D6D7-2CE3-402B-8167-4FF0B1A0301C__GUID-DCD2D6A7-B0AE-4887-AD1A-FB6D0E0B53A1">
+<p class="notep1">See Also:</p>
+<p><a class="olink TDPPT066" target="_blank" href="../TDPPT/tdppt_transient.htm#TDPPT066"><span class="italic">Oracle Database 2 Day + Performance Tuning Guide</span></a> for information about generating ASH reports using Oracle Enterprise Manager</p>
+</div>
+</div>
+</div>
+<a id="TGDBA285"></a>
+<div class="props_rev_3"><a id="GUID-04DEE928-D1F7-43E8-A74E-F8C8B9CB046B"></a>
+<h3 id="TGDBA-GUID-04DEE928-D1F7-43E8-A74E-F8C8B9CB046B" class="sect3">Generating an ASH Report Using the Command-Line Interface</h3>
+<div>
+<p>This section describes how to generate ASH reports by running SQL scripts in the command-line interface.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-0FE5CD10-A9FE-4685-80DE-1AB73371AFC4">Generating an ASH Report on the Local Database Instance</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-190E5E5C-26EF-4430-9F64-7AA4D9149DAA">Generating an ASH Report on a Specific Database Instance</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-1B25EB93-A9FE-4B61-9561-9BD932455D8D">Generating an ASH Report for Oracle RAC</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA286"></a>
+<div class="props_rev_3"><a id="GUID-0FE5CD10-A9FE-4685-80DE-1AB73371AFC4"></a>
+<h4 id="TGDBA-GUID-0FE5CD10-A9FE-4685-80DE-1AB73371AFC4" class="sect4">Generating an ASH Report on the Local Database Instance</h4>
+<div>
+<div class="section">
+<p>The <code>ashrpt.sql</code> SQL script generates an HTML or text report that displays ASH information for a specified duration on the local database instance.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To generate an ASH report on the local database instance using the command-line interface:</p>
+<ol>
+<li>
+<p>At the SQL prompt, enter:</p>
+<pre dir="ltr">@$ORACLE_HOME/rdbms/admin/ashrpt.sql
+</pre></li>
+<li>
+<p>Specify whether you want an HTML or a text report:</p>
+<pre dir="ltr">Enter value for report_type: text
+</pre>
+<p>In this example, a text report is chosen.</p>
+</li>
+<li>
+<p>Specify the begin time in minutes before the system date:</p>
+<pre dir="ltr">Enter value for begin_time: -10
+</pre>
+<p>In this example, 10 minutes before the current time is selected.</p>
+</li>
+<li>
+<p>Specify the duration to capture ASH information in minutes from the begin time.</p>
+<pre dir="ltr">Enter value for duration:
+</pre>
+<p>In this example, the default duration of system date minus begin time is accepted.</p>
+</li>
+<li>
+<p>Enter a report name, or accept the default report name:</p>
+<pre dir="ltr">Enter value for report_name: 
+Using the report name ashrpt_1_0310_0131.txt
+</pre>
+<p>In this example, the default name is accepted and an ASH report named <code>ashrpt_1_0310_0131</code> is generated. The report will gather ASH information beginning from 10 minutes before the current time and ending at the current time.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA287"></a>
+<div class="props_rev_3"><a id="GUID-190E5E5C-26EF-4430-9F64-7AA4D9149DAA"></a>
+<h4 id="TGDBA-GUID-190E5E5C-26EF-4430-9F64-7AA4D9149DAA" class="sect4">Generating an ASH Report on a Specific Database Instance</h4>
+<div>
+<div class="section">
+<p>The <code>ashrpti.sql</code> SQL script generates an HTML or text report that displays ASH information for a specified duration on a specified database and instance. This script enables you to specify a database and instance for which the ASH report will be generated.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To generate an ASH report on a specific database instance using the command-line interface:</p>
+<ol>
+<li>
+<p>At the SQL prompt, enter:</p>
+<pre dir="ltr">@$ORACLE_HOME/rdbms/admin/ashrpti.sql
+</pre></li>
+<li>
+<p>Specify whether you want an HTML or a text report:</p>
+<pre dir="ltr">Enter value for report_type: html
+</pre>
+<p>In this example, an HTML report is chosen.</p>
+<p>A list of available database IDs and instance numbers are displayed:</p>
+<pre dir="ltr">Instances in this Workload Repository schema
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   DB Id    Inst Num DB Name      Instance     Host
+----------- -------- ------------ ------------ ------------
+ 3309173529        1 MAIN         main         examp1690
+ 3309173529        1 TINT251      tint251      samp251
+</pre></li>
+<li>
+<p>Enter the values for the database identifier (<code>dbid)</code> and instance number (<code>inst_num)</code>:</p>
+<pre dir="ltr">Enter value for dbid: 3309173529
+Using 3309173529 for database id
+Enter value for inst_num: 1
+</pre></li>
+<li>
+<p>To generate an ASH report on a physical standby instance, the standby database must be opened read-only. The ASH data on disk represents activity on the primary database and the ASH data in memory represents activity on the standby database.</p>
+<div class="infobox-note" id="GUID-190E5E5C-26EF-4430-9F64-7AA4D9149DAA__GUID-7429293C-54BF-4C10-8611-DC6E960732BE">
+<p class="notep1">Note:</p>
+<p>This step is applicable only if you are generating an ASH report on an Active Data Guard physical standby instance. If this is not the case, then skip this step.</p>
+</div>
+<p>Specify whether to generate the report using data sampled from the primary or standby database:</p>
+<pre dir="ltr">You are running ASH report on a Standby database.
+To generate the report over data sampled on the Primary database, enter &#39;P&#39;.
+Defaults to &#39;S&#39; - data sampled in the Standby database.
+Enter value for stdbyflag:
+Using Primary (P) or Standby (S): S
+</pre>
+<p>In this example, the default value of Standby (S) is selected.</p>
+</li>
+<li>
+<p>Specify the begin time in minutes before the system date:</p>
+<pre dir="ltr">Enter value for begin_time: -10
+</pre>
+<p>In this example, 10 minutes before the current time is selected.</p>
+</li>
+<li>
+<p>Specify the duration to capture ASH information in minutes from the begin time.</p>
+<pre dir="ltr">Enter value for duration:
+</pre>
+<p>In this example, the default duration of system date minus begin time is accepted.</p>
+</li>
+<li>
+<p>Specify the slot width in seconds that will be used in the Activity Over Time section of the report:</p>
+<pre dir="ltr">Enter value for slot_width: 
+</pre>
+<p>In this example, the default value is accepted. For more information about the Activity Over Time section and how to specify the slot width, see <span class="q">&#34;<a href="sampling.htm#GUID-20686B81-8E05-4CE6-88D4-C92D18E83B77">Activity Over Time</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Follow the instructions in the subsequent prompts and enter values for the following report targets:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>target_session_id</code></p>
+</li>
+<li>
+<p><code>target_sql_id</code></p>
+</li>
+<li>
+<p><code>target_wait_class</code></p>
+</li>
+<li>
+<p><code>target_service_hash</code></p>
+</li>
+<li>
+<p><code>target_module_name</code></p>
+</li>
+<li>
+<p><code>target_action_name</code></p>
+</li>
+<li>
+<p><code>target_client_id</code></p>
+</li>
+<li>
+<p><code>target_plsql_entry</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Enter a report name, or accept the default report name:</p>
+<pre dir="ltr">Enter value for report_name: 
+Using the report name ashrpt_1_0310_0131.txt
+</pre>
+<p>In this example, the default name is accepted and an ASH report named <code>ashrpt_1_0310_0131</code> is generated. The report will gather ASH information on the database instance with a database ID value of <code>3309173529</code> beginning from 10 minutes before the current time and ending at the current time.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGDBA288"></a>
+<div class="props_rev_3"><a id="GUID-1B25EB93-A9FE-4B61-9561-9BD932455D8D"></a>
+<h4 id="TGDBA-GUID-1B25EB93-A9FE-4B61-9561-9BD932455D8D" class="sect4">Generating an ASH Report for Oracle RAC</h4>
+<div>
+<div class="section">
+<p>The <code>ashrpti.sql</code> SQL script generates an HTML or text report that displays ASH information for a specified duration for specified databases and instances in an Oracle Real Application Clusters (Oracle RAC) environment. Only ASH data that is written to disk will be used to generate the report. This report will only use ASH samples from the last 10 minutes that are found in the <code>DBA_HIST_ACTIVE_SESS_HISTORY</code> table.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To generate an ASH report for Oracle RAC:</p>
+<ol>
+<li>
+<p>At the SQL prompt, enter:</p>
+<pre dir="ltr">@$ORACLE_HOME/rdbms/admin/ashrpti.sql
+</pre></li>
+<li>
+<p>Specify whether you want an HTML or a text report:</p>
+<pre dir="ltr">Enter value for report_type: html
+</pre>
+<p>In this example, an HTML report is chosen.</p>
+<p>A list of available database IDs and instance numbers are displayed:</p>
+<pre dir="ltr">Instances in this Workload Repository schema
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   DB Id    Inst Num DB Name      Instance     Host
+----------- -------- ------------ ------------ ------------
+ 3309173529        1 MAIN         main         examp1690
+ 3309173529        1 TINT251      tint251      samp251
+ 3309173529        2 TINT251      tint252      samp252
+ 3309173529        3 TINT251      tint253      samp253
+ 3309173529        4 TINT251      tint254      samp254
+</pre></li>
+<li>
+<p>Enter the values for the database identifier (<code>dbid)</code> and instance number (<code>inst_num)</code>:</p>
+<pre dir="ltr">Enter value for dbid: 3309173529
+Using database id: 3309173529
+Enter instance numbers. Enter &#39;ALL&#39; for all instances in an Oracle
+RAC cluster or explicitly specify list of instances (e.g., 1,2,3).
+Defaults to current instance.
+Enter value for inst_num: ALL
+Using instance number(s): ALL
+</pre></li>
+<li>
+<p>Specify the begin time in minutes before the system date:</p>
+<pre dir="ltr">Enter value for begin_time: -1:10
+</pre>
+<p>In this example, 1 hour and 10 minutes before the current time is selected.</p>
+</li>
+<li>
+<p>Specify the duration to capture ASH information in minutes from the begin time.</p>
+<pre dir="ltr">Enter value for duration: 10
+</pre>
+<p>In this example, the duration is set to 10 minutes.</p>
+</li>
+<li>
+<p>Specify the slot width in seconds that will be used in the Activity Over Time section of the report:</p>
+<pre dir="ltr">Enter value for slot_width: 
+</pre>
+<p>In this example, the default value is accepted. For more information about the Activity Over Time section and how to specify the slot width, see <span class="q">&#34;<a href="sampling.htm#GUID-20686B81-8E05-4CE6-88D4-C92D18E83B77">Activity Over Time</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Follow the instructions in the subsequent prompts and enter values for the following report targets:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code>target_session_id</code></p>
+</li>
+<li>
+<p><code>target_sql_id</code></p>
+</li>
+<li>
+<p><code>target_wait_class</code></p>
+</li>
+<li>
+<p><code>target_service_hash</code></p>
+</li>
+<li>
+<p><code>target_module_name</code></p>
+</li>
+<li>
+<p><code>target_action_name</code></p>
+</li>
+<li>
+<p><code>target_client_id</code></p>
+</li>
+<li>
+<p><code>target_plsql_entry</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Enter a report name, or accept the default report name:</p>
+<pre dir="ltr">Enter value for report_name: 
+Using the report name ashrpt_rac_0310_0131.txt
+</pre>
+<p>In this example, the default name is accepted and an ASH report named <code>ashrpt_rac_0310_0131</code> is generated. The report will gather ASH information on all instances belonging to the database with a database ID value of <code>3309173529</code> beginning from 1 hour and 10 minutes before the current time and ending at 1 hour before the current time.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="TGDBA289"></a>
+<div class="props_rev_3"><a id="GUID-36ABAF67-227B-4CCA-9B44-F3A87244E7A3"></a>
+<h2 id="TGDBA-GUID-36ABAF67-227B-4CCA-9B44-F3A87244E7A3" class="sect2">Interpreting Results from Active Session History Reports</h2>
+<div>
+<p>After generating an ASH report<a id="d19124e708" class="indexterm-anchor"></a>, review its contents to identify possible causes of transient performance problems.</p>
+<p>The contents of the ASH report are divided into the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-FC71787F-B822-45CA-8B71-EB4C2A976F07">Top Events</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-64945827-196A-4428-A1FC-060174F6B51B">Load Profile</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-DA3D283C-BA54-4DFA-B6D4-9B38B8BABEFA">Top SQL</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-021E910A-C44F-4327-AEA2-AE9574E84C5A">Top PL/SQL</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-55145C76-5D4E-443A-A67E-902766E55D56">Top Java</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-758732B8-737D-4674-BE3B-F76002102A72">Top Sessions</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-571B9C83-BD68-4174-8029-E98B0A6B9F3F">Top Objects/Files/Latches</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-20686B81-8E05-4CE6-88D4-C92D18E83B77">Activity Over Time</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-36ABAF67-227B-4CCA-9B44-F3A87244E7A3__GUID-7BC89253-C7AC-4E71-A6BD-8A2517074529">
+<p class="notep1">See Also:</p>
+<p><a class="olink RACAD987" target="_blank" href="../RACAD/GUID-4CA5E706-8DB7-4388-812F-51736A659596.htm#RACAD987"><span class="italic">Oracle Real Application Clusters Administration and Deployment Guide</span></a> for information about sections in the ASH report that are specific to Oracle Real Application Clusters (Oracle RAC)</p>
+</div>
+</div>
+<a id="TGDBA95245"></a>
+<div class="props_rev_3"><a id="GUID-FC71787F-B822-45CA-8B71-EB4C2A976F07"></a>
+<h3 id="TGDBA-GUID-FC71787F-B822-45CA-8B71-EB4C2A976F07" class="sect3">Top Events</h3>
+<div>
+<p>The Top Events section<a id="d19124e801" class="indexterm-anchor"></a> describes the top wait events of the sampled session activity categorized by user, background, and priority. Use the information in this section to identify wait events that may be causing a transient performance problem.</p>
+<p>The Top Events section contains the following subsections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-2BB7DD6F-D1FE-48D1-979B-512BC443B5B9">Top User Events</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-7D6DC8EB-0F9C-442F-B20C-4D95AF9F13B7">Top Background Events</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-C4C8C6FB-CB5E-4AAE-9B5A-5465EC39C55F">Top Event P1/P2/P3</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA95246"></a>
+<div class="props_rev_3"><a id="GUID-2BB7DD6F-D1FE-48D1-979B-512BC443B5B9"></a>
+<h4 id="TGDBA-GUID-2BB7DD6F-D1FE-48D1-979B-512BC443B5B9" class="sect4">Top User Events</h4>
+<div>
+<p>The Top User Events subsection lists the top wait events from user processes that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95247"></a>
+<div class="props_rev_3"><a id="GUID-7D6DC8EB-0F9C-442F-B20C-4D95AF9F13B7"></a>
+<h4 id="TGDBA-GUID-7D6DC8EB-0F9C-442F-B20C-4D95AF9F13B7" class="sect4">Top Background Events</h4>
+<div>
+<p>The Top Background Events subsection lists the top wait events from backgrounds that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95248"></a>
+<div class="props_rev_3"><a id="GUID-C4C8C6FB-CB5E-4AAE-9B5A-5465EC39C55F"></a>
+<h4 id="TGDBA-GUID-C4C8C6FB-CB5E-4AAE-9B5A-5465EC39C55F" class="sect4">Top Event P1/P2/P3</h4>
+<div>
+<p>The Top Event P1/P2/P3 subsection lists the wait event parameter values of the top wait events that accounted for the highest percentages of sampled session activity, ordered by the percentage of total wait time (<span>% Event</span>). For each wait event, values in the <span>P1 Value, P2 Value, P3 Value</span> column correspond to wait event parameters displayed in the <span>Parameter 1</span>, <span>Parameter 2</span>, and <span>Parameter 3</span> columns.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA95249"></a>
+<div class="props_rev_3"><a id="GUID-64945827-196A-4428-A1FC-060174F6B51B"></a>
+<h3 id="TGDBA-GUID-64945827-196A-4428-A1FC-060174F6B51B" class="sect3">Load Profile</h3>
+<div>
+<p>The Load Profile section<a id="d19124e986" class="indexterm-anchor"></a> describes the load analyzed in the sampled session activity. Use the information in this section to identify the service, client, or SQL command type that may be the cause of a transient performance problem.</p>
+<p>The Load Profile section contains the following subsections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-B8923091-3F16-4E98-8D03-A5B93B32D12D">Top Service/Module</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-C79DA54C-DC62-4910-8792-5C921A06296E">Top Client IDs</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-6EDB7E11-793D-434C-B32C-1DD206A1C020">Top SQL Command Types</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-B91769DE-FBAF-4F88-9202-F392DB6FC7B5">Top Phases of Execution</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA95250"></a>
+<div class="props_rev_3"><a id="GUID-B8923091-3F16-4E98-8D03-A5B93B32D12D"></a>
+<h4 id="TGDBA-GUID-B8923091-3F16-4E98-8D03-A5B93B32D12D" class="sect4">Top Service/Module</h4>
+<div>
+<p>The Top Service/Module subsection lists the services and modules that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95251"></a>
+<div class="props_rev_3"><a id="GUID-C79DA54C-DC62-4910-8792-5C921A06296E"></a>
+<h4 id="TGDBA-GUID-C79DA54C-DC62-4910-8792-5C921A06296E" class="sect4">Top Client IDs</h4>
+<div>
+<p>The Top Client IDs subsection lists the clients that accounted for the highest percentages of sampled session activity based on their client ID, which is the application-specific identifier of the database session.</p>
+</div>
+</div>
+<a id="TGDBA95252"></a>
+<div class="props_rev_3"><a id="GUID-6EDB7E11-793D-434C-B32C-1DD206A1C020"></a>
+<h4 id="TGDBA-GUID-6EDB7E11-793D-434C-B32C-1DD206A1C020" class="sect4">Top SQL Command Types</h4>
+<div>
+<p>The Top SQL Command Types subsection lists the SQL command types&mdash;such as <code>SELECT</code> or <code>UPDATE</code> commands&mdash;that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95253"></a>
+<div class="props_rev_3"><a id="GUID-B91769DE-FBAF-4F88-9202-F392DB6FC7B5"></a>
+<h4 id="TGDBA-GUID-B91769DE-FBAF-4F88-9202-F392DB6FC7B5" class="sect4">Top Phases of Execution</h4>
+<div>
+<p>The Top Phases of Execution subsection lists the phases of execution&mdash;such as SQL, PL/SQL, and Java compilation and execution&mdash;that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA95254"></a>
+<div class="props_rev_3"><a id="GUID-DA3D283C-BA54-4DFA-B6D4-9B38B8BABEFA"></a>
+<h3 id="TGDBA-GUID-DA3D283C-BA54-4DFA-B6D4-9B38B8BABEFA" class="sect3">Top SQL</h3>
+<div>
+<p>The Top SQL section<a id="d19124e1204" class="indexterm-anchor"></a><a id="d19124e1210" class="indexterm-anchor"></a> describes the top SQL statements in the sampled session activity. Use this information to identify high-load SQL statements that may be the cause of a transient performance problem.</p>
+<p>The Top SQL section contains the following subsections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-2F598BAB-9483-43A1-BD57-09CFA22A8362">Top SQL with Top Events</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-D49193C4-F03D-4C98-8B60-7560A4FD66F8">Top SQL with Top Row Sources</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-53FAE3D1-30C4-4A4D-9592-588E166A9B68">Top SQL Using Literals</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-7988D9A8-BDFF-4E39-837D-F4BBED48550D">Top Parsing Module/Action</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-53503A69-A06D-420C-AA3A-7DC404E86798">Complete List of SQL Text</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA95255"></a>
+<div class="props_rev_3"><a id="GUID-2F598BAB-9483-43A1-BD57-09CFA22A8362"></a>
+<h4 id="TGDBA-GUID-2F598BAB-9483-43A1-BD57-09CFA22A8362" class="sect4">Top SQL with Top Events</h4>
+<div>
+<p>The Top SQL with Top Events subsection lists the SQL statements that accounted for the highest percentages of sampled session activity and the top wait events that were encountered by these SQL statements. The Sampled # of Executions column shows how many distinct executions of a particular SQL statement were sampled.</p>
+</div>
+</div>
+<a id="TGDBA95256"></a>
+<div class="props_rev_3"><a id="GUID-D49193C4-F03D-4C98-8B60-7560A4FD66F8"></a>
+<h4 id="TGDBA-GUID-D49193C4-F03D-4C98-8B60-7560A4FD66F8" class="sect4">Top SQL with Top Row Sources</h4>
+<div>
+<p>The Top SQL with Top Row Sources subsection lists the SQL statements that accounted for the highest percentages of sampled session activity and their detailed execution plan information. You can use this information to identify which part of the SQL execution contributed significantly to the SQL elapsed time.</p>
+</div>
+</div>
+<a id="TGDBA95257"></a>
+<div class="props_rev_3"><a id="GUID-53FAE3D1-30C4-4A4D-9592-588E166A9B68"></a>
+<h4 id="TGDBA-GUID-53FAE3D1-30C4-4A4D-9592-588E166A9B68" class="sect4">Top SQL Using Literals</h4>
+<div>
+<p>The Top SQL Using Literals subsection lists the SQL statements using literals that accounted for the highest percentages of sampled session activity. You should review the statements listed in this report to determine whether the literals can be replaced with bind variables.</p>
+</div>
+</div>
+<a id="TGDBA95258"></a>
+<div class="props_rev_3"><a id="GUID-7988D9A8-BDFF-4E39-837D-F4BBED48550D"></a>
+<h4 id="TGDBA-GUID-7988D9A8-BDFF-4E39-837D-F4BBED48550D" class="sect4">Top Parsing Module/Action</h4>
+<div>
+<p>The Top Parsing Module/Action subsection lists the module and action that accounted for the highest percentages of sampled session activity while parsing the SQL statement.</p>
+</div>
+</div>
+<a id="TGDBA95259"></a>
+<div class="props_rev_3"><a id="GUID-53503A69-A06D-420C-AA3A-7DC404E86798"></a>
+<h4 id="TGDBA-GUID-53503A69-A06D-420C-AA3A-7DC404E86798" class="sect4">Complete List of SQL Text</h4>
+<div>
+<p>The Complete List of SQL Text subsection displays the entire text of the SQL statements shown in the Top SQL section.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA95260"></a>
+<div class="props_rev_3"><a id="GUID-021E910A-C44F-4327-AEA2-AE9574E84C5A"></a>
+<h3 id="TGDBA-GUID-021E910A-C44F-4327-AEA2-AE9574E84C5A" class="sect3">Top PL/SQL</h3>
+<div>
+<p>The Top PL/SQL<a id="d19124e1460" class="indexterm-anchor"></a><a id="d19124e1466" class="indexterm-anchor"></a> section lists the PL/SQL procedures that accounted for the highest percentages of sampled session activity.</p>
+<p>The PL/SQL Entry Subprogram column lists the application&#39;s top-level entry point into PL/SQL. The PL/SQL Current Subprogram column lists the PL/SQL subprogram being executed at the point of sampling. If the value of this column is <code>SQL</code>, then the % Current column shows the percentage of time spent executing SQL for this subprogram.</p>
+</div>
+</div>
+<a id="TGDBA95261"></a>
+<div class="props_rev_3"><a id="GUID-55145C76-5D4E-443A-A67E-902766E55D56"></a>
+<h3 id="TGDBA-GUID-55145C76-5D4E-443A-A67E-902766E55D56" class="sect3">Top Java</h3>
+<div>
+<p>The Top Java<a id="d19124e1512" class="indexterm-anchor"></a><a id="d19124e1518" class="indexterm-anchor"></a> section describes the top Java programs in the sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95262"></a>
+<div class="props_rev_3"><a id="GUID-758732B8-737D-4674-BE3B-F76002102A72"></a>
+<h3 id="TGDBA-GUID-758732B8-737D-4674-BE3B-F76002102A72" class="sect3">Top Sessions</h3>
+<div>
+<p>The Top Sessions section<a id="d19124e1560" class="indexterm-anchor"></a><a id="d19124e1566" class="indexterm-anchor"></a> describes the sessions that were waiting for a particular wait event. Use this information to identify the sessions that accounted for the highest percentages of sampled session activity, which may be the cause of a transient performance problem.</p>
+<p>The Top Sessions section contains the following subsections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-88E5D95C-BED8-4D41-8346-0597BE75A9A1">Top Sessions</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-11E6A051-DF20-4CDF-AA77-25BE6B9EF2AE">Top Blocking Sessions</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-BB4043B6-3E6A-488E-9253-CD22A1413F51">Top Sessions Running PQs</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA95263"></a>
+<div class="props_rev_3"><a id="GUID-88E5D95C-BED8-4D41-8346-0597BE75A9A1"></a>
+<h4 id="TGDBA-GUID-88E5D95C-BED8-4D41-8346-0597BE75A9A1" class="sect4">Top Sessions</h4>
+<div>
+<p>The Top Session subsection lists the sessions that were waiting for a particular wait event that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95264"></a>
+<div class="props_rev_3"><a id="GUID-11E6A051-DF20-4CDF-AA77-25BE6B9EF2AE"></a>
+<h4 id="TGDBA-GUID-11E6A051-DF20-4CDF-AA77-25BE6B9EF2AE" class="sect4">Top Blocking Sessions</h4>
+<div>
+<p>The Top Blocking Sessions subsection lists the blocking sessions that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95265"></a>
+<div class="props_rev_3"><a id="GUID-BB4043B6-3E6A-488E-9253-CD22A1413F51"></a>
+<h4 id="TGDBA-GUID-BB4043B6-3E6A-488E-9253-CD22A1413F51" class="sect4">Top Sessions Running PQs</h4>
+<div>
+<p>The Top Sessions Running PQs subsection lists the sessions running parallel queries (PQs) that were waiting for a particular wait event, which accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA95266"></a>
+<div class="props_rev_3"><a id="GUID-571B9C83-BD68-4174-8029-E98B0A6B9F3F"></a>
+<h3 id="TGDBA-GUID-571B9C83-BD68-4174-8029-E98B0A6B9F3F" class="sect3">Top Objects/Files/Latches</h3>
+<div>
+<p>The Top Objects/Files/Latches section<a id="d19124e1734" class="indexterm-anchor"></a><a id="d19124e1740" class="indexterm-anchor"></a><a id="d19124e1746" class="indexterm-anchor"></a> provides additional information about the most commonly-used database resources and contains the following subsections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-3D50759B-221B-4C98-9893-48ACE793414B">Top DB Objects</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-08B6339C-91C6-4A7A-842B-2BDCC6067B2F">Top DB Files</a></p>
+</li>
+<li>
+<p><a href="sampling.htm#GUID-034C22E0-F554-4517-AE8D-3D1EC876EDFF">Top Latches</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA95267"></a>
+<div class="props_rev_3"><a id="GUID-3D50759B-221B-4C98-9893-48ACE793414B"></a>
+<h4 id="TGDBA-GUID-3D50759B-221B-4C98-9893-48ACE793414B" class="sect4">Top DB Objects</h4>
+<div>
+<p>The Top DB Objects subsection lists the database objects (such as tables and indexes) that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95268"></a>
+<div class="props_rev_3"><a id="GUID-08B6339C-91C6-4A7A-842B-2BDCC6067B2F"></a>
+<h4 id="TGDBA-GUID-08B6339C-91C6-4A7A-842B-2BDCC6067B2F" class="sect4">Top DB Files</h4>
+<div>
+<p>The Top DB Files subsection lists the database files that accounted for the highest percentages of sampled session activity.</p>
+</div>
+</div>
+<a id="TGDBA95269"></a>
+<div class="props_rev_3"><a id="GUID-034C22E0-F554-4517-AE8D-3D1EC876EDFF"></a>
+<h4 id="TGDBA-GUID-034C22E0-F554-4517-AE8D-3D1EC876EDFF" class="sect4">Top Latches</h4>
+<div>
+<p>The Top Latches subsection lists the latches that accounted for the highest percentages of sampled session activity.</p>
+<p>Latches<a id="d19124e1880" class="indexterm-anchor"></a> are simple, low-level serialization mechanisms used to protect shared data structures in the System Global Area (SGA). For example, latches protect the list of users currently accessing the database and the data structures describing the blocks in the buffer cache. A server or background process acquires a latch for a very short time while manipulating or looking at one of these structures. The implementation of latches is operating system-dependent, particularly regarding if and how long a process waits for a latch.</p>
+</div>
+</div>
+</div>
+<a id="TGDBA95271"></a><a id="TGDBA95270"></a>
+<div class="props_rev_3"><a id="GUID-20686B81-8E05-4CE6-88D4-C92D18E83B77"></a>
+<h3 id="TGDBA-GUID-20686B81-8E05-4CE6-88D4-C92D18E83B77" class="sect3">Activity Over Time</h3>
+<div>
+<p>The Activity Over Time section<a id="d19124e1921" class="indexterm-anchor"></a> is one of the most informative sections of the ASH report. This section is particularly useful for analyzing longer time periods because it provides in-depth details about activities and workload profiles during the analysis period.</p>
+<p>The Activity Over Time section is divided into 10 time slots. The size of each time slot varies based on the duration of the analysis period. The first and last slots are usually odd-sized. All inner slots are equally sized and can be compared to each other. For example, if the analysis period lasts for 10 minutes, then all time slots will 1 minute each. However, if the analysis period lasts for 9 minutes and 30 seconds, then the outer slots may be 15 seconds each and the inner slots will be 1 minute each.</p>
+<p>Each of the time slots contains information regarding that particular time slot, as described in <a href="sampling.htm#GUID-20686B81-8E05-4CE6-88D4-C92D18E83B77__CEGHEIGI" title="Describes the columns in the Activity Over Time section of the ASH report">Table 9-1</a>.</p>
+<div class="tblformal" id="GUID-20686B81-8E05-4CE6-88D4-C92D18E83B77__CEGHEIGI">
+<p class="titleintable">Table 9-1 Activity Over Time</p>
+<table class="cellalignment11" title="Activity Over Time" summary="Describes the columns in the Activity Over Time section of the ASH report">
+<thead>
+<tr class="cellalignment2">
+<th class="cellalignment49" id="d19124e1947">Column</th>
+<th class="cellalignment71" id="d19124e1950">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment2">
+<td class="cellalignment52" id="d19124e1955" headers="d19124e1947">
+<p>Slot Time (Duration)</p>
+</td>
+<td class="cellalignment72" headers="d19124e1955 d19124e1950">
+<p>Duration of the slot</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment52" id="d19124e1962" headers="d19124e1947">
+<p>Slot Count</p>
+</td>
+<td class="cellalignment72" headers="d19124e1962 d19124e1950">
+<p>Number of sampled sessions in the slot</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment52" id="d19124e1969" headers="d19124e1947">
+<p>Event</p>
+</td>
+<td class="cellalignment72" headers="d19124e1969 d19124e1950">
+<p>Top three wait events in the slot</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment52" id="d19124e1976" headers="d19124e1947">
+<p>Event Count</p>
+</td>
+<td class="cellalignment72" headers="d19124e1976 d19124e1950">
+<p>Number of ASH samples waiting for the wait event</p>
+</td>
+</tr>
+<tr class="cellalignment2">
+<td class="cellalignment52" id="d19124e1983" headers="d19124e1947">
+<p>% Event</p>
+</td>
+<td class="cellalignment72" headers="d19124e1983 d19124e1950">
+<p>Percentage of ASH samples waiting for wait events in the entire analysis period</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>When comparing the inner slots, perform a skew analysis by identifying spikes in the <span>Event Count</span> and <span>Slot Count</span> columns. A spike in the <span>Event Count</span> column indicates an increase in the number of sampled sessions waiting for a particular event. A spike in the <span>Slot Count</span> column indicates an increase in active sessions, because ASH data is sampled from active sessions only and a relative increase in database workload. Typically, when the number of active session samples and the number of sessions associated with a wait event increases, the slot may be the cause of a transient performance problem.</p>
+<p>To generate the ASH report with a user-defined slot size, run the <code>ashrpti.sql</code> script, as described in <span class="q">&#34;<a href="sampling.htm#GUID-190E5E5C-26EF-4430-9F64-7AA4D9149DAA">Generating an ASH Report on a Specific Database Instance</a>&#34;</span>.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1">
+<tr>
+<td class="cellalignment8">
+<table class="cellalignment6">
+<tr>
+<td class="cellalignment5"><a href="compare_stats.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5"><a href="pfgrf_instance_tune.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment10">
+<table class="cellalignment4">
+<tr>
+<td class="cellalignment5"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

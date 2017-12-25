@@ -1,0 +1,1606 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106806"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Optimizer%20Statistics%20Concepts"></a><title>Optimizer Statistics Concepts</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="Oracle Database optimizer statistics describe details about the database and its objects."/>
+<meta name="keywords" content="cardinality, table statistics, extended statistics, statistics, optimizer, extended, optimizer statistics, index statistics, index, access paths, full table scan, full table scans, index clustering factor, global temporary tables, temporary, temporary tables, global, system, user-defined, recursive SQL, dynamic statistics, adaptive query optimization, dynamic, bulk loads, histograms, creation during bulk loads, creating histograms, gathering index statistics, hints, optimizer, GATHER_OPTIMIZER_STATISTICS, NO_GATHER_OPTIMIZER_STATISTICS, SQL compilation, compilation, SQL, extensions, SQL plan directives, shared pool, column group statistics, column group, cardinality misestimates, automatic reoptimization, reoptimization, automatic, SQL, recursive"/>
+<meta name="dcterms.created" content="2017-07-24T09:35:46Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database SQL Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49106-14"/>
+<meta name="dcterms.isVersionOf" content="TGSQL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="tgsql_pt_stats.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tgsql_histo.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49106-14.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-C0E74ACE-2706-48A1-97A2-33F52207166A"></a> <span id="PAGE" style="display:none;">19/40</span> <!-- End Header -->
+<a id="TGSQL336"></a>
+<h1 id="TGSQL-GUID-C0E74ACE-2706-48A1-97A2-33F52207166A" class="sect1"><span class="enumeration_chapter">10</span> Optimizer Statistics Concepts</h1>
+<div>
+<p>Oracle Database <span class="bold">optimizer statistics</span> describe details about the database and its objects.</p>
+<p>This chapter includes the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_statscon.htm#GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E" title="The optimizer cost model relies on statistics collected about the objects involved in a query, and the database and host where the query runs.">Introduction to Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-BE4DF838-0E65-40AE-B69A-94669F30BE7C" title="The optimizer collects statistics on different types of database objects and characteristics of the database environment.">About Optimizer Statistics Types</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-3ED2DA31-F61B-4E8F-9166-79FB01392B1D" title="Oracle Database provides several mechanisms to gather statistics.">How the Database Gathers Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-13E8BD68-B8A1-4937-8774-3EF82FB8FB47" title="The database collects optimizer statistics at various times and from various sources.">When the Database Gathers Optimizer Statistics</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-C0E74ACE-2706-48A1-97A2-33F52207166A__GUID-C21240A0-E586-4C2E-A4A1-C54FC8A4FEF4">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-06129ACE-36B2-4534-AE68-EDFCAEBB3B5D" title="A solid understanding of the optimizer is essential for SQL tuning.">Query Optimizer Concepts</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_histo.htm#GUID-BE10EBFC-FEFC-4530-90DF-1443D9AD9B64" title="A histogram is a special type of column statistic that provides more detailed information about the data distribution in a table column. A histogram sorts values into &#34;buckets,&#34; as you might sort coins into buckets.">Histograms</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-245F23B2-24AF-44D8-9F12-99FD1215E878" title="This chapter explains basic tasks relating to optimizer statistics management.">Managing Optimizer Statistics: Basic Topics</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-F1399D77-7E2E-434F-A67C-6ADB4C648D95" title="This chapter explains advanced concepts and tasks relating to optimizer statistics management, including extended statistics.">Managing Optimizer Statistics: Advanced Topics</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL338"></a><a id="TGSQL337"></a>
+<div class="props_rev_3"><a id="GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E"></a>
+<h2 id="TGSQL-GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E" class="sect2">Introduction to Optimizer Statistics</h2>
+<div>
+<p>The optimizer <span class="bold">cost model</span> relies on statistics collected about the objects involved in a query, and the database and host where the query runs.</p>
+<p>Statistics are critical to the optimizer&#39;s ability to pick the best <a href="glossary.htm#GUID-800F2BE7-A383-4FF3-A9A6-FCE786AABA3B"><span class="xrefglossterm">execution plan</span></a> for a SQL statement.</p>
+<p>Optimizer statistics include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Table statistics</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Number of rows</p>
+</li>
+<li>
+<p>Number of blocks</p>
+</li>
+<li>
+<p>Average row length</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Column statistics</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Number of distinct values (NDV) in a column</p>
+</li>
+<li>
+<p>Number of nulls in a column</p>
+</li>
+<li>
+<p>Data distribution (histogram)</p>
+</li>
+<li>
+<p>Extended statistics</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Index statistics</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Number of leaf blocks</p>
+</li>
+<li>
+<p>Number of levels</p>
+</li>
+<li>
+<p>Index clustering factor</p>
+</li>
+</ul>
+</li>
+<li>
+<p>System statistics</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>I/O performance and utilization</p>
+</li>
+<li>
+<p>CPU performance and utilization</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>As shown in <a href="tgsql_statscon.htm#GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E__CHDCACBD">Figure 10-1</a>, the database stores optimizer statistics for tables, columns, indexes, and the system in the data dictionary. You can access these statistics using data dictionary views.</p>
+<div class="infobox-note" id="GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E__GUID-3402AAA7-FBB3-4CFA-ACF6-CC7C7BCF7504">
+<p class="notep1">Note:</p>
+<p>The optimizer statistics are different from the performance statistics visible through <code class="codeph">V$</code> views.</p>
+</div>
+<div class="figure" id="GUID-AEE74FB8-98BD-416B-8EA0-32CD605DF64E__CHDCACBD">
+<p class="titleinfigure">Figure 10-1 Optimizer Statistics</p>
+<img width="488" height="539" src="img/GUID-981B964C-281B-418C-86C3-A99FF526C9FD-default.png" alt="Description of Figure 10-1 follows" title="Description of Figure 10-1 follows"/><br/>
+<a href="img_text/GUID-981B964C-281B-418C-86C3-A99FF526C9FD-print.htm">Description of &#34;Figure 10-1 Optimizer Statistics&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="TGSQL351"></a>
+<div class="props_rev_3"><a id="GUID-BE4DF838-0E65-40AE-B69A-94669F30BE7C"></a>
+<h2 id="TGSQL-GUID-BE4DF838-0E65-40AE-B69A-94669F30BE7C" class="sect2">About Optimizer Statistics Types</h2>
+<div>
+<p>The optimizer collects statistics on different types of database objects and characteristics of the database environment.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_statscon.htm#GUID-BCFD6363-8860-41AE-9920-60EB695C7374" title="In Oracle Database, table statistics include information about rows and blocks.">Table Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-CAD8B1D9-9732-44C2-BF84-ABD82AB1ABC3" title="Column statistics track information about column values and data distribution.">Column Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-5D96E789-9297-49F1-B304-FFEA335CF678" title="The index statistics include information about the number of index levels, the number of index blocks, and the relationship between the index and the data blocks. The optimizer uses these statistics to determine the cost of index scans.">Index Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-094E2608-A1CB-46B6-A329-99C6B497A106" title="A global temporary table is a special table that stores intermediate session-private data for a specific duration.">Session-Specific Statistics for Global Temporary Tables</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-FE339C05-E7A4-4953-89C4-D5C69F0C08BA" title="The system statistics describe hardware characteristics such as I/O and CPU performance and utilization.">System Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-184A744A-2F2F-4C4C-88E6-107EAD1D517E" title="The extensible optimizer enables authors of user-defined functions and indexes to create statistics collection, selectivity, and cost functions. The optimizer cost model is extended to integrate information supplied by the user to assess CPU and the I/O cost.">User-Defined Optimizer Statistics</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL354"></a><a id="TGSQL352"></a>
+<div class="props_rev_3"><a id="GUID-BCFD6363-8860-41AE-9920-60EB695C7374"></a>
+<h3 id="TGSQL-GUID-BCFD6363-8860-41AE-9920-60EB695C7374" class="sect3">Table Statistics</h3>
+<div>
+<p>In Oracle Database, <span class="bold">table statistics</span> include information about rows and blocks.</p>
+<p>The optimizer uses these statistics to determine the cost of table scans and table joins. <code class="codeph">DBMS_STATS</code> can gather statistics for both permanent and temporary tables.</p>
+<p>The database tracks all relevant statistics about permanent tables. <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> commits before gathering statistics on permanent tables. For example, table statistics stored in <code class="codeph">DBA_TAB_STATISTICS</code> track the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Number of rows and average row length</p>
+<p>The database uses the row count stored in <code class="codeph">DBA_TAB_STATISTICS</code> when determining <a href="glossary.htm#GUID-FE541AF8-DCAB-4B00-8015-04BDCB295A85"><span class="xrefglossterm">cardinality</span></a>.</p>
+</li>
+<li>
+<p>Number of data blocks</p>
+<p>The optimizer uses the number of data blocks with the <code class="codeph">DB_FILE_MULTIBLOCK_READ_COUNT</code> initialization parameter to determine the base table access cost.</p>
+</li>
+</ul>
+<div class="example" id="GUID-BCFD6363-8860-41AE-9920-60EB695C7374__GUID-C96C12AE-3199-4028-A208-52F90E56C4EE">
+<p class="titleinexample">Example 10-1 Table Statistics</p>
+<p>This example queries some table statistics for the <code class="codeph">sh.customers</code> table.</p>
+<pre dir="ltr">sys@PROD&gt; SELECT NUM_ROWS, AVG_ROW_LEN, BLOCKS, LAST_ANALYZED
+  2  FROM   DBA_TAB_STATISTICS
+  3  WHERE  OWNER=&#39;SH&#39;
+  4  AND    TABLE_NAME=&#39;CUSTOMERS&#39;;
+ 
+  NUM_ROWS AVG_ROW_LEN     BLOCKS LAST_ANAL
+---------- ----------- ---------- ---------
+     55500         181       1486 14-JUN-10
+</pre>
+<div class="infoboxnotealso" id="GUID-BCFD6363-8860-41AE-9920-60EB695C7374__GUID-8710CA0D-00B0-48DA-857F-38BE63C5EAA2">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_influence.htm#GUID-C1C85DEA-3583-40FE-B5BB-6AC8F76FFE34" title="Oracle Database includes several initialization parameters that can influence optimizer behavior.">About Optimizer Initialization Parameters</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-5AC92747-F6AA-4149-80B6-FD6E966CDC8D">Gathering Schema and Table Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN23376" target="_blank" href="../REFRN/GUID-03D846F8-5906-42FE-983B-E3434F5545A7.htm#REFRN23376"><span><cite>Oracle Database Reference</cite></span></a> for a description of the <code class="codeph">DBA_TAB_STATISTICS</code> view and the <code class="codeph">DB_FILE_MULTIBLOCK_READ_COUNT</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL356"></a>
+<div class="props_rev_3"><a id="GUID-CAD8B1D9-9732-44C2-BF84-ABD82AB1ABC3"></a>
+<h3 id="TGSQL-GUID-CAD8B1D9-9732-44C2-BF84-ABD82AB1ABC3" class="sect3">Column Statistics</h3>
+<div>
+<p>Column statistics track information about column values and data distribution.</p>
+<p>The optimizer uses column statistics to generate accurate <span class="bold">cardinality</span> estimates and make better decisions about index usage, join orders, join methods, and so on. For example, statistics in <code class="codeph">DBA_TAB_COL_STATISTICS</code> track the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Number of distinct values</p>
+</li>
+<li>
+<p>Number of nulls</p>
+</li>
+<li>
+<p>High and low values</p>
+</li>
+<li>
+<p>Histogram-related information</p>
+</li>
+</ul>
+<p>The optimizer can use <a href="glossary.htm#GUID-0171CA72-03D5-4A7E-9EA1-1C08455799C2"><span class="xrefglossterm">extended statistics</span></a>, which are a special type of column statistics. These statistics are useful for informing the optimizer of logical relationships among columns.</p>
+<div class="infoboxnotealso" id="GUID-CAD8B1D9-9732-44C2-BF84-ABD82AB1ABC3__GUID-3C267BA8-99F3-4C5A-B6CB-C852BB073605">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_histo.htm#GUID-BE10EBFC-FEFC-4530-90DF-1443D9AD9B64" title="A histogram is a special type of column statistic that provides more detailed information about the data distribution in a table column. A histogram sorts values into &#34;buckets,&#34; as you might sort coins into buckets.">Histograms</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-858E0BDA-06C6-471F-B9E8-888C3AD29673" title="Individual column statistics are useful for determining the selectivity of a single predicate in a WHERE clause. However, when the WHERE clause includes multiple predicates on different columns from the same table, individual column statistics do not show the relationship between the columns. This is the problem solved by a column group.">About Statistics on Column Groups</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN23376" target="_blank" href="../REFRN/GUID-03D846F8-5906-42FE-983B-E3434F5545A7.htm#REFRN23376"><span><cite>Oracle Database Reference</cite></span></a> for a description of the <code class="codeph">DBA_TAB_COL_STATISTICS</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL357"></a>
+<div class="props_rev_3"><a id="GUID-5D96E789-9297-49F1-B304-FFEA335CF678"></a>
+<h3 id="TGSQL-GUID-5D96E789-9297-49F1-B304-FFEA335CF678" class="sect3">Index Statistics</h3>
+<div>
+<p>The <span class="bold">index statistics</span> include information about the number of index levels, the number of index blocks, and the relationship between the index and the data blocks. The optimizer uses these statistics to determine the cost of index scans.</p>
+</div>
+<a id="TGSQL358"></a>
+<div class="props_rev_3"><a id="GUID-CE899A61-1922-48E6-88DE-A7278C247E8C"></a>
+<h4 id="TGSQL-GUID-CE899A61-1922-48E6-88DE-A7278C247E8C" class="sect4">Types of Index Statistics</h4>
+<div>
+<p>The <code class="codeph">DBA_IND_STATISTICS</code> view tracks index statistics.</p>
+<p>Statistics include the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Levels</p>
+<p>The <code class="codeph">BLEVEL</code> column shows the number of blocks required to go from the root block to a leaf block. A B-tree index has two types of blocks: branch blocks for searching and leaf blocks that store values. See <a class="olink CNCPT1170" target="_blank" href="../CNCPT/indexiot.htm#CNCPT1170"><span><cite>Oracle Database Concepts</cite></span></a> for a conceptual overview of B-tree indexes.</p>
+</li>
+<li>
+<p>Distinct keys</p>
+<p>This columns tracks the number of distinct indexed values. If a unique constraint is defined, and if no <code class="codeph">NOT NULL</code> constraint is defined, then this value equals the number of non-null values.</p>
+</li>
+<li>
+<p>Average number of leaf blocks for each distinct indexed key</p>
+</li>
+<li>
+<p>Average number of data blocks pointed to by each distinct indexed key</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-CE899A61-1922-48E6-88DE-A7278C247E8C__GUID-6405DE23-9762-4FEC-86DE-FE143BA48FA4">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN23376" target="_blank" href="../REFRN/GUID-03D846F8-5906-42FE-983B-E3434F5545A7.htm#REFRN23376"><span><cite>Oracle Database Reference</cite></span></a> for a description of the <code class="codeph">DBA_IND_STATISTICS</code> view</p>
+</div>
+<div class="example" id="GUID-CE899A61-1922-48E6-88DE-A7278C247E8C__GUID-A8636D14-18A5-46EF-8962-B849995E509E">
+<p class="titleinexample">Example 10-2 Index Statistics</p>
+<p>This example queries some index statistics for the <code class="codeph">cust_lname_ix</code> and <code class="codeph">customers_pk</code> indexes on the <code class="codeph">sh.customers</code> table (sample output included):</p>
+<pre dir="ltr">SELECT INDEX_NAME, BLEVEL, LEAF_BLOCKS AS &#34;LEAFBLK&#34;, DISTINCT_KEYS AS &#34;DIST_KEY&#34;,
+       AVG_LEAF_BLOCKS_PER_KEY AS &#34;LEAFBLK_PER_KEY&#34;,
+       AVG_DATA_BLOCKS_PER_KEY AS &#34;DATABLK_PER_KEY&#34;
+FROM   DBA_IND_STATISTICS
+WHERE  OWNER = &#39;SH&#39;
+AND    INDEX_NAME IN (&#39;CUST_LNAME_IX&#39;,&#39;CUSTOMERS_PK&#39;);
+
+INDEX_NAME     BLEVEL LEAFBLK DIST_KEY LEAFBLK_PER_KEY DATABLK_PER_KEY
+-------------- ------ ------- -------- --------------- ---------------
+CUSTOMERS_PK        1     115    55500               1               1
+CUST_LNAME_IX       1     141      908               1              10
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL94859"></a><a id="TGSQL359"></a>
+<div class="props_rev_3"><a id="GUID-84A4914F-10C5-49BE-92AF-F26DEC5D060F"></a>
+<h4 id="TGSQL-GUID-84A4914F-10C5-49BE-92AF-F26DEC5D060F" class="sect4">Index Clustering Factor</h4>
+<div>
+<p>For a B-tree index, the <span class="bold">index clustering factor</span> measures the physical grouping of rows in relation to an index value, such as last name.</p>
+<p>The index clustering factor helps the optimizer decide whether an index scan or full table scan is more efficient for certain queries). A low clustering factor indicates an efficient index scan.</p>
+<p>A clustering factor that is close to the number of <span class="italic">blocks</span> in a table indicates that the rows are physically ordered in the table blocks by the index key. If the database performs a <a href="glossary.htm#GUID-DCAD1CDB-8714-4900-9CB3-8C26802D3B63"><span class="xrefglossterm">full table scan</span></a>, then the database tends to retrieve the rows as they are stored on disk sorted by the index key. A clustering factor that is close to the number of <span class="italic">rows</span> indicates that the rows are scattered randomly across the database blocks in relation to the index key. If the database performs a full table scan, then the database would not retrieve rows in any sorted order by this index key.</p>
+<p>The clustering factor is a property of a specific index, not a table. If multiple indexes exist on a table, then the clustering factor for one index might be small while the factor for another index is large. An attempt to reorganize the table to improve the clustering factor for one index may degrade the clustering factor of the other index.</p>
+<div class="example" id="GUID-84A4914F-10C5-49BE-92AF-F26DEC5D060F__GUID-65782998-E754-4EEC-B1B2-0D271145218D">
+<p class="titleinexample">Example 10-3 Index Clustering Factor</p>
+<p>This example shows how the optimizer uses the index clustering factor to determine whether using an index is more effective than a full table scan.</p>
+<ol>
+<li>
+<p>Start SQL*Plus and connect to a database as <code class="codeph">sh</code>, and then query the number of rows and blocks in the <code class="codeph">sh.customers</code> table (sample output included):</p>
+<pre dir="ltr">SELECT  table_name, num_rows, blocks
+FROM    user_tables
+WHERE   table_name=&#39;CUSTOMERS&#39;;
+ 
+TABLE_NAME                       NUM_ROWS     BLOCKS
+------------------------------ ---------- ----------
+CUSTOMERS                           55500       1486
+</pre></li>
+<li>
+<p>Create an index on the <code class="codeph">customers.cust_last_name</code> column.</p>
+<p>For example, execute the following statement:</p>
+<pre dir="ltr">CREATE INDEX CUSTOMERS_LAST_NAME_IDX ON customers(cust_last_name);
+</pre></li>
+<li>
+<p>Query the index clustering factor of the newly created index.</p>
+<p>The following query shows that the <code class="codeph">customers_last_name_idx</code> index has a high clustering factor because the clustering factor is significantly more than the number of blocks in the table:</p>
+<pre dir="ltr">SELECT index_name, blevel, leaf_blocks, clustering_factor
+FROM   user_indexes
+WHERE  table_name=&#39;CUSTOMERS&#39;
+AND    index_name= &#39;CUSTOMERS_LAST_NAME_IDX&#39;;
+ 
+INDEX_NAME                         BLEVEL LEAF_BLOCKS CLUSTERING_FACTOR
+------------------------------ ---------- ----------- -----------------
+CUSTOMERS_LAST_NAME_IDX                 1         141              <span class="bold">9859</span>
+</pre></li>
+<li>
+<p>Create a new copy of the <code class="codeph">customers</code> table, with rows ordered by <code class="codeph">cust_last_name</code>.</p>
+<p>For example, execute the following statements:</p>
+<pre dir="ltr">DROP TABLE customers3 PURGE;
+CREATE TABLE customers3 AS 
+  SELECT * 
+  FROM   customers 
+  ORDER BY cust_last_name;
+</pre></li>
+<li>
+<p>Gather statistics on the <code class="codeph">customers3</code> table.</p>
+<p>For example, execute the <code class="codeph">GATHER_TABLE_STATS</code> procedure as follows:</p>
+<pre dir="ltr">EXEC DBMS_STATS.GATHER_TABLE_STATS(null,&#39;CUSTOMERS3&#39;);
+</pre></li>
+<li>
+<p>Query the number of rows and blocks in the <code class="codeph">customers3</code> table .</p>
+<p>For example, enter the following query (sample output included):</p>
+<pre dir="ltr">SELECT    TABLE_NAME, NUM_ROWS, BLOCKS
+FROM      USER_TABLES
+WHERE     TABLE_NAME=&#39;CUSTOMERS3&#39;;
+ 
+TABLE_NAME                       NUM_ROWS     BLOCKS
+------------------------------ ---------- ----------
+CUSTOMERS3                          55500       1485 
+</pre></li>
+<li>
+<p>Create an index on the <code class="codeph">cust_last_name</code> column of <code class="codeph">customers3</code>.</p>
+<p>For example, execute the following statement:</p>
+<pre dir="ltr">CREATE INDEX CUSTOMERS3_LAST_NAME_IDX ON customers3(cust_last_name);
+</pre></li>
+<li>
+<p>Query the index clustering factor of the <code class="codeph">customers3_last_name_idx</code> index.</p>
+<p>The following query shows that the <code class="codeph">customers3_last_name_idx</code> index has a lower clustering factor:</p>
+<pre dir="ltr">SELECT INDEX_NAME, BLEVEL, LEAF_BLOCKS, CLUSTERING_FACTOR
+FROM   USER_INDEXES
+WHERE  TABLE_NAME = &#39;CUSTOMERS3&#39;
+AND    INDEX_NAME = &#39;CUSTOMERS3_LAST_NAME_IDX&#39;;
+ 
+INDEX_NAME                         BLEVEL LEAF_BLOCKS CLUSTERING_FACTOR
+------------------------------ ---------- ----------- -----------------
+CUSTOMERS3_LAST_NAME_IDX                1         141              <span class="bold">1455</span>
+</pre>
+<p>The table <code class="codeph">customers3</code> has the same data as the original <code class="codeph">customers</code> table, but the index on <code class="codeph">customers3</code> has a much lower clustering factor because the data in the table is ordered by the <code class="codeph">cust_last_name</code>. The clustering factor is now about 10 times the number of blocks instead of 70 times.</p>
+</li>
+<li>
+<p>Query the <code class="codeph">customers</code> table.</p>
+<p>For example, execute the following query (sample output included):</p>
+<pre dir="ltr">SELECT cust_first_name, cust_last_name
+FROM   customers
+WHERE  cust_last_name BETWEEN &#39;Puleo&#39; AND &#39;Quinn&#39;;
+ 
+CUST_FIRST_NAME      CUST_LAST_NAME
+-------------------- ----------------------------------------
+Vida                 Puleo
+Harriett             Quinlan
+Madeleine            Quinn
+Caresse              Puleo 
+</pre></li>
+<li>
+<p>Display the cursor for the query.</p>
+<p>For example, execute the following query (partial sample output included):</p>
+<pre dir="ltr">SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+
+-------------------------------------------------------------------------------
+| Id | Operation                 | Name      | Rows |Bytes|Cost (%CPU)| Time  |
+-------------------------------------------------------------------------------
+|   0| SELECT STATEMENT          |           |      |     | 405 (100)|        |
+|*  1|  TABLE ACCESS STORAGE FULL| CUSTOMERS |  2335|35025| 405   (1)|00:00:01|
+-------------------------------------------------------------------------------
+</pre>
+<p>The preceding plan shows that the optimizer did not use the index on the original <code class="codeph">customers</code> tables.</p>
+</li>
+<li>
+<p>Query the <code class="codeph">customers3</code> table.</p>
+<p>For example, execute the following query (sample output included):</p>
+<pre dir="ltr">SELECT cust_first_name, cust_last_name
+FROM   customers3
+WHERE  cust_last_name BETWEEN &#39;Puleo&#39; AND &#39;Quinn&#39;;
+ 
+CUST_FIRST_NAME      CUST_LAST_NAME
+-------------------- ----------------------------------------
+Vida                 Puleo
+Harriett             Quinlan
+Madeleine            Quinn
+Caresse              Puleo 
+</pre></li>
+<li>
+<p>Display the cursor for the query.</p>
+<p>For example, execute the following query (partial sample output included):</p>
+<pre dir="ltr">SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+
+---------------------------------------------------------------------------------------
+|Id| Operation                   | Name                   |Rows|Bytes|Cost(%CPU)| Time|
+---------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT            |                        |    |     |69(100)|        |
+| 1|  TABLE ACCESS BY INDEX ROWID|CUSTOMERS3              |2335|35025|69(0)  |00:00:01|
+|*2|   INDEX RANGE SCAN          |CUSTOMERS3_LAST_NAME_IDX|2335|     |7(0)   |00:00:01|
+---------------------------------------------------------------------------------------
+</pre>
+<p>The result set is the same, but the optimizer chooses the index. The plan cost is much less than the cost of the plan used on the original <code class="codeph">customers</code> table.</p>
+</li>
+<li>
+<p>Query <code class="codeph">customers</code> with a hint that forces the optimizer to use the index.</p>
+<p>For example, execute the following query (partial sample output included):</p>
+<pre dir="ltr">SELECT /*+ index (Customers CUSTOMERS_LAST_NAME_IDX) */ cust_first_name, 
+       cust_last_name 
+FROM   customers 
+WHERE  cust_last_name BETWEEN &#39;Puleo&#39; and &#39;Quinn&#39;;
+ 
+CUST_FIRST_NAME      CUST_LAST_NAME
+-------------------- ----------------------------------------
+Vida                 Puleo
+Caresse              Puleo
+Harriett             Quinlan
+Madeleine            Quinn 
+</pre></li>
+<li>
+<p>Display the cursor for the query.</p>
+<p>For example, execute the following query (partial sample output included):</p>
+<pre dir="ltr">SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR());
+
+-----------------------------------------------------------------------------------------
+| Id  | Operation                | Name                  |Rows|Bytes|Cost(%CPU)| Time   |
+-----------------------------------------------------------------------------------------
+| 0| SELECT STATEMENT            |                       |    |     | 422(100) |        |
+| 1|  TABLE ACCESS BY INDEX ROWID|CUSTOMERS              |335 |35025| 422(0)   |00:00:01|
+|*2|   INDEX RANGE SCAN          |CUSTOMERS_LAST_NAME_IDX|2335|     | 7(0)     |00:00:01|
+-----------------------------------------------------------------------------------------
+</pre>
+<p>The preceding plan shows that the cost of using the index on <code class="codeph">customers</code> is higher than the cost of a full table scan. Thus, using an index does not necessarily improve performance. The index clustering factor is a measure of whether an index scan is more effective than a full table scan.</p>
+</li>
+</ol>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="TGSQL363"></a><a id="TGSQL364"></a><a id="TGSQL362"></a>
+<div class="props_rev_3"><a id="GUID-5677EA51-E2DD-4562-B44C-336E329D5288"></a>
+<h4 id="TGSQL-GUID-5677EA51-E2DD-4562-B44C-336E329D5288" class="sect4">Effect of Index Clustering Factor on Cost: Example</h4>
+<div>
+<p>This example illustrates how the index clustering factor can influence the cost of table access.</p>
+<p>Consider the following scenario:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A table contains 9 rows that are stored in 3 data blocks.</p>
+</li>
+<li>
+<p>The <code class="codeph">col1</code> column currently stores the values <code class="codeph">A</code>, <code class="codeph">B</code>, and <code class="codeph">C</code>.</p>
+</li>
+<li>
+<p>A nonunique index named <code class="codeph">col1_idx</code> exists on <code class="codeph">col1</code> for this table.</p>
+</li>
+</ul>
+<div class="example" id="GUID-5677EA51-E2DD-4562-B44C-336E329D5288__CHDHIBIF">
+<p class="titleinexample">Example 10-4 Collocated Data</p>
+<p>Assume that the rows are stored in the data blocks as follows:</p>
+<pre dir="ltr">Block 1       Block 2        Block 3
+-------       -------        -------
+A  A  A       B  B  B        C  C  C
+</pre>
+<p>In this example, the index clustering factor for <code class="codeph">col1_idx</code> is low. The rows that have the same indexed column values for <code class="codeph">col1</code> are in the same data blocks in the table. Thus, the cost of using an index range scan to return all rows with value <code class="codeph">A</code> is low because only one block in the table must be read.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-5677EA51-E2DD-4562-B44C-336E329D5288__CHDJIHFC">
+<p class="titleinexample">Example 10-5 Scattered Data</p>
+<p>Assume that the same rows are scattered across the data blocks as follows:</p>
+<pre dir="ltr">Block 1       Block 2        Block 3
+-------       -------        -------
+A  B  C       A  C  B        B  A  C
+</pre>
+<p>In this example, the index clustering factor for <code class="codeph">col1_idx</code> is higher. The database must read all three blocks in the table to retrieve all rows with the value <code class="codeph">A</code> in <code class="codeph">col1</code>.</p>
+<div class="infoboxnotealso" id="GUID-5677EA51-E2DD-4562-B44C-336E329D5288__GUID-DF04940D-0FF7-46B8-9F08-ACF75863FF00">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN23376" target="_blank" href="../REFRN/GUID-03D846F8-5906-42FE-983B-E3434F5545A7.htm#REFRN23376"><span><cite>Oracle Database Reference</cite></span></a> for a description of the <code class="codeph">DBA_INDEXES</code> view</p>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL355"></a>
+<div class="props_rev_3"><a id="GUID-094E2608-A1CB-46B6-A329-99C6B497A106"></a>
+<h3 id="TGSQL-GUID-094E2608-A1CB-46B6-A329-99C6B497A106" class="sect3">Session-Specific Statistics for Global Temporary Tables</h3>
+<div>
+<p>A <span class="bold">global temporary table</span> is a special table that stores intermediate session-private data for a specific duration.</p>
+<p>The <code class="codeph">ON COMMIT</code> clause of <code class="codeph">CREATE GLOBAL TEMPORARY TABLE</code> indicates whether the table is transaction-specific (<code class="codeph">DELETE ROWS</code>) or session-specific (<code class="codeph">PRESERVE ROWS</code>). Thus, a temporary table holds intermediate result sets for the duration of either a transaction or a session.</p>
+<p>When you create a global temporary table, you create a definition that is visible to all sessions. No physical storage is allocated. When a session first puts data into the table, the database allocates storage space. The data in the temporary table is only visible to the current session.</p>
+</div>
+<a id="TGSQL95328"></a>
+<div class="props_rev_3"><a id="GUID-1355E1A8-DB82-4C6F-943F-3028ECEA4333"></a>
+<h4 id="TGSQL-GUID-1355E1A8-DB82-4C6F-943F-3028ECEA4333" class="sect4">Shared and Session-Specific Statistics for Global Temporary Tables</h4>
+<div>
+<p>Starting in Oracle Database 12<span class="italic">c</span>, you can set the table-level preference <code class="codeph">GLOBAL_TEMP_TABLE_STATS</code> to make statistics on a global temporary table shared (<code class="codeph">SHARED</code>) or session-specific (<code class="codeph">SESSION</code>).</p>
+<p>When <code class="codeph">GLOBAL_TEMP_TABLE_STATS</code> is <code class="codeph">SESSION</code>, you can gather optimizer statistics for a global temporary table in one session, and then use the statistics for this session only. Meanwhile, users can continue to maintain a shared version of the statistics. During optimization, the optimizer first checks whether a global temporary table has session-specific statistics. If yes, then the optimizer uses them. Otherwise, the optimizer uses shared statistics if they exist.</p>
+<div class="infobox-note" id="GUID-1355E1A8-DB82-4C6F-943F-3028ECEA4333__GUID-4EF16686-D410-48D5-AF08-1E3F5D7E721D">
+<p class="notep1">Note:</p>
+<p>In releases before Oracle Database 12<span class="italic">c</span>, the database did not maintain optimizer statistics for global temporary tables and non-global temporary tables differently. The database maintained one version of the statistics shared by all sessions, even though data in different sessions could differ.</p>
+</div>
+<p>Session-specific optimizer statistics have the following characteristics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Dictionary views that track statistics show both the shared statistics and the session-specific statistics in the current session.</p>
+<p>The views are <code class="codeph">DBA_TAB_STATISTICS</code>, <code class="codeph">DBA_IND_STATISTICS</code>, <code class="codeph">DBA_TAB_HISTOGRAMS</code>, and <code class="codeph">DBA_TAB_COL_STATISTICS</code> (each view has a corresponding <code class="codeph">USER_</code> and <code class="codeph">ALL_</code> version). The <code class="codeph">SCOPE</code> column shows whether statistics are session-specific or shared. Session-specific statistics must be stored in the data dictionary so that multiple processes can access them in Oracle RAC.</p>
+</li>
+<li>
+<p><code class="codeph">CREATE ... AS SELECT</code> automatically gathers optimizer statistics. When <code class="codeph">GLOBAL_TEMP_TABLE_STATS</code> is set to <code class="codeph">SHARED</code>, however, you must gather statistics manually using <code class="codeph">DBMS_STATS</code>.</p>
+</li>
+<li>
+<p>Pending statistics are not supported.</p>
+</li>
+<li>
+<p>Other sessions do not share a cursor that uses the session-specific statistics.</p>
+<p>Different sessions can share a cursor that uses <span class="italic">shared</span> statistics, as in releases earlier than Oracle Database 12<span class="italic">c</span>. The same session can share a cursor that uses session-specific statistics.</p>
+</li>
+<li>
+<p>By default, <code class="codeph">GATHER_TABLE_STATS</code> for the temporary table immediately invalidates previous cursors compiled in the same session. However, this procedure does not invalidate cursors compiled in other sessions.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-1355E1A8-DB82-4C6F-943F-3028ECEA4333__GUID-A5678D7A-5DFE-4154-AB9C-DC9744E401FB">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ARPLS-GUID-CDAA4742-5398-4A64-B871-E39F38D0021F" target="_blank" href="http://www.oracle.com/pls/topic/lookup?ctx=E50529-01&amp;id=ARPLS-GUID-CDAA4742-5398-4A64-B871-E39F38D0021F"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">GLOBAL_TEMP_TABLE_STATS</code> preference</p>
+</li>
+<li>
+<p><a class="olink REFRN-GUID-03D846F8-5906-42FE-983B-E3434F5545A7" target="_blank" href="../REFRN/GUID-03D846F8-5906-42FE-983B-E3434F5545A7.htm#REFRN-GUID-03D846F8-5906-42FE-983B-E3434F5545A7"><span><cite>Oracle Database Reference</cite></span></a> for a description of the <code class="codeph">DBA_TAB_STATISTICS</code> view</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95329"></a>
+<div class="props_rev_3"><a id="GUID-630486FC-9175-48BA-9649-E35D377F816F"></a>
+<h4 id="TGSQL-GUID-630486FC-9175-48BA-9649-E35D377F816F" class="sect4">Effect of DBMS_STATS on Transaction-Specific Temporary Tables</h4>
+<div>
+<p><code class="codeph">DBMS_STATS</code> commits changes to session-specific global temporary tables, but not to transaction-specific global temporary tables.</p>
+<p>Before Oracle Database 12<span class="italic">c</span>, running <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> on a transaction-specific temporary table (<code class="codeph">ON COMMIT DELETE ROWS</code>) would delete all rows, making the statistics show the table as empty. Starting in Oracle Database 12<span class="italic">c</span>, the following procedures do not commit for transaction-specific temporary tables, so that rows in these tables are not deleted:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">GATHER_TABLE_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">DELETE_TABLE_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">DELETE_COLUMN_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">DELETE_INDEX_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">SET_TABLE_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">SET_COLUMN_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">SET_INDEX_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">GET_TABLE_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">GET_COLUMN_STATS</code></p>
+</li>
+<li>
+<p><code class="codeph">GET_INDEX_STATS</code></p>
+</li>
+</ul>
+<p>The preceding program units observe the <code class="codeph">GLOBAL_TEMP_TABLE_STATS</code> preference. For example, if the table preference is set to <code class="codeph">SESSION</code>, then <code class="codeph">SET_TABLE_STATS</code> sets the session statistics, and <code class="codeph">GATHER_TABLE_STATS</code> <span class="italic">preserves</span> all rows in a transaction-specific temporary table. If the table preference is set to <code class="codeph">SHARED</code>, then <code class="codeph">SET_TABLE_STATS</code> sets the shared statistics, and <code class="codeph">GATHER_TABLE_STATS</code> <span class="italic">deletes</span> all rows from a transaction-specific temporary table.</p>
+<div class="infoboxnotealso" id="GUID-630486FC-9175-48BA-9649-E35D377F816F__GUID-9F5EFD7E-069E-4032-B1DC-B98F7A3FE99A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-5AC92747-F6AA-4149-80B6-FD6E966CDC8D">Gathering Schema and Table Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink CNCPT88820" target="_blank" href="../CNCPT/tablecls.htm#CNCPT88820"><span><cite>Oracle Database Concepts</cite></span></a> to learn about global temporary tables</p>
+</li>
+<li>
+<p><a class="olink ARPLS68582" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68582"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> procedure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL365"></a>
+<div class="props_rev_3"><a id="GUID-FE339C05-E7A4-4953-89C4-D5C69F0C08BA"></a>
+<h3 id="TGSQL-GUID-FE339C05-E7A4-4953-89C4-D5C69F0C08BA" class="sect3">System Statistics</h3>
+<div>
+<p>The <span class="bold">system statistics</span> describe hardware characteristics such as I/O and CPU performance and utilization.</p>
+<p>System statistics enable the query optimizer to more accurately estimate I/O and CPU costs when choosing execution plans. The database does not invalidate previously parsed SQL statements when updating system statistics. The database parses all new SQL statements using new statistics.</p>
+<div class="infoboxnotealso" id="GUID-FE339C05-E7A4-4953-89C4-D5C69F0C08BA__GUID-3569065F-3476-45CB-9653-3E17BE692E35">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-AC23D691-5C54-4EF9-BF9F-65121F2AFC31" title="Workload statistics analyze activity in a specified time period.This tutorial explains how to set the workload interval with the INTERVAL parameter of GATHER_SYSTEM_STATS.">Gathering System Statistics Manually</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink TGDBA-GUID-3FEB7C53-D5B3-4540-BD67-8FCBB2917695" target="_blank" href="../TGDBA/measure_db.htm#TGDBA-GUID-3FEB7C53-D5B3-4540-BD67-8FCBB2917695"><span><cite>Oracle Database Reference</cite></span></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL94581"></a>
+<div class="props_rev_3"><a id="GUID-184A744A-2F2F-4C4C-88E6-107EAD1D517E"></a>
+<h3 id="TGSQL-GUID-184A744A-2F2F-4C4C-88E6-107EAD1D517E" class="sect3">User-Defined Optimizer Statistics</h3>
+<div>
+<p>The <span class="bold">extensible optimizer</span> enables authors of user-defined functions and indexes to create statistics collection, selectivity, and cost functions. The optimizer cost model is extended to integrate information supplied by the user to assess CPU and the I/O cost.</p>
+<p>Statistics types act as interfaces for user-defined functions that influence the choice of execution plan. However, to use a statistics type, the optimizer requires a mechanism to bind the type to a database object such as a column, standalone function, object type, index, indextype, or package. The SQL statement <a class="olink SQLRF01106" target="_blank" href="../SQLRF/statements_4006.htm#SQLRF01106"><code class="codeph">ASSOCIATE STATISTICS</code></a> allows this binding to occur.</p>
+<p>Functions for user-defined statistics are relevant for columns that use both standard SQL data types and object types, and for domain indexes. When you associate a statistics type with a column or domain index, the database calls the statistics collection method in the statistics type whenever <code class="codeph">DBMS_STATS</code> gathers statistics.</p>
+<div class="infoboxnotealso" id="GUID-184A744A-2F2F-4C4C-88E6-107EAD1D517E__GUID-E44808AE-F2D8-41BA-8517-E099A823ED92">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-5AC92747-F6AA-4149-80B6-FD6E966CDC8D">Gathering Schema and Table Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADDCI2110" target="_blank" href="../ADDCI/ext_optimizer.htm#ADDCI2110"><span><cite>Oracle Database Data Cartridge Developer&#39;s Guide</cite></span></a> to learn about the extensible optimizer and user-defined statistics</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL339"></a>
+<div class="props_rev_3"><a id="GUID-3ED2DA31-F61B-4E8F-9166-79FB01392B1D"></a>
+<h2 id="TGSQL-GUID-3ED2DA31-F61B-4E8F-9166-79FB01392B1D" class="sect2">How the Database Gathers Optimizer Statistics</h2>
+<div>
+<p>Oracle Database provides several mechanisms to gather statistics.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_statscon.htm#GUID-CA59EF6A-66D2-4BF8-B1F9-85EC5CA3C81F" title="The DBMS_STATS PL/SQL package collects and manages optimizer statistics.">DBMS_STATS Package</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-620CB826-10A2-4937-8DAD-2B41475AE47F" title="By default, when optimizer statistics are missing, stale, or insufficient, the database automatically gathers dynamic statistics during a parse. The database uses recursive SQL to scan a small random sample of table blocks.">Supplemental Dynamic Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-E920301F-FFC4-4AB7-8DEB-11BA56088E0B" title="Starting in Oracle Database 12c, the database can gather table statistics automatically during the following types of bulk loads: INSERT INTO ... SELECT into an empty table using a direct path insert, and CREATE TABLE AS SELECT .">Online Statistics Gathering for Bulk Loads</a></p>
+</li>
+</ul>
+</div>
+<a id="TGSQL340"></a>
+<div class="props_rev_3"><a id="GUID-CA59EF6A-66D2-4BF8-B1F9-85EC5CA3C81F"></a>
+<h3 id="TGSQL-GUID-CA59EF6A-66D2-4BF8-B1F9-85EC5CA3C81F" class="sect3">DBMS_STATS Package</h3>
+<div>
+<p>The <code class="codeph">DBMS_STATS</code> PL/SQL package collects and manages optimizer statistics.</p>
+<p>This package enables you to control what and how statistics are collected, including the degree of parallelism for statistics collection, sampling methods, granularity of statistics collection in partitioned tables, and so on.</p>
+<div class="infobox-note" id="GUID-CA59EF6A-66D2-4BF8-B1F9-85EC5CA3C81F__GUID-A89BD918-23C1-401B-849F-F3E65F9CBBB1">
+<p class="notep1">Note:</p>
+<p>Do not use the <code class="codeph">COMPUTE</code> and <code class="codeph">ESTIMATE</code> clauses of the <code class="codeph">ANALYZE</code> statement to collect optimizer statistics. These clauses have been deprecated. Instead, use <code class="codeph">DBMS_STATS</code>.</p>
+</div>
+<p>Statistics gathered with the <code class="codeph">DBMS_STATS</code> package are required for the creation of accurate execution plans. For example, table statistics gathered by <code class="codeph">DBMS_STATS</code> include the number of rows, number of blocks, and average row length.</p>
+<p>By default, Oracle Database uses <a href="glossary.htm#GUID-0F3149AF-5916-4674-8ED4-FE473C7252CC"><span class="xrefglossterm">automatic optimizer statistics collection</span></a>. In this case, the database automatically runs <code class="codeph">DBMS_STATS</code> to collect optimizer statistics for all schema objects for which statistics are missing or stale. The process eliminates many manual tasks associated with managing the optimizer, and significantly reduces the risks of generating suboptimal execution plans because of missing or stale statistics. You can also update and manage optimizer statistics by manually executing <code class="codeph">DBMS_STATS</code>.</p>
+<div class="infoboxnotealso" id="GUID-CA59EF6A-66D2-4BF8-B1F9-85EC5CA3C81F__GUID-EF6075AA-0C63-4C9A-B83E-9CA8D3EA75BE">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-F007E78A-9967-4921-8046-D8F59A9272B4" title="This topic explains how to configure Oracle Database to gather optimizer statistics automatically.">Configuring Automatic Optimizer Statistics Collection</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-A91DCC46-394D-47F6-8D8E-A9E6F56E432B" title="Use the DBMS_STATS package to manipulate optimizer statistics. You can gather statistics on objects and columns at various levels of granularity: object, schema, and database. You can also gather statistics for the physical system.In most cases, automatic statistics collection is sufficient for database objects modified at a moderate speed.In the context of optimizer statistics, sampling is the gathering of statistics from a random subset of table rows. By enabling the database to avoid full table scans and sorts of entire tables, sampling minimizes the resources necessary to gather statistics.By default, the database gathers statistics with the parallelism degree specified at the table or index level. You can override this setting with the degree argument to the DBMS_STATS gathering procedures.Because the database does not permit data manipulation against external tables, the database never marks statistics on external tables as stale. If new statistics are required for an external table, for example, because the underlying data files change, then regather the statistics. Stale statistics on a table do not accurately reflect its data. The database provides a table monitoring facility to help determine when a database object needs new statistics. Statistics for volatile tables, which are tables modified significantly during the day, go stale quickly. For example, a table may be deleted or truncated, and then rebuilt.Oracle Database enables you to gather statistics on multiple tables or partitions concurrently.By default, each partition of a partition table is gathered sequentially. Oracle Database employs multiple tools and technologies to create and manage multiple statistics gathering jobs concurrently.To enable concurrent statistics gathering, use the DBMS_STATS.SET_GLOBAL_PREFS procedure to set the CONCURRENT preference. When CONCURRENT statistics gathering is enabled, you can execute each statistics gathering job in parallel. This combination is useful when you are analyzing large tables, partitions, or subpartitions. This topic describes the recommended configuration.You can monitor statistics gathering jobs using data dictionary views.Incremental statistics scan only changed partitions. When gathering statistics on large partitioned table by deriving global statistics from partition-level statistics, Incremental statistics maintenance improves performance.In a typical case, an application loads data into a new partition of a range-partitioned table. As applications add new partitions and load data, the database must gather statistics on the new partition and keep global statistics up to date.When incremental statistics maintenance is enabled, DBMS_STATS gathers statistics and creates synopses for changed partitions only. The database also automatically merges partition-level synopses into a global synopsis, and derives global statistics from the partition-level statistics and global synopses.Incremental statistics affect how the database gathers and stores table and index statistics.A partition maintenance operation is a partition-related operation such as adding, exchanging, merging, or splitting table partitions.Starting in Oracle Database 12c, incremental statistics can automatically calculate global statistics for a partitioned table even if the partition or subpartition statistics are stale and locked.">Gathering Optimizer Statistics Manually</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADMIN12331" target="_blank" href="../ADMIN/tasks.htm#ADMIN12331"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn more about automated maintenance tasks</p>
+</li>
+<li>
+<p><a class="olink ARPLS059" target="_blank" href="../ARPLS/d_stats.htm#ARPLS059"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about <code class="codeph">DBMS_STATS</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL341"></a>
+<div class="props_rev_3"><a id="GUID-620CB826-10A2-4937-8DAD-2B41475AE47F"></a>
+<h3 id="TGSQL-GUID-620CB826-10A2-4937-8DAD-2B41475AE47F" class="sect3">Supplemental Dynamic Statistics</h3>
+<div>
+<p>By default, when optimizer statistics are missing, stale, or insufficient, the database automatically gathers <span class="bold">dynamic statistics</span> during a parse. The database uses <span class="bold">recursive SQL</span> to scan a small random sample of table blocks.</p>
+<div class="infobox-note" id="GUID-620CB826-10A2-4937-8DAD-2B41475AE47F__GUID-249594F8-2FD5-4A0A-9B7A-6333620E3FE1">
+<p class="notep1">Note:</p>
+<p>Dynamic statistics <span class="italic">augment</span> statistics rather than providing an alternative to them.</p>
+</div>
+<p>Dynamic statistics supplement optimizer statistics such as table and index block counts, table and join cardinalities (estimated number of rows), join column statistics, and <code class="codeph">GROUP BY</code> statistics. This information helps the optimizer improve plans by making better estimates for predicate cardinality.</p>
+<p>Dynamic statistics are beneficial in the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>An execution plan is suboptimal because of complex predicates.</p>
+</li>
+<li>
+<p>The sampling time is a small fraction of total execution time for the query.</p>
+</li>
+<li>
+<p>The query executes many times so that the sampling time is amortized.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-620CB826-10A2-4937-8DAD-2B41475AE47F__GUID-64DFBDCF-F123-4432-86DD-A3BE29827C8A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9" title="Starting in Oracle Database 12c, the optimizer automatically decides whether dynamic statistics are useful and which sample size to use for all SQL statements. In earlier releases, dynamic statistics were called dynamic sampling.">When the Database Samples Data</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-88E321BF-445E-40BD-83A2-9EA107689B2F" title="In the context of optimizer statistics, sampling is the gathering of statistics from a random subset of table rows. By enabling the database to avoid full table scans and sorts of entire tables, sampling minimizes the resources necessary to gather statistics.">Guideline for Setting the Sample Size</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-F1C666DC-5450-4F92-83AA-607327DB5FD8" title="By default, when optimizer statistics are missing, stale, or insufficient, dynamic statistics automatically run recursive SQL during parsing to scan a small random sample of table blocks.">Controlling Dynamic Statistics</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL344"></a>
+<div class="props_rev_3"><a id="GUID-E920301F-FFC4-4AB7-8DEB-11BA56088E0B"></a>
+<h3 id="TGSQL-GUID-E920301F-FFC4-4AB7-8DEB-11BA56088E0B" class="sect3">Online Statistics Gathering for Bulk Loads</h3>
+<div>
+<p>Starting in Oracle Database 12<span class="italic">c</span>, the database can gather table statistics automatically during the following types of bulk loads: <code class="codeph">INSERT INTO ... SELECT</code> into an empty table using a direct path insert, and <code class="codeph">CREATE TABLE AS SELECT</code> .</p>
+<div class="infobox-note" id="GUID-E920301F-FFC4-4AB7-8DEB-11BA56088E0B__GUID-F53BB316-A368-44E8-8844-BAABE8F16912">
+<p class="notep1">Note:</p>
+<p>By default, a parallel insert uses a direct path insert. You can force a direct path insert by using the <code class="codeph">/*+APPEND*/</code> hint.</p>
+</div>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_statscon.htm#GUID-2712B321-9BC2-4B64-93BA-C93F23907033" title="Data warehouses typically load large amounts of data into the database. For example, a sales data warehouse might load sales data nightly.">Purpose of Online Statistics Gathering for Bulk Loads</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-0B027A47-087D-4D7B-ABD4-2210D4C37ECB" title="When inserting rows into an empty partitioned table, the database gathers global statistics during the insert.">Global Statistics During Inserts into Empty Partitioned Tables</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-2DB44BD0-345A-40C7-8787-9FB4F80C6DC8" title="While gathering online statistics, the database does not gather index statistics or create histograms. If these statistics are required, then Oracle recommends running DBMS_STATS.GATHER_TABLE_STATS with the options parameter set to GATHER AUTO after the bulk load.">Index Statistics and Histograms During Bulk Loads</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-CDDB5A54-0991-4E68-A9D7-2305777B608B" title="Statistics gathering does not occur automatically for bulk loads under certain conditions.">Restrictions for Online Statistics Gathering for Bulk Loads</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-76103CD0-5566-4E4A-836D-F9D9DECFF36E" title="By default, the database gathers statistics during bulk loads. You can disable the feature at the statement level by using the NO_GATHER_OPTIMIZER_STATISTICS hint, and enable the feature at the statement level by using the GATHER_OPTIMIZER_STATISTICS hint.">Hints for Online Statistics Gathering for Bulk Loads</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-E920301F-FFC4-4AB7-8DEB-11BA56088E0B__GUID-9F28BECD-BCF2-468C-8886-F5A1BFAEC21F">
+<p class="notep1">See Also:</p>
+<p><a class="olink DWHSG8382" target="_blank" href="../DWHSG/refresh.htm#DWHSG8382"><span class="italic">Oracle Database Data Warehousing Guide</span></a> to learn more about bulk loads</p>
+</div>
+</div>
+<a id="TGSQL95244"></a>
+<div class="props_rev_3"><a id="GUID-2712B321-9BC2-4B64-93BA-C93F23907033"></a>
+<h4 id="TGSQL-GUID-2712B321-9BC2-4B64-93BA-C93F23907033" class="sect4">Purpose of Online Statistics Gathering for Bulk Loads</h4>
+<div>
+<p>Data warehouses typically load large amounts of data into the database. For example, a sales data warehouse might load sales data nightly.</p>
+<p>In releases earlier than Oracle Database 12<span class="italic">c</span>, to avoid the possibility of a suboptimal plan caused by stale statistics, you needed to gather statistics manually after a bulk load. The ability to gather statistics automatically during bulk loads has the following benefits:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Improved performance</p>
+<p>Gathering statistics during the load avoids an additional table scan to gather table statistics.</p>
+</li>
+<li>
+<p>Improved manageability</p>
+<p>No user intervention is required to gather statistics after a bulk load.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TGSQL95245"></a>
+<div class="props_rev_3"><a id="GUID-0B027A47-087D-4D7B-ABD4-2210D4C37ECB"></a>
+<h4 id="TGSQL-GUID-0B027A47-087D-4D7B-ABD4-2210D4C37ECB" class="sect4">Global Statistics During Inserts into Empty Partitioned Tables</h4>
+<div>
+<p>When inserting rows into an empty partitioned table, the database gathers global statistics during the insert.</p>
+<p>For example, if <code class="codeph">sales</code> is an empty partitioned table, and if you run <code class="codeph">INSERT INTO sales SELECT</code>, then the database gathers global statistics for <code class="codeph">sales</code>. However, the database does not gather partition-level statistics.</p>
+<p>Assume a different case in which you use extended syntax to insert rows into a particular partition or subpartition, which is empty. The database gathers statistics on the empty partition during the insert. However, the database does not gather global statistics.</p>
+<p>Assume that you run <code class="codeph">INSERT INTO sales PARTITION (sales_q4_2000) SELECT</code>. If partition <code class="codeph">sales_q4_2000</code> is empty before the insert (other partitions need not be empty), then the database gathers statistics during the insert. Moreover, if the <code class="codeph">INCREMENTAL</code> preference is enabled for <code class="codeph">sales</code>, then the database also gathers a <a href="glossary.htm#GUID-8F1BBA0D-2424-4D78-8DC7-1D8C19FA7C1F"><span class="xrefglossterm">synopsis</span></a> for <code class="codeph">sales_q4_2000</code>. Statistics are immediately available after the <code class="codeph">INSERT</code> statement. However, if you roll back the transaction, then the database automatically deletes statistics gathered during the bulk load.</p>
+<div class="infoboxnotealso" id="GUID-0B027A47-087D-4D7B-ABD4-2210D4C37ECB__GUID-B88A1428-AAB9-4F71-B5DD-39F327F3E2D6">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-C4BFFEEB-28D2-420C-A864-305C4334183B" title="Incremental statistics affect how the database gathers and stores table and index statistics.">Considerations for Incremental Statistics Maintenance</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink SQLRF01604" target="_blank" href="../SQLRF/statements_9015.htm#SQLRF01604"><span><cite>Oracle Database SQL Language Reference</cite></span></a> for <code class="codeph">INSERT</code> syntax and semantics</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95246"></a>
+<div class="props_rev_3"><a id="GUID-2DB44BD0-345A-40C7-8787-9FB4F80C6DC8"></a>
+<h4 id="TGSQL-GUID-2DB44BD0-345A-40C7-8787-9FB4F80C6DC8" class="sect4">Index Statistics and Histograms During Bulk Loads</h4>
+<div>
+<p>While gathering online statistics, the database does not gather index statistics or create histograms. If these statistics are required, then Oracle recommends running <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> with the <code class="codeph">options</code> parameter set to <code class="codeph">GATHER AUTO</code> after the bulk load.</p>
+<p>For example, the following command gathers statistics for the bulk-loaded <code class="codeph">sh_ctas</code> table:</p>
+<pre dir="ltr">EXEC DBMS_STATS.GATHER_TABLE_STATS( user, &#39;SH_CTAS&#39;, options =&gt; &#39;GATHER AUTO&#39; );
+</pre>
+<p>The preceding example only gathers missing or stale statistics. The database does not gather table and basic column statistics collected during the bulk load.</p>
+<div class="infobox-note" id="GUID-2DB44BD0-345A-40C7-8787-9FB4F80C6DC8__GUID-4E200DE3-1046-48C0-9532-3E051D11ADFD">
+<p class="notep1">Note:</p>
+<p>You can set the table preference <code class="codeph">options</code> to <code class="codeph">GATHER AUTO</code> on the tables that you plan to bulk load. In this way, you need not explicitly set the <code class="codeph">options</code> parameter when running <code class="codeph">GATHER_TABLE_STATS</code>.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-2DB44BD0-345A-40C7-8787-9FB4F80C6DC8__GUID-E44EDC1D-6D37-4B3F-8C6E-B17C6848CAEE">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-5AC92747-F6AA-4149-80B6-FD6E966CDC8D">Gathering Schema and Table Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink DWHSG-GUID-0C48B004-54C8-48A3-BBF8-6C69BB19F15E" target="_blank" href="../DWHSG/transform.htm#DWHSG-GUID-0C48B004-54C8-48A3-BBF8-6C69BB19F15E"><span><cite>Oracle Database Data Warehousing Guide</cite></span></a> to learn more about bulk loading</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95247"></a>
+<div class="props_rev_3"><a id="GUID-CDDB5A54-0991-4E68-A9D7-2305777B608B"></a>
+<h4 id="TGSQL-GUID-CDDB5A54-0991-4E68-A9D7-2305777B608B" class="sect4">Restrictions for Online Statistics Gathering for Bulk Loads</h4>
+<div>
+<p>Statistics gathering does <span class="italic">not</span> occur automatically for bulk loads under certain conditions.</p>
+<p>Bulk loads do not gather statistics when any of the following conditions apply to the target table, partition, or subpartition:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>It is <span class="italic">not</span> empty, and you perform an <code class="codeph">INSERT INTO ... SELECT</code>.</p>
+<p>In this case, an <code class="codeph">OPTIMIZER STATISTICS GATHERING</code> row source appears in the plan, but this row source is only a pass-through. The database does not actually gather optimizer statistics.</p>
+<div class="infobox-note" id="GUID-CDDB5A54-0991-4E68-A9D7-2305777B608B__GUID-A89CD962-EE94-4F64-946C-3FCA192F4903">
+<p class="notep1">Note:</p>
+<p>The <code class="codeph">DBA_TAB_COL_STATISTICS.NOTES</code> column is set to <code class="codeph">STATS_ON_LOAD</code> by a bulk load into an empty table. However, subsequent bulk loads into the non-empty table do not reset the <code class="codeph">NOTES</code> column. One technique for determining whether the database gathered statistics is to execute <code class="codeph">DBMS_STATS.FLUSH_DATABASE_MONITORING_INFO</code>, and then query <code class="codeph">USER_TAB_MODIFICATIONS.INSERTS</code>. If the query returns a row indicating the number of rows loaded, then the statistics were <span class="italic">not</span> gathered automatically during the most recent bulk load.</p>
+</div>
+</li>
+<li>
+<p>It is in an Oracle-owned schema such as <code class="codeph">SYS</code>.</p>
+</li>
+<li>
+<p>It is a nested table.</p>
+</li>
+<li>
+<p>It is an index-organized table (IOT).</p>
+</li>
+<li>
+<p>It is an external table.</p>
+</li>
+<li>
+<p>It is a global temporary table defined as <code class="codeph">ON COMMIT DELETE ROWS</code>.</p>
+</li>
+<li>
+<p>It has virtual columns.</p>
+</li>
+<li>
+<p>It has a <code class="codeph">PUBLISH</code> preference set to <code class="codeph">FALSE</code>.</p>
+</li>
+<li>
+<p>Its optimizer statistics are locked.</p>
+</li>
+<li>
+<p>It is partitioned, <code class="codeph">INCREMENTAL</code> is set to <code class="codeph">true</code>, and extended syntax is <span class="italic">not</span> used.</p>
+<p>For example, assume that you execute <code class="codeph">DBMS_STATS.SET_TABLE_PREFS(null, &#39;sales&#39;, incremental&#39;, &#39;true&#39;)</code>. In this case, the database does not gather statistics for <code class="codeph">INSERT INTO sales SELECT</code>, even when <code class="codeph">sales</code> is empty. However, the database does gather statistics automatically for <code class="codeph">INSERT INTO sales PARTITION (sales_q4_2000) SELECT</code> .</p>
+</li>
+<li>
+<p>It is loaded using a multi-table <code class="codeph">INSERT</code> statement.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-CDDB5A54-0991-4E68-A9D7-2305777B608B__GUID-570CBCFA-87F1-4F28-BA9F-3DC0C3B092A0">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tgsql_stats.htm#GUID-5AC92747-F6AA-4149-80B6-FD6E966CDC8D">Gathering Schema and Table Statistics</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="TGSQL95248"></a>
+<div class="props_rev_3"><a id="GUID-76103CD0-5566-4E4A-836D-F9D9DECFF36E"></a>
+<h4 id="TGSQL-GUID-76103CD0-5566-4E4A-836D-F9D9DECFF36E" class="sect4">Hints for Online Statistics Gathering for Bulk Loads</h4>
+<div>
+<p>By default, the database gathers statistics during bulk loads. You can disable the feature at the statement level by using the <code class="codeph">NO_GATHER_OPTIMIZER_STATISTICS</code> hint, and enable the feature at the statement level by using the <code class="codeph">GATHER_OPTIMIZER_STATISTICS</code> hint.</p>
+<p>For example, the following statement disables online statistics gathering for bulk loads:</p>
+<pre dir="ltr">CREATE TABLE employees2 AS
+  SELECT /*+NO_GATHER_OPTIMIZER_STATISTICS*/ * FROM employees
+</pre>
+<div class="infoboxnotealso" id="GUID-76103CD0-5566-4E4A-836D-F9D9DECFF36E__GUID-FC92718C-28FE-4881-B519-BD4310966BE7">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF56406" target="_blank" href="../SQLRF/sql_elements006.htm#SQLRF56406"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about the <code class="codeph">GATHER_OPTIMIZER_STATISTICS</code> and <code class="codeph">NO_GATHER_OPTIMIZER_STATISTICS</code> hints</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<a id="TGSQL345"></a>
+<div class="props_rev_3"><a id="GUID-13E8BD68-B8A1-4937-8774-3EF82FB8FB47"></a>
+<h2 id="TGSQL-GUID-13E8BD68-B8A1-4937-8774-3EF82FB8FB47" class="sect2">When the Database Gathers Optimizer Statistics</h2>
+<div>
+<p>The database collects optimizer statistics at various times and from various sources.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tgsql_statscon.htm#GUID-16C4B770-1783-493D-A0F6-3F8A9E075766" title="The optimizer uses several different sources for optimizer statistics.">Sources for Optimizer Statistics</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-F8F25E31-7113-4B91-BD81-BE6082983192" title="A SQL plan baseline is additional information and instructions that the optimizer can use to generate a more optimal plan. For example, a SQL plan directive can instruct the optimizer to record a missing extension.">SQL Plan Directives</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9" title="Starting in Oracle Database 12c, the optimizer automatically decides whether dynamic statistics are useful and which sample size to use for all SQL statements. In earlier releases, dynamic statistics were called dynamic sampling.">When the Database Samples Data</a></p>
+</li>
+<li>
+<p><a href="tgsql_statscon.htm#GUID-3A50D0D5-5494-43EE-B03D-10569B4D8BF8" title="At the beginning of optimization, when deciding whether a table is a candidate for dynamic statistics, the optimizer checks for the existence of persistent SQL plan directives on the table. For each directive, the optimizer registers a statistics expression that the optimizer computes when determining the cardinality of a predicate involving the table.">How the Database Samples Data</a></p>
+</li>
+</ul>
+</div>
+<div class="props_rev_3"><a id="GUID-16C4B770-1783-493D-A0F6-3F8A9E075766"></a>
+<h3 id="TGSQL-GUID-16C4B770-1783-493D-A0F6-3F8A9E075766" class="sect3">Sources for Optimizer Statistics</h3>
+<div>
+<p>The optimizer uses several different sources for optimizer statistics.</p>
+<p>The sources are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">DBMS_STATS</code> execution, automatic or manual</p>
+<p>This PL/SQL package is the primary means of gathering optimizer statistics.</p>
+</li>
+<li>
+<p>SQL compilation</p>
+<p>During <a href="glossary.htm#GUID-F9233BE0-9CB9-4673-A705-174924AE3B18"><span class="xrefglossterm">SQL compilation</span></a>, the database can augment the statistics previously gathered by <code class="codeph">DBMS_STATS</code>. In this stage, the database runs additional queries to obtain more accurate information on how many rows in the tables satisfy the <code class="codeph">WHERE</code> clause predicates in the SQL statement.</p>
+</li>
+<li>
+<p>SQL execution</p>
+<p>During execution, the database can further augment previously gathered statistics. In this stage, Oracle Database collects the number of rows produced by every row source during the execution of a SQL statement. At the end of execution, the optimizer determines whether the estimated number of rows is inaccurate enough to warrant reparsing at the next statement execution. If the cursor is marked for reparsing, then the optimizer uses actual row counts from the previous execution instead of estimates.</p>
+</li>
+<li>
+<p>SQL profiles</p>
+<p>A <a href="glossary.htm#GUID-79F91289-6DD0-49BC-AEA2-3427F5D52F41"><span class="xrefglossterm">SQL profile</span></a> is a collection of auxiliary statistics on a query. The profile stores these supplemental statistics in the data dictionary. The optimizer uses SQL profiles during optimization to determine the most optimal plan.</p>
+</li>
+</ul>
+<p>The database stores optimizer statistics in the data dictionary and updates or replaces them as needed. You can query statistics in data dictionary views.</p>
+<div class="infoboxnotealso" id="GUID-16C4B770-1783-493D-A0F6-3F8A9E075766__GUID-0824D866-91FE-4A5B-816A-A345BA4D9336">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_statscon.htm#GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9" title="Starting in Oracle Database 12c, the optimizer automatically decides whether dynamic statistics are useful and which sample size to use for all SQL statements. In earlier releases, dynamic statistics were called dynamic sampling.">When the Database Samples Data</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_profiles.htm#GUID-1AC3C45E-331A-4016-8FE8-7FEFFD8D7220" title="A SQL profile is a database object that contains auxiliary statistics specific to a SQL statement.">About SQL Profiles</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ARPLS68582" target="_blank" href="../ARPLS/d_stats.htm#ARPLS68582"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">DBMS_STATS.GATHER_TABLE_STATS</code> procedure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL347"></a>
+<div class="props_rev_3"><a id="GUID-F8F25E31-7113-4B91-BD81-BE6082983192"></a>
+<h3 id="TGSQL-GUID-F8F25E31-7113-4B91-BD81-BE6082983192" class="sect3">SQL Plan Directives</h3>
+<div>
+<p>A <span class="bold">SQL plan baseline</span> is additional information and instructions that the optimizer can use to generate a more optimal plan. For example, a SQL plan directive can instruct the optimizer to record a missing <span class="bold">extension</span>.</p>
+</div>
+<a id="TGSQL95089"></a>
+<div class="props_rev_3"><a id="GUID-C336BE11-6785-45AC-BBD0-2BA3D766E641"></a>
+<h4 id="TGSQL-GUID-C336BE11-6785-45AC-BBD0-2BA3D766E641" class="sect4">About SQL Plan Directives</h4>
+<div>
+<p>During SQL execution, if a cardinality misestimate occurs, then the database creates SQL plan directives.</p>
+<p>During <a href="glossary.htm#GUID-F9233BE0-9CB9-4673-A705-174924AE3B18"><span class="xrefglossterm">SQL compilation</span></a>, the optimizer examines the query corresponding to the directive to determine whether missing extensions or histograms exist. The optimizer records any missing extensions. Subsequent <code class="codeph">DBMS_STATS</code> calls collect statistics for the extensions.</p>
+<p>The optimizer uses dynamic statistics whenever it does not have sufficient statistics corresponding to the directive. For example, the optimizer gathers dynamic statistics until the creation of <a href="glossary.htm#GUID-FB763B43-B5C7-47D0-8B0D-47CED4922501"><span class="xrefglossterm">column group statistics</span></a>, and also after this point when misestimates occur. Currently, the optimizer monitors only column groups. The optimizer does not create an extension on expressions.</p>
+<p>SQL plan directives are not tied to a specific SQL statement or SQL ID. The optimizer can use directives for statements that are nearly identical because directives are defined on a query expression. For example, directives can help the optimizer with queries that use similar patterns, such as queries that are identical except for a select list item.</p>
+<p>The database automatically manages SQL plan directives. The database initially creates directives in the <a href="glossary.htm#GUID-A748101C-2FE6-4DAC-8F74-884C2BEED55D"><span class="xrefglossterm">shared pool</span></a>. The database periodically writes the directives to the <code class="codeph">SYSAUX</code> tablespace. You can manage directives with the APIs available in the <code class="codeph">DBMS_SPD</code> package.</p>
+<div class="infoboxnotealso" id="GUID-C336BE11-6785-45AC-BBD0-2BA3D766E641__GUID-6D00E503-A5A4-42CB-BF43-BA14E2CB24A4">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-BD0F0B71-DD8B-44A0-888E-495830FC09A4" title="DBMS_STATS enables you to collect extended statistics, which are statistics that can improve cardinality estimates when multiple predicates exist on different columns of a table, or when predicates use expressions. An extension is either a column group or an expression.">Managing Extended Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-858E0BDA-06C6-471F-B9E8-888C3AD29673" title="Individual column statistics are useful for determining the selectivity of a single predicate in a WHERE clause. However, when the WHERE clause includes multiple predicates on different columns from the same table, individual column statistics do not show the relationship between the columns. This is the problem solved by a column group.">About Statistics on Column Groups</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL95091"></a><a id="TGSQL95092"></a><a id="TGSQL95093"></a><a id="TGSQL95094"></a><a id="TGSQL95090"></a>
+<div class="props_rev_3"><a id="GUID-C8E00C0A-2DC3-4331-9319-696A6DECE716"></a>
+<h4 id="TGSQL-GUID-C8E00C0A-2DC3-4331-9319-696A6DECE716" class="sect4">How the Optimizer Uses SQL Plan Directives: Example</h4>
+<div>
+<p>This example shows how the database automatically creates and uses SQL plan directives for SQL statements.</p>
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>You plan to run queries against the <code class="codeph">sh</code> schema, and you have privileges on this schema and on data dictionary and <code class="codeph">V$</code> views.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To see how the database uses a SQL plan directive:</p>
+<ol>
+<li>
+<p>Query the <code class="codeph">sh.customers</code> table.</p>
+<pre dir="ltr">SELECT /*+gather_plan_statistics*/ * 
+FROM   customers 
+WHERE  cust_state_province=&#39;CA&#39; 
+AND    country_id=&#39;US&#39;;
+</pre>
+<p>The <code class="codeph">gather_plan_statistics</code> hint shows the actual number of rows returned from each operation in the plan. Thus, you can compare the optimizer estimates with the actual number of rows returned.</p>
+</li>
+<li>
+<p>Query the plan for the preceding query.</p>
+<p>The following example shows the execution plan (sample output included):</p>
+<pre dir="ltr">SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(FORMAT=&gt;&#39;ALLSTATS LAST&#39;));
+ 
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  b74nw722wjvy3, child number 0
+-------------------------------------
+select /*+gather_plan_statistics*/ * from customers where
+CUST_STATE_PROVINCE=&#39;CA&#39; and country_id=&#39;US&#39;
+ 
+Plan hash value: 1683234692
+--------------------------------------------------------------------------------------------
+| Id| Operation         | Name      | Starts |E-Rows| A-Rows |   A-Time   |Buffers | Reads |
+--------------------------------------------------------------------------------------------
+| 0 | SELECT STATEMENT  |           |      1 |      |     29 |00:00:00.01 |     17 |    14 |
+|*1 |  TABLE ACCESS FULL| CUSTOMERS |      1 |    8 |     29 |00:00:00.01 |     17 |    14 |
+--------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter((&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39; AND &#34;COUNTRY_ID&#34;=&#39;US&#39;))
+</pre>
+<p>The actual number of rows (<code class="codeph">A-Rows</code>) returned by each operation in the plan varies greatly from the estimates (<code class="codeph">E-Rows</code>). This statement is a candidate for <a href="glossary.htm#GUID-70FBCF66-F29E-4ADE-BEA8-F328917A2986"><span class="xrefglossterm">automatic reoptimization</span></a>.</p>
+</li>
+<li>
+<p>Check whether the <code class="codeph">customers</code> query can be reoptimized.</p>
+<p>The following statement queries the <code class="codeph">V$SQL.IS_REOPTIMIZABLE</code> value (sample output included):</p>
+<pre dir="ltr">SELECT SQL_ID, CHILD_NUMBER, SQL_TEXT, IS_REOPTIMIZABLE
+FROM   V$SQL
+WHERE  SQL_TEXT LIKE &#39;SELECT /*+gather_plan_statistics*/%&#39;;
+ 
+SQL_ID        CHILD_NUMBER SQL_TEXT    I
+------------- ------------ ----------- -
+b74nw722wjvy3            0 select /*+g Y
+                           ather_plan_
+                           statistics*
+                           / * from cu
+                           stomers whe
+                           re CUST_STA
+                           TE_PROVINCE
+                           =&#39;CA&#39; and c
+                           ountry_id=&#39;
+                           US&#39;
+</pre>
+<p>The <code class="codeph">IS_REOPTIMIZABLE</code> column is marked <code class="codeph">Y</code>, so the database will perform a hard parse of the <code class="codeph">customers</code> query on the next execution. The optimizer uses the execution statistics from this initial execution to determine the plan. The database persists the information learned from reoptimization as a SQL plan directive.</p>
+</li>
+<li>
+<p>Display the directives for the <code class="codeph">sh</code> schema.</p>
+<p>The following example uses <code class="codeph">DBMS_SPD</code> to write the SQL plan directives to disk, and then shows the directives for the <code class="codeph">sh</code> schema only:</p>
+<pre dir="ltr">EXEC DBMS_SPD.FLUSH_SQL_PLAN_DIRECTIVE;
+ 
+SELECT TO_CHAR(d.DIRECTIVE_ID) dir_id, o.OWNER AS &#34;OWN&#34;, o.OBJECT_NAME AS &#34;OBJECT&#34;, 
+       o.SUBOBJECT_NAME col_name, o.OBJECT_TYPE, d.TYPE, d.STATE, d.REASON
+FROM   DBA_SQL_PLAN_DIRECTIVES d, DBA_SQL_PLAN_DIR_OBJECTS o
+WHERE  d.DIRECTIVE_ID=o.DIRECTIVE_ID
+AND    o.OWNER IN (&#39;SH&#39;)
+ORDER BY 1,2,3,4,5;
+
+DIR_ID              OWN OBJECT    COL_NAME    OBJECT TYPE             STATE  REASON
+------------------- --- --------- ----------- ------ ---------------- ------ ------------
+1484026771529551585 SH  CUSTOMERS COUNTRY_ID  COLUMN DYNAMIC_SAMPLING USABLE SINGLE TABLE
+                                                                             CARDINALITY
+                                                                             MISESTIMATE
+1484026771529551585 SH  CUSTOMERS CUST_STATE_ COLUMN DYNAMIC_SAMPLING USABLE SINGLE TABLE
+                                  PROVINCE                                   CARDINALITY
+                                                                             MISESTIMATE       
+1484026771529551585 SH  CUSTOMERS             TABLE  DYNAMIC_SAMPLING USABLE SINGLE TABLE
+                                                                             CARDINALITY
+                                                                             MISESTIMATE
+</pre>
+<p>Initially, the database stores SQL plan directives in memory, and then writes them to disk every 15 minutes. Thus, the preceding example calls <code class="codeph">DBMS_SPD.FLUSH_SQL_PLAN_DIRECTIVE</code> to force the database to write the directives to the <code class="codeph">SYSAUX</code> tablespace.</p>
+<p>Monitor directives using the views <code class="codeph">DBA_SQL_PLAN_DIRECTIVES</code> and <code class="codeph">DBA_SQL_PLAN_DIR_OBJECTS</code>. Three entries appear in the views, one for the <code class="codeph">customers</code> table itself, and one for each of the correlated columns. Because the <code class="codeph">customers</code> query has the <code class="codeph">IS_REOPTIMIZABLE</code> value of <code class="codeph">Y</code>, if you reexecute the statement, then the database will hard parse it again, and then generate a plan based on the previous execution statistics.</p>
+</li>
+<li>
+<p>Query the <code class="codeph">customers</code> table again.</p>
+<p>For example, enter the following statement:</p>
+<pre dir="ltr">SELECT /*+gather_plan_statistics*/ * 
+FROM   customers 
+WHERE  cust_state_province=&#39;CA&#39; 
+AND    country_id=&#39;US&#39;;
+</pre></li>
+<li>
+<p>Query the plan in the cursor.</p>
+<p>The following example shows the execution plan (sample output included):</p>
+<pre dir="ltr">SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(FORMAT=&gt;&#39;ALLSTATS LAST&#39;));
+
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  b74nw722wjvy3, child number 1
+-------------------------------------
+select /*+gather_plan_statistics*/ * from customers where
+CUST_STATE_PROVINCE=&#39;CA&#39; and country_id=&#39;US&#39;
+ 
+Plan hash value: 1683234692
+---------------------------------------------------------------------------
+|Id | Operation         |Name     |Start|E-Rows|A-Rows|   A-Time  |Buffers|
+---------------------------------------------------------------------------
+|  0| SELECT STATEMENT  |         |    1|      |    29|00:00:00.01|     17|
+|* 1|  TABLE ACCESS FULL|CUSTOMERS|    1|    29|    29|00:00:00.01|     17|
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter((&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39; AND &#34;COUNTRY_ID&#34;=&#39;US&#39;))
+ 
+Note
+-----
+   - <span class="bold">cardinality feedback used for this statement</span>
+</pre>
+<p>The <code class="codeph">Note</code> section indicates that the database used reoptimization for this statement. The estimated number of rows (<code class="codeph">E-Rows</code>) is now correct. The SQL plan directive has not been used yet.</p>
+</li>
+<li>
+<p>Query the cursors for the <code class="codeph">customers</code> query.</p>
+<p>For example, run the following query (sample output included):</p>
+<pre dir="ltr">SELECT SQL_ID, CHILD_NUMBER, SQL_TEXT, IS_REOPTIMIZABLE
+FROM   V$SQL
+WHERE  SQL_TEXT LIKE &#39;SELECT /*+gather_plan_statistics*/%&#39;;
+ 
+SQL_ID        CHILD_NUMBER SQL_TEXT    I
+------------- ------------ ----------- -
+b74nw722wjvy3            0 select /*+g Y
+                           ather_plan_
+                           statistics*
+                           / * from cu
+                           stomers whe
+                           re CUST_STA
+                           TE_PROVINCE
+                           =&#39;CA&#39; and c
+                           ountry_id=&#39;
+                           US&#39;
+ 
+b74nw722wjvy3            1 select /*+g N
+                           ather_plan_
+                           statistics*
+                           / * from cu
+                           stomers whe
+                           re CUST_STA
+                           TE_PROVINCE
+                           =&#39;CA&#39; and c
+                           ountry_id=&#39;
+                           US&#39;
+</pre>
+<p>A new plan exists for the <code class="codeph">customers</code> query, and also a new child cursor.</p>
+</li>
+<li>
+<p>Confirm that a SQL plan directive exists and is usable for other statements.</p>
+<p>For example, run the following query, which is similar but not identical to the original <code class="codeph">customers</code> query (the state is <code class="codeph">MA</code> instead of <code class="codeph">CA</code>):</p>
+<pre dir="ltr">SELECT /*+gather_plan_statistics*/ CUST_EMAIL
+FROM   CUSTOMERS
+WHERE  CUST_STATE_PROVINCE=&#39;MA&#39;
+AND    COUNTRY_ID=&#39;US&#39;;
+</pre></li>
+<li>
+<p>Query the plan in the cursor.</p>
+<p>The following statement queries the cursor (sample output included).:</p>
+<pre dir="ltr">SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(FORMAT=&gt;&#39;ALLSTATS LAST&#39;));
+
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  3tk6hj3nkcs2u, child number 0
+-------------------------------------
+Select /*+gather_plan_statistics*/ cust_email From   customers Where
+cust_state_province=&#39;MA&#39; And    country_id=&#39;US&#39;
+ 
+Plan hash value: 1683234692
+
+---------------------------------------------------------------------------
+|Id | Operation         | Name      |Starts|E-Rows|A-Rows| A-Time |Buffers|
+---------------------------------------------------------------------------
+| 0 | SELECT STATEMENT  |           |    1 |      |  2 |00:00:00.01|   16 |
+|*1 |  TABLE ACCESS FULL| CUSTOMERS |    1 |    2 |  2 |00:00:00.01|   16 |
+---------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter((&#34;CUST_STATE_PROVINCE&#34;=&#39;MA&#39; AND &#34;COUNTRY_ID&#34;=&#39;US&#39;))
+ 
+Note
+-----
+   - dynamic sampling used for this statement (level=2)
+   - 1 Sql Plan Directive used for this statement
+</pre>
+<p>The <code class="codeph">Note</code> section of the plan shows that the optimizer used the SQL directive for this statement, and also used dynamic statistics.</p>
+</li>
+</ol>
+<div class="infoboxnotealso" id="GUID-C8E00C0A-2DC3-4331-9319-696A6DECE716__GUID-6B1FEAA5-D35B-4BA3-92E4-B3BCCED418A9">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_optcncpt.htm#GUID-D23F8328-A4CF-4211-8C9B-79B826F34A32" title="In automatic reoptimization, the optimizer changes a plan on subsequent executions after the initial execution.">Automatic Reoptimization</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E" title="The database automatically manages SQL plan directives. If the directives are not used in 53 weeks, then the database automatically purges them.">Managing SQL Plan Directives</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN23823" target="_blank" href="../REFRN/GUID-70035A22-E031-4975-A51C-871AE1F2F260.htm#REFRN23823"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">DBA_SQL_PLAN_DIRECTIVES</code>, <code class="codeph">V$SQL</code>, and other database views</p>
+</li>
+<li>
+<p><a class="olink ARPLS73856" target="_blank" href="../ARPLS/d_spd.htm#ARPLS73856"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">DBMS_SPD</code></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TGSQL95097"></a><a id="TGSQL95098"></a><a id="TGSQL95099"></a><a id="TGSQL95100"></a><a id="TGSQL95101"></a><a id="TGSQL95096"></a>
+<div class="props_rev_3"><a id="GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA"></a>
+<h4 id="TGSQL-GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA" class="sect4">How the Optimizer Uses Extensions and SQL Plan Directives: Example</h4>
+<div>
+<p>The example shows how the database uses a SQL plan directive until the optimizer verifies that an extension exists and the statistics are applicable.</p>
+<p>At this point, the directive changes its status to <code class="codeph">SUPERSEDED</code>. Subsequent compilations use the statistics instead of the directive.</p>
+<div class="section">
+<p class="subhead3">Assumptions</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p>This example assumes you have already followed the steps in <span class="q">&#34;<a href="tgsql_statscon.htm#GUID-C8E00C0A-2DC3-4331-9319-696A6DECE716" title="This example shows how the database automatically creates and uses SQL plan directives for SQL statements.">How the Optimizer Uses SQL Plan Directives: Example</a>&#34;</span>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To see how the optimizer uses an extension and SQL plan directive:</p>
+<ol>
+<li>
+<p>Gather statistics for the <code class="codeph">sh.customers</code> table.</p>
+<p>For example, execute the following PL/SQL program:</p>
+<pre dir="ltr">BEGIN
+  DBMS_STATS.GATHER_TABLE_STATS(&#39;SH&#39;,&#39;CUSTOMERS&#39;);
+END;
+/
+</pre></li>
+<li>
+<p>Check whether an extension exists on the <code class="codeph">customers</code> table.</p>
+<p>For example, execute the following query (sample output included):</p>
+<pre dir="ltr">SELECT TABLE_NAME, EXTENSION_NAME, EXTENSION 
+FROM   DBA_STAT_EXTENSIONS
+WHERE  OWNER=&#39;SH&#39; 
+AND    TABLE_NAME=&#39;CUSTOMERS&#39;;
+ 
+TABLE_NAM EXTENSION_NAME                 EXTENSION
+--------- ------------------------------ -----------------------
+CUSTOMERS SYS_STU#S#WF25Z#QAHIHE#MOFFMM_ (&#34;CUST_STATE_PROVINCE&#34;,
+                                         &#34;COUNTRY_ID&#34;)
+</pre>
+<p>The preceding output indicates that a column group extension exists on the <code class="codeph">cust_state_province</code> and <code class="codeph">country_id</code> columns.</p>
+</li>
+<li>
+<p>Query the state of the SQL plan directive.</p>
+<p><a href="tgsql_statscon.htm#GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__BABDHAAE">Example 10-6</a> queries the data dictionary for information about the directive.</p>
+<p>Although column group statistics exist, the directive has a state of <code class="codeph">USABLE</code> because the database has not yet recompiled the statement. During the next compilation, the optimizer verifies that the statistics are applicable. If they are applicable, then the status of the directive changes to <code class="codeph">SUPERSEDED</code>. Subsequent compilations use the statistics instead of the directive.</p>
+</li>
+<li>
+<p>Query the <code class="codeph">sh.customers</code> table.</p>
+<pre dir="ltr">SELECT /*+gather_plan_statistics*/ * 
+FROM   customers 
+WHERE  cust_state_province=&#39;CA&#39; 
+AND    country_id=&#39;US&#39;;
+</pre></li>
+<li>
+<p>Query the plan in the cursor.</p>
+<p><a href="tgsql_statscon.htm#GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__BABFEBDD">Example 10-7</a> shows the execution plan (sample output included).</p>
+<p>The <code class="codeph">Note</code> section shows that the optimizer used the directive and not the extended statistics. During the compilation, the database verified the extended statistics.</p>
+</li>
+<li>
+<p>Query the state of the SQL plan directive.</p>
+<p><a href="tgsql_statscon.htm#GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__BABGCHFF">Example 10-8</a> queries the data dictionary for information about the directive.</p>
+<p>The state of the directive, which has changed to <code class="codeph">SUPERSEDED</code>, indicates that the corresponding column or groups have an extension or histogram, or that another SQL plan directive exists that can be used for the directive.</p>
+</li>
+<li>
+<p>Query the <code class="codeph">sh.customers</code> table again, using a slightly different form of the statement.</p>
+<p>For example, run the following query:</p>
+<pre dir="ltr">SELECT /*+gather_plan_statistics*/ /* force reparse */ * 
+FROM   customers 
+WHERE  cust_state_province=&#39;CA&#39; 
+AND    country_id=&#39;US&#39;;
+</pre>
+<p>If the cursor is in the shared SQL area, then the database typically shares the cursor. To force a reparse, this step changes the SQL text slightly by adding a comment.</p>
+</li>
+<li>
+<p>Query the plan in the cursor.</p>
+<p><a href="tgsql_statscon.htm#GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__BABFBDEF">Example 10-9</a> shows the execution plan (sample output included).</p>
+<p>The absence of a <code class="codeph">Note</code> shows that the optimizer used the extended statistics instead of the SQL plan directive. If the directive is not used for 53 weeks, then the database automatically purges it.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__GUID-6F1D7ACC-8143-41D2-B6B1-B9FC2BA40C14">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-67E635AA-F168-47D7-9DC9-CE8803464B6E" title="The database automatically manages SQL plan directives. If the directives are not used in 53 weeks, then the database automatically purges them.">Managing SQL Plan Directives</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN23823" target="_blank" href="../REFRN/GUID-70035A22-E031-4975-A51C-871AE1F2F260.htm#REFRN23823"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">DBA_SQL_PLAN_DIRECTIVES</code>, <code class="codeph">V$SQL</code>, and other database views</p>
+</li>
+<li>
+<p><a class="olink ARPLS73856" target="_blank" href="../ARPLS/d_spd.htm#ARPLS73856"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">DBMS_SPD</code></p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__BABDHAAE">
+<p class="titleinexample">Example 10-6 Display Directives for sh Schema</p>
+<pre dir="ltr">EXEC DBMS_SPD.FLUSH_SQL_PLAN_DIRECTIVE;
+ 
+SELECT TO_CHAR(d.DIRECTIVE_ID) dir_id, o.OWNER, o.OBJECT_NAME, 
+       o.SUBOBJECT_NAME col_name, o.OBJECT_TYPE, d.TYPE, d.STATE, d.REASON
+FROM   DBA_SQL_PLAN_DIRECTIVES d, DBA_SQL_PLAN_DIR_OBJECTS o
+WHERE  d.DIRECTIVE_ID=o.DIRECTIVE_ID
+AND    o.OWNER IN (&#39;SH&#39;)
+ORDER BY 1,2,3,4,5;
+ 
+DIR_ID              OWN OBJECT_NA COL_NAME   OBJECT  TYPE             STATE  REASON
+------------------- --- --------- ---------- ------- ---------------- ------ ------------
+1484026771529551585  SH CUSTOMERS COUNTRY_ID  COLUMN DYNAMIC_SAMPLING USABLE SINGLE TABLE 
+                                                                             CARDINALITY 
+                                                                             MISESTIMATE
+1484026771529551585  SH CUSTOMERS CUST_STATE_ COLUMN DYNAMIC_SAMPLING USABLE SINGLE TABLE 
+                                  PROVINCE                                   CARDINALITY
+                                                                             MISESTIMATE
+1484026771529551585  SH CUSTOMERS              TABLE DYNAMIC_SAMPLING USABLE SINGLE TABLE 
+                                                                             CARDINALITY
+                                                                             MISESTIMATE
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__BABFEBDD">
+<p class="titleinexample">Example 10-7 Execution Plan</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(FORMAT=&gt;&#39;ALLSTATS LAST&#39;));
+ 
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  b74nw722wjvy3, child number 0
+-------------------------------------
+select /*+gather_plan_statistics*/ * from customers where
+CUST_STATE_PROVINCE=&#39;CA&#39; and country_id=&#39;US&#39;
+ 
+Plan hash value: 1683234692
+ 
+-----------------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Starts | E-Rows | A-Rows |   A-Time   | Buffers |
+-----------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |      1 |        |     29 |00:00:00.01 |      16 |
+|*  1 |  TABLE ACCESS FULL| CUSTOMERS |      1 |     29 |     29 |00:00:00.01 |      16 |
+-----------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter((&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39; AND &#34;COUNTRY_ID&#34;=&#39;US&#39;))
+ 
+Note
+-----
+   - dynamic sampling used for this statement (level=2)
+   - <span class="bold">1 Sql Plan Directive used for this statement</span>
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__BABGCHFF">
+<p class="titleinexample">Example 10-8 Display Directives for sh Schema</p>
+<pre dir="ltr">EXEC DBMS_SPD.FLUSH_SQL_PLAN_DIRECTIVE;
+ 
+SELECT TO_CHAR(d.DIRECTIVE_ID) dir_id, o.OWNER, o.OBJECT_NAME, 
+       o.SUBOBJECT_NAME col_name, o.OBJECT_TYPE, d.TYPE, d.STATE, d.REASON
+FROM   DBA_SQL_PLAN_DIRECTIVES d, DBA_SQL_PLAN_DIR_OBJECTS o
+WHERE  d.DIRECTIVE_ID=o.DIRECTIVE_ID
+AND    o.OWNER IN (&#39;SH&#39;)
+ORDER BY 1,2,3,4,5;
+ 
+DIR_ID              OWN OBJECT_NA  COL_NAME    OBJECT TYPE     STATE      REASON
+------------------- --- ---------  ----------  ------ -------- ---------  ------------
+1484026771529551585  SH CUSTOMERS  COUNTRY_ID  COLUMN DYNAMIC_ SUPERSEDED SINGLE TABLE  
+                                                      SAMPLING            CARDINALITY 
+                                                                          MISESTIMATE
+1484026771529551585  SH CUSTOMERS  CUST_STATE_ COLUMN DYNAMIC_ SUPERSEDED SINGLE TABLE 
+                                   PROVINCE           SAMPLING            CARDINALITY 
+                                                                          MISESTIMATE
+1484026771529551585  SH CUSTOMERS               TABLE DYNAMIC_ SUPERSEDED SINGLE TABLE
+                                                      SAMPLING            CARDINALITY
+                                                                          MISESTIMATE
+</pre>
+<pre dir="ltr"></pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-9A158A8E-AEA0-4B40-9C76-32555FF654BA__BABFBDEF">
+<p class="titleinexample">Example 10-9 Execution Plan</p>
+<pre dir="ltr">SQL&gt; SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(FORMAT=&gt;&#39;ALLSTATS LAST&#39;));
+ 
+PLAN_TABLE_OUTPUT
+-------------------------------------
+SQL_ID  b74nw722wjvy3, child number 0
+-------------------------------------
+select /*+gather_plan_statistics*/ * from customers where
+CUST_STATE_PROVINCE=&#39;CA&#39; and country_id=&#39;US&#39;
+ 
+Plan hash value: 1683234692
+ 
+-----------------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Starts | E-Rows | A-Rows |   A-Time   | Buffers |
+-----------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |      1 |        |     29 |00:00:00.01 |      17 |
+|*  1 |  TABLE ACCESS FULL| CUSTOMERS |      1 |     29 |     29 |00:00:00.01 |      17 |
+-----------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter((&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39; AND &#34;COUNTRY_ID&#34;=&#39;US&#39;))
+ 
+19 rows selected.
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="TGSQL349"></a><a id="TGSQL348"></a>
+<div class="props_rev_3"><a id="GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9"></a>
+<h3 id="TGSQL-GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9" class="sect3">When the Database Samples Data</h3>
+<div>
+<p>Starting in Oracle Database 12<span class="italic">c</span>, the optimizer automatically decides whether dynamic statistics are useful and which sample size to use for all SQL statements. In earlier releases, dynamic statistics were called <span class="italic">dynamic sampling</span>.</p>
+<p>The primary factor in the decision to use dynamic statistics is whether available statistics are sufficient to generate an optimal plan. If statistics are insufficient, then the optimizer uses dynamic statistics.</p>
+<p>Automatic dynamic statistics are enabled when the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter is not set to <code class="codeph">0</code>. By default, the <a href="glossary.htm#GUID-AD21414C-F385-4CA1-A1A5-79707D747D42"><span class="xrefglossterm">dynamic statistics level</span></a> is set to <code class="codeph">2</code>.</p>
+<p>In general, the optimizer uses default statistics rather than dynamic statistics to compute statistics needed during optimizations on tables, indexes, and columns. The optimizer decides whether to use dynamic statistics based on several factors, including the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The SQL statement uses parallel execution.</p>
+</li>
+<li>
+<p>A SQL plan directive exists.</p>
+</li>
+</ul>
+<p>The following diagram illustrates the process of gathering dynamic statistics.</p>
+<div class="figure" id="GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9__BABCEJAH">
+<p class="titleinfigure">Figure 10-2 Dynamic Statistics</p>
+<img width="515" height="417" src="img/GUID-01E35E2B-17C8-47F5-9EF1-E123FE33B4C0-default.png" alt="Description of Figure 10-2 follows" title="Description of Figure 10-2 follows"/><br/>
+<a href="img_text/GUID-01E35E2B-17C8-47F5-9EF1-E123FE33B4C0-print.htm">Description of &#34;Figure 10-2 Dynamic Statistics&#34;</a></div>
+<!-- class="figure" -->
+<p>As shown in <a href="tgsql_statscon.htm#GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9__BABCEJAH">Figure 10-2</a>, the optimizer automatically gathers dynamic statistics in the following cases:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Missing statistics</p>
+<p>When tables in a query have no statistics, the optimizer gathers basic statistics on these tables before optimization. Statistics can be missing because the application creates new objects without a follow-up call to <code class="codeph">DBMS_STATS</code> to gather statistics, or because statistics were locked on an object before statistics were gathered.</p>
+<p>In this case, the statistics are not as high-quality or as complete as the statistics gathered using the <code class="codeph">DBMS_STATS</code> package. This trade-off is made to limit the impact on the compile time of the statement.</p>
+</li>
+<li>
+<p>Insufficient statistics</p>
+<p>Statistics can be insufficient whenever the optimizer estimates the selectivity of predicates (filter or join) or the <code class="codeph">GROUP BY</code> clause without taking into account correlation between columns, skew in the column data distribution, statistics on expressions, and so on.</p>
+<p>Extended statistics help the optimizer obtain accurate quality cardinality estimates for complex predicate expressions. The optimizer can use dynamic statistics to compensate for the lack of extended statistics or when it cannot use extended statistics, for example, for non-equality predicates.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9__GUID-B7DFBE78-ED18-418E-AA20-9DEE43FFB60F">
+<p class="notep1">Note:</p>
+<p>The database does not use dynamic statistics for queries that contain the <code class="codeph">AS OF</code> clause.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9__GUID-502D5190-38EF-478F-A681-30748DA1E009">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-F1C666DC-5450-4F92-83AA-607327DB5FD8" title="By default, when optimizer statistics are missing, stale, or insufficient, dynamic statistics automatically run recursive SQL during parsing to scan a small random sample of table blocks.">Controlling Dynamic Statistics</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-858E0BDA-06C6-471F-B9E8-888C3AD29673" title="Individual column statistics are useful for determining the selectivity of a single predicate in a WHERE clause. However, when the WHERE clause includes multiple predicates on different columns from the same table, individual column statistics do not show the relationship between the columns. This is the problem solved by a column group.">About Statistics on Column Groups</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN10140" target="_blank" href="../REFRN/GUID-43655FC3-3C32-486B-8B11-8C20C152618D.htm#REFRN10140"><span><cite>Oracle Database Reference</cite></span></a> to learn about the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGSQL350"></a>
+<div class="props_rev_3"><a id="GUID-3A50D0D5-5494-43EE-B03D-10569B4D8BF8"></a>
+<h3 id="TGSQL-GUID-3A50D0D5-5494-43EE-B03D-10569B4D8BF8" class="sect3">How the Database Samples Data</h3>
+<div>
+<p>At the beginning of optimization, when deciding whether a table is a candidate for dynamic statistics, the optimizer checks for the existence of persistent SQL plan directives on the table. For each directive, the optimizer registers a statistics expression that the optimizer computes when determining the cardinality of a predicate involving the table.</p>
+<p>In <a href="tgsql_statscon.htm#GUID-E932F5B4-9BDB-4EE4-934C-7F1979CC62A9__BABCEJAH">Figure 10-2</a>, the database issues a <a href="glossary.htm#GUID-4BBB2EED-7E8C-4BAF-A3B3-B1CEF98342AC"><span class="xrefglossterm">recursive SQL</span></a> statement to scan a small random sample of the table blocks. The database applies the relevant single-table predicates and joins to estimate predicate cardinalities.</p>
+<p>The database persists the results of dynamic statistics as sharable statistics. The database can share the results during the <a href="glossary.htm#GUID-F9233BE0-9CB9-4673-A705-174924AE3B18"><span class="xrefglossterm">SQL compilation</span></a> of one query with recompilations of the same query. The database can also reuse the results for queries that have the same patterns.</p>
+<div class="infoboxnotealso" id="GUID-3A50D0D5-5494-43EE-B03D-10569B4D8BF8__GUID-79EB0E26-32DE-42BD-B837-5BFC0AE7B2C6">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tgsql_astat.htm#GUID-F1C666DC-5450-4F92-83AA-607327DB5FD8" title="By default, when optimizer statistics are missing, stale, or insufficient, dynamic statistics automatically run recursive SQL during parsing to scan a small random sample of table blocks.">Controlling Dynamic Statistics</a>&#34;</span> to learn how to set the dynamic statistics level</p>
+</li>
+<li>
+<p><a class="olink REFRN10140" target="_blank" href="../REFRN/GUID-43655FC3-3C32-486B-8B11-8C20C152618D.htm#REFRN10140"><span><cite>Oracle Database Reference</cite></span></a> for details about the <code class="codeph">OPTIMIZER_DYNAMIC_SAMPLING</code> initialization parameter</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4801">
+<tr>
+<td class="cellalignment4834">
+<table class="cellalignment4806">
+<tr>
+<td class="cellalignment4805"><a href="tgsql_pt_stats.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4805"><a href="tgsql_histo.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4836">
+<table class="cellalignment4804">
+<tr>
+<td class="cellalignment4805"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4805"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4805"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4805"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4805"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4805"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

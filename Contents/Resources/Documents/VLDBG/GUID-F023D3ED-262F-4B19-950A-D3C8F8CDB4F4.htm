@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-114600"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/When%20to%20Use%20Hash%20Partitioning"></a><title>When to Use Hash Partitioning</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2016-07-20T13:00:08Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database VLDB and Partitioning Guide"/>
+<meta name="dcterms.identifier" content="E41057-12"/>
+<meta name="dcterms.isVersionOf" content="VLDBG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-EAFD703C-EFA9-4819-85BD-79F63B761A96.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-46E9F92A-4E34-4518-BAD9-6AB3C3F46ED0.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41057-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4"></a> <span id="PAGE" style="display:none;">95/481</span> <!-- End Header --><a id="VLDBG14030"></a><a id="VLDBG1270"></a>
+<h1 id="VLDBG-GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4" class="sect1">When to Use Hash Partitioning</h1>
+<div>
+<p><a id="d19604e62" class="indexterm-anchor"></a><a id="d19604e66" class="indexterm-anchor"></a>There are times when it is not obvious in which partition data should reside, although the partitioning key can be identified. Rather than group similar data, there are times when it is desirable to distribute data such that it does not correspond to a business or a logical view of the data, as it does in range partitioning. With hash partitioning, a row is placed into a partition based on the result of passing the partitioning key into a hashing algorithm.</p>
+<p>Using this approach, data is randomly distributed across the partitions rather than grouped. This is a good approach for some data, but may not be an effective way to manage historical data. However, hash partitions share some performance characteristics with range partitions. For example, partition pruning is limited to equality predicates. You can also use partition-wise joins, parallel index access, and parallel DML. See <span class="q">&#34;<a href="GUID-7C28CD29-5189-4A53-9691-380E13515015.htm">Partition-Wise Joins</a>&#34;</span> for more information.</p>
+<p>As a general rule, use hash partitioning for the following purposes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To enable partial or full parallel partition-wise joins with likely equisized partitions.</p>
+</li>
+<li>
+<p>To distribute data evenly among the nodes of an MPP platform that uses Oracle Real Application Clusters. Consequently, you can minimize interconnect traffic when processing internode parallel statements.</p>
+</li>
+<li>
+<p>To use partition pruning and partition-wise joins according to a partitioning key that is mostly constrained by a distinct value or value list.</p>
+</li>
+<li>
+<p>To randomly distribute data to avoid I/O bottlenecks if you do not use a storage management technique that stripes and mirrors across all available devices.</p>
+<p>For more information, refer to <a href="GUID-02C55147-04B1-4DBC-8CFC-637CE5E751DF.htm">Storage Management for VLDBs</a>.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4__GUID-EF785C3F-A390-4F86-BF4F-0DCFF59CA85F">
+<p class="notep1">Note:</p>
+<p>With hash partitioning, only equality or <code>IN</code>-list predicates are supported for partition pruning.</p>
+</div>
+<p>For optimal data distribution, the following requirements should be satisfied:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Choose a column or combination of columns that is unique or almost unique.</p>
+</li>
+<li>
+<p>Create multiple partitions and subpartitions for each partition that is a power of two. For example, 2, 4, 8, 16, 32, 64, 128, and so on.</p>
+</li>
+</ul>
+<p><a href="GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4.htm#GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4__BABICGIB">Example 3-6</a> creates four hash partitions for the table <code>sales_hash</code> using the column <code>s_productid</code> as the partitioning key. Parallel joins with the products table can take advantage of partial or full partition-wise joins. Queries accessing sales figures for only a single product or a list of products benefit from partition pruning.</p>
+<p>If you do not explicitly specify partition names, but instead you specify the number of hash partitions, then Oracle automatically generates internal names for the partitions. Also, you can use the <code>STORE</code> <code>IN</code> clause to assign hash partitions to tablespaces in a round-robin manner. For more examples, refer to <a href="GUID-F2C99CFA-1090-4A62-B452-D4E116A40A34.htm">Partition Administration</a>.</p>
+<div class="infoboxnotealso" id="GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4__GUID-91D6A97E-6B88-4C13-A931-4977532C645E">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF01402" target="_blank" href="../SQLRF/statements_7002.htm#SQLRF01402"><span class="italic">Oracle Database SQL Language Reference</span></a> for partitioning syntax</p>
+</div>
+<div class="example" id="GUID-F023D3ED-262F-4B19-950A-D3C8F8CDB4F4__BABICGIB">
+<p class="titleinexample">Example 3-6 Creating a table with hash partitioning</p>
+<pre dir="ltr">CREATE TABLE sales_hash
+  (s_productid  NUMBER,
+   s_saledate   DATE,
+   s_custid     NUMBER,
+   s_totalprice NUMBER)
+PARTITION BY HASH(s_productid)
+( PARTITION p1 TABLESPACE tbs1
+, PARTITION p2 TABLESPACE tbs2
+, PARTITION p3 TABLESPACE tbs3
+, PARTITION p4 TABLESPACE tbs4
+);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2957">
+<tr>
+<td class="cellalignment2964">
+<table class="cellalignment2962">
+<tr>
+<td class="cellalignment2961"><a href="GUID-EAFD703C-EFA9-4819-85BD-79F63B761A96.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2961"><a href="GUID-46E9F92A-4E34-4518-BAD9-6AB3C3F46ED0.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2008, 2016, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2966">
+<table class="cellalignment2960">
+<tr>
+<td class="cellalignment2961"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2961"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2961"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2961"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2961"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2961"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

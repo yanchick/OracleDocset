@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-2883"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/MULTI_LEXER%20Example%3A%20Indexing%20a%20Multi-Language%20Table"></a><title>MULTI_LEXER Example: Indexing a Multi-Language Table</title>
+<meta name="generator" content="DITA Open Toolkit version 1.7.5"/>
+<meta name="keywords" content="MULTI_LEXER, example, ADD_SUB_LEXER procedure"/>
+<meta name="dcterms.created" content="2015-05-15T00:35:11Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Text Application Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E41398-07"/>
+<meta name="dcterms.isVersionOf" content="CCAPP"/>
+<meta name="dcterms.rights" content="Copyright &nbsp;&copy;&nbsp;2001, 2015, Oracle and/or its affiliates. All rights reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-F335465D-592B-4D74-8E58-1891600298B3.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-6FDF4DA0-11A6-48B2-A1A7-2D08D0E81D2A.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41398-07.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-8680F1FC-0CCE-4E26-806A-08048896B5CE"></a> <span id="PAGE" style="display:none;">87/321</span> <!-- End Header --><a id="CCAPP9090"></a>
+<h1 id="CCAPP-GUID-8680F1FC-0CCE-4E26-806A-08048896B5CE" class="sect1">MULTI_LEXER Example: Indexing a Multi-Language Table</h1>
+<div>
+<p>You use the <code>MULTI_LEXER</code> preference type to index a column containing documents in different languages. For example, you can use this preference type when your text column stores documents in English, German, and French.</p>
+<p>The first step is to create the multi-language table with a primary key, a text column, and a language column as follows:</p>
+<pre>create table globaldoc (
+   doc_id number primary key,
+   lang varchar2(3),
+   text clob
+);
+</pre>
+<p>Assume that the table holds mostly English documents, with some German and Japanese documents. To handle the three languages, you must create three sub-lexers, one for English, one for German, and one for Japanese:</p>
+<pre>ctx_ddl.create_preference(&#39;english_lexer&#39;,&#39;basic_lexer&#39;);
+ctx_ddl.set_attribute(&#39;english_lexer&#39;,&#39;index_themes&#39;,&#39;yes&#39;);
+ctx_ddl.set_attribute(&#39;english_lexer&#39;,&#39;theme_language&#39;,&#39;english&#39;);
+
+ctx_ddl.create_preference(&#39;german_lexer&#39;,&#39;basic_lexer&#39;);
+ctx_ddl.set_attribute(&#39;german_lexer&#39;,&#39;composite&#39;,&#39;german&#39;);
+ctx_ddl.set_attribute(&#39;german_lexer&#39;,&#39;mixed_case&#39;,&#39;yes&#39;);
+ctx_ddl.set_attribute(&#39;german_lexer&#39;,&#39;alternate_spelling&#39;,&#39;german&#39;);
+
+ctx_ddl.create_preference(&#39;japanese_lexer&#39;,&#39;japanese_vgram_lexer&#39;);
+</pre>
+<p>Create the multi-lexer preference:</p>
+<pre>ctx_ddl.create_preference(&#39;global_lexer&#39;, &#39;multi_lexer&#39;);
+</pre>
+<p>Because the stored documents are mostly English, make the English lexer the default using <code>CTX_DDL.ADD_SUB_LEXER</code>:</p>
+<pre>ctx_ddl.add_sub_lexer(&#39;global_lexer&#39;,&#39;default&#39;,&#39;english_lexer&#39;);
+</pre>
+<p>Now add the German and Japanese lexers in their respective languages with <code>CTX_DDL.ADD_SUB_LEXER</code> procedure. Also assume that the language column is expressed in the standard ISO 639-2 language codes, so add those as alternate values.</p>
+<pre>ctx_ddl.add_sub_lexer(&#39;global_lexer&#39;,&#39;german&#39;,&#39;german_lexer&#39;,&#39;ger&#39;);
+ctx_ddl.add_sub_lexer(&#39;global_lexer&#39;,&#39;japanese&#39;,&#39;japanese_lexer&#39;,&#39;jpn&#39;);
+</pre>
+<p>Now create the index <code>globalx</code>, specifying the multi-lexer preference and the language column in the parameter clause as follows:</p>
+<pre>create index globalx on globaldoc(text) indextype is ctxsys.context
+parameters (&#39;lexer global_lexer language column lang&#39;);
+</pre></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment6351">
+<tr>
+<td class="cellalignment6358">
+<table class="cellalignment6356">
+<tr>
+<td class="cellalignment6355"><a href="GUID-F335465D-592B-4D74-8E58-1891600298B3.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment6355"><a href="GUID-6FDF4DA0-11A6-48B2-A1A7-2D08D0E81D2A.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright &nbsp;&copy;&nbsp;2001, 2015, Oracle and/or its affiliates. All rights reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment6360">
+<table class="cellalignment6354">
+<tr>
+<td class="cellalignment6355"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment6355"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment6355"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment6355"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment6355"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment6355"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

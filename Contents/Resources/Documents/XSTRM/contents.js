@@ -1,0 +1,17 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Introduction to XStream", anchor: "XSTRM72647", file: "xstrm_intro.htm" },
+  { topic: "chapter", section: "2", title: " General XStream Concepts ", anchor: "XSTRM72733", file: "xstrm_gen_cncpt.htm" },
+  { topic: "chapter", section: "3", title: "XStream Out Concepts", anchor: "XSTRM187", file: "xstrm_xout_cncpt.htm" },
+  { topic: "chapter", section: "4", title: "Configuring XStream Out", anchor: "XSTRM1496", file: "xstrm_xout_config.htm" },
+  { topic: "chapter", section: "5", title: " Managing XStream Out", anchor: "XSTRM1571", file: "xstrm_xout_man.htm" },
+  { topic: "chapter", section: "6", title: " Monitoring XStream Out", anchor: "XSTRM1437", file: "xstrm_xout_mon.htm" },
+  { topic: "chapter", section: "7", title: "Troubleshooting XStream Out", anchor: "XSTRM1641", file: "xstrm_xout_trouble.htm" },
+  { topic: "chapter", section: "8", title: "XStream In Concepts", anchor: "XSTRM72696", file: "xstrm_xin_cncpt.htm" },
+  { topic: "chapter", section: "9", title: "Configuring XStream In", anchor: "XSTRM72713", file: "xstrm_xin_config.htm" },
+  { topic: "chapter", section: "10", title: "Managing XStream In", anchor: "XSTRM72715", file: "xstrm_xin_man.htm" },
+  { topic: "chapter", section: "11", title: " Monitoring XStream In", anchor: "XSTRM72716", file: "xstrm_xin_mon.htm" },
+  { topic: "chapter", section: "12", title: "Troubleshooting XStream In", anchor: "XSTRM72717", file: "xstrm_xin_trouble.htm" },
+  { topic: "appendix", section: "A", title: "Sample XStream Client Application", anchor: "XSTRM1568", file: "xstrm_ap_sample_appl.htm" },
+  { topic: "appendix", section: "B", title: " XStream Out Restrictions", anchor: "XSTRM72793", file: "xstrm_out_restrict.htm" },
+  { topic: "appendix", section: "C", title: "XStream In Restrictions", anchor: "XSTRM72868", file: "xstrm_in_restrict.htm" },
+  { } ];

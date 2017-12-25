@@ -1,0 +1,123 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-87797"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Failing%20Over%20OCI%20Clients%20with%20TAF"></a><title>Failing Over OCI Clients with TAF</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-07-10T13:15:22Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Real Application Clusters Administration and Deployment Guide"/>
+<meta name="dcterms.identifier" content="E48838-12"/>
+<meta name="dcterms.isVersionOf" content="RACAD"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-04472116-5B0F-45D3-83BC-7A029C1E61C4.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-26E66434-7A68-4B63-B759-3E0A8CA14A8B.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E48838-12.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-DEF850F6-27E9-428E-B8FC-530230D78AD2"></a> <span id="PAGE" style="display:none;">116/567</span> <!-- End Header -->
+<a id="RACAD8268"></a>
+<h1 id="RACAD-GUID-DEF850F6-27E9-428E-B8FC-530230D78AD2" class="sect1">Failing Over OCI Clients with TAF</h1>
+<div>
+<p>When Oracle Net Services establishes a connection to an instance, the connection remains open until the client closes the connection, the instance is shutdown, or a failure occurs. If you configure transparent application failover (TAF) for the connection, then Oracle Database replays the session at a surviving instance when an outage occurs.</p>
+<p>TAF can restart a query after failover has completed but for other types of transactions, such as <code class="codeph">INSERT</code>, <code class="codeph">UPDATE</code>, or <code class="codeph">DELETE</code>, the application must rollback the failed transaction and resubmit the transaction. You must also reexecute any session customizations, in other words, <code class="codeph">ALTER SESSION</code> statements, after failover has occurred. However, with TAF, a connection is not moved during normal processing, even if the workload changes over time.</p>
+<p><a id="d28030e146" class="indexterm-anchor"></a>Services simplify the deployment of TAF. You can define a TAF policy for a service, and all connections using this service will automatically have TAF enabled. This does not require any client-side changes. The TAF setting on a service overrides any TAF setting in the client connection definition.</p>
+<p>You can define a TAF policy for all users of a service by defining the <code class="codeph">-failovermethod</code> and <code class="codeph">-failovertype</code> parameters. You can further define the TAF policy by setting the number of times that a failed session attempts to reconnect to the service and how long it should wait between reconnection attempts using the <code class="codeph">-failoverretry</code> and <code class="codeph">-failoverdelay</code> parameters, respectively.</p>
+<p>To define a TAF policy for a service, use SRVCTL as in the following example, where the service name is <code class="codeph">tafconn.example.com</code> and the database name is CRM:</p>
+<pre dir="ltr">$ srvctl modify service -db crm -service tafconn.example.com -failovermethod BASIC
+    -failovertype SELECT -failoverretry 10 -failoverdelay 30
+</pre>
+<p>OCI applications with TAF enabled should use FAN high availability events for fast connection failover.</p>
+<div class="infoboxnotealso" id="GUID-DEF850F6-27E9-428E-B8FC-530230D78AD2__GUID-927B00D3-F50B-4023-9B4F-8997E959A0B1">
+<p class="notep1">See Also:</p>
+<p><a class="olink NETAG455" target="_blank" href="../NETAG/advcfg.htm#NETAG455"><span class="italic">Oracle Database Net Services Administrator&#39;s Guide</span></a> for more information about configuring TAF</p>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2593">
+<tr>
+<td class="cellalignment2600">
+<table class="cellalignment2598">
+<tr>
+<td class="cellalignment2597"><a href="GUID-04472116-5B0F-45D3-83BC-7A029C1E61C4.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2597"><a href="GUID-26E66434-7A68-4B63-B759-3E0A8CA14A8B.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2602">
+<table class="cellalignment2596">
+<tr>
+<td class="cellalignment2597"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2597"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2597"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2597"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2597"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2597"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

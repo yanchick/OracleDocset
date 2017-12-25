@@ -1,0 +1,528 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-105600"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Example%204%3A%20Using%20the%20LogMiner%20Dictionary%20in%20the%20Redo%20Log%20Files"></a><title>Example 4: Using the LogMiner Dictionary in the Redo Log Files</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-07-10T17:06:49Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Utilities"/>
+<meta name="dcterms.identifier" content="E41528-09"/>
+<meta name="dcterms.isVersionOf" content="SUTIL"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="GUID-E42A8D99-F93F-40F4-9E86-787CA179692A.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="GUID-E0DDC97C-7364-4BED-AF2A-E0B486F0E22F.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41528-09.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-90944343-46BB-4BD5-A0C6-7A4B79D9BEF0"></a> <span id="PAGE" style="display:none;">794/1019</span> <!-- End Header -->
+<a id="SUTIL4247"></a><a id="SUTIL4248"></a><a id="SUTIL4249"></a><a id="SUTIL4250"></a><a id="SUTIL4251"></a><a id="SUTIL4252"></a><a id="SUTIL1609"></a>
+<h1 id="SUTIL-GUID-90944343-46BB-4BD5-A0C6-7A4B79D9BEF0" class="sect1">Example 4: Using the LogMiner Dictionary in the Redo Log Files</h1>
+<div>
+<div class="section">
+<p>This example shows how to use the dictionary that has been extracted to the redo log files. When you use the dictionary in the online catalog, you must mine the redo log files in the same database that generated them. Using the dictionary contained in the redo log files enables you to mine redo log files in a different database.</p>
+<ol>
+<li>
+<p>Determine which redo log file was most recently archived by the database.</p>
+<pre dir="ltr">SELECT NAME, SEQUENCE# FROM V$ARCHIVED_LOG
+   WHERE FIRST_TIME = (SELECT MAX(FIRST_TIME) FROM V$ARCHIVED_LOG);
+
+NAME                                           SEQUENCE#
+--------------------------------------------   --------------
+/usr/oracle/data/db1arch_1_210_482701534.dbf   210
+</pre></li>
+<li>
+<p>The dictionary may be contained in more than one redo log file. Therefore, you need to determine which redo log files contain the start and end of the dictionary. Query the <code class="codeph">V$ARCHIVED_LOG</code> view, as follows:</p>
+<ol>
+<li>
+<p>Find a redo log file that contains the end of the dictionary extract. This redo log file must have been created before the redo log file that you want to analyze, but should be as recent as possible.</p>
+<pre dir="ltr">SELECT NAME, SEQUENCE#, DICTIONARY_BEGIN d_beg, DICTIONARY_END d_end
+   FROM V$ARCHIVED_LOG
+   WHERE SEQUENCE# = (SELECT MAX (SEQUENCE#) FROM V$ARCHIVED_LOG
+   WHERE DICTIONARY_END = &#39;YES&#39; and SEQUENCE# &lt;= 210);
+
+NAME                                           SEQUENCE#    D_BEG  D_END
+--------------------------------------------   ----------   -----  ------
+/usr/oracle/data/db1arch_1_208_482701534.dbf   208          NO     YES
+</pre></li>
+<li>
+<p>Find the redo log file that contains the start of the data dictionary extract that matches the end of the dictionary found in the previous step:</p>
+<pre dir="ltr">SELECT NAME, SEQUENCE#, DICTIONARY_BEGIN d_beg, DICTIONARY_END d_end
+   FROM V$ARCHIVED_LOG
+   WHERE SEQUENCE# = (SELECT MAX (SEQUENCE#) FROM V$ARCHIVED_LOG
+   WHERE DICTIONARY_BEGIN = &#39;YES&#39; and SEQUENCE# &lt;= 208);
+
+NAME                                           SEQUENCE#    D_BEG  D_END
+--------------------------------------------   ----------   -----  ------
+/usr/oracle/data/db1arch_1_207_482701534.dbf   207          YES     NO
+</pre></li>
+<li>
+<p>Specify the list of the redo log files of interest. Add the redo log files that contain the start and end of the dictionary and the redo log file that you want to analyze. You can add the redo log files in any order.</p>
+<pre dir="ltr">EXECUTE DBMS_LOGMNR.ADD_LOGFILE(-
+   LOGFILENAME =&gt; &#39;/usr/oracle/data/db1arch_1_210_482701534.dbf&#39;, -
+       OPTIONS =&gt; DBMS_LOGMNR.NEW);
+EXECUTE DBMS_LOGMNR.ADD_LOGFILE(-
+   LOGFILENAME =&gt; &#39;/usr/oracle/data/db1arch_1_208_482701534.dbf&#39;);
+EXECUTE DBMS_LOGMNR.ADD_LOGFILE(-
+   LOGFILENAME =&gt; &#39;/usr/oracle/data/db1arch_1_207_482701534.dbf&#39;);
+</pre></li>
+<li>
+<p>Query the <code class="codeph">V$LOGMNR_LOGS</code> view to display the list of redo log files to be analyzed, including their timestamps.</p>
+<p>In the output, LogMiner flags a missing redo log file. LogMiner lets you proceed with mining, provided that you do not specify an option that requires the missing redo log file for proper functioning.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Start LogMiner by specifying the dictionary to use and the <code class="codeph">COMMITTED_DATA_ONLY</code> and <code class="codeph">PRINT_PRETTY_SQL</code> options.</p>
+<pre dir="ltr">EXECUTE DBMS_LOGMNR.START_LOGMNR(-
+   OPTIONS =&gt; DBMS_LOGMNR.DICT_FROM_REDO_LOGS + -
+              DBMS_LOGMNR.COMMITTED_DATA_ONLY + -
+              DBMS_LOGMNR.PRINT_PRETTY_SQL);
+</pre></li>
+<li>
+<p>Query the <code class="codeph">V$LOGMNR_CONTENTS</code> view.</p>
+<p>To reduce the number of rows returned by the query, exclude from the query all DML statements done in the <code class="codeph">SYS</code> or <code class="codeph">SYSTEM</code> schemas. (This query specifies a timestamp to exclude transactions that were involved in the dictionary extraction.)</p>
+<p>The output shows three transactions: two DDL transactions and one DML transaction. The DDL transactions, 1.2.1594 and 1.18.1602, create the table <code class="codeph">oe.product_tracking</code> and create a trigger on table <code class="codeph">oe.product_information</code>, respectively. In both transactions, the DML statements done to the system tables (tables owned by <code class="codeph">SYS</code>) are filtered out because of the query predicate.</p>
+<p>The DML transaction, 1.9.1598, updates the <code class="codeph">oe.product_information</code> table. The update operation in this transaction is fully translated. However, the query output also contains some untranslated reconstructed SQL statements. Most likely, these statements were done on the <code class="codeph">oe.product_tracking</code> table that was created after the data dictionary was extracted to the redo log files.</p>
+<p>(The next example shows how to run LogMiner with the <code class="codeph">DDL_DICT_TRACKING</code> option so that all SQL statements are fully translated; no binary data is returned.)</p>
+<pre dir="ltr">SELECT USERNAME AS usr, SQL_REDO FROM V$LOGMNR_CONTENTS 
+   WHERE SEG_OWNER IS NULL OR SEG_OWNER NOT IN (&#39;SYS&#39;, &#39;SYSTEM&#39;) AND
+   TIMESTAMP &gt; &#39;10-jan-2012 15:59:53&#39;;
+
+USR             XID         SQL_REDO
+---             --------    -----------------------------------
+SYS             1.2.1594    set transaction read write;
+SYS             1.2.1594    create table oe.product_tracking (product_id number not null,
+                            modified_time date,
+                            old_list_price number(8,2),
+                            old_warranty_period interval year(2) to month);
+SYS             1.2.1594    commit;
+
+SYS             1.18.1602   set transaction read write;
+SYS             1.18.1602   create or replace trigger oe.product_tracking_trigger
+                            before update on oe.product_information
+                            for each row
+                            when (new.list_price &lt;&gt; old.list_price or
+                                  new.warranty_period &lt;&gt; old.warranty_period)
+                            declare
+                            begin
+                            insert into oe.product_tracking values 
+                               (:old.product_id, sysdate,
+                                :old.list_price, :old.warranty_period);
+                            end;
+SYS             1.18.1602   commit;
+
+OE              1.9.1598    update &#34;OE&#34;.&#34;PRODUCT_INFORMATION&#34;
+                              set
+                                &#34;WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+08-00&#39;),
+                                &#34;LIST_PRICE&#34; = 100
+                              where
+                                &#34;PRODUCT_ID&#34; = 1729 and
+                                &#34;WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+05-00&#39;) and
+                                &#34;LIST_PRICE&#34; = 80 and
+                                ROWID = &#39;AAAHTKAABAAAY9yAAA&#39;;
+
+OE              1.9.1598    insert into &#34;UNKNOWN&#34;.&#34;OBJ# 33415&#34;
+                              values
+                                &#34;COL 1&#34; = HEXTORAW(&#39;c2121e&#39;),
+                                &#34;COL 2&#34; = HEXTORAW(&#39;7867010d110804&#39;),
+                                &#34;COL 3&#34; = HEXTORAW(&#39;c151&#39;),
+                                &#34;COL 4&#34; = HEXTORAW(&#39;800000053c&#39;);
+
+OE              1.9.1598    update &#34;OE&#34;.&#34;PRODUCT_INFORMATION&#34;
+                              set
+                                &#34;WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+08-00&#39;),
+                                &#34;LIST_PRICE&#34; = 92
+                              where
+                                &#34;PRODUCT_ID&#34; = 2340 and
+                                &#34;WARRANTY_PERIOD&#34; = TO_YMINTERVAL(&#39;+05-00&#39;) and
+                                &#34;LIST_PRICE&#34; = 72 and
+                                ROWID = &#39;AAAHTKAABAAAY9zAAA&#39;;
+
+OE              1.9.1598    insert into &#34;UNKNOWN&#34;.&#34;OBJ# 33415&#34;
+                              values
+                                &#34;COL 1&#34; = HEXTORAW(&#39;c21829&#39;),
+                                &#34;COL 2&#34; = HEXTORAW(&#39;7867010d110808&#39;),
+                                &#34;COL 3&#34; = HEXTORAW(&#39;c149&#39;),
+                                &#34;COL 4&#34; = HEXTORAW(&#39;800000053c&#39;);
+
+OE              1.9.1598     commit;
+</pre></li>
+<li>
+<p>Issue additional queries, if desired.</p>
+<p>Display all the DML statements that were executed as part of the <code class="codeph">CREATE TABLE</code> DDL statement. This includes statements executed by users and internally by Oracle.</p>
+<div class="infobox-note" id="GUID-90944343-46BB-4BD5-A0C6-7A4B79D9BEF0__IFYOUCHOOSETOREAPPLYSTATEMENTSDISPL-50816118">
+<p class="notep1">Note:</p>
+<p>If you choose to reapply statements displayed by a query such as the one shown here, then reapply DDL statements only. Do not reapply DML statements that were executed internally by Oracle, or you risk corrupting your database. In the following output, the only statement that you should use in a reapply operation is the <code class="codeph">CREATE TABLE OE.PRODUCT_TRACKING</code> statement.</p>
+</div>
+<pre dir="ltr">SELECT SQL_REDO FROM V$LOGMNR_CONTENTS
+   WHERE XIDUSN  = 1 and XIDSLT = 2 and XIDSQN = 1594;
+
+SQL_REDO
+--------------------------------------------------------------------------------
+set transaction read write;
+
+insert into &#34;SYS&#34;.&#34;OBJ$&#34;
+ values
+    &#34;OBJ#&#34; = 33415,
+    &#34;DATAOBJ#&#34; = 33415,
+    &#34;OWNER#&#34; = 37,
+    &#34;NAME&#34; = &#39;PRODUCT_TRACKING&#39;,
+    &#34;NAMESPACE&#34; = 1,
+    &#34;SUBNAME&#34; IS NULL,
+    &#34;TYPE#&#34; = 2,
+    &#34;CTIME&#34; = TO_DATE(&#39;13-jan-2012 14:01:03&#39;, &#39;dd-mon-yyyy hh24:mi:ss&#39;),
+    &#34;MTIME&#34; = TO_DATE(&#39;13-jan-2012 14:01:03&#39;, &#39;dd-mon-yyyy hh24:mi:ss&#39;),
+    &#34;STIME&#34; = TO_DATE(&#39;13-jan-2012 14:01:03&#39;, &#39;dd-mon-yyyy hh24:mi:ss&#39;),
+    &#34;STATUS&#34; = 1,
+    &#34;REMOTEOWNER&#34; IS NULL,
+    &#34;LINKNAME&#34; IS NULL,
+    &#34;FLAGS&#34; = 0,
+    &#34;OID$&#34; IS NULL,
+    &#34;SPARE1&#34; = 6,
+    &#34;SPARE2&#34; = 1,
+    &#34;SPARE3&#34; IS NULL,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;SPARE6&#34; IS NULL;
+
+insert into &#34;SYS&#34;.&#34;TAB$&#34;
+ values
+    &#34;OBJ#&#34; = 33415,
+    &#34;DATAOBJ#&#34; = 33415,
+    &#34;TS#&#34; = 0,
+    &#34;FILE#&#34; = 1,
+    &#34;BLOCK#&#34; = 121034,
+    &#34;BOBJ#&#34; IS NULL,
+    &#34;TAB#&#34; IS NULL,
+    &#34;COLS&#34; = 5,
+    &#34;CLUCOLS&#34; IS NULL,
+    &#34;PCTFREE$&#34; = 10,
+    &#34;PCTUSED$&#34; = 40,
+    &#34;INITRANS&#34; = 1,
+    &#34;MAXTRANS&#34; = 255,
+    &#34;FLAGS&#34; = 1,
+    &#34;AUDIT$&#34; = &#39;--------------------------------------&#39;,
+    &#34;ROWCNT&#34; IS NULL,
+    &#34;BLKCNT&#34; IS NULL,
+    &#34;EMPCNT&#34; IS NULL,
+    &#34;AVGSPC&#34; IS NULL,
+    &#34;CHNCNT&#34; IS NULL,
+    &#34;AVGRLN&#34; IS NULL,
+    &#34;AVGSPC_FLB&#34; IS NULL,
+    &#34;FLBCNT&#34; IS NULL,
+    &#34;ANALYZETIME&#34; IS NULL,
+    &#34;SAMPLESIZE&#34; IS NULL,
+    &#34;DEGREE&#34; IS NULL,
+    &#34;INSTANCES&#34; IS NULL,
+    &#34;INTCOLS&#34; = 5,
+    &#34;KERNELCOLS&#34; = 5,
+    &#34;PROPERTY&#34; = 536870912,
+    &#34;TRIGFLAG&#34; = 0,
+    &#34;SPARE1&#34; = 178,
+    &#34;SPARE2&#34; IS NULL,
+    &#34;SPARE3&#34; IS NULL,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;SPARE6&#34; = TO_DATE(&#39;13-jan-2012 14:01:05&#39;, &#39;dd-mon-yyyy hh24:mi:ss&#39;),
+
+insert into &#34;SYS&#34;.&#34;COL$&#34;
+ values
+    &#34;OBJ#&#34; = 33415,
+    &#34;COL#&#34; = 1,
+    &#34;SEGCOL#&#34; = 1,
+    &#34;SEGCOLLENGTH&#34; = 22,
+    &#34;OFFSET&#34; = 0,
+    &#34;NAME&#34; = &#39;PRODUCT_ID&#39;,
+    &#34;TYPE#&#34; = 2,
+    &#34;LENGTH&#34; = 22,
+    &#34;FIXEDSTORAGE&#34; = 0,
+    &#34;PRECISION#&#34; IS NULL,
+    &#34;SCALE&#34; IS NULL,
+    &#34;NULL$&#34; = 1,
+    &#34;DEFLENGTH&#34; IS NULL,
+    &#34;SPARE6&#34; IS NULL,
+    &#34;INTCOL#&#34; = 1,
+    &#34;PROPERTY&#34; = 0,
+    &#34;CHARSETID&#34; = 0,
+    &#34;CHARSETFORM&#34; = 0,
+    &#34;SPARE1&#34; = 0,
+    &#34;SPARE2&#34; = 0,
+    &#34;SPARE3&#34; = 0,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;DEFAULT$&#34; IS NULL;
+
+insert into &#34;SYS&#34;.&#34;COL$&#34;
+ values
+    &#34;OBJ#&#34; = 33415,
+    &#34;COL#&#34; = 2,
+    &#34;SEGCOL#&#34; = 2,
+    &#34;SEGCOLLENGTH&#34; = 7,
+    &#34;OFFSET&#34; = 0,
+    &#34;NAME&#34; = &#39;MODIFIED_TIME&#39;,
+    &#34;TYPE#&#34; = 12,
+    &#34;LENGTH&#34; = 7,
+    &#34;FIXEDSTORAGE&#34; = 0,
+    &#34;PRECISION#&#34; IS NULL,
+    &#34;SCALE&#34; IS NULL,
+    &#34;NULL$&#34; = 0,
+    &#34;DEFLENGTH&#34; IS NULL,
+    &#34;SPARE6&#34; IS NULL,
+    &#34;INTCOL#&#34; = 2,
+    &#34;PROPERTY&#34; = 0,
+    &#34;CHARSETID&#34; = 0,
+    &#34;CHARSETFORM&#34; = 0,
+    &#34;SPARE1&#34; = 0,
+    &#34;SPARE2&#34; = 0,
+    &#34;SPARE3&#34; = 0,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;DEFAULT$&#34; IS NULL;
+
+insert into &#34;SYS&#34;.&#34;COL$&#34;
+ values
+    &#34;OBJ#&#34; = 33415,
+    &#34;COL#&#34; = 3,
+    &#34;SEGCOL#&#34; = 3,
+    &#34;SEGCOLLENGTH&#34; = 22,
+    &#34;OFFSET&#34; = 0,
+    &#34;NAME&#34; = &#39;OLD_LIST_PRICE&#39;,
+    &#34;TYPE#&#34; = 2,
+    &#34;LENGTH&#34; = 22,
+    &#34;FIXEDSTORAGE&#34; = 0,
+    &#34;PRECISION#&#34; = 8,
+    &#34;SCALE&#34; = 2,
+    &#34;NULL$&#34; = 0,
+    &#34;DEFLENGTH&#34; IS NULL,
+    &#34;SPARE6&#34; IS NULL,
+    &#34;INTCOL#&#34; = 3,
+    &#34;PROPERTY&#34; = 0,
+    &#34;CHARSETID&#34; = 0,
+    &#34;CHARSETFORM&#34; = 0,
+    &#34;SPARE1&#34; = 0,
+    &#34;SPARE2&#34; = 0,
+    &#34;SPARE3&#34; = 0,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;DEFAULT$&#34; IS NULL;
+
+insert into &#34;SYS&#34;.&#34;COL$&#34;
+ values
+    &#34;OBJ#&#34; = 33415,
+    &#34;COL#&#34; = 4,
+    &#34;SEGCOL#&#34; = 4,
+    &#34;SEGCOLLENGTH&#34; = 5,
+    &#34;OFFSET&#34; = 0,
+    &#34;NAME&#34; = &#39;OLD_WARRANTY_PERIOD&#39;,
+    &#34;TYPE#&#34; = 182,
+    &#34;LENGTH&#34; = 5,
+    &#34;FIXEDSTORAGE&#34; = 0,
+    &#34;PRECISION#&#34; = 2,
+    &#34;SCALE&#34; = 0,
+    &#34;NULL$&#34; = 0,
+    &#34;DEFLENGTH&#34; IS NULL,
+    &#34;SPARE6&#34; IS NULL,
+    &#34;INTCOL#&#34; = 4,
+    &#34;PROPERTY&#34; = 0,
+    &#34;CHARSETID&#34; = 0,
+    &#34;CHARSETFORM&#34; = 0,
+    &#34;SPARE1&#34; = 0,
+    &#34;SPARE2&#34; = 2,
+    &#34;SPARE3&#34; = 0,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;DEFAULT$&#34; IS NULL;
+
+insert into &#34;SYS&#34;.&#34;CCOL$&#34;
+ values
+    &#34;OBJ#&#34; = 33415,
+    &#34;CON#&#34; = 2090,
+    &#34;COL#&#34; = 1,
+    &#34;POS#&#34; IS NULL,
+    &#34;INTCOL#&#34; = 1,
+    &#34;SPARE1&#34; = 0,
+    &#34;SPARE2&#34; IS NULL,
+    &#34;SPARE3&#34; IS NULL,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;SPARE6&#34; IS NULL;
+
+insert into &#34;SYS&#34;.&#34;CDEF$&#34;
+ values
+    &#34;OBJ#&#34; = 33415,
+    &#34;CON#&#34; = 2090,
+    &#34;COLS&#34; = 1,
+    &#34;TYPE#&#34; = 7,
+    &#34;ROBJ#&#34; IS NULL,
+    &#34;RCON#&#34; IS NULL,
+    &#34;RRULES&#34; IS NULL,
+    &#34;MATCH#&#34; IS NULL,
+    &#34;REFACT&#34; IS NULL,
+    &#34;ENABLED&#34; = 1,
+    &#34;CONDLENGTH&#34; = 24,
+    &#34;SPARE6&#34; IS NULL,
+    &#34;INTCOLS&#34; = 1,
+    &#34;MTIME&#34; = TO_DATE(&#39;13-jan-2012 14:01:08&#39;, &#39;dd-mon-yyyy hh24:mi:ss&#39;),
+    &#34;DEFER&#34; = 12,
+    &#34;SPARE1&#34; = 6,
+    &#34;SPARE2&#34; IS NULL,
+    &#34;SPARE3&#34; IS NULL,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;CONDITION&#34; = &#39;&#34;PRODUCT_ID&#34; IS NOT NULL&#39;;
+
+create table oe.product_tracking (product_id number not null,
+  modified_time date,
+  old_product_description varchar2(2000),
+  old_list_price number(8,2),
+  old_warranty_period interval year(2) to month);
+
+update &#34;SYS&#34;.&#34;SEG$&#34;
+  set
+    &#34;TYPE#&#34; = 5,
+    &#34;BLOCKS&#34; = 5,
+    &#34;EXTENTS&#34; = 1,
+    &#34;INIEXTS&#34; = 5,
+    &#34;MINEXTS&#34; = 1,
+    &#34;MAXEXTS&#34; = 121,
+    &#34;EXTSIZE&#34; = 5,
+    &#34;EXTPCT&#34; = 50,
+    &#34;USER#&#34; = 37,
+    &#34;LISTS&#34; = 0,
+    &#34;GROUPS&#34; = 0,
+    &#34;CACHEHINT&#34; = 0,
+    &#34;HWMINCR&#34; = 33415,
+    &#34;SPARE1&#34; = 1024
+  where
+    &#34;TS#&#34; = 0 and
+    &#34;FILE#&#34; = 1 and
+    &#34;BLOCK#&#34; = 121034 and
+    &#34;TYPE#&#34; = 3 and
+    &#34;BLOCKS&#34; = 5 and
+    &#34;EXTENTS&#34; = 1 and
+    &#34;INIEXTS&#34; = 5 and
+    &#34;MINEXTS&#34; = 1 and
+    &#34;MAXEXTS&#34; = 121 and
+    &#34;EXTSIZE&#34; = 5 and
+    &#34;EXTPCT&#34; = 50 and
+    &#34;USER#&#34; = 37 and
+    &#34;LISTS&#34; = 0 and
+    &#34;GROUPS&#34; = 0 and
+    &#34;BITMAPRANGES&#34; = 0 and
+    &#34;CACHEHINT&#34; = 0 and
+    &#34;SCANHINT&#34; = 0 and
+    &#34;HWMINCR&#34; = 33415 and
+    &#34;SPARE1&#34; = 1024 and
+    &#34;SPARE2&#34; IS NULL and
+    ROWID = &#39;AAAAAIAABAAAdMOAAB&#39;;
+
+insert into &#34;SYS&#34;.&#34;CON$&#34;
+ values
+    &#34;OWNER#&#34; = 37,
+    &#34;NAME&#34; = &#39;SYS_C002090&#39;,
+    &#34;CON#&#34; = 2090,
+    &#34;SPARE1&#34; IS NULL,
+    &#34;SPARE2&#34; IS NULL,
+    &#34;SPARE3&#34; IS NULL,
+    &#34;SPARE4&#34; IS NULL,
+    &#34;SPARE5&#34; IS NULL,
+    &#34;SPARE6&#34; IS NULL;
+
+commit;
+</pre></li>
+<li>
+<p>End the LogMiner session.</p>
+<pre dir="ltr">EXECUTE DBMS_LOGMNR.END_LOGMNR();
+</pre></li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment2015">
+<tr>
+<td class="cellalignment2022">
+<table class="cellalignment2020">
+<tr>
+<td class="cellalignment2019"><a href="GUID-E42A8D99-F93F-40F4-9E86-787CA179692A.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment2019"><a href="GUID-E0DDC97C-7364-4BED-AF2A-E0B486F0E22F.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment2024">
+<table class="cellalignment2018">
+<tr>
+<td class="cellalignment2019"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment2019"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment2019"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment2019"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment2019"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment2019"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

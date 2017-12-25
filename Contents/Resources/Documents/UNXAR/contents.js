@@ -1,0 +1,17 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Administering Oracle Database", anchor: "UNXAR001", file: "admin_ora.htm" },
+  { topic: "chapter", section: "2", title: "Stopping and Starting Oracle Software", anchor: "UNXAR002", file: "strt_stp.htm" },
+  { topic: "chapter", section: "3", title: "Configuring Oracle Database", anchor: "UNXAR003", file: "cnfg_prd.htm" },
+  { topic: "chapter", section: "4", title: "Administering SQL*Plus", anchor: "UNXAR004", file: "admn_sqlpls.htm" },
+  { topic: "chapter", section: "5", title: "Configuring Oracle Net Services", anchor: "UNXAR005", file: "cnfg_net_srv.htm" },
+  { topic: "chapter", section: "6", title: "Using Oracle Precompilers and the Oracle Call Interface", anchor: "UNXAR006", file: "prcmp_cll_int.htm" },
+  { topic: "chapter", section: "7", title: "\u00A0 SQL*Loader and PL/SQL Demonstrations", anchor: "UNXAR007", file: "ldr_demo.htm" },
+  { topic: "chapter", section: "8", title: "Tuning Oracle Database", anchor: "UNXAR008", file: "tuning.htm" },
+  { topic: "appendix", section: "A", title: "Administering Oracle Database on Oracle Solaris", anchor: "UNXAR013", file: "appe_sol.htm" },
+  { topic: "appendix", section: "B", title: "Administering Oracle Database on Linux", anchor: "UNXAR011", file: "appc_linux.htm" },
+  { topic: "appendix", section: "C", title: "Administering Oracle Database on IBM AIX on POWER Systems (64-Bit)", anchor: "UNXAR009", file: "appa_aix.htm" },
+  { topic: "appendix", section: "D", title: "Administering Oracle Database on HP-UX", anchor: "UNXAR010", file: "appb_hpux.htm" },
+  { topic: "appendix", section: "E", title: "Using Oracle ODBC Driver", anchor: "UNXAR014", file: "app_odbc.htm" },
+  { topic: "appendix", section: "F", title: "Database Limits", anchor: "UNXAR015", file: "appg_db_lmts.htm" },
+  { topic: "appendix", section: "G", title: "HugePages", anchor: "UNXAR391", file: "appi_vlm.htm" },
+  { } ];

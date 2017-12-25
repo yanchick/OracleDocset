@@ -1,0 +1,381 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106628"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Measuring%20Database%20Performance"></a><title>Measuring Database Performance</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="dcterms.created" content="2017-01-18T01:24:57Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Performance Tuning Guide"/>
+<meta name="dcterms.identifier" content="E49058-08"/>
+<meta name="dcterms.isVersionOf" content="TGDBA"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="part2.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="gather_stats.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49058-08.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-811E9E65-C64A-4028-A90E-102BBFF6E68F"></a> <span id="PAGE" style="display:none;">11/27</span> <!-- End Header -->
+<a id="TGDBA145"></a>
+<h1 id="TGDBA-GUID-811E9E65-C64A-4028-A90E-102BBFF6E68F" class="sect1"><span class="enumeration_chapter">5</span> Measuring Database Performance</h1>
+<div>
+<p>This chapter describes how to measure the performance of Oracle Database using database statistics.</p>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="measure_db.htm#GUID-D106A7A3-1B96-47E7-883C-2BB0F11567E1">About Database Statistics</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-4B13CDD6-5A04-49FC-9E12-E26C2ABC6131">Interpreting Database Statistics</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA146"></a>
+<div class="props_rev_3"><a id="GUID-D106A7A3-1B96-47E7-883C-2BB0F11567E1"></a>
+<h2 id="TGDBA-GUID-D106A7A3-1B96-47E7-883C-2BB0F11567E1" class="sect2">About Database Statistics</h2>
+<div>
+<p><a id="d9975e82" class="indexterm-anchor"></a><a id="d9975e86" class="indexterm-anchor"></a>Database statistics provide information about the type of database load and the resources being used by the database. <a id="d9975e91" class="indexterm-anchor"></a><a id="d9975e95" class="indexterm-anchor"></a>To effectively measure database performance, statistics must be available.</p>
+<p>Oracle Database generates many types of cumulative statistics for the system, sessions, segments, services, and individual SQL statements. Cumulative values for statistics are generally accessible using dynamic performance views, or <code>V$</code> views. When analyzing database performance in any of these scopes, look at the change in statistics (delta value) over the period you are interested in. Specifically, focus on the difference between the cumulative values of a statistic at the start and the end of the period.</p>
+<p>This section describes some of the more important database statistics that are used to measure the performance of Oracle Database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="measure_db.htm#GUID-BC858042-CD71-4717-A614-C0B0A4FE6F2D">Time Model Statistics</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-270E36D0-D7D7-4235-8280-CA3EDD68F8E6">Active Session History Statistics</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-FC0E9098-1B1D-4532-A6C0-91E5A2FF8FB9">Wait Events Statistics</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-3FEB7C53-D5B3-4540-BD67-8FCBB2917695">Session and System Statistics</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-D106A7A3-1B96-47E7-883C-2BB0F11567E1__GUID-70DC0967-E6A6-4F5E-B0F6-FA1F3EDBAAB6">
+<p class="notep1">See Also:</p>
+<p><a class="olink TGSQL337" target="_blank" href="../TGSQL/tgsql_statscon.htm#TGSQL337"><span class="italic">Oracle Database SQL Tuning Guide</span></a> for information about optimizer statistics</p>
+</div>
+</div>
+<a id="TGDBA147"></a>
+<div class="props_rev_3"><a id="GUID-BC858042-CD71-4717-A614-C0B0A4FE6F2D"></a>
+<h3 id="TGDBA-GUID-BC858042-CD71-4717-A614-C0B0A4FE6F2D" class="sect3">Time Model Statistics</h3>
+<div>
+<p><a id="d9975e170" class="indexterm-anchor"></a><a id="d9975e174" class="indexterm-anchor"></a>Time model statistics use time to identify quantitative effects about specific actions performed on the database, such as logon operations and parsing. The most important time model statistic is <a id="d9975e177" class="indexterm-anchor"></a>database time, or DB time. This statistic represents the total time spent in database calls and is an indicator of the total instance workload. DB time is measured cumulatively from the time of instance startup and is calculated by aggregating the CPU and wait times of all sessions not waiting on idle wait events (non-idle user sessions).</p>
+<div class="infobox-note" id="GUID-BC858042-CD71-4717-A614-C0B0A4FE6F2D__GUID-8F1B0996-161E-453A-879B-D43BC5B74FDA">
+<p class="notep1">Note:</p>
+<p>Because DB time is calculated by combining the times from all non-idle user sessions, it is possible that the DB time can exceed the actual time elapsed after the instance started. For example, an instance that has been running for 30 minutes could have four active user sessions whose cumulative DB time is approximately 120 minutes.</p>
+</div>
+<p>When tuning an Oracle database, each component has its own set of statistics. To look at the system as a whole, it is necessary to have a common scale for comparisons. Many Oracle Database advisors and reports thus describe statistics in terms of time.</p>
+<p>Ultimately, the objective in tuning an Oracle database is to reduce the time that users spend in performing an action on the database, or to simply reduce <code>DB</code> <code>time</code>. Time model statistics are accessible from the <code>V$SESS_TIME_MODEL</code> and <code>V$SYS_TIME_MODEL</code> views.</p>
+<div class="infoboxnotealso" id="GUID-BC858042-CD71-4717-A614-C0B0A4FE6F2D__GUID-E00DFA0B-63EC-4685-97C6-E1A96BB12BFF">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN30340" target="_blank" href="../REFRN/GUID-B5CF4362-325D-4F22-9A08-0873FA32A5C0.htm#REFRN30340"><span class="italic">Oracle Database Reference</span></a> for information about the <code>V$SESS_TIME_MODEL</code> and <code>V$SYS_TIME_MODEL</code> views</p>
+</div>
+</div>
+</div>
+<a id="TGDBA148"></a>
+<div class="props_rev_3"><a id="GUID-270E36D0-D7D7-4235-8280-CA3EDD68F8E6"></a>
+<h3 id="TGDBA-GUID-270E36D0-D7D7-4235-8280-CA3EDD68F8E6" class="sect3">Active Session History Statistics</h3>
+<div>
+<p>Any session that is connected to the database and is waiting for an event that does not belong to the Idle wait class is considered an active session. Oracle Database samples active sessions every second and stores the sampled data in a circular buffer in the shared global area (SGA).</p>
+<p>The sampled session activity is accessible using the <code>V$ACTIVE_SESSION_HISTORY</code> view. Each session sample contains a set of rows and the <code>V$ACTIVE_SESSION_HISTORY</code> view returns one row for each active session per sample, starting with the latest session sample rows. Because the active session samples are stored in a circular buffer in the SGA, the greater the system activity, the smaller the number of seconds of session activity that can be stored. This means that the duration for which a session sample is displayed in the <code>V$</code> view is completely dependent on the level of database activity. Because the content of the <code>V$</code> view can become quite large during heavy system activity, only a portion of the session samples is written to disk.</p>
+<p>By capturing only active sessions, a manageable set of data can be captured with its size being directly related to the work being performed, rather than the number of sessions allowed on the system. Active Session History (ASH) enables you to examine and perform detailed analysis on both current data in the <code>V$ACTIVE_SESSION_HISTORY</code> view and historical data in the <code>DBA_HIST_ACTIVE_SESS_HISTORY</code> view, often avoiding the need to replay the workload to trace additional performance information. ASH also contains execution plan information for each captured SQL statement. You can use this information to identify which part of SQL execution contributed most to the SQL elapsed time. The data present in ASH can be rolled up in various dimensions that it captures, including:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>SQL identifier of SQL statement</p>
+</li>
+<li>
+<p>SQL plan identifier and hash value of the SQL plan used to execute the SQL statement</p>
+</li>
+<li>
+<p>SQL execution plan information</p>
+</li>
+<li>
+<p>Object number, file number, and block number</p>
+</li>
+<li>
+<p>Wait event identifier and parameters</p>
+</li>
+<li>
+<p>Session identifier and session serial number</p>
+</li>
+<li>
+<p>Module and action name</p>
+</li>
+<li>
+<p>Client identifier of the session</p>
+</li>
+<li>
+<p>Service hash identifier</p>
+</li>
+<li>
+<p>Consumer group identifier</p>
+</li>
+</ul>
+<p>You can gather this information over a specified duration into an ASH report.</p>
+<p>Active session history sampling is also available for Active Data Guard physical standby instances and Oracle Automatic Storage Management (Oracle ASM) instances. On these instances, the current session activity is collected and displayed in the <code>V$ACTIVE_SESSION_HISTORY</code> view, but not written to disk.</p>
+<div class="infoboxnotealso" id="GUID-270E36D0-D7D7-4235-8280-CA3EDD68F8E6__GUID-920220EB-BA1D-4D9B-93A5-93E71FA33129">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="sampling.htm#GUID-E40F4358-E73D-45CB-B271-E7C3C65FA220">Analyzing Sampled Data</a> for information about ASH reports</p>
+</li>
+<li>
+<p><a class="olink SBYDB00101" target="_blank" href="../SBYDB/standby.htm#SBYDB00101"><span class="italic">Oracle Data Guard Concepts and Administration</span></a> for information about Active Data Guard physical standby databases</p>
+</li>
+<li>
+<p><a class="olink OSTMG94053" target="_blank" href="../OSTMG/GUID-34A732CD-CC55-4A25-982A-209FDF6134BE.htm#OSTMG94053"><span class="italic">Oracle Automatic Storage Management Administrator&#39;s Guide</span></a> for information about Oracle ASM instances</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="TGDBA149"></a>
+<div class="props_rev_3"><a id="GUID-FC0E9098-1B1D-4532-A6C0-91E5A2FF8FB9"></a>
+<h3 id="TGDBA-GUID-FC0E9098-1B1D-4532-A6C0-91E5A2FF8FB9" class="sect3">Wait Events Statistics</h3>
+<div>
+<p><a id="d9975e368" class="indexterm-anchor"></a>Wait events are statistics that are incremented by a server process or thread to indicate that it had to wait for an event to complete before processing could continue. Wait event data reveals various symptoms of problems that might be impacting performance, such as latch contention, buffer contention, and I/O contention.</p>
+<p>To enable easier high-level analysis of wait events, Oracle Database groups events into the following <a id="d9975e373" class="indexterm-anchor"></a><a id="d9975e377" class="indexterm-anchor"></a>classes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Administrative</p>
+</li>
+<li>
+<p>Application</p>
+</li>
+<li>
+<p>Cluster</p>
+</li>
+<li>
+<p>Commit</p>
+</li>
+<li>
+<p>Concurrency</p>
+</li>
+<li>
+<p>Configuration</p>
+</li>
+<li>
+<p>Idle</p>
+</li>
+<li>
+<p>Network</p>
+</li>
+<li>
+<p>Other</p>
+</li>
+<li>
+<p>Scheduler</p>
+</li>
+<li>
+<p>System I/O</p>
+</li>
+<li>
+<p>User I/O</p>
+</li>
+</ul>
+<p>The wait classes are based on a common solution that usually applies to fixing a problem with the particular wait event. For example, exclusive TX locks are generally an application-level issue and HW locks are generally a configuration issue. The following list includes common examples of wait events in some of the wait classes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Application: locks waits caused by row level locking or explicit lock commands</p>
+</li>
+<li>
+<p>Commit: waits for redo log write confirmation after a commit</p>
+</li>
+<li>
+<p>Idle: wait events that signify the session is inactive, such as <code>SQL*Net</code> <code>message</code> <code>from</code> <code>client</code></p>
+</li>
+<li>
+<p>Network: waits for data to be sent over the network</p>
+</li>
+<li>
+<p>User I/O: wait for blocks to be read off a disk</p>
+</li>
+</ul>
+<p>Wait event statistics for a database instance include statistics for both background and foreground processes. Because tuning is typically focused in foreground activities, overall database instance activity is categorized into foreground and background statistics in the relevant <code>V$</code> views to facilitate tuning.</p>
+<p>The <code>V$SYSTEM_EVENT</code> view shows wait event statistics for the foreground activities of a database instance and the wait event statistics for the database instance. The <code>V$SYSTEM_WAIT_CLASS</code> view shows these foreground and wait event statistics at the instance level after aggregating to wait classes. <code>V$SESSION_EVENT</code> and <code>V$SESSION_WAIT_CLASS</code> show wait event and wait class statistics at the session level.</p>
+<div class="infoboxnotealso" id="GUID-FC0E9098-1B1D-4532-A6C0-91E5A2FF8FB9__GUID-C75DD5C8-AC74-40EA-936F-A646D567C494">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN101" target="_blank" href="../REFRN/GUID-03BFEEFB-1020-4F3F-8CF8-A23E7026684B.htm#REFRN101"><span class="italic">Oracle Database Reference</span></a> for information about wait events</p>
+</div>
+</div>
+</div>
+<a id="TGDBA150"></a>
+<div class="props_rev_3"><a id="GUID-3FEB7C53-D5B3-4540-BD67-8FCBB2917695"></a>
+<h3 id="TGDBA-GUID-3FEB7C53-D5B3-4540-BD67-8FCBB2917695" class="sect3">Session and System Statistics</h3>
+<div>
+<p>A large number of cumulative database statistics on a system and session level are accessible using the <code>V$SYSSTAT</code> and <code>V$SESSTAT</code> views.</p>
+<div class="infoboxnotealso" id="GUID-3FEB7C53-D5B3-4540-BD67-8FCBB2917695__GUID-0FF28265-565C-4F80-AE23-AF539A3F3BB6">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN003" target="_blank" href="../REFRN/GUID-8C5690B0-DE10-4460-86DF-80111869CF4C.htm#REFRN003"><span class="italic">Oracle Database Reference</span></a> for information about the <code>V$SYSSTAT</code> and <code>V$SESSTAT</code> views</p>
+</div>
+</div>
+</div>
+</div>
+<a id="TGDBA151"></a>
+<div class="props_rev_3"><a id="GUID-4B13CDD6-5A04-49FC-9E12-E26C2ABC6131"></a>
+<h2 id="TGDBA-GUID-4B13CDD6-5A04-49FC-9E12-E26C2ABC6131" class="sect2">Interpreting Database Statistics</h2>
+<div>
+<p>When initially examining performance data, you can formulate potential interpretations of the data by examining the database statistics. To ensure that your interpretation is accurate, cross-check with other data to establish if a statistic or event is truly relevant. Because foreground activities are tunable, it is recommended to first analyze the statistics from foreground activities before analyzing the statistics from background activities.</p>
+<p>The following sections provide tips for interpreting the various types of database statistics to measure database performance:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="measure_db.htm#GUID-93DFB1CE-37D7-4384-A269-D0819404FDB6">Using Hit Ratios</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-1BA8F07A-1860-476C-8ABF-4C7D04BA8CD0">Using Wait Events with Timed Statistics</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-D5F963FC-E8F4-4052-B666-5219E40CDD40">Using Wait Events without Timed Statistics</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-5CD452D7-49F3-4868-8D82-DB77A63DA582">Using Idle Wait Events</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-84B13FFB-B543-4918-8F43-BE39465362A7">Comparing Database Statistics with Other Factors</a></p>
+</li>
+<li>
+<p><a href="measure_db.htm#GUID-C004BE42-B7FB-4357-9785-0A65009D50C5">Using Computed Statistics</a></p>
+</li>
+</ul>
+</div>
+<a id="TGDBA152"></a>
+<div class="props_rev_3"><a id="GUID-93DFB1CE-37D7-4384-A269-D0819404FDB6"></a>
+<h3 id="TGDBA-GUID-93DFB1CE-37D7-4384-A269-D0819404FDB6" class="sect3">Using Hit Ratios</h3>
+<div>
+<p>When tuning, it is common to compute a ratio that helps determine if a problem exists. Such ratios may include the buffer cache hit ratio, the soft-parse ratio, and the latch hit ratio. Do not use these ratios as definitive identifiers of whether a performance bottleneck exists. Instead, use them as indicators. To identify whether a performance bottleneck exists, examine other related performance data. For information about how to calculate the buffer cache hit ratio, see <span class="q">&#34;<a href="tune_buffer_cache.htm#GUID-186EEE2D-11A1-401A-B9B2-E72325F972BC">Calculating the Buffer Cache Hit Ratio</a>&#34;</span>.</p>
+</div>
+</div>
+<a id="TGDBA153"></a>
+<div class="props_rev_3"><a id="GUID-1BA8F07A-1860-476C-8ABF-4C7D04BA8CD0"></a>
+<h3 id="TGDBA-GUID-1BA8F07A-1860-476C-8ABF-4C7D04BA8CD0" class="sect3">Using Wait Events with Timed Statistics</h3>
+<div>
+<p>Setting <code>TIMED_STATISTICS</code> to <code>TRUE</code> at the instance level directs the database to gather wait time for events, in addition to available wait counts. This data is useful for comparing the total wait time for an event to the total elapsed time between the data collections. For example, if the wait event accounts for only 30 seconds out of a 2-hour period, then very little performance improvement can be gained by investigating this event, even if it is the highest ranked wait event when ordered by time waited. However, if the event accounts for 30 minutes of a 45-minute period, then the event is worth investigating. For information about wait events, see <span class="q">&#34;<a href="measure_db.htm#GUID-FC0E9098-1B1D-4532-A6C0-91E5A2FF8FB9">Wait Events Statistics</a>&#34;</span>.</p>
+<div class="infobox-note" id="GUID-1BA8F07A-1860-476C-8ABF-4C7D04BA8CD0__GUID-32546374-9171-4E64-8A72-5ED8A28FBA83">
+<p class="notep1">Note:</p>
+<p>Timed statistics are automatically collected for the database if the initialization parameter <code>STATISTICS_LEVEL</code> is set to <code>TYPICAL</code> or <code>ALL</code>. If <code>STATISTICS_LEVEL</code> is set to <code>BASIC</code>, then you must set <code>TIMED_STATISTICS</code> to <code>TRUE</code> to enable collection of timed statistics. Note that setting <code>STATISTICS_LEVEL</code> to <code>BASIC</code> disables many automatic features and is not recommended.</p>
+<p>If you explicitly set <code>DB_CACHE_ADVICE</code>, <code>TIMED_STATISTICS</code>, or <code>TIMED_OS_STATISTICS</code>, either in the initialization parameter file or by using <code>ALTER_SYSTEM</code> or <code>ALTER</code> <code>SESSION</code>, then the explicitly set value overrides the value derived from <code>STATISTICS_LEVEL</code>.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-1BA8F07A-1860-476C-8ABF-4C7D04BA8CD0__GUID-EE20BD66-B025-4D32-8DF8-5F175E2D41DD">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN10214" target="_blank" href="../REFRN/GUID-16B23F95-8644-407A-A6C8-E85CADFA61FF.htm#REFRN10214"><span class="italic">Oracle Database Reference</span></a> for information about the <code>STATISTICS_LEVEL</code> initialization parameter</p>
+</div>
+</div>
+</div>
+<a id="TGDBA154"></a>
+<div class="props_rev_3"><a id="GUID-D5F963FC-E8F4-4052-B666-5219E40CDD40"></a>
+<h3 id="TGDBA-GUID-D5F963FC-E8F4-4052-B666-5219E40CDD40" class="sect3">Using Wait Events without Timed Statistics</h3>
+<div>
+<p>If <code>TIMED_STATISTICS</code> is set to <code>FALSE</code>, then the amount of time spent waiting for an event is not available. Therefore, it is only possible to order wait events by the number of times each event was waited for. Although the events with the largest number of waits might indicate a potential bottleneck, they might not be the main bottleneck. This situation can happen when an event is waited for a large number of times, but the total time waited for that event is small. Conversely, an event with fewer waits might be a bigger bottleneck if the wait time accounts for a significant proportion of the total wait time. Without the wait times to use for comparison, it is difficult to determine whether a wait event is worth investigating.</p>
+</div>
+</div>
+<a id="TGDBA155"></a>
+<div class="props_rev_3"><a id="GUID-5CD452D7-49F3-4868-8D82-DB77A63DA582"></a>
+<h3 id="TGDBA-GUID-5CD452D7-49F3-4868-8D82-DB77A63DA582" class="sect3">Using Idle Wait Events</h3>
+<div>
+<p>Oracle Database uses some wait events to indicate whether the Oracle server process is idle. Typically, these events are of no value when investigating performance problems, and should be ignored when examining wait events.</p>
+</div>
+</div>
+<a id="TGDBA156"></a>
+<div class="props_rev_3"><a id="GUID-84B13FFB-B543-4918-8F43-BE39465362A7"></a>
+<h3 id="TGDBA-GUID-84B13FFB-B543-4918-8F43-BE39465362A7" class="sect3">Comparing Database Statistics with Other Factors</h3>
+<div>
+<p>When evaluating statistics, it is important to consider other factors that may influence whether the statistic is of value. Such factors may include the user load and hardware capability. Even an event that had a wait of 30 minutes in a 45-minute period might not be indicative of a performance problem if you discover that there were 2000 users on the system, and the host hardware was a 64-node computer.</p>
+</div>
+</div>
+<a id="TGDBA157"></a>
+<div class="props_rev_3"><a id="GUID-C004BE42-B7FB-4357-9785-0A65009D50C5"></a>
+<h3 id="TGDBA-GUID-C004BE42-B7FB-4357-9785-0A65009D50C5" class="sect3">Using Computed Statistics</h3>
+<div>
+<p>When interpreting computed statistics (such as rates, statistics normalized over transactions, or ratios), verify the computed statistic with the actual statistic counts. This comparison can confirm whether the derived rates are really of interest because small statistic counts usually can discount an unusual ratio. For example, on initial examination, a soft-parse ratio of 50% generally indicates a potential area for tuning. If, however, there was only one hard parse and one soft parse during the data collection interval, then the soft-parse ratio would be 50%, even though the statistic counts show this is not impacting performance. In this case, the ratio is not important due to the low raw statistic counts.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1">
+<tr>
+<td class="cellalignment8">
+<table class="cellalignment6">
+<tr>
+<td class="cellalignment5"><a href="part2.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5"><a href="gather_stats.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2013, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment10">
+<table class="cellalignment4">
+<tr>
+<td class="cellalignment5"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

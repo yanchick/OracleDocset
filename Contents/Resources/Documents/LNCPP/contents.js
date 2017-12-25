@@ -1,0 +1,15 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "	 	Introduction to OCCI", anchor: "LNCPP001", file: "introduction.htm" },
+  { topic: "chapter", section: "2", title: "	 	Installation and Upgrading", anchor: "LNCPP002", file: "install.htm" },
+  { topic: "chapter", section: "3", title: "	Accessing Oracle Database Using C++", anchor: "LNCPP003", file: "relational.htm" },
+  { topic: "chapter", section: "4", title: "	Object Programming", anchor: "LNCPP004", file: "objects.htm" },
+  { topic: "chapter", section: "5", title: "Data Types", anchor: "LNCPP005", file: "types.htm" },
+  { topic: "chapter", section: "6", title: "Metadata", anchor: "LNCPP006", file: "metadata.htm" },
+  { topic: "chapter", section: "7", title: "Programming with LOBs", anchor: "LNCPP007", file: "lobs.htm" },
+  { topic: "chapter", section: "8", title: "Object Type Translator Utility", anchor: "LNCPP008", file: "ottutility.htm" },
+  { topic: "chapter", section: "9", title: "Globalization and Unicode Support", anchor: "LNCPP009", file: "globalization.htm" },
+  { topic: "chapter", section: "10", title: "Oracle Streams Advanced Queuing", anchor: "LNCPP010", file: "queuing.htm" },
+  { topic: "chapter", section: "11", title: "Oracle XA Library", anchor: "LNCPP011", file: "xa.htm" },
+  { topic: "chapter", section: "12", title: "Optimizing Performance of C++ Applications", anchor: "LNCPP012", file: "performance.htm" },
+  { topic: "chapter", section: "13", title: "OCCI Application Programming Interface", anchor: "LNCPP130", file: "reference.htm" },
+  { } ];

@@ -1,0 +1,409 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-88429"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/FLASHBACK%20DATABASE"></a><title>FLASHBACK DATABASE</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="target times, undoing changes, log sequence numbers, undoing changes, system change numbers (SCN), database changes, reversing, changes, reversing, data files, reversing changes, FLASHBACK DATABASE command"/>
+<meta name="dcterms.created" content="2017-06-08T22:24:36Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Backup and Recovery Reference"/>
+<meta name="dcterms.identifier" content="E50791-08"/>
+<meta name="dcterms.isVersionOf" content="RCMRF"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2003, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="rcmsynta022.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="rcmsynta024.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E50791-08.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511"></a> <span id="PAGE" style="display:none;">29/152</span> <!-- End Header -->
+<a id="RCMRF90179"></a><a id="RCMRF90180"></a><a id="RCMRF90181"></a><a id="RCMRF90182"></a><a id="RCMRF90183"></a><a id="RCMRF90184"></a><a id="RCMRF90185"></a><a id="RCMRF90186"></a><a id="RCMRF194"></a>
+<h1 class="sect1">FLASHBACK DATABASE</h1>
+<div>
+<div class="section">
+<p class="subhead1">Purpose</p>
+<p>Use the <code class="codeph">FLASHBACK DATABASE</code> command to rewind the database to a target time, SCN, log sequence number, or restore point.</p>
+<p>This command works by undoing changes made by Oracle Database to the data files that exist when you run the command. Flashback can fix logical failures, but not physical failures. Thus, you cannot use the command to recover from disk failures or the accidental deletion of data files.</p>
+<p><code class="codeph">FLASHBACK DATABASE</code> is usually much faster than a <code class="codeph">RESTORE</code> operation followed by point-in-time recovery, because the time needed to perform <code class="codeph">FLASHBACK DATABASE</code> depends on the number of changes made to the database since the desired flashback time. On the other hand, the time needed to do a traditional point-in-time recovery from restored backups depends on the size of the database.</p>
+<p>Flashback Database also has several uses in a Data Guard environment.</p>
+<div class="infoboxnotealso" id="GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511__GUID-9542FCC1-A4BB-47DA-A324-0CC951B94118">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF01801" target="_blank" href="../SQLRF/statements_9012.htm#SQLRF01801"><span class="italic">Oracle Database SQL Language Reference</span></a> for a complete list of command prerequisites and usage notes for <code class="codeph">FLASHBACK DATABASE</code></p>
+</li>
+<li>
+<p><a class="olink SBYDB00717" target="_blank" href="../SBYDB/role_management.htm#SBYDB00717"><span class="italic">Oracle Data Guard Concepts and Administration</span></a> to learn about uses of Flashback Database in a Data Guard environment</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead1">Prerequisites</p>
+<p>You can run this command from the RMAN prompt or from within a <code class="codeph"><a href="rcmsynta2012.htm#GUID-88250EEF-DC49-42A9-822C-4011B1345C7B">RUN</a></code> command.</p>
+<p>RMAN must be connected as <code class="codeph">TARGET</code> to a database, which must be Oracle Database 10<span class="italic">g</span> or later. The target database must be mounted with a current control file, that is, the control file cannot be a backup or re-created. The database must run in <a id="d49628e162" class="indexterm-anchor"></a><code class="codeph">ARCHIVELOG</code> mode.</p>
+<p>You cannot use <code class="codeph">FLASHBACK DATABASE</code> to return to a point in time before the restore or re-creation of a control file. If the database control file is restored from backup or re-created, then all existing flashback log information is discarded.</p>
+<p>The fast recovery area must be configured to enable flashback logging. Flashback logs are stored as Oracle-managed files in the fast recovery area and cannot be created if no fast recovery area is configured. You must enable flashback logging before the target time for flashback by issuing the SQL statement <code class="codeph">ALTER DATABASE ... FLASHBACK ON</code>. Query <a id="d49628e177" class="indexterm-anchor"></a><a id="d49628e179" class="indexterm-anchor"></a><code class="codeph">V$DATABASE.FLASHBACK_ON</code> to see whether flashback logging has been enabled.</p>
+<p>The database must contain no online tablespaces for which flashback functionality was disabled with the SQL statement <code class="codeph">ALTER TABLESPACE ... FLASHBACK OFF</code>.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead1">Usage Notes</p>
+<p>A Flashback Database operation applies to the whole database. You cannot flash back individual tablespaces. A Flashback Database operation is similar to a database point-in-time recovery (DBPITR) performed with <code class="codeph"><a href="rcmsynta2001.htm#GUID-CA98040F-9865-4F4F-BAF2-91C518612E95">RECOVER</a></code>, but RMAN uses <a id="d49628e201" class="indexterm-anchor"></a><strong class="term">flashback logs</strong> to undo changes to a point before the target time or SCN. RMAN automatically restores from backup any archived redo log files that are needed and recovers the database to make it consistent. RMAN never flashes back data for temporary tablespaces.</p>
+<p>The earliest SCN that can be used for a Flashback Database operation depends on the setting of the <a id="d49628e208" class="indexterm-anchor"></a><a id="d49628e210" class="indexterm-anchor"></a><code class="codeph">DB_FLASHBACK_RETENTION_TARGET</code> initialization parameter, and on the actual retention of flashback logs permitted by available disk. View the current database SCN in <a id="d49628e217" class="indexterm-anchor"></a><a id="d49628e219" class="indexterm-anchor"></a><code class="codeph">V$DATABASE.CURRENT_SCN</code>.</p>
+<p><span class="bold">Effect of NOLOGGING Operations on Flashback Database</span></p>
+<p><a id="d49628e230" class="indexterm-anchor"></a><a id="d49628e232" class="indexterm-anchor"></a>When using <code class="codeph">FLASHBACK DATABASE</code> with a target time at which a <code class="codeph">NOLOGGING</code> operation was in progress, block corruption is likely in the database objects and data files affected by the <code class="codeph">NOLOGGING</code> operation. For example, assume that you do a direct-path <code class="codeph">INSERT</code> operation in <code class="codeph">NOLOGGING</code> mode and that the operation runs from 9:00 to 9:15 on April 3. If you later use Flashback Database to return to 09:07 on this date, then the objects and data files updated by the direct-path <code class="codeph">INSERT</code> may be left with block corruption after Flashback Database completes.</p>
+<p>If possible, avoid using <code class="codeph">FLASHBACK DATABASE</code> with a target time or SCN that coincides with a <code class="codeph">NOLOGGING</code> operation. Also, perform a full or incremental backup of the affected data files immediately after any <code class="codeph">NOLOGGING</code> operation to ensure recoverability to points in time after the operation. If you expect to use <code class="codeph">FLASHBACK DATABASE</code> to return to a point in time during an operation such as a direct-path <code class="codeph">INSERT</code>, then consider performing the operation in <code class="codeph">LOGGING</code> mode.</p>
+<div class="infoboxnotealso" id="GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511__GUID-7B9A6F67-2A6D-4226-A0F1-9FDEF895B93C">
+<p class="notep1">See Also:</p>
+<p>The discussion of <code class="codeph">logging_clause</code> in <a class="olink SQLRF021" target="_blank" href="../SQLRF/clauses.htm#SQLRF021"><span class="italic">Oracle Database SQL Language Reference</span></a> for more information about operations that support <code class="codeph">NOLOGGING</code> mode</p>
+</div>
+<p><span class="bold">Effect of Data File Status Changes on Flashback Database</span></p>
+<p>The <code class="codeph">FLASHBACK DATABASE</code> command does not start modifying the database until it has made sure that it has all the files and resources that it needs. A Flashback Database operation does not fail due to missing data files, redo log files, or flashback logs.</p>
+<p><a id="d49628e300" class="indexterm-anchor"></a>If a data file has changed status between the current SCN and the target SCN of the flashback, then the <code class="codeph">FLASHBACK DATABASE</code> command behaves differently depending on the nature of the status change. Refer to <a href="rcmsynta023.htm#GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511__g1040866" title="Describes effects of FLASHBACK DATABASE command">Table 2-8</a> for details.</p>
+<div class="tblformalwide" id="GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511__g1040866">
+<p class="titleintable">Table 2-8 How FLASHBACK DATABASE Responds to Data File Status Changes</p>
+<table class="cellalignment1044" title="How FLASHBACK DATABASE Responds to Data File Status Changes" summary="Describes effects of FLASHBACK DATABASE command">
+<thead>
+<tr class="cellalignment1038">
+<th class="cellalignment1093" id="d49628e323">If this data file operation occurred during the flashback window ...</th>
+<th class="cellalignment1094" id="d49628e326">Then the FLASHBACK DATABASE command ...</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1038">
+<td class="cellalignment1095" id="d49628e331" headers="d49628e323">
+<p>Added</p>
+</td>
+<td class="cellalignment1096" headers="d49628e331 d49628e326">
+<p>Removes the data file record from the control file.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1095" id="d49628e338" headers="d49628e323">
+<p>Dropped</p>
+</td>
+<td class="cellalignment1096" headers="d49628e338 d49628e326">
+<p>Adds the data file to the control file, but marks it as offline and does not flash it back. You can then restore and recover the data file to the same time or SCN.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1095" id="d49628e345" headers="d49628e323">
+<p>Renamed</p>
+</td>
+<td class="cellalignment1096" headers="d49628e345 d49628e326">
+<p>Ignores the renaming. The data file retains its current name.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1095" id="d49628e352" headers="d49628e323">
+<p>Resized</p>
+</td>
+<td class="cellalignment1096" headers="d49628e352 d49628e326">
+<p>May fail. You can take the data file offline and then rerun the <code class="codeph">FLASHBACK DATABASE</code> command. The data file is not flashed back. You can then restore and recover the data file to the same time or SCN.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1095" id="d49628e362" headers="d49628e323">
+<p>Taken offline</p>
+</td>
+<td class="cellalignment1096" headers="d49628e362 d49628e326">
+<p>Ignores the operation. The data file retains its current online status.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1095" id="d49628e369" headers="d49628e323">
+<p>Brought online</p>
+</td>
+<td class="cellalignment1096" headers="d49628e369 d49628e326">
+<p>Ignores the operation. The data file retains its current offline status.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1095" id="d49628e376" headers="d49628e323">
+<p>Made read-only or read/write</p>
+</td>
+<td class="cellalignment1096" headers="d49628e376 d49628e326">
+<p>Changes the status of the data file in the control file.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p><span class="bold">Tablespaces with Flashback Logging Disabled</span></p>
+<p>It is possible for the <code class="codeph">ALTER TABLESPACE ... FLASHBACK OFF</code> statement to have been executed for some tablespaces. If <code class="codeph">FLASHBACK DATABASE</code> has insufficient flashback data to rewind a tablespace to the target SCN, then RMAN issues an error and does not modify the database. Whenever <code class="codeph">FLASHBACK DATABASE</code> fails or is interrupted, the database is left mounted.</p>
+<p>In this scenario, query <a id="d49628e400" class="indexterm-anchor"></a><a id="d49628e402" class="indexterm-anchor"></a><code class="codeph">V$TABLESPACE</code> to determine which tablespaces have flashback logging disabled. You have the following options:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Take the data files in the affected tablespaces offline. Afterwards, run <code class="codeph"><a href="rcmsynta2008.htm#GUID-4491C03F-C5F8-43E5-B4C4-FE26C70F2E9B">RESTORE</a></code> and then <code class="codeph"><a href="rcmsynta2001.htm#GUID-CA98040F-9865-4F4F-BAF2-91C518612E95">RECOVER</a></code> to bring these data files to the same point in time as the rest of the database.</p>
+</li>
+<li>
+<p>Drop the affected data files with the <code class="codeph">ALTER DATABASE DATAFILE ... OFFLINE FOR DROP</code> statement. You can then open the database with the <code class="codeph">RESETLOGS</code> option. After the database is open, execute <code class="codeph">DROP TABLESPACE</code> statements for the tablespaces that contain the dropped data files.</p>
+</li>
+</ul>
+<p><span class="bold">State of the Database After Flashback Database</span></p>
+<p>After running <code class="codeph">FLASHBACK DATABASE</code>, the database may not be left at the SCN most immediately before the target time. Events other than transactions can cause the database SCN to be updated. If you use the <code class="codeph">FLASHBACK DATABASE TO</code> form of the command, and if a transaction is associated with the target SCN, then after the flashback the database includes all changes up to and including this transaction. Otherwise, all changes up to but <span class="italic">not</span> including this transaction are included in the data files, whether you use the <code class="codeph">FLASHBACK DATABASE TO</code> or <code class="codeph">FLASHBACK DATABASE TO BEFORE</code> form of the command. Changes after the specified target SCN are never applied because of <code class="codeph">FLASHBACK DATABASE</code>.</p>
+<p>After <code class="codeph">FLASHBACK DATABASE</code> completes, you may want to open the database read-only and run queries to ensure that you achieved the intended result. If you are not satisfied, then you can use <code class="codeph"><a href="rcmsynta2001.htm#GUID-CA98040F-9865-4F4F-BAF2-91C518612E95">RECOVER</a></code> <code class="codeph">DATABASE</code> to recover the database to its state when you started the flashback. You can then rerun <code class="codeph">FLASHBACK DATABASE</code>.</p>
+<p>If you are satisfied with the results of the flashback, then you can <code class="codeph">OPEN RESETLOGS</code> to abandon all changes after the target time. Alternatively, you can use <a id="d49628e480" class="indexterm-anchor"></a>Data Pump to export lost data, use <code class="codeph">RECOVER DATABASE</code> to return the database to its state before the flashback operation, and then use Data Pump to reimport the lost data.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead1">Syntax</p>
+<p><span class="bold"><span class="italic">flashback</span>::=</span></p>
+<div class="figure" id="GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511__GUID-173FCE36-660B-43FF-8BBE-85140AF93006"><img width="478" height="319" src="img/GUID-F209E31E-938E-4C15-8936-669AE6F80216-default.gif" alt="Description of GUID-F209E31E-938E-4C15-8936-669AE6F80216-print.eps follows" title="Description of GUID-F209E31E-938E-4C15-8936-669AE6F80216-print.eps follows"/><br/>
+<a href="img_text/GUID-F209E31E-938E-4C15-8936-669AE6F80216-print.htm">Description of the illustration GUID-F209E31E-938E-4C15-8936-669AE6F80216-print.eps</a></div>
+<!-- class="figure" -->
+<p>(<span class="italic"><a href="rcmsubcl007.htm#GUID-F653748D-4AB5-4A0E-B6E5-D891A000ADAC__BABDEJAC">deviceSpecifier::=</a></span>)</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead1">Semantics</p>
+<div class="tblformalwide" id="GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511__GUID-B7C2B514-7EB1-4A8B-A31A-E5F2CC85EAF3">
+<table class="cellalignment1044" summary="Describes FLASHBACK DATABASE command parameters">
+<thead>
+<tr class="cellalignment1038">
+<th class="cellalignment1045" id="d49628e514">Syntax Element</th>
+<th class="cellalignment1052" id="d49628e517">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e522" headers="d49628e514">
+<p><code class="codeph">DEVICE&nbsp;TYPE</code> <span class="italic"><code class="codeph"><a href="rcmsubcl007.htm#GUID-F653748D-4AB5-4A0E-B6E5-D891A000ADAC">deviceSpecifier</a></code></span></p>
+</td>
+<td class="cellalignment1053" headers="d49628e522 d49628e517">
+<p>Allocates automatic channels for the specified device type only. For example, if you configure automatic disk and tape channels, and issue <code class="codeph">FLASHBACK ... DEVICE TYPE DISK</code>, then RMAN allocates only disk channels. RMAN may need to restore redo logs from backup during the flashback database process. Changes between the last flashback log and the target time must be re-created based on the archived redo log. If no automatic channels are allocated for tape and a needed redo log is on tape, then the <code class="codeph">FLASHBACK DATABASE</code> operation fails.</p>
+<p><span class="bold">See Also:</span> <span class="italic"><code class="codeph"><a href="rcmsubcl007.htm#GUID-F653748D-4AB5-4A0E-B6E5-D891A000ADAC">deviceSpecifier</a></code></span></p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e551" headers="d49628e514">
+<p><code class="codeph">DATABASE</code></p>
+</td>
+<td class="cellalignment1053" headers="d49628e551 d49628e517">
+<p>Rewinds the entire database.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e559" headers="d49628e514">
+<p><code class="codeph">TO&nbsp;BEFORE&nbsp;SCN</code> <span class="italic"><code class="codeph">integer</code></span></p>
+</td>
+<td class="cellalignment1053" headers="d49628e559 d49628e517">
+<p>Returns the database to its state just before the specified SCN. Any changes at an SCN lower than that specified are applied, but if there is a change associated with the specified SCN it is not applied. By default, the provided SCN resolves to the current or ancestor incarnation. You can override the default by using the <code class="codeph"><a href="rcmsynta2007.htm#GUID-C0C00F35-F21F-4657-AE9B-652C4DCE5817">RESET DATABASE</a></code> <code class="codeph">INCARNATION</code> command.</p>
+<p>Query <code class="codeph">OLDEST_FLASHBACK_SCN</code> in<a id="d49628e583" class="indexterm-anchor"></a><a id="d49628e585" class="indexterm-anchor"></a> <code class="codeph">V$FLASHBACK_DATABASE_LOG</code> to see the approximate lowest SCN to which you can flash back.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e594" headers="d49628e514">
+<p><code class="codeph">TO&nbsp;BEFORE&nbsp;SEQUENCE</code> <span class="italic"><code class="codeph">integer</code></span> <code class="codeph">[THREAD&nbsp;</code><span class="italic"><code class="codeph">integer</code></span>]</p>
+</td>
+<td class="cellalignment1053" headers="d49628e594 d49628e517">
+<p>Specifies a redo log sequence number and thread as an upper limit. RMAN applies changes up to (but not including) the last change in the log with the specified sequence and thread number.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e613" headers="d49628e514">
+<p><code class="codeph">TO&nbsp;BEFORE&nbsp;RESETLOGS</code></p>
+</td>
+<td class="cellalignment1053" headers="d49628e613 d49628e517">
+<p>Returns the database to its state including all changes up to the SCN of the most recent <code class="codeph">OPEN RESETLOGS</code>.</p>
+<p><span class="bold">Note:</span> <code class="codeph">FLASHBACK DATABASE</code> can only return the database to a point before the most recent <code class="codeph">OPEN RESETLOGS</code> operation if your database has been upgraded to Oracle Database 10<span class="italic">g</span> Release 2 or later.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e637" headers="d49628e514"><code class="codeph">TO&nbsp;BEFORE&nbsp;TIME</code> <code class="codeph">&#39;</code><span class="italic"><code class="codeph">date_string</code></span><code class="codeph">&#39;</code></td>
+<td class="cellalignment1053" headers="d49628e637 d49628e517">
+<p>Returns the database to its state including all changes up to but not including changes at the specified time.</p>
+<p>Query <code class="codeph">OLDEST_FLASHBACK_TIME</code> in <code class="codeph">V$FLASHBACK_DATABASE_LOG</code> to see the approximate lowest time to which you can flash back.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e660" headers="d49628e514">
+<p><code class="codeph">TO&nbsp;SCN</code> <span class="italic"><code class="codeph">integer</code></span></p>
+</td>
+<td class="cellalignment1053" headers="d49628e660 d49628e517">
+<p>Returns the database to the point up to (and including) the specified SCN. By default, the provided SCN resolves to the current or ancestor incarnation. You can override the default by using the RMAN <code class="codeph"><a href="rcmsynta2007.htm#GUID-C0C00F35-F21F-4657-AE9B-652C4DCE5817">RESET DATABASE</a></code> command to set the recovery target incarnation.</p>
+<p>Query <code class="codeph">OLDEST_FLASHBACK_SCN</code> in <code class="codeph">V$FLASHBACK_DATABASE_LOG</code> to see the approximate lowest SCN to which you can flash back.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e685" headers="d49628e514">
+<p><code class="codeph">TO SEQUENCE</code>&nbsp;<span class="italic"><code class="codeph">integer</code></span> <code class="codeph">THREAD</code>&nbsp;<span class="italic"><code class="codeph">integer</code></span></p>
+</td>
+<td class="cellalignment1053" headers="d49628e685 d49628e517">
+<p>Specifies a redo log sequence number and thread as an upper limit. RMAN applies changes up to (and including) the last change in the log with the specified sequence and thread number.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e704" headers="d49628e514"><code class="codeph">TO&nbsp;RESTORE&nbsp;POINT</code> <span class="italic"><code class="codeph">restore_point_name</code></span></td>
+<td class="cellalignment1053" headers="d49628e704 d49628e517">
+<p>Returns the database to the SCN associated with the specified restore point. This can be an ordinary restore point or a guaranteed restore point.</p>
+</td>
+</tr>
+<tr class="cellalignment1038">
+<td class="cellalignment1047" id="d49628e715" headers="d49628e514">
+<p><code class="codeph">TO&nbsp;TIME</code> <code class="codeph">&#39;</code><span class="italic"><code class="codeph">date_string</code></span><code class="codeph">&#39;</code></p>
+</td>
+<td class="cellalignment1053" headers="d49628e715 d49628e517">
+<p>Returns the database to its state at the specified time. You can use any SQL <code class="codeph">DATE</code> expressions to convert the time to the current format, for example, <code class="codeph">FLASHBACK DATABASE TO TIME &#39;SYSDATE-7&#39;</code>.</p>
+<p>Query <code class="codeph">OLDEST_FLASHBACK_TIME</code> in <code class="codeph">V$FLASHBACK_DATABASE_LOG</code> to see the approximate lowest time to which you can flash back.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead1">Examples</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511__GUID-B06750EF-60BF-4F29-B4E9-4A0CF78734B8">
+<p class="titleinexample">Example 2-98 FLASHBACK DATABASE to a Specific SCN</p>
+<p>Assume that you inserted corrupted rows in many tables at 5:00 p.m. on February 14. You connect SQL*Plus to the database and query the earliest SCN in the flashback window:</p>
+<pre dir="ltr">SQL&gt; SELECT OLDEST_FLASHBACK_SCN, OLDEST_FLASHBACK_TIME
+  2  FROM   V$FLASHBACK_DATABASE_LOG;
+
+OLDEST_FLASHBACK_SCN OLDEST_FLASHBACK
+-------------------- ----------------
+              411010 2013/02/14 16:49
+</pre>
+<p>You then open a new terminal, start the RMAN client, and connect to the target database and recovery catalog. You enter RMAN commands as follows (sample output for the <code class="codeph">FLASHBACK DATABASE</code> is included):</p>
+<pre dir="ltr">RMAN&gt; SHUTDOWN IMMEDIATE
+RMAN&gt; STARTUP MOUNT
+RMAN&gt; FLASHBACK DATABASE TO SCN 411010;
+ 
+Starting flashback at 15-FEB-13
+allocated channel: ORA_DISK_1
+channel ORA_DISK_1: SID=104 device type=DISK
+ 
+ 
+starting media recovery
+media recovery complete, elapsed time: 00:00:07
+ 
+Finished flashback at 15-FEB-13
+ 
+RMAN&gt; ALTER DATABASE OPEN RESETLOGS;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-584AC79A-40C5-45CA-8C63-DED3BE3A4511__GUID-2AF2053C-B92D-4BFE-855F-CF9537B93C6B">
+<p class="titleinexample">Example 2-99 FLASHBACK DATABASE to a Restore Point</p>
+<p>Assume that you are preparing to load a massive number of updates to the database. You create a guaranteed restore point before the performing the updates:</p>
+<pre dir="ltr">SQL&gt; CREATE RESTORE POINT before_update GUARANTEE FLASHBACK DATABASE;
+</pre>
+<p>The bulk update fails, leaving the database with extensive corrupted data. You start an RMAN session, connect to the target database and recovery catalog, and list the guaranteed restore points:</p>
+<pre dir="ltr">RMAN&gt; LIST RESTORE POINT ALL;
+
+SCN              RSP Time  Type       Time      Name
+---------------- --------- ---------- --------- ----
+412742                     GUARANTEED 15-FEB-13 BEFORE_UPDATE
+</pre>
+<p>You mount the database, flash back the database to the restore point (sample output included), and then open the database with the <code class="codeph">RESETLOGS</code> option:</p>
+<pre dir="ltr">RMAN&gt; SHUTDOWN IMMEDIATE
+RMAN&gt; STARTUP MOUNT
+RMAN&gt; FLASHBACK DATABASE TO RESTORE POINT &#39;BEFORE_UPDATE&#39;;
+ 
+Starting flashback at 15-FEB-13
+allocated channel: ORA_DISK_1
+channel ORA_DISK_1: SID=104 device type=DISK
+ 
+ 
+starting media recovery
+ 
+archived log for thread 1 with sequence 34 is already on disk as file /disk2/oracle/oradata/prod/arch/archive1_34_614598462.dbf
+media recovery complete, elapsed time: 00:00:01
+Finished flashback at 15-FEB-13
+ 
+RMAN&gt; ALTER DATABASE OPEN RESETLOGS;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1037">
+<tr>
+<td class="cellalignment1049">
+<table class="cellalignment1042">
+<tr>
+<td class="cellalignment1041"><a href="rcmsynta022.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1041"><a href="rcmsynta024.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2003, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1051">
+<table class="cellalignment1040">
+<tr>
+<td class="cellalignment1041"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1041"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1041"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1041"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1041"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1041"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

@@ -1,0 +1,708 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-300"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Repairing%20Corrupted%20Data"></a><title>Repairing Corrupted Data</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="description" content="You can detect and correct data block corruption."/>
+<meta name="keywords" content="data block corruption, repairing, corruption, repairing data block, repairing data block corruption, DBMS_REPAIR, packages, DBMS_REPAIR package, procedures, ADMIN_TABLES procedure, CHECK_OBJECT procedure, DUMP_ORPHAN_KEYS procedure, FIX_CORRUPT_BLOCKS procedure, SEGMENT_FIX_STATUS procedure, SKIP_CORRUPT_BLOCKS procedure, using, DBVERIFY utility, ANALYZE statement, validating structure, DB_BLOCK_CHECKING initialization parameter, corruption reporting, initialization parameters, DB_BLOCK_CHECKING, finding extent of corruption, logical corruptions from DBMS_REPAIR, logical corruptions, marking blocks corrupt, recovering data, examples, example, repair table, example of building, orphan key table"/>
+<meta name="dcterms.created" content="2017-07-10T12:24:11Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Administrator&rsquo;s Guide"/>
+<meta name="dcterms.identifier" content="E41484-15"/>
+<meta name="dcterms.isVersionOf" content="ADMIN"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2001, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="views.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="part6.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41484-15.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-21282FF3-1E98-478E-8111-0A7CAFCFCD97"></a> <span id="PAGE" style="display:none;">32/59</span> <!-- End Header -->
+<a id="ADMIN022"></a>
+<h1 id="ADMIN-GUID-21282FF3-1E98-478E-8111-0A7CAFCFCD97" class="sect1"><span class="enumeration_chapter">25</span> Repairing Corrupted Data</h1>
+<div>
+<p>You can detect and correct data block corruption.</p>
+<div class="infobox-note" id="GUID-21282FF3-1E98-478E-8111-0A7CAFCFCD97__GUID-6B6B6763-2762-48E6-9519-C947AEAF7A66">
+<p class="notep1">Note:</p>
+<p>If you are not familiar with the <code class="codeph">DBMS_REPAIR</code> package, then it is recommended that you work with an Oracle Support Services analyst when performing any of the repair procedures included in this package.</p>
+</div>
+</div>
+<a id="ADMIN11811"></a>
+<div class="props_rev_3"><a id="GUID-ED44A53C-E1FC-4F29-BD7E-8866E8E864A7"></a>
+<h2 id="ADMIN-GUID-ED44A53C-E1FC-4F29-BD7E-8866E8E864A7" class="sect2"><span class="enumeration_section">25.1</span> Options for Repairing Data Block Corruption</h2>
+<div>
+<p>Oracle Database provides different methods for detecting and correcting data block corruption.</p>
+<p>One method of correction is to drop and re-create an object after the corruption is detected. However, this is not always possible or desirable. If data block corruption is limited to a subset of rows, then another option is to rebuild the table by selecting all data except for the corrupt rows.</p>
+<p>Another way to manage data block corruption is to use the <code class="codeph">DBMS_REPAIR</code> package. You can use <code class="codeph">DBMS_REPAIR</code> to detect and repair corrupt blocks in tables and indexes. You can continue to use objects while you attempt to rebuild or repair them.</p>
+<p>You can also use the Recovery Manager (RMAN) command <code class="codeph">RECOVER BLOCK</code> to recover a corrupt data block or set of data blocks.</p>
+<div class="infobox-note" id="GUID-ED44A53C-E1FC-4F29-BD7E-8866E8E864A7__GUID-3576261B-A248-41A5-BD92-558E53FF8D57">
+<p class="notep1">Note:</p>
+<p>Any corruption that involves the loss of data requires analysis and understanding of how that data fits into the overall database system. Depending on the nature of the repair, you might lose data, and logical inconsistencies can be introduced. You must determine whether the repair approach provided by this package is the appropriate tool for each specific corruption problem.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-ED44A53C-E1FC-4F29-BD7E-8866E8E864A7__GUID-7697D7D2-C9CD-4865-AC6D-040B1980BE39">
+<p class="notep1">See Also:</p>
+<p><a class="olink RCMRF140" target="_blank" href="../RCMRF/rcmsynta2001.htm#RCMRF140"><span class="italic">Oracle Database Backup and Recovery Reference</span></a> for more information about the <code class="codeph">RECOVER BLOCK</code> RMAN command</p>
+</div>
+</div>
+</div>
+<a id="ADMIN11812"></a>
+<div class="props_rev_3"><a id="GUID-2D36AA2A-8EF9-411B-84CE-EE30FBDDCE0D"></a>
+<h2 id="ADMIN-GUID-2D36AA2A-8EF9-411B-84CE-EE30FBDDCE0D" class="sect2"><span class="enumeration_section">25.2</span> About the DBMS_REPAIR Package</h2>
+<div>
+<p>The&nbsp;<code class="codeph">DBMS_REPAIR</code>&nbsp;package contains data corruption repair procedures that enable you to detect and repair corrupt blocks in tables and indexes.</p>
+<div class="infoboxnotealso" id="GUID-2D36AA2A-8EF9-411B-84CE-EE30FBDDCE0D__GUID-91FADA30-8AF4-4BFA-8C3C-44052BB886E1">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS044" target="_blank" href="../ARPLS/d_repair.htm#ARPLS044"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for more information on the syntax, restrictions, and exceptions for the <code class="codeph">DBMS_REPAIR</code> procedures</p>
+</div>
+</div>
+<a id="ADMIN11813"></a>
+<div class="props_rev_3"><a id="GUID-93573D41-C68C-4629-B114-6EB339C9958A"></a>
+<h3 id="ADMIN-GUID-93573D41-C68C-4629-B114-6EB339C9958A" class="sect3"><span class="enumeration_section">25.2.1</span> DBMS_REPAIR Procedures</h3>
+<div>
+<p>Procedures in the <code class="codeph">DBMS_REPAIR</code> package enable you to detect and repair corrupt blocks.</p>
+<div class="section">
+<p>The following table lists the procedures included in the <code class="codeph">DBMS_REPAIR</code> package.</p>
+</div>
+<!-- class="section" -->
+<div class="tblformal" id="GUID-93573D41-C68C-4629-B114-6EB339C9958A__GUID-0BAF6513-A064-4EB5-A229-1F3DBD023D55">
+<table class="cellalignment1849" summary="Column 1 lists the procedure names for DBMS_REPAIR, column 2 describes each procedure.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1939" id="d184170e352">Procedure Name</th>
+<th class="cellalignment1940" id="d184170e355">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1941" id="d184170e360" headers="d184170e352">
+<p><code class="codeph">ADMIN_TABLES</code></p>
+</td>
+<td class="cellalignment1942" headers="d184170e360 d184170e355">
+<p>Provides administrative functions (create, drop, purge) for repair or orphan key tables.</p>
+<p><span class="bold">Note:</span> These tables are always created in the <code class="codeph">SYS</code> schema.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1941" id="d184170e375" headers="d184170e352">
+<p><code class="codeph">CHECK_OBJECT</code></p>
+</td>
+<td class="cellalignment1942" headers="d184170e375 d184170e355">
+<p>Detects and reports corruptions in a table or index</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1941" id="d184170e383" headers="d184170e352">
+<p><code class="codeph">DUMP_ORPHAN_KEYS</code></p>
+</td>
+<td class="cellalignment1942" headers="d184170e383 d184170e355">
+<p>Reports on index entries that point to rows in corrupt data blocks</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1941" id="d184170e391" headers="d184170e352">
+<p><code class="codeph">FIX_CORRUPT_BLOCKS</code></p>
+</td>
+<td class="cellalignment1942" headers="d184170e391 d184170e355">
+<p>Marks blocks as software corrupt that have been previously identified as corrupt by the <code class="codeph">CHECK_OBJECT</code> procedure</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1941" id="d184170e402" headers="d184170e352">
+<p><code class="codeph">REBUILD_FREELISTS</code></p>
+</td>
+<td class="cellalignment1942" headers="d184170e402 d184170e355">
+<p>Rebuilds the free lists of the object</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1941" id="d184170e410" headers="d184170e352">
+<p><code class="codeph">SEGMENT_FIX_STATUS</code></p>
+</td>
+<td class="cellalignment1942" headers="d184170e410 d184170e355">
+<p>Provides the capability to fix the corrupted state of a bitmap entry when segment space management is <code class="codeph">AUTO</code></p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1941" id="d184170e420" headers="d184170e352">
+<p><code class="codeph">SKIP_CORRUPT_BLOCKS</code></p>
+</td>
+<td class="cellalignment1942" headers="d184170e420 d184170e355">
+<p>When used, ignores blocks marked corrupt during table and index scans. If not used, you get error <code class="codeph">ORA-01578</code> when encountering blocks marked corrupt.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="section">
+<p>These procedures are further described, with examples of their use, in <span class="q">&#34;<a href="repair.htm#GUID-EA2EA177-80ED-420B-B16E-2936014AC68C" title="Examples illustrate how to use the DBMS_REPAIR package.">DBMS_REPAIR Examples</a>&#34;</span>.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11814"></a>
+<div class="props_rev_3"><a id="GUID-6A1D3BA4-7D79-4DF4-9F44-9D6776114332"></a>
+<h3 id="ADMIN-GUID-6A1D3BA4-7D79-4DF4-9F44-9D6776114332" class="sect3"><span class="enumeration_section">25.2.2</span> Limitations and Restrictions for DBMS_REPAIR Procedures</h3>
+<div>
+<p>Some limitations and restrictions apply to <code class="codeph">DBMS_REPAIR</code> procedures.</p>
+<p><code class="codeph">DBMS_REPAIR</code> procedures have the following limitations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Tables with LOB data types, nested tables, and varrays are supported, but the out-of-line columns are ignored.</p>
+</li>
+<li>
+<p>Clusters are supported in the <code class="codeph">SKIP_CORRUPT_BLOCKS</code> and <code class="codeph">REBUILD_FREELISTS</code> procedures, but not in the <code class="codeph">CHECK_OBJECT</code> procedure.</p>
+</li>
+<li>
+<p>Index-organized tables and LOB indexes are not supported.</p>
+</li>
+<li>
+<p>Global temporary tables are not supported.</p>
+</li>
+<li>
+<p>The <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure does not operate on bitmap indexes or function-based indexes.</p>
+</li>
+<li>
+<p>The <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure processes keys that are no more than 3,950 bytes long.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="ADMIN11815"></a>
+<div class="props_rev_3"><a id="GUID-DF695FE6-E166-48E8-95E9-B8763A322F6F"></a>
+<h2 id="ADMIN-GUID-DF695FE6-E166-48E8-95E9-B8763A322F6F" class="sect2"><span class="enumeration_section">25.3</span> Using the DBMS_REPAIR Package</h2>
+<p>You can use the <code class="codeph">DBMS_REPAIR</code> package to address data block corruption:</p>
+<div class="sect3"><a id="GUID-BC0FA7E8-3854-4836-890B-3129A056B852"></a>
+<h3 id="ADMIN-GUID-BC0FA7E8-3854-4836-890B-3129A056B852" class="sect3"><span class="enumeration_section">25.3.1</span> Task 1: Detect and Report Corruptions</h3>
+<p>The first task is the detection and reporting of corruptions. Reporting not only indicates what is wrong with a block, but also identifies the associated repair directive.</p>
+<a id="ADMIN13070"></a><a id="ADMIN11816"></a>
+<div class="props_rev_3"><a id="GUID-8AF3CD34-631E-4381-B504-6907AD2B8025"></a>
+<h4 id="ADMIN-GUID-8AF3CD34-631E-4381-B504-6907AD2B8025" class="sect4"><span class="enumeration_section">25.3.1.1</span> About Detecting and Reporting Corruptions</h4>
+<div>
+<p>There are several ways to detect corruptions.</p>
+<p><a href="repair.htm#GUID-8AF3CD34-631E-4381-B504-6907AD2B8025__g1006999" title="Column 1 lists the method of detecting corruption, column 2 describes the method.">Table 25-1</a> describes the different detection methodologies.</p>
+<div class="tblformal" id="GUID-8AF3CD34-631E-4381-B504-6907AD2B8025__g1006999">
+<p class="titleintable">Table 25-1 Comparison of Corruption Detection Methods</p>
+<table class="cellalignment1849" title="Comparison of Corruption Detection Methods" summary="Column 1 lists the method of detecting corruption, column 2 describes the method.">
+<thead>
+<tr class="cellalignment1843">
+<th class="cellalignment1871" id="d184170e757">Detection Method</th>
+<th class="cellalignment1963" id="d184170e760">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1843">
+<td class="cellalignment1874" id="d184170e765" headers="d184170e757">
+<p><code class="codeph">DBMS_REPAIR</code> PL/SQL package</p>
+</td>
+<td class="cellalignment1964" headers="d184170e765 d184170e760">
+<p>Performs block checking for a specified table, partition, or index. It populates a repair table with results.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1874" id="d184170e774" headers="d184170e757">
+<p><code class="codeph">DB_VERIFY</code> utility</p>
+</td>
+<td class="cellalignment1964" headers="d184170e774 d184170e760">
+<p>Performs block checking on an offline database</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1874" id="d184170e783" headers="d184170e757">
+<p><code class="codeph">ANALYZE TABLE</code> SQL statement</p>
+</td>
+<td class="cellalignment1964" headers="d184170e783 d184170e760">
+<p>Used with the <code class="codeph">VALIDATE STRUCTURE</code> option, the <code class="codeph">ANALYZE</code> <code class="codeph">TABLE</code> statement verifies the integrity of the structure of an index, table, or cluster; checks or verifies that tables and indexes are synchronized.</p>
+</td>
+</tr>
+<tr class="cellalignment1843">
+<td class="cellalignment1874" id="d184170e800" headers="d184170e757">
+<p><code class="codeph">DB_BLOCK_CHECKING</code> initialization parameter</p>
+</td>
+<td class="cellalignment1964" headers="d184170e800 d184170e760">
+<p>When <code class="codeph">DB_BLOCK_CHECKING=TRUE</code>, corrupt blocks are identified before they are marked corrupt. Checks are performed when changes are made to a block.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+<a id="ADMIN11817"></a>
+<div class="props_rev_3"><a id="GUID-0835FF41-E6FC-40BF-AFEE-F0859C67E5F2"></a>
+<h4 id="ADMIN-GUID-0835FF41-E6FC-40BF-AFEE-F0859C67E5F2" class="sect4"><span class="enumeration_section">25.3.1.2</span> DBMS_REPAIR: Using the CHECK_OBJECT and ADMIN_TABLES Procedures</h4>
+<div>
+<p>The <code class="codeph">CHECK_OBJECT</code> procedure checks and reports block corruptions for a specified object. The <code class="codeph">ADMIN_TABLES</code> procedure creates a repair table that facilitates correcting corruptions.</p>
+<div class="section">
+<p>The <code class="codeph">CHECK_OBJECT</code> procedure is similar to the <code class="codeph">ANALYZE...VALIDATE STRUCTURE</code> statement for indexes and tables, block checking is performed for index and data blocks.</p>
+<p>Not only does <code class="codeph">CHECK_OBJECT</code> report corruptions, but it also identifies any fixes that would occur if <code class="codeph">FIX_CORRUPT_BLOCKS</code> is subsequently run on the object. This information is made available by populating a repair table, which must first be created by the <code class="codeph">ADMIN_TABLES</code> procedure.</p>
+<p>After you run the <code class="codeph">CHECK_OBJECT</code> procedure, a simple query on the repair table shows the corruptions and repair directives for the object. With this information, you can assess how best to address the reported problems.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11818"></a>
+<div class="props_rev_3"><a id="GUID-89B61F97-D01F-4E0C-8230-A5489EDA9EAF"></a>
+<h4 id="ADMIN-GUID-89B61F97-D01F-4E0C-8230-A5489EDA9EAF" class="sect4"><span class="enumeration_section">25.3.1.3</span> DB_VERIFY: Performing an Offline Database Check</h4>
+<div>
+<p>Use <code class="codeph">DB_VERIFY</code> as an offline diagnostic utility when you encounter data corruption.</p>
+<div class="infoboxnotealso" id="GUID-89B61F97-D01F-4E0C-8230-A5489EDA9EAF__GUID-68DD5E6D-4E6B-43FA-8FC1-BF93639BD1F1">
+<p class="notep1">See Also:</p>
+<p><a class="olink SUTIL013" target="_blank" href="../SUTIL/GUID-05C9875B-1AC1-433D-A71E-B7C0667EE1F1.htm#SUTIL013"><span class="italic">Oracle Database Utilities</span></a> for more information about <code class="codeph">DB_VERIFY</code></p>
+</div>
+</div>
+</div>
+<a id="ADMIN11819"></a>
+<div class="props_rev_3"><a id="GUID-17473BCF-88CF-49A8-866D-F4B3BDDD2961"></a>
+<h4 id="ADMIN-GUID-17473BCF-88CF-49A8-866D-F4B3BDDD2961" class="sect4"><span class="enumeration_section">25.3.1.4</span> ANALYZE: Reporting Corruption</h4>
+<div>
+<p>The <code class="codeph">ANALYZE TABLE...VALIDATE STRUCTURE</code> statement validates the structure of the analyzed object. If the database encounters corruption in the structure of the object, then an error message is returned. In this case, drop and re-create the object.</p>
+<p>You can use the <code class="codeph">CASCADE</code> clause of the <code class="codeph">ANALYZE TABLE</code> statement to check the structure of the table and all of its indexes in one operation. Because this operation can consume significant resources, there is a FAST option that performs a lightweight check. See <span class="q">&#34;<a href="general.htm#GUID-4D413507-A992-44B0-8366-867B78E0B6FF" title="To verify the integrity of the structure of a table, index, cluster, or materialized view, use the ANALYZE statement with the VALIDATE STRUCTURE option.">Validating Tables, Indexes, Clusters, and Materialized Views</a>&#34;</span> for details.</p>
+<div class="infoboxnotealso" id="GUID-17473BCF-88CF-49A8-866D-F4B3BDDD2961__GUID-A4788793-40D4-446F-A15A-494C7E32FE7C">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF01105" target="_blank" href="../SQLRF/statements_4005.htm#SQLRF01105"><span class="italic">Oracle Database SQL Language Reference</span></a> for more information about the <code class="codeph">ANALYZE</code> statement</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="ADMIN11820"></a>
+<div class="props_rev_3"><a id="GUID-71280400-C7BB-42B9-9272-4F1242B0BD28"></a>
+<h4 id="ADMIN-GUID-71280400-C7BB-42B9-9272-4F1242B0BD28" class="sect4"><span class="enumeration_section">25.3.1.5</span> DB_BLOCK_CHECKING Initialization Parameter</h4>
+<div>
+<p>You can enable database block checking by setting the <code class="codeph">DB_BLOCK_CHECKING</code> initialization parameter to <code class="codeph">TRUE</code>.</p>
+<p>This checks data and index blocks for internal consistency whenever they are modified. <code class="codeph">DB_BLOCK_CHECKING</code> is a dynamic parameter, modifiable by the <code class="codeph">ALTER SYSTEM SET</code> statement. Block checking is always enabled for the system tablespace.</p>
+<div class="infoboxnotealso" id="GUID-71280400-C7BB-42B9-9272-4F1242B0BD28__GUID-2DF2D40B-3BBB-46A7-B92D-F11E24112283">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN10029" target="_blank" href="../REFRN/GUID-23700E5C-6BFC-48C2-9728-EB1F93F95DD6.htm#REFRN10029"><span class="italic">Oracle Database Reference</span></a> for more information about the <code class="codeph">DB_BLOCK_CHECKING</code> initialization parameter</p>
+</div>
+</div>
+</div>
+</div>
+<a id="ADMIN11821"></a>
+<div class="props_rev_3"><a id="GUID-B0FDE4AE-0788-4F47-8A56-B31EE47714AA"></a>
+<h3 id="ADMIN-GUID-B0FDE4AE-0788-4F47-8A56-B31EE47714AA" class="sect3"><span class="enumeration_section">25.3.2</span> Task 2: Evaluate the Costs and Benefits of Using DBMS_REPAIR</h3>
+<div>
+<p>Before using <code class="codeph">DBMS_REPAIR</code> you must weigh the benefits of its use in relation to the liabilities. You should also examine other options available for addressing corrupt objects.</p>
+<p>Begin by answering the following questions:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>What is the extent of the corruption?</p>
+<p>To determine if there are corruptions and repair actions, execute the <code class="codeph">CHECK_OBJECT</code> procedure and query the repair table.</p>
+</li>
+<li>
+<p>What other options are available for addressing block corruptions? Consider the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the data is available from another source, then drop, re-create, and repopulate the object.</p>
+</li>
+<li>
+<p>Issue the <code class="codeph">CREATE TABLE...AS SELECT</code> statement from the corrupt table to create a new one.</p>
+</li>
+<li>
+<p>Ignore the corruption by excluding corrupt rows from <code class="codeph">SELECT</code> statements.</p>
+</li>
+<li>
+<p>Perform media recovery.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>What logical corruptions or side effects are introduced when you use <code class="codeph">DBMS_REPAIR</code> to make an object usable? Can these be addressed? What is the effort required to do so?</p>
+<p>You might not have access to rows in blocks marked corrupt. However, a block can be marked corrupt even if there are rows that you can validly access.</p>
+<p>It is also possible that referential integrity constraints are broken when blocks are marked corrupt. If this occurs, then disable and reenable the constraint; any inconsistencies are reported. After fixing all problems, you should be able to reenable the constraint.</p>
+<p>Logical corruption can occur when there are triggers defined on the table. For example, if rows are reinserted, should insert triggers be fired or not? You can address these issues only if you understand triggers and their use in your installation.</p>
+<p>If indexes and tables are not synchronized, then execute the <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure to obtain information from the keys that might be useful in rebuilding corrupted data. Then issue the <code class="codeph">ALTER INDEX...REBUILD ONLINE</code> statement to synchronize the table with its indexes.</p>
+</li>
+<li>
+<p>If repair involves loss of data, can this data be retrieved?</p>
+<p>You can retrieve data from the index when a data block is marked corrupt. The <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure can help you retrieve this information.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADMIN11822"></a>
+<div class="props_rev_3"><a id="GUID-39EC82E7-F68C-4473-87C0-28CA7964198C"></a>
+<h3 id="ADMIN-GUID-39EC82E7-F68C-4473-87C0-28CA7964198C" class="sect3"><span class="enumeration_section">25.3.3</span> Task 3: Make Objects Usable</h3>
+<p><code class="codeph">DBMS_REPAIR</code> makes the object usable by ignoring corruptions during table and index scans.</p>
+<a id="ADMIN11823"></a>
+<div class="props_rev_3"><a id="GUID-C0C44C70-A1AC-4D85-8AC6-45228B5ABD41"></a>
+<h4 id="ADMIN-GUID-C0C44C70-A1AC-4D85-8AC6-45228B5ABD41" class="sect4"><span class="enumeration_section">25.3.3.1</span> Corruption Repair: Using the FIX_CORRUPT_BLOCKS and SKIP_CORRUPT_BLOCKS Procedures</h4>
+<div>
+<p>You can make a corrupt object usable by establishing an environment that skips corruptions that remain outside the scope of <code class="codeph">DBMS_REPAIR</code> capabilities.</p>
+<div class="section">
+<p>If corruptions involve a loss of data, such as a bad row in a data block, then all such blocks are marked corrupt by the <code class="codeph">FIX_CORRUPT_BLOCKS</code> procedure. Then you can run the <code class="codeph">SKIP_CORRUPT_BLOCKS</code> procedure, which skips blocks that are marked as corrupt. When the <code class="codeph">SKIP_FLAG</code> parameter in the procedure is set, table and index scans skip all blocks marked corrupt. This applies to both media and software corrupt blocks.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11824"></a>
+<div class="props_rev_3"><a id="GUID-6064D37C-78AA-42C7-84F4-7B23FA111A87"></a>
+<h4 id="ADMIN-GUID-6064D37C-78AA-42C7-84F4-7B23FA111A87" class="sect4"><span class="enumeration_section">25.3.3.2</span> Implications When Skipping Corrupt Blocks</h4>
+<div>
+<p>When skipping corrupt blocks, a query can return different results in some situations.</p>
+<p>If an index and table are not synchronized, then a <code class="codeph">SET TRANSACTION READ ONLY</code> transaction can be inconsistent in situations where one query probes only the index, and a subsequent query probes both the index and the table. If the table block is marked corrupt, then the two queries return different results, thereby breaking the rules of a read-only transaction. One way to approach this is not to skip corruptions in a <code class="codeph">SET TRANSACTION READ ONLY</code> transaction.</p>
+<p>A similar issue occurs when selecting rows that are chained. A query of the same row may or may not access the corruption, producing different results.</p>
+</div>
+</div>
+</div>
+<a id="ADMIN11825"></a>
+<div class="props_rev_3"><a id="GUID-FAC917B1-075C-4B37-88AC-98F029AAD31E"></a>
+<h3 id="ADMIN-GUID-FAC917B1-075C-4B37-88AC-98F029AAD31E" class="sect3"><span class="enumeration_section">25.3.4</span> Task 4: Repair Corruptions and Rebuild Lost Data</h3>
+<p>After making an object usable, perform the following repair activities.</p>
+<a id="ADMIN11826"></a>
+<div class="props_rev_3"><a id="GUID-7D65AB6B-8B04-47EA-AAF2-19CFD2CB487C"></a>
+<h4 id="ADMIN-GUID-7D65AB6B-8B04-47EA-AAF2-19CFD2CB487C" class="sect4"><span class="enumeration_section">25.3.4.1</span> Recover Data Using the DUMP_ORPHAN_KEYS Procedures</h4>
+<div>
+<p>The <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure reports on index entries that point to rows in corrupt data blocks. All such index entries are inserted into an orphan key table that stores the key and rowid of the corruption.</p>
+<div class="section">
+<p>After the index entry information has been retrieved, you can rebuild the index using the <code class="codeph">ALTER INDEX...REBUILD ONLINE</code> statement.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11827"></a>
+<div class="props_rev_3"><a id="GUID-DD4A62AB-0C2B-4B0C-8FD1-7BE4217298AE"></a>
+<h4 id="ADMIN-GUID-DD4A62AB-0C2B-4B0C-8FD1-7BE4217298AE" class="sect4"><span class="enumeration_section">25.3.4.2</span> Fix Segment Bitmaps Using the SEGMENT_FIX_STATUS Procedure</h4>
+<div>
+<p>Use the <code class="codeph">SEGMENT_FIX_STATUS</code> procedure if free space in segments is being managed by using bitmaps (<code class="codeph">SEGMENT SPACE MANAGEMENT AUTO</code>).</p>
+<div class="section">
+<p>This procedure recalculates the state of a bitmap entry based on the current contents of the corresponding block. Alternatively, you can specify that a bitmap entry be set to a specific value. Usually the state is recalculated correctly and there is no need to force a setting.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="ADMIN11828"></a>
+<div class="props_rev_3"><a id="GUID-EA2EA177-80ED-420B-B16E-2936014AC68C"></a>
+<h2 id="ADMIN-GUID-EA2EA177-80ED-420B-B16E-2936014AC68C" class="sect2"><span class="enumeration_section">25.4</span> DBMS_REPAIR Examples</h2>
+<p>Examples illustrate how to use the <code class="codeph">DBMS_REPAIR</code> package.</p>
+<div class="sect3"><a id="GUID-962BDF34-70E9-4373-B580-9D67CB33360E"></a>
+<h3 id="ADMIN-GUID-962BDF34-70E9-4373-B580-9D67CB33360E" class="sect3"><span class="enumeration_section">25.4.1</span> Examples: Building a Repair Table or Orphan Key Table</h3>
+<p>A repair table provides information about the corruptions. An orphan key table provides information about index entries that point to corrupt rows.</p>
+<a id="ADMIN11829"></a>
+<div class="props_rev_3"><a id="GUID-11E28B2E-0D3A-448F-A6D2-10F8B4E886DD"></a>
+<h4 id="ADMIN-GUID-11E28B2E-0D3A-448F-A6D2-10F8B4E886DD" class="sect4"><span class="enumeration_section">25.4.1.1</span> About Repair Tables or Orphan Key Tables</h4>
+<div>
+<p>The <code class="codeph">ADMIN_TABLE</code> procedure is used to create, purge, or drop a repair table or an orphan key table.</p>
+<p>A repair table provides information about the corruptions that were found by the <code class="codeph">CHECK_OBJECT</code> procedure and how these will be addressed if the <code class="codeph">FIX_CORRUPT_BLOCKS</code> procedure is run. Further, it is used to drive the execution of the <code class="codeph">FIX_CORRUPT_BLOCKS</code> procedure.</p>
+<p>An orphan key table is used when the <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure is executed and it discovers index entries that point to corrupt rows. The <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure populates the orphan key table by logging its activity and providing the index information in a usable manner.</p>
+</div>
+</div>
+<a id="ADMIN11830"></a>
+<div class="props_rev_3"><a id="GUID-32A01FD3-5C2A-43E6-B664-C10D2697F726"></a>
+<h4 id="ADMIN-GUID-32A01FD3-5C2A-43E6-B664-C10D2697F726" class="sect4"><span class="enumeration_section">25.4.1.2</span> Example: Creating a Repair Table</h4>
+<div>
+<p>An example illustrates creating a repair table using the <code class="codeph">ADMIN_TABLES</code> procedure.</p>
+<div class="section">
+<p>The following example creates a repair table for the <code class="codeph">users</code> tablespace.</p>
+<pre dir="ltr">BEGIN
+  DBMS_REPAIR.ADMIN_TABLES (
+     TABLE_NAME =&gt; &#39;REPAIR_TABLE&#39;,
+     TABLE_TYPE =&gt; dbms_repair.repair_table,
+     ACTION     =&gt; dbms_repair.create_action,
+     TABLESPACE =&gt; &#39;USERS&#39;);
+END;
+/
+</pre>
+<p>For each repair or orphan key table, a view is also created that eliminates any rows that pertain to objects that no longer exist. The name of the view corresponds to the name of the repair or orphan key table and is prefixed by <code class="codeph">DBA_</code> (for example, <code class="codeph">DBA_REPAIR_TABLE</code> or <code class="codeph">DBA_ORPHAN_KEY_TABLE</code>).</p>
+<p>The following query describes the repair table that was created for the <code class="codeph">users</code> tablespace.</p>
+<pre dir="ltr">DESC REPAIR_TABLE
+
+ Name                         Null?    Type
+ ---------------------------- -------- --------------
+ OBJECT_ID                    NOT NULL NUMBER
+ TABLESPACE_ID                NOT NULL NUMBER
+ RELATIVE_FILE_ID             NOT NULL NUMBER
+ BLOCK_ID                     NOT NULL NUMBER
+ CORRUPT_TYPE                 NOT NULL NUMBER
+ SCHEMA_NAME                  NOT NULL VARCHAR2(30)
+ OBJECT_NAME                  NOT NULL VARCHAR2(30)
+ BASEOBJECT_NAME                       VARCHAR2(30)
+ PARTITION_NAME                        VARCHAR2(30)
+ CORRUPT_DESCRIPTION                   VARCHAR2(2000)
+ REPAIR_DESCRIPTION                    VARCHAR2(200)
+ MARKED_CORRUPT               NOT NULL VARCHAR2(10)
+ CHECK_TIMESTAMP              NOT NULL DATE
+ FIX_TIMESTAMP                         DATE
+ REFORMAT_TIMESTAMP                    DATE
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11831"></a>
+<div class="props_rev_3"><a id="GUID-3725DEDD-EBF0-4D56-87DF-39FFB494587D"></a>
+<h4 id="ADMIN-GUID-3725DEDD-EBF0-4D56-87DF-39FFB494587D" class="sect4"><span class="enumeration_section">25.4.1.3</span> Example: Creating an Orphan Key Table</h4>
+<div>
+<p>An example illustrates creating an orphan key table using the <code class="codeph">ADMIN_TABLES</code> procedure.</p>
+<div class="section">
+<p>This example illustrates the creation of an orphan key table for the <code class="codeph">users</code> tablespace.</p>
+<pre dir="ltr">BEGIN
+  DBMS_REPAIR.ADMIN_TABLES (
+     TABLE_NAME =&gt; &#39;ORPHAN_KEY_TABLE&#39;,
+     TABLE_TYPE =&gt; dbms_repair.orphan_table,
+     ACTION     =&gt; dbms_repair.create_action,
+     TABLESPACE =&gt; &#39;USERS&#39;);
+END;
+/
+</pre>
+<p>The orphan key table is described in the following query:</p>
+<pre dir="ltr">DESC ORPHAN_KEY_TABLE
+
+ Name                         Null?    Type
+ ---------------------------- -------- -----------------
+ SCHEMA_NAME                  NOT NULL VARCHAR2(30)
+ INDEX_NAME                   NOT NULL VARCHAR2(30)
+ IPART_NAME                            VARCHAR2(30)
+ INDEX_ID                     NOT NULL NUMBER
+ TABLE_NAME                   NOT NULL VARCHAR2(30)
+ PART_NAME                             VARCHAR2(30)
+ TABLE_ID                     NOT NULL NUMBER
+ KEYROWID                     NOT NULL ROWID
+ KEY                          NOT NULL ROWID
+ DUMP_TIMESTAMP               NOT NULL DATE
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="ADMIN11832"></a>
+<div class="props_rev_3"><a id="GUID-F47ABE72-03FE-4C63-8092-BAAEC47F9C4B"></a>
+<h3 id="ADMIN-GUID-F47ABE72-03FE-4C63-8092-BAAEC47F9C4B" class="sect3"><span class="enumeration_section">25.4.2</span> Example: Detecting Corruption</h3>
+<div>
+<p>An example illustrates detecting corruption with the <code class="codeph">CHECK_OBJECT</code> procedure.</p>
+<div class="section">
+<p>The <code class="codeph">CHECK_OBJECT</code> procedure checks the specified object, and populates the repair table with information about corruptions and repair directives. You can optionally specify a range, partition name, or subpartition name when you want to check a portion of an object.</p>
+<p>Validation consists of checking all blocks in the object that have not previously been marked corrupt. For each block, the transaction and data layer portions are checked for self consistency. During <code class="codeph">CHECK_OBJECT</code>, if a block is encountered that has a corrupt buffer cache header, then that block is skipped.</p>
+<p>The following is an example of executing the <code class="codeph">CHECK_OBJECT</code> procedure for the <code class="codeph">scott.dept</code> table.</p>
+<pre dir="ltr">SET SERVEROUTPUT ON
+DECLARE num_corrupt INT;
+BEGIN
+ num_corrupt := 0;
+ DBMS_REPAIR.CHECK_OBJECT (
+     SCHEMA_NAME =&gt; &#39;SCOTT&#39;,
+     OBJECT_NAME =&gt; &#39;DEPT&#39;,
+     REPAIR_TABLE_NAME =&gt; &#39;REPAIR_TABLE&#39;,
+     CORRUPT_COUNT =&gt;  num_corrupt);
+ DBMS_OUTPUT.PUT_LINE(&#39;number corrupt: &#39; || TO_CHAR (num_corrupt));
+END;
+/
+</pre>
+<p>SQL*Plus outputs the following line, indicating one corruption:</p>
+<pre dir="ltr">number corrupt: 1
+</pre>
+<p>Querying the repair table produces information describing the corruption and suggesting a repair action.</p>
+<pre dir="ltr">SELECT OBJECT_NAME, BLOCK_ID, CORRUPT_TYPE, MARKED_CORRUPT,
+       CORRUPT_DESCRIPTION, REPAIR_DESCRIPTION
+     FROM REPAIR_TABLE;
+
+OBJECT_NAME                      BLOCK_ID CORRUPT_TYPE MARKED_COR
+------------------------------ ---------- ------------ ----------
+CORRUPT_DESCRIPTION
+------------------------------------------------------------------------------
+REPAIR_DESCRIPTION
+------------------------------------------------------------------------------
+DEPT                                    3            1 FALSE
+kdbchk: row locked by non-existent transaction
+        table=0   slot=0
+        lockid=32   ktbbhitc=1
+mark block software corrupt
+</pre>
+<p>The corrupted block has not yet been marked corrupt, so this is the time to extract any meaningful data. After the block is marked corrupt, the entire block must be skipped.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11833"></a>
+<div class="props_rev_3"><a id="GUID-4CD87B1A-BDCD-4EEA-A231-BBCDE99EB33E"></a>
+<h3 id="ADMIN-GUID-4CD87B1A-BDCD-4EEA-A231-BBCDE99EB33E" class="sect3"><span class="enumeration_section">25.4.3</span> Example: Fixing Corrupt Blocks</h3>
+<div>
+<p>An example illustrates fixing corrupt blocks with the <code class="codeph">FIX_CORRUPT_BLOCKS</code> procedure.</p>
+<div class="section">
+<p>Use the <code class="codeph">FIX_CORRUPT_BLOCKS</code> procedure to fix the corrupt blocks in specified objects based on information in the repair table that was generated by the <code class="codeph">CHECK_OBJECT</code> procedure. Before changing a block, the block is checked to ensure that the block is still corrupt. Corrupt blocks are repaired by marking the block software corrupt. When a repair is performed, the associated row in the repair table is updated with a timestamp.</p>
+<p>This example fixes the corrupt block in table <code class="codeph">scott.dept</code> that was reported by the <code class="codeph">CHECK_OBJECT</code> procedure.</p>
+<pre dir="ltr">SET SERVEROUTPUT ON
+DECLARE num_fix INT;
+BEGIN 
+ num_fix := 0;
+ DBMS_REPAIR.FIX_CORRUPT_BLOCKS (
+     SCHEMA_NAME =&gt; &#39;SCOTT&#39;,
+     OBJECT_NAME=&gt; &#39;DEPT&#39;,
+     OBJECT_TYPE =&gt; dbms_repair.table_object,
+     REPAIR_TABLE_NAME =&gt; &#39;REPAIR_TABLE&#39;,
+     FIX_COUNT=&gt; num_fix);
+ DBMS_OUTPUT.PUT_LINE(&#39;num fix: &#39; || TO_CHAR(num_fix));
+END;
+/
+</pre>
+<p>SQL*Plus outputs the following line:</p>
+<pre dir="ltr">num fix: 1
+</pre>
+<p>The following query confirms that the repair was done.</p>
+<pre dir="ltr">SELECT OBJECT_NAME, BLOCK_ID, MARKED_CORRUPT
+     FROM REPAIR_TABLE;
+
+OBJECT_NAME                      BLOCK_ID MARKED_COR
+------------------------------ ---------- ----------
+DEPT                                    3 TRUE
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11834"></a>
+<div class="props_rev_3"><a id="GUID-1655A1A1-5A4F-450E-9AFB-6186B59B4A5E"></a>
+<h3 id="ADMIN-GUID-1655A1A1-5A4F-450E-9AFB-6186B59B4A5E" class="sect3"><span class="enumeration_section">25.4.4</span> Example: Finding Index Entries Pointing to Corrupt Data Blocks</h3>
+<div>
+<p>An example illustrates finding index entries pointing to corrupt data blocks using the <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure.</p>
+<div class="section">
+<p>The <code class="codeph">DUMP_ORPHAN_KEYS</code> procedure reports on index entries that point to rows in corrupt data blocks. For each index entry, a row is inserted into the specified orphan key table. The orphan key table must have been previously created.</p>
+<p>This information can be useful for rebuilding lost rows in the table and for diagnostic purposes.</p>
+<div class="infobox-note" id="GUID-1655A1A1-5A4F-450E-9AFB-6186B59B4A5E__GUID-3E9BFD73-4785-4367-ADAB-0550B1D43ECE">
+<p class="notep1">Note:</p>
+<p>This should be run for every index associated with a table identified in the repair table.</p>
+</div>
+<p>In this example, <code class="codeph">pk_dept</code> is an index on the <code class="codeph">scott.dept</code> table. It is scanned to determine if there are any index entries pointing to rows in the corrupt data block.</p>
+<pre dir="ltr">SET SERVEROUTPUT ON
+DECLARE num_orphans INT;
+BEGIN
+ num_orphans := 0;
+ DBMS_REPAIR.DUMP_ORPHAN_KEYS (
+     SCHEMA_NAME =&gt; &#39;SCOTT&#39;,
+     OBJECT_NAME =&gt; &#39;PK_DEPT&#39;,
+     OBJECT_TYPE =&gt; dbms_repair.index_object,
+     REPAIR_TABLE_NAME =&gt; &#39;REPAIR_TABLE&#39;,
+     ORPHAN_TABLE_NAME=&gt; &#39;ORPHAN_KEY_TABLE&#39;,
+     KEY_COUNT =&gt; num_orphans);
+ DBMS_OUTPUT.PUT_LINE(&#39;orphan key count: &#39; || TO_CHAR(num_orphans));
+END;
+/
+</pre>
+<p>The following output indicates that there are three orphan keys:</p>
+<pre dir="ltr">orphan key count: 3
+</pre>
+<p>Index entries in the orphan key table implies that the index should be rebuilt. This guarantees that a table probe and an index probe return the same result set.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADMIN11835"></a>
+<div class="props_rev_3"><a id="GUID-C80FB286-14FE-42D0-B58B-52FB939ED185"></a>
+<h3 id="ADMIN-GUID-C80FB286-14FE-42D0-B58B-52FB939ED185" class="sect3"><span class="enumeration_section">25.4.5</span> Example: Skipping Corrupt Blocks</h3>
+<div>
+<p>An example illustrates skipping corrupt blocks using the <code class="codeph">SKIP_CORRUPT_BLOCKS</code> procedure.</p>
+<div class="section">
+<p>The <code class="codeph">SKIP_CORRUPT_BLOCKS</code> procedure enables or disables the skipping of corrupt blocks during index and table scans of the specified object. When the object is a table, skipping applies to the table and its indexes. When the object is a cluster, it applies to all of the tables in the cluster, and their respective indexes.</p>
+<p>The following example enables the skipping of software corrupt blocks for the <code class="codeph">scott.dept</code> table:</p>
+<pre dir="ltr">BEGIN
+  DBMS_REPAIR.SKIP_CORRUPT_BLOCKS (
+     SCHEMA_NAME =&gt; &#39;SCOTT&#39;,
+     OBJECT_NAME =&gt; &#39;DEPT&#39;,
+     OBJECT_TYPE =&gt; dbms_repair.table_object,
+     FLAGS =&gt; dbms_repair.skip_flag);
+END;
+/
+</pre>
+<p>Querying <code class="codeph">scott</code>&#39;s tables using the <code class="codeph">DBA_TABLES</code> view shows that <code class="codeph">SKIP_CORRUPT</code> is enabled for table <code class="codeph">scott.dept</code>.</p>
+<pre dir="ltr">SELECT OWNER, TABLE_NAME, SKIP_CORRUPT FROM DBA_TABLES
+    WHERE OWNER = &#39;SCOTT&#39;;
+
+OWNER                          TABLE_NAME                     SKIP_COR
+------------------------------ ------------------------------ --------
+SCOTT                          ACCOUNT                        DISABLED
+SCOTT                          BONUS                          DISABLED
+SCOTT                          DEPT                           ENABLED
+SCOTT                          DOCINDEX                       DISABLED
+SCOTT                          EMP                            DISABLED
+SCOTT                          RECEIPT                        DISABLED
+SCOTT                          SALGRADE                       DISABLED
+SCOTT                          SCOTT_EMP                      DISABLED
+SCOTT                          SYS_IOT_OVER_12255             DISABLED
+SCOTT                          WORK_AREA                      DISABLED
+
+10 rows selected.
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1842">
+<tr>
+<td class="cellalignment1854">
+<table class="cellalignment1847">
+<tr>
+<td class="cellalignment1846"><a href="views.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1846"><a href="part6.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2001, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1856">
+<table class="cellalignment1845">
+<tr>
+<td class="cellalignment1846"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1846"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1846"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1846"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1846"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1846"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

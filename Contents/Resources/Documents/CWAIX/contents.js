@@ -1,0 +1,16 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Oracle Grid Infrastructure Installation Checklist", anchor: "CWAIX444", file: "chklist.htm" },
+  { topic: "chapter", section: "2", title: "Configuring Servers for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWAIX460", file: "servers.htm" },
+  { topic: "chapter", section: "3", title: "Configuring Operating Systems for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWAIX168", file: "preaix.htm" },
+  { topic: "chapter", section: "4", title: "Configuring Networks for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWAIX473", file: "networks.htm" },
+  { topic: "chapter", section: "5", title: "Configuring Users, Groups and Environments for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWAIX483", file: "usrgrps.htm" },
+  { topic: "chapter", section: "6", title: "Configuring Storage for Oracle Grid Infrastructure and Oracle RAC", anchor: "CWAIX003", file: "storage.htm" },
+  { topic: "chapter", section: "7", title: "Installing Oracle Grid Infrastructure for a Cluster", anchor: "CWAIX315", file: "crsunix.htm" },
+  { topic: "chapter", section: "8", title: "Oracle Grid Infrastructure Postinstallation Procedures", anchor: "CWAIX326", file: "postinst.htm" },
+  { topic: "chapter", section: "9", title: "How to Modify or Deinstall Oracle Grid Infrastructure", anchor: "CWAIX345", file: "rem_orcl.htm" },
+  { topic: "appendix", section: "A", title: "Troubleshooting the Oracle Grid Infrastructure Installation Process", anchor: "CWAIX354", file: "trouble.htm" },
+  { topic: "appendix", section: "B", title: "How to Upgrade to Oracle Grid Infrastructure 12c Release 1", anchor: "CWAIX10001", file: "procstop.htm" },
+  { topic: "appendix", section: "C", title: "Installing and Configuring Oracle Database Using Response Files", anchor: "CWAIX505", file: "app_nonint.htm" },
+  { topic: "appendix", section: "D", title: "Oracle Grid Infrastructure for a Cluster Installation Concepts", anchor: "CWAIX506", file: "concepts.htm" },
+  { topic: "appendix", section: "E", title: "How to Complete Preinstallation Tasks Manually", anchor: "CWAIX515", file: "manpreins.htm" },
+  { } ];

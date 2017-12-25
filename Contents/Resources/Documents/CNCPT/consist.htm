@@ -1,0 +1,2141 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-3920"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Data%20Concurrency%20and%20Consistency"></a><title>Data Concurrency and Consistency</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="multiversion read consistency, consistency, multiversioning, serializability, transactional, transactions, serializability, concurrency, definition, dirty reads, Real Application Clusters, cache fusion, undo segments, read consistency, system change numbers, read uncommitted, isolation levels, isolation levels, transaction, fuzzy reads, transaction isolation, standards, ANSI/ISO, isolation of, phantom reads, updates, lost, lost updates, conflicting writes, blocking, blocking transactions, serialization, serialization isolation level, locks, duration, automatic, deadlocks, contention, statement-level rollback, rollback, statement-level, types of, parameters, initialization, locking behavior, instances, database, failures, row locks, rows, locks on, locking, row (TX), exclusive locks, row locks (TX), foreign keys, updating tables, unindexed foreign keys and, with parent keys, SQL*Plus, lock and latch monitors, Enterprise Manager, system, system locks, shared pool, latches, parsing, SQL, hard parse, mutexes, file management locks, log management locks, SQL, dictionary cache locks, dictionary cache, internal, internal locks, tablespaces, rollback segments, tablespace"/>
+<meta name="dcterms.created" content="2017-07-10T11:33:29Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Concepts"/>
+<meta name="dcterms.identifier" content="E41396-15"/>
+<meta name="dcterms.isVersionOf" content="CNCPT"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1993, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="part_txn.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="transact.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41396-15.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-E8CBA9C5-58E3-460F-A82A-850E0152E95C"></a> <span id="PAGE" style="display:none;">16/34</span> <!-- End Header -->
+<script>
+//<![CDATA[
+window.name='consist'
+//]]>
+</script> <script>
+    function footdisplay(footnum,footnote) {
+    var msg = window.open('about:blank', 'NewWindow' + footnum,
+        'directories=no,height=100,location=no,menubar=no,resizable=yes,' +
+        'scrollbars=yes,status=no,toolbar=no,width=598');
+    msg.document.open('text/html');
+    msg.document.write('<!DOCTYPE html ');
+    msg.document.write('PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" ');
+    msg.document.write('"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'); 
+    msg.document.write('<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" ><head><title>');
+   
+    msg.document.write('Footnote&amp;nbsp; ' + footnum);
+    msg.document.write('<\/title><meta http-equiv="Content-Type" ');
+    msg.document.write('content="text/html; charset=utf-8" />');
+    msg.document.write('');
+    msg.document.write('<style> <![CDATA[ ');
+    msg.document.write('h1 {text-align: center; font-size: 14pt;}');
+    msg.document.write('fieldset {border: none;}');
+    msg.document.write('form {text-align: center;}');
+    msg.document.write(' ]]\u003e <\/style>');
+    msg.document.write('<\/head><body><div id="footnote"><h1>Footnote&nbsp; ' + footnum + '<\/h1><p>');
+    msg.document.write(footnote);
+    msg.document.write('<\/p><form action="" method="post"><fieldset>');
+    msg.document.write('<input type="button" value="OK" ');
+    msg.document.write('onclick="window.close();" />');
+    msg.document.write('<\/fieldset><\/form><\/div><\/body><\/html>');
+    msg.document.close();
+    setTimeout(function() {
+        var height = msg.document.getElementById('footnote').offsetHeight;
+        msg.resizeTo(598, height + 100);
+    }
+    , 100);
+    msg.focus();
+}
+</script><noscript>
+<p>The script content on this page is for navigation purposes only and does not alter the content in any way.</p>
+</noscript><a id="CNCPT020"></a>
+<h1 id="CNCPT-GUID-E8CBA9C5-58E3-460F-A82A-850E0152E95C" class="sect1"><span class="enumeration_chapter">9</span> Data Concurrency and Consistency</h1>
+<div>
+<p>This chapter explains how Oracle Database maintains consistent data in a multiuser database environment.</p>
+<p>This chapter contains the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="consist.htm#GUID-7AD41DFA-04E5-4738-B744-C4407170411C" title="In a single-user database, a user can modify data without concern for other users modifying the same data at the same time. However, in a multiuser database, statements within multiple simultaneous transactions may update the same data. Transactions executing simultaneously must produce meaningful and consistent results.">Introduction to Data Concurrency and Consistency</a></p>
+</li>
+<li>
+<p><a href="consist.htm#GUID-2A0FDFF0-5F72-4476-BFD2-060A20EA1685" title="In a read committed transaction, a conflicting write occurs when the transaction attempts to change a row updated by an uncommitted concurrent transaction, sometimes called a blocking transaction. The read committed transaction waits for the blocking transaction to end and release its row lock.In the serializable isolation level, a transaction sees only changes committed at the time the transaction&mdash;not the query&mdash;began and changes made by the transaction itself. A serializable transaction operates in an environment that makes it appear as if no other users were modifying data in the database.">Overview of Oracle Database Transaction Isolation Levels</a></p>
+</li>
+<li>
+<p><a href="consist.htm#GUID-AD0CEE83-2F33-4906-94E1-3D1022924C63" title="The database maintains several different types of locks, depending on the operation that acquired the lock.In a single-user database, locks are not necessary because only one user is modifying information. However, when multiple users are accessing and modifying data, the database must provide a way to prevent concurrent modification of the same data.A deadlock is a situation in which two or more users are waiting for data locked by each other. Deadlocks prevent some transactions from continuing to work.">Overview of the Oracle Database Locking Mechanism</a></p>
+</li>
+<li>
+<p><a href="consist.htm#GUID-E926E638-0161-4389-887B-4A31A529478A" title="Oracle Database automatically locks a resource on behalf of a transaction to prevent other transactions from doing something that requires exclusive access to the same resource. The database automatically acquires different types of locks at different levels of restrictiveness depending on the resource and the operation being performed.">Overview of Automatic Locks</a></p>
+</li>
+<li>
+<p><a href="consist.htm#GUID-A4E54CD6-7232-489D-86A4-412EAF8A8DB7">Overview of Manual Data Locks</a></p>
+</li>
+<li>
+<p><a href="consist.htm#GUID-D63FD030-44CD-4FD7-970A-C98C8CC4AC42">Overview of User-Defined Locks</a></p>
+</li>
+</ul>
+</div>
+<a id="CNCPT121"></a>
+<div class="props_rev_3"><a id="GUID-7AD41DFA-04E5-4738-B744-C4407170411C"></a>
+<h2 id="CNCPT-GUID-7AD41DFA-04E5-4738-B744-C4407170411C" class="sect2">Introduction to Data Concurrency and Consistency</h2>
+<div>
+<p>In a single-user database, a user can modify data without concern for other users modifying the same data at the same time. However, in a multiuser database, statements within multiple simultaneous transactions may update the same data. Transactions executing simultaneously must produce meaningful and consistent results.</p>
+<p>A multiuser database must provide the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The assurance that users can access data at the same time (<a href="glossary.htm#GUID-D7E696DB-944C-4798-B70D-5C2381FE971F"><span class="xrefglossterm">data concurrency</span></a>)</p>
+</li>
+<li>
+<p>The assurance that each user sees a consistent view of the data (<a href="glossary.htm#GUID-B016467E-5663-4AC8-B54D-181CA1B8198E"><span class="xrefglossterm">data consistency</span></a>), including visible changes made by the user&#39;s own transactions and committed transactions of other users</p>
+</li>
+</ul>
+<p>To describe consistent transaction behavior when transactions run concurrently, database researchers have defined a transaction isolation model called <a href="glossary.htm#GUID-41BC7551-23D4-4778-8109-B886FBFC85EE"><span class="xrefglossterm">serializability</span></a>. A serializable transaction operates in an environment that makes it appear as if no other users were modifying data in the database.</p>
+<p>While this degree of isolation between transactions is generally desirable, running many applications in serializable mode can seriously compromise application throughput. Complete isolation of concurrently running transactions could mean that one transaction cannot perform an insertion into a table being queried by another transaction. In short, real-world considerations usually require a compromise between perfect transaction isolation and performance.</p>
+<p>Oracle Database maintains data consistency by using a <a href="glossary.htm#GUID-FCCF7DC5-C860-4F1C-8811-03AE76597104"><span class="xrefglossterm">multiversion consistency model</span></a> and various types of locks and transactions. In this way, the database can present a view of data to multiple concurrent users, with each view consistent to a point in time. Because different versions of data blocks can exist simultaneously, transactions can read the version of data committed at the point in time required by a <a href="glossary.htm#GUID-CCF91C9F-A98A-498F-A84B-58A0FA16CD6E"><span class="xrefglossterm">query</span></a> and return results that are consistent to a single point in time.</p>
+<div class="infoboxnotealso" id="GUID-7AD41DFA-04E5-4738-B744-C4407170411C__GUID-04EA95D3-71F5-46E0-986D-DBCE9CA4E0C3">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="datainte.htm#GUID-6A89FF39-AD42-4399-BD1B-E51ECEE50B4E" title="This chapter explains how integrity constraints enforce the business rules associated with a database and prevent the entry of invalid information into tables.">Data Integrity</a>&#34;</span> and <span class="q">&#34;<a href="transact.htm#GUID-B97790CB-DF82-442D-B9D5-50CCE6BF9FBD" title="This chapter defines a transaction and describes how the database processes transactions.">Transactions</a>&#34;</span></p>
+</div>
+</div>
+<a id="CNCPT221"></a>
+<div class="props_rev_3"><a id="GUID-4BD4DFD6-DAEA-41B2-BB56-7135568F0548"></a>
+<h3 id="CNCPT-GUID-4BD4DFD6-DAEA-41B2-BB56-7135568F0548" class="sect3">Multiversion Read Consistency</h3>
+<div>
+<p>In Oracle Database, multiversioning is the ability to simultaneously materialize multiple versions of data. Oracle Database maintains multiversion read consistency.</p>
+<p>Queries of an Oracle database have the following characteristics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Read-consistent queries</p>
+<p>The data returned by a query is committed and consistent for a single point in time.</p>
+<div class="infobox-note" id="GUID-4BD4DFD6-DAEA-41B2-BB56-7135568F0548__GUID-476AB5BA-55AF-4682-B949-3182CC4CCC98">
+<p class="notep1">Note:</p>
+<p>Oracle Database <span class="italic">never</span> permits a <a href="glossary.htm#GUID-E3E574ED-BCBE-4217-8206-D2BD6F075A39"><span class="xrefglossterm">dirty read</span></a>, which occurs when a transaction reads uncommitted data in another transaction.</p>
+</div>
+<p>To illustrate the problem with dirty reads, suppose one transaction updates a column value without committing. A second transaction reads the updated and dirty (uncommitted) value. The first session rolls back the transaction so that the column has its old value, but the second transaction proceeds using the updated value, corrupting the database. Dirty reads compromise <a href="glossary.htm#GUID-9DE527B3-8901-4F4C-A18F-D2C2C307AFE1"><span class="xrefglossterm">data integrity</span></a>, violate foreign keys, and ignore unique constraints.</p>
+</li>
+<li>
+<p>Nonblocking queries</p>
+<p>Readers and writers of data do not block one another.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-4BD4DFD6-DAEA-41B2-BB56-7135568F0548__GUID-D0A79A62-5035-498C-9CB1-8F49A9395C5E">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="consist.htm#GUID-1D60EFCC-03F4-4A04-B099-1B4DE5D02C47" title="The database maintains several different types of locks, depending on the operation that acquired the lock.">Summary of Locking Behavior</a>&#34;</span></p>
+</div>
+</div>
+<a id="CNCPT88960"></a>
+<div class="props_rev_3"><a id="GUID-6A252EAE-7900-47DC-BD6A-D5376A6B7608"></a>
+<h4 id="CNCPT-GUID-6A252EAE-7900-47DC-BD6A-D5376A6B7608" class="sect4">Statement-Level Read Consistency</h4>
+<div>
+<p>Oracle Database always enforces<a id="d42290e1095" class="indexterm-anchor"></a><a id="d42290e1099" class="indexterm-anchor"></a> <a href="glossary.htm#GUID-2AA6E377-1D7A-4164-902C-67D3BB355A6F"><span class="xrefglossterm">statement-level read consistency</span></a>, which guarantees that data returned by a single query is committed and consistent for a single point in time. The point in time to which a single SQL statement is consistent depends on the transaction isolation level and the nature of the query:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In the read committed isolation level, this point is the time at which the <span class="italic">statement</span> was opened. For example, if a <code class="codeph">SELECT</code> statement opens at SCN 1000, then this statement is consistent to SCN 1000.</p>
+</li>
+<li>
+<p>In a serializable or read-only transaction, this point is the time the <span class="italic">transaction</span> began. For example, if a transaction begins at SCN 1000, and if multiple <code class="codeph">SELECT</code> statements occur in this transaction, then each statement is consistent to SCN 1000.</p>
+</li>
+<li>
+<p>In a Flashback Query operation (<code class="codeph">SELECT ... AS OF</code>), the <code class="codeph">SELECT</code> statement explicitly specifies the point in time. For example, you can query a table as it appeared last Thursday at 2 p.m.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-6A252EAE-7900-47DC-BD6A-D5376A6B7608__GUID-572BF8E7-44A0-4A46-94F7-1949ED34113A">
+<p class="notep1">See Also:</p>
+<p><a class="olink ADFNS01003" target="_blank" href="../ADFNS/adfns_flashback.htm#ADFNS01003"><span class="italic">Oracle Database Development Guide</span></a> to learn about Flashback Query</p>
+</div>
+</div>
+</div>
+<a id="CNCPT88961"></a>
+<div class="props_rev_3"><a id="GUID-D081389D-C338-4E74-BF64-6524795EF764"></a>
+<h4 id="CNCPT-GUID-D081389D-C338-4E74-BF64-6524795EF764" class="sect4">Transaction-Level Read Consistency</h4>
+<div>
+<p>Oracle Database can also provide read consistency to all queries in a transaction, known <a id="d42290e1373" class="indexterm-anchor"></a><a id="d42290e1377" class="indexterm-anchor"></a><a id="d42290e1379" class="indexterm-anchor"></a>as <a href="glossary.htm#GUID-504CA548-5AFF-4480-9F36-5C7D5FB457A5"><span class="xrefglossterm">transaction-level read consistency</span></a>. In this case, each statement in a transaction sees data from the <span class="italic">same</span> point in time, which is the time at which the transaction began.</p>
+<p>Queries made by a serializable transaction see changes made by the transaction itself. For example, a transaction that updates <code class="codeph">employees</code> and then queries <code class="codeph">employees</code> will see the updates. Transaction-level read consistency produces repeatable reads and does not expose a query to phantom reads.</p>
+</div>
+</div>
+<a id="CNCPT88962"></a>
+<div class="props_rev_3"><a id="GUID-8DC0D1D1-C2B1-4237-9B77-27889B6467C1"></a>
+<h4 id="CNCPT-GUID-8DC0D1D1-C2B1-4237-9B77-27889B6467C1" class="sect4">Read Consistency and Undo Segments</h4>
+<div>
+<p>To manage the multiversion read consistency model, the database must create a read-consistent set of data when a table is simultaneously queried and updated.</p>
+<p>Oracle Database achieves read consistency through <a href="glossary.htm#GUID-297B963A-989C-4720-B061-A2352FF72892"><span class="xrefglossterm">undo data</span></a>.</p>
+<p>Whenever a user modifies data, Oracle Database creates undo entries, which it writes to undo segments (<span class="q">&#34;<a href="logical.htm#GUID-6E206D3A-E0E7-4B23-9C41-516FB35BC3FE" title="Oracle Database maintains records of the actions of transactions, collectively known as undo data.">Undo Segments</a>&#34;</span>). The undo segments contain the old values of data that have been changed by uncommitted or recently committed transactions. Thus, multiple versions of the same data, all at different points in time, can exist in the database. The database can use snapshots of data at different points in time to provide read-consistent views of the data and enable nonblocking queries.</p>
+<p>Read consistency is guaranteed in single-instance and Oracle Real Application Clusters (Oracle RAC) environments. Oracle RAC uses a cache-to-cache block transfer mechanism known as cache fusion to transfer read-consistent images of data blocks from one database instance to another.</p>
+<div class="infoboxnotealso" id="GUID-8DC0D1D1-C2B1-4237-9B77-27889B6467C1__GUID-A287E0E2-AD8E-4457-A388-BC9D5C15379B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="cncptdev.htm#GUID-3C50EAB8-FC39-4BB3-B680-4EACCE49E866" title="An internal LOB stores data in the database itself rather than in external files.">Internal LOBs</a>&#34;</span> to learn about read consistency mechanisms for LOBs</p>
+</li>
+<li>
+<p><a class="olink TDPRC117" target="_blank" href="../TDPRC/intro_tdprc.htm#TDPRC117"><span class="italic">Oracle Database 2 Day + Real Application Clusters Guide</span></a> to learn about cache fusion</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="CNCPT88964"></a><a id="CNCPT88963"></a>
+<div class="props_rev_3"><a id="GUID-00A3688F-1219-423C-A5ED-4B8F25BEEAFB"></a>
+<h5 id="CNCPT-GUID-00A3688F-1219-423C-A5ED-4B8F25BEEAFB" class="sect5">Read Consistency: Example</h5>
+<div>
+<p>This example shows a query that uses undo data to provide statement-level read consistency in the read committed isolation level.</p>
+<div class="figure" id="GUID-00A3688F-1219-423C-A5ED-4B8F25BEEAFB__BABFDBAJ">
+<p class="titleinfigure">Figure 9-1 Read Consistency in the Read Committed Isolation Level</p>
+<img width="501" height="539" src="img/GUID-C484794F-CE5F-498A-86BC-48A2C905D963-default.gif" alt="Description of Figure 9-1 follows" title="Description of Figure 9-1 follows"/><br/>
+<a href="img_text/GUID-C484794F-CE5F-498A-86BC-48A2C905D963-print.htm">Description of &#34;Figure 9-1 Read Consistency in the Read Committed Isolation Level&#34;</a></div>
+<!-- class="figure" -->
+<p>As the database retrieves data blocks on behalf of a query, the database ensures that the data in each block reflects the contents of the block when the query began. The database rolls back changes to the block as needed to reconstruct the block to the point in time the query started processing.</p>
+<p>The database uses an internal ordering mechanism called an <a href="glossary.htm#GUID-4B14A746-A8B3-4123-A02A-3FC1C293042C"><span class="xrefglossterm">SCN</span></a> to guarantee the order of transactions. As the <code class="codeph">SELECT</code> statement enters the execution phase, the database determines the SCN recorded at the time the query began executing. In <a href="consist.htm#GUID-00A3688F-1219-423C-A5ED-4B8F25BEEAFB__BABFDBAJ">Figure 9-1</a>, this SCN is 10023. The query only sees committed data with respect to SCN 10023.</p>
+<p>In <a href="consist.htm#GUID-00A3688F-1219-423C-A5ED-4B8F25BEEAFB__BABFDBAJ">Figure 9-1</a>, blocks with SCNs <span class="italic">after</span> 10023 indicate changed data, as shown by the two blocks with SCN 10024. The <code class="codeph">SELECT</code> statement requires a version of the block that is consistent with committed changes. The database copies current data blocks to a new buffer and applies undo data to reconstruct previous versions of the blocks. These reconstructed data blocks are called <span class="italic">consistent read (CR) clones</span>.</p>
+<p>In <a href="consist.htm#GUID-00A3688F-1219-423C-A5ED-4B8F25BEEAFB__BABFDBAJ">Figure 9-1</a>, the database creates two CR clones: one block consistent to SCN 10006 and the other block consistent to SCN 10021. The database returns the reconstructed data for the query. In this way, Oracle Database prevents dirty reads.</p>
+<div class="infoboxnotealso" id="GUID-00A3688F-1219-423C-A5ED-4B8F25BEEAFB__GUID-8AB73DDC-0DF5-4859-B0F9-4CCB5B60CB05">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="memory.htm#GUID-4FF66585-E469-4631-9225-29D75594CD14" title="The database buffer cache, also called the buffer cache, is the memory area that stores copies of data blocks read from data files.">Database Buffer Cache</a>&#34;</span> and <span class="q">&#34;<a href="transact.htm#GUID-A2615547-94D2-4346-B156-64C534C5E9E4">System Change Numbers (SCNs)</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="CNCPT88965"></a>
+<div class="props_rev_3"><a id="GUID-3DA63BF3-5C19-4DBC-8E6B-980771AEA2FB"></a>
+<h5 id="CNCPT-GUID-3DA63BF3-5C19-4DBC-8E6B-980771AEA2FB" class="sect5">Read Consistency and Interested Transaction Lists</h5>
+<div>
+<p>The <a href="glossary.htm#GUID-78394D5D-A1F6-4978-8F13-028185F514B5"><span class="xrefglossterm">block header</span></a> of every segment block contains an <a href="glossary.htm#GUID-0452FF71-5069-4F5C-B275-F1CDB50DB02D"><span class="xrefglossterm">interested transaction list (ITL)</span></a>. The database uses the ITL to determine whether a transaction was uncommitted when the database began modifying the block.</p>
+<p>Entries in the ITL describe which transactions have rows locked and which rows in the block contain committed and uncommitted changes. The ITL points to the transaction table in the undo segment, which provides information about the timing of changes made to the database.</p>
+<p>In a sense, the block header contains a recent history of transactions that affected each row in the block. The <code class="codeph">INITRANS</code> parameter of the <code class="codeph">CREATE</code> <code class="codeph">TABLE</code> and <code class="codeph">ALTER</code> <code class="codeph">TABLE</code> statements controls the amount of <a id="d42290e2237" class="indexterm-anchor"></a>transaction history that is kept.</p>
+<div class="infoboxnotealso" id="GUID-3DA63BF3-5C19-4DBC-8E6B-980771AEA2FB__GUID-F07A610E-B6D9-4290-908A-BC6AB71E180F">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF54481" target="_blank" href="../SQLRF/statements_7002.htm#SQLRF54481"><span class="italic">Oracle Database SQL Language Reference</span></a> to learn about the <code class="codeph">INITRANS</code> parameter</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1313"></a>
+<div class="props_rev_3"><a id="GUID-AD960556-7F7B-4242-8B91-6DA22AABA27D"></a>
+<h3 id="CNCPT-GUID-AD960556-7F7B-4242-8B91-6DA22AABA27D" class="sect3">Locking Mechanisms</h3>
+<div>
+<p><a id="d42290e2483" class="indexterm-anchor"></a><a id="d42290e2485" class="indexterm-anchor"></a><a id="d42290e2489" class="indexterm-anchor"></a>In general, multiuser databases use some form of data locking to solve the problems associated with data concurrency, consistency, and integrity. A <a href="glossary.htm#GUID-6D016291-A487-4F88-BE0B-ACF8FA2AE72C"><span class="xrefglossterm">lock</span></a> is a mechanism that prevent destructive interaction between transactions accessing the same resource.</p>
+<div class="infoboxnotealso" id="GUID-AD960556-7F7B-4242-8B91-6DA22AABA27D__GUID-7E89FC48-E10C-4B49-89CE-B029123DE541">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="consist.htm#GUID-AD0CEE83-2F33-4906-94E1-3D1022924C63" title="The database maintains several different types of locks, depending on the operation that acquired the lock.In a single-user database, locks are not necessary because only one user is modifying information. However, when multiple users are accessing and modifying data, the database must provide a way to prevent concurrent modification of the same data.A deadlock is a situation in which two or more users are waiting for data locked by each other. Deadlocks prevent some transactions from continuing to work.">Overview of the Oracle Database Locking Mechanism</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="CNCPT88966"></a><a id="CNCPT1312"></a>
+<div class="props_rev_3"><a id="GUID-7F2C6927-5482-4144-B43B-5E90EF4E055B"></a>
+<h3 id="CNCPT-GUID-7F2C6927-5482-4144-B43B-5E90EF4E055B" class="sect3">ANSI/ISO Transaction Isolation Levels</h3>
+<div>
+<p>The SQL standard, which has been adopted by both ANSI and ISO/IEC, defines four levels of transaction isolation. These levels have differing degrees of impact on transaction processing throughput.</p>
+<div class="section">
+<p>These isolation levels are defined in terms of phenomena that must be prevented between concurrently executing transactions. The preventable phenomena are:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Dirty reads</p>
+<p>A transaction reads data that has been written by another transaction that has not been committed yet.</p>
+</li>
+<li>
+<p>Nonrepeatable (fuzzy) reads</p>
+<p>A transaction rereads data it has previously read and finds that another committed transaction has modified or deleted the data. For example, a user queries a row and then later queries the same row, only to discover that the data has changed.</p>
+</li>
+<li>
+<p>Phantom reads</p>
+<p>A transaction reruns a query returning a set of rows that satisfies a search condition and finds that another committed transaction has inserted additional rows that satisfy the condition.</p>
+<p>For example, a transaction queries the number of employees. Five minutes later it performs the same query, but now the number has increased by one because another user inserted a record for a new hire. More data satisfies the query criteria than before, but unlike in a fuzzy read the previously read data is unchanged.</p>
+</li>
+</ul>
+<p>The SQL standard defines four levels of isolation in terms of the phenomena that a transaction running at a particular isolation level is permitted to experience. <a href="consist.htm#GUID-7F2C6927-5482-4144-B43B-5E90EF4E055B__G35628" title="This table shows Preventable Phenomena by Isolation Level.">Table 9-1</a> shows the levels.</p>
+<div class="tblformal" id="GUID-7F2C6927-5482-4144-B43B-5E90EF4E055B__G35628">
+<p class="titleintable">Table 9-1 Preventable Read Phenomena by Isolation Level</p>
+<table class="cellalignment1206" title="Preventable Read Phenomena by Isolation Level" summary="This table shows Preventable Phenomena by Isolation Level.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1224" id="d42290e2827">Isolation Level</th>
+<th class="cellalignment1224" id="d42290e2831">Dirty Read</th>
+<th class="cellalignment1224" id="d42290e2834">Nonrepeatable Read</th>
+<th class="cellalignment1224" id="d42290e2837">Phantom Read</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e2842" headers="d42290e2827">
+<p>Read uncommitted</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2842 d42290e2831">
+<p>Possible</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2842 d42290e2834">
+<p>Possible</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2842 d42290e2837">
+<p>Possible</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e2855" headers="d42290e2827">
+<p>Read committed</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2855 d42290e2831">
+<p>Not possible</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2855 d42290e2834">
+<p>Possible</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2855 d42290e2837">
+<p>Possible</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e2868" headers="d42290e2827">
+<p>Repeatable read</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2868 d42290e2831">
+<p>Not possible</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2868 d42290e2834">
+<p>Not possible</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2868 d42290e2837">
+<p>Possible</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e2881" headers="d42290e2827">
+<p>Serializable</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2881 d42290e2831">
+<p>Not possible</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2881 d42290e2834">
+<p>Not possible</p>
+</td>
+<td class="cellalignment1197" headers="d42290e2881 d42290e2837">
+<p>Not possible</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Oracle Database offers the read committed (default) and serializable isolation levels. Also, the database offers a read-only mode.</p>
+<div class="infoboxnotealso" id="GUID-7F2C6927-5482-4144-B43B-5E90EF4E055B__GUID-B38BF468-DDE1-4E76-9404-96583005DBEB">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="consist.htm#GUID-2A0FDFF0-5F72-4476-BFD2-060A20EA1685" title="In a read committed transaction, a conflicting write occurs when the transaction attempts to change a row updated by an uncommitted concurrent transaction, sometimes called a blocking transaction. The read committed transaction waits for the blocking transaction to end and release its row lock.In the serializable isolation level, a transaction sees only changes committed at the time the transaction&mdash;not the query&mdash;began and changes made by the transaction itself. A serializable transaction operates in an environment that makes it appear as if no other users were modifying data in the database.">Overview of Oracle Database Transaction Isolation Levels</a>&#34;</span> to learn about read committed, serializable, and read-only isolation levels</p>
+</li>
+<li>
+<p><a class="olink SQLRF019" target="_blank" href="../SQLRF/ap_standard_sql.htm#SQLRF019"><span class="italic">Oracle Database SQL Language Reference</span></a> for a discussion of Oracle Database conformance to SQL standards</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="CNCPT621"></a>
+<div class="props_rev_3"><a id="GUID-2A0FDFF0-5F72-4476-BFD2-060A20EA1685"></a>
+<h2 id="CNCPT-GUID-2A0FDFF0-5F72-4476-BFD2-060A20EA1685" class="sect2">Overview of Oracle Database Transaction Isolation Levels</h2>
+<div>
+<p><a href="consist.htm#GUID-7F2C6927-5482-4144-B43B-5E90EF4E055B__G35628" title="This table shows Preventable Phenomena by Isolation Level.">Table 9-1</a> summarizes the ANSI standard for transaction isolation levels. The standard is defined in terms of the phenomena that are either permitted or prevented for each isolation level. Oracle Database provides the transaction isolation levels:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="consist.htm#GUID-DB571DA8-864F-4FE9-93B9-3EC2DD0604FE" title="In a read committed transaction, a conflicting write occurs when the transaction attempts to change a row updated by an uncommitted concurrent transaction, sometimes called a blocking transaction. The read committed transaction waits for the blocking transaction to end and release its row lock.">Read Committed Isolation Level</a></p>
+</li>
+<li>
+<p><a href="consist.htm#GUID-8DA9A191-4CA3-4B1A-995F-4B17471C2738" title="In the serializable isolation level, a transaction sees only changes committed at the time the transaction&mdash;not the query&mdash;began and changes made by the transaction itself. A serializable transaction operates in an environment that makes it appear as if no other users were modifying data in the database.">Serializable Isolation Level</a></p>
+</li>
+<li>
+<p><a href="consist.htm#GUID-371C3622-540E-490C-BD83-F12CE4CF39C6">Read-Only Isolation Level</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-2A0FDFF0-5F72-4476-BFD2-060A20EA1685__GUID-2FD80AC4-7635-4CB6-9F8E-CFB02E1CE54C">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADFNS99999" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS99999"><span class="italic">Oracle Database Development Guide</span></a> to learn more about transaction isolation levels</p>
+</li>
+<li>
+<p><a class="olink SQLRF55422" target="_blank" href="../SQLRF/statements_10005.htm#SQLRF55422"><span class="italic">Oracle Database SQL Language Reference</span></a> and <a class="olink LNPLS00608" target="_blank" href="../LNPLS/static.htm#LNPLS00608"><span class="italic">Oracle Database PL/SQL Language Reference</span></a> to learn about <code class="codeph">SET TRANSACTION ISOLATION LEVEL</code></p>
+</li>
+</ul>
+</div>
+</div>
+<a id="CNCPT1319"></a>
+<div class="props_rev_3"><a id="GUID-DB571DA8-864F-4FE9-93B9-3EC2DD0604FE"></a>
+<h3 id="CNCPT-GUID-DB571DA8-864F-4FE9-93B9-3EC2DD0604FE" class="sect3">Read Committed Isolation Level</h3>
+<div>
+<p><a id="d42290e3439" class="indexterm-anchor"></a><a id="d42290e3441" class="indexterm-anchor"></a>In the <a href="glossary.htm#GUID-794EF3E1-8D64-439A-89C8-CA9A03EB6043"><span class="xrefglossterm">read committed isolation level</span></a>, which is the default, every query executed by a transaction sees only data committed before the query&mdash;not the transaction&mdash;began. This level of isolation is appropriate for database environments in which few transactions are likely to conflict.</p>
+<p>A query in a read committed transaction avoids reading data that commits while the query is in progress. For example, if a query is halfway through a scan of a million-row table, and if a different transaction commits an update to row 950,000, then the query does not see this change when it reads row 950,000. However, because the database does not prevent other transactions from modifying data read by a query, other transactions may change data <span class="italic">between</span> query executions. Thus, a transaction that runs the same query twice may experience fuzzy reads and phantoms.</p>
+</div>
+<a id="CNCPT050"></a>
+<div class="props_rev_3"><a id="GUID-432C4EDC-F7F2-467C-B85F-4E82D3D58A2F"></a>
+<h4 id="CNCPT-GUID-432C4EDC-F7F2-467C-B85F-4E82D3D58A2F" class="sect4">Read Consistency in the Read Committed Isolation Level</h4>
+<div>
+<p><a id="d42290e3685" class="indexterm-anchor"></a>The database provides a consistent result set for every query, guaranteeing data consistency, with no action by the user. <a id="d42290e3690" class="indexterm-anchor"></a>An <a href="glossary.htm#GUID-E802CBDA-5F3B-40CF-9749-612F0E0E4A35"><span class="xrefglossterm">implicit query</span></a>, such as a query implied by a <code class="codeph">WHERE</code> clause in an <code class="codeph">UPDATE</code> statement, is guaranteed a consistent set of results. However, each statement in an implicit query does not see the changes made by the DML statement itself, but sees the data as it existed before changes were made.</p>
+<p>If a <code class="codeph">SELECT</code> list contains a PL/SQL function, then the database applies statement-level read consistency at the statement level for SQL run within the PL/SQL function code, rather than at the parent SQL level. For example, a function could access a table whose data is changed and committed by another user. For each execution of the <code class="codeph">SELECT</code> in the function, a new read-consistent snapshot is established.</p>
+<div class="infoboxnotealso" id="GUID-432C4EDC-F7F2-467C-B85F-4E82D3D58A2F__GUID-64857734-72D0-49BA-AC0B-CE3C7DC8B6C8">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="sqllangu.htm#GUID-65D6723C-88E2-44E3-85D1-A719BB5F075E" title="A subquery is a SELECT statement nested within another SQL statement. Subqueries are useful when you must execute multiple queries to solve a single problem.">Subqueries and Implicit Queries</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="CNCPT89216"></a><a id="CNCPT051"></a>
+<div class="props_rev_3"><a id="GUID-8A15F1B2-3F64-49E7-929D-4768B2DB7DD7"></a>
+<h4 id="CNCPT-GUID-8A15F1B2-3F64-49E7-929D-4768B2DB7DD7" class="sect4">Conflicting Writes in Read Committed Transactions</h4>
+<div>
+<p>In a read committed transaction, a <span class="bold">conflicting write</span> occurs when the transaction attempts to change a row updated by an uncommitted concurrent transaction, sometimes called a <span class="italic">blocking transaction</span>. The read committed transaction waits for the blocking transaction to end and release its row lock.</p>
+<p>The options are as follows:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the blocking transaction rolls back, then the waiting transaction proceeds to change the previously locked row as if the other transaction never existed.</p>
+</li>
+<li>
+<p>If the blocking transaction commits and releases its locks, then the waiting transaction proceeds with its intended update to the newly changed row.</p>
+</li>
+</ul>
+<p><a href="consist.htm#GUID-8A15F1B2-3F64-49E7-929D-4768B2DB7DD7__CHDBBCEI" title="This table describes the conflicting writes and lost updates in a READ COMMITTED transaction, when a serializable or read committed transaction interacts with a read committed transaction.">Table 9-2</a> shows how transaction 1, which can be either serializable or read committed, interacts with read committed transaction 2. <a href="consist.htm#GUID-8A15F1B2-3F64-49E7-929D-4768B2DB7DD7__CHDBBCEI" title="This table describes the conflicting writes and lost updates in a READ COMMITTED transaction, when a serializable or read committed transaction interacts with a read committed transaction.">Table 9-2</a> shows a classic situation known as a <a href="glossary.htm#GUID-F9DA6F63-B518-44C5-B98B-2425680EB498"><span class="xrefglossterm">lost update</span></a> (see <span class="q">&#34;<a href="consist.htm#GUID-E6FB4581-CD65-4C18-AFDD-ACB3243238D3" title="In a single-user database, locks are not necessary because only one user is modifying information. However, when multiple users are accessing and modifying data, the database must provide a way to prevent concurrent modification of the same data.">Use of Locks</a>&#34;</span>). The update made by transaction 1 is not in the table <span class="italic">even though transaction 1 committed it</span>. Devising a strategy to handle lost updates is an important part of application development.</p>
+<div class="tblformalwide" id="GUID-8A15F1B2-3F64-49E7-929D-4768B2DB7DD7__CHDBBCEI">
+<p class="titleintable">Table 9-2 Conflicting Writes and Lost Updates in a READ COMMITTED Transaction</p>
+<table class="cellalignment1211" title="Conflicting Writes and Lost Updates in a READ COMMITTED Transaction" summary="This table describes the conflicting writes and lost updates in a READ COMMITTED transaction, when a serializable or read committed transaction interacts with a read committed transaction.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1225" id="d42290e4034">Session 1</th>
+<th class="cellalignment1226" id="d42290e4037">Session 2</th>
+<th class="cellalignment1227" id="d42290e4040">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4045" headers="d42290e4034">
+<pre dir="ltr">SQL&gt; SELECT last_name, 
+salary FROM employees 
+WHERE last_name IN 
+(&#39;Banda&#39;, &#39;Greene&#39;,
+&#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               6200
+Greene              9500
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4045 d42290e4037">No action.</td>
+<td class="cellalignment1230" headers="d42290e4045 d42290e4040">
+<p>Session 1 queries the salaries for Banda, Greene, and Hintz. No employee named Hintz is found.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4054" headers="d42290e4034">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+SET salary = 7000 WHERE 
+last_name = &#39;Banda&#39;;
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4054 d42290e4037">No action.</td>
+<td class="cellalignment1230" headers="d42290e4054 d42290e4040">
+<p>Session 1 begins a transaction by updating the Banda salary. The default isolation level for transaction 1 is <code class="codeph">READ COMMITTED</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4066" headers="d42290e4034">No action.</td>
+<td class="cellalignment1229" headers="d42290e4066 d42290e4037">
+<pre dir="ltr">SQL&gt; SET TRANSACTION 
+ISOLATION LEVEL 
+READ COMMITTED;
+</pre></td>
+<td class="cellalignment1230" headers="d42290e4066 d42290e4040">
+<p>Session 2 begins transaction 2 and sets the isolation level explicitly to <code class="codeph">READ COMMITTED</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4078" headers="d42290e4034">No action.</td>
+<td class="cellalignment1229" headers="d42290e4078 d42290e4037">
+<pre dir="ltr">SQL&gt; SELECT last_name, 
+salary FROM employees 
+WHERE last_name IN
+(&#39;Banda&#39;, &#39;Greene&#39;,
+&#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               6200
+Greene              9500
+</pre></td>
+<td class="cellalignment1230" headers="d42290e4078 d42290e4040">
+<p>Transaction 2 queries the salaries for Banda, Greene, and Hintz. Oracle Database uses read consistency to show the salary for Banda before the uncommitted update made by transaction 1.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4087" headers="d42290e4034">No action.</td>
+<td class="cellalignment1229" headers="d42290e4087 d42290e4037">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+SET salary = 9900 
+WHERE last_name=&#39;Greene&#39;;
+</pre></td>
+<td class="cellalignment1230" headers="d42290e4087 d42290e4040">
+<p>Transaction 2 updates the salary for Greene successfully because transaction 1 locked only the Banda row (see <span class="q">&#34;<a href="consist.htm#GUID-92D38952-A7A0-486F-9547-BDB6E624F125" title="A row lock, also called a TX lock, is a lock on a single row of table. A transaction acquires a row lock for each row modified by an INSERT, UPDATE, DELETE, MERGE, or SELECT ... FOR UPDATE statement. The row lock exists until the transaction commits or rolls back.">Row Locks (TX)</a>&#34;</span>).</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4131" headers="d42290e4034">
+<pre dir="ltr">SQL&gt; INSERT INTO 
+employees (employee_id, 
+last_name, email, 
+hire_date, job_id) 
+VALUES (210, &#39;Hintz&#39;, 
+&#39;JHINTZ&#39;, SYSDATE, 
+&#39;SH_CLERK&#39;);
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4131 d42290e4037">No action.</td>
+<td class="cellalignment1230" headers="d42290e4131 d42290e4040">
+<p>Transaction 1 inserts a row for employee Hintz, but does not commit.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4140" headers="d42290e4034">No action.</td>
+<td class="cellalignment1229" headers="d42290e4140 d42290e4037">
+<pre dir="ltr">SQL&gt; SELECT last_name, 
+salary FROM employees 
+WHERE last_name IN 
+(&#39;Banda&#39;, &#39;Greene&#39;,
+&#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               6200
+Greene              9900
+</pre></td>
+<td class="cellalignment1230" headers="d42290e4140 d42290e4040">
+<p>Transaction 2 queries the salaries for employees Banda, Greene, and Hintz.</p>
+<p>Transaction 2 sees its own update to the salary for Greene. Transaction 2 does not see the uncommitted update to the salary for Banda or the insertion for Hintz made by transaction 1.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4151" headers="d42290e4034">No action.</td>
+<td class="cellalignment1229" headers="d42290e4151 d42290e4037">
+<pre dir="ltr">SQL&gt; UPDATE employees SET
+salary = 6300 WHERE 
+last_name = &#39;Banda&#39;;
+
+-- prompt does not return 
+</pre></td>
+<td class="cellalignment1230" headers="d42290e4151 d42290e4040">
+<p>Transaction 2 attempts to update the row for Banda, which is currently locked by transaction 1, creating a conflicting write. Transaction 2 waits until transaction 1 ends.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4160" headers="d42290e4034">
+<pre dir="ltr">SQL&gt; COMMIT;
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4160 d42290e4037">No action.</td>
+<td class="cellalignment1230" headers="d42290e4160 d42290e4040">
+<p>Transaction 1 commits its work, ending the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4169" headers="d42290e4034">No action.</td>
+<td class="cellalignment1229" headers="d42290e4169 d42290e4037">
+<pre dir="ltr">1 row updated.
+ 
+SQL&gt;
+</pre></td>
+<td class="cellalignment1230" headers="d42290e4169 d42290e4040">
+<p>The lock on the Banda row is now released, so transaction 2 proceeds with its update to the salary for Banda.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4178" headers="d42290e4034">No action.</td>
+<td class="cellalignment1229" headers="d42290e4178 d42290e4037">
+<pre dir="ltr">SQL&gt; SELECT last_name, 
+salary FROM employees 
+WHERE last_name IN
+(&#39;Banda&#39;, &#39;Greene&#39;, 
+&#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               6300
+Greene              9900
+Hintz
+</pre></td>
+<td class="cellalignment1230" headers="d42290e4178 d42290e4040">
+<p>Transaction 2 queries the salaries for employees Banda, Greene, and Hintz. The Hintz insert committed by transaction 1 is now visible to transaction 2. Transaction 2 sees its own update to the Banda salary.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4188" headers="d42290e4034">No action.</td>
+<td class="cellalignment1229" headers="d42290e4188 d42290e4037">
+<pre dir="ltr">COMMIT;
+</pre></td>
+<td class="cellalignment1230" headers="d42290e4188 d42290e4040">
+<p>Transaction 2 commits its work, ending the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1228" id="d42290e4197" headers="d42290e4034">
+<pre dir="ltr">SQL&gt; SELECT last_name, 
+salary FROM employees 
+WHERE last_name IN 
+(&#39;Banda&#39;, &#39;Greene&#39;,
+&#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               6300
+Greene              9900
+Hintz
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4197 d42290e4037">No action.</td>
+<td class="cellalignment1230" headers="d42290e4197 d42290e4040">
+<p>Session 1 queries the rows for Banda, Greene, and Hintz. The salary for Banda is 6300, which is the update made by transaction 2. The update of Banda&#39;s salary to 7000 made by transaction 1 is now &#34;lost.&#34;</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+</div>
+</div>
+<a id="CNCPT88968"></a><a id="CNCPT1320"></a>
+<div class="props_rev_3"><a id="GUID-8DA9A191-4CA3-4B1A-995F-4B17471C2738"></a>
+<h3 id="CNCPT-GUID-8DA9A191-4CA3-4B1A-995F-4B17471C2738" class="sect3">Serializable Isolation Level</h3>
+<div>
+<p>In the <span class="bold">serializable isolation level</span>, a transaction sees only changes committed at the time the transaction&mdash;not the query&mdash;began and changes made by the transaction itself. A serializable transaction operates in an environment that makes it appear as if no other users were modifying data in the database.</p>
+<p>Serializable isolation is suitable for environments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>With large databases and short transactions that update only a few rows</p>
+</li>
+<li>
+<p>Where the chance that two concurrent transactions will modify the same rows is relatively low</p>
+</li>
+<li>
+<p>Where relatively long-running transactions are primarily read only</p>
+</li>
+</ul>
+<p>In serializable isolation, the read consistency normally obtained at the statement level extends to the entire transaction. Any row read by the transaction is assured to be the same when reread. Any query is guaranteed to return the same results for the duration of the transaction, so changes made by other transactions are not visible to the query regardless of how long it has been running. Serializable transactions do not experience dirty reads, fuzzy reads, or phantom reads.</p>
+<p>Oracle Database permits a serializable transaction to modify a row only if changes to the row made by other transactions were <span class="italic">already</span> committed when the serializable transaction began. The database generates an error when a serializable transaction tries to update or delete data changed by a different transaction that committed <span class="italic">after</span> the serializable transaction began:</p>
+<pre dir="ltr">ORA-08177: Cannot serialize access for this transaction
+</pre>
+<p>When a serializable transaction fails with the <code class="codeph">ORA-08177</code> error, an application can take several actions, including the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Commit the work executed to that point</p>
+</li>
+<li>
+<p>Execute additional (but different) statements, perhaps after rolling back to a <a href="glossary.htm#GUID-ED9601F2-D0A2-4FE5-83A8-8F7F9E9E0D18"><span class="xrefglossterm">savepoint</span></a> established earlier in the transaction</p>
+</li>
+<li>
+<p>Roll back the entire transaction</p>
+</li>
+</ul>
+<p>The following table shows how a serializable transaction interacts with other transactions. If the serializable transaction does not try to change a row committed by another transaction after the serializable transaction began, then a serialized access problem is avoided.</p>
+<div class="tblformalwide" id="GUID-8DA9A191-4CA3-4B1A-995F-4B17471C2738__BABDGDII">
+<p class="titleintable">Table 9-3 Serializable Transaction</p>
+<table class="cellalignment1211" title="Serializable Transaction" summary="This table shows how a serializable transaction interacts with other transactions.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1226" id="d42290e4511">Session 1</th>
+<th class="cellalignment1226" id="d42290e4514">Session 2</th>
+<th class="cellalignment1231" id="d42290e4517">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4522" headers="d42290e4511">
+<pre dir="ltr">SQL&gt; SELECT last_name, salary FROM employees WHERE 
+last_name  IN (&#39;Banda&#39;, 
+&#39;Greene&#39;, &#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               6200
+Greene              9500
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4522 d42290e4514">No action.</td>
+<td class="cellalignment1232" headers="d42290e4522 d42290e4517">
+<p>Session 1 queries the salaries for Banda, Greene, and Hintz. No employee named Hintz is found.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4531" headers="d42290e4511">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+SET salary = 7000 
+WHERE last_name=&#39;Banda&#39;;
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4531 d42290e4514">No action.</td>
+<td class="cellalignment1232" headers="d42290e4531 d42290e4517">
+<p>Session 1 begins transaction 1 by updating the Banda salary. The default isolation level is <code class="codeph">READ COMMITTED</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4543" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4543 d42290e4514">
+<pre dir="ltr">SQL&gt; SET TRANSACTION 
+ISOLATION LEVEL SERIALIZABLE;
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4543 d42290e4517">
+<p>Session 2 begins transaction 2 and sets it to the <code class="codeph">SERIALIZABLE</code> isolation level.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4555" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4555 d42290e4514">
+<pre dir="ltr">SQL&gt; SELECT last_name, salary FROM employees 
+WHERE last_name IN 
+(&#39;Banda&#39;, &#39;Greene&#39;, &#39;Hintz&#39;);
+ 
+LAST_NAME        SALARY
+------------ ----------
+Banda              6200
+Greene             9500
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4555 d42290e4517">
+<p>Transaction 2 queries the salaries for Banda, Greene, and Hintz. Oracle Database uses read consistency to show the salary for Banda <span class="italic">before</span> the uncommitted update made by transaction 1.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4567" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4567 d42290e4514">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+SET salary = 9900 
+WHERE last_name = &#39;Greene&#39;;
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4567 d42290e4517">
+<p>Transaction 2 updates the Greene salary successfully because only the Banda row is locked.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4576" headers="d42290e4511">
+<pre dir="ltr">SQL&gt; INSERT INTO employees 
+(employee_id, last_name, 
+email, hire_date, job_id) 
+VALUES (210, &#39;Hintz&#39;, 
+&#39;JHINTZ&#39;, SYSDATE,&#39;SH_CLERK&#39;);
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4576 d42290e4514">No action.</td>
+<td class="cellalignment1232" headers="d42290e4576 d42290e4517">
+<p>Transaction 1 inserts a row for employee Hintz.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4585" headers="d42290e4511">
+<pre dir="ltr">SQL&gt; COMMIT;
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4585 d42290e4514">No action.</td>
+<td class="cellalignment1232" headers="d42290e4585 d42290e4517">
+<p>Transaction 1 commits its work, ending the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4594" headers="d42290e4511">
+<pre dir="ltr">SQL&gt; SELECT last_name, salary 
+FROM employees 
+WHERE last_name IN 
+(&#39;Banda&#39;, &#39;Greene&#39;, &#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               7000
+Greene              9500
+Hintz
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4594 d42290e4514">
+<pre dir="ltr">SQL&gt; SELECT last_name, salary FROM employees 
+WHERE last_name IN
+(&#39;Banda&#39;, &#39;Greene&#39;, &#39;Hintz&#39;);
+ 
+LAST_NAME        SALARY
+------------- ---------
+Banda              6200
+Greene             9900
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4594 d42290e4517">
+<p>Session 1 queries the salaries for employees Banda, Greene, and Hintz and sees changes committed by transaction 1. Session 1 does not see the uncommitted Greene update made by transaction 2.</p>
+<p>Transaction 2 queries the salaries for employees Banda, Greene, and Hintz. Oracle Database read consistency ensures that the Hintz insert and Banda update committed by transaction 1 are <span class="italic">not</span> visible to transaction 2. Transaction 2 sees its own update to the Greene salary.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4609" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4609 d42290e4514">
+<pre dir="ltr">COMMIT;
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4609 d42290e4517">
+<p>Transaction 2 commits its work, ending the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4618" headers="d42290e4511">
+<pre dir="ltr">SQL&gt; SELECT last_name, salary 
+FROM employees 
+WHERE last_name IN 
+(&#39;Banda&#39;, &#39;Greene&#39;, &#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               7000
+Greene              9900
+Hintz
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4618 d42290e4514">
+<pre dir="ltr">SQL&gt; SELECT last_name, salary
+FROM employees 
+WHERE last_name IN 
+(&#39;Banda&#39;, &#39;Greene&#39;, &#39;Hintz&#39;);
+ 
+LAST_NAME        SALARY
+------------- ---------
+Banda              7000
+Greene             9900
+Hintz
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4618 d42290e4517">
+<p>Both sessions query the salaries for Banda, Greene, and Hintz. Each session sees all committed changes made by transaction 1 and transaction 2.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4628" headers="d42290e4511">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+SET salary = 7100 
+WHERE last_name = &#39;Hintz&#39;;
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4628 d42290e4514">No action.</td>
+<td class="cellalignment1232" headers="d42290e4628 d42290e4517">
+<p>Session 1 begins transaction 3 by updating the Hintz salary. The default isolation level for transaction 3 is <code class="codeph">READ COMMITTED</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4641" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4641 d42290e4514">
+<pre dir="ltr">SQL&gt; SET TRANSACTION 
+ISOLATION LEVEL SERIALIZABLE;
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4641 d42290e4517">
+<p>Session 2 begins transaction 4 and sets it to the <code class="codeph">SERIALIZABLE</code> isolation level.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4653" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4653 d42290e4514">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+SET salary = 7200 
+WHERE last_name = &#39;Hintz&#39;;
+
+-- prompt does not return
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4653 d42290e4517">
+<p>Transaction 4 attempts to update the salary for Hintz, but is blocked because transaction 3 locked the Hintz row (see <span class="q">&#34;<a href="consist.htm#GUID-92D38952-A7A0-486F-9547-BDB6E624F125" title="A row lock, also called a TX lock, is a lock on a single row of table. A transaction acquires a row lock for each row modified by an INSERT, UPDATE, DELETE, MERGE, or SELECT ... FOR UPDATE statement. The row lock exists until the transaction commits or rolls back.">Row Locks (TX)</a>&#34;</span>). Transaction 4 queues behind transaction 3.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4698" headers="d42290e4511">
+<pre dir="ltr">SQL&gt; COMMIT;
+</pre></td>
+<td class="cellalignment1229" headers="d42290e4698 d42290e4514">No action.</td>
+<td class="cellalignment1232" headers="d42290e4698 d42290e4517">
+<p>Transaction 3 commits its update of the Hintz salary, ending the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4707" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4707 d42290e4514">
+<pre dir="ltr">UPDATE employees 
+SET salary = 7200 
+WHERE last_name = &#39;Hintz&#39;
+*
+ERROR at line 1: 
+ORA-08177: can&#39;t 
+serialize access for 
+this transaction
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4707 d42290e4517">
+<p>The commit that ends transaction 3 causes the Hintz update in transaction 4 to fail with the <code class="codeph">ORA-08177</code> error. The problem error occurs because transaction 3 committed the Hintz update <span class="italic">after</span> transaction 4 began.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4722" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4722 d42290e4514">
+<pre dir="ltr">SQL&gt; ROLLBACK;
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4722 d42290e4517">
+<p>Session 2 rolls back transaction 4, which ends the transaction.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4731" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4731 d42290e4514">
+<pre dir="ltr">SQL&gt; SET TRANSACTION 
+ISOLATION LEVEL SERIALIZABLE;
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4731 d42290e4517">
+<p>Session 2 begins transaction 5 and sets it to the <code class="codeph">SERIALIZABLE</code> isolation level.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4743" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4743 d42290e4514">
+<pre dir="ltr">SQL&gt; SELECT last_name, 
+salary FROM employees 
+WHERE last_name IN 
+(&#39;Banda&#39;, &#39;Greene&#39;, &#39;Hintz&#39;);
+ 
+LAST_NAME         SALARY
+------------- ----------
+Banda               7000
+Greene              9500
+Hintz               7100
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4743 d42290e4517">
+<p>Transaction 5 queries the salaries for Banda, Greene, and Hintz. The Hintz salary update committed by transaction 3 is visible.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4752" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4752 d42290e4514">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+SET salary = 7200 
+WHERE last_name=&#39;Hintz&#39;;
+
+1 row updated.
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4752 d42290e4517">
+<p>Transaction 5 updates the Hintz salary to a different value. Because the Hintz update made by transaction 3 committed <span class="italic">before</span> the start of transaction 5, the serialized access problem is avoided.</p>
+<p><span class="bold">Note:</span> If a different transaction updated and committed the Hintz row after transaction 5 began, then the serialized access problem would occur again.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1229" id="d42290e4768" headers="d42290e4511">No action.</td>
+<td class="cellalignment1229" headers="d42290e4768 d42290e4514">
+<pre dir="ltr">SQL&gt; COMMIT;
+</pre></td>
+<td class="cellalignment1232" headers="d42290e4768 d42290e4517">
+<p>Session 2 commits the update without any problems, ending the transaction.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-8DA9A191-4CA3-4B1A-995F-4B17471C2738__GUID-8C5FA6EE-CE0D-4917-8792-222222C31B6D">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="transact.htm#GUID-5BB15405-8A03-47DE-8A20-63E1B83E1361" title="Transaction control is the management of changes made by DML statements and the grouping of DML statements into transactions.">Overview of Transaction Control</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="CNCPT88969"></a>
+<div class="props_rev_3"><a id="GUID-371C3622-540E-490C-BD83-F12CE4CF39C6"></a>
+<h3 id="CNCPT-GUID-371C3622-540E-490C-BD83-F12CE4CF39C6" class="sect3">Read-Only Isolation Level</h3>
+<div>
+<p><a id="d42290e5017" class="indexterm-anchor"></a><a id="d42290e5021" class="indexterm-anchor"></a><a id="d42290e5025" class="indexterm-anchor"></a><a id="d42290e5029" class="indexterm-anchor"></a>The <a href="glossary.htm#GUID-2AEC7E6A-AFDF-4380-974B-16A8A5AAE779"><span class="xrefglossterm">read-only isolation level</span></a> is similar to the serializable isolation level, but read-only transactions do not permit data to be modified in the transaction unless the user is <code class="codeph">SYS</code>. Thus, read-only transactions are not susceptible to the <code class="codeph">ORA-08177</code> error. Read-only transactions are useful for generating reports in which the contents must be consistent with respect to the time when the transaction began.</p>
+<p>Oracle Database achieves read consistency by reconstructing data as needed from the undo segments. Because undo segments are used in a circular fashion, the database can overwrite undo data. Long-running reports run the risk that undo data required for read consistency may have been reused by a different transaction, raising a <code class="codeph">snapshot too old</code> error. <a id="d42290e5047" class="indexterm-anchor"></a>Setting an <a href="glossary.htm#GUID-F02E3C0D-EFBF-4FAA-84B8-1BCF0BD2166A"><span class="xrefglossterm">undo retention period</span></a>, which is the minimum amount of time that the database attempts to retain old undo data before overwriting it, appropriately avoids this problem.</p>
+<div class="infoboxnotealso" id="GUID-371C3622-540E-490C-BD83-F12CE4CF39C6__GUID-76CDCF0B-15A2-4FF2-BDBB-1CB41220EB12">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="logical.htm#GUID-6E206D3A-E0E7-4B23-9C41-516FB35BC3FE" title="Oracle Database maintains records of the actions of transactions, collectively known as undo data.">Undo Segments</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADMIN11465" target="_blank" href="../ADMIN/undo.htm#ADMIN11465"><span class="italic">Oracle Database Administrator&#39;s Guide</span></a> to learn how to set the undo retention period</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1331"></a>
+<div class="props_rev_3"><a id="GUID-AD0CEE83-2F33-4906-94E1-3D1022924C63"></a>
+<h2 id="CNCPT-GUID-AD0CEE83-2F33-4906-94E1-3D1022924C63" class="sect2">Overview of the Oracle Database Locking Mechanism</h2>
+<div>
+<p>A lock is a mechanism that prevents destructive interactions, which are interactions that incorrectly update data or incorrectly alter underlying data structures, between transactions accessing shared data. Locks play a crucial role in maintaining database concurrency and consistency.</p>
+</div>
+<a id="CNCPT88970"></a>
+<div class="props_rev_3"><a id="GUID-1D60EFCC-03F4-4A04-B099-1B4DE5D02C47"></a>
+<h3 id="CNCPT-GUID-1D60EFCC-03F4-4A04-B099-1B4DE5D02C47" class="sect3">Summary of Locking Behavior</h3>
+<div>
+<p>The database maintains several different types of locks, depending on the operation that acquired the lock.</p>
+<p>In general, the database uses two types of locks: exclusive locks and share locks. Only one exclusive lock can be obtained on a resource such as a row or a table, but many share locks can be obtained on a single resource.</p>
+<p>Locks affect the interaction of readers and writers. A reader is a query of a resource, whereas a writer is a statement modifying a resource. The following rules summarize the locking behavior of Oracle Database for readers and writers:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A row is locked only when modified by a writer.</p>
+<p>When a statement updates one row, the transaction acquires a lock for this row only. By locking table data at the row level, the database minimizes contention for the same data. Under normal circumstances<a id="fn_1" href="#fn_1" onclick="footdisplay(1,&#34;When processing a distributed two-phase commit, the database may briefly prevent read access in special circumstances. Specifically, if a query starts between the prepare and commit phases and attempts to read the data before the commit, then the database may escalate a lock from row-level to block-level to guarantee read consistency. &#34;)"><sup>Foot&nbsp;1</sup></a> the database does not escalate a row lock to the block or table level.</p>
+</li>
+<li>
+<p>A writer of a row blocks a concurrent writer of the same row.</p>
+<p>If one transaction is modifying a row, then a row lock prevents a different transaction from modifying the same row simultaneously.</p>
+</li>
+<li>
+<p>A reader never blocks a writer.</p>
+<p>Because a reader of a row does not lock it, a writer can modify this row. The only exception is a <code class="codeph">SELECT ... FOR UPDATE</code> statement, which is a special type of <code class="codeph">SELECT</code> statement that <span class="italic">does</span> lock the row that it is reading.</p>
+</li>
+<li>
+<p>A writer never blocks a reader.</p>
+<p>When a row is being changed by a writer, the database uses undo data to provide readers with a consistent view of the row.</p>
+<div class="infobox-note" id="GUID-1D60EFCC-03F4-4A04-B099-1B4DE5D02C47__GUID-F42BEFC3-4611-4FAB-BDEE-582D4CAB4D00">
+<p class="notep1">Note:</p>
+<p>Readers of data may have to wait for writers of the same data blocks in very special cases of pending distributed transactions.</p>
+</div>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-1D60EFCC-03F4-4A04-B099-1B4DE5D02C47__GUID-B31D6133-FA94-44D1-9F26-041CD83B84D9">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF55370" target="_blank" href="../SQLRF/statements_10002.htm#SQLRF55370"><span><cite>Oracle Database SQL Language Reference</cite></span></a> to learn about <code class="codeph">SELECT ... FOR UPDATE</code></p>
+</li>
+<li>
+<p><a class="olink ADMIN12233" target="_blank" href="../ADMIN/ds_txns.htm#ADMIN12233"><span><cite>Oracle Database Administrator&rsquo;s Guide</cite></span></a> to learn about waits associated with in-doubt distributed transactions</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT88971"></a><a id="CNCPT1332"></a>
+<div class="props_rev_3"><a id="GUID-E6FB4581-CD65-4C18-AFDD-ACB3243238D3"></a>
+<h3 id="CNCPT-GUID-E6FB4581-CD65-4C18-AFDD-ACB3243238D3" class="sect3">Use of Locks</h3>
+<div>
+<p>In a single-user database, locks are not necessary because only one user is modifying information. However, when multiple users are accessing and modifying data, the database must provide a way to prevent concurrent modification of the same data.</p>
+<p>Locks achieve the following important database requirements:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Consistency</p>
+<p>The data a session is viewing or changing must not be changed by other sessions until the user is finished.</p>
+</li>
+<li>
+<p>Integrity</p>
+<p>The data and structures must reflect all changes made to them in the correct sequence.</p>
+</li>
+</ul>
+<p>Oracle Database provides data concurrency, consistency, and integrity among transactions through its locking mechanisms. Locking occurs automatically and requires no user action.</p>
+<p>The need for locks can be illustrated by a concurrent update of a single row. In the following example, a simple web-based application presents the end user with an employee email and phone number. The application uses an <code class="codeph">UPDATE</code> statement such as the following to modify the data:</p>
+<pre dir="ltr">UPDATE employees
+SET    email = ?, phone_number = ?
+WHERE  employee_id = ?
+AND    email = ?
+AND    phone_number = ?
+</pre>
+<p>In the preceding <code class="codeph">UPDATE</code> statement, the email and phone number values in the <code class="codeph">WHERE</code> clause are the original, unmodified values for the specified employee. This update ensures that the row that the application modifies was not changed after the application last read and displayed it to the user. In this way, the application avoids the lost update problem in which one user overwrites changes made by another user, effectively losing the update by the second user (<a href="consist.htm#GUID-8A15F1B2-3F64-49E7-929D-4768B2DB7DD7__CHDBBCEI" title="This table describes the conflicting writes and lost updates in a READ COMMITTED transaction, when a serializable or read committed transaction interacts with a read committed transaction.">Table 9-2</a> shows an example of a lost update).</p>
+<p><a href="consist.htm#GUID-E6FB4581-CD65-4C18-AFDD-ACB3243238D3__GUID-6F6A0A32-87B1-4F60-A3A4-C5EDBB157F82" title="This table shows the sequence of events when two sessions attempt to modify the same row in the employees table at roughly the same time.">Table 9-4</a> shows the sequence of events when two sessions attempt to modify the same row in the <code class="codeph">employees</code> table at roughly the same time.</p>
+<div class="tblformalwide" id="GUID-E6FB4581-CD65-4C18-AFDD-ACB3243238D3__GUID-6F6A0A32-87B1-4F60-A3A4-C5EDBB157F82">
+<p class="titleintable">Table 9-4 Row Locking Example</p>
+<table class="cellalignment1211" title="Row Locking Example" summary="This table shows the sequence of events when two sessions attempt to modify the same row in the employees table at roughly the same time.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1222" id="d42290e5902">T</th>
+<th class="cellalignment1222" id="d42290e5904">Session 1</th>
+<th class="cellalignment1222" id="d42290e5906">Session 2</th>
+<th class="cellalignment1222" id="d42290e5908">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e5912" headers="d42290e5902">
+<p>t0</p>
+</td>
+<td class="cellalignment1223" headers="d42290e5912 d42290e5904">
+<pre dir="ltr">SELECT employee_id as ID, 
+       email, phone_number 
+FROM   hr.employees 
+WHERE  last_name=&#39;Himuro&#39;;
+</pre>
+<pre dir="ltr">ID  EMAIL   PHONE_NUMBER
+--- ------- ------------
+118 GHIMURO 515.127.4565
+</pre></td>
+<td class="cellalignment1223" headers="d42290e5912 d42290e5906">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e5912 d42290e5908">
+<p>In session 1, the <code class="codeph">hr1</code> user queries <code class="codeph">hr.employees</code> for the Himuro record and displays the employee_id (<code class="codeph">118</code>), email (<code class="codeph">GHIMURO</code>), and phone number (<code class="codeph">515.127.4565</code>) attributes.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e5940" headers="d42290e5902">
+<p>t1</p>
+</td>
+<td class="cellalignment1223" headers="d42290e5940 d42290e5904">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e5940 d42290e5906">
+<pre dir="ltr">SELECT employee_id as ID,
+       email, phone_number 
+FROM   hr.employees 
+WHERE  last_name=&#39;Himuro&#39;;
+</pre>
+<pre dir="ltr">ID  EMAIL   PHONE_NUMBER
+--- ------- ------------
+118 GHIMURO 515.127.4565
+</pre></td>
+<td class="cellalignment1223" headers="d42290e5940 d42290e5908">
+<p>In session 2, the <code class="codeph">hr2</code> user queries <code class="codeph">hr.employees</code> for the Himuro record and displays the employee_id (<code class="codeph">118</code>), email (<code class="codeph">GHIMURO</code>), and phone number (<code class="codeph">515.127.4565</code>) attributes.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e5968" headers="d42290e5902">
+<p>t2</p>
+</td>
+<td class="cellalignment1223" headers="d42290e5968 d42290e5904">
+<pre dir="ltr">UPDATE hr.employees SET 
+phone_number=&#39;515.555.1234&#39;
+WHERE employee_id=118
+AND email=&#39;GHIMURO&#39;
+AND phone_number = 
+&#39;515.127.4565&#39;;
+
+1 row updated.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e5968 d42290e5906">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e5968 d42290e5908">
+<p>In session 1, the <code class="codeph">hr1</code> user updates the phone number in the row to <code class="codeph">515.555.1234</code>, which acquires a lock on the <code class="codeph">GHIMURO</code> row.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e5988" headers="d42290e5902">
+<p>t3</p>
+</td>
+<td class="cellalignment1223" headers="d42290e5988 d42290e5904">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e5988 d42290e5906">
+<pre dir="ltr">UPDATE hr.employees SET 
+phone_number=&#39;515.555.1235&#39;
+WHERE employee_id=118
+AND email=&#39;GHIMURO&#39;
+AND phone_number = 
+&#39;515.127.4565&#39;;
+
+-- SQL*Plus does not show
+-- a row updated message or
+-- return the prompt.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e5988 d42290e5908">
+<p>In session 2, the <code class="codeph">hr2</code> user attempts to update the same row, but is blocked because <code class="codeph">hr1</code> is currently processing the row.</p>
+<p>The attempted update by <code class="codeph">hr2</code> occurs almost simultaneously with the <code class="codeph">hr1</code> update.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e6013" headers="d42290e5902">
+<p>t4</p>
+</td>
+<td class="cellalignment1223" headers="d42290e6013 d42290e5904">
+<pre dir="ltr">COMMIT;
+
+Commit complete.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e6013 d42290e5906">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e6013 d42290e5908">
+<p>In session 1, the <code class="codeph">hr1</code> user commits the transaction.</p>
+<p>The commit makes the change for Himuro permanent and unblocks session 2, which has been waiting.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e6029" headers="d42290e5902">
+<p>t5</p>
+</td>
+<td class="cellalignment1223" headers="d42290e6029 d42290e5904">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e6029 d42290e5906">
+<pre dir="ltr">0 rows updated.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e6029 d42290e5908">
+<p>In session 2, the <code class="codeph">hr2</code> user discovers that the <code class="codeph">GHIMURO</code> row was modified in such a way that it no longer matches its predicate.</p>
+<p>Because the predicates do not match, session 2 updates no records.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e6048" headers="d42290e5902">
+<p>t6</p>
+</td>
+<td class="cellalignment1223" headers="d42290e6048 d42290e5904">
+<pre dir="ltr">UPDATE hr.employees SET 
+phone_number=&#39;515.555.1235&#39;
+WHERE employee_id=118
+AND email=&#39;GHIMURO&#39; AND 
+phone_number=&#39;515.555.1234&#39;;
+
+1 row updated.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e6048 d42290e5906">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e6048 d42290e5908">
+<p>In session 1, the <code class="codeph">hr1</code> user realizes that it updated the <code class="codeph">GHIMURO</code> row with the wrong phone number. The user starts a new transaction and updates the phone number in the row to <code class="codeph">515.555.1235</code>, which locks the <code class="codeph">GHIMURO</code> row.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e6071" headers="d42290e5902">
+<p>t7</p>
+</td>
+<td class="cellalignment1223" headers="d42290e6071 d42290e5904">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e6071 d42290e5906">
+<pre dir="ltr">SELECT employee_id as ID, 
+       email, phone_number 
+FROM   hr.employees 
+WHERE  last_name=&#39;Himuro&#39;;
+</pre>
+<pre dir="ltr">ID  EMAIL   PHONE_NUMBER
+--- ------- ------------
+118 GHIMURO 515.555.1234
+</pre></td>
+<td class="cellalignment1223" headers="d42290e6071 d42290e5908">
+<p>In session 2, the <code class="codeph">hr2</code> user queries <code class="codeph">hr.employees</code> for the Himuro record. The record shows the phone number update committed by session 1 at t4. Oracle Database read consistency ensures that session 2 does not see the uncommitted change made at t6.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e6090" headers="d42290e5902">
+<p>t8</p>
+</td>
+<td class="cellalignment1223" headers="d42290e6090 d42290e5904">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e6090 d42290e5906">
+<pre dir="ltr">UPDATE hr.employees SET 
+phone_number=&#39;515.555.1235 
+WHERE employee_id=118
+AND email=&#39;GHIMURO&#39;
+AND phone_number =
+&#39;515.555.1234&#39;;
+
+-- SQL*Plus does not show
+-- a row updated message or
+-- return the prompt.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e6090 d42290e5908">
+<p>In session 2, the <code class="codeph">hr2</code> user attempts to update the same row, but is blocked because <code class="codeph">hr1</code> is currently processing the row.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e6107" headers="d42290e5902">
+<p>t9</p>
+</td>
+<td class="cellalignment1223" headers="d42290e6107 d42290e5904">
+<pre dir="ltr">ROLLBACK;
+
+Rollback complete.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e6107 d42290e5906">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e6107 d42290e5908">
+<p>In session 1, the <code class="codeph">hr1</code> user rolls back the transaction, which ends it.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e6121" headers="d42290e5902">
+<p>t10</p>
+</td>
+<td class="cellalignment1223" headers="d42290e6121 d42290e5904">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e6121 d42290e5906">
+<pre dir="ltr">1 row updated.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e6121 d42290e5908">
+<p>In session 2, the update of the phone number succeeds because the session 1 update was rolled back. The <code class="codeph">GHIMURO</code> row matches its predicate, so the update succeeds.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1223" id="d42290e6136" headers="d42290e5902">
+<p>t11</p>
+</td>
+<td class="cellalignment1223" headers="d42290e6136 d42290e5904">&nbsp;</td>
+<td class="cellalignment1223" headers="d42290e6136 d42290e5906">
+<pre dir="ltr">COMMIT;
+
+Commit complete.
+</pre></td>
+<td class="cellalignment1223" headers="d42290e6136 d42290e5908">
+<p>Session 2 commits the update, ending the transaction.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Oracle Database automatically obtains necessary locks when executing SQL statements. For example, before the database permits a session to modify data, the session must first lock the data. The lock gives the session exclusive control over the data so that no other transaction can modify the locked data until the lock is released.</p>
+<p>Because the locking mechanisms of Oracle Database are tied closely to transaction control, application designers need only define transactions properly, and Oracle Database automatically manages locking. Users never need to lock any resource explicitly, although Oracle Database also enables users to lock data manually.</p>
+<p>The following sections explain concepts that are important for understanding how Oracle Database achieves data concurrency.</p>
+<div class="infoboxnotealso" id="GUID-E6FB4581-CD65-4C18-AFDD-ACB3243238D3__GUID-C8158A34-356C-486D-B831-28D7AB7374E4">
+<p class="notep1">See Also:</p>
+<p><a class="olink ARPLS393" target="_blank" href="../ARPLS/w_optlock.htm#ARPLS393"><span><cite>Oracle Database PL/SQL Packages and Types Reference</cite></span></a> to learn about the <code class="codeph">OWA_OPT_LOCK</code> package, which contains subprograms that can help prevent lost updates</p>
+</div>
+</div>
+</div>
+<a id="CNCPT1333"></a>
+<div class="props_rev_3"><a id="GUID-2309ED19-A551-46DA-9E58-D957A22F9D6C"></a>
+<h3 id="CNCPT-GUID-2309ED19-A551-46DA-9E58-D957A22F9D6C" class="sect3">Lock Modes</h3>
+<div>
+<p><a id="d42290e6395" class="indexterm-anchor"></a><a id="d42290e6399" class="indexterm-anchor"></a><a id="d42290e6403" class="indexterm-anchor"></a>Oracle Database automatically uses the lowest <a id="d42290e6408" class="indexterm-anchor"></a>applicable level of restrictiveness to provide the highest degree of data concurrency yet also provide fail-safe data integrity. The less restrictive the level, the more available the data is for access by other users. Conversely, the more restrictive the level, the more limited other transactions are in the types of locks that they can acquire.</p>
+<p>Oracle Database uses two modes of locking in a multiuser database:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a id="d42290e6418" class="indexterm-anchor"></a><a id="d42290e6422" class="indexterm-anchor"></a>Exclusive lock mode</p>
+<p>This mode prevents the associated resource from being shared. A transaction obtains an <a href="glossary.htm#GUID-745FDB36-B218-4F25-BCB1-61D696DB8814"><span class="xrefglossterm">exclusive lock</span></a> when it modifies data. The first transaction to lock a resource exclusively is the only transaction that can alter the resource until the exclusive lock is released.</p>
+</li>
+<li>
+<p><a id="d42290e6433" class="indexterm-anchor"></a><a id="d42290e6437" class="indexterm-anchor"></a>Share lock mode</p>
+<p>This mode allows the associated resource to be shared, depending on the operations involved. Multiple users reading data can share the data, each holding a <a href="glossary.htm#GUID-A0909390-32EF-4122-B892-659E0F04C709"><span class="xrefglossterm">share lock</span></a> to prevent concurrent access by a writer who needs an exclusive lock. Multiple transactions can acquire share locks on the same resource.</p>
+</li>
+</ul>
+<p>Assume that a transaction uses a <code class="codeph">SELECT ...</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> statement to select a single table row. The transaction acquires an exclusive row lock and a row share table lock. The row lock allows other sessions to modify any rows <span class="italic">other than</span> the locked row, while the table lock prevents sessions from altering the structure of the table. Thus, the database permits as many statements as possible to execute.</p>
+</div>
+</div>
+<a id="CNCPT88972"></a>
+<div class="props_rev_3"><a id="GUID-FCE31DFC-474C-4145-9561-29344C02BB3E"></a>
+<h3 id="CNCPT-GUID-FCE31DFC-474C-4145-9561-29344C02BB3E" class="sect3">Lock Conversion and Escalation</h3>
+<div>
+<p>Oracle Database performs <a href="glossary.htm#GUID-6CC84803-E376-46B1-ABD8-68FF7DBEE243"><span class="xrefglossterm">lock conversion</span></a><a id="d42290e6694" class="indexterm-anchor"></a> as necessary. In lock conversion, the database automatically converts a table lock of lower restrictiveness to one of higher restrictiveness.</p>
+<p>For example, suppose a transaction issues a <code class="codeph">SELECT ...</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> for an employee and later updates the locked row. In this case, the database automatically converts the row share table lock to a row exclusive table lock. A transaction holds exclusive row locks for all rows inserted, updated, or deleted within the transaction. Because row locks are acquired at the highest degree of restrictiveness, no lock conversion is required or performed.</p>
+<p>Lock conversion is different from <a href="glossary.htm#GUID-2A2BBC47-0538-40B6-8BB3-E60DAE25F32F"><span class="xrefglossterm">lock escalation</span></a>, which occurs when numerous locks are held at one level of granularity (for example, rows) and a database raises the locks to a higher level of granularity (for example, table). If a user locks many rows in a table, then some databases automatically escalate the row locks to a single table. The number of locks decreases, but the restrictiveness of what is locked increases.</p>
+<p><span class="italic">Oracle Database never escalates locks.</span> Lock escalation greatly increases the likelihood of deadlocks. Assume that a system is trying to escalate locks on behalf of transaction 1 but cannot because of the locks held by transaction 2. A deadlock is created if transaction 2 also requires lock escalation of the same data before it can proceed.</p>
+</div>
+</div>
+<a id="CNCPT1334"></a>
+<div class="props_rev_3"><a id="GUID-DB33AD91-8A4E-44CE-A6B2-654909143E5F"></a>
+<h3 id="CNCPT-GUID-DB33AD91-8A4E-44CE-A6B2-654909143E5F" class="sect3">Lock Duration</h3>
+<div>
+<p>Oracle Database automatically releases a lock when some event occurs so that the transaction no longer requires the resource. Usually, the database holds locks acquired by statements within a transaction for the duration of the transaction. <a id="d42290e6951" class="indexterm-anchor"></a>These locks prevent destructive interference such as dirty reads, lost updates, and destructive <a href="glossary.htm#GUID-64F19D78-A73F-44A5-AA2E-60EBC800CB22"><span class="xrefglossterm">DDL</span></a> from concurrent transactions.</p>
+<div class="infobox-note" id="GUID-DB33AD91-8A4E-44CE-A6B2-654909143E5F__GUID-2D4C2BE1-A849-419D-97EA-B9CC7CD48417">
+<p class="notep1">Note:</p>
+<p>A table lock taken on a child table because of an unindexed foreign key is held for the duration of the statement, not the transaction. Also, as explained in <span class="q">&#34;<a href="consist.htm#GUID-D63FD030-44CD-4FD7-970A-C98C8CC4AC42">Overview of User-Defined Locks</a>&#34;</span>, the <code class="codeph">DBMS_LOCK</code> package enables user-defined locks to be released and allocated at will and even held over transaction boundaries.</p>
+</div>
+<p>Oracle Database releases all locks acquired by the statements within a transaction when it commits or rolls back. Oracle Database also releases locks acquired after a <a href="glossary.htm#GUID-ED9601F2-D0A2-4FE5-83A8-8F7F9E9E0D18"><span class="xrefglossterm">savepoint</span></a> when rolling back to the savepoint. However, only transactions not waiting for the previously locked resources can acquire locks on the now available resources. Waiting transactions continue to wait until after the original transaction commits or rolls back completely (see <a href="transact.htm#GUID-07517D95-D5F9-4851-B737-B076336CED13__CHDGIIFB" title="This table shows an extended example showing a rollback to savepoint.">Table 10-2</a> for an example).</p>
+<div class="infoboxnotealso" id="GUID-DB33AD91-8A4E-44CE-A6B2-654909143E5F__GUID-B58118DD-8FDC-4C9A-A209-77AE87141FFA">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="transact.htm#GUID-D0B75614-4720-4586-9ABF-99E894FA68BD" title="A rollback to a savepoint in an uncommitted transaction means undoing any changes made after the specified savepoint, but it does not mean a rollback of the transaction itself.">Rollback to Savepoint</a>&#34;</span></p>
+</div>
+</div>
+</div>
+<a id="CNCPT88973"></a><a id="CNCPT1336"></a>
+<div class="props_rev_3"><a id="GUID-C1971E9B-849A-4634-9575-4F8FAD697750"></a>
+<h3 id="CNCPT-GUID-C1971E9B-849A-4634-9575-4F8FAD697750" class="sect3">Locks and Deadlocks</h3>
+<div>
+<p>A <span class="bold">deadlock</span> is a situation in which two or more users are waiting for data locked by each other. Deadlocks prevent some transactions from continuing to work.</p>
+<p>Oracle Database automatically detects deadlocks and resolves them by rolling back one statement involved in the deadlock, releasing one set of the conflicting row locks. The database returns a corresponding message to the transaction that undergoes <a href="glossary.htm#GUID-187EACC0-1FDD-498A-BEAD-892AC03B50D0"><span class="xrefglossterm">statement-level rollback</span></a>. The statement rolled back belongs to the transaction that detects the deadlock. Usually, the signaled transaction should be rolled back explicitly, but it can retry the rolled-back statement after waiting.</p>
+<p><a href="consist.htm#GUID-C1971E9B-849A-4634-9575-4F8FAD697750__BABICGEE" title="This table illustrates how Oracle Database handles two deadlocked transactions.">Table 9-5</a> illustrates two transactions in a deadlock.</p>
+<div class="tblformalwide" id="GUID-C1971E9B-849A-4634-9575-4F8FAD697750__BABICGEE">
+<p class="titleintable">Table 9-5 Deadlocked Transactions</p>
+<table class="cellalignment1211" title="Deadlocked Transactions" summary="This table illustrates how Oracle Database handles two deadlocked transactions.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1224" id="d42290e7272">T</th>
+<th class="cellalignment1224" id="d42290e7275">Session 1</th>
+<th class="cellalignment1224" id="d42290e7278">Session 2</th>
+<th class="cellalignment1224" id="d42290e7281">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e7286" headers="d42290e7272">
+<p>t0</p>
+</td>
+<td class="cellalignment1197" headers="d42290e7286 d42290e7275">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+  SET salary = salary*1.1
+  WHERE employee_id = 100;
+
+1 row updated.
+</pre></td>
+<td class="cellalignment1197" headers="d42290e7286 d42290e7278">
+<pre dir="ltr">SQL&gt; UPDATE employees
+  SET  salary = salary*1.1
+  WHERE employee_id = 200;
+
+1 row updated.
+</pre></td>
+<td class="cellalignment1197" headers="d42290e7286 d42290e7281">
+<p>Session 1 starts transaction 1 and updates the salary for employee 100. Session 2 starts transaction 2 and updates the salary for employee 200. No problem exists because each transaction locks only the row that it attempts to update.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e7299" headers="d42290e7272">
+<p>t1</p>
+</td>
+<td class="cellalignment1197" headers="d42290e7299 d42290e7275">
+<pre dir="ltr">SQL&gt; UPDATE employees 
+  SET salary = salary*1.1
+  WHERE employee_id = 200;
+
+-- prompt does not return
+</pre></td>
+<td class="cellalignment1197" headers="d42290e7299 d42290e7278">
+<pre dir="ltr">SQL&gt; UPDATE employees
+  SET salary = salary*1.1
+  WHERE employee_id = 100;
+
+-- prompt does not return
+</pre></td>
+<td class="cellalignment1197" headers="d42290e7299 d42290e7281">
+<p>Transaction 1 attempts to update the employee 200 row, which is currently locked by transaction 2. Transaction 2 attempts to update the employee 100 row, which is currently locked by transaction 1.</p>
+<p>A deadlock results because neither transaction can obtain the resource it needs to proceed or terminate. No matter how long each transaction waits, the conflicting locks are held.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e7314" headers="d42290e7272">
+<p>t2</p>
+</td>
+<td class="cellalignment1197" headers="d42290e7314 d42290e7275">
+<pre dir="ltr">UPDATE employees
+       *
+ERROR at line 1:
+ORA-00060: deadlock detected
+while waiting for resource
+
+SQL&gt;
+</pre></td>
+<td class="cellalignment1197" headers="d42290e7314 d42290e7278">&nbsp;</td>
+<td class="cellalignment1197" headers="d42290e7314 d42290e7281">
+<p>Transaction 1 signals the deadlock and rolls back the <code class="codeph">UPDATE</code> statement issued at t1. However, the update made at t0 is not rolled back. The prompt is returned in session 1.</p>
+<p><span class="bold">Note:</span> Only one session in the deadlock actually gets the deadlock error, but either session could get the error.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e7332" headers="d42290e7272">
+<p>t3</p>
+</td>
+<td class="cellalignment1197" headers="d42290e7332 d42290e7275">
+<pre dir="ltr">SQL&gt; COMMIT;
+
+Commit complete.
+</pre></td>
+<td class="cellalignment1197" headers="d42290e7332 d42290e7278">&nbsp;</td>
+<td class="cellalignment1197" headers="d42290e7332 d42290e7281">
+<p>Session 1 commits the update made at t0, ending transaction 1. The update unsuccessfully attempted at t1 is not committed.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e7343" headers="d42290e7272">
+<p>t4</p>
+</td>
+<td class="cellalignment1197" headers="d42290e7343 d42290e7275">&nbsp;</td>
+<td class="cellalignment1197" headers="d42290e7343 d42290e7278">
+<pre dir="ltr">1 row updated.
+
+SQL&gt;
+</pre></td>
+<td class="cellalignment1197" headers="d42290e7343 d42290e7281">
+<p>The update at t1 in transaction 2, which was being blocked by transaction 1, is executed. The prompt is returned.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1197" id="d42290e7354" headers="d42290e7272">
+<p>t5</p>
+</td>
+<td class="cellalignment1197" headers="d42290e7354 d42290e7275">&nbsp;</td>
+<td class="cellalignment1197" headers="d42290e7354 d42290e7278">
+<pre dir="ltr">SQL&gt; COMMIT;
+
+Commit complete.
+</pre></td>
+<td class="cellalignment1197" headers="d42290e7354 d42290e7281">
+<p>Session 2 commits the updates made at t0 and t1, which ends transaction 2.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Deadlocks most often occur when transactions explicitly override the default locking of Oracle Database. Because Oracle Database does not escalate locks and does not use read locks for queries, but does use row-level (rather than page-level) locking, deadlocks occur infrequently.</p>
+<div class="infoboxnotealso" id="GUID-C1971E9B-849A-4634-9575-4F8FAD697750__GUID-28BD423C-5E44-44E2-AA84-ECC36C4B2D1B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="consist.htm#GUID-A4E54CD6-7232-489D-86A4-412EAF8A8DB7">Overview of Manual Data Locks</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink ADFNS00203" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS00203"><span><cite>Oracle Database Development Guide</cite></span></a> to learn how to handle deadlocks when you lock tables explicitly</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1339"></a>
+<div class="props_rev_3"><a id="GUID-E926E638-0161-4389-887B-4A31A529478A"></a>
+<h2 id="CNCPT-GUID-E926E638-0161-4389-887B-4A31A529478A" class="sect2">Overview of Automatic Locks</h2>
+<div>
+<p>Oracle Database automatically locks a resource on behalf of a transaction to prevent other transactions from doing something that requires exclusive access to the same resource. The database automatically acquires different types of locks at different levels of restrictiveness depending on the resource and the operation being performed.</p>
+<div class="infobox-note" id="GUID-E926E638-0161-4389-887B-4A31A529478A__GUID-234DEE05-05D8-47C5-929E-49A2C855FA3F">
+<p class="notep1">Note:</p>
+<p>The database never locks rows when performing simple reads.</p>
+</div>
+<p>Oracle Database locks are divided into the categories show in the following table.</p>
+<div class="tblformal" id="GUID-E926E638-0161-4389-887B-4A31A529478A__GUID-8097ADA6-419F-4E1F-BFEA-C7E2AD8BF1FE">
+<p class="titleintable">Table 9-6 Lock Categories</p>
+<table class="cellalignment1206" title="Lock Categories" summary="The table shows Oracle Database lock categories.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1231" id="d42290e7643">Lock</th>
+<th class="cellalignment1233" id="d42290e7646">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1232" id="d42290e7651" headers="d42290e7643">
+<p>DML Locks</p>
+</td>
+<td class="cellalignment1234" headers="d42290e7651 d42290e7646">
+<p>Protect data. For example, table locks lock entire tables, while row locks lock selected rows. See <span class="q">&#34;<a href="consist.htm#GUID-6D4F7A79-A5F1-470A-ADEF-8888565DE84F" title="A row lock, also called a TX lock, is a lock on a single row of table. A transaction acquires a row lock for each row modified by an INSERT, UPDATE, DELETE, MERGE, or SELECT ... FOR UPDATE statement. The row lock exists until the transaction commits or rolls back.This scenario illustrates how Oracle Database uses row locks for concurrency. Oracle Database maximizes the concurrency control of parent keys in relation to dependent foreign keys.The database acquires a full table lock on the child table when no index exists on the foreign key column of the child table, and a session modifies a primary key in the parent table (for example, deletes a row or modifies primary key attributes) or merges rows into the parent table.The database does not acquire a full table lock on the child table when a foreign key column in the child table is indexed, and a session modifies a primary key in the parent table (for example, deletes a row or modifies primary key attributes) or merges rows into the parent table.">DML Locks</a>&#34;</span>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1232" id="d42290e7699" headers="d42290e7643">
+<p>DDL Locks</p>
+</td>
+<td class="cellalignment1234" headers="d42290e7699 d42290e7646">
+<p>Protect the structure of schema objects&mdash;for example, the dictionary definitions of tables and views. See <span class="q">&#34;<a href="consist.htm#GUID-5015CC53-4059-4CD6-B892-F211E8BDE2F9">DDL Locks</a>&#34;</span>.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1232" id="d42290e7710" headers="d42290e7643">
+<p>System Locks</p>
+</td>
+<td class="cellalignment1234" headers="d42290e7710 d42290e7646">
+<p>Protect internal database structures such as data files. Latches, mutexes, and internal locks are entirely automatic. See <span class="q">&#34;<a href="consist.htm#GUID-19E6C804-8D75-4D05-ACD2-11915687307A" title="Oracle Database uses various types of system locks to protect internal database and memory structures. These mechanisms are inaccessible to users because users have no control over their occurrence or duration.">System Locks</a>&#34;</span>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" --></div>
+<a id="CNCPT1340"></a>
+<div class="props_rev_3"><a id="GUID-6D4F7A79-A5F1-470A-ADEF-8888565DE84F"></a>
+<h3 id="CNCPT-GUID-6D4F7A79-A5F1-470A-ADEF-8888565DE84F" class="sect3">DML Locks</h3>
+<div>
+<p><a id="d42290e7953" class="indexterm-anchor"></a><a id="d42290e7957" class="indexterm-anchor"></a>A <a href="glossary.htm#GUID-54F72CDC-A0EA-4FD5-A7CA-1636E2F28208"><span class="xrefglossterm">DML lock</span></a>, also called a <span class="italic">data lock</span>, guarantees the integrity of data accessed concurrently by multiple users. For example, a DML lock prevents two customers from buying the last copy of a book available from an online bookseller. DML locks prevent destructive interference of simultaneous conflicting DML or DDL operations.</p>
+<p>DML statements automatically acquire the following types of locks:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="consist.htm#GUID-92D38952-A7A0-486F-9547-BDB6E624F125" title="A row lock, also called a TX lock, is a lock on a single row of table. A transaction acquires a row lock for each row modified by an INSERT, UPDATE, DELETE, MERGE, or SELECT ... FOR UPDATE statement. The row lock exists until the transaction commits or rolls back.">Row Locks (TX)</a></p>
+</li>
+<li>
+<p><a href="consist.htm#GUID-B6B075B7-DE83-45EF-8A9E-1C1F71F72598">Table Locks (TM)</a></p>
+</li>
+</ul>
+<p>In the following sections, the acronym in parentheses after each type of lock or lock mode is the abbreviation used in the Locks Monitor of Oracle Enterprise Manager (Enterprise Manager). Enterprise Manager might display TM for any table lock, rather than indicate the mode of table lock (such as RS or SRX).</p>
+<div class="infoboxnotealso" id="GUID-6D4F7A79-A5F1-470A-ADEF-8888565DE84F__GUID-112F720A-8A89-459B-ACC6-1DD58809018A">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="cncptdba.htm#GUID-BE08A8FA-501A-418E-AD32-3E42AE762026">Oracle Enterprise Manager</a>&#34;</span></p>
+</div>
+</div>
+<a id="CNCPT88974"></a><a id="CNCPT1341"></a>
+<div class="props_rev_3"><a id="GUID-92D38952-A7A0-486F-9547-BDB6E624F125"></a>
+<h4 id="CNCPT-GUID-92D38952-A7A0-486F-9547-BDB6E624F125" class="sect4">Row Locks (TX)</h4>
+<div>
+<p>A <span class="bold">row lock</span>, also called a <span class="italic">TX lock</span>, is a lock on a single row of table. A transaction acquires a row lock for each row modified by an <code class="codeph">INSERT</code>, <code class="codeph">UPDATE</code>, <code class="codeph">DELETE</code>, <code class="codeph">MERGE</code>, or <code class="codeph">SELECT</code> <code class="codeph">... FOR</code> <code class="codeph">UPDATE</code> statement. The row lock exists until the transaction commits or rolls back.</p>
+<p>Row locks primarily serve as a queuing mechanism to prevent two transactions from modifying the same row. The database always locks a modified row in exclusive mode so that other transactions cannot modify the row until the transaction holding the lock commits or rolls back. Row locking provides the finest grain locking possible and so provides the best possible concurrency and throughput.</p>
+<div class="infobox-note" id="GUID-92D38952-A7A0-486F-9547-BDB6E624F125__GUID-F52FBD3B-821F-415B-B2E2-D7C45EB3456D">
+<p class="notep1">Note:</p>
+<p>If a transaction terminates because of database <a href="glossary.htm#GUID-A3F6C6D9-6351-4886-BA47-5BD688AECA4B"><span class="xrefglossterm">instance failure</span></a>, then block-level recovery makes a row available before the entire transaction is recovered.</p>
+</div>
+<p>If a transaction obtains a lock for a row, then the transaction also acquires a lock for the table containing the row. The table lock prevents conflicting DDL operations that would override data changes in a current transaction. <a href="consist.htm#GUID-92D38952-A7A0-486F-9547-BDB6E624F125__BABJHGCE">Figure 9-2</a> illustrates an update of the third row in a table. Oracle Database automatically places an exclusive lock on the updated row and a subexclusive lock on the table.</p>
+<div class="figure" id="GUID-92D38952-A7A0-486F-9547-BDB6E624F125__BABJHGCE">
+<p class="titleinfigure">Figure 9-2 Row and Table Locks</p>
+<img width="663" height="293" src="img/GUID-7CFD6090-E0E5-423D-816F-072115B7E506-default.gif" alt="Description of Figure 9-2 follows" title="Description of Figure 9-2 follows"/><br/>
+<a href="img_text/GUID-7CFD6090-E0E5-423D-816F-072115B7E506-print.htm">Description of &#34;Figure 9-2 Row and Table Locks&#34;</a></div>
+<!-- class="figure" --></div>
+<a id="CNCPT88976"></a><a id="CNCPT88975"></a>
+<div class="props_rev_3"><a id="GUID-6665D14A-D186-4BA8-A277-A3B8237FA57B"></a>
+<h5 id="CNCPT-GUID-6665D14A-D186-4BA8-A277-A3B8237FA57B" class="sect5">Row Locks and Concurrency</h5>
+<div>
+<p>This scenario illustrates how Oracle Database uses row locks for concurrency.</p>
+<p>Three sessions query the same rows simultaneously. Session 1 and 2 proceed to make uncommitted updates to different rows, while session 3 makes no updates. Each session sees its own uncommitted updates but not the uncommitted updates of any other session.</p>
+<div class="tblformalwide" id="GUID-6665D14A-D186-4BA8-A277-A3B8237FA57B__BABGHCDD">
+<p class="titleintable">Table 9-7 Data Concurrency Example</p>
+<table class="cellalignment1211" title="Data Concurrency Example" summary="This table shows an example of three concurrent transactions and how Oracle Database uses row locks for concurrency.">
+<thead>
+<tr class="cellalignment1197">
+<th class="cellalignment1235" id="d42290e8579">T</th>
+<th class="cellalignment1236" id="d42290e8582">Session 1</th>
+<th class="cellalignment1236" id="d42290e8585">Session 2</th>
+<th class="cellalignment1218" id="d42290e8588">Session 3</th>
+<th class="cellalignment1219" id="d42290e8591">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1197">
+<td class="cellalignment1237" id="d42290e8596" headers="d42290e8579">
+<p>t0</p>
+</td>
+<td class="cellalignment1238" headers="d42290e8596 d42290e8582">
+<pre dir="ltr">SELECT employee_id,
+       salary
+FROM   employees
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          512
+101          600
+</pre></td>
+<td class="cellalignment1238" headers="d42290e8596 d42290e8585">
+<pre dir="ltr">SELECT employee_id,
+       salary 
+FROM   employees
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          512
+101          600
+</pre></td>
+<td class="cellalignment1220" headers="d42290e8596 d42290e8588">
+<pre dir="ltr">SELECT employee_id, 
+       salary 
+FROM   employees
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          512
+101          600
+</pre></td>
+<td class="cellalignment1221" headers="d42290e8596 d42290e8591">
+<p>Three different sessions simultaneously query the ID and salary of employees 100 and 101. The results returned by each query are identical.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1237" id="d42290e8618" headers="d42290e8579">
+<p>t1</p>
+</td>
+<td class="cellalignment1238" headers="d42290e8618 d42290e8582">
+<pre dir="ltr">UPDATE hr.employees
+SET salary = 
+      salary+100
+WHERE 
+  employee_id=100;
+</pre></td>
+<td class="cellalignment1238" headers="d42290e8618 d42290e8585">&nbsp;</td>
+<td class="cellalignment1220" headers="d42290e8618 d42290e8588">&nbsp;</td>
+<td class="cellalignment1221" headers="d42290e8618 d42290e8591">
+<p>Session 1 updates the salary of employee 100, but does not commit. In the update, the writer acquires a row-level lock for the updated row only, thereby preventing other writers from modifying this row.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1237" id="d42290e8630" headers="d42290e8579">
+<p>t2</p>
+</td>
+<td class="cellalignment1238" headers="d42290e8630 d42290e8582">
+<pre dir="ltr">SELECT employee_id,
+       salary 
+FROM   employees 
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          <span class="bold">612</span>
+101          600
+</pre></td>
+<td class="cellalignment1238" headers="d42290e8630 d42290e8585">
+<pre dir="ltr">SELECT employee_id,
+       salary
+FROM   employees
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          512
+101          600
+</pre></td>
+<td class="cellalignment1220" headers="d42290e8630 d42290e8588">
+<pre dir="ltr">SELECT employee_id, 
+       salary 
+FROM   employees
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          512
+101          600
+</pre></td>
+<td class="cellalignment1221" headers="d42290e8630 d42290e8591">
+<p>Each session simultaneously issues the original query. Session 1 shows the salary of 612 resulting from the t1 update. The readers in session 2 and 3 return rows immediately and do not wait for session 1 to end its transaction. The database uses multiversion read consistency to show the salary as it existed before the update in session 1.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1237" id="d42290e8655" headers="d42290e8579">
+<p>t3</p>
+</td>
+<td class="cellalignment1238" headers="d42290e8655 d42290e8582">&nbsp;</td>
+<td class="cellalignment1238" headers="d42290e8655 d42290e8585">
+<pre dir="ltr">UPDATE hr.employee
+  SET  salary =
+         salary+100
+  WHERE 
+    employee_id=101;
+</pre></td>
+<td class="cellalignment1220" headers="d42290e8655 d42290e8588">&nbsp;</td>
+<td class="cellalignment1221" headers="d42290e8655 d42290e8591">
+<p>Session 2 updates the salary of employee 101, but does not commit the transaction. In the update, the writer acquires a row-level lock for the updated row only, preventing other writers from modifying this row.</p>
+</td>
+</tr>
+<tr class="cellalignment1197">
+<td class="cellalignment1237" id="d42290e8667" headers="d42290e8579">
+<p>t4</p>
+</td>
+<td class="cellalignment1238" headers="d42290e8667 d42290e8582">
+<pre dir="ltr">SELECT employee_id,
+       salary 
+FROM   employees 
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          <span class="bold">612</span>
+101          600
+</pre></td>
+<td class="cellalignment1238" headers="d42290e8667 d42290e8585">
+<pre dir="ltr">SELECT employee_id,
+       salary
+FROM   employees 
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          512
+101          <span class="bold">700</span>
+</pre></td>
+<td class="cellalignment1220" headers="d42290e8667 d42290e8588">
+<pre dir="ltr">SELECT employee_id, 
+       salary 
+FROM   employees
+WHERE  employee_id
+IN ( 100, 101 );
+</pre>
+<pre dir="ltr">EMPLOYEE_ID  SALARY
+-----------  ------
+100          512
+101          600
+</pre></td>
+<td class="cellalignment1221" headers="d42290e8667 d42290e8591">
+<p>Each session simultaneously issues the original query. Session 1 shows the salary of 612 resulting from the t1 update, but not the salary update for employee 101 made in session 2. The reader in session 2 shows the salary update made in session 2, but not the salary update made in session 1. The reader in session 3 uses read consistency to show the salaries before modification by session 1 and 2.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-6665D14A-D186-4BA8-A277-A3B8237FA57B__GUID-1A5A9D57-3A1F-40A4-AB2B-239DF75B977B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF55505" target="_blank" href="../SQLRF/ap_locks001.htm#SQLRF55505"><span><cite>Oracle Database SQL Language Reference</cite></span></a></p>
+</li>
+<li>
+<p><a class="olink REFRN30121" target="_blank" href="../REFRN/GUID-87D76889-832C-4BFC-B8B0-154A22721781.htm#REFRN30121"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">V$LOCK</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT88977"></a>
+<div class="props_rev_3"><a id="GUID-B6E414BE-B880-40F6-B353-F996208B8D0A"></a>
+<h5 id="CNCPT-GUID-B6E414BE-B880-40F6-B353-F996208B8D0A" class="sect5">Storage of Row Locks</h5>
+<div>
+<p>Unlike some databases, which use a lock manager to maintain a list of locks in memory, Oracle Database stores lock information in the <a id="d42290e8944" class="indexterm-anchor"></a><a href="glossary.htm#GUID-2141C31D-6752-4260-91CE-99B4CC557247"><span class="xrefglossterm">data block</span></a> that contains the locked row<a id="d42290e8952" class="indexterm-anchor"></a>.</p>
+<p>The database uses a queuing mechanism for acquisition of row locks. If a transaction requires a lock for an unlocked row, then the transaction places a lock in the data block. Each row modified by this transaction points to a copy of the transaction ID stored in the <a id="d42290e8959" class="indexterm-anchor"></a><a href="glossary.htm#GUID-78394D5D-A1F6-4978-8F13-028185F514B5"><span class="xrefglossterm">block header</span></a> (see <span class="q">&#34;<a href="logical.htm#GUID-1AED5140-E820-436C-BEB7-2A985524911E" title="Oracle Database manages the logical storage space in the data files of a database in a unit called a data block, also called an Oracle block or page. A data block is the minimum unit of database I/O.">Overview of Data Blocks</a>&#34;</span>).</p>
+<p>When a transaction ends, the transaction ID remains in the block header. If a different transaction wants to modify a row, then it uses the transaction ID to determine whether the lock is active. If the lock is active, then the session asks to be notified when the lock is released. Otherwise, the transaction acquires the lock.</p>
+<div class="infoboxnotealso" id="GUID-B6E414BE-B880-40F6-B353-F996208B8D0A__GUID-5D29B64C-C0AD-4667-A0D0-07BA32EA741B">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN30291" target="_blank" href="../REFRN/GUID-FAE908F8-24B1-4B90-8FC5-86FCB532431C.htm#REFRN30291"><span class="italic">Oracle Database Reference</span></a> to learn about <code class="codeph">V$TRANSACTION</code></p>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1342"></a>
+<div class="props_rev_3"><a id="GUID-B6B075B7-DE83-45EF-8A9E-1C1F71F72598"></a>
+<h4 id="CNCPT-GUID-B6B075B7-DE83-45EF-8A9E-1C1F71F72598" class="sect4">Table Locks (TM)</h4>
+<div>
+<p><a id="d42290e9223" class="indexterm-anchor"></a><a id="d42290e9227" class="indexterm-anchor"></a>A <a href="glossary.htm#GUID-803D6638-8AD7-48DE-A358-C447C9EDA533"><span class="xrefglossterm">table lock</span></a>, also called a <span class="italic">TM lock</span>, is acquired by a transaction when a table is modified by an <code class="codeph">INSERT</code>, <code class="codeph">UPDATE</code>, <code class="codeph">DELETE</code>, <code class="codeph">MERGE</code>, <code class="codeph">SELECT</code> with the <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> clause, or <code class="codeph">LOCK</code> <code class="codeph">TABLE</code> statement. DML operations require table locks to reserve DML access to the table on behalf of a transaction and to prevent DDL operations that would conflict with the transaction.</p>
+<p>A table lock can be held in any of the following modes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a id="d42290e9273" class="indexterm-anchor"></a>Row Share (RS)</p>
+<p>This lock, also called a <span class="italic">subshare table lock (SS)</span>, indicates that the transaction holding the lock on the table has locked rows in the table and intends to update them. A row share lock is the least restrictive mode of table lock, offering the highest degree of concurrency for a table.</p>
+</li>
+<li>
+<p><a id="d42290e9285" class="indexterm-anchor"></a>Row Exclusive Table Lock (RX)</p>
+<p>This lock, also called a <span class="italic">subexclusive table lock (SX)</span>, generally indicates that the transaction holding the lock has updated table rows or issued <code class="codeph">SELECT ... FOR UPDATE</code>. An SX lock allows other transactions to query, insert, update, delete, or lock rows concurrently in the same table. Therefore, SX locks allow multiple transactions to obtain simultaneous SX and subshare table locks for the same table.</p>
+</li>
+<li>
+<p><a id="d42290e9300" class="indexterm-anchor"></a>Share Table Lock (S)</p>
+<p>A share table lock held by a transaction allows other transactions to query the table (without using <code class="codeph">SELECT ... FOR UPDATE</code>), but updates are allowed only if a single transaction holds the share table lock. Because multiple transactions may hold a share table lock concurrently, holding this lock is not sufficient to ensure that a transaction can modify the table.</p>
+</li>
+<li>
+<p><a id="d42290e9312" class="indexterm-anchor"></a>Share Row Exclusive Table Lock (SRX)</p>
+<p>This lock, also called a <span class="italic">share-subexclusive table lock (SSX)</span>, is more restrictive than a share table lock. Only one transaction at a time can acquire an SSX lock on a given table. An SSX lock held by a transaction allows other transactions to query the table (except for <code class="codeph">SELECT ...</code> <code class="codeph">FOR UPDATE</code>) but not to update the table.</p>
+</li>
+<li>
+<p><a id="d42290e9330" class="indexterm-anchor"></a>Exclusive Table Lock (X)</p>
+<p>This lock is the most restrictive, prohibiting other transactions from performing any type of DML statement or placing any type of lock on the table.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-B6B075B7-DE83-45EF-8A9E-1C1F71F72598__GUID-F5FBFF40-0F2B-49AA-9985-CB597EAABA2B">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF55504" target="_blank" href="../SQLRF/ap_locks001.htm#SQLRF55504"><span class="italic">Oracle Database SQL Language Reference</span></a></p>
+</li>
+<li>
+<p><a class="olink ADFNS007" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS007"><span class="italic">Oracle Database Development Guide</span></a> to learn more about table locks</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT88978"></a>
+<div class="props_rev_3"><a id="GUID-261F98F8-F7B4-49A9-9BE8-11F2B1F4609B"></a>
+<h4 id="CNCPT-GUID-261F98F8-F7B4-49A9-9BE8-11F2B1F4609B" class="sect4">Locks and Foreign Keys</h4>
+<div>
+<p>Oracle Database maximizes the concurrency control of parent keys in relation to dependent foreign keys.</p>
+<p>Locking behavior depends on whether foreign key columns are indexed. If foreign keys are not indexed, then the child table will probably be locked more frequently, deadlocks will occur, and concurrency will be decreased. For this reason foreign keys should almost always be indexed. The only exception is when the matching unique or primary key is never updated or deleted.</p>
+</div>
+<a id="CNCPT88980"></a><a id="CNCPT88979"></a>
+<div class="props_rev_3"><a id="GUID-0D5DA0E0-28DF-498A-B2E5-B9207AC2BAE6"></a>
+<h5 id="CNCPT-GUID-0D5DA0E0-28DF-498A-B2E5-B9207AC2BAE6" class="sect5">Locks and Unindexed Foreign Keys</h5>
+<div>
+<p>The database acquires a full table lock on the child table when no index exists on the foreign key column of the child table, and a session modifies a primary key in the parent table (for example, deletes a row or modifies primary key attributes) or merges rows into the parent table.</p>
+<p>When both of the following conditions are true, the database acquires a full table lock on the child table:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>No index exists on the foreign key column of the child table.</p>
+</li>
+<li>
+<p>A session modifies a primary key in the parent table (for example, deletes a row or modifies primary key attributes) or merges rows into the parent table.</p>
+</li>
+</ul>
+<div class="infobox-note" id="GUID-0D5DA0E0-28DF-498A-B2E5-B9207AC2BAE6__GUID-1E54032D-4575-4551-8907-84BC1CE91D54">
+<p class="notep1">Note:</p>
+<p>Inserts into the parent table do <span class="italic">not</span> acquire blocking table locks that prevent DML on the child table. In the case of inserts, the database acquires a lock on the child table that prevents structural changes, but not modifications of existing or newly added rows.</p>
+</div>
+<p>Suppose that <code class="codeph">hr.departments</code> table is a parent of <code class="codeph">hr.employees</code>, which contains the unindexed foreign key <code class="codeph">employees.department_id</code>. The following figure shows a session modifying the primary key attributes of department 60 in the <code class="codeph">departments</code> table.</p>
+<div class="figure" id="GUID-0D5DA0E0-28DF-498A-B2E5-B9207AC2BAE6__I8589">
+<p class="titleinfigure">Figure 9-3 Locking Mechanisms with Unindexed Foreign Key</p>
+<img width="668" height="569" src="img/GUID-5EA48D51-DE63-4CDF-AE9C-186B2F01741E-default.gif" alt="Description of Figure 9-3 follows" title="Description of Figure 9-3 follows"/><br/>
+<a href="img_text/GUID-5EA48D51-DE63-4CDF-AE9C-186B2F01741E-print.htm">Description of &#34;Figure 9-3 Locking Mechanisms with Unindexed Foreign Key&#34;</a></div>
+<!-- class="figure" -->
+<p>In <a href="consist.htm#GUID-0D5DA0E0-28DF-498A-B2E5-B9207AC2BAE6__I8589">Figure 9-3</a>, the database acquires a full table lock on <code class="codeph">employees</code> during the primary key modification of department 60. This lock enables other sessions to query but not update the <code class="codeph">employees</code> table. For example, sessions cannot update employee phone numbers. The table lock on <code class="codeph">employees</code> releases immediately after the primary key modification on the <code class="codeph">departments</code> table completes. If multiple rows in <code class="codeph">departments</code> undergo primary key modifications, then a table lock on <code class="codeph">employees</code> is obtained and released once for each row that is modified in <code class="codeph">departments</code>.</p>
+<div class="infobox-note" id="GUID-0D5DA0E0-28DF-498A-B2E5-B9207AC2BAE6__GUID-40030039-4823-4676-85A5-BC3CCAA39E46">
+<p class="notep1">Note:</p>
+<p>DML on a child table does not acquire a table lock on the parent table.</p>
+</div>
+</div>
+</div>
+<a id="CNCPT88982"></a><a id="CNCPT88981"></a>
+<div class="props_rev_3"><a id="GUID-02E89C3B-91C8-4ACD-A43B-55C1DC970D16"></a>
+<h5 id="CNCPT-GUID-02E89C3B-91C8-4ACD-A43B-55C1DC970D16" class="sect5">Locks and Indexed Foreign Keys</h5>
+<div>
+<p>The database does <span class="italic">not</span> acquire a full table lock on the child table when a foreign key column in the child table <span class="italic">is</span> indexed, and a session modifies a primary key in the parent table (for example, deletes a row or modifies primary key attributes) or merges rows into the parent table.</p>
+<p>A lock on the parent table prevents transactions from acquiring exclusive table locks, but does not prevent DML on the parent <span class="italic">or</span> child table during the primary key modification. This situation is preferable if primary key modifications occur on the parent table while updates occur on the child table.</p>
+<p><a href="consist.htm#GUID-02E89C3B-91C8-4ACD-A43B-55C1DC970D16__I8605">Figure 9-4</a> shows child table <code class="codeph">employees</code> with an indexed <code class="codeph">department_id</code> column. A transaction deletes department 280 from <code class="codeph">departments</code>. This deletion does not cause the database to acquire a full table lock on the <code class="codeph">employees</code> table as in the scenario described in <span class="q">&#34;<a href="consist.htm#GUID-0D5DA0E0-28DF-498A-B2E5-B9207AC2BAE6" title="The database acquires a full table lock on the child table when no index exists on the foreign key column of the child table, and a session modifies a primary key in the parent table (for example, deletes a row or modifies primary key attributes) or merges rows into the parent table.">Locks and Unindexed Foreign Keys</a>&#34;</span>.</p>
+<div class="figure" id="GUID-02E89C3B-91C8-4ACD-A43B-55C1DC970D16__I8605">
+<p class="titleinfigure">Figure 9-4 Locking Mechanisms with Indexed Foreign Key</p>
+<img width="668" height="593" src="img/GUID-0C001A44-0FD6-4DA5-BF3A-60E75B81459E-default.gif" alt="Description of Figure 9-4 follows" title="Description of Figure 9-4 follows"/><br/>
+<a href="img_text/GUID-0C001A44-0FD6-4DA5-BF3A-60E75B81459E-print.htm">Description of &#34;Figure 9-4 Locking Mechanisms with Indexed Foreign Key&#34;</a></div>
+<!-- class="figure" -->
+<p>If the child table specifies <code class="codeph">ON DELETE CASCADE</code>, then deletions from the parent table can result in deletions from the child table. For example, the deletion of department 280 can cause the deletion of records from <code class="codeph">employees</code> for employees in the deleted department. In this case, waiting and locking rules are the same as if you deleted rows from the child table after deleting rows from the parent table.</p>
+<div class="infoboxnotealso" id="GUID-02E89C3B-91C8-4ACD-A43B-55C1DC970D16__GUID-9A8B9BB5-747D-4BE2-B935-2BF4C531C38A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="datainte.htm#GUID-7CD73D16-EA1A-4AA8-AA7D-4288557395B8" title="Whenever two tables contain one or more common columns, Oracle Database can enforce the relationship between the two tables through a foreign key constraint, also called a referential integrity constraint.">Foreign Key Constraints</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="indexiot.htm#GUID-DE7A95BC-6E4A-47EA-9FC5-B85B54F8CF41" title="An index is an optional structure, associated with a table or table cluster, that can sometimes speed data access. Indexes are schema objects that are logically and physically independent of the data in the objects with which they are associated. Thus, you can drop or create an index without physically affecting the indexed table.">Introduction to Indexes</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1351"></a>
+<div class="props_rev_3"><a id="GUID-5015CC53-4059-4CD6-B892-F211E8BDE2F9"></a>
+<h3 id="CNCPT-GUID-5015CC53-4059-4CD6-B892-F211E8BDE2F9" class="sect3">DDL Locks</h3>
+<div>
+<p><a id="d42290e10439" class="indexterm-anchor"></a><a id="d42290e10443" class="indexterm-anchor"></a><a id="d42290e10447" class="indexterm-anchor"></a><a id="d42290e10451" class="indexterm-anchor"></a>A <a href="glossary.htm#GUID-FBD34C57-058E-40CB-ABD4-E3C4733258D2"><span class="xrefglossterm">data dictionary (DDL) lock</span></a> protects the definition of a schema object while an ongoing DDL operation acts on or refers to the object. Only individual schema objects that are modified or referenced are locked during DDL operations. The database never locks the whole data dictionary.</p>
+<p>Oracle Database acquires a DDL lock automatically on behalf of any DDL transaction requiring it. Users cannot explicitly request DDL locks. For example, if a user creates a <a href="glossary.htm#GUID-21B42148-517A-4B25-B1E1-DBC165DE7A43"><span class="xrefglossterm">stored procedure</span></a>, then Oracle Database automatically acquires DDL locks for all schema objects referenced in the procedure definition. The DDL locks prevent these objects from being altered or dropped before procedure compilation is complete.</p>
+</div>
+<a id="CNCPT1352"></a>
+<div class="props_rev_3"><a id="GUID-54A9C57E-C8E5-43B5-B2E8-830ED84D6BE9"></a>
+<h4 id="CNCPT-GUID-54A9C57E-C8E5-43B5-B2E8-830ED84D6BE9" class="sect4">Exclusive DDL Locks</h4>
+<div>
+<p><a id="d42290e10696" class="indexterm-anchor"></a>An exclusive DDL lock prevents other sessions from obtaining a DDL or DML lock. Most DDL operations, except for those described in <span class="q">&#34;<a href="consist.htm#GUID-C6696CA2-D3B8-4CE0-AAB1-CFF040431B6E">Share DDL Locks</a>&#34;</span>, require exclusive DDL locks for a resource to prevent destructive interference with other DDL operations that might modify or reference the same schema object. For example, <code class="codeph">DROP TABLE</code> is not allowed to drop a table while <code class="codeph">ALTER TABLE</code> is adding a column to it, and vice versa.</p>
+<p>Exclusive DDL locks last for the duration of DDL statement execution and automatic commit. During the acquisition of an exclusive DDL lock, if another DDL lock is held on the schema object by another operation, then the acquisition waits until the older DDL lock is released and then proceeds.</p>
+</div>
+</div>
+<a id="CNCPT1353"></a>
+<div class="props_rev_3"><a id="GUID-C6696CA2-D3B8-4CE0-AAB1-CFF040431B6E"></a>
+<h4 id="CNCPT-GUID-C6696CA2-D3B8-4CE0-AAB1-CFF040431B6E" class="sect4">Share DDL Locks</h4>
+<div>
+<p><a id="d42290e10944" class="indexterm-anchor"></a><a id="d42290e10948" class="indexterm-anchor"></a>A share DDL lock for a resource prevents destructive interference with conflicting DDL operations, but allows data concurrency for similar DDL operations.</p>
+<p>For example, when a <code class="codeph">CREATE</code> <code class="codeph">PROCEDURE</code> statement is run, the containing transaction acquires share DDL locks for all referenced tables. Other transactions can concurrently create procedures that reference the same tables and acquire concurrent share DDL locks on the same tables, but no transaction can acquire an exclusive DDL lock on any referenced table.</p>
+<p>A share DDL lock lasts for the duration of DDL statement execution and automatic commit. Thus, a transaction holding a share DDL lock is guaranteed that the definition of the referenced schema object remains constant during the transaction.</p>
+</div>
+</div>
+<a id="CNCPT1354"></a>
+<div class="props_rev_3"><a id="GUID-D5EC0CEE-1E41-48FB-A303-B4D5C301872D"></a>
+<h4 id="CNCPT-GUID-D5EC0CEE-1E41-48FB-A303-B4D5C301872D" class="sect4">Breakable Parse Locks</h4>
+<div>
+<p><a id="d42290e11192" class="indexterm-anchor"></a><a id="d42290e11196" class="indexterm-anchor"></a>A <a href="glossary.htm#GUID-C1594089-66B0-46DB-923E-48E636AE76C6"><span class="xrefglossterm">parse lock</span></a> is held by a SQL statement or PL/SQL program unit for each schema object that it references. Parse locks are acquired so that the associated <a id="d42290e11203" class="indexterm-anchor"></a><a href="glossary.htm#GUID-E0BE3164-B0A9-4ED8-AD19-2048ADFFC9BB"><span class="xrefglossterm">shared SQL area</span></a> can be invalidated if a referenced object is altered or dropped. A parse lock is called a <span class="italic">breakable parse lock</span> because it does not disallow any DDL operation and can be broken to allow conflicting DDL operations.</p>
+<p>A parse lock is acquired in the <a id="d42290e11216" class="indexterm-anchor"></a><a href="glossary.htm#GUID-64AFFF3A-C836-44F9-A25C-86CE4B9B16A8"><span class="xrefglossterm">shared pool</span></a> during the parse phase of SQL statement execution. The lock is held as long as the shared SQL area for that statement remains in the shared pool.</p>
+<div class="infoboxnotealso" id="GUID-D5EC0CEE-1E41-48FB-A303-B4D5C301872D__GUID-C740B851-7C7E-4274-B3B3-707B5B231D07">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="memory.htm#GUID-1CB2BA23-4386-46DA-9146-5FE0E4599AC6" title="The shared pool caches various types of program data.">Shared Pool</a> &#34;</span></p>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1357"></a>
+<div class="props_rev_3"><a id="GUID-19E6C804-8D75-4D05-ACD2-11915687307A"></a>
+<h3 id="CNCPT-GUID-19E6C804-8D75-4D05-ACD2-11915687307A" class="sect3">System Locks</h3>
+<div>
+<p>Oracle Database uses various types of system locks to protect internal database and memory structures. These mechanisms are inaccessible to users because users have no control over their occurrence or duration.</p>
+</div>
+<a id="CNCPT1358"></a>
+<div class="props_rev_3"><a id="GUID-95BC1F61-F13B-4F04-94AC-30138287F7C7"></a>
+<h4 id="CNCPT-GUID-95BC1F61-F13B-4F04-94AC-30138287F7C7" class="sect4">Latches</h4>
+<div>
+<p>A <span class="bold">latch</span> is a simple, low-level serialization mechanism that coordinates multiuser access to shared data structures, objects, and files.</p>
+<p>Latches protect shared memory resources from corruption when accessed by multiple processes. Specifically, latches protect data structures from the following situations:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Concurrent modification by multiple sessions</p>
+</li>
+<li>
+<p>Being read by one session while being modified by another session</p>
+</li>
+<li>
+<p>Deallocation (aging out) of memory while being accessed</p>
+</li>
+</ul>
+<p>Typically, a single latch protects multiple objects in the SGA. For example, background processes such as DBW and LGWR allocate memory from the <a href="glossary.htm#GUID-64AFFF3A-C836-44F9-A25C-86CE4B9B16A8"><span class="xrefglossterm">shared pool</span></a> to create data structures. To allocate this memory, these processes use a shared pool latch that serializes access to prevent two processes from trying to inspect or modify the shared pool simultaneously. After the memory is allocated, other processes may need to access shared pool areas such as the <a href="glossary.htm#GUID-FEEB5344-9D82-4727-911A-7F14CDC76D73"><span class="xrefglossterm">library cache</span></a>, which is required for parsing. In this case, processes latch only the library cache, not the entire shared pool.</p>
+<p>Unlike enqueue latches such as row locks, latches do not permit sessions to queue. When a latch becomes available, the first session to request the latch obtains exclusive access to it. The phenomenon of <a href="glossary.htm#GUID-90863FC3-7B0A-48D1-ACEC-139690358B4F"><span class="xrefglossterm">latch spinning</span></a> occurs when a process repeatedly requests a latch in a loop, whereas <a href="glossary.htm#GUID-4B25EC28-1C69-4810-BA53-52D9E88401BC"><span class="xrefglossterm">latch sleeping</span></a> occurs when a process releases the CPU before renewing the latch request.</p>
+<p>Typically, an Oracle process acquires a latch for an extremely short time while manipulating or looking at a data structure. For example, while processing a salary update of a single employee, the database may obtain and release thousands of latches. The implementation of latches is operating system-dependent, especially in respect to whether and how long a process waits for a latch.</p>
+<p>An increase in latching means a decrease in concurrency. For example, excessive <a href="glossary.htm#GUID-1BFB2AF7-BC88-4A93-B9AA-C75CA62C5824"><span class="xrefglossterm">hard parse</span></a> operations create contention for the library cache latch. The <code class="codeph">V$LATCH</code> view contains detailed latch usage statistics for each latch, including the number of times each latch was requested and waited for.</p>
+<div class="infoboxnotealso" id="GUID-95BC1F61-F13B-4F04-94AC-30138287F7C7__GUID-8C916B68-97F0-4401-84EC-E4A86D8F4A08">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="sqllangu.htm#GUID-B3F2B5B8-B679-4A7C-B1E8-286F36319FCB" title="The first stage of SQL processing is SQL parsing. This stage involves separating the pieces of a SQL statement into a data structure that can be processed by other routines.">SQL Parsing</a>&#34;</span></p>
+</li>
+<li>
+<p><a class="olink REFRN30108" target="_blank" href="../REFRN/GUID-15BC0D0A-DB5E-47B7-B003-2AF26A21DFA4.htm#REFRN30108"><span><cite>Oracle Database Reference</cite></span></a> to learn about <code class="codeph">V$LATCH</code></p>
+</li>
+<li>
+<p><a class="olink GUID-03F070F3-81DF-4649-820C-DAD28AEF0871" target="_blank" href="../TGDBA/pfgrf_instance_tune.htm#GUID-03F070F3-81DF-4649-820C-DAD28AEF0871"><span><cite>Oracle Database Performance Tuning Guide</cite></span></a> to learn about wait event statistics</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT88983"></a>
+<div class="props_rev_3"><a id="GUID-4AC3AA12-E84E-4A73-B66F-9799D4980B1D"></a>
+<h4 id="CNCPT-GUID-4AC3AA12-E84E-4A73-B66F-9799D4980B1D" class="sect4">Mutexes</h4>
+<div>
+<p>A <span class="bold">mutual exclusion object (mutex)</span> is a low-level mechanism that prevents an object in memory from aging out or from being corrupted when accessed by concurrent processes. A mutex is similar to a latch, but whereas a latch typically protects a group of objects, a mutex protects a single object.</p>
+<p>Mutexes provide several benefits:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A mutex can reduce the possibility of contention.</p>
+<p>Because a latch protects multiple objects, it can become a bottleneck when processes attempt to access any of these objects concurrently. By serializing access to an individual object rather than a group, a mutex increases availability.</p>
+</li>
+<li>
+<p>A mutex consumes less memory than a latch.</p>
+</li>
+<li>
+<p>When in shared mode, a mutex permits concurrent reference by multiple sessions.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="CNCPT1360"></a><a id="CNCPT1361"></a><a id="CNCPT1362"></a><a id="CNCPT1359"></a>
+<div class="props_rev_3"><a id="GUID-58E2545B-A3F8-48C7-B23B-4E2EEF1BF18A"></a>
+<h4 id="CNCPT-GUID-58E2545B-A3F8-48C7-B23B-4E2EEF1BF18A" class="sect4">Internal Locks</h4>
+<div>
+<p>Internal locks are higher-level, more complex mechanisms than latches and mutexes and serve various purposes.</p>
+<p>The database uses the following types of internal locks:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Dictionary cache locks</p>
+<p>These locks are of very short duration and are held on entries in dictionary caches while the entries are being modified or used. They guarantee that statements being parsed do not see inconsistent object definitions. Dictionary cache locks can be shared or exclusive. Shared locks are released when the parse is complete, whereas exclusive locks are released when the DDL operation is complete.</p>
+</li>
+<li>
+<p>File and log management locks</p>
+<p>These locks protect various files. For example, an internal lock protects the <a href="glossary.htm#GUID-DF498605-D186-451B-87AA-73DF396AD599"><span class="xrefglossterm">control file</span></a> so that only one process at a time can change it. Another lock coordinates the use and archiving of the online redo log files. Data files are locked to ensure that multiple instances mount a database in shared mode or that one instance mounts it in exclusive mode. Because file and log locks indicate the status of files, these locks are necessarily held for a long time.</p>
+</li>
+<li>
+<p>Tablespace and undo segment locks</p>
+<p>These locks protect tablespaces and undo segments. For example, all instances accessing a database must agree on whether a tablespace is online or offline. Undo segments are locked so that only one database instance can write to a segment.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-58E2545B-A3F8-48C7-B23B-4E2EEF1BF18A__GUID-A080A898-A32B-4FB4-8C7B-F841DCB7B398">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="memory.htm#GUID-66430838-7862-4389-96B5-795B99A72473" title="The data dictionary is a collection of database tables and views containing reference information about the database, its structures, and its users.">Data Dictionary Cache</a>&#34;</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<a id="CNCPT1363"></a>
+<div class="props_rev_3"><a id="GUID-A4E54CD6-7232-489D-86A4-412EAF8A8DB7"></a>
+<h2 id="CNCPT-GUID-A4E54CD6-7232-489D-86A4-412EAF8A8DB7" class="sect2">Overview of Manual Data Locks</h2>
+<div>
+<p><a id="d42290e12608" class="indexterm-anchor"></a><a id="d42290e12610" class="indexterm-anchor"></a><a id="d42290e12614" class="indexterm-anchor"></a><a id="d42290e12616" class="indexterm-anchor"></a><a id="d42290e12618" class="indexterm-anchor"></a>Oracle Database performs locking automatically to ensure data concurrency, data integrity, and statement-level read consistency. However, you can manually override the Oracle Database default locking mechanisms. Overriding the default locking is useful in situations such as the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Applications require transaction-level read consistency or repeatable reads.</p>
+<p>In this case, queries must produce consistent data for the duration of the transaction, not reflecting changes by other transactions. You can achieve transaction-level read consistency by using explicit locking, read-only transactions, serializable transactions, or by overriding default locking.</p>
+</li>
+<li>
+<p>Applications require that a transaction have exclusive access to a resource so that the transaction does not have to wait for other transactions to complete.</p>
+</li>
+</ul>
+<p>You can override <a id="d42290e12634" class="indexterm-anchor"></a>Oracle Database automatic locking at the session or transaction level. At the session level, a session can set the required transaction isolation level with the <code class="codeph">ALTER</code> <code class="codeph">SESSION</code> statement. At the transaction level, transactions that include the following SQL statements override Oracle Database default locking:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <code class="codeph">SET</code> <code class="codeph">TRANSACTION</code> <code class="codeph">ISOLATION</code> <code class="codeph">LEVEL</code> statement</p>
+</li>
+<li>
+<p>The <code class="codeph">LOCK</code> <code class="codeph">TABLE</code> statement (which locks either a table or, when used with views, the base tables)</p>
+</li>
+<li>
+<p>The <code class="codeph">SELECT</code> <code class="codeph">...</code> <code class="codeph">FOR</code> <code class="codeph">UPDATE</code> statement</p>
+</li>
+</ul>
+<p>Locks acquired by the preceding statements are released after the transaction ends or a rollback to savepoint releases them.</p>
+<p>If Oracle Database default locking is overridden at any level, then the database administrator or application developer should ensure that the overriding locking procedures operate correctly. The locking procedures must satisfy the following criteria: data integrity is guaranteed, data concurrency is acceptable, and deadlocks are not possible or are appropriately handled.</p>
+<div class="infoboxnotealso" id="GUID-A4E54CD6-7232-489D-86A4-412EAF8A8DB7__GUID-DE1C2664-1E6D-4692-8277-F0125ED503AD">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF01605" target="_blank" href="../SQLRF/statements_9016.htm#SQLRF01605"><span class="italic">Oracle Database SQL Language Reference</span></a> for descriptions of <code class="codeph">LOCK</code> <code class="codeph">TABLE</code> and <code class="codeph">SELECT</code></p>
+</li>
+<li>
+<p><a class="olink ADFNS00203" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS00203"><span class="italic">Oracle Database Development Guide</span></a> to learn how to manually lock tables</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<a id="CNCPT1364"></a>
+<div class="props_rev_3"><a id="GUID-D63FD030-44CD-4FD7-970A-C98C8CC4AC42"></a>
+<h2 id="CNCPT-GUID-D63FD030-44CD-4FD7-970A-C98C8CC4AC42" class="sect2">Overview of User-Defined Locks</h2>
+<div>
+<p><a id="d42290e12945" class="indexterm-anchor"></a><a id="d42290e12949" class="indexterm-anchor"></a>With Oracle Database Lock Management services, you can define your own locks for a specific application. For example, you might create a lock to serialize access to a message log on the file system. Because a reserved user lock is the same as an Oracle Database lock, it has all the Oracle Database lock functionality including deadlock detection. User locks never conflict with Oracle Database locks, because they are identified with the prefix <code class="codeph">UL</code>.</p>
+<p>The Oracle Database Lock Management services are available through procedures in the <code class="codeph">DBMS_LOCK</code> package. You can include statements in PL/SQL blocks that:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Request a lock of a specific type</p>
+</li>
+<li>
+<p>Give the lock a unique name recognizable in another procedure in the same or in another instance</p>
+</li>
+<li>
+<p>Change the lock type</p>
+</li>
+<li>
+<p>Release the lock</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-D63FD030-44CD-4FD7-970A-C98C8CC4AC42__GUID-3B45BFA6-2C0A-4270-8C64-86559F5F335A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink ADFNS1002" target="_blank" href="../ADFNS/adfns_sqlproc.htm#ADFNS1002"><span class="italic">Oracle Database Development Guide</span></a> for more information about Oracle Database Lock Management services</p>
+</li>
+<li>
+<p><a class="olink ARPLS021" target="_blank" href="../ARPLS/d_lock.htm#ARPLS021"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for information about <code class="codeph">DBMS_LOCK</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<hr/>
+<br/>
+<p style="text-decoration:underline">Footnote Legend</p>
+Footnote&nbsp;1:
+<p>When processing a distributed two-phase commit, the database may briefly prevent read access in special circumstances. Specifically, if a query starts between the prepare and commit phases and attempts to read the data before the commit, then the database may escalate a lock from row-level to block-level to guarantee read consistency.</p>
+<br/></div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1196">
+<tr>
+<td class="cellalignment1203">
+<table class="cellalignment1201">
+<tr>
+<td class="cellalignment1200"><a href="part_txn.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1200"><a href="transact.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1993, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1205">
+<table class="cellalignment1199">
+<tr>
+<td class="cellalignment1200"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1200"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1200"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1200"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1200"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1200"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+
+
+</body></html>

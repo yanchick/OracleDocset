@@ -1,0 +1,18 @@
+var chapters = [
+  { topic: "chapter", section: "1", title: "Getting Acquainted", anchor: "ZZPRE124", file: "ch_one.htm" },
+  { topic: "chapter", section: "2", title: "Learning the Basics", anchor: "ZZPRE139", file: "ch_two.htm" },
+  { topic: "chapter", section: "3", title: "Meeting Program Requirements", anchor: "ZZPRE163", file: "ch_three.htm" },
+  { topic: "chapter", section: "4", title: "\u00A0Using Embedded SQL", anchor: "ZZPRE260", file: "ch_four.htm" },
+  { topic: "chapter", section: "5", title: "Using Embedded PL/SQL", anchor: "ZZPRE294", file: "ch_five.htm" },
+  { topic: "chapter", section: "6", title: "Running the Oracle Precompilers", anchor: "ZZPRE325", file: "ch_six.htm" },
+  { topic: "chapter", section: "7", title: "Defining and Controlling Transactions", anchor: "ZZPRE734", file: "ch_seven.htm" },
+  { topic: "chapter", section: "8", title: "Error Handling and Diagnostics", anchor: "ZZPRE754", file: "ch_eight.htm" },
+  { topic: "chapter", section: "9", title: "Using Host Arrays", anchor: "ZZPRE841", file: "ch_nine.htm" },
+  { topic: "chapter", section: "10", title: "Using Dynamic SQL", anchor: "ZZPRE869", file: "ch_ten.htm" },
+  { topic: "chapter", section: "11", title: "Writing User Exits", anchor: "ZZPRE910", file: "ch_eleven.htm" },
+  { topic: "appendix", section: "A", title: "New Features", anchor: "ZZPRE942", file: "appa.htm" },
+  { topic: "appendix", section: "B", title: "Oracle Reserved Words, Keywords, and Namespaces", anchor: "ZZPRE956", file: "appb.htm" },
+  { topic: "appendix", section: "C", title: "Performance Tuning", anchor: "ZZPRE962", file: "appc.htm" },
+  { topic: "appendix", section: "D", title: "Syntactic and Semantic Checking", anchor: "ZZPRE985", file: "appd.htm" },
+  { topic: "appendix", section: "E", title: "Embedded SQL Commands and Directives", anchor: "ZZPRE992", file: "appe.htm" },
+  { } ];

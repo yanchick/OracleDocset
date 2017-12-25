@@ -1,0 +1,571 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-50"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Implementing%20Data%20Cartridges%20in%20PL%2FSQL"></a><title>Implementing Data Cartridges in PL/SQL</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="packages, in PL/SQL, PL/SQL, package body, package specification, pragma RESTRICT_REFERENCES, RESTRICT_REFERENCES pragma, purity level, side effect, privileges required to create procedures in, privileges, required to create procedures, debugging, C and C++, differences from PL/SQL, differences from C and C++, common errors, signature mismatch, RPC time out, corruption, corruption of package"/>
+<meta name="dcterms.created" content="2017-06-09T01:57:02Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Data Cartridge Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E15882-06"/>
+<meta name="dcterms.isVersionOf" content="ADDCI"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="obj_types.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="c_cpp_java.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E15882-06.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-BD3BCD88-0539-477E-AFA0-59656048D6F4"></a> <span id="PAGE" style="display:none;">11/33</span> <!-- End Header -->
+<a id="ADDCI240"></a>
+<h1 id="ADDCI-GUID-BD3BCD88-0539-477E-AFA0-59656048D6F4" class="sect1"><span class="enumeration_chapter">4</span> Implementing Data Cartridges in PL/SQL</h1>
+<div>
+<p>Consider how to use PL/SQL to implement the methods of a data cartridge. Methods are procedures and functions that define the operations permitted on data defined using the data cartridge.</p>
+</div>
+<a id="ADDCI4306"></a>
+<div class="props_rev_3"><a id="GUID-D1F8491B-68E1-4B5D-8599-961643537A70"></a>
+<h2 id="ADDCI-GUID-D1F8491B-68E1-4B5D-8599-961643537A70" class="sect2">Methods</h2>
+<div>
+<p><a id="d9720e103" class="indexterm-anchor"></a><a id="d9720e107" class="indexterm-anchor"></a>A <span class="bold">method</span> is procedure or function that is part of the object type definition, and that can operate on the attributes of the type. Such methods are also called <span class="bold">member methods</span>, and they take the keyword <code class="codeph">MEMBER</code> when you specify them as a component of the object type.</p>
+<p>Consider simple examples for implementing a method, invoking a method, and referencing an attribute in a method.</p>
+<div class="infoboxnotealso" id="GUID-D1F8491B-68E1-4B5D-8599-961643537A70__GUID-4788F56A-B5D4-478F-8C4A-6A13818AE8C2">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink CNCPT" target="_blank" href="../CNCPT/toc.htm"><span class="variable">Oracle Database Concepts</span></a> for information about method specifications, names, and overloading</p>
+</li>
+<li>
+<p><a class="olink LNPLS" target="_blank" href="../LNPLS/toc.htm"><span class="variable">Oracle Database PL/SQL Language Reference</span></a>. for further explanation and examples</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADDCI4307"></a>
+<div class="props_rev_3"><a id="GUID-0E328188-58BA-4C99-B2DB-E4D340190831"></a>
+<h3 id="ADDCI-GUID-0E328188-58BA-4C99-B2DB-E4D340190831" class="sect3">Implementing Methods</h3>
+<div>
+<p><a id="d9720e189" class="indexterm-anchor"></a><a id="d9720e193" class="indexterm-anchor"></a>To implement a method, create the PL/SQL code and specify it within a <code class="codeph">CREATE</code> <code class="codeph">TYPE</code> <code class="codeph">BODY</code> statement. If an object type has no methods, no <code class="codeph">CREATE</code> <code class="codeph">TYPE</code> <code class="codeph">BODY</code> statement for that object type is required.</p>
+<p><a href="pl_sql.htm#GUID-AFB9A422-5714-4D6A-95FB-BFCA377D16C4__CIHCJCJB">Example 4-1</a>demonstrates the definition of an object type <code class="codeph">rational_type</code>.</p>
+<p>The definition in <a href="pl_sql.htm#GUID-1D06437B-D5A4-48DD-A89D-914D3994CA23__CIHIFECI">Example 4-2</a> defines the function <code class="codeph">gcd</code>, which is used in the definition of the <code class="codeph">normalize</code> method in the <code class="codeph">CREATE</code> <code class="codeph">TYPE</code> <code class="codeph">BODY</code> statement.</p>
+<p>The statements in <a href="pl_sql.htm#GUID-4BAC0CED-7F19-452F-9217-AC1A7364DE9A__CIHGAAHI">Example 4-3</a> implement the methods <code class="codeph">rat_to_real</code>, <code class="codeph">normalize</code>, and <code class="codeph">plus</code> for the object type <code class="codeph">rational_type</code>.</p>
+</div>
+<a id="ADDCI4308"></a>
+<div class="props_rev_3"><a id="GUID-AFB9A422-5714-4D6A-95FB-BFCA377D16C4"></a>
+<h4 id="ADDCI-GUID-AFB9A422-5714-4D6A-95FB-BFCA377D16C4" class="sect4">Defining an Object Type</h4>
+<div>
+<div class="example" id="GUID-AFB9A422-5714-4D6A-95FB-BFCA377D16C4__CIHCJCJB">
+<p class="titleinexample">Example 4-1 Defining an Object Type</p>
+<pre dir="ltr">CREATE TYPE rational_type AS OBJECT
+( numerator INTEGER,
+  denominator INTEGER,
+  MAP MEMBER FUNCTION rat_to_real RETURN REAL,
+  MEMBER PROCEDURE normalize,
+  MEMBER FUNCTION plus (x rational_type)
+       RETURN rational_type);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4309"></a>
+<div class="props_rev_3"><a id="GUID-1D06437B-D5A4-48DD-A89D-914D3994CA23"></a>
+<h4 id="ADDCI-GUID-1D06437B-D5A4-48DD-A89D-914D3994CA23" class="sect4">Defining a &ldquo;Greatest Common Divisor&rdquo; Function</h4>
+<div>
+<div class="example" id="GUID-1D06437B-D5A4-48DD-A89D-914D3994CA23__CIHIFECI">
+<p class="titleinexample">Example 4-2 Defining a &#34;Greatest Common Divisor&#34; Function</p>
+<pre dir="ltr">CREATE FUNCTION gcd (x INTEGER, y INTEGER) RETURN INTEGER AS
+-- Find greatest common divisor of x and y. For example, if
+-- (8,12) is input, the greatest common divisor is 4.
+-- This normalizes (simplifies) fractions.
+-- (You need not try to understand how this code works, unless
+--  you are a math wizard. It does.)
+--
+   ans INTEGER;
+BEGIN
+   IF (y &lt;= x) AND (x MOD y = 0) THEN
+      ans := y;
+   ELSIF x &lt; y THEN 
+      ans := gcd(y, x);  -- Recursive call
+   ELSE
+      ans := gcd(y, x MOD y);  -- Recursive call
+   END IF;
+   RETURN ans;
+END;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4310"></a>
+<div class="props_rev_3"><a id="GUID-4BAC0CED-7F19-452F-9217-AC1A7364DE9A"></a>
+<h4 id="ADDCI-GUID-4BAC0CED-7F19-452F-9217-AC1A7364DE9A" class="sect4">Implementing Methods for an Object Type</h4>
+<div>
+<div class="example" id="GUID-4BAC0CED-7F19-452F-9217-AC1A7364DE9A__CIHGAAHI">
+<p class="titleinexample">Example 4-3 Implementing Methods for an Object Type</p>
+<pre dir="ltr">CREATE TYPE BODY rational_type
+( MAP MEMBER FUNCTION rat_to_real RETURN REAL IS
+   -- The rat-to-real function converts a rational number to 
+   -- a real number. For example, 6/8 = 0.75
+   BEGIN
+      RETURN numerator/denominator;
+   END;
+
+   -- The normalize procedure simplifies a fraction.
+   -- For example, 6/8 = 3/4
+   MEMBER PROCEDURE normalize IS
+      divisor INTEGER := gcd(numerator, denominator);
+   BEGIN
+      numerator := numerator/divisor;
+      denominator := denominator/divisor;
+   END;
+
+   -- The plus function adds a specified value to the
+   -- current value and returns a normalized result.
+   -- For example, 1/2 + 3/4 = 5/4
+   -- 
+   MEMBER FUNCTION plus(x rational_type)
+            RETURN rational_type IS
+            -- Return sum of SELF + x
+   BEGIN
+      r = rational_type(numerator*x.demonimator +
+             x.numerator*denominator,
+             denominator*x.denominator);
+                 -- Example adding 1/2 to 3/4:
+                 -- (3*2 + 1*4) / (4*2)
+      -- Now normalize (simplify). Here, 10/8 = 5/4
+      r.normalize;
+      RETURN r;
+   END;
+END;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4311"></a>
+<div class="props_rev_3"><a id="GUID-AA518917-E9B5-4AA0-9B81-57D327DF01C0"></a>
+<h3 id="ADDCI-GUID-AA518917-E9B5-4AA0-9B81-57D327DF01C0" class="sect3">Invoking Methods</h3>
+<div>
+<p><a id="d9720e478" class="indexterm-anchor"></a>To invoke a method, use the syntax in <a href="pl_sql.htm#GUID-9701E811-AEFB-4554-AF06-329B748282E9__CIHJCGJG">Example 4-4</a>.</p>
+<p>In SQL statements only, you can use the syntax in <a href="pl_sql.htm#GUID-C3C0BC64-48BA-4B7A-8C65-3BA460A8F873__CIHGFHGD">Example 4-5</a>.</p>
+<p><a href="pl_sql.htm#GUID-D363C6F6-04EE-4093-A2C8-38563F3F3D38__CIHIBBHG">Example 4-6</a> shows how to invoke a method named <code class="codeph">get_emp_sal</code> in PL/SQL.</p>
+<p><a id="d9720e496" class="indexterm-anchor"></a>An alternative way to invoke a method is by using the <code class="codeph">SELF</code> built-in parameter. Because the implicit first parameter of each method is the name of the object on whose behalf the method is invoked, <a href="pl_sql.htm#GUID-343D113C-F426-46BE-A81D-2830820CDEDE__CIHHAIGD">Example 4-7</a> performs the same action as the <code class="codeph">salary := employee.get_emp_sal();</code> line in <a href="pl_sql.htm#GUID-D363C6F6-04EE-4093-A2C8-38563F3F3D38__CIHIBBHG">Example 4-6</a>.</p>
+<p>In <a href="pl_sql.htm#GUID-343D113C-F426-46BE-A81D-2830820CDEDE__CIHHAIGD">Example 4-7</a>, <code class="codeph">employee</code> is the name of the object on whose behalf the <code class="codeph">get_emp_sal()</code> method is invoked.</p>
+</div>
+<a id="ADDCI4312"></a>
+<div class="props_rev_3"><a id="GUID-9701E811-AEFB-4554-AF06-329B748282E9"></a>
+<h4 id="ADDCI-GUID-9701E811-AEFB-4554-AF06-329B748282E9" class="sect4">General Syntax for Invoking Methods</h4>
+<div>
+<div class="example" id="GUID-9701E811-AEFB-4554-AF06-329B748282E9__CIHJCGJG">
+<p class="titleinexample">Example 4-4 Invoking Methods; General Syntax</p>
+<pre dir="ltr"><span class="italic">object_name</span>.<span class="italic">method_name</span>(<span class="italic">[parameter_list]</span>)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4313"></a>
+<div class="props_rev_3"><a id="GUID-C3C0BC64-48BA-4B7A-8C65-3BA460A8F873"></a>
+<h4 id="ADDCI-GUID-C3C0BC64-48BA-4B7A-8C65-3BA460A8F873" class="sect4">SQL Syntax for Invoking Methods</h4>
+<div>
+<div class="example" id="GUID-C3C0BC64-48BA-4B7A-8C65-3BA460A8F873__CIHGFHGD">
+<p class="titleinexample">Example 4-5 Invoking Methods; SQL Syntax</p>
+<pre dir="ltr"><span class="italic">correlation_variable</span>.<span class="italic">method_name</span>(<span class="italic">[parameter_list]</span>)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4314"></a>
+<div class="props_rev_3"><a id="GUID-D363C6F6-04EE-4093-A2C8-38563F3F3D38"></a>
+<h4 id="ADDCI-GUID-D363C6F6-04EE-4093-A2C8-38563F3F3D38" class="sect4">PL/SQL Syntax for Invoking Methods</h4>
+<div>
+<div class="example" id="GUID-D363C6F6-04EE-4093-A2C8-38563F3F3D38__CIHIBBHG">
+<p class="titleinexample">Example 4-6 Invoking Methods; PL/SQL Syntax</p>
+<pre dir="ltr">DECLARE
+   employee employee_type;
+   salary number;
+   ...
+BEGIN
+   salary := employee.get_emp_sal();
+   ...
+END;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4315"></a>
+<div class="props_rev_3"><a id="GUID-343D113C-F426-46BE-A81D-2830820CDEDE"></a>
+<h4 id="ADDCI-GUID-343D113C-F426-46BE-A81D-2830820CDEDE" class="sect4">Using the SELF Build-In Parameter</h4>
+<div>
+<div class="example" id="GUID-343D113C-F426-46BE-A81D-2830820CDEDE__CIHHAIGD">
+<p class="titleinexample">Example 4-7 Using the SELF Build-In Parameter</p>
+<pre dir="ltr">salary := get_emp_sal(SELF =&gt; employee);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4316"></a>
+<div class="props_rev_3"><a id="GUID-A88380BD-B8A4-46DA-8EAD-DFA0CC6A6632"></a>
+<h3 id="ADDCI-GUID-A88380BD-B8A4-46DA-8EAD-DFA0CC6A6632" class="sect3">Referencing Attributes in a Method</h3>
+<div>
+<p><a id="d9720e813" class="indexterm-anchor"></a><a id="d9720e815" class="indexterm-anchor"></a><a id="d9720e819" class="indexterm-anchor"></a>Because member methods can reference the attributes and member methods of the same object type without using a qualifier, a built-in reference, <code class="codeph">SELF</code>, always identifies the object on whose behalf the method is invoked.</p>
+<p>Consider <a href="pl_sql.htm#GUID-1372566E-3D72-4074-9D8B-C8BEDE4D8613__CIHBCEGG">Example 4-8</a>, where two statements set the value of variable <code class="codeph">var1</code> to <code class="codeph">42</code>.</p>
+<p>The statements <code class="codeph">var1 := 42</code> and <code class="codeph">SELF.var1 := 42</code> have the same effect. Because <code class="codeph">var1</code> is the name of an attribute of the object type <code class="codeph">a_type</code> and because <code class="codeph">set_var1</code> is a member method of this object type, no qualification is required to access <code class="codeph">var1</code> in the method code. However, for code readability and maintainability, you can use the keyword <code class="codeph">SELF</code> in this context to make the reference to <code class="codeph">var1</code> more clear.</p>
+</div>
+<a id="ADDCI4317"></a>
+<div class="props_rev_3"><a id="GUID-1372566E-3D72-4074-9D8B-C8BEDE4D8613"></a>
+<h4 id="ADDCI-GUID-1372566E-3D72-4074-9D8B-C8BEDE4D8613" class="sect4">Setting Variable Values</h4>
+<div>
+<div class="example" id="GUID-1372566E-3D72-4074-9D8B-C8BEDE4D8613__CIHBCEGG">
+<p class="titleinexample">Example 4-8 Setting Variable Values</p>
+<pre dir="ltr">CREATE TYPE a_type AS OBJECT (
+   var1 INTEGER,
+   MEMBER PROCEDURE set_var1);
+CREATE TYPE BODY a_type (
+   MEMBER PROCEDURE set_var1 IS
+   BEGIN
+      var1 := 42;
+      SELF.var1 := 42;
+   END set_var1;
+);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<a id="ADDCI4318"></a>
+<div class="props_rev_3"><a id="GUID-14AC31DE-5ADC-4922-8282-724900A921BF"></a>
+<h2 id="ADDCI-GUID-14AC31DE-5ADC-4922-8282-724900A921BF" class="sect2">PL/SQL Packages</h2>
+<div>
+<p>A <span class="bold">package</span> is a group of PL/SQL types, objects, and stored procedures and functions. The <span class="bold">specification</span> part of a package declares the public types, variables, constants, and subprograms that are visible outside the immediate scope of the package. The <span class="bold">body</span> of a package defines the objects declared in the specification, and private objects that are not visible to applications outside the package.</p>
+<p><a href="pl_sql.htm#GUID-9CD9E04E-3F24-4965-B5BA-84C778083C44__CIHBEFGH">Example 4-9</a> shows the package specification for the package named <code class="codeph">DS_package</code>. This package contains the two stored functions <code class="codeph">ds_findmin</code> and <code class="codeph">ds_findmax</code>, which implement the <code class="codeph">DataStreamMin</code> and <code class="codeph">DataStreamMax</code> functions defined for the <code class="codeph">DataStream</code> object type.</p>
+<div class="infoboxnotealso" id="GUID-14AC31DE-5ADC-4922-8282-724900A921BF__GUID-5F39ECEE-BACF-4F00-B1B6-0A691EF49198">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="roadmap.htm#GUID-B3735C6B-309A-470C-AEEA-9B72C5F9A108" title="General Data cartridge development approach.General overview of a plan for creating Data Cartridges.A general development process for developing data cartridges">Roadmap to Building a Data Cartridge</a> for the <span class="italic">DataStream</span> type and type body definitions</p>
+</li>
+<li>
+<p><a class="olink ARPLS" target="_blank" href="../ARPLS/toc.htm"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> for more information about PL/SQL packages</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADDCI4319"></a>
+<div class="props_rev_3"><a id="GUID-9CD9E04E-3F24-4965-B5BA-84C778083C44"></a>
+<h3 id="ADDCI-GUID-9CD9E04E-3F24-4965-B5BA-84C778083C44" class="sect3">Creating a Package Specification</h3>
+<div>
+<div class="example" id="GUID-9CD9E04E-3F24-4965-B5BA-84C778083C44__CIHBEFGH">
+<p class="titleinexample">Example 4-9 Creating a Package Specification</p>
+<pre dir="ltr">create or replace package DS_package as 
+    function  ds_findmin(data clob) return pls_integer; 
+    function  ds_findmax(data clob) return pls_integer; 
+     pragma restrict_references(ds_findmin, WNDS, WNPS); 
+     pragma restrict_references(ds_findmax, WNDS, WNPS); 
+end;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4320"></a>
+<div class="props_rev_3"><a id="GUID-4CF9EA18-57E2-42CB-94D7-22607DF26E2B"></a>
+<h2 id="ADDCI-GUID-4CF9EA18-57E2-42CB-94D7-22607DF26E2B" class="sect2">Pragma RESTRICT_REFERENCES</h2>
+<div>
+<p>To execute a SQL statement that calls a member function, Oracle must know the <span class="bold">purity level</span> of the function, or the extent to which the function is free of side effects. The term <span class="bold">side effect</span>, refers to accessing database tables, package variables, and so forth for reading or writing. It is important to control side effects because they can prevent the proper parallelization of a query, produce order-dependent and therefore indeterminate results, or require impermissible actions such as the maintenance of package state across user sessions.</p>
+<p>A member function called from a SQL statement can be restricted so that it cannot:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Insert into, update, or delete database tables</p>
+</li>
+<li>
+<p>Be executed remotely or in parallel if it reads or writes the values of packaged variables</p>
+</li>
+<li>
+<p>Write the values of packaged variables unless it is called from a <code class="codeph">SELECT</code>, <code class="codeph">VALUES</code>, or <code class="codeph">SET</code> clause</p>
+</li>
+<li>
+<p>Call another method or subprogram that violates any of these rules</p>
+</li>
+<li>
+<p>Reference a view that violates any of these rules</p>
+</li>
+</ul>
+<p>You must use the pragma <code class="codeph">RESTRICT_REFERENCES</code>, a compiler directive, to enforce these rules. In <a href="pl_sql.htm#GUID-9FEB2489-7796-437A-90F5-EED1A4099F21__CIHHCCCI">Example 4-10</a>, the purity level of the <code class="codeph">DataStreamMax</code> method of type <code class="codeph">DataStream</code> is asserted to be <code class="codeph">write no database state</code> (<code class="codeph">WNDS</code>) and <code class="codeph">write no package state</code> (<code class="codeph">WNPS</code>).</p>
+<p>Member methods that call external procedures cannot do so directly but must route the calls through a package, because the arguments to external procedures cannot be object types. A member function automatically gets a <code class="codeph">SELF</code> reference as its first argument. Therefore, member methods in objects types cannot call out directly to external procedures.</p>
+<p>Collecting all external calls into a package makes for a better design. The purity level of the package must also be asserted. Therefore, when the package named <code class="codeph">DS_Package</code> is declared and all external procedure calls from type <code class="codeph">DataStream</code> are routed through this package, the purity level of the package is also declared, as demonstrated in <a href="pl_sql.htm#GUID-5906CBC0-F5CF-4EDA-944F-26429A4EF118__CIHIFHEH">Example 4-11</a>.</p>
+<p>In addition to <code class="codeph">WNDS</code> and <code class="codeph">WNPS</code>, it is possible to specify two other constraints: <code class="codeph">read no database state</code> (<code class="codeph">RNDS</code>) and <code class="codeph">read no package state</code> (<code class="codeph">RNPS</code>). These two constraints are normally useful if you have parallel queries.</p>
+<p>Each constraint is independent of the others, and does not imply another. Choose the set of constraints based on application-specific requirements.</p>
+<p>You can also specify the keyword <code class="codeph">DEFAULT</code> instead of a method or procedure name, in which case the pragma applies to all member functions of the type or procedures of the package, as demonstrated in <a href="pl_sql.htm#GUID-E6ECACEA-3BC1-4CB4-B3D3-0246447B5C4E__CIHIDAGA">Example 4-12</a>.</p>
+<div class="infoboxnotealso" id="GUID-4CF9EA18-57E2-42CB-94D7-22607DF26E2B__GUID-1EC11877-22A1-4F03-8564-93EFDC5C91FB">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink LNPLS" target="_blank" href="../LNPLS/toc.htm"><span class="variable">Oracle Database PL/SQL Language Reference</span></a>. for more information about the rules governing purity levels and side effects</p>
+</li>
+<li>
+<p><a class="olink ADFNS" target="_blank" href="../ADFNS/toc.htm"><span class="italic">Oracle Database Advanced Application Developer&#39;s Guide</span></a>. for more information about controlling side effects using the <code class="codeph">RESTRICT_REFERENCES</code> pragma</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADDCI4321"></a>
+<div class="props_rev_3"><a id="GUID-9FEB2489-7796-437A-90F5-EED1A4099F21"></a>
+<h3 id="ADDCI-GUID-9FEB2489-7796-437A-90F5-EED1A4099F21" class="sect3">Asserting the Purity Level of a Type</h3>
+<div>
+<div class="example" id="GUID-9FEB2489-7796-437A-90F5-EED1A4099F21__CIHHCCCI">
+<p class="titleinexample">Example 4-10 Asserting the Purity Level of a Type</p>
+<pre dir="ltr">CREATE TYPE DataStream AS OBJECT (
+         ....
+PRAGMA RESTRICT_REFERENCES (DataStreamMax, WNDS, WNPS)
+         ... );
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4322"></a>
+<div class="props_rev_3"><a id="GUID-5906CBC0-F5CF-4EDA-944F-26429A4EF118"></a>
+<h3 id="ADDCI-GUID-5906CBC0-F5CF-4EDA-944F-26429A4EF118" class="sect3">Asserting the Purity Level of a Package</h3>
+<div>
+<div class="example" id="GUID-5906CBC0-F5CF-4EDA-944F-26429A4EF118__CIHIFHEH">
+<p class="titleinexample">Example 4-11 Asserting the Purity Level of a Package</p>
+<pre dir="ltr">CREATE OR REPLACE PACKAGE DS_Package AS
+   ... 
+PRAGMA RESTRICT_REFERENCES (ds_findmin, WNDS, WNPS)
+   ...
+end;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+<a id="ADDCI4323"></a>
+<div class="props_rev_3"><a id="GUID-E6ECACEA-3BC1-4CB4-B3D3-0246447B5C4E"></a>
+<h3 id="ADDCI-GUID-E6ECACEA-3BC1-4CB4-B3D3-0246447B5C4E" class="sect3">Asserting a Default Purity Level for Methods and Procedures</h3>
+<div>
+<div class="example" id="GUID-E6ECACEA-3BC1-4CB4-B3D3-0246447B5C4E__CIHIDAGA">
+<p class="titleinexample">Example 4-12 Asserting a Default Purity Level for All Type Methods and Package Procedures</p>
+<pre dir="ltr">PRAGMA RESTRICT_REFERENCES (DEFAULT, WNDS, WNPS)
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="ADDCI4324"></a>
+<div class="props_rev_3"><a id="GUID-06E3401C-2110-4508-AB09-B7096AC6594C"></a>
+<h2 id="ADDCI-GUID-06E3401C-2110-4508-AB09-B7096AC6594C" class="sect2">Privileges Required to Create Procedures and Functions</h2>
+<div>
+<p>To create a standalone procedure or function, or a package specification or a body, you must have the <code class="codeph">CREATE</code> <code class="codeph">PROCEDURE</code> system privilege to create a procedure or package in your schema, or the <code class="codeph">CREATE</code> <code class="codeph">ANY</code> <code class="codeph">PROCEDURE</code> system privilege to create a procedure or package in another user&#39;s schema.</p>
+<p>For the compilation of the procedure or package, the <span class="italic">owner</span> of the procedure or package must have been explicitly granted the necessary object privileges for all objects referenced within the body of the code. The owner cannot have obtained required privileges through roles.</p>
+<p>For more information about privilege requirements for creating procedures and functions, see <a class="olink ADFNS" target="_blank" href="../ADFNS/toc.htm"><span class="italic">Oracle Database Advanced Application Developer&#39;s Guide</span></a>.</p>
+</div>
+</div>
+<a id="ADDCI4326"></a><a id="ADDCI4325"></a>
+<div class="props_rev_3"><a id="GUID-742CF208-6657-4A5C-BC3F-A225CB51BFC5"></a>
+<h2 id="ADDCI-GUID-742CF208-6657-4A5C-BC3F-A225CB51BFC5" class="sect2">Debugging PL/SQL Code</h2>
+<div>
+<p>One of the simplest ways to debug PL/SQL code is to try each method, block, or statement interactively using SQL*Plus, and fix any problems before proceeding to the next statement. If you need more information on an error message, enter the statement <code class="codeph">SHOW</code> <code class="codeph">ERRORS</code>. Also. consider displaying statements for run-time debugging. You can debug stored procedures and packages using the <code class="codeph">DBMS_OUTPUT</code> package, by inserting <code class="codeph">PUT</code> and <code class="codeph">PUTLINE</code> statements into the code to output the values of variables and expressions to your terminal, as demonstrated in <a href="pl_sql.htm#GUID-742CF208-6657-4A5C-BC3F-A225CB51BFC5__CIHEEDCB">Example 4-13</a>.</p>
+<p>A PL/SQL tracing tool provides more information about exception conditions in application code. You can use this tool to trace the execution of server-side PL/SQL statements. Object type methods cannot be traced directly, but you can trace any PL/SQL functions or procedures that a method calls. The tracing tool also provides information about exception conditions in the application code. The trace output is written to the Oracle server trace file. Note that only the database administrator has access to the file.</p>
+<div class="infoboxnotealso" id="GUID-742CF208-6657-4A5C-BC3F-A225CB51BFC5__GUID-032EF23B-C270-4A80-80BB-EFFFB106ACD1">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>The <a class="olink ADFNS" target="_blank" href="../ADFNS/toc.htm"><span class="italic">Oracle Database Advanced Application Developer&#39;s Guide</span></a>. describes the tracing tool</p>
+</li>
+<li>
+<p>The <a class="olink ARPLS" target="_blank" href="../ARPLS/toc.htm"><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span></a> and the <a class="olink LNPLS" target="_blank" href="../LNPLS/toc.htm"><span class="italic">Oracle Database PL/SQL Language Reference.</span></a> describe the <code class="codeph">DBMS_OUTPUT</code> package</p>
+</li>
+</ul>
+</div>
+<div class="example" id="GUID-742CF208-6657-4A5C-BC3F-A225CB51BFC5__CIHEEDCB">
+<p class="titleinexample">Example 4-13 Outputing Variable Values to the Terminal, for Debugging</p>
+<pre dir="ltr">Location in module: <span class="italic">location</span>
+Parameter name: <span class="italic">name</span>
+Parameter value: <span class="italic">value</span>
+</pre></div>
+<!-- class="example" --></div>
+<a id="ADDCI4327"></a>
+<div class="props_rev_3"><a id="GUID-57D9FCEB-091F-442F-9BE1-11C428CF5922"></a>
+<h3 id="ADDCI-GUID-57D9FCEB-091F-442F-9BE1-11C428CF5922" class="sect3">Notes for C and C++ Developers of Data Cartridges</h3>
+<div>
+<p>If you are a C or C++ programmer, several PL/SQL conventions and requirements may differ from your expectations.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>= means equal (not assign).</p>
+</li>
+<li>
+<p>:= means assign (as in Algol).</p>
+</li>
+<li>
+<p><code class="codeph">VARRAYs</code> begin at index <code class="codeph">1</code> (not <code class="codeph">0</code>).</p>
+</li>
+<li>
+<p>Comments begin with two hyphens (--), not with <code class="codeph">//</code> or <code class="codeph">/*</code>.</p>
+</li>
+<li>
+<p>The <code class="codeph">IF</code> statement requires the <code class="codeph">THEN</code> keyword.</p>
+</li>
+<li>
+<p>The <code class="codeph">IF</code> statement must be concluded with the <code class="codeph">END</code> <code class="codeph">IF</code> keyword (which comes after the <code class="codeph">ELSE</code> clause, if there is one).</p>
+</li>
+<li>
+<p>There is no <code class="codeph">PRINTF</code> statement. The comparable feature is the <code class="codeph">DBMS_OUTPUT</code>.<code class="codeph">PUT_LINE</code> statement. In this statement, literal and variable text is separated using the double vertical bar, <code class="codeph">||</code>.</p>
+</li>
+<li>
+<p>A function must have a return value, and a procedure cannot have a return value.</p>
+</li>
+<li>
+<p>If you call a function, it must be on the right side of an assignment operator.</p>
+</li>
+<li>
+<p>Many PL/SQL keywords cannot be used as variable names.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="ADDCI4328"></a>
+<div class="props_rev_3"><a id="GUID-66FCC5B2-5886-46F8-83D2-EBC767702662"></a>
+<h3 id="ADDCI-GUID-66FCC5B2-5886-46F8-83D2-EBC767702662" class="sect3">Common Potential Errors</h3>
+<div>
+<div class="section">
+<p>Several kinds of errors that may occur while creating a data cartridge.</p>
+</div>
+<!-- class="section" --></div>
+<a id="ADDCI4329"></a>
+<div class="props_rev_3"><a id="GUID-31FB93C5-742F-4114-89BA-984C4BDF6E29"></a>
+<h4 id="ADDCI-GUID-31FB93C5-742F-4114-89BA-984C4BDF6E29" class="sect4">Signature Mismatches</h4>
+<div>
+<div class="section">
+<pre dir="ltr">13/19    PLS-00538: subprogram or cursor &#39;&lt;name&gt;&#39; is declared in an object
+         type specification and must be defined in the object type body
+15/19    PLS-00539: subprogram &#39;&lt;name&gt;&#39; is declared in an object type body
+         and must be defined in the object type specification
+</pre>
+<p>If you see either or both of these messages, you have made an error with the signature for a procedure or function. In other words, you have a mismatch between the function or procedure prototype that you entered in the object specification, and the definition in the object body.</p>
+<p>Ensure that parameter orders, parameter spelling (including case), and function returns are identical. Use copy-and-paste to avoid errors in typing.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADDCI4330"></a>
+<div class="props_rev_3"><a id="GUID-C9B4491D-DB7C-480B-BC6C-1C07F53764A4"></a>
+<h4 id="ADDCI-GUID-C9B4491D-DB7C-480B-BC6C-1C07F53764A4" class="sect4">RPC Time Out</h4>
+<div>
+<div class="section">
+<pre dir="ltr">ORA-28576: lost RPC connection to external procedure agent
+ORA-06512: at &#34;&lt;name&gt;&#34;, line &lt;number&gt;
+ORA-06512: at &#34;&lt;name&gt;&#34;, line &lt;number&gt;
+ORA-06512: at line 34
+</pre>
+<p>This error might occur after you exit the debugger for the DLL. Restart the program outside the debugger.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="ADDCI4332"></a><a id="ADDCI4333"></a><a id="ADDCI4331"></a>
+<div class="props_rev_3"><a id="GUID-62785AB6-6B27-42FD-B4CE-E7C6CDF42CCF"></a>
+<h4 id="ADDCI-GUID-62785AB6-6B27-42FD-B4CE-E7C6CDF42CCF" class="sect4">Package Corruption</h4>
+<div>
+<div class="section">
+<pre dir="ltr">ERROR at line 1:
+ORA-04068: existing state of packages has been discarded
+ORA-04063: package body &#34;&lt;name&gt;&#34; has errors
+ORA-06508: PL/SQL: could not find program unit being called
+ORA-06512: at &#34;&lt;name&gt;&#34;, line &lt;number&gt;
+ORA-06512: at line &lt;number&gt;
+</pre>
+<p>This error might occur if you are extending an existing data cartridge; it indicates that the package has been corrupted and must be recompiled.</p>
+<p>Before you can perform the recompilation, you must delete all tables and object types that depend upon the package that you are recompiling. To find the dependents on a Windows NT system, use the Oracle Administrator toolbar. Click the Schema button, log in as <code class="codeph">sys\change_on_install</code>, and find packages and tables that you created. Drop these packages and tables by entering SQL statements in the SQL*Plus interface, as shown in <a href="pl_sql.htm#GUID-62785AB6-6B27-42FD-B4CE-E7C6CDF42CCF__CIHDJDJJ">Example 4-14</a>:</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-62785AB6-6B27-42FD-B4CE-E7C6CDF42CCF__CIHDJDJJ">
+<p class="titleinexample">Example 4-14 Dropping Packages and Tables</p>
+<pre dir="ltr">Drop type <span class="italic">type_name</span>;
+Drop table <span class="italic">table_name</span> cascade constraints;
+</pre></div>
+<!-- class="example" -->
+<div class="section">
+<p>The recompilation can then be done using the SQL statements in <a href="pl_sql.htm#GUID-62785AB6-6B27-42FD-B4CE-E7C6CDF42CCF__CIHGGHIH">Example 4-15</a>:</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-62785AB6-6B27-42FD-B4CE-E7C6CDF42CCF__CIHGGHIH">
+<p class="titleinexample">Example 4-15 Recompiling Packages</p>
+<pre dir="ltr">Alter type <span class="italic">type_name</span> compile body;
+Alter type t<span class="italic">ype_name</span> compile specification;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment5977">
+<tr>
+<td class="cellalignment5984">
+<table class="cellalignment5982">
+<tr>
+<td class="cellalignment5981"><a href="obj_types.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment5981"><a href="c_cpp_java.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment5986">
+<table class="cellalignment5980">
+<tr>
+<td class="cellalignment5981"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment5981"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment5981"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment5981"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment5981"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment5981"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

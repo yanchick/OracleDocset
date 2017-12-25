@@ -1,0 +1,1385 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-106512"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Tuning%20SQL%20Statements"></a><title>Tuning SQL Statements</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="SQL Tuning Advisor, using, high-load SQL, tuning, SQL tuning sets, creating, SQL profiles, enabling, disabling, deleting"/>
+<meta name="dcterms.created" content="2017-01-18T01:22:51Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database 2 Day + Performance Tuning Guide"/>
+<meta name="dcterms.identifier" content="E55047-05"/>
+<meta name="dcterms.isVersionOf" content="TDPPT"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2007, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="tdppt_sqlid.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="tdppt_sqlopt.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E55047-05.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-6B386EC1-A58F-4CFC-AEFB-9F787A112396"></a> <span id="PAGE" style="display:none;">20/22</span> <!-- End Header -->
+<a id="TDPPT160"></a>
+<h1 id="TDPPT-GUID-6B386EC1-A58F-4CFC-AEFB-9F787A112396" class="sect1"><span class="enumeration_chapter">12</span> Tuning SQL Statements</h1>
+<div>
+<p>A SQL statement specifies the data you want Oracle Database to retrieve. For example, a SQL statement can retrieve the names of employees in a department. When Oracle Database executes the SQL statement, the <span class="bold">query optimizer</span> (also called the <span class="bold">optimizer</span>) first determines the best and most efficient way to retrieve the results.</p>
+<p>The optimizer determines whether it is more efficient to read all data in the table, called a full table scan, or use an index. It compares the cost of all possible approaches and chooses the approach with the least cost. The access method for physically executing a SQL statement is called an <span class="bold">execution plan</span><a id="d22214e84" class="indexterm-anchor"></a>, which the optimizer is responsible for generating. The determination of an execution plan is an important step in the processing of any SQL statement, and can greatly affect execution time.</p>
+<p>The query optimizer can also help you tune SQL statements. By using SQL Tuning Advisor<a id="d22214e91" class="indexterm-anchor"></a> and SQL Access Advisor<a id="d22214e96" class="indexterm-anchor"></a>, you can run the query optimizer in advisory mode to examine a SQL statement or set of statements and determine how to improve their efficiency. SQL Tuning Advisor and SQL Access Advisor can make various recommendations, such as the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Creating SQL profiles</p>
+</li>
+<li>
+<p>Restructuring SQL statements</p>
+</li>
+<li>
+<p>Creating additional indexes or materialized views</p>
+</li>
+<li>
+<p>Refreshing optimizer statistics</p>
+</li>
+</ul>
+<p>Additionally, Oracle Enterprise Manager Cloud Control (Cloud Control) enables you to accept and implement many of these recommendations easily.</p>
+<p>SQL Access Advisor is primarily responsible for making schema modification recommendations, such as adding or dropping indexes and materialized views. SQL Tuning Advisor makes other types of recommendations, such as creating SQL profiles and restructuring SQL statements. If significant performance improvements can be gained by creating a new index, then SQL Tuning Advisor may recommend it. However, such recommendations should be verified by running SQL Access Advisor using a SQL workload that contains a set of representative SQL statements.</p>
+<p>This chapter describes how to tune SQL statements using SQL Tuning Advisor and contains the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-0BF54979-57AF-4289-9504-41884A1BD78E">Tuning SQL Statements Using SQL Tuning Advisor</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-13081B28-AB2A-485F-B836-74DAA9961BAA">Managing SQL Tuning Sets</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-84FE7EBB-54AB-4D11-A910-9C63B8C39441">Managing SQL Profiles</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-5DDF477C-5169-4490-B98A-45EB0036488D">Managing SQL Plan Baselines</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-6B386EC1-A58F-4CFC-AEFB-9F787A112396__GUID-3A835E99-5036-4FF4-9454-E5BBE90E4BA8">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="tdppt_sqlid.htm#GUID-D4D8C985-93B4-402C-A6C9-D5ABA980BEDB">Identifying High-Load SQL Statements</a> &#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34; <a href="tdppt_sqlopt.htm#GUID-1E926221-441F-483A-B045-8AE4A5764B8C">Optimizing Data Access Paths</a> &#34;</span> for information about SQL Access Advisor</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TDPPT161"></a>
+<div class="props_rev_3"><a id="GUID-0BF54979-57AF-4289-9504-41884A1BD78E"></a>
+<h2 id="TDPPT-GUID-0BF54979-57AF-4289-9504-41884A1BD78E" class="sect2">Tuning SQL Statements Using SQL Tuning Advisor</h2>
+<div>
+<div class="section">
+<p>You can use SQL Tuning Advisor to tune one or more SQL statements. When tuning multiple statements, SQL Tuning Advisor does not recognize interdependencies between the SQL statements. Instead, SQL Tuning Advisor provides a convenient way to obtain tuning advice for a large number of SQL statements.</p>
+<p>Oracle Database can generate SQL tuning reports automatically. Automatic SQL Tuning runs during system <span class="bold">maintenance windows</span> as an automated maintenance task, searching for ways to improve the execution plans of high-load SQL statements. A maintenance window is a contiguous time interval during which automated maintenance tasks are run.</p>
+</div>
+<!-- class="section" --></div>
+<a id="TDPPT310"></a>
+<div class="props_rev_3"><a id="GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8"></a>
+<h3 id="TDPPT-GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8" class="sect3">Tuning SQL Manually Using SQL Tuning Advisor</h3>
+<div>
+<div class="section">
+<p>As described in <a href="tdppt_sqlid.htm#GUID-D4D8C985-93B4-402C-A6C9-D5ABA980BEDB">Identifying High-Load SQL Statements</a> , Automatic Database Diagnostic Monitor (ADDM) automatically identifies high-load SQL statements. If ADDM identifies such statements, then click <span class="bold">Schedule/Run SQL Tuning Advisor</span> on the Recommendation Detail page to run SQL Tuning Advisor.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To tune SQL statements manually using SQL Tuning Advisor:</p>
+<ol>
+<li>
+<p>Access the <span>Database Home</span> page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">Advisors Home</span></p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The Advisor Central page appears.</p>
+</li>
+<li>
+<p>In the Advisors section, click <span class="bold">SQL Advisors</span>. The SQL Advisors page appears.</p>
+</li>
+<li>
+<p>In the SQL Tuning Advisor section, click <span class="bold">SQL Tuning Advisor</span>.</p>
+<p>The <span>Schedule SQL Tuning Advisor</span> page appears.</p>
+<div class="figure" id="GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8__GUID-3F994638-58B5-453F-9C35-7668352F5D9C"><img width="759" height="402" src="img/GUID-B3B482D0-9221-4EA5-9C41-92C98A2CE7C4-default.gif" alt="Description of GUID-B3B482D0-9221-4EA5-9C41-92C98A2CE7C4-default.gif follows" title="Description of GUID-B3B482D0-9221-4EA5-9C41-92C98A2CE7C4-default.gif follows"/><br/>
+<a href="img_text/GUID-B3B482D0-9221-4EA5-9C41-92C98A2CE7C4-default.htm">Description of the illustration GUID-B3B482D0-9221-4EA5-9C41-92C98A2CE7C4-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>In the <span class="bold">Name</span> field, enter a name for the SQL tuning task.</p>
+<p>If unspecified, then SQL Tuning Advisor uses a system-generated name.</p>
+</li>
+<li>
+<p>Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To run a SQL tuning task for one or more high-load SQL statements, under Overview click <span class="bold">Top Activity</span>.</p>
+<p>The <span>Top Activity</span> page appears.</p>
+<p>Under <span>Top SQL</span>, select the SQL statement that you want to tune.</p>
+<p>In the Actions list, select <span class="bold">Schedule SQL Tuning Advisor</span> and click <span class="bold">Go</span>.</p>
+<div class="infoboxnotealso" id="GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8__GUID-21EFC3F9-8E02-4161-8F61-EC62456DF452">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tdppt_sqlid.htm#GUID-572D0FE3-BC16-4107-A8CC-EF59480B9C9E">Identifying High-Load SQL Statements Using Top SQL</a>&#34;</span> to learn how to identify high-load SQL statements using the Top Activity page</p>
+</div>
+</li>
+<li>
+<p>To run a SQL tuning task for historical SQL statements from the Automatic Workload Repository (AWR), under Overview click <span class="bold">Historical SQL (AWR)</span>.</p>
+<p>The <span>Historical SQL (AWR)</span> page appears.</p>
+<p>Under <span>Historical SQL (AWR)</span>, click the band below the chart, and select the 24-hour interval for which you want to view SQL statements that ran on the database. Under <span>Detail for Selected 24 Hour Interval</span>, select the SQL statement you want to tune, and click <span class="bold">Schedule SQL Tuning Advisor</span>.</p>
+</li>
+<li>
+<p>To run a SQL tuning task for a SQL tuning set, under Overview click <span class="bold">SQL Tuning Sets</span>.</p>
+<p>The <span>SQL Tuning Sets</span> page appears.</p>
+<p>Select the SQL tuning set that contains the SQL statements you want to tune and then click <span class="bold">Schedule SQL Tuning Advisor</span>.</p>
+<div class="infoboxnotealso" id="GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8__GUID-F04FFE8C-1C5B-4AD8-872E-7FCCB7D89EE5">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-C52BFF6B-1C44-4AED-BA67-4E08E770BBB3">Creating a SQL Tuning Set</a>&#34;</span> to learn how to create SQL tuning sets</p>
+</div>
+</li>
+</ul>
+<p>The Schedule <span>SQL Tuning Advisor</span> page reappears.</p>
+</li>
+<li>
+<p>To display the SQL text of the selected statement, expand <span class="bold">SQL Statements</span>.</p>
+<div class="figure" id="GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8__GUID-000A0F67-84FB-4B50-891A-F6F18E007FDF"><img width="460" height="95" src="img/GUID-43929377-DE23-4606-B348-A706823AF521-default.gif" alt="Description of GUID-43929377-DE23-4606-B348-A706823AF521-default.gif follows" title="Description of GUID-43929377-DE23-4606-B348-A706823AF521-default.gif follows"/><br/>
+<a href="img_text/GUID-43929377-DE23-4606-B348-A706823AF521-default.htm">Description of the illustration GUID-43929377-DE23-4606-B348-A706823AF521-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Under <span>Scope</span>, select the scope of tuning to perform. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">Limited</span>.</p>
+<p>A limited scope<a id="d22214e496" class="indexterm-anchor"></a> takes approximately 1 second to tune each SQL statement but does not recommend a SQL profile.</p>
+</li>
+<li>
+<p>Select <span class="bold">Comprehensive</span>, and then set a time limit (in minutes) for each SQL statement in the <span class="bold">Time Limit per Statement</span> field, and a total time limit (in minutes) in the <span class="bold">Total Time Limit</span> field. Note that setting the time limit too small may affect the quality of the recommendations.</p>
+<p>Comprehensive mode may take several minutes to tune a single SQL statement. This mode is both time and resource intensive because each query must be hard-parsed. You should only use comprehensive scope for high-load SQL statements that have a significant impact on the entire system.</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8__GUID-150792CB-19E5-4371-967C-AF527FFB0AC4">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-84FE7EBB-54AB-4D11-A910-9C63B8C39441">Managing SQL Profiles</a>&#34;</span> to learn more about SQL profiles</p>
+</div>
+</li>
+<li>
+<p>Under <span>Schedule</span>, do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">Immediately</span> and then click <span class="bold">Submit</span> to run the SQL tuning task immediately.</p>
+<p>The Processing: SQL Tuning Advisor Task page appears.</p>
+</li>
+<li>
+<p>Select <span class="bold">Later</span> to schedule a specific time in the future, and then click <span class="bold">OK</span>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>From the Performance menu, select <span class="bold">Advisors Home</span>.</p>
+<p>The <span>Advisor Central</span> page appears.</p>
+<p>Under Advisor Tasks, the Results sections lists the result of advisors.</p>
+<div class="figure" id="GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8__GUID-5BB2C631-EBD1-439A-9B43-74037C9ED478"><img width="704" height="125" src="img/GUID-CAB559CD-9699-4897-8CFA-024DD1C70452-default.gif" alt="Description of GUID-CAB559CD-9699-4897-8CFA-024DD1C70452-default.gif follows" title="Description of GUID-CAB559CD-9699-4897-8CFA-024DD1C70452-default.gif follows"/><br/>
+<a href="img_text/GUID-CAB559CD-9699-4897-8CFA-024DD1C70452-default.htm">Description of the illustration GUID-CAB559CD-9699-4897-8CFA-024DD1C70452-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Select a SQL Tuning Advisor type result from the table and then click <span class="bold">View Result</span>.</p>
+<p>The Recommendations for SQL ID page appears.</p>
+<div class="figure" id="GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8__GUID-4C7887EC-5CDC-457E-9D29-D27B6DF593FD"><img width="674" height="216" src="img/GUID-5DE3AB79-E5CB-4186-BA53-C61A092D2622-default.gif" alt="Description of GUID-5DE3AB79-E5CB-4186-BA53-C61A092D2622-default.gif follows" title="Description of GUID-5DE3AB79-E5CB-4186-BA53-C61A092D2622-default.gif follows"/><br/>
+<a href="img_text/GUID-5DE3AB79-E5CB-4186-BA53-C61A092D2622-default.htm">Description of the illustration GUID-5DE3AB79-E5CB-4186-BA53-C61A092D2622-default.gif</a></div>
+<!-- class="figure" -->
+<p>If you used a SQL tuning set, then multiple recommendations may be shown. To help you decide whether to implement a recommendation, an estimated benefit of implementing the recommendation is displayed in the Benefit (%) column. The Rationale column displays an explanation of why the recommendation is made.</p>
+</li>
+<li>
+<p>To implement the recommendation, do one of the following:<a id="d22214e582" class="indexterm-anchor"></a></p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If an automated solution is recommended, then click <span class="bold">Implement</span>.</p>
+<p><a id="d22214e594" class="indexterm-anchor"></a>A confirmation page appears. Click <span class="bold">Yes</span> to confirm the change.</p>
+</li>
+<li>
+<p>If a manual solution is recommended, then consider implementing the recommendation.</p>
+</li>
+</ul>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT311"></a>
+<div class="props_rev_3"><a id="GUID-4A3F8100-283D-4DD6-80B8-E6F3CD2B36BC"></a>
+<h3 id="TDPPT-GUID-4A3F8100-283D-4DD6-80B8-E6F3CD2B36BC" class="sect3">Viewing Automatic SQL Tuning Results</h3>
+<div>
+<div class="section">
+<p><a id="d22214e691" class="indexterm-anchor"></a><a id="d22214e695" class="indexterm-anchor"></a>By analyzing data in the Automatic Workload Repository (AWR), the database can identify routine maintenance tasks. The automated maintenance tasks infrastructure (known as <span class="bold">AutoTask</span>) schedules these tasks to run in maintenance windows.</p>
+<p>Maintenance windows are Oracle Scheduler time intervals that belong to the window group named <code>MAINTENANCE_WINDOW_GROUP</code>. By default, one window is scheduled for each day of the week. You can customize attributes of these maintenance windows, including start and end times, frequency, and days of the week.</p>
+<p>By default, AutoTask runs the following automated maintenance tasks in all maintenance windows:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Optimizer Statistics Collection</p>
+</li>
+<li>
+<p>Segment Advisor</p>
+</li>
+<li>
+<p>SQL Tuning Advisor</p>
+</li>
+</ul>
+<p>You can view the results of automated execution of SQL Tuning Advisor on observed high-load SQL statements.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To view automatic SQL tuning results:</p>
+<ol>
+<li>
+<p>Access the <span>Database Home</span> page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> page, select <span class="bold">Advisors Home</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The <span>Advisor Central</span> page appears.</p>
+</li>
+<li>
+<p>Under <span>Advisors</span>, click <span class="bold">SQL Advisors</span>.</p>
+<p>The <span>SQL Advisors</span> page appears.</p>
+</li>
+<li>
+<p>Under SQL Tuning Advisor, click <span class="bold">Automatic SQL Tuning Results</span>.</p>
+<p>The Automatic SQL Tuning Result Summary page appears.</p>
+<p>The top half of the page includes sections for the status and activity summary of the SQL Tuning task.</p>
+<div class="figure" id="GUID-4A3F8100-283D-4DD6-80B8-E6F3CD2B36BC__GUID-7EDDEC66-EF92-4D1D-8C4C-3764D8C5F98F"><img width="681" height="266" src="img/GUID-83CAB911-2732-4BA9-99F2-3DE0DDC7F3D0-default.gif" alt="Description of GUID-83CAB911-2732-4BA9-99F2-3DE0DDC7F3D0-default.gif follows" title="Description of GUID-83CAB911-2732-4BA9-99F2-3DE0DDC7F3D0-default.gif follows"/><br/>
+<a href="img_text/GUID-83CAB911-2732-4BA9-99F2-3DE0DDC7F3D0-default.htm">Description of the illustration GUID-83CAB911-2732-4BA9-99F2-3DE0DDC7F3D0-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>In the Time Period list, select <span class="bold">All</span> and then click <span class="bold">Go</span>.</p>
+<p>The Overall Task Statistics and Profile Effect Statistics sections are refreshed.</p>
+<div class="figure" id="GUID-4A3F8100-283D-4DD6-80B8-E6F3CD2B36BC__GUID-868ED315-3429-4611-B438-7AA43B0B9076"><img width="797" height="575" src="img/GUID-AFEC3FA1-29D4-463B-8B7B-C4C21E9AA173-default.gif" alt="Description of GUID-AFEC3FA1-29D4-463B-8B7B-C4C21E9AA173-default.gif follows" title="Description of GUID-AFEC3FA1-29D4-463B-8B7B-C4C21E9AA173-default.gif follows"/><br/>
+<a href="img_text/GUID-AFEC3FA1-29D4-463B-8B7B-C4C21E9AA173-default.htm">Description of the illustration GUID-AFEC3FA1-29D4-463B-8B7B-C4C21E9AA173-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Optionally, in the Task Status section, click <span class="bold">Configure</span> to change the attributes of the Automatic SQL Tuning task.</p>
+<p>The Automated Maintenance Tasks Configuration page appears.</p>
+<p>In this page, you can enable or disable the <a id="d22214e805" class="indexterm-anchor"></a>Automatic SQL Tuning task and specify which days it should run. Click <span class="bold">Apply</span> or <span class="bold">Revert</span> to return to the previous page.</p>
+</li>
+<li>
+<p>In the Task Activity Summary section, leave <span class="bold">All</span> selected for the <span class="bold">Time Period</span> and then click <span class="bold">View Report</span>.</p>
+<p>The Automatic SQL Tuning Result Details page appears.</p>
+<p>The page lists SQL statements that have been automatically selected by the database as candidates for SQL tuning.</p>
+<div class="figure" id="GUID-4A3F8100-283D-4DD6-80B8-E6F3CD2B36BC__GUID-387476B4-B621-4847-889E-00661D84FDDB"><img width="1215" height="453" src="img/GUID-2B9B7FDF-057F-48A5-B968-831EF4ACC6A4-default.gif" alt="Description of GUID-2B9B7FDF-057F-48A5-B968-831EF4ACC6A4-default.gif follows" title="Description of GUID-2B9B7FDF-057F-48A5-B968-831EF4ACC6A4-default.gif follows"/><br/>
+<a href="img_text/GUID-2B9B7FDF-057F-48A5-B968-831EF4ACC6A4-default.htm">Description of the illustration GUID-2B9B7FDF-057F-48A5-B968-831EF4ACC6A4-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p><a id="d22214e837" class="indexterm-anchor"></a>Under <span>Recommendations</span>, select a SQL statement and then click <span class="bold">View Recommendations</span>.</p>
+<p>The Recommendations for SQL ID page appears.</p>
+<div class="figure" id="GUID-4A3F8100-283D-4DD6-80B8-E6F3CD2B36BC__GUID-5852F493-46D6-481A-96E2-DB53272A5B8B"><img width="747" height="497" src="img/GUID-C4EB8E28-3E87-45D1-9F46-64C5A02570DD-default.gif" alt="Description of GUID-C4EB8E28-3E87-45D1-9F46-64C5A02570DD-default.gif follows" title="Description of GUID-C4EB8E28-3E87-45D1-9F46-64C5A02570DD-default.gif follows"/><br/>
+<a href="img_text/GUID-C4EB8E28-3E87-45D1-9F46-64C5A02570DD-default.htm">Description of the illustration GUID-C4EB8E28-3E87-45D1-9F46-64C5A02570DD-default.gif</a></div>
+<!-- class="figure" -->
+<p>This page can include recommendations for SQL profiles and indexes.</p>
+<div class="infoboxnotealso" id="GUID-4A3F8100-283D-4DD6-80B8-E6F3CD2B36BC__GUID-A249AD54-1321-4153-BBDC-74786C9E06B4">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-1C119E8C-8F6F-4B7A-9537-1391800B33A8">Tuning SQL Manually Using SQL Tuning Advisor</a>&#34;</span> to learn how to implement recommendations made by SQL Tuning Advisor</p>
+</div>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TDPPT164"></a>
+<div class="props_rev_3"><a id="GUID-13081B28-AB2A-485F-B836-74DAA9961BAA"></a>
+<h2 id="TDPPT-GUID-13081B28-AB2A-485F-B836-74DAA9961BAA" class="sect2">Managing SQL Tuning Sets</h2>
+<div>
+<p>A <span class="bold">SQL tuning set</span><a id="d22214e940" class="indexterm-anchor"></a> is a database object that includes one or more SQL statements and their execution statistics and context. You can use the set as an input for advisors such as SQL Tuning Advisor, SQL Access Advisor, and SQL Performance Analyzer. You can load SQL statements into a SQL tuning set from different SQL sources, such as AWR, the cursor cache, or high-load SQL statements that you identify.</p>
+<p>A SQL tuning set includes the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A set of SQL statements</p>
+</li>
+<li>
+<p>Associated execution context such as:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>User schema</p>
+</li>
+<li>
+<p>Application module name and action</p>
+</li>
+<li>
+<p>List of bind values</p>
+</li>
+<li>
+<p>Cursor compilation environment</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Associated basic execution statistics such as:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Elapsed time and CPU time</p>
+</li>
+<li>
+<p>Buffer gets</p>
+</li>
+<li>
+<p>Disk reads</p>
+</li>
+<li>
+<p>Rows processed</p>
+</li>
+<li>
+<p>Cursor fetches</p>
+</li>
+<li>
+<p>Number of executions and number of complete executions</p>
+</li>
+<li>
+<p>Optimizer cost</p>
+</li>
+<li>
+<p>Command type</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Associated execution plans and row source statistics for each SQL statement (optional)</p>
+</li>
+</ul>
+<p>SQL statements can be filtered using the application module name and action, or any of the execution statistics. In addition, SQL statements can be ranked based on any combination of execution statistics.</p>
+<p>SQL tuning sets are transportable, enabling SQL workloads to be transferred between databases for remote performance diagnostics and tuning. When high-load SQL statements are identified on a production system, it may not be desirable to perform investigation and tuning activities directly on this system. This feature enables you to transport the high-load SQL statements to a test system, where they can be safely analyzed and tuned. For information about transporting SQL tuning sets, see <a class="olink TGSQL533" target="_blank" href="../TGSQL/tgsql_sts.htm#TGSQL533"><span class="italic">Oracle Database SQL Tuning Guide</span></a>.</p>
+<p>Using Cloud Control, you can manage SQL tuning sets by doing the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-C52BFF6B-1C44-4AED-BA67-4E08E770BBB3">Creating a SQL Tuning Set</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-A7033E22-05FE-41BD-B24D-B8C3C44E9C59">Dropping a SQL Tuning Set</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-1EB0A2C5-691F-46E5-9145-039F6B059AB1">Transporting SQL Tuning Sets</a></p>
+</li>
+</ul>
+</div>
+<a id="TDPPT162"></a>
+<div class="props_rev_3"><a id="GUID-C52BFF6B-1C44-4AED-BA67-4E08E770BBB3"></a>
+<h3 id="TDPPT-GUID-C52BFF6B-1C44-4AED-BA67-4E08E770BBB3" class="sect3">Creating a SQL Tuning Set</h3>
+<div>
+<div class="section">
+<p>This section describes how to create a SQL tuning set with Cloud Control.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To create a SQL tuning set:</p>
+<ol>
+<li>
+<p>Specify the initial options for the SQL tuning set, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9">Creating a SQL Tuning Set: Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select the load method to use for collecting and loading SQL statements into the SQL tuning set, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-B285ECF7-5916-483A-AF32-C795DD123D1B">Creating a SQL Tuning Set: Load Methods</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Specify the filter options for the SQL tuning set, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521">Creating a SQL Tuning Set: Filter Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Schedule and submit a job to collect the SQL statements and load them into the SQL tuning set, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-3D056CFF-BF12-47ED-935A-F883C621364C">Creating a SQL Tuning Set: Schedule</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+<a id="TDPPT165"></a>
+<div class="props_rev_3"><a id="GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9"></a>
+<h4 id="TDPPT-GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9" class="sect4">Creating a SQL Tuning Set: Options</h4>
+<div>
+<div class="section">
+<p>The first step in creating a SQL tuning set is to specify options for the set such as name, owner, and description.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To specify options for creating a SQL tuning set:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">SQL</span>, and then <span class="bold">SQL Tuning Sets</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The SQL Tuning Sets page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">Create</span>.</p>
+<p>The Create SQL Tuning Set: Options page appears.</p>
+</li>
+<li>
+<p>Enter the following details:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>In <span class="bold">SQL Tuning Set Name</span>, enter a name for the SQL tuning set.</p>
+</li>
+<li>
+<p>In <span class="bold">Owner</span>, enter the owner of the SQL tuning set.</p>
+</li>
+<li>
+<p>In <span class="bold">Description</span>, enter a description of the SQL tuning set.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Optionally, to create an empty SQL tuning set and add SQL statements to it at a later time, complete the following steps:</p>
+<ol>
+<li>
+<p>Select <span class="bold">Create an empty SQL tuning set</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Review page appears.</p>
+</li>
+<li>
+<p>Review your SQL tuning set options and click <span class="bold">Submit</span>.</p>
+<p>The empty SQL tuning set is created. You can add SQL statements to it later.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Load Methods page appears.</p>
+<div class="figure" id="GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9__GUID-3FDEAB6E-FFF3-4848-9EF6-42A8A1D55CCD"><img width="600" height="267" src="img/GUID-CA7D0494-308F-4F03-8ED0-382053A7464B-default.gif" alt="Description of GUID-CA7D0494-308F-4F03-8ED0-382053A7464B-default.gif follows" title="Description of GUID-CA7D0494-308F-4F03-8ED0-382053A7464B-default.gif follows"/><br/>
+<a href="img_text/GUID-CA7D0494-308F-4F03-8ED0-382053A7464B-default.htm">Description of the illustration GUID-CA7D0494-308F-4F03-8ED0-382053A7464B-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-B285ECF7-5916-483A-AF32-C795DD123D1B">Creating a SQL Tuning Set: Load Methods</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT166"></a>
+<div class="props_rev_3"><a id="GUID-B285ECF7-5916-483A-AF32-C795DD123D1B"></a>
+<h4 id="TDPPT-GUID-B285ECF7-5916-483A-AF32-C795DD123D1B" class="sect4">Creating a SQL Tuning Set: Load Methods</h4>
+<div>
+<p>After options are specified for the SQL tuning set, select the load method<a id="d22214e1400" class="indexterm-anchor"></a> to use for collecting and loading SQL statements into the SQL tuning set, as described in the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-3CBD7C67-EB6C-4D25-BC02-F3B4941FAB05">Loading Active SQL Statements Incrementally from the Cursor Cache</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-FA0450CD-9EDD-4812-88CC-A12FA7CB65A0">Loading SQL Statements from the Cursor Cache</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-4CEDA0CB-E920-4EE2-BEE9-26CC605FC268">Loading SQL Statements from AWR Snapshots</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-8CD8C3BC-689B-4AED-B2F6-BDAD242FAFBE">Loading SQL Statements from AWR Baselines</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-5E55434F-A235-45A7-8A4E-6CEFFD2F5974">Loading SQL Statements from a User-Defined Workload</a></p>
+</li>
+</ul>
+</div>
+<a id="TDPPT167"></a>
+<div class="props_rev_3"><a id="GUID-3CBD7C67-EB6C-4D25-BC02-F3B4941FAB05"></a>
+<h5 id="TDPPT-GUID-3CBD7C67-EB6C-4D25-BC02-F3B4941FAB05" class="sect5">Loading Active SQL Statements Incrementally from the Cursor Cache</h5>
+<div>
+<div class="section">
+<p>You can load active SQL statements from the cursor cache into the SQL tuning set incrementally over a specified period of time. This technique enables you to not only collect current and recent SQL statements stored in the SQL cache, but also SQL statements that run during a specified time period in the future.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To load active SQL statements incrementally from the cursor cache:</p>
+<ol>
+<li>
+<p>Access the Create SQL Tuning Set: Load Methods page, as explained in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9">Creating a SQL Tuning Set: Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select <span class="bold">Incrementally capture active SQL statements over a period of time from the cursor cache</span>.</p>
+</li>
+<li>
+<p>In the <span class="bold">Duration</span> field, specify how long to capture active SQL statements.</p>
+</li>
+<li>
+<p>In the <span class="bold">Frequency</span> field, specify how often to capture active SQL statements during the specified duration.</p>
+</li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Filter Options page appears.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521">Creating a SQL Tuning Set: Filter Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT168"></a>
+<div class="props_rev_3"><a id="GUID-FA0450CD-9EDD-4812-88CC-A12FA7CB65A0"></a>
+<h5 id="TDPPT-GUID-FA0450CD-9EDD-4812-88CC-A12FA7CB65A0" class="sect5">Loading SQL Statements from the Cursor Cache</h5>
+<div>
+<div class="section">
+<p>You can load SQL statements from the cursor cache into the SQL tuning set. However, because only current and recent SQL statements are in the SQL cache, collecting these statements only once may result in a SQL tuning set this is not representative of the entire database workload.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To load SQL statements from the cursor cache:</p>
+<ol>
+<li>
+<p>Access the Create SQL Tuning Set: Load Methods page, as explained in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9">Creating a SQL Tuning Set: Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select <span class="bold">Load SQL statements one time only</span>.</p>
+</li>
+<li>
+<p>From the Data Source list, select <span class="bold">Cursor Cache</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Filter Options page is shown.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521">Creating a SQL Tuning Set: Filter Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT169"></a>
+<div class="props_rev_3"><a id="GUID-4CEDA0CB-E920-4EE2-BEE9-26CC605FC268"></a>
+<h5 id="TDPPT-GUID-4CEDA0CB-E920-4EE2-BEE9-26CC605FC268" class="sect5">Loading SQL Statements from AWR Snapshots</h5>
+<div>
+<div class="section">
+<p>You can load SQL statements captured in AWR snapshots. This is useful when you want to collect SQL statements for specific snapshot periods of interest that can be used for later comparison or tuning purposes.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To load SQL statements from AWR snapshots:</p>
+<ol>
+<li>
+<p>Access the Create SQL Tuning Set: Load Methods page, as explained in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9">Creating a SQL Tuning Set: Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select <span class="bold">Load statements one time only</span>.</p>
+</li>
+<li>
+<p>In the <span class="bold">Data Source</span> list, select <span class="bold">AWR Snapshots</span>.</p>
+</li>
+<li>
+<p>In the <span class="bold">AWR Snapshots</span> field, select the snapshots to include. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select either <span class="bold">ALL</span> or a time period such as <span class="bold">Last 24 hours</span> and then go to Step <a href="tdppt_sqltune.htm#GUID-4CEDA0CB-E920-4EE2-BEE9-26CC605FC268__CACCEBEE">6</a>.</p>
+<p>Only snapshots that are captured and stored in AWR in the specified time are included.</p>
+</li>
+<li>
+<p>Select <span class="bold">Customize</span> and then go to Step <a href="tdppt_sqltune.htm#GUID-4CEDA0CB-E920-4EE2-BEE9-26CC605FC268__CACGCDCJ">5</a>.</p>
+<p>Only snapshots that are captured and stored in AWR during a customized time period that you specify are included.</p>
+</li>
+</ul>
+</li>
+<li id="GUID-4CEDA0CB-E920-4EE2-BEE9-26CC605FC268__CACGCDCJ">
+<p>To select a customized time period of snapshots, complete the following steps:</p>
+<ol>
+<li>
+<p>Select <span class="bold">Customize</span> and then click <span class="bold">Go</span>.</p>
+<p>The Select Time Period window opens.</p>
+</li>
+<li>
+<p>For the starting snapshot, select <span class="bold">Period Start Time</span> and then click the snapshot icon below the Active Session graph that corresponds to the desired start time.</p>
+</li>
+<li>
+<p>For the ending snapshot, select <span class="bold">Period End Time</span> and then click the snapshot icon below the Active Session graph that corresponds to the desired end time.</p>
+</li>
+<li>
+<p>Click <span class="bold">Select</span>.</p>
+</li>
+</ol>
+<p>In this example, the snapshot taken on December 27, 2011 at 9:00 a.m. is selected as the start time, and the snapshot taken on December 27, 2011 at 11:00 a.m. is selected as the end time.</p>
+<div class="figure" id="GUID-4CEDA0CB-E920-4EE2-BEE9-26CC605FC268__GUID-4A49FAD8-C03B-42DE-BB4E-025E214E29E9"><img width="880" height="259" src="img/GUID-EBE6E8ED-E434-4FA3-B70B-AC8FD2C40A97-default.gif" alt="Description of GUID-EBE6E8ED-E434-4FA3-B70B-AC8FD2C40A97-default.gif follows" title="Description of GUID-EBE6E8ED-E434-4FA3-B70B-AC8FD2C40A97-default.gif follows"/><br/>
+<a href="img_text/GUID-EBE6E8ED-E434-4FA3-B70B-AC8FD2C40A97-default.htm">Description of the illustration GUID-EBE6E8ED-E434-4FA3-B70B-AC8FD2C40A97-default.gif</a></div>
+<!-- class="figure" --></li>
+<li id="GUID-4CEDA0CB-E920-4EE2-BEE9-26CC605FC268__CACCEBEE">
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Filter Options page is shown.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521">Creating a SQL Tuning Set: Filter Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT155"></a>
+<div class="props_rev_3"><a id="GUID-8CD8C3BC-689B-4AED-B2F6-BDAD242FAFBE"></a>
+<h5 id="TDPPT-GUID-8CD8C3BC-689B-4AED-B2F6-BDAD242FAFBE" class="sect5">Loading SQL Statements from AWR Baselines</h5>
+<div>
+<div class="section">
+<p>You can load SQL statements captured in AWR baselines. This technique is useful when you want to collect SQL statements that are representative of a time period during known performance levels that can be used for later comparison or tuning purposes.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To load SQL statements from AWR baselines:</p>
+<ol>
+<li>
+<p>Access the Create SQL Tuning Set: Load Methods page, as explained in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9">Creating a SQL Tuning Set: Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select <span class="bold">Load SQL statements one time only</span>.</p>
+</li>
+<li>
+<p>In the <span class="bold">Data Source</span> field, select <span class="bold">AWR Baseline</span>.</p>
+</li>
+<li>
+<p>In the <span class="bold">AWR Baseline</span> field, select the baseline to include.</p>
+<div class="figure" id="GUID-8CD8C3BC-689B-4AED-B2F6-BDAD242FAFBE__GUID-CCFD98B4-6BBB-4265-8507-945058E78CFB"><img width="387" height="84" src="img/GUID-C6033E0E-8723-46D1-A1D8-A787554997FE-default.gif" alt="Description of GUID-C6033E0E-8723-46D1-A1D8-A787554997FE-default.gif follows" title="Description of GUID-C6033E0E-8723-46D1-A1D8-A787554997FE-default.gif follows"/><br/>
+<a href="img_text/GUID-C6033E0E-8723-46D1-A1D8-A787554997FE-default.htm">Description of the illustration GUID-C6033E0E-8723-46D1-A1D8-A787554997FE-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Filter Options page is shown.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521">Creating a SQL Tuning Set: Filter Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT156"></a>
+<div class="props_rev_3"><a id="GUID-5E55434F-A235-45A7-8A4E-6CEFFD2F5974"></a>
+<h5 id="TDPPT-GUID-5E55434F-A235-45A7-8A4E-6CEFFD2F5974" class="sect5">Loading SQL Statements from a User-Defined Workload</h5>
+<div>
+<div class="section">
+<p>You can load SQL statements by importing from a table or view. This technique is useful if the workload you want to analyze is not currently running on the database or captured in an existing AWR snapshot or AWR baseline.</p>
+<p>There are no restrictions on which schema the workload resides in, the name of the table, or the number of tables that you can define. The only requirement is that the format of the table must match format of the <code>USER_WORKLOAD</code> table.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To load SQL statements from a user-defined workload:</p>
+<ol>
+<li>
+<p>Access the Create SQL Tuning Set: Load Methods page, as explained in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9">Creating a SQL Tuning Set: Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select <span class="bold">Load statements one time only</span>.</p>
+</li>
+<li>
+<p>In the <span class="bold">Data Source</span> field, select <span class="bold">User-Defined Workload</span>.</p>
+</li>
+<li>
+<p>In the <span class="bold">User-Defined Workload</span> field, select the table or view to include.</p>
+<div class="figure" id="GUID-5E55434F-A235-45A7-8A4E-6CEFFD2F5974__GUID-A8E6CBE4-A818-4270-B475-527A89A0A15A"><img width="537" height="84" src="img/GUID-FB585EF5-E1E6-4A6C-92A2-EBB0AE0C8BE8-default.gif" alt="Description of GUID-FB585EF5-E1E6-4A6C-92A2-EBB0AE0C8BE8-default.gif follows" title="Description of GUID-FB585EF5-E1E6-4A6C-92A2-EBB0AE0C8BE8-default.gif follows"/><br/>
+<a href="img_text/GUID-FB585EF5-E1E6-4A6C-92A2-EBB0AE0C8BE8-default.htm">Description of the illustration GUID-FB585EF5-E1E6-4A6C-92A2-EBB0AE0C8BE8-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Filter Options page appears.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521">Creating a SQL Tuning Set: Filter Options</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TDPPT157"></a>
+<div class="props_rev_3"><a id="GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521"></a>
+<h4 id="TDPPT-GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521" class="sect4">Creating a SQL Tuning Set: Filter Options</h4>
+<div>
+<div class="section">
+<p>After the load method is selected, you can apply filters to reduce the scope of the SQL statements found in the SQL tuning set. While using filters is optional, it can be very beneficial due to the following:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Using filters directs the various advisors that use the SQL tuning set as a workload source, such as SQL Tuning Advisor, SQL Access Advisor, and SQL Performance Analyzer, to make recommendations based on a specific subset of SQL statements, which may lead to better recommendations.</p>
+</li>
+<li>
+<p>Using filters removes extraneous SQL statements from the SQL tuning set, which may greatly reduce processing time when it is used as a workload source for the various advisors.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To specify filter options for a SQL tuning set:</p>
+<ol>
+<li>
+<p>Create a SQL tuning set and specify the initial options, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9">Creating a SQL Tuning Set: Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select the load method, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-B285ECF7-5916-483A-AF32-C795DD123D1B">Creating a SQL Tuning Set: Load Methods</a>&#34;</span>.</p>
+</li>
+<li>
+<p>On the Create SQL Tuning Set: Filter Options page, specify the values of filter conditions that you want use in the search in the <span class="bold">Value</span> column, and an operator or a condition in the <span class="bold">Operator</span> column.</p>
+<p>Only the SQL statements that meet all of the specified filter conditions are added to the SQL tuning set. Unspecified filter values are not included as filter conditions in the search.</p>
+<p>By default, the following filter conditions are displayed:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Parsing Schema Name</p>
+</li>
+<li>
+<p>SQL Text</p>
+</li>
+<li>
+<p>SQL ID</p>
+</li>
+<li>
+<p>Elapsed Time (sec)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>To add filter conditions, under Filter Conditions, select the filter condition you want to add and click <span class="bold">Add a Filter or Column</span>.</p>
+<p>After the desired filter conditions have been added, specify their values in the <span class="bold">Value</span> column, and an operator or a condition in the <span class="bold">Operator</span> column.</p>
+</li>
+<li>
+<p>To remove any unused filter conditions, click the icon in the <span class="bold">Remove</span> column for the corresponding filter condition you want to remove.</p>
+</li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Schedule page appears.</p>
+</li>
+<li>
+<p>Proceed to the next step, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-3D056CFF-BF12-47ED-935A-F883C621364C">Creating a SQL Tuning Set: Schedule</a>&#34;</span>.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT158"></a>
+<div class="props_rev_3"><a id="GUID-3D056CFF-BF12-47ED-935A-F883C621364C"></a>
+<h4 id="TDPPT-GUID-3D056CFF-BF12-47ED-935A-F883C621364C" class="sect4">Creating a SQL Tuning Set: Schedule</h4>
+<div>
+<div class="section">
+<p>After the filter options are specified for the SQL tuning set, you can schedule and submit a job to collect the SQL statements and load them into the SQL tuning set.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To schedule and submit a job to create a SQL tuning set:</p>
+<ol>
+<li>
+<p>Create a SQL Tuning Set and specify the initial options, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-ECBCEAD3-D92C-4D95-A8B3-3CD3A60049E9">Creating a SQL Tuning Set: Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Select the load method, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-B285ECF7-5916-483A-AF32-C795DD123D1B">Creating a SQL Tuning Set: Load Methods</a>&#34;</span>.</p>
+</li>
+<li>
+<p>Specify the filter options, as described in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-CE4A4227-E78A-42EC-8338-0DE90EE7B521">Creating a SQL Tuning Set: Filter Options</a>&#34;</span>.</p>
+</li>
+<li>
+<p>On the Create SQL Tuning Set: Schedule page, under Job Parameters, enter a name in the <span class="bold">Job Name</span> field if you do not want to use the system-generated job name.</p>
+</li>
+<li>
+<p>In the <span class="bold">Description</span> field, enter a description of the job.</p>
+</li>
+<li>
+<p>Under Schedule, do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="bold">Immediately</span> to run the job immediately after it has been submitted</p>
+</li>
+<li>
+<p><span class="bold">Later</span> to run the job at a later time as specified using the Time Zone, Date, and Time fields</p>
+</li>
+</ul>
+<div class="figure" id="GUID-3D056CFF-BF12-47ED-935A-F883C621364C__GUID-1E7F49FD-BF8B-48A7-A172-32F805576671"><img width="581" height="324" src="img/GUID-72C43062-EC78-4B2C-9655-0B7F9A13BF0A-default.gif" alt="Description of GUID-72C43062-EC78-4B2C-9655-0B7F9A13BF0A-default.gif follows" title="Description of GUID-72C43062-EC78-4B2C-9655-0B7F9A13BF0A-default.gif follows"/><br/>
+<a href="img_text/GUID-72C43062-EC78-4B2C-9655-0B7F9A13BF0A-default.htm">Description of the illustration GUID-72C43062-EC78-4B2C-9655-0B7F9A13BF0A-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Click <span class="bold">Next</span>.</p>
+<p>The Create SQL Tuning Set: Review page appears.</p>
+<div class="figure" id="GUID-3D056CFF-BF12-47ED-935A-F883C621364C__GUID-8BAAA86B-169A-468A-82C1-F94001B6F51E"><img width="600" height="224" src="img/GUID-46BBAF9F-D674-4A9F-9C8D-33405D1CE149-default.gif" alt="Description of GUID-46BBAF9F-D674-4A9F-9C8D-33405D1CE149-default.gif follows" title="Description of GUID-46BBAF9F-D674-4A9F-9C8D-33405D1CE149-default.gif follows"/><br/>
+<a href="img_text/GUID-46BBAF9F-D674-4A9F-9C8D-33405D1CE149-default.htm">Description of the illustration GUID-46BBAF9F-D674-4A9F-9C8D-33405D1CE149-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Review the SQL Tuning Set options that you have selected.</p>
+<p>To view the SQL statements used by the job, expand <span class="bold">Show SQL</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">Submit</span>.</p>
+<p>The SQL Tuning Sets page appears.</p>
+<p>If the job was scheduled to run immediately, then a message is displayed to inform you that the job and the SQL tuning set were created successfully. If the job was scheduled to run at a later time, a message is displayed to inform you that the job was created successfully.</p>
+</li>
+<li>
+<p>To view details about the job, such as operation status, click <span class="bold">View Job Details</span>.</p>
+<p>The View Job page appears to display details about the job.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="TDPPT195"></a>
+<div class="props_rev_3"><a id="GUID-A7033E22-05FE-41BD-B24D-B8C3C44E9C59"></a>
+<h3 id="TDPPT-GUID-A7033E22-05FE-41BD-B24D-B8C3C44E9C59" class="sect3">Dropping a SQL Tuning Set</h3>
+<div>
+<div class="section">
+<p>This section describes how to drop a SQL tuning set. To conserve storage space, you may want to periodically drop unused SQL tuning sets stored in the database.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To drop a SQL tuning set:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">SQL</span>, and then <span class="bold">SQL Tuning Sets</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The SQL Tuning Sets page appears.</p>
+</li>
+<li>
+<p>Select the SQL tuning set you want to drop and then click <span class="bold">Drop</span>.</p>
+<p>The Confirmation page appears to verify that you want to drop the selected SQL tuning set.</p>
+</li>
+<li>
+<p>Click <span class="bold">Yes</span>.</p>
+<p>The SQL Tuning Sets page appears.</p>
+<p>A confirmation message is displayed to indicate that the SQL tuning set was successfully dropped.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT159"></a>
+<div class="props_rev_3"><a id="GUID-1EB0A2C5-691F-46E5-9145-039F6B059AB1"></a>
+<h3 id="TDPPT-GUID-1EB0A2C5-691F-46E5-9145-039F6B059AB1" class="sect3">Transporting SQL Tuning Sets</h3>
+<div>
+<p>You can transport SQL tuning sets from one system to another by first exporting a SQL tuning set from one database, and then importing it into another database.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-AA1DB1D9-2E0E-441C-8531-BB25AFE01D91">Exporting a SQL Tuning Set</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-7EEF6338-CB77-4EF5-AFB3-3D86C8C1F1EE">Importing a SQL Tuning Set</a></p>
+</li>
+</ul>
+</div>
+<a id="TDPPT193"></a>
+<div class="props_rev_3"><a id="GUID-AA1DB1D9-2E0E-441C-8531-BB25AFE01D91"></a>
+<h4 id="TDPPT-GUID-AA1DB1D9-2E0E-441C-8531-BB25AFE01D91" class="sect4">Exporting a SQL Tuning Set</h4>
+<div>
+<div class="section">
+<p>This section describes how to export a SQL tuning set, enabling it to be transported to another system.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To export a SQL tuning set:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">SQL</span>, then <span class="bold">SQL Tuning Sets</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The SQL Tuning Sets page appears.</p>
+</li>
+<li>
+<p>Select the SQL tuning set that you want to export and then click <span class="bold">Export To A File</span>.</p>
+<p>The Export SQL Tuning Set page appears.</p>
+<div class="figure" id="GUID-AA1DB1D9-2E0E-441C-8531-BB25AFE01D91__GUID-8BC9E05E-7397-46B1-B22B-1DD23677A69E"><img width="531" height="571" src="img/GUID-07B55222-C9CB-4DBB-B472-AB214D7E5F77-default.gif" alt="Description of GUID-07B55222-C9CB-4DBB-B472-AB214D7E5F77-default.gif follows" title="Description of GUID-07B55222-C9CB-4DBB-B472-AB214D7E5F77-default.gif follows"/><br/>
+<a href="img_text/GUID-07B55222-C9CB-4DBB-B472-AB214D7E5F77-default.htm">Description of the illustration GUID-07B55222-C9CB-4DBB-B472-AB214D7E5F77-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>In the <span class="bold">Directory Object</span> field, select a directory in which to create the export file.</p>
+<p>For example, to use the Oracle Data Pump directory, select DATA_PUMP_DIR. The Directory Name field refreshes automatically to indicate the selected directory.</p>
+</li>
+<li>
+<p>In the <span class="bold">Export File</span> field, enter a name for the file.</p>
+<p>Alternatively, you can accept the name generated by the database.</p>
+</li>
+<li>
+<p>In the <span class="bold">Log File</span> field, enter a name for the log file for the export operation.</p>
+<p>Alternatively, you can accept the name generated by the database.</p>
+</li>
+<li>
+<p>Select a tablespace to temporarily store the data for the export operation.</p>
+<p>By default, <code>SYSAUX</code> is used.</p>
+</li>
+<li>
+<p>Under Job Parameters, in the <span class="bold">Job Name</span> field, enter a name for the job.</p>
+<p>Alternatively, you can accept the name generated by the database.</p>
+<p>Optionally, in the <span class="bold">Description</span> field, enter a description of the tuning set.</p>
+</li>
+<li>
+<p>Under Schedule, do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">Immediately</span> to run the job immediately after it has been submitted.</p>
+</li>
+<li>
+<p>Select <span class="bold">Later</span> to run the job at a later time as specified by selecting or entering values in the <span class="bold">Time Zone</span>, <span class="bold">Date</span>, and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">OK</span>.</p>
+<p>The SQL Tuning Sets page appears.</p>
+<p>A confirmation message indicates that the job was created successfully.</p>
+</li>
+<li>
+<p>Transport the export file to another system using the mechanism of choice, such as Oracle Data Pump or a database link.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT194"></a>
+<div class="props_rev_3"><a id="GUID-7EEF6338-CB77-4EF5-AFB3-3D86C8C1F1EE"></a>
+<h4 id="TDPPT-GUID-7EEF6338-CB77-4EF5-AFB3-3D86C8C1F1EE" class="sect4">Importing a SQL Tuning Set</h4>
+<div>
+<div class="section">
+<p>Before a SQL tuning set can be imported, you must first export a SQL tuning set from another system and transport it to your current system.</p>
+<div class="infoboxnotealso" id="GUID-7EEF6338-CB77-4EF5-AFB3-3D86C8C1F1EE__GUID-46A83CEF-B73D-4F05-B95B-48505D2963FF">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-AA1DB1D9-2E0E-441C-8531-BB25AFE01D91">Exporting a SQL Tuning Set</a>&#34;</span> for more information</p>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To import a SQL tuning set:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">SQL</span>, then <span class="bold">SQL Tuning Sets</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The SQL Tuning Sets page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">Import From A File</span>.</p>
+<p>The Import SQL Tuning Set page appears.</p>
+</li>
+<li>
+<p>In <span class="bold">Directory Object</span>, select the directory containing the file to be imported.</p>
+<p>The directory should contain the export file that was transported to your current system. For example, if the file resides in the Data Pump directory, then select <code>DATA_PUMP_DIR</code>. The Directory Name field refreshes automatically to indicate the selected directory.</p>
+</li>
+<li>
+<p>In the <span class="bold">Import File</span> field, enter the name of the dump file to import.</p>
+</li>
+<li>
+<p>In the <span class="bold">Log File</span> field, enter a name for the log file for the import operation.</p>
+</li>
+<li>
+<p>To replace an existing SQL tuning set with the one that you are importing, select <span class="bold">Replace the existing SQL tuning set if one exists</span>.</p>
+</li>
+<li>
+<p>Select a tablespace to temporarily store the data for the import operation.</p>
+<p>By default, <code>SYSAUX</code> is used.</p>
+</li>
+<li>
+<p>Under Job Parameters, in the <span class="bold">Job Name</span> field, enter a name for the job.</p>
+<p>Alternatively, you can accept the name generated by the system.</p>
+<p>Optionally, in the <span class="bold">Description</span> field, enter a description of the tuning set.</p>
+</li>
+<li>
+<p>Under Schedule, do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">Immediately</span> to run the job immediately after it has been submitted.</p>
+</li>
+<li>
+<p>Select <span class="bold">Later</span> to run the job at a later time as specified by selecting or entering values in the <span class="bold">Time Zone</span>, <span class="bold">Date</span>, and <span class="bold">Time</span> fields.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Click <span class="bold">OK</span>.</p>
+<p>The SQL Tuning Sets page appears.</p>
+<p>A confirmation message appears that indicates that the job was successfully created. If the job is scheduled to run immediately, then the imported SQL tuning set is shown on this page. You may need to refresh to see the SQL tuning set.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="TDPPT163"></a>
+<div class="props_rev_3"><a id="GUID-84FE7EBB-54AB-4D11-A910-9C63B8C39441"></a>
+<h2 id="TDPPT-GUID-84FE7EBB-54AB-4D11-A910-9C63B8C39441" class="sect2">Managing SQL Profiles</h2>
+<div>
+<div class="section">
+<p>A <span class="bold">SQL profile</span> is a set of auxiliary information that is built during automatic tuning of a SQL statement. A SQL profile is to a SQL statement what statistics are to a table.</p>
+<p>When running a SQL Tuning Advisor task with a limited scope, the optimizer makes estimates about cardinality, selectivity, and cost that are sometimes significantly off, resulting in poor execution plans. To address this problem, consider running a SQL Tuning Advisor task with a comprehensive scope to collect additional information using sampling and partial execution techniques into a SQL profile. The database can use the profile to verify and, if necessary, adjust optimizer estimates.</p>
+<p>During SQL profiling, the optimizer uses the execution history of the SQL statement to create appropriate settings for optimizer parameters. After SQL profiling completes, the optimizer uses the information in the SQL profile and regular database statistics to generate execution plans. The additional information enables the database to produce well-tuned plans for corresponding SQL statements.</p>
+<p>After running a SQL Tuning Advisor task with a comprehensive scope, a SQL profile may be recommended. If you accept the recommendation, then the database creates the SQL profile and enables it for the SQL statement.</p>
+<p>In some cases, you may want to disable a SQL profile. For example, you may want to test the performance of a SQL statement without using a SQL profile to determine if the SQL profile is actually beneficial. If the SQL statement is performing poorly after the SQL profile is disabled, then you should enable it again to avoid performance degradation. If the SQL statement is performing optimally after you have disabled the SQL profile, then you may want to remove the SQL profile from your database.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead2">To enable, disable, or delete a SQL profile:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>From the <span class="bold">Performance</span> menu, select <span class="bold">Top Activity</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The Top Activity page appears.</p>
+</li>
+<li>
+<p>Under Top SQL, click the <span class="bold">SQL ID</span> link of the SQL statement that is using a SQL profile.</p>
+<p>The SQL Details page appears.</p>
+</li>
+<li>
+<p>Click the <span class="bold">Plan Control</span> tab.</p>
+<p>A list of SQL profiles is displayed under SQL Profiles and Outlines.</p>
+</li>
+<li>
+<p>Select the SQL profile you want to manage. Do one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>To enable a SQL profile that is disabled, click <span class="bold">Disable/Enable</span>.</p>
+</li>
+<li>
+<p>To disable a SQL profile that is enabled, click <span class="bold">Disable/Enable</span>.</p>
+</li>
+<li>
+<p>To remove a SQL profile, click <span class="bold">Delete</span>.</p>
+</li>
+</ul>
+<p>A confirmation page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">Yes</span> to continue, or <span class="bold">No</span> to cancel the action.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-84FE7EBB-54AB-4D11-A910-9C63B8C39441__GUID-5D283183-833E-4A99-BE14-2BB0794C45D6">
+<p class="notep1">See Also:</p>
+<p><a class="olink TGSQL596" target="_blank" href="../TGSQL/tgsql_profiles.htm#TGSQL596"><span class="italic">Oracle Database SQL Tuning Guide</span></a> to learn how to manage SQL profiles using an API</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT335"></a>
+<div class="props_rev_3"><a id="GUID-5DDF477C-5169-4490-B98A-45EB0036488D"></a>
+<h2 id="TDPPT-GUID-5DDF477C-5169-4490-B98A-45EB0036488D" class="sect2">Managing SQL Plan Baselines</h2>
+<div>
+<p><a id="d22214e3341" class="indexterm-anchor"></a><span class="bold">SQL plan management</span> is a preventative mechanism that enables the optimizer to automatically manage execution plans, ensuring that the database uses only known or verified plans. In this context, a plan includes all plan-related information that the optimizer needs to reproduce an execution plan.</p>
+<p><a id="d22214e3347" class="indexterm-anchor"></a><a id="d22214e3351" class="indexterm-anchor"></a>SQL plan management uses SQL plan baselines. A <span class="bold">SQL plan baseline</span> is a set of accepted plans that the optimizer is allowed to use for a SQL statement. In the typical use case, a plan is accepted into the SQL plan baseline only after the database verifies that the plan performs well.</p>
+<p>SQL plan management avoids SQL performance regression caused by plan changes. Events such as new optimizer statistics, changes to initialization parameters, database upgrades, and so on can cause changes to execution plans. These changes can cause SQL performance regressions that are difficult and time-consuming to fix manually. SQL plan baselines preserve performance of SQL statements, regardless of changes in the database. SQL plan management adapts to such changes by verifying and accepting only plan changes that improve performance.</p>
+<p>Capturing a SQL plan automatically or loading a plan manually makes SQL plan management aware of the plan. Evolving a plan is the process by which the optimizer verifies new plans and adds them to an existing SQL plan baseline. This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-BD5C16D9-6940-4EA4-B891-AA314BEAA64A">Capturing SQL Plan Baselines Automatically</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-4C1C8E0E-33F2-4F78-862F-12B65560431E">Loading SQL Plan Baselines Manually</a></p>
+</li>
+<li>
+<p><a href="tdppt_sqltune.htm#GUID-151D0DFE-094D-4032-99DD-9124BD027315">Evolving SQL Plans</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-5DDF477C-5169-4490-B98A-45EB0036488D__GUID-4993EE6C-5470-4D9F-9704-74298DD356F5">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink TGSQL94621" target="_blank" href="../TGSQL/tgsql_spm.htm#TGSQL94621"><span class="italic">Oracle Database SQL Tuning Guide</span></a> for more information on SQL plan management and on controlling it with APIs</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="TDPPT542"></a>
+<div class="props_rev_3"><a id="GUID-BD5C16D9-6940-4EA4-B891-AA314BEAA64A"></a>
+<h3 id="TDPPT-GUID-BD5C16D9-6940-4EA4-B891-AA314BEAA64A" class="sect3">Capturing SQL Plan Baselines Automatically</h3>
+<div>
+<div class="section">
+<p><a id="d22214e3464" class="indexterm-anchor"></a>You can specify that Oracle Database captures SQL plan baselines automatically.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To capture SQL plan baselines automatically:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>Select <span class="bold">Performance</span>, then <span class="bold">SQL</span>, and then <span class="bold">SQL Plan Control</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The SQL Profile subpage of the SQL Plan Control page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">SQL Plan Baseline</span>.</p>
+<p>The SQL Plan Baseline subpage appears.</p>
+<div class="figure" id="GUID-BD5C16D9-6940-4EA4-B891-AA314BEAA64A__GUID-FCED38DE-D51F-465F-9C76-6C1157746282"><img width="600" height="214" src="img/GUID-D7BA1365-08AE-46F9-9EB6-9E43B135AE06-default.gif" alt="Description of GUID-D7BA1365-08AE-46F9-9EB6-9E43B135AE06-default.gif follows" title="Description of GUID-D7BA1365-08AE-46F9-9EB6-9E43B135AE06-default.gif follows"/><br/>
+<a href="img_text/GUID-D7BA1365-08AE-46F9-9EB6-9E43B135AE06-default.htm">Description of the illustration GUID-D7BA1365-08AE-46F9-9EB6-9E43B135AE06-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Under Settings, click the link next to <span class="bold">Capture SQL Plan Baselines</span>.</p>
+<p>The Initialization Parameters page appears.</p>
+</li>
+<li>
+<p>In the <span class="bold">Value</span> column of the table, select <span class="bold">TRUE</span> and then click <span class="bold">OK</span>.</p>
+<p>You are returned to the SQL Plan Baseline subpage, which now shows <span class="bold">Capture SQL Baselines</span> set to <code>TRUE</code>.</p>
+<p>Because you configured baselines to be automatically captured, the database will create a SQL plan baseline for all SQL statements executed more than once and adds the current execution plan for the statement to the SQL plan baseline as the first accepted plan.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT543"></a>
+<div class="props_rev_3"><a id="GUID-4C1C8E0E-33F2-4F78-862F-12B65560431E"></a>
+<h3 id="TDPPT-GUID-4C1C8E0E-33F2-4F78-862F-12B65560431E" class="sect3">Loading SQL Plan Baselines Manually</h3>
+<div>
+<div class="section">
+<p><a id="d22214e3614" class="indexterm-anchor"></a>You can manually load existing plans into a SQL plan baseline. You can load plans from a SQL tuning set (STS) or you can load selected plans from the cursor cache.</p>
+<p>To load SQL execution plans manually, the Capture SQL Baselines setting must be FALSE.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To manually load SQL execution plans:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+</li>
+<li>
+<p>Select <span class="bold">Performance</span>, then <span class="bold">SQL</span>, and then <span class="bold">SQL Plan Control</span>.</p>
+<p>The SQL Profile subpage of the SQL Plan Control page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">SQL Plan Baseline</span>.</p>
+<p>The SQL Plan Baseline subpage appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">Load</span>.</p>
+<p>The SQL Plan Control page appears.</p>
+<div class="figure" id="GUID-4C1C8E0E-33F2-4F78-862F-12B65560431E__GUID-804D9D36-DA7C-40F9-9ACE-F4B1F6FC53FD"><img width="488" height="514" src="img/GUID-A3C64D00-BCD4-4609-A3B9-29FBCB8543B4-default.gif" alt="Description of GUID-A3C64D00-BCD4-4609-A3B9-29FBCB8543B4-default.gif follows" title="Description of GUID-A3C64D00-BCD4-4609-A3B9-29FBCB8543B4-default.gif follows"/><br/>
+<a href="img_text/GUID-A3C64D00-BCD4-4609-A3B9-29FBCB8543B4-default.htm">Description of the illustration GUID-A3C64D00-BCD4-4609-A3B9-29FBCB8543B4-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Select the SQL plan baselines to be loaded by completing the following steps:</p>
+<ol>
+<li>
+<p>Under Load SQL Plan Baselines, select <span class="bold">Load plans from SQL Tuning Set (STS)</span>.</p>
+<p>In this example, load plans from the SQL tuning set that you created in <span class="q">&#34;<a href="tdppt_sqltune.htm#GUID-C52BFF6B-1C44-4AED-BA67-4E08E770BBB3">Creating a SQL Tuning Set</a>&#34;</span>.</p>
+</li>
+<li>
+<p>In <span class="bold">Job Name</span>, enter a name for the job. For example, enter <code>SPM_LOAD_TEST</code>.</p>
+</li>
+<li>
+<p>Under Schedule, select <span class="bold">Immediately</span>.</p>
+</li>
+<li>
+<p>Click <span class="bold">OK</span>.</p>
+</li>
+</ol>
+<p>The SQL Plan Control page reappears.</p>
+<p>The table displays a list of SQL plans that are stored as SQL plan baselines.</p>
+<div class="figure" id="GUID-4C1C8E0E-33F2-4F78-862F-12B65560431E__GUID-4C04DEC0-D517-46AF-B3CF-AE8836A10D18"><img width="830" height="226" src="img/GUID-5918FFE6-D628-4720-A9B5-1A215981E15F-default.gif" alt="Description of GUID-5918FFE6-D628-4720-A9B5-1A215981E15F-default.gif follows" title="Description of GUID-5918FFE6-D628-4720-A9B5-1A215981E15F-default.gif follows"/><br/>
+<a href="img_text/GUID-5918FFE6-D628-4720-A9B5-1A215981E15F-default.htm">Description of the illustration GUID-5918FFE6-D628-4720-A9B5-1A215981E15F-default.gif</a></div>
+<!-- class="figure" --></li>
+<li>
+<p>Optionally, fix the execution plan of a baseline to prevent the database from using an alternative SQL plan baseline. Complete the following steps:</p>
+<ol>
+<li>
+<p>Select a SQL plan baseline that is not fixed.</p>
+</li>
+<li>
+<p>Select <span class="bold">Fixed - Yes</span> from the list preceding the baseline table.</p>
+</li>
+<li>
+<p>Click <span class="bold">Go</span>.</p>
+</li>
+</ol>
+<p>The table is refreshed to show the SQL execution plan with the value <code>YES</code> in the Fixed column of the table.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" -->
+<div class="section">
+<div class="infoboxnotealso" id="GUID-4C1C8E0E-33F2-4F78-862F-12B65560431E__GUID-B790F147-F2B6-4BB3-B7AA-5C062CC55172">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Cloud Control context-sensitive online help to learn about the other options on the SQL Plan Baseline subpage</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="TDPPT544"></a>
+<div class="props_rev_3"><a id="GUID-151D0DFE-094D-4032-99DD-9124BD027315"></a>
+<h3 id="TDPPT-GUID-151D0DFE-094D-4032-99DD-9124BD027315" class="sect3">Evolving SQL Plans</h3>
+<div>
+<div class="section">
+<p><a id="d22214e3813" class="indexterm-anchor"></a><a id="d22214e3817" class="indexterm-anchor"></a>A SQL plan baseline for a SQL statement usually starts with a single accepted plan. However, some SQL statements perform well when executed with different plans under different conditions. For example, a SQL statement with bind variables whose values result in different selectivities may have several good plans. Creating a materialized view or an index or repartitioning a table may make current plans more expensive than other plans.</p>
+<p>If new plans were never added to SQL plan baselines, then the performance of some SQL statements might degrade. Thus, it is sometimes necessary to evolve newly found plans to see if they should be added to SQL plan baselines. Plan evolution prevents performance regressions by verifying the performance of a new plan before including it in a SQL plan baseline.</p>
+<p>Plan evolution consists of the following distinct steps:</p>
+<ol>
+<li>
+<p>Verifying that unaccepted plans perform at least as well as accepted plans in a SQL plan baseline.</p>
+</li>
+<li>
+<p>Adding unaccepted plans in the plan history to the plan baseline as accepted plans when they have been proven to perform as well as previously accepted plans.</p>
+</li>
+</ol>
+<p><a id="d22214e3834" class="indexterm-anchor"></a>You can evolve a plan manually or you can use the SQL Plan Management (SPM) Evolve Advisor.</p>
+<p>By default, the SPM Evolve Advisor runs daily in the scheduled maintenance window. It ranks all unaccepted plans, and then performs test executions of as many plans as possible during the window. The evolve advisor selects the lowest-cost accepted plan in the SQL plan baseline to compare against each unaccepted plan. If a plan performs sufficiently better than the existing accepted plan, then the database automatically accepts it.</p>
+<div class="infoboxnotealso" id="GUID-151D0DFE-094D-4032-99DD-9124BD027315__GUID-C4796E13-359F-4728-8F5D-C03038E04EDC">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink TGSQL94621" target="_blank" href="../TGSQL/tgsql_spm.htm#TGSQL94621"><span class="italic">Oracle Database SQL Tuning Guide</span></a> for more information on configuring SPM Evolve Advisor and on running it manually by using APIs</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To evolve plans manually:</p>
+<ol>
+<li>
+<p>Access the Database Home page.</p>
+<p>See <span class="q">&#34;<a href="tdppt_intro.htm#GUID-653C25F9-71B4-4E26-8902-12BC20B20270">Accessing the Database Home Page</a>&#34;</span> for more information.</p>
+</li>
+<li>
+<p>Select <span class="bold">Performance</span>, then <span class="bold">SQL</span>, and then <span class="bold">SQL Plan Control</span>.</p>
+<p>If the Database Login page appears, then log in as a user with administrator privileges. The SQL Profile subpage of the SQL Plan Control page appears.</p>
+</li>
+<li>
+<p>Click <span class="bold">SQL Plan Baseline</span>.</p>
+<p>The SQL Plan Baseline subpage appears.</p>
+</li>
+<li>
+<p>In the table, select one or more SQL plans that have No in the Accepted column and then click <span class="bold">Evolve</span>.</p>
+<p>The Evolve SQL Plan Baselines page appears.</p>
+</li>
+<li>
+<p>Specify the options to perform.</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>For Verify Performance, select one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Select <span class="bold">Yes</span> to have the database verify that the plan performs as good as or better than the current baseline plan.</p>
+</li>
+<li>
+<p>Select <span class="bold">No</span> to automatically evolve the plan regardless of how it performs.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>For Time Limit, select one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="bold">Auto</span> to have the database determine how long to spend verifying the performance of the unaccepted plan.</p>
+</li>
+<li>
+<p><span class="bold">Unlimited</span> to run the verification to completion regardless of how long it takes.</p>
+</li>
+<li>
+<p><span class="bold">Specify</span> to specify a time limit for the verification process. Enter a value in minutes in the associated field.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>For Action, select one of the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="bold">Report and Accept</span> to have the database accept the plan and create a report.</p>
+</li>
+<li>
+<p><span class="bold">Report Only</span> to have the database create a report but not accept the plan.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>Click <span class="bold">OK</span> to implement the options.</p>
+<p>A report appears. After viewing the report, click <span class="bold">Return</span> to return to the SQL Plan Baseline subpage.</p>
+</li>
+</ol>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment620">
+<tr>
+<td class="cellalignment627">
+<table class="cellalignment625">
+<tr>
+<td class="cellalignment624"><a href="tdppt_sqlid.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment624"><a href="tdppt_sqlopt.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2007, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment629">
+<table class="cellalignment623">
+<tr>
+<td class="cellalignment624"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment624"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment624"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment624"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment624"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment624"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

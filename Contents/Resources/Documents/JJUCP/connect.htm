@@ -1,0 +1,496 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-72344"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Getting%20Database%20Connections%20in%20UCP"></a><title>Getting Database Connections in UCP</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1023"/>
+<meta name="description" content="This guide provides instructions for using Oracle Universal Connection Pooling API. The API is JDBC driver agnostic."/>
+<meta name="dcterms.created" content="2014-06-29T23:47:52Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Universal Connection Pool for JDBC Developer&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E49541-01"/>
+<meta name="dcterms.isVersionOf" content="JJUCP"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="get_started.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="optimize.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E49541-01.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">7/16</span> <!-- End Header -->
+<div id="JJUCP8127" class="chapter"><a id="CHDDCICA"></a>
+<h1 class="chapter"><span class="secnum">3</span> Getting Database Connections in UCP</h1>
+<p>The following sections are included in this chapter:</p>
+<ul>
+<li>
+<p><a href="#CHDGEJJF">Borrowing Connections from UCP</a></p>
+</li>
+<li>
+<p><a href="#CHDGHFCG">Setting Connection Pool Properties for UCP</a></p>
+</li>
+<li>
+<p><a href="#CHDIDJGH">Validating Connections in UCP</a></p>
+</li>
+<li>
+<p><a href="#CHDJCGGB">Returning Borrowed Connections to UCP</a></p>
+</li>
+<li>
+<p><a href="#CHDIBEAE">Removing Connections from UCP</a></p>
+</li>
+<li>
+<p><a href="#CHDEEIJE">Third-Party Integration</a></p>
+</li>
+</ul>
+<a id="CHDGEJJF"></a>
+<div id="JJUCP8128" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Borrowing Connections from UCP</h2>
+<p><a id="sthref66"></a><a id="sthref67"></a><a id="sthref68"></a>An application borrows connections using a pool-enabled data source. The UCP for JDBC API provides two pool-enabled data sources; one for borrowing regular connections; and one for borrowing XA connections. These data sources provide access to UCP JDBC connection pool functionality and include a set of <code>getConnection</code> methods that are used to borrow connections. The same pool features are included in both XA and non-XA UCP JDBC connection pools.</p>
+<p>UCP JDBC connection pools maintain both available connections and borrowed connections. A connection is reused from the pool if an application requests to borrow a connection that matches an available connection. A new connection is created if no available connection in the pool match the requested connection. The number of available connections and borrowed connections are subjected to pool properties such as pool size, timeout intervals, and validation rules.</p>
+<p>This section describes the following concepts:</p>
+<ul>
+<li>
+<p><a href="#CBBFDBBH">Using the Pool-Enabled Data Source</a></p>
+</li>
+<li>
+<p><a href="#CBBBDEAC">Using the Pool-Enabled XA Data Source</a></p>
+</li>
+<li>
+<p><a href="#CHDBBEJJ">Setting Connection Properties</a></p>
+</li>
+<li>
+<p><a href="#CBBBDDBB">Using JNDI to Borrow a Connection</a></p>
+</li>
+<li>
+<p><a href="#CBBEJDEJ">Connection Initialization Callback</a></p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The instructions in this section use a pool-enabled data source to implicitly create and start a connection pool. See <a href="manage.htm#BABICIII">Chapter 7, &#34;Using the Connection Pool Manager&#34;</a>for instructions on using the connection pool manager to explicitly create a connection pool.</div>
+<a id="CBBFDBBH"></a>
+<div id="JJUCP8129" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Using the Pool-Enabled Data Source</h3>
+<p><a id="sthref69"></a><a id="sthref70"></a><a id="sthref71"></a><a id="sthref72"></a><a id="sthref73"></a><a id="sthref74"></a>UCP for JDBC provides a pool-enabled data source (<code>oracle.ucp.jdbc.PoolDataSource</code>) that is used to get connections to a database. The <code>oracle.ucp.jdbc.PoolDataSourceFactory</code> factory class provides a <code>getPoolDataSource()</code> method that creates the pool-enabled data source instance. For example:</p>
+<pre>PoolDataSource  pds = PoolDataSourceFactory.getPoolDataSource();
+</pre>
+<p><a id="sthref75"></a><a id="sthref76"></a>The pool-enabled data source requires a connection factory class in order to get an actual physical connection. The connection factory is typically provided as part of a JDBC driver and can be a data source itself. A UCP JDBC connection pool can use any JDBC driver to create physical connections that are then maintained by the pool. The <code>setConnectionFactoryClassName(String)</code> method is used to define the connection factory for the pool-enabled data source instance. The following example uses Oracle&#39;s <code>oracle.jdbc.pool.OracleDataSource</code> connection factory class included with the JDBC driver. If you are using a different vendor&#39;s JDBC driver, refer to the vendor&#39;s documentation for an appropriate connection factory class.</p>
+<pre>pds.setConnectionFactoryClassName(&#34;oracle.jdbc.pool.OracleDataSource&#34;);
+</pre>
+<p><a id="sthref77"></a><a id="sthref78"></a><a id="sthref79"></a><a id="sthref80"></a><a id="sthref81"></a><a id="sthref82"></a>In addition to the connection factory class, a pool-enabled data source requires the URL, user name, and password that is used to connect to a database. A pool-enabled data source instance includes methods to set each of these properties. The following example uses an Oracle JDBC Thin driver syntax. If you are using a different vendor&#39;s JDBC driver, refer to the vendor&#39;s documentation for the appropriate URL syntax to use.</p>
+<pre>pds.setURL(&#34;jdbc:oracle:thin:@//localhost:1521/XE&#34;);
+pds.setUser(&#34;<span class="italic">user</span>&#34;);
+pds.setPassword(&#34;<span class="italic">password</span>&#34;);
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+See the <a class="olink JJDBC" href="../JJDBC/toc.htm"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> for detailed Oracle URL syntax usage.</div>
+<p><a id="sthref83"></a><a id="sthref84"></a>Lastly, a pool-enabled data source provides a set of <code>getConnection</code> methods. The methods include:</p>
+<ul>
+<li>
+<p><code>getConnection()</code> &ndash; Returns a connection that is associated with the user name and password that was used to connect to the database.</p>
+</li>
+<li>
+<p><code>getConnection(String username, String password)</code> &ndash; Returns a connection that is associated with the given user name and password.</p>
+</li>
+<li>
+<p><code>getConnection(java.util.Properties labels)</code> &ndash; Returns a connection that matches a given label. See <a href="label.htm#BABGJEEA">Chapter 5, &#34;Labeling Connections in UCP,&#34;</a> for detailed information on using connection labels.</p>
+</li>
+<li>
+<p><code>getConnection(String username, String password, java.util.Properties labels)</code> &ndash; Returns a connection that is associated with a given user name and password and that matches a given label. See <a href="label.htm#BABGJEEA">Chapter 5, &#34;Labeling Connections in UCP,&#34;</a> for detailed information on using connection labels.</p>
+</li>
+</ul>
+<p>An application uses the <code>getConnection</code> methods to borrow a connection handle from the pool that is of the type <code>java.sql.Connection</code>. If a connection handle is already in the pool that matches the requested connection (same URL, user name, and password) then it is returned to the application; or else, a new connection is created and a new connection handle is returned to the application. An example for both Oracle and MySQL are provided.</p>
+<p class="subhead2"><a id="JJUCP8130"></a>Oracle Example</p>
+<p>The following example demonstrates borrowing a connection when using the JDBC Thin driver:</p>
+<pre>PoolDataSource  pds = PoolDataSourceFactory.getPoolDataSource();
+
+pds.setConnectionFactoryClassName(&#34;oracle.jdbc.pool.OracleDataSource&#34;);
+pds.setURL(&#34;jdbc:oracle:thin:@//localhost:1521/XE&#34;);
+pds.setUser(&#34;<span class="italic">&lt;user&gt;</span>&#34;);
+pds.setPassword(&#34;<span class="italic">&lt;password&gt;</span>&#34;);
+
+Connection conn = pds.getConnection();
+</pre>
+<p class="subhead2"><a id="JJUCP8131"></a>MySQL Example</p>
+<p>The following example demonstrates borrowing a connection when using the Connector/J JDBC driver from MySQL:</p>
+<pre>PoolDataSource  pds = PoolDataSourceFactory.getPoolDataSource();
+
+pds.setConnectionFactoryClassName(&#34;com.mysql.jdbc.jdbc2.optional.
+   MysqlDataSource&#34;);
+pds.setURL(&#34;jdbc:mysql://<span class="italic">host</span>:3306/dbname&#34;);
+pds.setUser(&#34;<span class="italic">&lt;user&gt;</span>&#34;);
+pds.setPassword(&#34;<span class="italic">&lt;password&gt;</span>&#34;);
+
+Connection conn = pds.getConnection();
+</pre></div>
+<!-- class="sect2" -->
+<a id="CBBBDEAC"></a>
+<div id="JJUCP8132" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Using the Pool-Enabled XA Data Source</h3>
+<p><a id="sthref85"></a><a id="sthref86"></a><a id="sthref87"></a><a id="sthref88"></a><a id="sthref89"></a><a id="sthref90"></a><a id="sthref91"></a><a id="sthref92"></a>UCP for JDBC provides a pool-enabled XA data source (<code>oracle.ucp.jdbc.PoolXADataSource</code>) that is used to get XA connections that can be enlisted in a distributed transaction. UCP JDBC XA pools have the same features as non-XA UCP JDBC pools. The <code>oracle.ucp.jdbc.PoolDataSourceFactory</code> factory class provides a <code>getPoolXADataSource()</code> method that creates the pool-enabled XA data source instance. For example:</p>
+<pre>PoolXADataSource  pds = PoolDataSourceFactory.getPoolXADataSource();
+</pre>
+<p><a id="sthref93"></a><a id="sthref94"></a><a id="sthref95"></a><a id="sthref96"></a><a id="sthref97"></a><a id="sthref98"></a><a id="sthref99"></a><a id="sthref100"></a>A pool-enabled XA data source instance, like a non-XA data source instance, requires the connection factory, URL, user name, and password in order to get an actual physical connection. These properties are set in the same way as a non-XA data source instance (see above). However, an XA-specific connection factory class is required to get XA connections. The XA connection factory is typically provided as part of a JDBC driver and can be a data source itself. The following example uses Oracle&#39;s <code>oracle.jdbc.xa.client.OracleXADataSource</code> XA connection factory class included with the JDBC driver. If a different vendor&#39;s JDBC driver is used, refer to the vendor&#39;s documentation for an appropriate XA connection factory class.</p>
+<pre>pds.setConnectionFactoryClassName(&#34;oracle.jdbc.xa.client.OracleXADataSource&#34;);
+pds.setURL(&#34;jdbc:oracle:thin:@//localhost:1521/XE&#34;);
+pds.setUser(&#34;<span class="italic">user</span>&#34;);
+pds.setPassword(&#34;<span class="italic">password</span>&#34;);
+</pre>
+<p><a id="sthref101"></a><a id="sthref102"></a>Lastly, a pool-enabled XA data source provides a set of <code>getXAConnection</code> methods that are used to borrow a connection handle from the pool that is of the type <code>javax.sql.XAConnection</code>. The <code>getXAConnection</code> methods are the same as the <code>getConnection</code> methods previously described. The following example demonstrates borrowing an XA connection.</p>
+<pre>PoolXADataSource  pds = PoolDataSourceFactory.getPoolXADataSource();
+
+pds.setConnectionFactoryClassName(&#34;oracle.jdbc.xa.client.OracleXADataSource&#34;);
+pds.setURL(&#34;jdbc:oracle:thin:@//localhost:1521/XE&#34;);
+pds.setUser(&#34;<span class="italic">&lt;user&gt;</span>&#34;);
+pds.setPassword(&#34;<span class="italic">&lt;password&gt;</span>&#34;);
+
+XAConnection conn = pds.getXAConnection();
+</pre></div>
+<!-- class="sect2" -->
+<a id="CHDBBEJJ"></a>
+<div id="JJUCP8133" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Setting Connection Properties</h3>
+<p><a id="sthref103"></a><a id="sthref104"></a><a id="sthref105"></a>Oracle&#39;s connection factories support properties that configure connections with specific features. UCP for JDBC pool-enabled data sources provide the <code>setConnectionProperties(Properties)</code> method, which is used to set properties on a given connection factory. The following example demonstrates setting connection properties for Oracle&#39;s JDBC driver. If you are using a different vendor&#39;s JDBC driver, refer to their documentation to check whether setting properties in this manner is supported and what properties are available:</p>
+<pre>Properties connProps = new Properties();
+connProps.put(&#34;fixedString&#34;, false);
+connProps.put(&#34;remarksReporting&#34;, false);
+connProps.put(&#34;restrictGetTables&#34;, false);
+connProps.put(&#34;includeSynonyms&#34;, false);
+connProps.put(&#34;defaultNChar&#34;, false);
+connProps.put(&#34;AccumulateBatchResult&#34;, false);
+
+pds.setConnectionProperties(connProps);
+</pre>
+<p>The UCP JDBC connection pool does not remove connections that are already created if <code>setConnectionProperties</code> is called after the pool is created and in use.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink JAJDB" href="../JAJDB/toc.htm"><span class="italic">Oracle Database JDBC Java API Reference</span></a> for a detailed list of supported properties to configure the connection. For example, to set the auto-commit mode, you can use the <code>OracleConnection.CONNECTION_PROPERTY_AUTOCOMMIT</code> property.</div>
+</div>
+<!-- class="sect2" -->
+<a id="CBBBDDBB"></a>
+<div id="JJUCP8134" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Using JNDI to Borrow a Connection</h3>
+<p><a id="sthref106"></a><a id="sthref107"></a><a id="sthref108"></a>A connection can be borrowed from a connection pool by performing a JNDI look up for a pool-enabled data source and then calling <code>getConnection()</code> on the returned object. The pool-enabled data source must first be bound to a JNDI context and a logical name. This assumes that an application includes a Service Provider Interface (SPI) implementation for a naming and directory service where object references can be registered and located.</p>
+<p>The following example uses Sun&#39;s file system JNDI service provider, which can be downloaded from the JNDI software download page:</p>
+<p><code><a href="http://www.oracle.com/technetwork/java/index.html">http://www.oracle.com/technetwork/java/index.html</a></code></p>
+<p>The example demonstrates creating an initial context and then performing a lookup for a pool-enabled data source that is bound to the name <code>MyPooledDataSource</code>. The object returned is then used to borrow a connection from the connection pool.</p>
+<pre>Hashtable env = new Hashtable();
+env.put(Context.INITIAL_CONTEXT_FACTORY,   
+   &#34;com.sun.jndi.fscontext.RefFSContextFactory&#34;);
+env.put(Context.PROVIDER_URL, &#34;file:/tmp&#34;);
+
+ctx = new InitialContext(env);
+
+PoolDataSource jpds = (PoolDataSource)ctx.lookup(MyPooledDataSource);
+Connection conn = jpds.getConnection();
+</pre>
+<p>In the example, <code>MyPoolDataSource</code> must be bound to the context. For example:</p>
+<pre>PoolDataSource  pds = PoolDataSourceFactory.getPoolDataSource();
+
+pds.setConnectionFactoryClassName(&#34;oracle.jdbc.pool.OracleDataSource&#34;);
+pds.setURL(&#34;jdbc:oracle:thin:@//localhost:1521/XE&#34;);
+pds.setUser(&#34;<span class="italic">&lt;user&gt;</span>&#34;);
+pds.setPassword(&#34;<span class="italic">&lt;password&gt;</span>&#34;);
+
+ctx.bind(MyPooledDataSource, pds);
+</pre></div>
+<!-- class="sect2" -->
+<a id="CBBEJDEJ"></a>
+<div class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Connection Initialization Callback</h3>
+<p>This callback enables applications and frameworks to initialize connections retrieved from Universal Connection Pool. It is executed at every connection checkout from the pool, as well as at each successful reconnection during failover.</p>
+<p>If an application cannot use connection labeling because it cannot be changed, then the connection initialization callback is provided for such an application.</p>
+<p>When registered, the initialization callback is executed every time a connection is borrowed from the pool and at each successful reconnection following a recoverable error. Using the same callback at both run time and replay ensures that exactly the same initialization, which was used when the original session was established, is reestablished at run time. If the callback invocation fails, then replay is disabled on that connection.</p>
+<p>This section discusses initialization callbacks in the following sections:</p>
+<ul>
+<li>
+<p><a href="#CBBBIGIH">Creating an Initialization Callback</a></p>
+</li>
+<li>
+<p><a href="#CBBJEJBG">Registering an Initialization Callback</a></p>
+</li>
+<li>
+<p><a href="#CBBIICFC">Removing or Unregistering an Initialization Callback</a></p>
+</li>
+</ul>
+<a id="CBBBIGIH"></a>
+<div class="sect3">
+<h4 class="sect3">Creating an Initialization Callback</h4>
+<p>To create a UCP connection initialization callback, an application implements the <code>oracle.ucp.jdbc.ConnectionInitializationCallback</code> interface. This interface has the following method:</p>
+<pre>void initialize(java.sql.Connection connection) throws SQLException;
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+<ul>
+<li>
+<p>One callback is created for every connection pool.</p>
+</li>
+<li>
+<p>This callback is not used if a labeling callback is registered for the connection pool.</p>
+</li>
+</ul>
+</div>
+<p class="subhead2"><a id="sthref109"></a>Example</p>
+<p>The following example demonstrates how to create a simple initialization callback:</p>
+<pre>import oracle.ucp.jdbc.ConnectionInitializationCallback;
+class MyConnectionInitializationCallback implements ConnectionInitializationCallback
+{
+  public MyConnectionInitializationCallback()
+  {
+    ...
+  }
+  public void initialize(java.sql.Connection connection) throws SQLException
+  {
+     // Reset the state for the connection, if necessary (like ALTER SESSION)
+  }
+}
+</pre></div>
+<!-- class="sect3" -->
+<a id="CBBJEJBG"></a>
+<div class="sect3">
+<h4 class="sect3">Registering an Initialization Callback</h4>
+<p>UCP provides the <code>registerConnectionInitializationCallback</code> method in the <code>oracle.ucp.jdbc.PoolDataSource</code> interface for registering a connection initialization callback.</p>
+<pre>public void registerConnectionInitializationCallback (ConnectionInitializationCallback cbk) throws SQLException;
+</pre>
+<p>One callback may be registered on each connection pool instance.</p>
+</div>
+<!-- class="sect3" -->
+<a id="CBBIICFC"></a>
+<div class="sect3">
+<h4 class="sect3">Removing or Unregistering an Initialization Callback</h4>
+<p>UCP provides the <code>unregisterConnectionInitializationCallback</code> method in the <code>oracle.ucp.jdbc.PoolDataSource</code> interface for unregistering a connection initialization callback.</p>
+<pre>public void unregisterConnectionInitializationCallback (ConnectionInitializationCallback cbk) throws SQLException;
+</pre>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink JJUAR" href="../JJUAR/toc.htm"><span class="italic">Oracle Universal Connection Pool for JDBC Java API Reference</span></a> for more information</div>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CHDGHFCG"></a>
+<div id="JJUCP8135" class="sect1">
+<h2 class="sect1">Setting Connection Pool Properties for UCP</h2>
+<p><a id="sthref110"></a><a id="sthref111"></a>UCP JDBC connection pools are configured using connection pool properties. The properties have <code>get</code> and <code>set</code> methods that are available through a pool-enabled data source instance. The methods are a convenient way to programmatically configure a pool. If no pool properties are set, then a connection pool uses default property values.</p>
+<p>The following example demonstrates configuring connection pool properties. The example sets the connection pool name and the maximum/minimum number of connections allowed in the pool. See <a href="optimize.htm#CFHDDFCI">Chapter 4, &#34;Optimizing Universal Connection Pool Behavior,&#34;</a> for a detailed description of all the supported properties as well as their default values.</p>
+<pre>PoolDataSource  pds = PoolDataSourceFactory.getPoolDataSource();
+
+pds.setConnectionPoolName(&#34;JDBC_UCP&#34;);
+pds.setMinPoolSize(4);pds.setMaxPoolSize(20);
+</pre>
+<p>UCP JDBC connection pool properties may be set in any order and can be dynamically changed at run time. For example, <code>setMaxPoolSize</code> could be changed at any time and the pool recognizes the new value and adapts accordingly.</p>
+</div>
+<!-- class="sect1" -->
+<a id="CHDIDJGH"></a>
+<div id="JJUCP8136" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Validating Connections in UCP</h2>
+<p>Connections can be validated using pool properties when the connection is borrowed, and also programmatically using the <code>ValidConnection</code> interface. Both approaches are detailed in this section. Invalid connections can affect application performance and availability.</p>
+<div id="JJUCP8137" class="sect2"><!-- infolevel="all" infotype="General" --><a id="sthref112"></a>
+<h3 class="sect2">Validate When Borrowing</h3>
+<p><a id="sthref113"></a><a id="sthref114"></a><a id="sthref115"></a><a id="sthref116"></a><a id="sthref117"></a>A connection can be validated by executing an SQL statement on a connection when the connection is borrowed from the connection pool. Two connection pool properties are used in conjunction in order to enable connection validation:</p>
+<ul>
+<li>
+<p><code>setValidateConnectionOnBorrow(boolean)</code> &ndash; Specifies whether or not connections are validated when the connection is borrowed from the connection pool. The method enables validation for every connection that is borrowed from the pool. A value of <code>false</code> means no validation is performed. The default value is <code>false</code>.</p>
+</li>
+<li>
+<p><code>setSQLForValidateConnection(String)</code> &ndash; Specifies the SQL statement that is executed on a connection when it is borrowed from the pool.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The <code>setSQLForValidateConnection</code> property is not recommended when using an Oracle JDBC driver. UCP for JDBC performs an internal ping when using an Oracle JDBC driver. The mechanism is faster than executing an SQL statement and is overridden if this property is set. Instead, set the <code>setValidateConnectionOnBorrow</code> property to <code>true</code> and do not include the <code>setSQLForValidateConnection</code> property.</div>
+<p>The following example demonstrates validating a connection when borrowing the connection from the pool. The example uses Connector/J JDBC driver from MySQL:</p>
+<pre>PoolDataSource  pds = PoolDataSourceFactory.getPoolDataSource();
+
+pds.setConnectionFactoryClassName(&#34;com.mysql.jdbc.jdbc2.optional.
+   MysqlDataSource&#34;);
+pds.setURL(&#34;jdbc:mysql://<span class="italic">host</span>:3306/mysql&#34;);
+pds.setUser(&#34;<span class="italic">&lt;user&gt;</span>&#34;);
+pds.setPassword(&#34;<span class="italic">&lt;password&gt;</span>&#34;);
+
+pds.setValidateConnectionOnBorrow(true);
+pds.setSQLForValidateConnection(&#34;select * from mysql.user&#34;);
+
+Connection conn = pds.getConnection();
+</pre></div>
+<!-- class="sect2" -->
+<a id="CHDIDEEB"></a>
+<div id="JJUCP8138" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2">Checking If a Connection Is Valid</h3>
+<p><a id="sthref118"></a><a id="sthref119"></a><a id="sthref120"></a><a id="sthref121"></a><a id="sthref122"></a>The <code>oracle.ucp.jdbc.ValidConnection</code> interface provides two methods: <code>isValid</code> and <code>setInvalid</code>. The <code>isValid</code> method returns whether or not a connection is usable and the <code>setInvalid</code> method is used to indicate that a connection should be removed from the pool instance. See <a href="#CHDIBEAE">&#34;Removing Connections from UCP&#34;</a> for more information on using the <code>setInvalid</code> method.</p>
+<p>The <code>isValid</code> method is used to check if a connection is still usable after an SQL exception has been thrown. This method can be used at any time to check if a borrowed connection is valid. The method is particularly useful in combination with a retry mechanism, such as the Fast Connection Failover actions that are triggered after a down event of Oracle RAC. See <a href="rac.htm#CHDCDFAC">Chapter 8, &#34;Using Oracle RAC Features,&#34;</a> for more information on Fast Connection Failover.</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+The <code>isValid</code> method checks with the pool instance and Oracle JDBC driver to determine whether a connection is still valid. The <code>isValid</code> method results in a round-trip to the database only if both the pool and the driver report that a connection is still valid. The round-trip is used to check for database failures that are not immediately discovered by the pool or the driver.</div>
+<p>The <code>isValid</code> method is also helpful when used in conjunction with the connection timeout and connection harvesting features. These features may return a connection to the pool while a connection is still held by an application. In such cases, the <code>isValid</code> method returns <code>false</code>, allowing the application to get a new connection.</p>
+<p>The following example demonstrates using the <code>isValid</code> method:</p>
+<pre>try {  conn = poolDataSouorce.getConnection  ...}catch (SQLException sqlexc)
+{
+   if (conn == null || !((ValidConnection) conn).isValid())
+        
+   // take the appropriate action
+   
+...
+conn.close();
+}
+</pre>
+<p>For XA applications, before calling the <code>isValid()</code> method, you must cast any <code>XAConnection</code> that is obtained from <code>PoolXADataSource</code> to a <code>ValidConnection</code>. If you cast a <code>Connection</code> that is obtained by calling the <code>XAConnection.getConnection()</code> method to <code>ValidConnecion</code>, then it may throw an exception.</p>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="CHDJCGGB"></a>
+<div id="JJUCP8139" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Returning Borrowed Connections to UCP</h2>
+<p><a id="sthref123"></a><a id="sthref124"></a>Borrowed connections that are no longer being used should be returned to the pool so that they can be available for the next connection request. The <code>close</code> method closes connections and automatically returns them to the pool. The <code>close</code> method does not physically remove the connection from the pool.</p>
+<p>Borrowed connections that are not closed will remain borrowed; subsequent requests for a connection result in a new connection being created if no connections are available. This behavior can cause many connections to be created and can affect system performance.</p>
+<p>The following example demonstrates closing a connection and returning it to the pool:</p>
+<pre>Connection conn = pds.getConnection();
+
+//do some work with the connection.
+
+conn.close();
+conn=null;
+</pre></div>
+<!-- class="sect1" -->
+<a id="CHDIBEAE"></a>
+<div id="JJUCP8140" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Removing Connections from UCP</h2>
+<p><a id="sthref125"></a><a id="sthref126"></a><a id="sthref127"></a><a id="sthref128"></a><a id="sthref129"></a>The <code>setInvalid</code> method of the <code>ValidConnection</code> interface indicates that a connection should be removed from the connection pool when it is closed. The method is typically used when a connection is no longer usable, such as after an exception or if the <code>isValid</code> method of the <code>ValidConnection</code> interface returns <code>false</code>. The method can also be used if an application deems the state on a connection to be bad. The following example demonstrates using the <code>setInvalid</code> method to close and remove a connection from the pool:</p>
+<pre>Connection conn = pds.getConnection();
+...
+
+((ValidConnection) conn).setInvalid();
+...
+
+conn.close();
+conn=null;
+</pre></div>
+<!-- class="sect1" -->
+<a id="CHDEEIJE"></a>
+<div id="JJUCP8141" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1">Third-Party Integration</h2>
+<p><a id="sthref130"></a><a id="sthref131"></a><a id="sthref132"></a><a id="sthref133"></a>Third-party products, such as middleware platforms or frameworks, can use UCP to provide connection pooling functionality for their applications and services. UCP integration includes the same connection pool features that are available to stand-alone applications and offers the same tight integration with the Oracle Database.</p>
+<p>Two data source classes are available as integration points with UCP: <code>PoolDataSourceImpl</code> for non-XA connection pools and <code>PoolXADataSourceImpl</code> for XA connection pools. Both classes are located in the <code>oracle.ucp.jdbc</code> package. These classes are implementations of the <code>PoolDataSource</code> and <code>PoolXADataSource</code> interfaces, respectively, and contain default constructors. For more information on the implementation classes refer to the <a class="olink JJUAR" href="../JJUAR/toc.htm"><span class="italic">Oracle Universal Connection Pool Java API Reference</span></a>.</p>
+<p>These implementations explicitly create connection pool instances and can return connections. For example:</p>
+<pre>PoolXADataSource pds = new PoolXADataSourceImpl();
+
+pds.setConnectionFactoryClassName(&#34;oracle.jdbc.xa.client.OracleXADataSource&#34;);
+pds.setURL(&#34;jdbc:oracle:thin:@//localhost:1521/XE&#34;);
+pds.setUser(&#34;<span class="italic">user</span>&#34;);
+pds.setPassword(&#34;<span class="italic">password</span>&#34;);
+
+XAConnection conn = pds.getXAConnection();
+</pre>
+<p>Third-party products can instantiate these data source implementation classes. In addition, the methods of these interfaces follow the JavaBean design pattern and can be used to set connection pool properties on the class using reflection. For example, a UCP data source that uses an Oracle JDBC connection factory and database might be defined as follows and loaded into a JNDI registry:</p>
+<pre>&lt;data-sources&gt;
+   &lt;data-source
+      name=&#34;UCPDataSource&#34;
+      jndi-name=&#34;jdbc/UCP_DS&#34;
+      data-source-class=&#34;oracle.ucp.jdbc.PoolDataSourceImpl&#34;&gt;
+      &lt;property name=&#34;ConnectionFactoryClassName&#34;
+                value=&#34;oracle.jdbc.pool.OracleDataSource&#34;/&gt;
+      &lt;property name=&#34;URL&#34; value=&#34;jdbc:oracle:thin:@//localhost:1521:oracle&#34;/&gt;
+      &lt;property name=&#34;User&#34; value&#34;<span class="italic">user</span>&#34;/&gt;
+      &lt;property name=&#34;Password&#34; value=&#34;<span class="italic">password</span>&#34;/&gt;
+      &lt;property name=&#34;ConnectionPoolName&#34; value=&#34;MyPool&#34;/&gt;
+      &lt;property name=&#34;MinPoolSize&#34; value=&#34;5&#34;/&gt;
+      &lt;property name=&#34;MaxPoolSize&#34; value=&#34;50&#34;/&gt;
+   &lt;/data-source&gt;
+&lt;/data-sources&gt;
+</pre>
+<p>When using reflection, the name attribute matches (case sensitive) the name of the setter method used to set the property. An application could then use the data source as follows:</p>
+<pre>Connection connection = null;
+try {
+   InitialContext context = new InitialContext();
+   DataSource ds = (DataSource) context.lookup( &#34;jdbc/UCP_DS&#34; );
+   connection = ds.getConnection();
+   ...
+</pre></div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment4234">
+<tr>
+<td class="cellalignment4243">
+<table class="cellalignment4239">
+<tr>
+<td class="cellalignment4238"><a href="get_started.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment4238"><a href="optimize.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1999, 2014,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment4246">
+<table class="cellalignment4237">
+<tr>
+<td class="cellalignment4238"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment4238"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment4238"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment4238"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment4238"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment4238"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

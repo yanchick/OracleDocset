@@ -1,0 +1,1034 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-2683"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Tuning%20RMAN%20Performance"></a><title>Tuning RMAN Performance</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="Recovery Manager, synchronous and asynchronous I/O, allocating tape buffers, long waits, performance tuning, RMAN, backup performance"/>
+<meta name="dcterms.created" content="2017-06-07T23:52:16Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Backup and Recovery User&#39;s Guide"/>
+<meta name="dcterms.identifier" content="E50658-09"/>
+<meta name="dcterms.isVersionOf" content="BRADV"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2003, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="part_tun.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="rcmtroub.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E50658-09.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-33D81037-2310-4021-8039-1A2C579AAA5A"></a> <span id="PAGE" style="display:none;">36/48</span> <!-- End Header -->
+<a id="BRADV011"></a>
+<h1 id="BRADV-GUID-33D81037-2310-4021-8039-1A2C579AAA5A" class="sect1"><span class="enumeration_chapter">23</span> Tuning RMAN Performance</h1>
+<div>
+<p>This chapter contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmtunin.htm#GUID-BD6B1424-A13E-4EBA-99C3-1B79B2DF7FC9">Purpose of RMAN Performance Tuning</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-55347A64-8DA3-415E-99C7-9F7FB30001A3">Basic Concepts of RMAN Performance Tuning</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-9F7B89D0-969A-47EE-B29B-28C8F5AC3243">Using V$ Views to Diagnose RMAN Performance Problems</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-5AAB8C9A-41C6-4400-B643-08D10D7106AD">Tuning RMAN Backup Performance</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV89842"></a>
+<div class="props_rev_3"><a id="GUID-BD6B1424-A13E-4EBA-99C3-1B79B2DF7FC9"></a>
+<h2 id="BRADV-GUID-BD6B1424-A13E-4EBA-99C3-1B79B2DF7FC9" class="sect2">Purpose of RMAN Performance Tuning</h2>
+<div>
+<p>An RMAN backup or restore job can be divided into separate phases or components. The slowest of these phases in any RMAN job is called the <strong class="term">bottleneck</strong>. The purpose of RMAN tuning is to identify the bottlenecks for a given job and use RMAN commands, initialization parameters, or adjustments to physical media to improve performance.</p>
+</div>
+</div>
+<a id="BRADV393"></a><a id="BRADV394"></a><a id="BRADV170"></a>
+<div class="props_rev_3"><a id="GUID-55347A64-8DA3-415E-99C7-9F7FB30001A3"></a>
+<h2 id="BRADV-GUID-55347A64-8DA3-415E-99C7-9F7FB30001A3" class="sect2">Basic Concepts of RMAN Performance Tuning</h2>
+<div>
+<p>Tuning RMAN performance requires a detailed understanding of how RMAN creates a backup. As explained in <span class="q">&#34;<a href="rcmarchi.htm#GUID-282FD0B6-8593-4775-9965-DB47534D349C">About RMAN Channels</a>&#34;</span>, the work of a backup is performed by one or more channels. A <a href="glossary.htm#GUID-D7D8E7D7-3CD3-4FCF-AF75-AF2BE11A366F"><span class="xrefglossterm">channel</span></a> represents a stream of bytes to a storage device.</p>
+<p>For the purposes of illustration, you can think of the byte stream as passing from the input buffers in memory through the CPU to the output buffers, and from there to the storage device. To direct a backup to two tape devices, you allocate two tape channels so that each byte stream goes to a different device.</p>
+<p>The work of each channel, whether of type disk or System Backup Tape (SBT), is subdivided into the following distinct phases:</p>
+<ol>
+<li>
+<p><a href="rcmtunin.htm#GUID-1016F1F4-21D0-47B8-871A-FB582838D8A7">Read Phase</a></p>
+<p>A channel reads blocks from disk into input I/O buffers.</p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-4061DDD7-DB0F-46E8-A6B2-C3D10E288846">Copy Phase</a></p>
+<p>A channel copies blocks from input buffers to output buffers and performs additional processing on the blocks.</p>
+</li>
+<li>
+<p>Write Phase</p>
+<p>A channel writes the blocks from output buffers to storage media. The write phase can take either of the following mutually exclusive forms, depending on the type of backup media:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmtunin.htm#GUID-BA0D4E35-7835-4F28-9504-C5EB32207206">Write Phase for System Backup Tape (SBT)</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-56356B98-2E0F-4D03-9998-F1E8348D9F2B">Write Phase for Disk</a></p>
+</li>
+</ul>
+</li>
+</ol>
+<p><a href="rcmtunin.htm#GUID-55347A64-8DA3-415E-99C7-9F7FB30001A3__BABDJHBJ">Figure 23-1</a> depicts two channels backing up data stored on three disks. Each channel reads the data into the input buffers, processes the data while copying it from the input to the output buffers, and then writes the data from the output buffers to disk.</p>
+<div class="figure" id="GUID-55347A64-8DA3-415E-99C7-9F7FB30001A3__BABDJHBJ">
+<p class="titleinfigure">Figure 23-1 Phases of a Multichannel Backup to Disk</p>
+<img width="539" height="390" src="img/GUID-028A123D-61C1-4CE3-920F-0A74B3A7A6BC-default.gif" alt="Description of Figure 23-1 follows" title="Description of Figure 23-1 follows"/><br/>
+<a href="img_text/GUID-028A123D-61C1-4CE3-920F-0A74B3A7A6BC-print.htm">Description of &#34;Figure 23-1 Phases of a Multichannel Backup to Disk&#34;</a></div>
+<!-- class="figure" -->
+<p><a href="rcmtunin.htm#GUID-55347A64-8DA3-415E-99C7-9F7FB30001A3__BABEDGBI">Figure 23-2</a> also depicts two channels backing up data stored on three disks, but one disk is mounted remotely over the network. Each channel reads the data into the input buffers, processes the data while copying it from the input buffers to the output buffers, and then writes the data from the output buffers to tape. Channel 1 writes the data to a locally attached tape drive, whereas channel 2 sends the data over the network to a remote media server.</p>
+<div class="figure" id="GUID-55347A64-8DA3-415E-99C7-9F7FB30001A3__BABEDGBI">
+<p class="titleinfigure">Figure 23-2 Phases of a Multichannel Backup to Tape</p>
+<img width="594" height="495" src="img/GUID-200EBE6B-F281-4E63-B7F7-DA2A96E0A270-default.gif" alt="Description of Figure 23-2 follows" title="Description of Figure 23-2 follows"/><br/>
+<a href="img_text/GUID-200EBE6B-F281-4E63-B7F7-DA2A96E0A270-print.htm">Description of &#34;Figure 23-2 Phases of a Multichannel Backup to Tape&#34;</a></div>
+<!-- class="figure" -->
+<p>When restoring data, a channel performs these steps in reverse order and reverses the reading and writing operations. The following sections explain RMAN tuning concepts in terms of a backup.</p>
+<p>The number of channels available for use with a device determines whether RMAN can read from and write to this device in parallel. It is recommended that the number of channels be equal to the number of storage devices used. Therefore, when RMAN uses disk, the number of channels must be equal to the number of physical disks accessed. When RMAN uses tape, the number of channels must be equal to the number of tape drives accessed by RMAN.</p>
+</div>
+<a id="BRADV90067"></a>
+<div class="props_rev_3"><a id="GUID-1016F1F4-21D0-47B8-871A-FB582838D8A7"></a>
+<h3 id="BRADV-GUID-1016F1F4-21D0-47B8-871A-FB582838D8A7" class="sect3">Read Phase</h3>
+<div>
+<p>This section explains factors that affect performance when an RMAN channel is reading data from disk:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmtunin.htm#GUID-59FBFBBE-78F0-4035-8FAC-818DB539576B">Allocation of Input Disk Buffers</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-6339C9D0-E98C-49E0-8C82-1EBA810EBB0B">Synchronous and Asynchronous Disk I/O</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-BA1D0CA9-AE7F-4A9A-88B6-2449B94DBEF0">Disk I/O Slaves</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-5A55B177-B2A8-47AE-A6E9-693DFB5CC613">RATE Channel Parameter</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV395"></a><a id="BRADV396"></a><a id="BRADV89845"></a>
+<div class="props_rev_3"><a id="GUID-59FBFBBE-78F0-4035-8FAC-818DB539576B"></a>
+<h4 id="BRADV-GUID-59FBFBBE-78F0-4035-8FAC-818DB539576B" class="sect4">Allocation of Input Disk Buffers</h4>
+<div>
+<p>During a backup, an RMAN channel reads the blocks from the input files into I/O disk buffers. The database files on the disk subsystem can be managed by either <a href="glossary.htm#GUID-94080845-3FF3-4FB4-91EB-AEA1749411DC"><span class="xrefglossterm">Automatic Storage Management (ASM)</span></a> or an alternative volume manager or file system. The considerations for backup tuning change depending on whether you manage database files with ASM.</p>
+<p>The allocation of the input buffers depends on how the files are multiplexed. <a id="d90631e467" class="indexterm-anchor"></a><a id="d90631e469" class="indexterm-anchor"></a>Backup <a href="glossary.htm#GUID-635043F8-78E2-4B43-A3C4-E27AFEAF363C"><span class="xrefglossterm">multiplexing</span></a> is RMAN&#39;s ability to read several files in a backup simultaneously from different sources and then write them to a single backup piece. The <a href="glossary.htm#GUID-648D7B2D-7AB2-40C0-AFFD-0A6FE569F3D7"><span class="xrefglossterm">level of multiplexing</span></a>, which is the number of input files simultaneously read and then written into the same <a href="glossary.htm#GUID-AED62318-D45A-49FA-B4B4-DAD98647FCF6"><span class="xrefglossterm">backup piece</span></a>, is determined by the algorithm described in <span class="q">&#34;<a href="rcmcncpt.htm#GUID-6E6613A6-545A-4E65-8D5E-849CB6B91E97">About Multiplexed RMAN Backup Sets</a>&#34;</span>. Review this section before proceeding.</p>
+<p>When an RMAN channel backs up files from disk, it uses the rules described in <a href="rcmtunin.htm#GUID-59FBFBBE-78F0-4035-8FAC-818DB539576B__CACCAJJB" title="This table describes buffer sizes RMAN uses depending upon the level of multiplexing.">Table 23-1</a> to determine how large to make the input disk buffers.</p>
+<div class="tblformal" id="GUID-59FBFBBE-78F0-4035-8FAC-818DB539576B__CACCAJJB">
+<p class="titleintable">Table 23-1 Data File Read Buffer Sizing Algorithm</p>
+<table class="cellalignment515" title="Data File Read Buffer Sizing Algorithm" summary="This table describes buffer sizes RMAN uses depending upon the level of multiplexing.">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment522" id="d90631e508">Level of Multiplexing</th>
+<th class="cellalignment525" id="d90631e511">Input Disk Buffer Size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment524" id="d90631e516" headers="d90631e508">
+<p>Less than or equal to 4</p>
+</td>
+<td class="cellalignment526" headers="d90631e516 d90631e511">
+<p>The RMAN channel allocates 16 buffers of size 1 megabyte (MB) so that the total buffer size for all the input files is 16 MB.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment524" id="d90631e523" headers="d90631e508">
+<p>Greater than 4 but less than or equal to 8</p>
+</td>
+<td class="cellalignment526" headers="d90631e523 d90631e511">
+<p>The RMAN channel allocates a variable number of disk buffers of size 512 kilobytes (KB) so that the total buffer size for all the input files is less than 16 MB.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment524" id="d90631e530" headers="d90631e508">
+<p>Greater than 8</p>
+</td>
+<td class="cellalignment526" headers="d90631e530 d90631e511">
+<p>The RMAN channel allocates 4 disk buffers of 128 KB for each file, so that the total buffer size for each input file is 512 KB.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>In the example shown in <a href="rcmtunin.htm#GUID-59FBFBBE-78F0-4035-8FAC-818DB539576B__BABICCGE">Figure 23-3</a>, one channel is backing up four data files. <code class="codeph">MAXOPENFILES</code> is set to 4 and <code class="codeph">FILESPERSET</code> is set to 4. Thus, the level of multiplexing is 4. So, the total size of the buffers for each data file is 4 MB. The combined size of all the buffers is 16 MB.</p>
+<div class="figure" id="GUID-59FBFBBE-78F0-4035-8FAC-818DB539576B__BABICCGE">
+<p class="titleinfigure">Figure 23-3 Disk Buffer Allocation</p>
+<img width="389" height="391" src="img/GUID-506D1CF3-AF2C-48D3-96CF-71EA4C2DA3F5-default.gif" alt="Description of Figure 23-3 follows" title="Description of Figure 23-3 follows"/><br/>
+<a href="img_text/GUID-506D1CF3-AF2C-48D3-96CF-71EA4C2DA3F5-print.htm">Description of &#34;Figure 23-3 Disk Buffer Allocation&#34;</a></div>
+<!-- class="figure" -->
+<p>If a channel is backing up files stored in ASM, then the number of input disk buffers equals the number of physical disks in the ASM disk group only if the level of multiplexing is 1. For example, if a data file is stored in an ASM disk group that contains 16 physical disks, then the channel allocates 16 input buffers for the data file backup.</p>
+<p>If a channel is restoring a backup from disk, then 4 buffers are allocated. The size of the buffers is dependent on the operating system.</p>
+</div>
+</div>
+<a id="BRADV90068"></a>
+<div class="props_rev_3"><a id="GUID-6339C9D0-E98C-49E0-8C82-1EBA810EBB0B"></a>
+<h4 id="BRADV-GUID-6339C9D0-E98C-49E0-8C82-1EBA810EBB0B" class="sect4">Synchronous and Asynchronous Disk I/O</h4>
+<div>
+<p>When a channel reads from or writes to disk, the I/O is either <a href="glossary.htm#GUID-BF34E56C-328A-48E6-BA5A-4989C9AC4A48"><span class="xrefglossterm">synchronous I/O</span></a> or <a href="glossary.htm#GUID-38C5A9C6-8ABD-4828-80D8-F45B7234EED8"><span class="xrefglossterm">asynchronous I/O</span></a>. When the disk I/O is synchronous, a server process can perform only one task at a time. When the disk I/O is asynchronous, a server process can begin an I/O operation and then perform other work while waiting for the I/O to complete. RMAN can also begin multiple I/O operations before waiting for the first to complete.</p>
+<p>When reading from an ASM <a href="glossary.htm#GUID-FB619E7B-0181-4834-8F73-ED14C94837CC"><span class="xrefglossterm">disk group</span></a>, use asynchronous disk I/O if possible. Also, if a channel reads from a <a href="glossary.htm#GUID-D6545038-B176-4D0E-9B4B-E4187A063984"><span class="xrefglossterm">raw device</span></a> managed with a volume manager, then asynchronous disk I/O also works well. Some operating systems support native asynchronous disk I/O. The database takes advantage of this feature if it is available.</p>
+</div>
+</div>
+<a id="BRADV90069"></a>
+<div class="props_rev_3"><a id="GUID-BA1D0CA9-AE7F-4A9A-88B6-2449B94DBEF0"></a>
+<h4 id="BRADV-GUID-BA1D0CA9-AE7F-4A9A-88B6-2449B94DBEF0" class="sect4">Disk I/O Slaves</h4>
+<div>
+<p>On operating systems that do not support native asynchronous I/O, the database can simulate it with special I/O slave processes. These processes are dedicated to performing I/O on behalf of another process.</p>
+<p>You can control disk I/O slaves by setting the <code class="codeph">DBWR_IO_SLAVES</code> initialization parameter, which is not dynamic. The parameter specifies the number of I/O server processes used by the database writer process (DBWR). By default, the value is 0 and I/O server processes are not used. If asynchronous I/O is disabled, then RMAN allocates four backup disk I/O slaves for any nonzero value of <code class="codeph">DBWR_IO_SLAVES</code>.</p>
+<p>When attempting to get shared buffers for I/O slaves, the database does the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the <code class="codeph">LARGE_POOL_SIZE</code> initialization parameter is set, and if the <code class="codeph">DBWR_IO_SLAVES</code> parameter is set to a nonzero value, then the database attempts to get memory from the large pool. If this value is not large enough, then an error is recorded in the alert log, the database does not try to get buffers from the shared pool, and asynchronous I/O is not used.</p>
+</li>
+<li>
+<p>If the <code class="codeph">LARGE_POOL_SIZE</code> initialization parameter is not set or is set to zero, then the database attempts to get memory from the shared pool.</p>
+</li>
+<li>
+<p>If the database cannot get enough memory, then it obtains I/O buffer memory from the Program Global Area (PGA) and writes a message to the <code class="codeph">alert</code>.<code class="codeph">log</code> file indicating that synchronous I/O is used for this backup.</p>
+</li>
+</ul>
+<p>The memory from the large pool is used for many features, including the shared server, parallel query, and RMAN I/O slave buffers. Configuring the large pool prevents RMAN from competing with other subsystems for the same memory.</p>
+<p>Requests for contiguous memory allocations from the shared pool are usually small (under 5 KB). However, a request for a large contiguous memory allocation can either fail or require significant memory housekeeping to release the required amount of contiguous memory. Although the shared pool may be unable to satisfy this memory request, the large pool can do so. The large pool does not have a least recently used (LRU) list; the database does not attempt to age memory out of the large pool.</p>
+</div>
+</div>
+<a id="BRADV90070"></a>
+<div class="props_rev_3"><a id="GUID-5A55B177-B2A8-47AE-A6E9-693DFB5CC613"></a>
+<h4 id="BRADV-GUID-5A55B177-B2A8-47AE-A6E9-693DFB5CC613" class="sect4">RATE Channel Parameter</h4>
+<div>
+<p>In the <code class="codeph">ALLOCATE</code> and <code class="codeph">CONFIGURE CHANNEL</code> commands, the <code class="codeph">RATE</code> parameter specifies the bytes per second that are read on a channel. You can use this parameter to set an upper limit for bytes read so that RMAN does not consume excessive disk bandwidth and degrade online performance. Essentially, <code class="codeph">RATE</code> serves as a backup throttle. For example, if you set <code class="codeph">RATE 1500K</code>, and if each disk drive delivers 3 megabytes per second, then the channel leaves some disk bandwidth available to the online system.</p>
+</div>
+</div>
+</div>
+<a id="BRADV90071"></a>
+<div class="props_rev_3"><a id="GUID-4061DDD7-DB0F-46E8-A6B2-C3D10E288846"></a>
+<h3 id="BRADV-GUID-4061DDD7-DB0F-46E8-A6B2-C3D10E288846" class="sect3">Copy Phase</h3>
+<div>
+<p>In this phase, a channel copies blocks from the input buffers to the output buffers and performs additional processing. For example, if a channel reads data from disk and backs up to tape, then the channel copies the data from the disk buffers to the output tape buffers.</p>
+<p>The copy phase involves the following types of processing:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Validation</p>
+</li>
+<li>
+<p>Compression</p>
+</li>
+<li>
+<p>Encryption</p>
+</li>
+</ul>
+<p>When performing <a href="glossary.htm#GUID-A7DFFD0D-F709-43CD-BD1A-E5F08D88DB77"><span class="xrefglossterm">validation</span></a> of the blocks, RMAN checks them for corruption. Validation is explained in <a href="rcmvalid.htm#GUID-CC967929-9610-410D-B881-66E71353D84C">Validating Database Files and Backups</a> Typically, this processing is not CPU-intensive.</p>
+<p>When performing <a href="glossary.htm#GUID-90E07DCF-D038-4770-8A1A-06AF137C3762"><span class="xrefglossterm">binary compression</span></a>, RMAN applies a compression algorithm to the data in backup sets. Binary compression can be CPU-intensive. You can choose which compression algorithm RMAN uses for backups. The basic compression level for RMAN has a good compression ratio for most scenarios. If you enabled the Oracle Advanced Compression option, there are several different levels to choose from that provide tradeoffs between compression ratios and required CPU resources. Binary compression is explained in <span class="q">&#34;<a href="rcmcncpt.htm#GUID-2AFCD551-95CB-4F9F-946E-550E89613974">About Binary Compression for RMAN Backup Sets</a>&#34;</span> and in <span class="q">&#34;<a href="rcmbckba.htm#GUID-E0D30989-9477-45DD-8FE1-367BDD0A7A8E">Making Compressed Backups</a>&#34;</span>.</p>
+<p>When performing <a href="glossary.htm#GUID-65A13E9F-7391-4A6A-8379-B2EA64D0EA9E"><span class="xrefglossterm">backup encryption</span></a>, RMAN encrypts backup sets by using an algorithm listed <a id="d90631e964" class="indexterm-anchor"></a>in <code class="codeph">V$RMAN_ENCRYPTION_ALGORITHMS</code>. RMAN offers three modes of encryption: transparent, password-protected, and dual-mode. Backup encryption is explained in <span class="q">&#34;<a href="rcmbckad.htm#GUID-ECBE4965-57F7-49F0-BECD-734196F417F5">Encrypting RMAN Backups</a>&#34;</span>. Backup encryption can be CPU-intensive.</p>
+</div>
+</div>
+<a id="BRADV90072"></a>
+<div class="props_rev_3"><a id="GUID-BA0D4E35-7835-4F28-9504-C5EB32207206"></a>
+<h3 id="BRADV-GUID-BA0D4E35-7835-4F28-9504-C5EB32207206" class="sect3">Write Phase for System Backup Tape (SBT)</h3>
+<div>
+<p>When backing up to SBT, RMAN gives the <a href="glossary.htm#GUID-26FF62D0-5938-481D-B7B9-929BC971813E"><span class="xrefglossterm">media management software</span></a> a stream of bytes and associates a unique name with this stream. All details of how and where that stream is stored are handled entirely by the media manager. Thus, a backup to tape involves the interaction of both RMAN and the media manager.</p>
+<p>Factors that affect the write phase for SBT are described in the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmtunin.htm#GUID-A0CF4DE6-07C1-4828-9889-EDA1E30E1BE9">RMAN Component of the Write Phase for SBT</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-AD7E0880-DEDB-4339-80E6-125F40591F8F">Media Manager Component of the Write Phase for SBT</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV90073"></a>
+<div class="props_rev_3"><a id="GUID-A0CF4DE6-07C1-4828-9889-EDA1E30E1BE9"></a>
+<h4 id="BRADV-GUID-A0CF4DE6-07C1-4828-9889-EDA1E30E1BE9" class="sect4">RMAN Component of the Write Phase for SBT</h4>
+<div>
+<p>The RMAN-specific factors affecting the SBT write phase are analogous to the factors affecting disk reads. In both cases, the buffer allocation, slave processes, and synchronous or asynchronous I/O affect performance.</p>
+</div>
+<a id="BRADV397"></a><a id="BRADV89846"></a>
+<div class="props_rev_3"><a id="GUID-14963AC8-18DB-44F1-99C8-F07D85D7D826"></a>
+<h5 id="BRADV-GUID-14963AC8-18DB-44F1-99C8-F07D85D7D826" class="sect5">Allocation of Tape Buffers</h5>
+<div>
+<p>If you back up to or restore from an <a href="glossary.htm#GUID-2E48CE71-9547-4196-B715-5CE59033262E"><span class="xrefglossterm">SBT</span></a> device, then by default the database allocates four buffers for each channel for the tape writers (or reads if restoring data as shown in <a href="rcmtunin.htm#GUID-14963AC8-18DB-44F1-99C8-F07D85D7D826__CACEAIIF">Figure 23-4</a>). The size of the tape I/O buffers is platform-dependent. You can change this value with the <code class="codeph">PARMS</code> and <code class="codeph">BLKSIZE</code> parameters of the <code class="codeph">ALLOCATE CHANNEL</code> or <code class="codeph">CONFIGURE CHANNEL</code> command.</p>
+<div class="figure" id="GUID-14963AC8-18DB-44F1-99C8-F07D85D7D826__CACEAIIF">
+<p class="titleinfigure">Figure 23-4 Allocation of Tape Buffers</p>
+<img width="335" height="184" src="img/GUID-D31F69C8-6D61-4823-AFB1-939CE949103F-default.gif" alt="Description of Figure 23-4 follows" title="Description of Figure 23-4 follows"/><br/>
+<a href="img_text/GUID-D31F69C8-6D61-4823-AFB1-939CE949103F-print.htm">Description of &#34;Figure 23-4 Allocation of Tape Buffers&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="BRADV90074"></a>
+<div class="props_rev_3"><a id="GUID-4AFD6357-3E96-4449-A2F0-AA4BF49A11A8"></a>
+<h5 id="BRADV-GUID-4AFD6357-3E96-4449-A2F0-AA4BF49A11A8" class="sect5">Tape I/O Slaves</h5>
+<div>
+<p>RMAN allocates the tape buffers in the System Global Area (SGA) or the Program Global Area (PGA), depending on whether I/O slaves are used. If you set the initialization parameter <code class="codeph">BACKUP_TAPE_IO_SLAVES=true</code>, then RMAN allocates tape buffers from the SGA. Tape devices can only be accessed by one process at a time, so RMAN starts as many slaves as necessary for the number of tape devices. If the <code class="codeph">LARGE_POOL_SIZE</code> initialization parameter is also set, then RMAN allocates buffers from the large pool. If you set <code class="codeph">BACKUP_TAPE_IO_SLAVES=false</code>, then RMAN allocates the buffers from the PGA.</p>
+<p>If you use I/O slaves, then set the <code class="codeph">LARGE_POOL_SIZE</code> initialization parameter to dedicate SGA memory to holding these large memory allocations. This parameter prevents RMAN I/O buffers from competing with the library cache for SGA memory. If I/O slaves for tape I/O were requested but there is not enough space in the SGA for them, slaves are not used, and a message appears in the alert log.</p>
+<p>The parameter <code class="codeph">BACKUP_TAPE_IO_SLAVES</code> specifies whether RMAN uses slave processes rather than the number of slave processes. Tape devices can only be accessed by one process at a time, and RMAN uses the number of slaves necessary for the number of tape devices.</p>
+</div>
+</div>
+<a id="BRADV398"></a><a id="BRADV399"></a><a id="BRADV89847"></a>
+<div class="props_rev_3"><a id="GUID-34FEA214-7C3D-447B-B441-A05C11814015"></a>
+<h5 id="BRADV-GUID-34FEA214-7C3D-447B-B441-A05C11814015" class="sect5">Synchronous and Asynchronous I/O</h5>
+<div>
+<p>When an SBT channel reads or writes data to tape, the I/O is always synchronous. For tape I/O, each channel allocated (whether manually or automatically) corresponds to a server process, called here a channel process.</p>
+<p><a href="rcmtunin.htm#GUID-34FEA214-7C3D-447B-B441-A05C11814015__BABEBGFD">Figure 23-5</a> shows synchronous I/O in a backup to tape.</p>
+<div class="figure" id="GUID-34FEA214-7C3D-447B-B441-A05C11814015__BABEBGFD">
+<p class="titleinfigure">Figure 23-5 Synchronous Tape I/O</p>
+<img width="513" height="213" src="img/GUID-55714351-C396-4325-80C6-C90CCCCC2A9D-default.png" alt="Description of Figure 23-5 follows" title="Description of Figure 23-5 follows"/><br/>
+<a href="img_text/GUID-55714351-C396-4325-80C6-C90CCCCC2A9D-print.htm">Description of &#34;Figure 23-5 Synchronous Tape I/O&#34;</a></div>
+<!-- class="figure" -->
+<p>The following steps occur:</p>
+<ol>
+<li>
+<p>The channel process composes a tape buffer.</p>
+</li>
+<li>
+<p>The channel process executes media manager code that processes the tape buffer and internalizes it for further processing and storage by the media manager.</p>
+</li>
+<li>
+<p>The media manager code returns a message to the server process stating that it has completed writing.</p>
+</li>
+<li>
+<p>The channel process can initiate a new task.</p>
+</li>
+</ol>
+<p><a href="rcmtunin.htm#GUID-34FEA214-7C3D-447B-B441-A05C11814015__BABCJEEI">Figure 23-6</a> shows asynchronous I/O in a tape backup. Asynchronous I/O to tape is simulated by using tape slaves. In this case, each allocated channel corresponds to a server process, which in the explanation that follows is identified as a channel process. For each channel process, one tape slave is started (or more than one, if multiple copies exist).</p>
+<div class="figure" id="GUID-34FEA214-7C3D-447B-B441-A05C11814015__BABCJEEI">
+<p class="titleinfigure">Figure 23-6 Asynchronous Tape I/O</p>
+<img width="482" height="267" src="img/GUID-628CD57D-F1CB-4FDC-A9DE-3057BF7D9220-default.png" alt="Description of Figure 23-6 follows" title="Description of Figure 23-6 follows"/><br/>
+<a href="img_text/GUID-628CD57D-F1CB-4FDC-A9DE-3057BF7D9220-print.htm">Description of &#34;Figure 23-6 Asynchronous Tape I/O&#34;</a></div>
+<!-- class="figure" -->
+<p>The following steps occur:</p>
+<ol>
+<li>
+<p>A channel process writes blocks to a tape buffer.</p>
+</li>
+<li>
+<p>The channel process sends a message to the tape slave process to process the tape buffer. The tape slave process executes media manager code that processes the tape buffer and internalizes it so that the media manager can process it.</p>
+</li>
+<li>
+<p>While the tape slave process is writing, the channel process is free to read data from the data files and prepare more output buffers.</p>
+</li>
+<li>
+<p>After the tape slave channel returns from the media manager code, it requests a new tape buffer, which usually is ready. Thus waiting time for the channel process is reduced, and the backup is completed faster.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<a id="BRADV99979"></a>
+<div class="props_rev_3"><a id="GUID-AD7E0880-DEDB-4339-80E6-125F40591F8F"></a>
+<h4 id="BRADV-GUID-AD7E0880-DEDB-4339-80E6-125F40591F8F" class="sect4">Media Manager Component of the Write Phase for SBT</h4>
+<div>
+<p>The following factors affect the speed of the backup to tape:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmtunin.htm#GUID-7F87C520-E4DC-4D2E-9BD5-520715D43FD3">Network Throughput</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-B8428B92-0FD1-4027-9935-D8B8C3A5D9E9">Native Transfer Rate</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-93005BE3-2812-42B2-9475-07013BADF2A7">Tape Compression</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-14C2A81B-F28F-4F32-A6F6-D91F510E08F1">Tape Streaming</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-F92F1101-04CD-478D-B766-6C01EE4AFB32">Physical Tape Block Size</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV99980"></a>
+<div class="props_rev_3"><a id="GUID-7F87C520-E4DC-4D2E-9BD5-520715D43FD3"></a>
+<h5 id="BRADV-GUID-7F87C520-E4DC-4D2E-9BD5-520715D43FD3" class="sect5">Network Throughput</h5>
+<div>
+<p>If the tape device is remote, then the media manager must transfer data over the network. For example, an administrative domain in Oracle Secure Backup can contain multiple networked client hosts, media servers, and tape devices. If the database is on one host, but the output tape drive is attached to a different host, then Oracle Secure Backup manages the data transfer over the network. The network throughput is the upper limit for backup performance.</p>
+</div>
+</div>
+<a id="BRADV89850"></a>
+<div class="props_rev_3"><a id="GUID-B8428B92-0FD1-4027-9935-D8B8C3A5D9E9"></a>
+<h5 id="BRADV-GUID-B8428B92-0FD1-4027-9935-D8B8C3A5D9E9" class="sect5">Native Transfer Rate</h5>
+<div>
+<p>The tape <a href="glossary.htm#GUID-61F30525-80E4-43D4-AA7B-EFA181FBA77E"><span class="xrefglossterm">native transfer rate</span></a> is the speed of writing to a tape without compression. This speed represents the upper limit of the backup rate. The upper limit of your backup performance should be the aggregate transfer rate of all of your tape drives. If your backup is performing at that rate, and if it is not using an excessive amount of CPU, then RMAN performance tuning does not help.</p>
+</div>
+</div>
+<a id="BRADV89851"></a>
+<div class="props_rev_3"><a id="GUID-93005BE3-2812-42B2-9475-07013BADF2A7"></a>
+<h5 id="BRADV-GUID-93005BE3-2812-42B2-9475-07013BADF2A7" class="sect5">Tape Compression</h5>
+<div>
+<p>The level of tape compression is very important for backup performance. If the tape has good compression, then the sustained backup rate is faster. For example, if the compression ratio is 2:1 and native transfer rate of the tape drive is 6 megabytes per second, then the resulting backup speed is 12 megabytes per second. In this case, RMAN must be able to read disks with a throughput of more than 12 megabytes per second or the disk becomes the bottleneck for the backup.</p>
+<div class="infobox-note" id="GUID-93005BE3-2812-42B2-9475-07013BADF2A7__GUID-B38EF514-4F37-40C6-9FAE-6EF52887C635">
+<p class="notep1">Note:</p>
+<p>Do not use both tape compression provided by the media manager and binary compression provided by RMAN. If the media manager compression is efficient, then it is usually the better choice. Using RMAN-compressed backup sets can be an effective alternative to reduce bandwidth used to move uncompressed backup sets over a network to the media manager, if the CPU overhead required to compress the data in RMAN is acceptable.</p>
+</div>
+</div>
+</div>
+<a id="BRADV89852"></a>
+<div class="props_rev_3"><a id="GUID-14C2A81B-F28F-4F32-A6F6-D91F510E08F1"></a>
+<h5 id="BRADV-GUID-14C2A81B-F28F-4F32-A6F6-D91F510E08F1" class="sect5">Tape Streaming</h5>
+<div>
+<p>Tape streaming during write operations has a major effect on tape backup performance. Many tape drives are fixed-speed, streaming tape drives. Because such drives can write data at only one speed, when they run out of data to write to tape, the tape must slow and stop. Typically, when the drive&#39;s buffer empties, the tape is moving so quickly that it actually overshoots; to continue writing, the drive must rewind the tape to locate the point where it stopped writing. Multiple speed tape drives are available that alleviate this problem.</p>
+</div>
+</div>
+<a id="BRADV89853"></a>
+<div class="props_rev_3"><a id="GUID-F92F1101-04CD-478D-B766-6C01EE4AFB32"></a>
+<h5 id="BRADV-GUID-F92F1101-04CD-478D-B766-6C01EE4AFB32" class="sect5">Physical Tape Block Size</h5>
+<div>
+<p>The physical tape block size can affect backup performance. The block size is the amount of data written by media management software to a tape in one write operation. In general, the larger the tape block size, the faster the backup. The physical tape block size is not controlled by RMAN or Oracle database, but by media management software. See your media management software&#39;s documentation for details.</p>
+</div>
+</div>
+</div>
+</div>
+<a id="BRADV90075"></a>
+<div class="props_rev_3"><a id="GUID-56356B98-2E0F-4D03-9998-F1E8348D9F2B"></a>
+<h3 id="BRADV-GUID-56356B98-2E0F-4D03-9998-F1E8348D9F2B" class="sect3">Write Phase for Disk</h3>
+<div>
+<p>The principal factor affecting the write phase for disk is the buffer size. When the output of the backup resides on disk, each channel allocates four output buffers of 1 MB each. The disk channel writes the blocks to the disk subsystem. When restoring files, the read phase is similar to the write phase when backing up files, except the blocks move in the opposite direction.</p>
+<p>If RMAN reads from a disk asynchronously, then it writes to the disk asynchronously. When writing to disk, you can make use of disk I/O slaves just as when reading from disk.</p>
+<p>If RMAN is backing up files to a disk-based output destination striped over multiple disks, then you can allocate multiple channels. The number of channels is limited only to the number of disks over which the destination is striped. ASM is one example of a destination striped over multiple disks.</p>
+</div>
+</div>
+</div>
+<a id="BRADV90076"></a>
+<div class="props_rev_3"><a id="GUID-9F7B89D0-969A-47EE-B29B-28C8F5AC3243"></a>
+<h2 id="BRADV-GUID-9F7B89D0-969A-47EE-B29B-28C8F5AC3243" class="sect2">Using V$ Views to Diagnose RMAN Performance Problems</h2>
+<div>
+<p>Typically, you begin the tuning process by using <code class="codeph">V$</code> views to determine where RMAN backup and restore operations are encountering problems.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmtunin.htm#GUID-82E0A857-10E7-42B7-ABB4-AFD226AD7159">Monitoring RMAN Job Progress with V$SESSION_LONGOPS</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-B3E0099F-8F76-4013-8993-550B3BAFF22E">Identifying Bottlenecks with V$BACKUP_SYNC_IO and V$BACKUP_ASYNC_IO</a></p>
+</li>
+</ul>
+</div>
+<a id="BRADV400"></a><a id="BRADV401"></a><a id="BRADV99981"></a>
+<div class="props_rev_3"><a id="GUID-82E0A857-10E7-42B7-ABB4-AFD226AD7159"></a>
+<h3 id="BRADV-GUID-82E0A857-10E7-42B7-ABB4-AFD226AD7159" class="sect3">Monitoring RMAN Job Progress with V$SESSION_LONGOPS</h3>
+<div>
+<div class="section">
+<p><a id="d90631e2135" class="indexterm-anchor"></a>You <a id="d90631e2140" class="indexterm-anchor"></a>can monitor the progress of backups and restore jobs by querying the view <code class="codeph">V$SESSION_LONGOPS</code>. RMAN uses two types of rows <a id="d90631e2148" class="indexterm-anchor"></a>in <code class="codeph">V$SESSION_LONGOPS</code>: detail rows and aggregate rows.</p>
+<p>Detail rows describe the files being processed by one job step, whereas aggregate rows describe the files processed by all job steps in an RMAN command. A job step is the creation or restoration of one backup set or data file copy. Detail rows are updated with every buffer that is read or written during the backup step, so their granularity of update is small. Aggregate rows are updated when each job step completes, so their granularity of update is large.</p>
+<p><a href="rcmtunin.htm#GUID-82E0A857-10E7-42B7-ABB4-AFD226AD7159__g1013679" title="This table is described in the preceding paragraph.">Table 23-2</a> describes the columns in <code class="codeph">V$SESSION_LONGOPS</code> that are most relevant for RMAN. Typically, you view the detail rows rather than the aggregate rows to determine the progress of each backup set.</p>
+<div class="tblformal" id="GUID-82E0A857-10E7-42B7-ABB4-AFD226AD7159__g1013679">
+<p class="titleintable">Table 23-2 Columns of V$SESSION_LONGOPS Relevant for RMAN</p>
+<table class="cellalignment515" title="Columns of V$SESSION_LONGOPS Relevant for RMAN" summary="This table is described in the preceding paragraph.">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment527" id="d90631e2175">Column</th>
+<th class="cellalignment528" id="d90631e2178">Description for Detail Rows</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d90631e2183" headers="d90631e2175">
+<p><code class="codeph">SID</code></p>
+</td>
+<td class="cellalignment530" headers="d90631e2183 d90631e2178">
+<p>The server session ID corresponding to an RMAN channel</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d90631e2191" headers="d90631e2175">
+<p><code class="codeph">SERIAL#</code></p>
+</td>
+<td class="cellalignment530" headers="d90631e2191 d90631e2178">
+<p>The server session serial number. This value changes each time a server session is reused.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d90631e2199" headers="d90631e2175">
+<p><code class="codeph">OPNAME</code></p>
+</td>
+<td class="cellalignment530" headers="d90631e2199 d90631e2178">
+<p>A text description of the row. Examples of details rows include <code class="codeph">RMAN:</code> <code class="codeph">datafile</code> <code class="codeph">copy</code>, <code class="codeph">RMAN:</code> <code class="codeph">full</code> <code class="codeph">datafile</code> <code class="codeph">backup</code>, and <code class="codeph">RMAN:</code> <code class="codeph">full</code> <code class="codeph">datafile</code> <code class="codeph">restore</code>.</p>
+<p><span class="bold">Note:</span> <code class="codeph">RMAN:</code> <code class="codeph">aggregate</code> <code class="codeph">input</code> and <code class="codeph">RMAN:</code> <code class="codeph">aggregate</code> <code class="codeph">output</code> are the only aggregate rows.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d90631e2264" headers="d90631e2175">
+<p><code class="codeph">CONTEXT</code></p>
+</td>
+<td class="cellalignment530" headers="d90631e2264 d90631e2178">
+<p>For backup output rows, this value is <code class="codeph">2</code>. For all other rows except proxy copy (which does not update this column), the value is <code class="codeph">1</code>.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d90631e2278" headers="d90631e2175">
+<p><code class="codeph">SOFAR</code></p>
+</td>
+<td class="cellalignment530" headers="d90631e2278 d90631e2178">
+<p>The meaning of this column depends on the type of operation described by this row:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>For image copies, the number of blocks that have been read</p>
+</li>
+<li>
+<p>For backup input rows, the number of blocks that have been read from the files being backed up</p>
+</li>
+<li>
+<p>For backup output rows, the number of blocks that have been written to the backup piece</p>
+</li>
+<li>
+<p>For restores, the number of blocks that have been processed to the files that are being restored in this one job step</p>
+</li>
+<li>
+<p>For proxy copies, the number of files that have been copied</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment529" id="d90631e2302" headers="d90631e2175">
+<p><code class="codeph">TOTALWORK</code></p>
+</td>
+<td class="cellalignment530" headers="d90631e2302 d90631e2178">
+<p>The meaning of this column depends on the type of operation described by this row:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>For image copies, the total number of blocks in the file.</p>
+</li>
+<li>
+<p>For backup input rows, the total number of blocks to be read from all files processed in this job step.</p>
+</li>
+<li>
+<p>For backup output rows, the value is <code class="codeph">0</code> because RMAN does not know how many blocks that it will write into any backup piece.</p>
+</li>
+<li>
+<p>For restores, the total number of blocks in all files restored in this job step.</p>
+</li>
+<li>
+<p>For proxy copies, the total number of files to be copied in this job step.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Each server session performing a backup or restore job reports its progress compared to the total work required for a job step. For example, if you restore the database with two channels, and each channel has two backup sets to restore (a total of four sets), then each server session reports its progress through a single backup set. When a set is completely restored, RMAN begins reporting progress on the next set to restore.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To monitor RMAN job progress:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Before starting the RMAN job, create a script file (called, for this example, <code class="codeph">longops</code>) containing the following SQL statement:</span>
+<div>
+<pre dir="ltr">SELECT SID, SERIAL#, CONTEXT, SOFAR, TOTALWORK,
+       ROUND(SOFAR/TOTALWORK*100,2) &#34;%_COMPLETE&#34;
+FROM   V$SESSION_LONGOPS
+WHERE  OPNAME LIKE &#39;RMAN%&#39;
+AND    OPNAME NOT LIKE &#39;%aggregate%&#39;
+AND    TOTALWORK != 0
+AND    SOFAR &lt;&gt; TOTALWORK;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Start RMAN and connect to the target database and recovery catalog (if used).</span></li>
+<li class="stepexpand"><span>Start an RMAN job. For example, enter:</span>
+<div>
+<pre dir="ltr">RMAN&gt; RESTORE DATABASE;
+</pre></div>
+</li>
+<li class="stepexpand"><span>While the RMAN job is running, start SQL*Plus and connect to the target database, and execute the <code class="codeph">longops</code> script to check the progress of the RMAN job. If you repeat the query while the RMAN job progresses, then you see output such as the following:</span>
+<div>
+<pre dir="ltr">SQL&gt; @longops
+       SID    SERIAL#    CONTEXT      SOFAR  TOTALWORK %_COMPLETE
+---------- ---------- ---------- ---------- ---------- ----------
+         8         19          1      10377      36617      28.34
+
+SQL&gt; @longops
+       SID    SERIAL#    CONTEXT      SOFAR  TOTALWORK % COMPLETE
+---------- ---------- ---------- ---------- ---------- ----------
+         8         19          1      21513      36617      58.75
+
+SQL&gt; @longops
+       SID    SERIAL#    CONTEXT      SOFAR  TOTALWORK % COMPLETE
+---------- ---------- ---------- ---------- ---------- ----------
+         8         19          1      29641      36617      80.95
+
+SQL&gt; @longops
+       SID    SERIAL#    CONTEXT      SOFAR  TOTALWORK % COMPLETE
+---------- ---------- ---------- ---------- ---------- ----------
+         8         19          1      35849      36617       97.9
+
+SQL&gt; @longops
+no rows selected
+</pre></div>
+</li>
+<li class="stepexpand"><span>If you run the <code class="codeph">longops</code> script at intervals of 2 minutes or more and the <code class="codeph">%</code>_<code class="codeph">COMPLETE</code> column does not increase, then RMAN is encountering a problem. See <span class="q">&#34;<a href="rcmtroub.htm#GUID-6B323AE8-1E76-45E6-8434-3DCC5CE2E873">Monitoring RMAN Interaction with the Media Manager</a>&#34;</span> to obtain more information.</span></li>
+</ol>
+<div class="section">
+<p>If you frequently monitor the execution of long-running tasks, then you could create a shell script or batch file under your host operating system that runs SQL*Plus to execute this query repeatedly.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV402"></a><a id="BRADV89862"></a>
+<div class="props_rev_3"><a id="GUID-B3E0099F-8F76-4013-8993-550B3BAFF22E"></a>
+<h3 id="BRADV-GUID-B3E0099F-8F76-4013-8993-550B3BAFF22E" class="sect3">Identifying Bottlenecks with V$BACKUP_SYNC_IO and V$BACKUP_ASYNC_IO</h3>
+<div>
+<div class="section">
+<p>You can use <a id="d90631e2456" class="indexterm-anchor"></a>the <code class="codeph">V$BACKUP_SYNC_IO</code> <a id="d90631e2462" class="indexterm-anchor"></a>and <code class="codeph">V$BACKUP_ASYNC_IO</code> views to determine the source of backup or restore bottlenecks and to see detailed progress of backup jobs.</p>
+<p><code class="codeph">V$BACKUP_SYNC_IO</code> contains rows when the I/O is synchronous to the process (or thread on some platforms) performing the backup. <code class="codeph">V$BACKUP_ASYNC_IO</code> contains rows when the I/O is asynchronous. Asynchronous I/O is obtained either with I/O processes or because it is supported by the underlying operating system.</p>
+<p>The results of a backup or restore job remain in memory until the database instance shuts down. Thus, you can query the views after the job completes.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To determine whether the tape is streaming when the I/O is synchronous:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Start SQL*Plus and connect to the target database.</span></li>
+<li class="stepexpand"><span>Query the <code class="codeph">EFFECTIVE_BYTES_PER_SECOND</code> column in the <code class="codeph">V$BACKUP_SYNC_IO</code> or <code class="codeph">V$BACKUP_ASYNC_IO</code> view.</span>
+<div>
+<p>If <code class="codeph">EFFECTIVE_BYTES_PER_SECOND</code> is less than the raw capacity of the hardware, then the tape is not streaming. If <code class="codeph">EFFECTIVE_BYTES_PER_SECOND</code> is greater than the raw capacity of the hardware, the tape may or may not be streaming. Compression may cause the <code class="codeph">EFFECTIVE_BYTES_PER_SECOND</code> to be greater than the speed of real I/O.</p>
+</div>
+</li>
+</ol>
+<div class="section">
+<div class="infoboxnotealso" id="GUID-B3E0099F-8F76-4013-8993-550B3BAFF22E__GUID-0E412F03-BE1F-4793-B34D-115AB9A3F83E">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for more information about these views</p>
+</div>
+</div>
+<!-- class="section" --></div>
+<a id="BRADV403"></a><a id="BRADV89863"></a>
+<div class="props_rev_3"><a id="GUID-5D8AAB8F-8A63-4B82-9BFB-16D22CE439FD"></a>
+<h4 id="BRADV-GUID-5D8AAB8F-8A63-4B82-9BFB-16D22CE439FD" class="sect4">Identifying Bottlenecks with Synchronous I/O</h4>
+<div>
+<div class="section">
+<p>With synchronous I/O, it is difficult to identify specific bottlenecks because all synchronous I/O is a bottleneck to the process. The only way to tune synchronous I/O is to compare the rate (in bytes per second) with the device&#39;s maximum throughput rate. If the rate is lower than the rate that the device specifies, then consider tuning this aspect of the backup and restore process.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To determine the rate of synchronous I/O:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Start SQL*Plus and connect to the target database.</span></li>
+<li class="stepexpand"><span>Query the <code class="codeph">DISCRETE_BYTES_PER_SECOND</code> column in the <code class="codeph">V$BACKUP_SYNC_IO</code> view to display the I/O rate.</span>
+<div>
+<p>If you see data in <code class="codeph">V$BACKUP_SYNC_IO</code>, then the problem is that you have not enabled asynchronous I/O or you are not using disk I/O slaves.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV404"></a><a id="BRADV89864"></a>
+<div class="props_rev_3"><a id="GUID-CD6CA7F3-F59B-4FB6-8F8C-B378DBEEBCD0"></a>
+<h4 id="BRADV-GUID-CD6CA7F3-F59B-4FB6-8F8C-B378DBEEBCD0" class="sect4">Identifying Bottlenecks with Asynchronous I/O</h4>
+<div>
+<div class="section">
+<p><strong class="term">Long waits</strong> are the number of times the backup or restore process told the operating system to wait until an I/O was complete. <a id="d90631e2692" class="indexterm-anchor"></a><a id="d90631e2698" class="indexterm-anchor"></a><strong class="term">Short waits</strong> are the number of times the backup or restore process made an operating system call to poll for I/O completion in a nonblocking mode. <strong class="term">Ready</strong> indicates the number of times when I/O was ready for use, so there was no need to make an operating system call to poll for I/O completion.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To determine the rate of asynchronous I/O:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Start SQL*Plus and connect to the target database.</span></li>
+<li class="stepexpand"><span>Query the <code class="codeph">LONG_WAITS</code> and <code class="codeph">IO_COUNT</code> columns in the <code class="codeph">V$BACKUP_ASYNC_IO</code> view to display the I/O rate.</span>
+<div>
+<p>The simplest way to identify the bottleneck is to find the data file that has the largest ratio for <code class="codeph">LONG_WAITS</code> divided by <code class="codeph">IO_COUNT</code>. For example, you can use the following query:</p>
+<pre dir="ltr">SELECT   LONG_WAITS/IO_COUNT, FILENAME
+FROM     V$BACKUP_ASYNC_IO
+WHERE    LONG_WAITS/IO_COUNT &gt; 0
+ORDER BY LONG_WAITS/IO_COUNT DESC;
+</pre></div>
+</li>
+</ol>
+<div class="section">
+<div class="infobox-note" id="GUID-CD6CA7F3-F59B-4FB6-8F8C-B378DBEEBCD0__GUID-A3BDB529-CEFB-45A0-93C6-CE0938B50164">
+<p class="notep1">Note:</p>
+<p>If you have synchronous I/O but you set <code class="codeph">BACKUP_DISK_IO_SLAVES</code>, then the I/O is displayed in <code class="codeph">V$BACKUP_ASYNC_IO</code>.</p>
+</div>
+<div class="infoboxnotealso" id="GUID-CD6CA7F3-F59B-4FB6-8F8C-B378DBEEBCD0__GUID-9649AC95-51E9-4FED-AD9C-E2D3A693C2F9">
+<p class="notep1">See Also:</p>
+<p><a class="olink REFRN003" target="_blank" href="../REFRN/GUID-8C5690B0-DE10-4460-86DF-80111869CF4C.htm#REFRN003"><span class="italic">Oracle Database Reference</span></a> for descriptions of the <code class="codeph">V$BACKUP_SYNC_IO</code> and <code class="codeph">V$BACKUP_ASYNC_IO</code> views</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="BRADV172"></a>
+<div class="props_rev_3"><a id="GUID-5AAB8C9A-41C6-4400-B643-08D10D7106AD"></a>
+<h2 id="BRADV-GUID-5AAB8C9A-41C6-4400-B643-08D10D7106AD" class="sect2">Tuning RMAN Backup Performance</h2>
+<div>
+<div class="section">
+<p>Many factors can affect backup performance. Often, finding the solution to a slow backup is a process of trial and error. To obtain the best performance for a backup, follow the steps in this section in sequential order.</p>
+<p>This section contains the following steps:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmtunin.htm#GUID-B0E48A46-024E-4C26-BD09-A8BE96FFE5C7">Step 1: Remove the RATE Parameter from Channel Settings</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-B0A3D96A-D65B-4D15-8AB8-A84494F545FA">Step 2: If You Use Synchronous Disk I/O_ Set DBWR_IO_SLAVES</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-B2B1A6DB-6C3D-4E41-B285-26289713D473">Step 3: If You Fail to Allocate Shared Memory_ Set LARGE_POOL_SIZE</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-4189FC87-CD02-49CD-A311-887ABAA34004">Step 4: Tune the Read_ Write_ and Copy Phases</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="BRADV405"></a><a id="BRADV89855"></a>
+<div class="props_rev_3"><a id="GUID-B0E48A46-024E-4C26-BD09-A8BE96FFE5C7"></a>
+<h3 id="BRADV-GUID-B0E48A46-024E-4C26-BD09-A8BE96FFE5C7" class="sect3">Step 1: Remove the RATE Parameter from Channel Settings</h3>
+<div>
+<div class="section">
+<p>As explained in <span class="q">&#34;<a href="rcmtunin.htm#GUID-5A55B177-B2A8-47AE-A6E9-693DFB5CC613">RATE Channel Parameter</a>&#34;</span>, the <code class="codeph">RATE</code> parameter on a channel is intended to reduce, rather than increase, backup throughput so that more disk bandwidth is available for other database operations. If the backup is not streaming to tape, then confirm that the <code class="codeph">RATE</code> parameter is not set.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To remove the RATE parameter:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Examine your backup script.</span></li>
+<li class="stepexpand"><span>Do one of the following:</span>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>If the backup is in a <code class="codeph">RUN</code> command, then remove the <code class="codeph">RATE</code> parameter, if it is specified, from the <code class="codeph">ALLOCATE</code> command. Skip the remaining steps.</p>
+</li>
+<li>
+<p>If the backup is not in a <code class="codeph">RUN</code> command, then start RMAN, connect to the target database, and proceed to the next step.</p>
+</li>
+</ul>
+</div>
+</li>
+<li class="stepexpand"><span>Execute the <code class="codeph">SHOW ALL</code> command to show the currently configured settings.</span></li>
+<li class="stepexpand"><span>Remove the <code class="codeph">RATE</code> parameter, if it is set, from the <code class="codeph">CONFIGURE CHANNEL</code> command.</span></li>
+</ol>
+</div>
+</div>
+<a id="BRADV406"></a><a id="BRADV89856"></a>
+<div class="props_rev_3"><a id="GUID-B0A3D96A-D65B-4D15-8AB8-A84494F545FA"></a>
+<h3 id="BRADV-GUID-B0A3D96A-D65B-4D15-8AB8-A84494F545FA" class="sect3">Step 2: If You Use Synchronous Disk I/O, Set DBWR_IO_SLAVES</h3>
+<div>
+<div class="section">
+<p>As explained in <span class="q">&#34;<a href="rcmtunin.htm#GUID-6339C9D0-E98C-49E0-8C82-1EBA810EBB0B">Synchronous and Asynchronous Disk I/O</a>&#34;</span>, some operating systems support native asynchronous I/O. If and only if your disk does <span class="italic">not</span> support asynchronous I/O, then set <code class="codeph">DBWR_IO_SLAVES</code>. Any nonzero value for <code class="codeph">DBWR_IO_SLAVES</code> causes a fixed number of disk I/O slaves to be used for backup and restore, which simulates asynchronous I/O.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To enable disk I/O slaves:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Start SQL*Plus and connect to the target database.</span></li>
+<li class="stepexpand"><span>Shut down the database.</span></li>
+<li class="stepexpand"><span>Set <code class="codeph">DBWR_IO_SLAVES</code> initialization parameter to a nonzero value.</span>
+<div>
+<p>This setting enables the database writer processes to use slaves. Thus, you may need to increase the value of the <code class="codeph">PROCESSES</code> initialization parameter.</p>
+</div>
+</li>
+<li class="stepexpand"><span>Restart the database.</span></li>
+<li class="stepexpand"><span>Restart the RMAN backup.</span></li>
+</ol>
+</div>
+</div>
+<a id="BRADV407"></a><a id="BRADV89857"></a>
+<div class="props_rev_3"><a id="GUID-B2B1A6DB-6C3D-4E41-B285-26289713D473"></a>
+<h3 id="BRADV-GUID-B2B1A6DB-6C3D-4E41-B285-26289713D473" class="sect3">Step 3: If You Fail to Allocate Shared Memory, Set LARGE_POOL_SIZE</h3>
+<div>
+<div class="section">
+<p>Set the <code class="codeph">LARGE_POOL_SIZE</code> initialization parameter if the database reports an error in the alert log stating that it does not have enough memory and that it cannot start I/O slaves. The message resembles the following:</p>
+<pre dir="ltr">ksfqxcre: failure to allocate shared memory means sync I/O will be used whenever
+async I/O to file not supported natively
+</pre>
+<p>The large pool is used for RMAN and for other purposes, so its total size must accommodate all uses. This is especially true if <code class="codeph">DBWR_IO_SLAVES</code> has been set and the DBWR process needs buffers.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To set the large pool size:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Start SQL*Plus and connect to the target database.</span></li>
+<li class="stepexpand"><span>Optionally, <a id="d90631e3197" class="indexterm-anchor"></a>query <code class="codeph">V$SGASTAT.POOL</code> to determine in which pool (shared pool or large pool) the memory for an object resides.</span></li>
+<li class="stepexpand"><span>Set the <code class="codeph">LARGE_POOL_SIZE</code> initialization parameter in the target database.</span>
+<div>
+<p>You can execute an <code class="codeph">ALTER SYSTEM SET</code> statement to set the parameter dynamically. The formula for setting <code class="codeph">LARGE_POOL_SIZE</code> is as follows:</p>
+<pre dir="ltr">LARGE_POOL_SIZE =  <span class="italic">number_of_allocated_channels</span> * 
+                   (16 MB + ( 4 *  <span class="italic">size_of_tape_buffer </span>) )
+</pre></div>
+</li>
+<li class="stepexpand"><span>Restart the RMAN backup.</span></li>
+</ol>
+<div class="section">
+<div class="infoboxnotealso" id="GUID-B2B1A6DB-6C3D-4E41-B285-26289713D473__GUID-89ACE45B-48F1-402D-A43B-D29947CDE589">
+<p class="notep1">See Also:</p>
+<p><a class="olink CNCPT" target="_blank" href="../CNCPT/toc.htm"><span class="italic">Oracle Database Concepts</span></a> for more information about the large pool, and <a class="olink REFRN" target="_blank" href="../REFRN/toc.htm"><span class="italic">Oracle Database Reference</span></a> for complete information about initialization parameters</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV89858"></a>
+<div class="props_rev_3"><a id="GUID-4189FC87-CD02-49CD-A311-887ABAA34004"></a>
+<h3 id="BRADV-GUID-4189FC87-CD02-49CD-A311-887ABAA34004" class="sect3">Step 4: Tune the Read, Write, and Copy Phases</h3>
+<div>
+<div class="section">
+<p>There are several tasks that you can perform to identify and remedy bottlenecks that affect backup performance. This includes the following tasks:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="rcmtunin.htm#GUID-DA0FFF93-832C-41E9-9162-157F589A7082">Using Backup Validation To Distinguish Between Read and Write Bottlenecks</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-F2715D6D-F750-4B4B-8A8A-BC4B2ECE6D23">Tuning the Read Phase</a></p>
+</li>
+<li>
+<p><a href="rcmtunin.htm#GUID-3303B929-0747-4E78-BED1-9F468213F357">Tuning the Copy and Write Phases</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="BRADV408"></a><a id="BRADV89859"></a>
+<div class="props_rev_3"><a id="GUID-DA0FFF93-832C-41E9-9162-157F589A7082"></a>
+<h4 id="BRADV-GUID-DA0FFF93-832C-41E9-9162-157F589A7082" class="sect4">Using Backup Validation To Distinguish Between Read and Write Bottlenecks</h4>
+<div>
+<div class="section">
+<p>One reliable way to determine whether the output device or input disk I/O is the bottleneck in a given backup job is to compare the time required to run backup tasks with the time required to run <code class="codeph">BACKUP VALIDATE</code> of the same tasks. <code class="codeph">BACKUP VALIDATE</code> of a backup performs the same disk reads as a real backup but performs no I/O to an output device.</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<p class="subhead3">To compare backup and validation times:</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Ensure your NLS environment date format variable is set to show the time. For example, set the NLS variables as follows:</span>
+<div>
+<pre dir="ltr">setenv NLS_LANG  AMERICAN_AMERICA.WE8DEC;
+setenv NLS_DATE_FORMAT &#34;MM/DD/YYYY HH24:MI:SS&#34;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Edit your backup script to use the <code class="codeph">BACKUP VALIDATE</code> command instead of the <code class="codeph">BACKUP</code> command.</span></li>
+<li class="stepexpand"><span>Run the backup script.</span></li>
+<li class="stepexpand"><span>Examine the RMAN output and calculate the difference between the times displayed in the <code class="codeph">Starting backup at</code> and <code class="codeph">Finished backup at</code> messages.</span></li>
+<li class="stepexpand"><span>Edit the backup script to use the <code class="codeph">BACKUP</code> command instead of the <code class="codeph">BACKUP VALIDATE</code> command.</span></li>
+<li class="stepexpand"><span>Run the backup script.</span></li>
+<li class="stepexpand"><span>Examine the RMAN output and calculate the difference between the times displayed in the <code class="codeph">Starting backup at</code> and <code class="codeph">Finished backup at</code> messages.</span></li>
+<li class="stepexpand"><span>Compare the backup times for the validation and real backup.</span>
+<div>
+<p>If the time for the <code class="codeph">BACKUP VALIDATE</code> to tape is about the same as the time for a real backup to tape, then reading from disk is the likely bottleneck. See <span class="q">&#34;<a href="rcmtunin.htm#GUID-F2715D6D-F750-4B4B-8A8A-BC4B2ECE6D23">Tuning the Read Phase</a>&#34;</span>.</p>
+<p>If the time for the <code class="codeph">BACKUP VALIDATE</code> to tape is significantly less than the time for a real backup to tape, then writing to the output device is the likely bottleneck. See <span class="q">&#34;<a href="rcmtunin.htm#GUID-3303B929-0747-4E78-BED1-9F468213F357">Tuning the Copy and Write Phases</a>&#34;</span>.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<a id="BRADV409"></a><a id="BRADV89860"></a>
+<div class="props_rev_3"><a id="GUID-F2715D6D-F750-4B4B-8A8A-BC4B2ECE6D23"></a>
+<h4 id="BRADV-GUID-F2715D6D-F750-4B4B-8A8A-BC4B2ECE6D23" class="sect4">Tuning the Read Phase</h4>
+<div>
+<div class="section">
+<p>RMAN may not be able to send data blocks to the output device fast enough to keep it occupied. For example, during an <a href="glossary.htm#GUID-31E3AC05-E73E-4E44-A9AA-915988B9A6A3"><span class="xrefglossterm">incremental backup</span></a>, RMAN only backs up blocks changed since a previous data file backup as part of the same strategy. If you do not turn on <a href="glossary.htm#GUID-C80ACD57-9170-4FA5-A61F-81A05E77A1A4"><span class="xrefglossterm">block change tracking</span></a>, then RMAN must scan whole data files for changed blocks, and fill output buffers as it finds such blocks. If few blocks changed, and if RMAN is making an SBT backup, then RMAN may not fill output buffers fast enough to keep the tape drive streaming.</p>
+<p>You can improve backup performance by adjusting the <a href="glossary.htm#GUID-648D7B2D-7AB2-40C0-AFFD-0A6FE569F3D7"><span class="xrefglossterm">level of multiplexing</span></a>, which is number of input files simultaneously read and then written into the same RMAN backup piece. The level of multiplexing is the minimum of the <code class="codeph">MAXOPENFILES</code> setting on the channel and the number of input files placed in each backup set. The following table makes recommendations for adjusting the level of multiplexing.</p>
+<div class="tblformal" id="GUID-F2715D6D-F750-4B4B-8A8A-BC4B2ECE6D23__GUID-EED07681-166A-4905-AAAB-1CE59F011A74">
+<p class="titleintable">Table 23-3 Adjusting the Level of Multiplexing</p>
+<table class="cellalignment515" title="Adjusting the Level of Multiplexing" summary="Level of multiplexing">
+<thead>
+<tr class="cellalignment501">
+<th class="cellalignment531" id="d90631e3587">ASM</th>
+<th class="cellalignment532" id="d90631e3590">Striped Disk</th>
+<th class="cellalignment533" id="d90631e3593">Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment501">
+<td class="cellalignment534" id="d90631e3598" headers="d90631e3587">
+<p>No</p>
+</td>
+<td class="cellalignment535" headers="d90631e3598 d90631e3590">
+<p>Yes</p>
+</td>
+<td class="cellalignment536" headers="d90631e3598 d90631e3593">
+<p>Increase the level of multiplexing. Determine which is the minimum, <code class="codeph">MAXOPENFILES</code> or the number of files in each backup set, and then increase this value.</p>
+<p>In this way, you increase the rate at which RMAN fills tape buffers, which makes it more likely that buffers are sent to the media manager fast enough to maintain streaming.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment534" id="d90631e3613" headers="d90631e3587">
+<p>No</p>
+</td>
+<td class="cellalignment535" headers="d90631e3613 d90631e3590">
+<p>No</p>
+</td>
+<td class="cellalignment536" headers="d90631e3613 d90631e3593">
+<p>Increase the <code class="codeph">MAXOPENFILES</code> setting on the channel.</p>
+</td>
+</tr>
+<tr class="cellalignment501">
+<td class="cellalignment534" id="d90631e3626" headers="d90631e3587">
+<p>Yes</p>
+</td>
+<td class="cellalignment535" headers="d90631e3626 d90631e3590">
+<p>Not applicable</p>
+</td>
+<td class="cellalignment536" headers="d90631e3626 d90631e3593">
+<p>Set the <code class="codeph">MAXOPENFILES</code> parameter on the channel to <code class="codeph">1</code> or <code class="codeph">2</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<div class="infoboxnotealso" id="GUID-F2715D6D-F750-4B4B-8A8A-BC4B2ECE6D23__GUID-4E86A862-7A97-4DCD-B2BC-04453FCDA43F">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="rcmcncpt.htm#GUID-6E6613A6-545A-4E65-8D5E-849CB6B91E97">About Multiplexed RMAN Backup Sets</a>&#34;</span> to learn how the <code class="codeph">MAXOPENFILES</code> and <code class="codeph">FILESPERSET</code> settings affect the level of multiplexing</p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="rcmcncpt.htm#GUID-C93F3588-BBA9-4AE2-9E47-74C7A9468023">About RMAN Incremental Backups</a>&#34;</span> for a conceptual overview</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="BRADV89861"></a>
+<div class="props_rev_3"><a id="GUID-3303B929-0747-4E78-BED1-9F468213F357"></a>
+<h4 id="BRADV-GUID-3303B929-0747-4E78-BED1-9F468213F357" class="sect4">Tuning the Copy and Write Phases</h4>
+<div>
+<div class="section">
+<p>If the read phase is performing well, then the copy or write phases are probably the bottleneck. In particular, if RMAN is sending data blocks to the tape drive fast enough to support streaming, but the tape is not streaming, then the SBT write phase is the bottleneck. Try to improve performance as follows:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>If the backup is a <a href="glossary.htm#GUID-D47BE9B3-BAE1-4415-B4B4-4D577B6CB493"><span class="xrefglossterm">full backup</span></a>, then consider using incremental backups.</p>
+<p>Incremental level 1 backups write only the changed blocks from data files to tape, so that any bottleneck on writing to tape has less impact on your overall backup strategy. In particular, if tape drives are not locally attached to the node of the database being backed up, then incremental backups can be faster. See <span class="q">&#34;<a href="rcmbckba.htm#GUID-2AF8EE74-CEB2-468D-A3B2-DD6AD8E41304" title="To create incremental backups for use in an incrementally updated backup strategy, use the BACKUP ... FOR RECOVER OF COPY WITH TAG form of the BACKUP command. The command is best understood in a sample script that implements the strategy.">Making and Updating RMAN Incremental Backups</a>&#34;</span>.</p>
+</li>
+<li>
+<p>If the backup uses the basic compression algorithm, then consider using the Oracle Advanced Compression option.</p>
+<p>See <span class="q">&#34;<a href="rcmconfa.htm#GUID-3117DA93-EC34-488D-A4FB-29E6CD4D168A">Configuring Compression Options</a>&#34;</span> or <span class="q">&#34;<a href="rcmcncpt.htm#GUID-2AFCD551-95CB-4F9F-946E-550E89613974">About Binary Compression for RMAN Backup Sets</a>&#34;</span>.</p>
+</li>
+<li>
+<p>If the database host uses multiple CPUs, and if the backup uses binary compression, then increase the number of channels.</p>
+</li>
+<li>
+<p>If the backup is encrypted, then change the encryption algorithm to <code class="codeph">AES128</code>.</p>
+<p>The <code class="codeph">AES128</code> algorithm is the least CPU-intensive algorithm. See <span class="q">&#34;<a href="rcmconfa.htm#GUID-97ED7AA5-476C-4068-9C6C-97A0C0353864">Configuring the Backup Encryption Algorithm</a>&#34;</span>.</p>
+</li>
+<li>
+<p>If RMAN is backing up to tape, then try the following adjustments:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Adjust the size of the tape I/O buffers.</p>
+<p>Use the <code class="codeph">PARMS</code> and <code class="codeph">BLKSIZE</code> parameters of the <code class="codeph">ALLOCATE CHANNEL</code> or <code class="codeph">CONFIGURE CHANNEL</code> command to set the size. The size of the tape I/O buffers is platform-dependent. The <code class="codeph">BLKSIZE</code> setting overrides the default.</p>
+</li>
+<li>
+<p>Adjust settings in the media management software.</p>
+<p>Some media manager settings, including the tape block size, may affect backup performance.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>If RMAN is backing up files to ASM, then increase the number of channels.</p>
+<p>For example, if RMAN is backing up the database to a single disk group with 16 physical disks, then allocate or configure at least 4 disk channels, up to a maximum of 16.</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment500">
+<tr>
+<td class="cellalignment512">
+<table class="cellalignment505">
+<tr>
+<td class="cellalignment504"><a href="part_tun.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment504"><a href="rcmtroub.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2003, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment514">
+<table class="cellalignment503">
+<tr>
+<td class="cellalignment504"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment504"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment504"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment504"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment504"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment504"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

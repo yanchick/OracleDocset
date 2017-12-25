@@ -1,0 +1,1304 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<a class="dashingAutolink" name="autolink-61"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Ensuring%20Application%20Continuity"></a><title>Ensuring Application Continuity</title>
+<meta name="generator" content="Oracle DARB XHTML Converter (Mode = document) - Merged Version 1080"/>
+<meta name="dcterms.created" content="2016-05-05T16:23:36Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Development Guide"/>
+<meta name="dcterms.identifier" content="E41452-07"/>
+<meta name="dcterms.isVersionOf" content="ADFNS"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;1996, 2016,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Prev" href="adfns_trans_idemp_guard.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="index.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41452-07.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<span id="PAGE" style="display:none;">37/38</span> <!-- End Header -->
+<div id="ADFNS1058" class="chapter"><a id="BABDJGDI"></a>
+<h1 class="chapter"><span class="secnum">26</span> <a id="sthref1277"></a>Ensuring Application Continuity</h1>
+<p><span class="bold">Application Continuity</span> is a feature that enables the replay, in a nondisruptive and rapid manner, of a request against the database after a recoverable error that makes the database session unavailable. The request can contain transactional and nontransactional work. After a successful replay, the application can continue where that database session left off, instead of having users left in doubt not knowing what happened to their funds transfers, flight bookings, and so on, and avoiding the need to reboot mid-tier machines to recover from logon storms. With Application Continuity, the end user experience is improved by masking many outages, planned and unplanned, without the application developer needing to attempt to recover the request.</p>
+<p>Without Application Continuity, it can be almost impossible for an application to mask outages in a safe way, for reasons that include the following:</p>
+<ul>
+<li>
+<p>The state at the client remains at present time, with entered data, returned data, and variables cached.</p>
+</li>
+<li>
+<p>If a <code dir="ltr">COMMIT</code> has been issued, the <code dir="ltr">COMMIT</code> message is not durable.</p>
+</li>
+<li>
+<p>Checking a lost request is no guarantee that it will not <code dir="ltr">COMMIT</code> after being checked.</p>
+</li>
+<li>
+<p>Nontransactional database session state that the application needs to operate is lost.</p>
+</li>
+<li>
+<p>If the request can continue, the database and the database session must be in the right state.</p>
+</li>
+</ul>
+<p>Application Continuity, however, does this work for the application developer, thus masking many outages in a safe way.</p>
+<p>Application Continuity improves developer productivity by attempting to mask outages that can be masked. However, applications still must include error handling for these cases:</p>
+<ul>
+<li>
+<p><span class="italic">Nonrecoverable</span> errors, such as invalid input data. (Application Continuity applies only to recoverable errors.)</p>
+</li>
+<li>
+<p>Recoverable errors when replay has encountered a restriction (see <a href="#BABJHJIA">Section 26.4, &#34;Restrictions and Other Considerations for Application Continuity&#34;</a>), such as use of concrete classes in the application, or when replay has not been able to restore the client-visible state to that on which the client may have made decisions so far.</p>
+</li>
+</ul>
+<p>Introduced in Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.1), Application Continuity strengthens the fault tolerance of systems and applications that use an Oracle database.</p>
+<p>Currently, the terms &#34;Application Continuity&#34; and the named feature &#34;Application Continuity for Java&#34; are synonymous, for purposes of this chapter.</p>
+<p>This chapter assumes that you are familiar with the major relevant concepts and techniques of the technology or product environment in which you are using Application Continuity, such as Oracle WebLogic Server, Oracle RAC, or Oracle Active Data Guard (Oracle ADG).</p>
+<p class="subhead2"><a id="ADFNS1059"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BABBBDGI">About Application Continuity</a></p>
+</li>
+<li>
+<p><a href="#BGBGGIHI">Application Continuity Operation and Usage</a></p>
+</li>
+<li>
+<p><a href="#BABIJCEE">Potential Side Effects of Application Continuity</a></p>
+</li>
+<li>
+<p><a href="#BABJHJIA">Restrictions and Other Considerations for Application Continuity</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="adfns_trans_idemp_guard.htm#BABFBHEH">Chapter 25, &#34;Using Transaction Guard&#34;</a></div>
+<a id="BABBBDGI"></a>
+<div id="ADFNS1105" class="sect1">
+<h2 class="sect1"><span class="secnum">26.1</span> About Application Continuity</h2>
+<p>Application Continuity attempts to mask many recoverable database outages (when replay is successful) from applications and users by restoring the database session: the full session, including all states, cursors, variables, and the last transaction if there is one.</p>
+<p>Application Continuity addresses the problem that arises when an application is trying to access the database and the database session becomes unavailable due to an unplanned or planned outage (timeout, network outage, instance failure, repair, configuration change, patch apply, and so on). Without Application Continuity in place, database recovery does not mask outages to applications and end users. In such scenarios, developers and end users must cope with exception conditions, and end users can be left not knowing what happened to their funds transfers, time sheets, orders, bill payments, and so on. Users might lose screens of uncommitted data, and must log in again and reenter that data. In the worst cases, the administrator might be forced to restart the middle tier to recover from the logon storm.</p>
+<p>With Application Continuity, if the database session became unavailable, Application Continuity attempts to rebuild the session and any open transactions using the correct states; and if the transaction succeeded and need not be reexecuted, the successful return status is returned to the application. If replay is successful, the request can continue safely without risk of duplication. If replay cannot restore data that the application has already processed and potentially made decisions on, the database rejects the replay and the application receives the original error.</p>
+<p>Application Continuity performs the recovery of in-flight transactions and database session state, while ensuring the transaction idempotence provided by Transaction Guard. Each database session is tagged with a logical transaction ID (LTXID), so the database recognizes whether each replay committed any transactions, and if it did commit any transactions, whether the work also ran to completion. While Application Continuity attempts to replay, the replay appears to the application as a delayed execution, or the application receives the commit response for the original transaction (if the last transaction had completed before the outage).</p>
+<p>Application Continuity is supported for Oracle Real Application Clusters (Oracle RAC), Data Guard, Active Data Guard, and WebLogic Server in conjunction with the JDBC Thin Driver or the Universal Connection Pool. It is supported for both nonconsolidated database and for consolidated databases (with consolidated database failover at PDB level). (It is not currently supported for Golden Gate, Logical Standby, or DML redirection if using Active Data Guard.) You can think of Application Continuity as a feature in Oracle Database that enables users of many Oracle technologies to benefit.</p>
+<p class="subhead2"><a id="ADFNS367"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BGBDFEBI">Key Concepts for Application Continuity</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink TDPRC289" href="../TDPRC/configwlm.htm#TDPRC289"><span class="italic">Oracle Database 2 Day + Real Application Clusters Guide</span></a> for information about Transaction Guard and Application Continuity with Oracle RAC</div>
+<a id="BGBDFEBI"></a>
+<div id="ADFNS368" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">26.1.1</span> Key Concepts for Application Continuity</h3>
+<p>This section describes several terms and concepts that you must understand to use Application Continuity. These terms are used throughout this chapter.</p>
+<p class="subhead2"><a id="ADFNS386"></a>request</p>
+<p>A request is a unit of work submitted from the application. It typically corresponds to the SQL and PL/SQL, and other database calls, of a single web request on a single database connection, and it is generally demarcated by the calls made to check-out and check-in the database connection from a connection pool. For recoverable errors, Application Continuity reestablishes the conversation state for a database session and repeats the request.</p>
+<p class="subhead2"><a id="ADFNS394"></a>recoverable error</p>
+<p>A recoverable error is an error that arises due to an external system failure, independent of the application session logic that is executing. Recoverable errors occur following planned and unplanned outages of foregrounds, networks, nodes, storage, and databases. The application receives an error code that can leave the application not knowing the status of the last operation submitted. Application Continuity reestablishes database sessions and resubmits the pending work for the class of recoverable errors.</p>
+<p>Application Continuity does not resubmit work following call failures due to nonrecoverable errors. An example of a nonrecoverable error that would <span class="italic">not</span> be replayed is submission of invalid data values.</p>
+<p class="subhead2"><a id="ADFNS395"></a>commit outcome</p>
+<p>A transaction is committed by updating its entry in the transaction table. Oracle Database generates a redo-log record corresponding to this update and writes out this redo-log record. Once this redo-log record is written out to the redo log on disk, the transaction is considered committed at the database. From the client perspective, the transaction is considered committed when an Oracle message (termed <span class="italic">Commit Outcome)</span>, generated after that redo is written, is received by the client. However, the commit message is not durable. (Transaction Guard, described in <a href="adfns_trans_idemp_guard.htm#BABFBHEH">Chapter 25</a>, obtains the commit outcome available when it has been lost.)</p>
+<p class="subhead2"><a id="ADFNS1072"></a>mutable objects</p>
+<p>Mutable objects are nondeterministic function that can obtain a new value every time it is called, and thus their results can change frequently. Mutable objects cause a problem for replay because the results can change at replay. Consider <span class="italic">sequence</span><code dir="ltr">.NEXTVAL</code> and <code dir="ltr">SYSDATE</code>, often used in key values. If a primary key is built with values from these function calls, and is used in later foreign keys or other binds, at replay the same function result must be returned.</p>
+<p>Application Continuity provides mutable object value replacement at replay for granted Oracle function calls to provide opaque bind-variable consistency. If the call uses database functions that are mutable, including <span class="italic">sequence</span><code dir="ltr">.NEXTVAL</code>, <code dir="ltr">SYSDATE</code>, <code dir="ltr">SYSTIMESTAMP</code>, and <code dir="ltr">SYSGUID</code>, the original values returned from the function execution are saved and are reapplied at replay.</p>
+<p class="subhead2"><a id="ADFNS1087"></a>session state consistency</p>
+<p>After a <code dir="ltr">COMMIT</code> statement has executed, if state was changed in that transaction, it is not possible to replay the transaction to reestablish that state if the session is lost. When configuring Application Continuity, the applications are categorized depending on whether the session state after the initial setup is static or dynamic, and thus whether it is correct to continue past a <code dir="ltr">COMMIT</code> operation within a request.</p>
+<ul>
+<li>
+<p>A session has <span class="bold">dynamic</span> state if the session state changes are not fully encapsulated by the initialization, and cannot be fully captured in a callback at failover. After the first transaction completes, failover is internally disabled until the next request begins.</p>
+</li>
+<li>
+<p>A session has a <span class="bold">static</span> state if all session state changes (for example, NLS settings and PL/SQL package state) occur as part of initialization, and can be encapsulated in a callback at failover.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BGBGGIHI"></a>
+<div id="ADFNS314" class="sect1"><!-- infolevel="all" infotype="General" -->
+<h2 class="sect1"><span class="secnum">26.2</span> Application Continuity Operation and Usage</h2>
+<p>This section explains how Application Continuity works, and how you can use it in applications.</p>
+<p class="subhead2"><a id="ADFNS356"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BABFCDFC">How Application Continuity Works for Database Sessions</a></p>
+</li>
+<li>
+<p><a href="#BABFBCGJ">Actions for Using Application Continuity for Java</a></p>
+</li>
+<li>
+<p><a href="#BGBDDGBE">Mutable Objects and Application Continuity</a></p>
+</li>
+<li>
+<p><a href="#BGBGIEAF">Session State Consistency</a></p>
+</li>
+<li>
+<p><a href="#BGBFCDAE">Static Session State Consistency</a></p>
+</li>
+</ul>
+<a id="BABFCDFC"></a>
+<div id="ADFNS1201" class="sect2">
+<h3 class="sect2"><span class="secnum">26.2.1</span> How Application Continuity Works for Database Sessions</h3>
+<p>If a recoverable error occurs and if replay is enabled, recovery of the database session is attempted. Application Continuity performs the major steps shown in <a href="#BABEJAJA">Figure 26-1</a>. The major steps apply for both unplanned and planned outages, although specific steps vary depending on the type of outage. (For example, for planned outages further optimizations are possible, as explained in <a href="#BGBIAJIJ">Section 26.2.2.6, &#34;Using Application Continuity for Planned Outages&#34;</a>.)</p>
+<div id="ADFNS1319" class="figure">
+<p class="titleinfigure"><a id="BABEJAJA"></a>Figure 26-1 How Application Continuity Works</p>
+<img width="680" height="537" src="img/app_cont_50pct.jpg" alt="Description of Figure 26-1 follows"/><br/>
+<a id="sthref1278" href="img_text/app_cont_50pct.htm">Description of &#39;&#39;Figure 26-1 How Application Continuity Works&#39;&#39;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>As shown in <a href="#BABEJAJA">Figure 26-1</a>:</p>
+<ol>
+<li>
+<p>The client application makes a request, which is passed to a middle tier (such as the JDBC Thin driver, Universal Connection Pool, or WebLogic Server or third party pool) or directly to the database using the JDBC replay driver.</p>
+</li>
+<li>
+<p>The JDBC replay driver issues each call in the request.</p>
+</li>
+<li>
+<p>A FAN unplanned or planned down interrupt or recoverable error occurs. FAN/FCF then aborts the dead physical session.</p>
+</li>
+<li>
+<p>Application Continuity begins the replay and does the following:</p>
+<ol>
+<li>
+<p>Replaces the dead physical session with a new clean session and rewires FAN in case a later error occurs during or after replay.</p>
+</li>
+<li>
+<p>Prepares for replay by using Transaction Guard to determine the outcome of the in-flight transaction if one was open.</p>
+</li>
+<li>
+<p>Optionally, calls back using a labeling callback or reconnect callback for the initial state.</p>
+</li>
+<li>
+<p>Rebuilds the database session, recovering the transactional and nontransactional states, and validating at each step that the data and messages seen by the client driver are the same as those that the client may have seen and used to make a decision.</p>
+</li>
+<li>
+<p>Ends the replay and returns to runtime mode.</p>
+</li>
+<li>
+<p>Submits the last queued call.</p>
+<p>This is the last call made when the outage was discovered. During replay, only this call can execute a <code dir="ltr">COMMIT</code>. A <code dir="ltr">COMMIT</code> midway through rebuilding the session aborts replay (excluding autonomous transactions).</p>
+</li>
+</ol>
+</li>
+<li>
+<p>The response is returned to the application.</p>
+<p>If replay succeeded, the application can continue with the problem masked. If not, the application must handle the original error.</p>
+</li>
+</ol>
+<p>The behavior of Application Continuity after a communication failure depends on the Oracle products and technologies involved. For example:</p>
+<ul>
+<li>
+<p>If you use Oracle Real Application Clusters or an Active Data Guard farm, after the connection instance is reestablished on another running instance, Application Continuity attempts to rebuild the session and replay the last transaction if there is one in flight.</p>
+</li>
+<li>
+<p>If you use Oracle Data Guard and fail over to a standby site, Application Continuity connects to the failover instance and attempts to rebuild the session and replay the last transaction there if a transaction was in flight. (Application Continuity does not replay if the Data Guard switchover or failover has lost data, and if this is not Active Data Guard reader farm with approved lags.)</p>
+</li>
+<li>
+<p>If you are using Oracle RAC or Oracle RAC One and not using Data Guard, and if an outage causes a break in all public networks or causes the database or database session to shut down briefly, Application Continuity attempts to rebuild the session and replay the last transaction (if a transaction was in flight) against the database after connectivity is restored.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect2" -->
+<a id="BABFBCGJ"></a>
+<div id="ADFNS1207" class="sect2">
+<h3 class="sect2"><span class="secnum">26.2.2</span> Actions for Using Application Continuity for Java</h3>
+<p>Application Continuity for Java is available for general use with the following Oracle technologies:</p>
+<ul>
+<li>
+<p>JDBC Thin Oracle replay driver</p>
+</li>
+<li>
+<p>Universal Connection Pool</p>
+</li>
+<li>
+<p>WebLogic Server</p>
+<p>Starting with WebLogic Server 12.1.2, WebLogic Server applications can use Application Continuity. Active GridLink data sources make it easier for users to take advantage of Application Continuity.</p>
+</li>
+</ul>
+<p>A main appeal of Application Continuity for Java is its ability to mask many outages when using the Oracle stack with few or no application changes. Applications must be verified and tested to ensure that they are suitable for replay before releasing with Application Continuity for Java. If you must perform any actions, in most cases these do not involve core application source code changes, but rather configuration changes or providing a callback to disable replay for any code module.</p>
+<p>The Application Continuity for Java solution is embedded in Oracle Universal Connection Pool (UCP), and in the Oracle WebLogic Server and Generic data sources. When you use the Oracle connection pools, request boundaries are implicitly marked at check-out and check-in delimiting the size of each replay. However, when you are using third-party connection pools with Oracle JDBC Thin, or when you are using UCP or WebLogic Server but not returning connections to the pools, you may need to perform actions to obtain the benefits of Application Continuity for Java.</p>
+<p>Support for Application Continuity is integrated into many Oracle applications, so the features in such applications are used automatically if you set the Application Continuity-related service attributes. For your own applications, however, you also must follow the steps described in this section.</p>
+<p>The main actions for ensuring automatic application continuity for an application are the following:</p>
+<ol>
+<li>
+<p>Determine whether the application uses Oracle JDBC concrete classes. For Application Continuity to be used, the deprecated concrete classes must be replaced. For information about the deprecation of concrete classes, including actions to take if an application uses them, see My Oracle Support Note 1364193.1 (<code dir="ltr"><a href="https://support.oracle.com/CSP/main/article?cmd=show&amp;type=NOT&amp;id=1364193.1">https://support.oracle.com/CSP/main/article?cmd=show&amp;type=NOT&amp;id=1364193.1</a></code>).</p>
+</li>
+<li>
+<p>Ensure that you have the necessary CPU and memory resources.</p>
+<ul>
+<li>
+<p><span class="bold">CPU</span>: Application Continuity is managed on the client and server sides and needs additional CPU to operate.</p>
+<p>At the client, CPU is used to build proxy objects and for garbage collection (GC).</p>
+<p>At the server, CPU is used for validation. CPU overhead is reduced for platforms with current Intel and Sparc chips where validation is assisted in the hardware.</p>
+</li>
+<li>
+<p><span class="bold">Memory</span>: The replay driver requires more memory than the base driver because the calls are retained until the end of a request. At the end of the request, the calls are released to the garbage collector. This action differs from the base driver that releases closed calls.</p>
+<p>The memory consumption of the replay driver depends on the number of calls per request. If this number is small, then the memory consumption of the replay driver is less, and comparable to the base driver.</p>
+<p>To obtain the best performance, you must set the same value for both the <code dir="ltr">-Xmx</code> and <code dir="ltr">-Xms</code> parameters on the server. For example, if there is sufficient memory, then allocate 4 to 8 GB (or more) of memory for the Virtual Machine (VM), for example, by setting <code dir="ltr">-Xms4g</code> for 4 GB. If the <code dir="ltr">-Xms</code> parameter has a lower value, then the VM also uses a lower value from the operating system, and performance might suffer and garbage collection operations increase.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Determine whether the application borrows and returns connections from the WebLogic Server Pool or Universal Connection Pool for each request, or whether to add <code dir="ltr">beginRequest</code> and <code dir="ltr">endRequest</code> APIs to the application&#39;s own connection pool to identify request boundaries.</p>
+<p>(Do not use <code dir="ltr">beginRequest</code> and <code dir="ltr">endRequest</code> anywhere other than at request boundaries (check-in). <code dir="ltr">endRequest</code> indicates that the request is complete, and that it is now stateless. Replay starts from the next <code dir="ltr">beginRequest</code>. If there is prior state, it must be reestablished in the callback.)</p>
+</li>
+<li>
+<p>Decide whether to use an optional callback for initializing connections. When using Oracle WebLogic Server or the Universal Connection Pool, connection labeling is recommended. The labeling is used for both runtime and replay.</p>
+</li>
+<li>
+<p>Determine whether the application requires, and therefore needs to configure keeping original values for, <code dir="ltr">SYSDATE</code>, <code dir="ltr">SYSTIMESTAMP</code>, and <code dir="ltr">SYS_GUID</code> and sequences during failover (see <a href="#BGBDDGBE">Section 26.2.3, &#34;Mutable Objects and Application Continuity&#34;</a>).</p>
+</li>
+<li>
+<p>Assess the application style for the <code dir="ltr">session_state_consistency</code> value, and set the appropriate value on the service:</p>
+<ul>
+<li>
+<p>If <code dir="ltr">session_state_consistency</code> is <code dir="ltr">Dynamic</code>, the application changes the environment or settings during the request. Replay is disabled after the first <code dir="ltr">COMMIT</code> until the end of replay API is called. <code dir="ltr">Dynamic</code> is the default mode, appropriate for most applications.</p>
+</li>
+<li>
+<p>If <code dir="ltr">session_state_consistency</code> is <code dir="ltr">Static</code>, the application <span class="italic">never</span> changes the session state after initial setup. This mode is typical for database agnostic applications that do not use PL/SQL state and do not use <code dir="ltr">ALTER</code> part-way through transactions. Use this mode with caution, and only for &#34;static&#34; applications.</p>
+</li>
+</ul>
+<p>For more information, see <a href="#BGBGIEAF">Section 26.2.4, &#34;Session State Consistency,&#34;</a> and <a href="#BGBFCDAE">Section 26.2.4.2, &#34;Static Session State Consistency.&#34;</a></p>
+</li>
+<li>
+<p>Determine whether replay must be explicitly disabled for any code path.</p>
+<p>For example, replay may need to be disabled for requests using external PL/SQL actions (see <a href="#BGBJGIBG">Section 26.2.2.8, &#34;Disabling Replay in Application Continuity for Java&#34;</a>).</p>
+</li>
+<li>
+<p>Follow these configuration guidelines:</p>
+<ul>
+<li>
+<p>Use Oracle Database 12<span class="italic">c</span> Release 1 (12.1.0.1) or later.</p>
+</li>
+<li>
+<p>Use Universal Connection Pool 12.1 (or later) or WebLogic Server 12.1.2 (or later) configured with the JDBC Replay data source; or for third party applications, including third party JDBC pools, use JDBC replay driver.</p>
+<p>Custom Java pools and standalone Java applications can use the JDBC Replay data source directly. When using custom Java pools and standalone applications, add the <code dir="ltr">beginRequest</code> and <code dir="ltr">endRequest</code> calls.</p>
+</li>
+<li>
+<p>If the application does not borrow and return from the Oracle connection pools, explicitly mark request boundaries. For example, if using custom JDBC pools, WebSphere, TomCat, JBOSS, or other pools, then call <code dir="ltr">beginRequest</code> at check-out and call <code dir="ltr">endRequest</code> at check-in. These APIs can also be used for standalone JDBC applications without a connection pool.</p>
+</li>
+<li>
+<p>Use a single pool with FAN/FCF from the WebLogic Data Source or UCP or third-party pool.</p>
+</li>
+<li>
+<p>Use a database service to connect; never use a SID or an instance name.</p>
+</li>
+<li>
+<p>Use a connection string that sets retries for new incoming connections and a delay between these retries.</p>
+</li>
+<li>
+<p>For the service, set <code dir="ltr">FAILOVER_TYPE</code> to <code dir="ltr">TRANSACTION</code>, <code dir="ltr">COMMIT_OUTCOME</code> to <code dir="ltr">TRUE</code>, and <code dir="ltr">Notification</code> to <code dir="ltr">TRUE</code>. Optionally to find the best connections to use, set <code dir="ltr">GOAL</code> to <code dir="ltr">SERVICE_TIME</code> and <code dir="ltr">CLB_Goal</code> to <code dir="ltr">Short</code>.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p class="subhead2"><a id="ADFNS188"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BGBGJJDA">When Is Application Continuity Transparent?</a></p>
+</li>
+<li>
+<p><a href="#BGBFEECJ">Configuring Oracle JDBC for Application Continuity for Java</a></p>
+</li>
+<li>
+<p><a href="#BGBFGBEA">Configuring Oracle Database for Application Continuity for Java</a></p>
+</li>
+<li>
+<p><a href="#BGBEAIHF">Registering a Connection Initialization Callback in Application Continuity for Java (optional)</a></p>
+</li>
+<li>
+<p><a href="#BGBJDGDG">Delaying the Reconnection in Application Continuity for Java</a></p>
+</li>
+<li>
+<p><a href="#BGBIAJIJ">Using Application Continuity for Planned Outages</a></p>
+</li>
+<li>
+<p><a href="#BGBIDAEB">Running Without Application Continuity</a></p>
+</li>
+<li>
+<p><a href="#BGBJGIBG">Disabling Replay in Application Continuity for Java</a></p>
+</li>
+<li>
+<p><a href="#BGBDFECJ">Killing or Disconnecting a Session Without Replay</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink JJDBC29059" href="../JJDBC/appcontnew.htm#JJDBC29059"><span class="italic">Oracle Database JDBC Developer&#39;s Guide</span></a> for more information about developing applications that include Application Continuity for Java</p>
+</li>
+<li>
+<p><a class="olink JJUCP" href="../JJUCP/toc.htm"><span class="italic">Oracle Universal Connection Pool for JDBC Developer&#39;s Guide</span></a> for information about using UCP</p>
+</li>
+<li>
+<p><a class="olink RACAD" href="../RACAD/toc.htm"><span class="italic">Oracle Real Application Clusters Administration and Deployment Guide</span></a> and <a class="olink TDPRC" href="../TDPRC/toc.htm"><span class="italic">Oracle Database 2 Day + Real Application Clusters Guide</span></a> for DBA-related information</p>
+</li>
+</ul>
+</div>
+<a id="BGBGJJDA"></a>
+<div id="ADFNS600" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">26.2.2.1</span> When Is Application Continuity Transparent?</h4>
+<p>Application Continuity is transparent (performed automatically) for J2EE applications that use standard JDBC and that use Oracle connection pools (UCP or WLS). For applications with external actions (for example, autonomous transactions or using <code dir="ltr">UTL_HTTP</code> to issue an SOA call), Application Continuity is still transparent <span class="bolditalic">if</span> the application&#39;s correctness is preserved when these external actions are replayed after a failure.</p>
+<p>For other scenarios in which Application Continuity is not transparent, the following infrastructure changes may be needed:</p>
+<ul>
+<li>
+<p>If the connection pool or container does not use an Oracle connection pool, the application must use Application Continuity APIs to mark request boundaries. Request boundaries are needed to reclaim the memory used for holding calls, and to establish a point at which to resume recording following nonreplayable operations.</p>
+</li>
+<li>
+<p>If the application has requests that the application does not want repeated, the application can explicitly call an API to disable replay for those requests. Such calls are likely to be isolated to one or a few specialized pieces of application code.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" -->
+<a id="BGBFEECJ"></a>
+<div id="ADFNS601" class="sect3">
+<h4 class="sect3"><span class="secnum">26.2.2.2</span> Configuring Oracle JDBC for Application Continuity for Java</h4>
+<p>You must use the <code dir="ltr">oracle.jdbc.replay.OracleDataSourceImpl</code> data source to obtain JDBC connections. This data source supports all the properties and configuration parameters of all the Oracle JDBC data sources, for example, the <code dir="ltr">oracle.jdbc.pool.OracleDataSource</code>.</p>
+<p>You must remember the following points while using the connection URL:</p>
+<ul>
+<li>
+<p>If the <code dir="ltr">REMOTE_LISTENER</code> setting for the database does not match the addresses in the <code dir="ltr">ADDRESS_LIST</code> at the client, then it does not connect, showing <code dir="ltr">services cannot be found</code>. So, the <code dir="ltr">REMOTE_LISTENER</code> setting for the database <span class="italic">must</span> match the addresses in the <code dir="ltr">ADDRESS_LIST</code> at the client:</p>
+<ul>
+<li>
+<p>If <code dir="ltr">REMOTE_LISTENER</code> is set to the SCAN Names, then the <code dir="ltr">ADDRESS_LIST</code> must use SCAN VIPs.</p>
+</li>
+<li>
+<p>If the connect string uses the SCAN Name, then <code dir="ltr">REMOTE_LISTENERS</code> must be set to the SCAN Name.</p>
+</li>
+<li>
+<p>If the connect string uses an <code dir="ltr">ADDRESS_LIST</code> of host VIPs, then <code dir="ltr">REMOTE_LISTENERS</code> must be set to an ADDRESS list including all SCAN VIPs and all host VIPs</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+A motivation for using SCAN is location independence: the client need not be reconfigured when nodes are added or removed, or when databases change to running on different nodes.</div>
+</li>
+<li>
+<p>Set <code dir="ltr">RETRY_COUNT</code>, <code dir="ltr">CONNECT_TIMEOUT</code>, and <code dir="ltr">TRANSPORT_CONNECT_TIMEOUT</code> parameters in the connection string. This is a general recommendation for configuring the JDBC Thin driver connections, starting from Oracle Database 11<span class="italic">g</span> Release 2 (11.2.0.2). These settings improve acquiring new connections at runtime, at replay, and during work drains for planned outages.</p>
+<p>The <code dir="ltr">CONNECT_TIMEOUT</code> parameter is equivalent to the <code dir="ltr">SQLNET.OUTBOUND_CONNECT_TIMEOUT</code> parameter in the <code dir="ltr">sqlnet.ora</code> file and applies to the full connection. The <code dir="ltr">TRANSPORT_CONNECT_TIMEOUT</code> parameter is determined by the <code dir="ltr">ADDRESS</code> parameter. If the service is not registered for a failover or restart, then retrying is important when you use SCAN. (Using Easy Connect is <span class="italic">not</span> recommended because Easy Connect does not support the <code dir="ltr">RETRY_COUNT</code>, <code dir="ltr">CONNECT_TIMEOUT</code>, and <code dir="ltr">TRANSPORT_CONNECT_TIMEOUT</code> parameters.)</p>
+<p>When the connect string uses host VIPs, then <code dir="ltr">REMOTE_LISTENERS</code> must include host VIPs. When the connect string uses the SCAN Name, then <code dir="ltr">REMOTE_LISTENERS</code> must be set to the SCAN Name, or include the SCAN VIPs and the host VIPs. Therefore, REMOTE_LISTENERS must be set to the SCAN Name unless any clients use host VIPs in their connect strings, in which case <code dir="ltr">REMOTE_LISTENERS</code> must be set to an <code dir="ltr">ADDRESS_LIST</code> of all SCAN VIPs and all host VIPs.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a class="olink NETRF007" href="../NETRF/tnsnames.htm#NETRF007"><span class="italic">Oracle Database Net Services Reference</span></a> for more information about local naming parameters</p>
+</li>
+<li>
+<p><a class="olink RACAD7273" href="../RACAD/GUID-504A615B-C63C-43C4-A481-520DEC015EF1.htm#RACAD7273"><span class="italic">Oracle Real Application Clusters Administration and Deployment Guide</span></a></p>
+</li>
+<li>
+<p><a class="olink TDPRC" href="../TDPRC/toc.htm"><span class="italic">Oracle Database 2 Day + Real Application Clusters Guide</span></a></p>
+</li>
+<li>
+<p><span class="italic">Single Client Access Name (SCAN)</span> white paper at: <code dir="ltr"><a href="http://www.oracle.com/technetwork/database/clustering/overview/scan-129069.pdf">http://www.oracle.com/technetwork/database/clustering/overview/scan-129069.pdf</a></code></p>
+</li>
+<li>
+<p>My Oracle Support Note <span class="italic">11gR2 Grid Infrastructure Single Client Access Name (SCAN) Explained (Doc ID 887522.1)</span></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<!-- class="sect3" -->
+<a id="BGBFGBEA"></a>
+<div id="ADFNS602" class="sect3">
+<h4 class="sect3"><span class="secnum">26.2.2.3</span> Configuring Oracle Database for Application Continuity for Java</h4>
+<p>Your Oracle Database configuration must include the following to use Application Continuity for Java:</p>
+<ul>
+<li>
+<p>If you are using Oracle Real Application Clusters (Oracle RAC) or Oracle RAC One, Oracle Data Guard, or Oracle Active Data Guard, then ensure that FAN is configured with Oracle Notification System (ONS) to communicate with Oracle WebLogic Server or the Universal Connection Pool (UCP)</p>
+</li>
+<li>
+<p>Set the required properties on the service for replay and load balancing. For example, set:</p>
+<ul>
+<li>
+<p><code dir="ltr">FAILOVER_TYPE = TRANSACTION</code> for using Application Continuity</p>
+</li>
+<li>
+<p><code dir="ltr">REPLAY_INITIATION_TIMEOUT =</code> <code dir="ltr"><span class="codeinlineitalic">n</span></code> for setting the duration in seconds to allow replay to start (where <span class="italic">n</span> might be, for example, 60, 300, 900, or 1800, depending on your needs)</p>
+</li>
+<li>
+<p><code dir="ltr">FAILOVER_RETRIES = 30</code> for specifying the number of connection retries for each replay</p>
+</li>
+<li>
+<p><code dir="ltr">FAILOVER_DELAY = 10</code> for specifying the delay in seconds between connection retries</p>
+</li>
+<li>
+<p><code dir="ltr">GOAL = SERVICE_TIME</code> -- if you are using Oracle RAC or Oracle GDS (Global Data Services), then this is a recommended setting</p>
+</li>
+<li>
+<p><code dir="ltr">CLB_GOAL = SHORT</code> -- if you are using Oracle RAC or Oracle GDS, then this is a recommended setting</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Do not use the database service, that is, the default service corresponding to the <code dir="ltr">DB_NAME</code> or <code dir="ltr">DB_UNIQUE_NAME</code>. The use of the database service is not recommended for high availability, because this service cannot be enabled and disabled, and cannot be relocated on Oracle RAC or switched over to Oracle Data Guard. This service is reserved for Oracle Enterprise Manager Cloud Control (Cloud Control) and for DBAs.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" -->
+<a id="BGBEAIHF"></a>
+<div id="ADFNS603" class="sect3">
+<h4 class="sect3"><span class="secnum">26.2.2.4</span> Registering a Connection Initialization Callback in Application Continuity for Java (optional)</h4>
+<p>Nontransactional session state (NTSS) is state of a database session that exists outside database transactions and is not protected by recovery. For applications that use stateful requests, the nontransactional state is reestablished as the session is rebuilt by Application Continuity.</p>
+<p>For applications that set state only at the beginning of a request, or for stateful applications that gain performance benefits from using connections with a preset state, choose one of these callback options:</p>
+<ul>
+<li>
+<p><a href="#BGBHGEIJ">No Callback</a></p>
+</li>
+<li>
+<p><a href="#BGBBGEGC">Connection Labeling</a></p>
+</li>
+<li>
+<p><a href="#BGBCIGDI">Connection Initialization Callback</a></p>
+</li>
+</ul>
+<a id="BGBHGEIJ"></a>
+<div id="ADFNS1088" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.4.1</span> No Callback</h5>
+<p>In this scenario, the application builds up its own state during each request.</p>
+</div>
+<!-- class="sect4" -->
+<a id="BGBBGEGC"></a>
+<div id="ADFNS1187" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.4.2</span> Connection Labeling</h5>
+<p>Connection Labeling is a generic pool feature that is recommended for its excellent performance. When Connection Labeling is present, Application Continuity uses it.</p>
+<p>This scenario is applicable to Universal Connection Pool (UCP) and Oracle WebLogic server. The application can be modified to take advantage of the preset state on connections. Connection Labeling APIs determine how well a connection matches, and use a callback to populate the gap when a connection is borrowed.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a class="olink JJUCP8255" href="../JJUCP/app_cont.htm#JJUCP8255"><span class="italic">Oracle Universal Connection Pool for JDBC Developer&#39;s Guide</span></a></div>
+</div>
+<!-- class="sect4" -->
+<a id="BGBCIGDI"></a>
+<div id="ADFNS1289" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.4.3</span> Connection Initialization Callback</h5>
+<p>In this scenario, the replay driver uses an application callback to set the initial state of the session during runtime and replay. The JDBC replay driver provides an optional connection initialization callback interface and methods to register and unregister connection initialization callbacks in the <code dir="ltr">oracle.jdbc.replay.OracleDataSource</code> interface.</p>
+<p>When registered, the initialization callback is executed at each successful reconnection following a recoverable error. An application is responsible for ensuring that the initialization actions are the same as that on the original connection before failover. If the callback invocation fails, then replay is disabled on that connection. Use the connection initialization callback only when the application has not implemented Connection Labeling.</p>
+</div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" -->
+<a id="BGBJDGDG"></a>
+<div id="ADFNS1290" class="sect3">
+<h4 class="sect3"><span class="secnum">26.2.2.5</span> Delaying the Reconnection in Application Continuity for Java</h4>
+<p>By default, when JDBC Replay Driver initiates a failover, the driver attempts to recover the in-flight work at an instance where the service is available. For recovering the work, the driver must establish a good connection with the instance. This reconnection can take some time if the database or the instance must be restarted before the service is relocated and published. So, the failover must be delayed until the service is available from another instance or database.</p>
+<p>You must use the <code dir="ltr">FAILOVER_RETRIES</code> and <code dir="ltr">FAILOVER_DELAY</code> parameters to manage reconnecting. These parameters can work well in conjunction with a planned outage, for example, an outage that may make a service unavailable for several minutes. While setting the <code dir="ltr">FAILOVER_DELAY</code> and <code dir="ltr">FAILOVER_RETRIES</code> parameters, check the value of the <code dir="ltr">REPLAY_INITIAITION_TIMEOUT</code> parameter first. The default value for this parameter is 900 seconds. A high value for the <code dir="ltr">FAILOVER_DELAY</code> parameter can cause replay to be canceled.</p>
+<div class="inftblhruleinformal">
+<table class="cellalignment296" summary="Parameters for delaying failover" dir="ltr">
+<thead>
+<tr class="cellalignment287">
+<th class="cellalignment294" id="r1c1-t8">Parameter Name</th>
+<th class="cellalignment294" id="r1c2-t8">Possible Value</th>
+<th class="cellalignment294" id="r1c3-t8">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r2c1-t8" headers="r1c1-t8"><code dir="ltr">FAILOVER_RETRIES</code></td>
+<td class="cellalignment295" headers="r2c1-t8 r1c2-t8">Positive integer zero or above</td>
+<td class="cellalignment295" headers="r2c1-t8 r1c3-t8">30</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r3c1-t8" headers="r1c1-t8"><code dir="ltr">FAILOVER_DELAY</code></td>
+<td class="cellalignment295" headers="r3c1-t8 r1c2-t8">Time in seconds</td>
+<td class="cellalignment295" headers="r3c1-t8 r1c3-t8">10</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="inftblhruleinformal" -->
+<p>The following examples show various failover scenarios:</p>
+<ul>
+<li>
+<p><a href="#BGBGJFCC">Creating Services on Oracle RAC</a></p>
+</li>
+<li>
+<p><a href="#BGBGCBEA">Modifying Services on Single-Instance Databases</a></p>
+</li>
+</ul>
+<a id="BGBGJFCC"></a>
+<div id="ADFNS1291" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.5.1</span> Creating Services on Oracle RAC</h5>
+<p>If you are using Oracle RAC or Oracle RAC One, then use the <code dir="ltr">SRVCTL</code> command to create and modify services in the following way:</p>
+<ul>
+<li>
+<p><a href="#BGBGGFDH">For Policy Managed Databases</a></p>
+</li>
+<li>
+<p><a href="#BGBDEIJD">For Administrator Managed Databases</a></p>
+</li>
+</ul>
+<p class="subhead2"><a id="BGBGGFDH"></a><a id="ADFNS1344"></a>For Policy Managed Databases</p>
+<pre dir="ltr">srvctl add service -db codedb -service GOLD -serverpool ora.Srvpool -clbgoal SHORT -rlbgoal SERVICE_TIME -failoverretry 30 -failoverdelay 10 -commit_outcome TRUE -failovertype TRANSACTION -replay_init_time 1800 -retention 86400 -notification TRUE
+</pre>
+<p class="subhead2"><a id="BGBDEIJD"></a><a id="ADFNS1395"></a>For Administrator Managed Databases</p>
+<pre dir="ltr">srvctl add service -db codedb -service GOLD -preferred serv1 -available serv2  -clbgoal SHORT -rlbgoal SERVICE_TIME -failoverretry 30 -failoverdelay 10 -commit_outcome TRUE -failovertype TRANSACTION -replay_init_time 1800 -retention 86400 -notification TRUE
+</pre></div>
+<!-- class="sect4" -->
+<a id="BGBGCBEA"></a>
+<div id="ADFNS1396" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.5.2</span> Modifying Services on Single-Instance Databases</h5>
+<p>If you are using a single-instance database, then use the <code dir="ltr">DBMS_SERVICE</code> package to modify services in the following way:</p>
+<pre dir="ltr">declare
+params dbms_service.svc_parameter_array;
+begin
+params(&#39;FAILOVER_TYPE&#39;):=&#39;TRANSACTION&#39;;
+params(&#39;REPLAY_INITIATION_TIMEOUT&#39;):=1800;
+params(&#39;RETENTION_TIMEOUT&#39;):=86400;
+params(&#39;FAILOVER_DELAY&#39;):=10;
+params(&#39;FAILOVER_RETRIES&#39;):=30;
+params(&#39;commit_outcome&#39;):=&#39;true&#39;;
+params(&#39;aq_ha_notifications&#39;):=&#39;true&#39;;
+dbms_service.modify_service(&#39;[your service]&#39;,params);
+end;
+/
+</pre></div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" -->
+<a id="BGBIAJIJ"></a>
+<div id="ADFNS1399" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">26.2.2.6</span> Using Application Continuity for Planned Outages</h4>
+<p>For planned outages the recommended approach is to drain requests from Oracle connection pools in combination with Application Continuity for those requests that do not complete. Instances do need to be stopped to switch over to the patched software. This has the least impact when there is minimal recovery to complete.</p>
+<p>The steps are the following:</p>
+<ol>
+<li>
+<p>Use any FAN-aware pool: OCI, UCP, WebLogic Server, or ODP.Net.</p>
+<p>The FAN planned event drains at request boundaries.</p>
+</li>
+<li>
+<p>Use <code dir="ltr">srvctl relocate</code> to relocate the service from the instance without disrupting the sessions (no <code dir="ltr">-force</code> flag), or for a uniform service use <code dir="ltr">srvctl stop service</code> at the instance (no <code dir="ltr">-force</code> flag).</p>
+<ul>
+<li>
+<p>For Oracle RAC One, use <code dir="ltr">relocate database</code> (no <code dir="ltr">-force</code> flag).</p>
+</li>
+</ul>
+<p>The FAN planned event clears the idle sessions immediately and marks the active sessions to be released at check in (end of request). This drains the sessions from the instance without disrupting work.</p>
+</li>
+<li>
+<p>If not all sessions have checked in and the time to stop the instance has been reached, stop the instance (abort).</p>
+<p>For Application Continuity enabled pools (UCP and WLS), and any pool that adds <code dir="ltr">beginRequest</code>/<code dir="ltr">endRequest</code> on the JDBC Thin replay driver, Application Continuity attempts to recover those remaining sessions.</p>
+</li>
+<li>
+<p>Restart the instance and service.</p>
+<p>Runtime load balancing, when enabled, balances the sessions back to the restored instance at the next request boundaries.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BGBIDAEB"></a>
+<div id="ADFNS357" class="sect3">
+<h4 class="sect3"><span class="secnum">26.2.2.7</span> Running Without Application Continuity</h4>
+<p>Sometimes Application Continuity is not in effect, through deliberate choice, error, or oversight. Application Continuity is not in effect when it has not been started or when it has been disabled. If it has been disabled, it remains so through the <code dir="ltr">endRequest</code> call.</p>
+<p>Application Continuity is not started when the service property <code dir="ltr">FAILOVER_TYPE</code> does <span class="italic">not</span> have the value set to <code dir="ltr">TRANSACTION</code>. For a planned outage, set the <code dir="ltr">FAILOVER_TYPE</code> value to <code dir="ltr">TRANSACTION</code> beforehand; the setting applies to new connections, and existing connections retain their original service value.</p>
+<p>Application Continuity is disabled when any of the following occurs:</p>
+<ul>
+<li>
+<p>The application executes a statement that is restricted for Application Continuity (for example, if it uses Oracle JDBC concrete classes).</p>
+</li>
+<li>
+<p>Application Continuity is explicitly disabled using <code dir="ltr">disableReplay</code> (see <a href="#BGBJGIBG">Section 26.2.2.8</a>).</p>
+</li>
+<li>
+<p>A <code dir="ltr">COMMIT</code> statement is issued when the service parameter <code dir="ltr">session_state_consistency</code> is set to <code dir="ltr">Dynamic</code> (the default).</p>
+</li>
+<li>
+<p>An <code dir="ltr">endRequest</code> statement is issued until the next <code dir="ltr">beginRequest</code> is issued.</p>
+</li>
+<li>
+<p>The session is killed or disconnected and the <code dir="ltr">NOREPLAY</code> keyword is specified (see <a href="#BGBDFECJ">Section 26.2.2.9</a>).</p>
+</li>
+<li>
+<p>A request issues an <code dir="ltr">ALTER</code> <code dir="ltr">SYSTEM</code> or <code dir="ltr">ALTER</code> <code dir="ltr">DATABASE</code> statement.</p>
+</li>
+</ul>
+</div>
+<!-- class="sect3" -->
+<a id="BGBJGIBG"></a>
+<div id="ADFNS1400" class="sect3">
+<h4 class="sect3"><span class="secnum">26.2.2.8</span> Disabling Replay in Application Continuity for Java</h4>
+<p>By default, the JDBC replay driver replays following a recoverable error. If the application has requests that the application does not want repeated, the application can explicitly call an API to disable replay for those requests. For example, if the application uses <code dir="ltr">UTL_SMTP</code> and does not want messages repeated, the <code dir="ltr">disableReplay</code> API is in effect for the request that must be disabled. All other requests continue to be replayed.</p>
+<p>For applications with external actions (for example, autonomous transactions or using <code dir="ltr">UTL_HTTP</code> to issue an SOA call), Application Continuity remains transparent if the application&#39;s correctness is preserved when these external actions are replayed after a failure.</p>
+<p>The following are scenarios to consider before configuring an application for replay:</p>
+<ul>
+<li>
+<p><a href="#BGBDHJCI">Application Calls Autonomous Transactions, External PL/SQL, or Java Actions that Should Not Be Repeated</a></p>
+</li>
+<li>
+<p><a href="#BGBJCBDH">Application Synchronizes Independent Sessions</a></p>
+</li>
+<li>
+<p><a href="#BGBDIHCC">Application Uses Time at the Middle Tier in the Execution Logic</a></p>
+</li>
+<li>
+<p><a href="#BGBCDIBF">Application Assumes that ROWIds Do Not Change</a></p>
+</li>
+<li>
+<p><a href="#BGBGGHDC">Application Assumes that Location Values Do Not Change</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><a href="#BABIJCEE">Section 26.3, &#34;Potential Side Effects of Application Continuity&#34;</a></p>
+</li>
+<li>
+<p><a href="#BABJHJIA">Section 26.4, &#34;Restrictions and Other Considerations for Application Continuity&#34;</a></p>
+</li>
+</ul>
+</div>
+<a id="BGBDHJCI"></a>
+<div id="ADFNS1414" class="sect4"><!-- infolevel="all" infotype="General" -->
+<h5 class="sect4"><span class="secnum">26.2.2.8.1</span> Application Calls Autonomous Transactions, External PL/SQL, or Java Actions that Should Not Be Repeated</h5>
+<p>Autonomous transactions, external PL/SQL calls, and Java callouts can have side effects that are separate from the main transaction, and these side effects are replayed unless you specify otherwise.</p>
+<p>Examples of side effects separate from the main transaction include writing to an external table, sending email, forking sessions out of PL/SQL (including calls to UTL_HTTP, UTL_URL, UTL_FILE, UTL_FILE_TRANSFER, UTL_SMPT, UTL_TCP, UTL_MAIL, DBMS_PIPE, or DBMS_ALERT) or Java (including executing a shell script in the form <span class="italic">Process proc = rt.exec(command);</span>), transferring files, and accessing external URLs. Actions such as these leave persistent side effects. PL/SQL messaging and Java callouts can leave persistent results behind. For example, if a user walks away part way through some work without committing and the session times out or the user issues Ctrl+C, the foreground or a component fails; the main transaction rolls back while the side effects may have been applied. (For more information about side effects, see <a href="#BABIJCEE">Section 26.3, &#34;Potential Side Effects of Application Continuity&#34;</a>.)</p>
+<p>Application developers must decide whether to allow replay for external actions. Examples include using <code dir="ltr">UTL_HTTP</code> to issue an SOA call, or <code dir="ltr">UTL_SMTP</code> to send a message, or <code dir="ltr">UTL_URL</code> to access a website. If such external actions must not be replayed, use the <code dir="ltr">disableReplay</code> API.</p>
+</div>
+<!-- class="sect4" -->
+<a id="BGBJCBDH"></a>
+<div id="ADFNS1415" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.8.2</span> Application Synchronizes Independent Sessions</h5>
+<p>You must not configure an application for replay if the application synchronizes independent sessions using volatile entities that are held until <code dir="ltr">COMMIT</code>, <code dir="ltr">ROLLBACK</code>, or session loss. For example, the application might synchronize multiple sessions connected to several data sources that are otherwise inter-dependent using resources such as a database lock. This synchronization may be acceptable if the application is only serializing these sessions and understands that any session may fail. However, if the application assumes that a lock or any other volatile resource held by one data source implies exclusive access to data on the same or a separate data source from other connections, then this assumption may be invalidated when replaying.</p>
+<p>During replay, the driver is not aware that the sessions are dependent on one session holding a lock or other volatile resource. You can also use pipes, buffered queues, stored procedures taking a resource (such as a semaphore, device, or socket) to implement the synchronization that are lost by failures.</p>
+</div>
+<!-- class="sect4" -->
+<a id="BGBDIHCC"></a>
+<div id="ADFNS1416" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.8.3</span> Application Uses Time at the Middle Tier in the Execution Logic</h5>
+<p>You must not configure an application for replay if the application uses the wall clock at the middle tier as part of the execution logic. The JDBC replay driver does not repeat the middle-tier time logic, but uses the database calls that execute as part of this logic. For example, an application using middle-tier time might assume that a statement executed at Time T1 is not reexecuted at Time T2, unless the application explicitly does so.</p>
+</div>
+<!-- class="sect4" -->
+<a id="BGBCDIBF"></a>
+<div id="ADFNS1417" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.8.4</span> Application Assumes that ROWIds Do Not Change</h5>
+<p>If an application caches ROWIDs, then access to these ROWIDs might be invalidated due to database changes. Although a ROWID uniquely identifies a row in a table, a ROWID might change its value in the following situations:</p>
+<ul>
+<li>
+<p>The underlying table is reorganized.</p>
+</li>
+<li>
+<p>An index is created on the table.</p>
+</li>
+<li>
+<p>The underlying table is partitioned.</p>
+</li>
+<li>
+<p>The underlying table is migrated.</p>
+</li>
+<li>
+<p>The underlying table is exported and imported using EXP/IMP/DUL.</p>
+</li>
+<li>
+<p>The underlying table is rebuilt using Golden Gate or Logical Standby or other replication technology.</p>
+</li>
+<li>
+<p>The database of the underlying table is flashed back or restored.</p>
+</li>
+</ul>
+<p>It is bad practice, in general, for an application to store ROWIDs for later use because the corresponding row might either not exist or contain completely different data.</p>
+</div>
+<!-- class="sect4" -->
+<a id="BGBGGHDC"></a>
+<div id="ADFNS1418" class="sect4">
+<h5 class="sect4"><span class="secnum">26.2.2.8.5</span> Application Assumes that Location Values Do Not Change</h5>
+<p><code dir="ltr">SYSCONTEXT</code> options comprise a location-independent set such as National Language Support (NLS) settings, <code dir="ltr">ISDBA</code>, <code dir="ltr">CLIENT_IDENTIFIER</code>, <code dir="ltr">MODULE</code>, and <code dir="ltr">ACTION</code>, and a location-dependent set that uses physical locators. Typically, an application does not use the physical identifier, except in testing environments. If physical locators are used in mainline code, then the replay finds the mismatch and rejects it. However, it is acceptable to use physical locators in callbacks.</p>
+<p class="subhead2"><a id="ADFNS1419"></a>Example</p>
+<pre dir="ltr">select 
+    sys_context(&#39;USERENV&#39;,&#39;DB_NAME&#39;) 
+    ,sys_context(&#39;USERENV&#39;,&#39;HOST&#39;) 
+    ,sys_context(&#39;USERENV&#39;,&#39;INSTANCE&#39;) 
+    ,sys_context(&#39;USERENV&#39;,&#39;IP_ADDRESS&#39;) 
+    ,sys_context(&#39;USERENV&#39;,&#39;ISDBA&#39;)  
+    ,sys_context(&#39;USERENV&#39;,&#39;SESSIONID&#39;) 
+    ,sys_context(&#39;USERENV&#39;,&#39;TERMINAL&#39;) 
+    ,sys_context(&#39;USERENV&#39;,&#39;SID&#39;) 
+from dual;
+</pre></div>
+<!-- class="sect4" --></div>
+<!-- class="sect3" -->
+<a id="BGBDFECJ"></a>
+<div id="ADFNS1426" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">26.2.2.9</span> <a id="sthref1279"></a>Killing or Disconnecting a Session Without Replay</h4>
+<p>If Application Continuity is configured and if a DBA kills or disconnects a session by using the <code dir="ltr">ALTER</code> <code dir="ltr">SYSTEM</code> <code dir="ltr">KILL</code> <code dir="ltr">SESSION</code> or <code dir="ltr">ALTER</code> <code dir="ltr">SYSTEM</code> <code dir="ltr">DISCONNECT</code> <code dir="ltr">SESSION</code> statement, Application Continuity by default attempts to recover the session. However, if you do <span class="italic">not</span> want the session to be replayed, use the <code dir="ltr">NOREPLAY</code> keyword:</p>
+<pre dir="ltr">alter system kill session &#39;<span class="italic">sid, serial#, @inst</span>&#39; <span class="bold">noreplay</span>;
+alter system disconnect session &#39;<span class="italic">sid, serial#, @inst</span>&#39; <span class="bold">noreplay</span>
+</pre>
+<p>To kill all sessions executing on the local instance (rather that only one session) and not have the sessions replayed, you can also use the <code dir="ltr">DBMS_SERVICE.DISCONNECT_SESSION</code> PL/SQL procedure and specify <code dir="ltr">NOREPLAY</code> for the <code dir="ltr">disconnect_option</code> parameter.</p>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<ul>
+<li>
+<p><span class="italic">Oracle Database SQL Language Reference</span> for information about the <a class="olink SQLRF00901" href="../SQLRF/statements_2015.htm#SQLRF00901">ALTER SYSTEM</a> statements</p>
+</li>
+<li>
+<p><span class="italic">Oracle Database PL/SQL Packages and Types Reference</span> for information about the <a class="olink ARPLS68024" href="../ARPLS/d_serv.htm#ARPLS68024"><code dir="ltr">DBMS_SERVICE.DISCONNECT_SESSION</code></a> procedure</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" -->
+<a id="BGBDDGBE"></a>
+<div id="ADFNS1203" class="sect2">
+<h3 class="sect2"><span class="secnum">26.2.3</span> Mutable Objects and Application Continuity</h3>
+<p>When a request is replayed, the default and desired treatment of mutable objects can vary. A <span class="bold">mutable object</span> is a nondeterministic function that can obtain a new value every time it is called. An example of a mutable object use is a call to the <code dir="ltr">SYSTIMESTAMP</code> function. Client applications using Application Continuity can determine whether to keep the original value for mutable functions if the request is replayed.</p>
+<p>Support for keeping mutable object values is currently provided for <code dir="ltr">SYSDATE</code>, <code dir="ltr">SYSTIMESTAMP</code>, <code dir="ltr">SYS_GUID</code>, and <span class="italic">sequence</span><code dir="ltr">.NEXTVAL</code>. If the original values are not kept and if different values for these mutable objects are returned to the client, replay is rejected because the client sees different results. If the application can use original values, configure mutable objects using the <code dir="ltr">KEEP</code> clause for owned sequences and <code dir="ltr">GRANT KEEP</code> for other users. (Most applications need sequence values to be kept at replay, for bind variable consistency.)</p>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Keeping <code dir="ltr">SYS_GUID</code> values is supported only for serial execution plans. When parallel query is used, Application Continuity is not able to restore original values for <code dir="ltr">SYS_GUID</code>.</div>
+<p><a href="#BABHFHHB">Table 26-1</a> shows examples of the treatment of mutable objects by products during replay. (Actual implementation depends on specific products and releases.)</p>
+<div id="ADFNS1204" class="tblformal">
+<p class="titleintable"><a id="sthref1280"></a><a id="BABHFHHB"></a>Table 26-1 Example Treatment of Mutable Objects by Products During Replay</p>
+<table class="cellalignment293" title="Example Treatment of Mutable Objects by Products During Replay" summary="Example treatment of mutable objects by products (called Product 1, Product 2, and Product 3) during replay" dir="ltr">
+<thead>
+<tr class="cellalignment287">
+<th class="cellalignment294" id="r1c1-t12">Mutable Object</th>
+<th class="cellalignment294" id="r1c2-t12">Product 1</th>
+<th class="cellalignment294" id="r1c3-t12">Product 2</th>
+<th class="cellalignment294" id="r1c4-t12">Product 3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r2c1-t12" headers="r1c1-t12">
+<p><code dir="ltr">SYSDATE</code>, <code dir="ltr">SYSTIMESTAMP</code></p>
+</td>
+<td class="cellalignment295" headers="r2c1-t12 r1c2-t12">
+<p>Original</p>
+</td>
+<td class="cellalignment295" headers="r2c1-t12 r1c3-t12">
+<p>Original</p>
+</td>
+<td class="cellalignment295" headers="r2c1-t12 r1c4-t12">
+<p>Current</p>
+</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r3c1-t12" headers="r1c1-t12">
+<p>Sequence <code dir="ltr">NEXTVAL</code> and <code dir="ltr">CURRVAL</code></p>
+</td>
+<td class="cellalignment295" headers="r3c1-t12 r1c2-t12">
+<p>Original</p>
+</td>
+<td class="cellalignment295" headers="r3c1-t12 r1c3-t12">
+<p>Original</p>
+</td>
+<td class="cellalignment295" headers="r3c1-t12 r1c4-t12">
+<p>(Not applicable)</p>
+</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r4c1-t12" headers="r1c1-t12">
+<p><code dir="ltr">SYS_GUID</code></p>
+</td>
+<td class="cellalignment295" headers="r4c1-t12 r1c2-t12">
+<p>Original</p>
+</td>
+<td class="cellalignment295" headers="r4c1-t12 r1c3-t12">
+<p>(Not applicable)</p>
+</td>
+<td class="cellalignment295" headers="r4c1-t12 r1c4-t12">
+<p>(Not applicable)</p>
+</td>
+</tr>
+<tr class="cellalignment287">
+<td class="cellalignment295" id="r5c1-t12" headers="r1c1-t12">
+<p>LOB access</p>
+</td>
+<td class="cellalignment295" headers="r5c1-t12 r1c2-t12">
+<p>Fail on mismatch</p>
+</td>
+<td class="cellalignment295" headers="r5c1-t12 r1c3-t12">
+<p>(Not applicable)</p>
+</td>
+<td class="cellalignment295" headers="r5c1-t12 r1c4-t12">
+<p>(Not applicable)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></div>
+<!-- class="tblformal" -->
+<p>To allow Application Continuity to keep and use original function results at replay:</p>
+<ul>
+<li>
+<p>The database user running the application might have the <code dir="ltr">KEEP DATE TIME</code> and <code dir="ltr">KEEP SYSGUID</code> privileges granted, and the <code dir="ltr">KEEP SEQUENCE</code> object privilege on each sequence whose value is to be kept. For example:</p>
+<pre dir="ltr">grant KEEP DATE TIME to user2;
+grant KEEP SYSGUID to user2;
+grant KEEP SEQUENCE on sales.seq1 to user2;
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+GRANT ALL ON <span class="italic">&lt;object&gt;</span> does <span class="bolditalic">not</span> include (that is, does not grant the access provided by) the <code dir="ltr">KEEP DATE TIME</code> and <code dir="ltr">KEEP SYSGUID</code> privileges and the <code dir="ltr">KEEP SEQUENCE</code> object privilege.</div>
+<p>Grant privileges related to mutable object support only to application users, and to each application user, grant only the necessary privileges.</p>
+<p>Do <span class="bolditalic">not</span> grant DBA privileges to database users running applications for which you want replay to be enabled.</p>
+</li>
+<li>
+<p>Sequences in the application can use the <code dir="ltr">KEEP</code> attribute, which keeps the original values of <code dir="ltr"><span class="codeinlineitalic">sequence</span></code><code dir="ltr">.NEXTVAL</code> for the sequence owner, so that the keys match during replay. Most applications need sequence values to be kept at replay. The following example sets the <code dir="ltr">KEEP</code> attribute for a sequence (in this case, one owned by the user executing the statement; for others, use <code dir="ltr">GRANT KEEP SEQUENCE</code>):</p>
+<pre dir="ltr">SQL&gt; CREATE SEQUENCE my_seq KEEP;
+SQL&gt; -- Or, if the sequence already exists but without KEEP:
+SQL&gt; ALTER SEQUENCE my_seq KEEP;
+</pre>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+Specifying <code dir="ltr">ALTER</code> <code dir="ltr">SEQUENCE</code> ... <code dir="ltr">KEEP</code><code dir="ltr">/</code><code dir="ltr">NOKEEP</code> applies to the owner of the sequence. It does not affect other users (not the owner) that have the <code dir="ltr">KEEP SEQUENCE</code> object privileges. If you want <code dir="ltr">NOKEEP</code> for all users, be sure not to grant the <code dir="ltr">KEEP SEQUENCE</code> object privilege to these users (or to revoke it from each if they have been granted it).</div>
+</li>
+<li>
+<p>To keep function results (for named functions) at replay, the DBA must grant <code dir="ltr">KEEP</code> privileges to the user invoking the function. This security restriction ensures that it is valid for replay to save and restore function results for code that is not owned by that user.</p>
+</li>
+</ul>
+<p>The following additional considerations apply to granting privileges on mutable objects:</p>
+<ul>
+<li>
+<p>If a user has the <code dir="ltr">KEEP</code> privilege granted on mutable object values, then the objects inherit mutable access when the <code dir="ltr">SYS_GUID</code>, <code dir="ltr">SYSDATE</code>, and <code dir="ltr">SYSTIMESTAMP</code> functions are called.</p>
+</li>
+<li>
+<p>If the <code dir="ltr">KEEP</code> privilege is revoked on mutable values on a sequence object, then SQL or PL/SQL blocks using that object do not allow mutable collection or application for that sequence.</p>
+</li>
+<li>
+<p>If granted privileges are revoked between runtime and failover, then the mutable values that are collected are not applied for replay.</p>
+</li>
+<li>
+<p>If new privileges are granted between runtime and failover, then mutable values are not collected and these values are not applied for replay.</p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<span class="italic">Oracle Database SQL Language Reference</span> for information about the <a class="olink SQLRF00817" href="../SQLRF/statements_2014.htm#SQLRF00817">ALTER SEQUENCE</a> and <a class="olink SQLRF01603" href="../SQLRF/statements_9014.htm#SQLRF01603">GRANT</a> statements</div>
+</div>
+<!-- class="sect2" -->
+<a id="BGBGIEAF"></a>
+<div id="ADFNS358" class="sect2"><!-- infolevel="all" infotype="General" -->
+<h3 class="sect2"><span class="secnum">26.2.4</span> <a id="sthref1281"></a><a id="sthref1282"></a><a id="sthref1283"></a>Session State Consistency</h3>
+<p>Session state consistency describes how nontransactional state is changed during a request. Examples of session state are NLS settings, optimizer preferences, event settings, PL/SQL global variables, temporary tables, advanced queues, LOBs, and result cache. If nontransactional values change after the request starts, use the default value, <code dir="ltr">Dynamic</code>.</p>
+<p>After a <code dir="ltr">COMMIT</code> has executed, if the state was changed in that transaction, it is not possible to replay the transaction to reestablish that state if the session is lost. Applications can be categorized depending on whether the session state after the initial setup or is static or dynamic, and hence whether it is correct to continue past a <code dir="ltr">COMMIT</code> operation.</p>
+<p><code dir="ltr">Dynamic</code> mode is appropriate for almost all applications. If you are unsure, use <code dir="ltr">Dynamic</code> mode. If your customers or users can modify your application, you must use <code dir="ltr">Dynamic</code> mode.</p>
+<p class="subhead2"><a id="ADFNS1432"></a>Topics:</p>
+<ul>
+<li>
+<p><a href="#BGBDGBJJ">Dynamic Session State Consistency</a></p>
+</li>
+<li>
+<p><a href="#BGBFCDAE">Static Session State Consistency</a></p>
+</li>
+</ul>
+<a id="BGBDGBJJ"></a>
+<div id="ADFNS1433" class="sect3"><!-- infolevel="all" infotype="General" -->
+<h4 class="sect3"><span class="secnum">26.2.4.1</span> Dynamic Session State Consistency</h4>
+<p>A session has <span class="bold">dynamic</span> state if the session state changes are not fully encapsulated by the initialization, and cannot be fully captured in a callback at failover. Once the first transaction completes, failover is internally disabled until the next request starts. In <code dir="ltr">Dynamic</code> session state consistency mode, state changes occur during the request and replay is enabled at the call to <code dir="ltr">beginRequest</code>.</p>
+<p>Set the session state consistency mode to <code dir="ltr">Dynamic</code> if the nontransactional session state changes while transactions are executing. Examples of nontransactional session state that can change at runtime are <code dir="ltr">ALTER</code> <code dir="ltr">SESSION</code>, PL/SQL global variables, <code dir="ltr">SYS_CONTEXT</code>, and temporary table contents. If the application changes nontransactional state inside transactions and commits, this state cannot be replayed and the state setting must be <code dir="ltr">Dynamic</code>. When using <code dir="ltr">Dynamic</code> mode for Application Continuity, replay is disabled at <code dir="ltr">COMMIT</code> until the next request begins. <code dir="ltr">Dynamic</code> is the default value.</p>
+<p><a href="#BGBDFBHG">Figure 26-2</a> shows the nontransactional session state (NTSS) changes during a request when the session state consistency mode is <code dir="ltr">Dynamic</code>.</p>
+<div id="ADFNS359" class="figure">
+<p class="titleinfigure"><a id="BGBDFBHG"></a>Figure 26-2 Dynamic Mode: Nontransaction State Can Change During Request</p>
+<img width="579" height="305" src="img/dynamic_mode_state_changes.jpg" alt="Description of Figure 26-2 follows"/><br/>
+<a id="sthref1284" href="img_text/dynamic_mode_state_changes.htm">Description of &#39;&#39;Figure 26-2 Dynamic Mode: Nontransaction State Can Change During Request&#39;&#39;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>As shown in <a href="#BGBDFBHG">Figure 26-2</a>, replay (that is, Application Continuity) is enabled at the <code dir="ltr">beginRequest</code> call, and is disabled on a <code dir="ltr">COMMIT</code> or an <code dir="ltr">endRequest</code> call. (The use of a restricted call also disables Application Continuity, but this is not shown in the figure.) Also shown in <a href="#BGBDFBHG">Figure 26-2</a> is the step logic for three application scenarios: no transaction, a transaction with <code dir="ltr">COMMIT</code> as the last statement, and a transaction with an embedded <code dir="ltr">COMMIT</code> statement.</p>
+<p>For the request with <span class="bold">no transaction</span>, the logic is as follows:</p>
+<ol>
+<li>
+<p>Check out.</p>
+</li>
+<li>
+<p>Replay is disabled at <code dir="ltr">endRequest</code>, at a restricted call, and for an explicit <code dir="ltr">disableReplay</code> call.</p>
+</li>
+<li>
+<p>Begin request and enable replay.</p>
+</li>
+<li>
+<p>Issue one or more <code dir="ltr">SELECT</code> statements and perhaps other PL/SQL statements.</p>
+</li>
+<li>
+<p>(Other actions, indicated by a gap.)</p>
+</li>
+<li>
+<p>Check in.</p>
+</li>
+<li>
+<p>End request and disable replay.</p>
+</li>
+</ol>
+<p>For the request with <span class="bold">a transaction with COMMIT as the last statement</span>, the logic is as follows:</p>
+<ol>
+<li>
+<p>Check out.</p>
+</li>
+<li>
+<p>Replay is disabled at <code dir="ltr">COMMIT</code>, at <code dir="ltr">endRequest</code>, at a restricted call, and for an explicit <code dir="ltr">disableReplay</code> call.</p>
+</li>
+<li>
+<p>Begin request and enable replay.</p>
+</li>
+<li>
+<p>Issue one or more <code dir="ltr">SELECT</code> statements and perhaps other PL/SQL statements.</p>
+</li>
+<li>
+<p>The transaction begins.</p>
+</li>
+<li>
+<p>(Other actions, indicated by a gap.)</p>
+</li>
+<li>
+<p>Commit (which disables replay).</p>
+</li>
+<li>
+<p>Check in.</p>
+</li>
+<li>
+<p>End request.</p>
+</li>
+</ol>
+<p>For the request with <span class="bold">a transaction with an embedded COMMIT statement</span>, the logic is as follows:</p>
+<ol>
+<li>
+<p>Check out.</p>
+</li>
+<li>
+<p>Replay is disabled at <code dir="ltr">COMMIT</code>, at <code dir="ltr">endRequest</code>, at a restricted call, and for an explicit <code dir="ltr">disableReplay</code> call.</p>
+</li>
+<li>
+<p>Begin request and enable replay.</p>
+</li>
+<li>
+<p>Issue one or more <code dir="ltr">SELECT</code> statements and perhaps other PL/SQL statements.</p>
+</li>
+<li>
+<p>The transaction begins.</p>
+</li>
+<li>
+<p>(Other actions, indicated by a gap.)</p>
+</li>
+<li>
+<p>Commit (which disables replay).</p>
+</li>
+<li>
+<p>(Other actions, indicated by a gap during which Application Continuity is not covering the application.)</p>
+</li>
+<li>
+<p>Check in.</p>
+</li>
+<li>
+<p>End request.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" -->
+<a id="BGBFCDAE"></a>
+<div id="ADFNS360" class="sect3">
+<h4 class="sect3"><span class="secnum">26.2.4.2</span> Static Session State Consistency</h4>
+<p>Set the session state consistency mode to <code dir="ltr">Static</code> if all nontransactional state changes, such as NLS settings, <code dir="ltr">SYS_CONTEXT</code>, PL/SQL variables, and optimizer preferences, are set as part of the initialization once per request, and if this session state does not change during transactions. The settings can be established once per connection at connection establishment with UCP labeling, for example, or at each checkout from a pool. These settings must be repeated in the replay callback. When using <code dir="ltr">Static</code> mode for Application Continuity, transactional failover continues beyond the first transaction of a request.</p>
+<p>Static mode is not supported for applications that use calls that change nontransactional state in requests. Specific examples of such calls include:</p>
+<ul>
+<li>
+<p>PL/SQL subprograms</p>
+</li>
+<li>
+<p><code dir="ltr">SYS_CONTEXT</code></p>
+</li>
+<li>
+<p>Hints</p>
+</li>
+<li>
+<p>DDL operations</p>
+</li>
+<li>
+<p>Autocommit</p>
+</li>
+<li>
+<p><code dir="ltr">ALTER</code> <code dir="ltr">SESSION</code></p>
+</li>
+<li>
+<p><code dir="ltr">ALTER</code> <code dir="ltr">SYSTEM</code></p>
+</li>
+</ul>
+<p>Specify static mode with caution. Use static mode only when the application does not change the NTSS (nontransactional session state) inside transactions. Declaring the session state consistency mode as <code dir="ltr">Static</code> indicates that it is safe to continue beyond the first <code dir="ltr">COMMIT</code> in a request. Dynamic mode is appropriate for most applications. Do <span class="italic">not</span> use static mode if users or customers can modify or customize the application.</p>
+<p><a href="#BGBJGGHI">Figure 26-3</a> shows the NTSS (nontransactional session state) remaining constant (that is, not changing) during a request when the session state consistency mode is <code dir="ltr">Static</code>.</p>
+<div id="ADFNS1420" class="figure">
+<p class="titleinfigure"><a id="BGBJGGHI"></a>Figure 26-3 Static Mode: Nontransactional State Never Changes During Request</p>
+<img width="585" height="319" src="img/static_mode_state_changes.jpg" alt="Description of Figure 26-3 follows"/><br/>
+<a id="sthref1285" href="img_text/static_mode_state_changes.htm">Description of &#39;&#39;Figure 26-3 Static Mode: Nontransactional State Never Changes During Request&#39;&#39;</a><br/>
+<br/></div>
+<!-- class="figure" -->
+<p>As shown in <a href="#BGBJGGHI">Figure 26-3</a>, replay (that is, Application Continuity) is enabled at the <code dir="ltr">beginRequest</code> call, and is disabled on a restricted call or on a <code dir="ltr">disableReplay</code> or <code dir="ltr">endRequest</code> call. Also shown in <a href="#BGBJGGHI">Figure 26-3</a> is the step logic for three application scenarios: no transaction, one or more transactions each ending with <code dir="ltr">COMMIT</code> as the last statement, and a transaction with a <code dir="ltr">COMMIT</code> statement followed by a transaction with a restricted call that disables Application Continuity.</p>
+<p>For the request with <span class="bold">no transaction</span>, the logic is as follows:</p>
+<ol>
+<li>
+<p>Check out.</p>
+</li>
+<li>
+<p>Replay is disabled at endRequest, at a restricted call, and for an explicit <code dir="ltr">disableReplay</code> call.</p>
+</li>
+<li>
+<p>Begin request and enable replay.</p>
+</li>
+<li>
+<p>Issue one or more <code dir="ltr">SELECT</code> statements and perhaps other PL/SQL statements.</p>
+</li>
+<li>
+<p>(Other actions, indicated by a gap.)</p>
+</li>
+<li>
+<p>Check in.</p>
+</li>
+<li>
+<p>End request and disable replay.</p>
+</li>
+</ol>
+<p>For the request with <span class="bold">one or more transactions (each with COMMIT as the last statement)</span>, the logic is as follows:</p>
+<ol>
+<li>
+<p>Check out.</p>
+</li>
+<li>
+<p>Replay is disabled at <code dir="ltr">COMMIT</code>, at <code dir="ltr">endRequest</code>, at a restricted call, and for an explicit <code dir="ltr">disableReplay</code> call.</p>
+</li>
+<li>
+<p>Begin request and enable replay.</p>
+</li>
+<li>
+<p>Issue one or more <code dir="ltr">SELECT</code> statements and perhaps other PL/SQL statements.</p>
+</li>
+<li>
+<p>The transaction begins.</p>
+</li>
+<li>
+<p>The transaction commits.</p>
+</li>
+<li>
+<p>The transaction is purged.</p>
+</li>
+<li>
+<p>(For each additional transaction, steps 4 through 7 occur.)</p>
+</li>
+<li>
+<p>(Other actions, indicated by a gap.)</p>
+</li>
+<li>
+<p>Check in.</p>
+</li>
+<li>
+<p>End request.</p>
+</li>
+</ol>
+<p>For the request with <span class="bold">a transaction with a COMMIT followed by a transaction with a restricted call</span>, the logic is as follows:</p>
+<ol>
+<li>
+<p>Check out.</p>
+</li>
+<li>
+<p>Replay is disabled at <code dir="ltr">COMMIT</code>, at <code dir="ltr">endRequest</code>, at a restricted call, and for an explicit <code dir="ltr">disableReplay</code> call.</p>
+</li>
+<li>
+<p>Begin request and enable replay.</p>
+</li>
+<li>
+<p>Issue one or more <code dir="ltr">SELECT</code> statements and perhaps other PL/SQL statements.</p>
+</li>
+<li>
+<p>The transaction begins.</p>
+</li>
+<li>
+<p>The transaction commits.</p>
+</li>
+<li>
+<p>The transaction is purged.</p>
+</li>
+<li>
+<p>The second transaction begins.</p>
+</li>
+<li>
+<p>The transaction makes a restricted call, which causes Application Continuity to be disabled.</p>
+</li>
+<li>
+<p>The transaction is purged.</p>
+</li>
+<li>
+<p>(Other actions, indicated by a gap.)</p>
+</li>
+<li>
+<p>Check in.</p>
+</li>
+<li>
+<p>End request.</p>
+</li>
+</ol>
+</div>
+<!-- class="sect3" --></div>
+<!-- class="sect2" --></div>
+<!-- class="sect1" -->
+<a id="BABIJCEE"></a>
+<div id="ADFNS1205" class="sect1">
+<h2 class="sect1"><span class="secnum">26.3</span> Potential Side Effects of Application Continuity</h2>
+<p>When a session is rebuilt, all states are rebuilt. This includes reexecuting statements that leave side effects. These side effects might be exactly what is required, such as writing a report or completing some auditing. However, the actions that are replayed to build the state might include some for which you want to take action to accommodate or mitigate the effects of the replay.</p>
+<p>Application Continuity replays PL/SQL chronologically to restore database state. This serves to rebuild the session as if the user submission was delayed. Most applications want the full state rebuilt as if the submission was repeated, such as writing a report or completing some auditing. However, the actions that are replayed to build the state might include some for which you want to take action to accommodate or mitigate the effects of the replay. Some applications elect to use the <code dir="ltr">disableReplay</code> API for requests that contain calls that they do not want to repeat.</p>
+<p>If requests have external actions that use a messaging mechanism (such as <code dir="ltr">UTL_SMTP</code>, <code dir="ltr">UTL_HTTP</code>, or <code dir="ltr">UTL_FILE</code>), then review the requests to decide if they must be replayed.</p>
+<p>Examples of actions that create side effects include the following:</p>
+<ul>
+<li>
+<p>Autonomous transactions (independent transactions that can be called from other transactions, as explained in <a href="adfns_sqlproc.htm#i1007356">Section 6.8, &#34;Autonomous Transactions&#34;</a>)</p>
+</li>
+<li>
+<p><code dir="ltr">DBMS_ALERT</code> calls (email or other notifications)</p>
+</li>
+<li>
+<p><code dir="ltr">DBMS_FILE_TRANSFER</code> calls (copying files)</p>
+</li>
+<li>
+<p><code dir="ltr">DBMS_PIPE</code> and RPC calls (to external sources)</p>
+</li>
+<li>
+<p><code dir="ltr">UTL_FILE</code> calls (writing text files)</p>
+</li>
+<li>
+<p><code dir="ltr">UTL_HTTP</code> calls (making HTTP callouts)</p>
+</li>
+<li>
+<p><code dir="ltr">UTL_MAIL</code> calls (sending email)</p>
+</li>
+<li>
+<p><code dir="ltr">UTL_SMTP</code> calls (sending SMTP messages)</p>
+</li>
+<li>
+<p><code dir="ltr">UTL_TCP</code> calls (sending TCP messages)</p>
+</li>
+<li>
+<p><code dir="ltr">UTL_URL</code> calls (accessing URLs)</p>
+</li>
+</ul>
+<div class="infoboxnotealso">
+<p class="notep1">See Also:</p>
+<a href="#BGBJGIBG">Section 26.2.2.8, &#34;Disabling Replay in Application Continuity for Java&#34;</a> for information about disabling replay and for related considerations</div>
+</div>
+<!-- class="sect1" -->
+<a id="BABJHJIA"></a>
+<div id="ADFNS1206" class="sect1">
+<h2 class="sect1"><span class="secnum">26.4</span> Restrictions and Other Considerations for Application Continuity</h2>
+<p>The following restrictions and other considerations apply to Application Continuity for Java:</p>
+<ul>
+<li>
+<p>It applies only to JDBC Thin connections (JDBC OCI is not supported).</p>
+</li>
+<li>
+<p>For applications using JDBC, there is no support for <code dir="ltr">oracle.sql</code> deprecated concrete classes: <code dir="ltr">BLOB</code>, <code dir="ltr">CLOB</code>, <code dir="ltr">BFILE</code>, <code dir="ltr">OPAQUE</code>, <code dir="ltr">ARRAY</code>, <code dir="ltr">STRUCT</code>, or <code dir="ltr">ORADATA</code>. (See My Oracle Support Note 1364193.1, <span class="italic">New Jdbc Interfaces for Oracle types</span>: <code dir="ltr"><a href="https://support.oracle.com/CSP/main/article?cmd=show&amp;type=NOT&amp;id=1364193.1">https://support.oracle.com/CSP/main/article?cmd=show&amp;type=NOT&amp;id=1364193.1</a></code>)</p>
+</li>
+<li>
+<p>For JDBC streams arguments, replay is on a &#34;best effort&#34; basis. For example, if the application is using physical addresses, the address has gone with the outage and cannot be repositioned. JDBC stream setters (such as <code dir="ltr">setBinaryStream</code>), for example, cause replay to be disabled.</p>
+</li>
+<li>
+<p>The replay target database must have the same database ID, pluggable database ID, ancestors, and descendants as the source database.</p>
+<p>Application Continuity does not replay if the target is a different database or if it is the same database or same pluggable database but with data loss, such as one flashed back, recovered incompletely by media recovery, or opened by Oracle Data Guard earlier in time.</p>
+</li>
+<li>
+<p>If a statement cache at the application server level is enabled (for example, the WebLogic or third-party application server statement cache), this must be disabled when the replay is used. Instead, configure the JDBC statement cache, which performs better because it is optimized for JDBC and Oracle and because it supports Application Continuity. Use <code dir="ltr">oracle.jdbc.implicitstatementcachesize=</code><code dir="ltr"><span class="codeinlineitalic">nnn</span></code>.</p>
+</li>
+<li>
+<p>Replay is not supported for applications developed using Oracle XA.</p>
+</li>
+<li>
+<p>Replay is disabled if a request issues an <code dir="ltr">ALTER</code> <code dir="ltr">SYSTEM</code> or <code dir="ltr">ALTER</code> <code dir="ltr">DATABASE</code> statement.</p>
+</li>
+<li>
+<p>Replay is disabled at a request level for ALTER SESSION statements that are deemed unsafe to rebuild the session. These include statements for setting isolation levels and support-level events, and disabling and enabling COMMIT IN PROCEDURE and GUARD.</p>
+<p>However, ALTER SESSION statements at an application level are supported for replay. These include statements for globalization support (NLS) settings, stored and private outlines, setting the container (CDB/PDB), SQL trace, and PL/SQL warnings.</p>
+</li>
+<li>
+<p>Replay is not supported if you are using Active Data Guard with read/write database links to another database.</p>
+</li>
+<li>
+<p>Replay does not apply for failure of a parallel query call when this is a statement-level failure. For example, replay would not occur after an ORA-12805 error (&#34;parallel query server died unexpectedly&#34;) for a call failure encountered during an instance or node failure or memory issue.</p>
+</li>
+</ul>
+<div class="infobox-note">
+<p class="notep1">Note:</p>
+If you are creating clones of databases by splitting disk images (for example, BCVs) or by cloning so it is a &#34;different&#34; database to make a logical standby or logical copy that is not a physical or Active Data Guard database, <code dir="ltr">nid</code> <span class="bolditalic">must</span> be used to change the DBID to differentiate the databases. For information about <code dir="ltr">nid</code> program usage, see these My Oracle Support notes: <span class="italic">How to Change the DBID and the DBNAME by using NID</span> (Doc Id 224266.1) and <span class="italic">Changing DBNAME and DBID of Oracle RAC Database Using NID</span> (Doc Id 464922.1).</div>
+</div>
+<!-- class="sect1" --></div>
+<!-- class="chapter" --></div>
+<!-- class="ind" -->
+<!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment286">
+<tr>
+<td class="cellalignment295">
+<table class="cellalignment291">
+<tr>
+<td class="cellalignment290"><a href="adfns_trans_idemp_guard.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment290"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;1996, 2016,&nbsp;Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment298">
+<table class="cellalignment289">
+<tr>
+<td class="cellalignment290"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment290"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment290"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment290"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment290"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment290"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>

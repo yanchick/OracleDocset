@@ -1,0 +1,1594 @@
+<!DOCTYPE html><html lang="en-US"><head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="UTF-8"/>
+<a class="dashingAutolink" name="autolink-6094"></a><a class="dashAnchor" name="//apple_ref/cpp/Package/Using%20Zone%20Maps"></a><title>Using Zone Maps</title>
+<meta name="generator" content="DITA Open Toolkit version 1.8.5 (Mode = doc)"/>
+<meta name="keywords" content="zone maps, with attribute clustering, benefits, maintenance, automatic refresh, privileges, creating, with attribute clustering, modifying, compiling, usage for SQL workloads, usage for SQL statements, about staleness, about refreshing, refreshing, pruning, using zone maps, examples, partition and table scan pruning, join pruning"/>
+<meta name="dcterms.created" content="2017-06-07T18:07:59Z"/>
+<meta name="robots" content="all"/>
+<meta name="dcterms.title" content="Database Data Warehousing Guide"/>
+<meta name="dcterms.identifier" content="E41670-11"/>
+<meta name="dcterms.isVersionOf" content="DWHSG"/>
+<meta name="dcterms.rights" content="Copyright&nbsp;&copy;&nbsp;2001, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved."/>
+<link rel="Start" href="../index.htm" title="Home" type="text/html"/>
+<link rel="Copyright" href="../dcommon/html/cpyr.htm" title="Copyright" type="text/html"/>
+
+<script type="application/javascript" src="../dcommon/js/headfoot.js"></script>
+<script type="application/javascript" src="../nav/js/doccd.js" charset="UTF-8"></script>
+<link rel="Contents" href="toc.htm" title="Contents" type="text/html"/>
+<link rel="Index" href="index.htm" title="Index" type="text/html"/>
+<link rel="Glossary" href="glossary.htm" title="Glossary" type="text/html"/>
+<link rel="Prev" href="attcluster.htm" title="Previous" type="text/html"/>
+<link rel="Next" href="part4.htm" title="Next" type="text/html"/>
+<link rel="alternate" href="E41670-11.pdf" title="PDF version" type="application/pdf"/>
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+<link rel="stylesheet" href="../dcommon/css/fusiondoc.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/header.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/footer.css"/>
+<link rel="stylesheet" type="text/css" href="../dcommon/css/fonts.css"/>
+<link rel="stylesheet" href="../dcommon/css/foundation.css"/>
+<link rel="stylesheet" href="../dcommon/css/codemirror.css"/>
+<link rel="stylesheet" type="text/css" title="Default" href="../nav/css/html5.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-480-tablet.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-768-laptop.css"/>
+<link rel="stylesheet" href="../dcommon/css/respond-1140-deskop.css"/>
+<script type="application/javascript" src="../dcommon/js/modernizr.js"></script>
+<script type="application/javascript" src="../dcommon/js/codemirror.js"></script>
+<script type="application/javascript" src="../dcommon/js/jquery.js"></script>
+<script type="application/javascript" src="../dcommon/js/foundation.min.js"></script>
+<script type="text/javascript" src="/s7.addthis.com/js/300/addthis_widget.js#pubid=ra-552992c80ef99c8d" async="async"></script>
+<script type="application/javascript" src="../dcommon/js/jqfns.js"></script>
+<script type="application/javascript" src="../dcommon/js/ohc-inline-videos.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="../dcommon/fancybox/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/jquery.fancybox.pack.js?v=2.1.5"></script>
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen"/>
+<script type="text/javascript" src="../dcommon/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+</head>
+<body>
+<a href="#BEGIN" class="accessibility-top skipto" tabindex="0">Go to main content</a><header><!--
+<div class="zz-skip-header"><a id="top" href="#BEGIN">Go to main content</a>--></header>
+<div class="row" id="CONTENT">
+<div class="IND large-9 medium-8 columns" dir="ltr">
+<a id="BEGIN" name="BEGIN"></a>
+<a id="GUID-BEA5ACA1-6718-4948-AB38-1F2C0335FDE4"></a> <span id="PAGE" style="display:none;">19/32</span> <!-- End Header -->
+<h1 id="DWHSG-GUID-BEA5ACA1-6718-4948-AB38-1F2C0335FDE4" class="sect1"><span class="enumeration_chapter">13</span> Using Zone Maps</h1>
+<div>
+<p>A zone map is a independent access structure that can be built for a table. During table and index scans, zone maps enable you to prune disk blocks of a table and potentially full partitions of a partitioned table based on predicates on the table columns. Zone maps can be used with or without attribute clustering.</p>
+<p>This chapter includes the following sections:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-7E5C3F5A-C1F5-4A5E-A501-DB50B8948263">About Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-BD689807-825D-47F2-81AB-9FD32A3E39C0">Zone Map Operations</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-EEE26E3B-38B7-47DD-9892-818CB8432158">Refresh and Staleness of Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-1E6AF386-E601-4382-B84D-B811DA142E0F">Performing Pruning Using Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-DA1762AC-4F66-4DDA-A28A-8A754FB6E75E">Viewing Zone Map Information</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG8935"></a>
+<div class="props_rev_3"><a id="GUID-7E5C3F5A-C1F5-4A5E-A501-DB50B8948263"></a>
+<h2 id="DWHSG-GUID-7E5C3F5A-C1F5-4A5E-A501-DB50B8948263" class="sect2">About Zone Maps</h2>
+<div>
+<p>A <span class="bold">zone</span> <span class="bold">map</span> is <a id="d50358e75" class="indexterm-anchor"></a>an independent access structure built for a table that stores information about zones of a table. Zone maps enable the database to prune data blocks that cannot satisfy predicates on table columns. A <span class="bold">zone</span> is a set of a <a id="d50358e83" class="indexterm-anchor"></a>contiguous data blocks on disk.</p>
+<p>Traditional zone maps store the minimum and maximum values of a column in a table per disk unit, set of blocks, or extents. If queries qualify on clustering columns, then I/O pruning takes place. Zone maps in an Oracle Database store minimum and maximum values of columns for a range of blocks (known as a zone). In addition to performing I/O pruning based on predicates of clustered fact tables, zone maps prune on predicates of dimension tables provided the fact tables are attribute-clustered by the dimension attributes through outer joins with the dimension tables.</p>
+<p>You can define at most one zone map on a table. In the case of a partitioned table, there is one zone map for all partitions (and subpartitions). A zone map of a partitioned table also keeps track of the minimum and maximum values per zone, per partition, and per subpartition. Zone map definitions can include minimum and maximum values of dimension columns provided the table has an outer join with the dimension tables.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-6E965132-485A-4A70-8DA3-18FCF6E5C4AA">Difference Between Zone Maps and Indexes</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-6874226F-1DC1-4864-9695-5FBDF646F59D">Zone Maps and Attribute Clustering</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-17F2043C-BD41-400F-9FBE-BD14CE87980E">Types of Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-E6E8BDF4-F3FA-49AF-B56C-BA1245CC8BB2">Benefits of Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-14BE02F3-C78F-45FA-BD15-78FA554B7699">Scenarios Which Benefit from Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-08DB84F2-8163-4E02-9D2E-8A10351335E4">About Maintaining Zone Maps</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG9356"></a>
+<div class="props_rev_3"><a id="GUID-6E965132-485A-4A70-8DA3-18FCF6E5C4AA"></a>
+<h3 id="DWHSG-GUID-6E965132-485A-4A70-8DA3-18FCF6E5C4AA" class="sect3">Difference Between Zone Maps and Indexes</h3>
+<div>
+<p>A zone map is analogous to a coarse index structure. However, there are fundamental differences to an index:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A zone map stores information per zone instead of per row. Thus, it is much more compact than an index.</p>
+</li>
+<li>
+<p>A zone map is not actively managed the way an index is kept in sync with DML actions. Thus, even if a zone map has the <code class="codeph">REFRESH</code> <code class="codeph">ON</code> <code class="codeph">COMMIT</code> option, it can still be stale within a transaction until commit or rollback occurs.</p>
+</li>
+<li>
+<p>A zone map can contain stale information for some zones and fresh information for the rest of the zones, and Oracle Database will still use the zone map to perform I/O pruning during the scan of the fact table.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="DWHSG9357"></a>
+<div class="props_rev_3"><a id="GUID-6874226F-1DC1-4864-9695-5FBDF646F59D"></a>
+<h3 id="DWHSG-GUID-6874226F-1DC1-4864-9695-5FBDF646F59D" class="sect3">Zone Maps and Attribute Clustering</h3>
+<div>
+<p>Attribute clustering is not a mandatory pre-requirement for zone maps. Zone maps can be used with or without attribute clustering. Therefore, you can specify attribute clustering without zone maps and build zone maps without clustering on the table.</p>
+<p>It is common for data warehousing environments to have reasonably clustered data due to ETL processing, for example, clustering by time columns or by geographical regions. Due to clustering, minimum and maximum values of the columns are more likely to be correlated with consecutive data blocks in the attribute-clustered table, which allows for more efficient pruning using zone maps. Zone maps enable more efficient pruning by taking advantage of data ordering performed by attribute clustering. During table scans and index scans (for example, fetch by rowid), zone maps allow pruning of data blocks that do not satisfy predicates on table columns.</p>
+<div class="infoboxnotealso" id="GUID-6874226F-1DC1-4864-9695-5FBDF646F59D__GUID-F3BBC05F-991F-4E35-8631-6065A4636C76">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="attcluster.htm#GUID-08788616-8D61-4550-9871-301503557E60">About Attribute Clustering</a>&#34;</span> for information about attribute clustering</p>
+</div>
+</div>
+</div>
+<a id="DWHSG9358"></a>
+<div class="props_rev_3"><a id="GUID-17F2043C-BD41-400F-9FBE-BD14CE87980E"></a>
+<h3 id="DWHSG-GUID-17F2043C-BD41-400F-9FBE-BD14CE87980E" class="sect3">Types of Zone Maps</h3>
+<div>
+<p>There are two <a id="d50358e224" class="indexterm-anchor"></a><a id="d50358e228" class="indexterm-anchor"></a>types of zone maps:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>A basic zone map is defined on a single table and maintains the minimum and maximum values of some columns of this table.</p>
+</li>
+<li>
+<p>A join zone map is defined on a table that has an outer join to one or more other tables and maintains the minimum and maximum values of some columns in the other tables; these join conditions are common in master-detail relationships as well as in star schemas between fact and dimension tables.</p>
+<p>For star queries, multiple dimension tables are joined through PK-FK relationships with a fact table. Here a join zone map maintains the minimum and maximum values of columns from the dimension tables for zones of the fact table.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="DWHSG9359"></a>
+<div class="props_rev_3"><a id="GUID-E6E8BDF4-F3FA-49AF-B56C-BA1245CC8BB2"></a>
+<h3 id="DWHSG-GUID-E6E8BDF4-F3FA-49AF-B56C-BA1245CC8BB2" class="sect3">Benefits of Zone Maps</h3>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>Enables I/O reduction during sequential or index scans of tables or table partitions</p>
+</li>
+<li>
+<p>Enables partition pruning based on non-key columns for partitioned and composite-partitioned tables when zone map columns correlate with the partitioning key</p>
+</li>
+<li>
+<p>Enables I/O reduction on a subset of the clustering columns for attribute clustering with interleaved ordering</p>
+</li>
+<li>
+<p>Eliminate storage costs associated with using indexes</p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-E6E8BDF4-F3FA-49AF-B56C-BA1245CC8BB2__GUID-2EE3EA3F-AF00-42C1-B48A-D3E2A08E1D6A">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF56947" target="_blank" href="../SQLRF/statements_6004.htm#SQLRF56947"><span class="italic">Oracle Database SQL Language Reference</span></a></p>
+</div>
+</div>
+</div>
+<a id="DWHSG9360"></a>
+<div class="props_rev_3"><a id="GUID-14BE02F3-C78F-45FA-BD15-78FA554B7699"></a>
+<h3 id="DWHSG-GUID-14BE02F3-C78F-45FA-BD15-78FA554B7699" class="sect3">Scenarios Which Benefit from Zone Maps</h3>
+<div>
+<p>Using <a id="d50358e309" class="indexterm-anchor"></a>zone maps can be beneficial in the following scenarios:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Table scans are performed with frequently-used predicates</p>
+<p>Zone maps enable Oracle Database to avoid scanning zones that are excluded by column predicates.</p>
+</li>
+<li>
+<p>Joins are defined between a fact table and dimension tables with frequently-used predicates on the dimension hierarchy columns</p>
+<p>Fact table rows can be ordered by dimension attribute values, pruning zones that are excluded by predicates on attribute values.</p>
+</li>
+<li>
+<p>Columns in partitioned tables contain values that correlate with the partition key</p>
+<p>This will facilitate partition pruning based on &ldquo;non-key&#34; columns. For example, a table partitioned by date will often have other date columns that correlate well with the partition key or columns that contain sequenced values that change or cycle over time.</p>
+</li>
+<li>
+<p>Data clustering is performed on the zone map column values</p>
+<p>Attribute clustering is designed specifically for this purpose. Alternatively, it is appropriate to make use of ordering inherent in the data (for example, time-based column values loaded sequentially or data that is sorted on load).</p>
+</li>
+<li>
+<p>Frequent and low cardinality index range scans are performed on tables</p>
+<p>Attribute clustering can be used alone to improve compression factors. Zone maps can be used to improve the efficiency of the index scans by pruning lookups from excluded zones. Alternatively, zone maps can be used to replace indexes.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="DWHSG9361"></a>
+<div class="props_rev_3"><a id="GUID-08DB84F2-8163-4E02-9D2E-8A10351335E4"></a>
+<h3 id="DWHSG-GUID-08DB84F2-8163-4E02-9D2E-8A10351335E4" class="sect3">About Maintaining Zone Maps</h3>
+<div>
+<p>Zone maps are based on tables and, therefore, any changes to the underlying tables impacts the state of the zone map. Depending on the operation performed on the table, some or all zones of a zone map are impacted. Zone maps affected by changes to the underlying tables require maintenance.</p>
+<p>Zone map maintenance consists of one or more of the tasks:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>Checking the validity of affected zone maps</p>
+</li>
+<li>
+<p>Tracking the staleness of the affected zone maps</p>
+</li>
+<li>
+<p>Refreshing the affected zone maps that have become stale (depending on the refresh mode set for the zone map)</p>
+</li>
+</ul>
+<p>When there is a change in the structure of base tables on which a zone map is based, for example, dropping a table column whose minimum and maximum values are maintained by the zone map, then the zone map becomes <span class="bold">invalid</span>. Invalid zone maps are not used by queries and Oracle Database does not maintain these zone maps. However, when there is a change in the structure of the base tables that does not relate to the zone map, for example, adding a new column to the table, the zone map stays valid but it needs to be compiled. Oracle Database automatically compiles the zone map on a subsequent operation such as the use of zone map by a query. Or, you can compile the zone map using the <code class="codeph">COMPILE</code> clause of the <code class="codeph">ALTER MATERIALIZED ZONEMAP</code> command.</p>
+<div class="infoboxnotealso" id="GUID-08DB84F2-8163-4E02-9D2E-8A10351335E4__GUID-0F56EFD6-3860-49DB-B8C2-3C9FE59EC1D6">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="zone_maps.htm#GUID-1D2BB7B1-440D-403C-BD24-AFAA39789568">Compiling Zone Maps</a>&#34;</span></p>
+</div>
+<p>When there is a change in the data of the underlying tables, the zones that are impacted by these changes are marked <span class="bold">stale</span>. Only the data in a stale zone map is not current or fresh but its definition is still valid. Oracle Database automatically tracks the staleness of zone maps due to different types of operations on the underlying tables. Depending on the type of operation performed on the underlying table the Oracle Database will either mark the entire zone map as stale, or some zones in the zone map as stale.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-03B84C4C-BA4A-4C5C-8F92-AD4A56AD617A">Operations that Require Zone Map Maintenance</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-586FD01D-2F00-4185-BCF9-424E19B8E8E9">Scenarios in Which Zone Maps are Automatically Refreshed</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG9362"></a>
+<div class="props_rev_3"><a id="GUID-03B84C4C-BA4A-4C5C-8F92-AD4A56AD617A"></a>
+<h4 id="DWHSG-GUID-03B84C4C-BA4A-4C5C-8F92-AD4A56AD617A" class="sect4">Operations that Require Zone Map Maintenance</h4>
+<div>
+<p>Zone map maintenance is required when the following operations are performed on one or more of the underlying tables:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>DML (insert, delete, update, conventional load).</p>
+</li>
+<li>
+<p>Direct-path insert and load.</p>
+</li>
+<li>
+<p>Partition Maintenance Operations (<code class="codeph">MOVE</code>, <code class="codeph">SPLIT</code>, <code class="codeph">MERGE</code>, <code class="codeph">DROP</code>, <code class="codeph">TRUNCATE</code>, and <code class="codeph">EXCHANGE</code>), moving table data, and online redefinition of table.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="DWHSG9363"></a>
+<div class="props_rev_3"><a id="GUID-586FD01D-2F00-4185-BCF9-424E19B8E8E9"></a>
+<h4 id="DWHSG-GUID-586FD01D-2F00-4185-BCF9-424E19B8E8E9" class="sect4">Scenarios in Which Zone Maps are Automatically Refreshed</h4>
+<div>
+<p>The zone map refresh mode determines if Oracle Database will automatically refresh the zone maps affected by above operations.</p>
+<p>Oracle Database performs automatic refresh for zone maps affected by the following:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>DML operations if the refresh mode is <code class="codeph">REFRESH ON COMMIT</code>. Zone maps with <code class="codeph">REFRESH ON COMMIT</code> mode stay transactionally fresh. The refresh is performed when the transaction is committed.</p>
+</li>
+<li>
+<p>Direct-path insert or load if the refresh mode is <code class="codeph">REFRESH ON LOAD</code>.</p>
+<p>Zone maps with <code class="codeph">REFRESH ON LOAD</code> can become stale after DML or PMOP operation on underlying table.</p>
+</li>
+<li>
+<p>PMOPs (<code class="codeph">MOVE</code>, <code class="codeph">SPLIT</code>, <code class="codeph">MERGE</code>, <code class="codeph">DROP</code>) or table move if the refresh mode is <code class="codeph">REFRESH ON DATA MOVEMENT</code>.</p>
+<p>Zone maps with <code class="codeph">REFRESH ON DATA MOVEMENT</code> can become stale after DML, direct-path insert or load, PMOP (<code class="codeph">TRUNCATE</code>, <code class="codeph">EXCHANGE</code>), or online redefinition of underlying table</p>
+</li>
+<li>
+<p>Direct-path insert or load, PMOP (<code class="codeph">MOVE</code>, <code class="codeph">SPLIT</code>, <code class="codeph">MERGE</code>, <code class="codeph">DROP</code>) or table move if the refresh mode is <code class="codeph">REFRESH ON LOAD DATA MOVEMENT</code>.</p>
+<p>Zone maps with <code class="codeph">REFRESH ON LOAD DATA MOVEMENT</code> can become stale after DML, PMOP (<code class="codeph">TRUNCATE</code>, <code class="codeph">EXCHANGE</code>), or online redefinition of underlying table.</p>
+</li>
+</ul>
+<p>Oracle Database does not perform automatic refresh of zone maps affected by any operation on underlying table if their refresh mode is <code class="codeph">REFRESH ON DEMAND</code>. Zone maps with <code class="codeph">REFRESH ON DEMAND</code> have to be manually refreshed</p>
+<div class="infoboxnotealso" id="GUID-586FD01D-2F00-4185-BCF9-424E19B8E8E9__GUID-FC9E03E2-1DB1-4B82-8950-8FC1738F08F5">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><span class="q">&#34;<a href="zone_maps.htm#GUID-EEE26E3B-38B7-47DD-9892-818CB8432158">Refresh and Staleness of Zone Maps</a>&#34;</span></p>
+</li>
+<li>
+<p><span class="q">&#34;<a href="zone_maps.htm#GUID-904D917B-DA6D-45AB-96F6-7FBF567D19FE">Maintaining Zone Maps</a>&#34;</span></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<a id="DWHSG8938"></a>
+<div class="props_rev_3"><a id="GUID-BD689807-825D-47F2-81AB-9FD32A3E39C0"></a>
+<h2 id="DWHSG-GUID-BD689807-825D-47F2-81AB-9FD32A3E39C0" class="sect2">Zone Map Operations</h2>
+<div>
+<p>This section describes common tasks involving zone maps, and includes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-2942249C-B601-4AF1-8D3E-19B50548A32A">Privileges Required for Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-4FDF378C-B8CC-4C12-A545-237B42F084BA">Creating Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A">Modifying Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-6560A78B-D132-4555-8619-CCDC2C9FCF38">Dropping Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-1D2BB7B1-440D-403C-BD24-AFAA39789568">Compiling Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-8266B0F1-29B0-418C-90F5-09B0AAA87F8F">Controlling the Use of Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-904D917B-DA6D-45AB-96F6-7FBF567D19FE">Maintaining Zone Maps</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG9364"></a>
+<div class="props_rev_3"><a id="GUID-2942249C-B601-4AF1-8D3E-19B50548A32A"></a>
+<h3 id="DWHSG-GUID-2942249C-B601-4AF1-8D3E-19B50548A32A" class="sect3">Privileges Required for Zone Maps</h3>
+<div>
+<ul style="list-style-type: disc;">
+<li>
+<p>To create, alter, or drop zone maps in your own schema, you must have the <code class="codeph">CREATE MATERIALIZED ZONEMAP</code> privilege</p>
+</li>
+<li>
+<p>To create zone maps in other schemas, you must have the <code class="codeph">CREATE</code> <code class="codeph">ANY</code> <code class="codeph">MATERIALIZED</code> <code class="codeph">ZONEMAP</code> privilege.</p>
+</li>
+<li>
+<p>To create zone maps in your own schema but on tables from other schemas, you must have the <code class="codeph">SELECT</code> <code class="codeph">ANY</code> <code class="codeph">TABLE</code> or <code class="codeph">READ ANY TABLE</code> privilege.</p>
+</li>
+<li>
+<p>To create zone maps in other schemas using tables from other schemas, you must have both the <code class="codeph">SELECT</code> <code class="codeph">ANY</code> <code class="codeph">TABLE</code> and <code class="codeph">CREATE</code> <code class="codeph">ANY</code> <code class="codeph">MATERIALIZED</code> <code class="codeph">ZONEMAP</code> privileges. You can have the <code class="codeph">READ ANY TABLE</code> privilege instead of the <code class="codeph">SELECT ANY TABLE</code> privilege.</p>
+</li>
+<li>
+<p>To alter zone maps in other schemas, you must have the <code class="codeph">ALTER ANY MATERIALIZED ZONEMAP</code> privilege.</p>
+</li>
+<li>
+<p>To drop zone maps in other schemas, you must have the <code class="codeph">DROP ANY MATERIALIZED ZONEMAP</code> privilege.</p>
+</li>
+</ul>
+</div>
+</div>
+<a id="DWHSG8939"></a>
+<div class="props_rev_3"><a id="GUID-4FDF378C-B8CC-4C12-A545-237B42F084BA"></a>
+<h3 id="DWHSG-GUID-4FDF378C-B8CC-4C12-A545-237B42F084BA" class="sect3">Creating Zone Maps</h3>
+<div>
+<div class="section">
+<p>While zone maps can be created along with attribute clustering on a table, zone maps are independent of attribute clustering. Zone maps can be independently created, irrespective of attribute clustering.</p>
+<p>Storage structures used by zone maps are created in the default tablespace of the tables on which they are defined.</p>
+<div class="infoboxnotealso" id="GUID-4FDF378C-B8CC-4C12-A545-237B42F084BA__GUID-DE56A852-C005-4835-88A6-0B6B47F4AAB3">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF56867" target="_blank" href="../SQLRF/statements_6004.htm#SQLRF56867"><span class="italic">Oracle Database SQL Language Reference</span></a> for zone map creation syntax</p>
+</li>
+<li>
+<p><a class="olink SQLRF56947" target="_blank" href="../SQLRF/statements_6004.htm#SQLRF56947"><span class="italic">Oracle Database SQL Language Reference</span></a> for information about zone map restrictions</p>
+</li>
+</ul>
+</div>
+<p>This section contains the following topics:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-655206D5-CD38-4CE3-AD20-DC984BB7CE26">Creating Zone Maps with Attribute Clustering</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-C3A55971-2E72-4B5E-A5B4-27104DF05C0A">Creating Zone Maps Independent of Attribute Clustering</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="DWHSG9365"></a>
+<div class="props_rev_3"><a id="GUID-655206D5-CD38-4CE3-AD20-DC984BB7CE26"></a>
+<h4 id="DWHSG-GUID-655206D5-CD38-4CE3-AD20-DC984BB7CE26" class="sect4">Creating Zone Maps with Attribute Clustering</h4>
+<div>
+<div class="section">
+<p>You can create a zone map by using <code class="codeph">WITH MATERIALIZED ZONEMAP</code> subclause. You can use this subclause when you define attribute clustering for a table or later when you modify the clustering definition.</p>
+<p>Use the steps described in any of the following topics to create a zone map with attribute clustering:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-F33AC20C-D551-4A62-AE11-37C5764667D4">Creating a Basic Zone Map with Linear Attribute Clustering</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-A9972E60-FF25-42AF-ABB8-D8C12759ECF3">Creating a Join Zone Map with Interleaved Attribute Clustering</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-FCAB2956-727F-4C8A-BD47-AF51DAB14D95">Creating a Zone Map After Attribute Clustering</a></p>
+</li>
+</ul>
+<div class="infoboxnotealso" id="GUID-655206D5-CD38-4CE3-AD20-DC984BB7CE26__GUID-6B4C5EA7-CAF4-4DF3-B571-41E73870ED54">
+<p class="notep1">See Also:</p>
+<p><a href="attcluster.htm#GUID-7B007A3C-53C2-4437-9E71-9ECECF8B4FAB">Attribute Clustering</a> for information about attribute clustering</p>
+</div>
+</div>
+<!-- class="section" --></div>
+<a id="DWHSG9366"></a>
+<div class="props_rev_3"><a id="GUID-F33AC20C-D551-4A62-AE11-37C5764667D4"></a>
+<h5 id="DWHSG-GUID-F33AC20C-D551-4A62-AE11-37C5764667D4" class="sect5">Creating a Basic Zone Map with Linear Attribute Clustering</h5>
+<div>
+<div class="section">
+<p>Assume that queries of sales often specify either a customer ID or a combination of a customer ID and product ID. You can create an attribute-clustered table so that queries benefit from pruning with zone maps. You create a table as follows:</p>
+<pre dir="ltr">CREATE TABLE sales (
+   prod_id NUMBER NOT NULL,
+   cust_id NUMBER NOT NULL,
+   time_id        DATE NOT NULL,
+   channel_id     NUMBER NOT NULL,
+   promo_id       NUMBER NOT NULL,
+   quantity_sold  NUMBER(10,2),
+   amount_sold NUMBER(10,2)
+)
+CLUSTERING
+BY LINEAR ORDER (cust_id, prod_id)
+YES ON LOAD YES ON DATA MOVEMENT
+WITH MATERIALIZED ZONEMAP;
+</pre>
+<p>Zone map <code class="codeph">ZMAP$_SALES</code> on columns (<code class="codeph">cust_id</code>, <code class="codeph">prod_id</code>) is created. Here, <code class="codeph">ZMAP$_SALES</code> is the name automatically generated by Oracle Database for the zone map. However, you can specify a name for the zone map by enclosing it in parentheses following the <code class="codeph">WITH MATERIALIZED ZONEMAP</code> as described in <span class="q">&#34;<a href="zone_maps.htm#GUID-A9972E60-FF25-42AF-ABB8-D8C12759ECF3">Creating a Join Zone Map with Interleaved Attribute Clustering</a>&#34;</span>.</p>
+<p>Queries that qualify both columns <code class="codeph">cust_id</code> and <code class="codeph">prod_id</code> or the prefix <code class="codeph">cust_id</code> experience natural pruning. The following examples show how the database can prune during table scans.</p>
+<p>An application issues the following query:</p>
+<pre dir="ltr">SELECT * FROM sales WHERE cust_id = 100;
+</pre>
+<p>Because the table is a <code class="codeph">BY</code> <code class="codeph">LINEAR</code> <code class="codeph">ORDER</code> clustered, the database must only read the zones that include the <code class="codeph">cust_id</code> value of 100.</p>
+<p>An application issues the following query:</p>
+<pre dir="ltr">SELECT * FROM sales WHERE cust_id = 100 AND prod_id = 2300;
+</pre>
+<p>Because the table is a <code class="codeph">BY</code> <code class="codeph">LINEAR</code> <code class="codeph">ORDER</code> clustered, the database must only read the zones that include the <code class="codeph">cust_id</code> value of 100 and <code class="codeph">prod_id</code> of 2300.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="DWHSG9367"></a>
+<div class="props_rev_3"><a id="GUID-A9972E60-FF25-42AF-ABB8-D8C12759ECF3"></a>
+<h5 id="DWHSG-GUID-A9972E60-FF25-42AF-ABB8-D8C12759ECF3" class="sect5">Creating a Join Zone Map with Interleaved Attribute Clustering</h5>
+<div>
+<div class="section">
+<p>Consider a data warehouse that contains a <code class="codeph">sales</code> fact table and its two dimension tables: <code class="codeph">customers</code> and <code class="codeph">products</code>. Most queries have predicates on the <code class="codeph">customers</code> table hierarchy (<code class="codeph">country_id</code>, <code class="codeph">cust_state_province</code>, <code class="codeph">cust_city</code>) and the <code class="codeph">products</code> hierarchy (<code class="codeph">prod_category</code>, <code class="codeph">prod_subcategory</code>). You can use interleaved ordering for the <code class="codeph">sales</code> table as shown in the following partial statement:</p>
+<pre dir="ltr">CREATE TABLE sales (
+   prod_id NUMBER NOT NULL,
+   cust_id NUMBER NOT NULL,
+   amount_sold NUMBER(10,2))
+CLUSTERING
+sales JOIN products ON (sales.prod_id = products.prod_id)
+JOIN customers ON (sales.cust_id = customers.cust_id)
+BY INTERLEAVED ORDER
+(
+(products.prod_category, products.prod_subcategory),
+(customers.country_id, customers.cust_state_province, customers.cust_city)
+)
+YES ON LOAD YES ON DATA MOVEMENT
+WITH MATERIALIZED ZONEMAP (sales_zmap);
+</pre>
+<p>A zone map called <code class="codeph">sales_zmap</code> is created for the attribute clustered table. Note that, in this clustering clause, the join columns of the dimension table must have primary or unique key constraints. Note that for interleaved order columns from a single dimension should appear in the clustering clause a separate group bracketed by &#39;(&#39;..&#39;)&#39; for example (<code class="codeph">prod_category</code>, <code class="codeph">prod_subcategory</code>). Furthermore, the columns should follow the hierarchy in the dimension (such as the natural hierarchy of <code class="codeph">prod_category</code>, <code class="codeph">prod_subcategory</code>), and the order of the columns in the group should follow that of the hierarchy. This allows Oracle Database to effectively cluster the data according to the hierarchies present in the dimension tables.</p>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="DWHSG9368"></a>
+<div class="props_rev_3"><a id="GUID-FCAB2956-727F-4C8A-BD47-AF51DAB14D95"></a>
+<h5 id="DWHSG-GUID-FCAB2956-727F-4C8A-BD47-AF51DAB14D95" class="sect5">Creating a Zone Map After Attribute Clustering</h5>
+<div>
+<div class="section">
+<p>Assume a table called <code class="codeph">sales</code> exists in the database. You can define attribute clustering for the <code class="codeph">sales</code> table using the following command:</p>
+<pre dir="ltr">ALTER TABLE sales ADD CLUSTERING BY INTERLEAVED ORDER (cust_id, prod_id)
+      YES ON LOAD YES ON DATA MOVEMENT;
+</pre>
+<p>Although this command adds attribute clustering to the table definition, it does not cluster the existing data in the <code class="codeph">sales</code> table. When you perform a data movement operation on the <code class="codeph">sales</code> table, its data will be clustered because of the <code class="codeph">YES ON DATA MOVEMENT</code> option.</p>
+<p>The following command clusters the data in the <code class="codeph">sales</code> table:</p>
+<pre dir="ltr">ALTER TABLES sales MOVE;
+</pre>
+<p>After the data in <code class="codeph">sales</code> table is clustered, you can define a zone map on the <code class="codeph">sales</code> table by modifying the clustering using the following command:</p>
+<pre dir="ltr">ALTER TABLE sales MODIFY CLUSTERING WITH MATERIALIZED ZONEMAP (sales_zmap);
+</pre>
+<p>Subsequently, if necessary, you can drop the zone map by modifying the clustering using the following command:</p>
+<pre dir="ltr">ALTER TABLE sales MODIFY CLUSTERING WITHOUT MATERIALIZED ZONEMAP;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+<a id="DWHSG9369"></a>
+<div class="props_rev_3"><a id="GUID-C3A55971-2E72-4B5E-A5B4-27104DF05C0A"></a>
+<h4 id="DWHSG-GUID-C3A55971-2E72-4B5E-A5B4-27104DF05C0A" class="sect4">Creating Zone Maps Independent of Attribute Clustering</h4>
+<div>
+<div class="section">
+<p>Use the <code class="codeph">CREATE MATERIALIZED ZONEMAP</code> command to create a zone map on a table. This zone map is independent of attribute clustering, which means it can be created on a clustered or non-clustered table. Also, the set of columns used for the zone map can be same or different from the set of columns used for attribute clustering.</p>
+<p>When you create a zone map, you must specify the table columns on which the zone map is based.</p>
+<p>Use the steps described in any of the following topics to create a zone map independent of attribute clustering:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-5847A577-5E12-491E-8570-787A270ABF41">Creating a Basic Zone Map Independent of Attribute Clustering</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-42FC0CDF-9D54-42F5-AA6B-705FA6272605">Creating a Join Zone Map Independent of Attribute Clustering</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="DWHSG9371"></a><a id="DWHSG9370"></a>
+<div class="props_rev_3"><a id="GUID-5847A577-5E12-491E-8570-787A270ABF41"></a>
+<h5 id="DWHSG-GUID-5847A577-5E12-491E-8570-787A270ABF41" class="sect5">Creating a Basic Zone Map Independent of Attribute Clustering</h5>
+<div>
+<div class="section">
+<p>Assume that queries on the <code class="codeph">sales</code> table frequently specify a customer ID, product ID, or a combination of the two columns. You can create a zone map on the customer ID and product ID columns of the <code class="codeph">sales</code> table so that queries benefit from pruning as shown in <a href="zone_maps.htm#GUID-5847A577-5E12-491E-8570-787A270ABF41__CIHFDHHD">Example 13-1</a>.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-5847A577-5E12-491E-8570-787A270ABF41__CIHFDHHD">
+<p class="titleinexample">Example 13-1 Creating a Basic Zone Map Independent of Attribute Clustering</p>
+<p>You can create a zone map <code class="codeph">sales_zmap</code> on the <code class="codeph">sales</code> table using the following statement:</p>
+<pre dir="ltr">CREATE MATERIALIZED ZONEMAP sales_zmap ON sales (cust_id, prod_id);
+</pre>
+<p>This statement is equivalent to the following <code class="codeph">CREATE</code> <code class="codeph">...</code> <code class="codeph">AS</code> statement:</p>
+<pre dir="ltr">CREATE MATERIALIZED ZONEMAP sales_zmap
+REFRESH ON LOAD DATA MOVEMENT
+AS
+SELECT SYS_OP_ZONE_ID(rowid),MIN(cust_id),MAX(cust_id),MIN(prod_id),MAX(prod_id)
+FROM sales
+GROUP BY SYS_OP_ZONE_ID(rowid);
+</pre>
+<p>In this statement, the <code class="codeph">SYS_OP_ZONE_ID(rowid)</code> function is used to work with zone maps. The <code class="codeph">SYS_OP_ZONE_ID</code> function identifies a particular range of contiguous disk blocks (zone) given the rowid of fact table row. This function helps to maintain minimum and maximum ranges at a partition level, performing partition pruning and fast refresh of zone maps. When used with zone maps, it helps to map all rows from a set of contiguous data blocks to a single zone.</p>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="DWHSG9373"></a><a id="DWHSG9372"></a>
+<div class="props_rev_3"><a id="GUID-42FC0CDF-9D54-42F5-AA6B-705FA6272605"></a>
+<h5 id="DWHSG-GUID-42FC0CDF-9D54-42F5-AA6B-705FA6272605" class="sect5">Creating a Join Zone Map Independent of Attribute Clustering</h5>
+<div>
+<div class="section">
+<p>Consider a data warehouse that contains the <code class="codeph">sales</code> fact and multiple dimensions. Most queries have predicates on the <code class="codeph">customers</code> table hierarchy (<code class="codeph">cust_state_province, cust_city</code>). You can use interleaved ordering for the sales table as shown in <a href="zone_maps.htm#GUID-42FC0CDF-9D54-42F5-AA6B-705FA6272605__CreatingAJoinZoneMapIndependentOfAt-08315BD3">Example 13-2</a>.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-42FC0CDF-9D54-42F5-AA6B-705FA6272605__CreatingAJoinZoneMapIndependentOfAt-08315BD3">
+<p class="titleinexample">Example 13-2 Creating a Join Zone Map Independent of Attribute Clustering</p>
+<p>A join zone map involves outer joins from the table on which the zone map is created to one or more other tables. Most commonly used in star schema setups, a join zone map tracks the minimum and maximum of columns from dimension tables rather than columns from the fact table, as is illustrated in the following statement:</p>
+<pre dir="ltr">CREATE MATERIALIZED ZONEMAP sales_zmap
+REFRESH ON LOAD DATA MOVEMENT
+AS
+SELECT SYS_OP_ZONE_ID(s.rowid), MIN(cust_state_province), 
+       MAX(cust_state_province), MIN(cust_city), MAX(cust_city)
+FROM sales s, customers c
+WHERE s.cust_id = c.cust_id(+)
+GROUP BY SYS_OP_ZONE_ID(s.rowid);
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+</div>
+<a id="DWHSG9374"></a><a id="DWHSG9375"></a><a id="DWHSG9376"></a><a id="DWHSG9377"></a><a id="DWHSG9378"></a><a id="DWHSG9379"></a><a id="DWHSG9380"></a><a id="DWHSG8941"></a>
+<div class="props_rev_3"><a id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A"></a>
+<h3 id="DWHSG-GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A" class="sect3">Modifying Zone Maps</h3>
+<div>
+<div class="section">
+<p>You can alter a zone map with an <code class="codeph">ALTER</code> <code class="codeph">MATERIALIZED</code> <code class="codeph">ZONEMAP</code> statement.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A__GUID-1B45F73E-B0EB-43B0-B132-CEB67082A48E">
+<p class="titleinexample">Example 13-3 Making a Zone Map Unusable</p>
+<p>The following statement makes a zone map unusable, which means that queries no longer use this zone map, and Oracle Database no longer maintains the zone map.</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap UNUSABLE;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A__GUID-93532198-C610-4E05-A92A-3D22088777C6">
+<p class="titleinexample">Example 13-4 Performing Complete Refresh for a Zone Map</p>
+<p>The following statement performs a complete refresh of the zone map:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REBUILD COMPLETE;
+</pre>
+<p>As part of the rebuild, the zone map is also made usable, if it was earlier marked as unusable.</p>
+</div>
+<!-- class="example" -->
+<div class="example" id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A__GUID-4D616835-C011-455D-AE32-53D81DBFC10F">
+<p class="titleinexample">Example 13-5 Refreshing Zone Maps</p>
+<p>The following statement performs a fast refresh, if possible. Else, a complete refresh is performed.</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REBUILD;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A__GUID-348E97C0-AF08-49A4-B097-307EBB4EBE5C">
+<p class="titleinexample">Example 13-6 Disabling Pruning for Zone Maps</p>
+<p>The following statement disables pruning, which you might want to do for performance measurement:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap DISABLE PRUNING;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A__GUID-4F785988-FF12-484A-8B73-3AA9725F536B">
+<p class="titleinexample">Example 13-7 Enabling Pruning for Zone Maps</p>
+<p>The following statement enables pruning, which may have been disabled earlier, for the zone map:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap ENABLE PRUNING;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A__GUID-F739DBD7-1B67-464D-83D5-A7A484BDEED0">
+<p class="titleinexample">Example 13-8 Disabling Refresh for Zone Maps</p>
+<p>The following statement turns off refresh on load and data movement, which offers you control over how and when zone maps are refreshed:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REFRESH ON DEMAND;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A__GUID-9F46E0DC-CF23-484D-844B-DC9B182F7C78">
+<p class="titleinexample">Example 13-9 Enabling Refresh on Commit for Zone Maps</p>
+<p>The following statement turns on the refresh of the zone map on each transaction commit:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REFRESH ON COMMIT;
+</pre>
+<div class="infoboxnotealso" id="GUID-70722C5D-2785-4934-9EA6-93114EF9ED0A__GUID-9DBF7F15-2114-4CF1-B5AA-DE7EBCFDF73A">
+<p class="notep1">See Also:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a class="olink SQLRF56854" target="_blank" href="../SQLRF/statements_2004.htm#SQLRF56854"><span class="italic">Oracle Database SQL Language Reference</span></a> for the syntax to alter a zone map</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- class="example" --></div>
+</div>
+<a id="DWHSG8942"></a>
+<div class="props_rev_3"><a id="GUID-6560A78B-D132-4555-8619-CCDC2C9FCF38"></a>
+<h3 id="DWHSG-GUID-6560A78B-D132-4555-8619-CCDC2C9FCF38" class="sect3">Dropping Zone Maps</h3>
+<div>
+<div class="section">
+<p>You can drop <a id="d50358e1414" class="indexterm-anchor"></a><a id="d50358e1418" class="indexterm-anchor"></a>zone maps by issuing a <code class="codeph">DROP</code> <code class="codeph">MATERIALIZED</code> <code class="codeph">ZONEMAP</code> statement, such as the following:</p>
+<pre dir="ltr">DROP MATERIALIZED ZONEMAP sales_zmap;
+</pre>
+<div class="infoboxnotealso" id="GUID-6560A78B-D132-4555-8619-CCDC2C9FCF38__GUID-DEABFA45-65CE-46EB-8CB1-9F473859E489">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF56892" target="_blank" href="../SQLRF/statements_8024.htm#SQLRF56892"><span class="italic">Oracle Database SQL Language Reference</span></a> for the syntax to drop a zone map</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="DWHSG9171"></a>
+<div class="props_rev_3"><a id="GUID-1D2BB7B1-440D-403C-BD24-AFAA39789568"></a>
+<h3 id="DWHSG-GUID-1D2BB7B1-440D-403C-BD24-AFAA39789568" class="sect3">Compiling Zone Maps</h3>
+<div>
+<div class="section">
+<p>Any DDL operation on the base table on which a zone map is based will affect the compile state of the zone map. This means that the query that defines the zone map must be compiled to check if the zone map remains valid or not. This behavior is similar to materialized views, which are also affected by DDL performed on the base table. Oracle Database will compile the zone map the first time it tries to use it following a DDL operation. You can, however, explicitly compile a zone map using an alter DDL statement such as the following:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap COMPILE;
+</pre>
+<p>The result of compiling a zone map will either be valid or invalid depending on the specific action performed by the DDL. For example, if DDL was done to add a column to the fact table, then the zone map will be valid after compilation. But if the DDL was done to drop a column that is referenced in the definition query, then the zone map will be invalid after compilation.</p>
+<p>Some of the points to keep in mind are:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>If a column that appears in the clustering clause is dropped, then clustering is dropped. In addition, if there was a zone map created as part of clustering, then the zone map will be dropped as well.</p>
+</li>
+<li>
+<p>If a dimension table from a star schema is dropped, and it is involved in clustering on a fact table, then the clustering on the fact table is dropped. In addition, if there was a zone map created as part of the clustering, then the zone map will be dropped.</p>
+</li>
+<li>
+<p>If a user drops a required primary key or unique key on the dimension table involved in a clustering clause, then clustering is invalidated (data will not be clustered on subsequent loads or data movement operations performed by certain types of PMOPs).</p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="DWHSG9172"></a>
+<div class="props_rev_3"><a id="GUID-8266B0F1-29B0-418C-90F5-09B0AAA87F8F"></a>
+<h3 id="DWHSG-GUID-8266B0F1-29B0-418C-90F5-09B0AAA87F8F" class="sect3">Controlling the Use of Zone Maps</h3>
+<div>
+<p>You can control the use of zone maps for the entire SQL workload or for specific SQL statements.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-6016EDDE-05BC-4316-B63D-95CACE3A5F37">Controlling Zone Map Usage for Entire SQL Workloads</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-F8CDC4B6-9472-4825-8B95-69EEEC80EEFC">Controlling Zone Map Usage for Specific SQL Statements</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG9381"></a>
+<div class="props_rev_3"><a id="GUID-6016EDDE-05BC-4316-B63D-95CACE3A5F37"></a>
+<h4 id="DWHSG-GUID-6016EDDE-05BC-4316-B63D-95CACE3A5F37" class="sect4">Controlling Zone Map Usage for Entire SQL Workloads</h4>
+<div>
+<div class="section">
+<p>You can control the use of zone maps at the object level. Object-level changes apply to all statements in the SQL workload. When you create a zone map, it is available for pruning unless you override the default by specifying <code class="codeph">DISABLE PRUNING</code>. For example, the following statement creates a zone map with pruning disabled:</p>
+<pre dir="ltr">CREATE MATERIALIZED ZONEMAP sales_zmap 
+    DISABLE PRUNING ON sales(cust_id, prod_id);
+</pre>
+<p>This zone map is created and maintained by Oracle Database, but is not used for any SQL in the workload. You can make it available for pruning by using the following <code class="codeph">ALTER MATERIALIZED ZONEMAP</code> statement:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap ENABLE PRUNING;
+</pre>
+<p>Similarly, you can use the following statement to make a zone map unavailable for pruning:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap DISABLE PRUNING;
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="DWHSG9174"></a><a id="DWHSG9176"></a><a id="DWHSG9178"></a><a id="DWHSG9382"></a>
+<div class="props_rev_3"><a id="GUID-F8CDC4B6-9472-4825-8B95-69EEEC80EEFC"></a>
+<h4 id="DWHSG-GUID-F8CDC4B6-9472-4825-8B95-69EEEC80EEFC" class="sect4">Controlling Zone Map Usage for Specific SQL Statements</h4>
+<div>
+<div class="section">
+<p>You can use hints to control the use of zone maps at the individual SQL statement level. Note that hints cannot be used to control zone map usage if pruning is disabled for the zone map. You can achieve a finer control through hints by leaving pruning enabled and specifying negative hints in individual SQL statements.</p>
+<p>Use the <code class="codeph">NO_ZONEMAP</code> hint to disable the usage of a zone map for pruning. The following examples disable the usage of zone maps while pruning data.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-F8CDC4B6-9472-4825-8B95-69EEEC80EEFC__GUID-33066484-4279-40BD-8542-A7D1C7A01012">
+<p class="titleinexample">Example 13-10 Scan Pruning: Disabling Zone Maps with the NO_ZONEMAP Hint</p>
+<pre dir="ltr">SELECT /*+ NO_ZONEMAP (S SCAN) */* FROM sales S
+WHERE s.time_id BETWEEN &#39;1-15-2008&#39; AND &#39;1-31-2008&#39;;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-F8CDC4B6-9472-4825-8B95-69EEEC80EEFC__GUID-C518CEC3-6784-44B3-9A72-17766861B052">
+<p class="titleinexample">Example 13-11 Join Pruning: Disabling Zone Maps with the NO_ZONEMAP Hint</p>
+<pre dir="ltr">SELECT /*+ NO_ZONEMAP (S JOIN) */* FROM sales s
+WHERE s.time_id BETWEEN &#39;1-15-2008&#39; AND &#39;1-31-2008&#39;;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-F8CDC4B6-9472-4825-8B95-69EEEC80EEFC__GUID-D234271E-9129-4750-9767-628C9C74CE66">
+<p class="titleinexample">Example 13-12 Partition Pruning: Disabling Zone Maps with the NO_ZONEMAP Hint</p>
+<pre dir="ltr">SELECT /*+ NO_ZONEMAP (S PARTITION) */* FROM sales S
+WHERE s.time_id BETWEEN &#39;1-15-2008&#39; AND &#39;1-31-2008&#39;;
+</pre></div>
+<!-- class="example" --></div>
+</div>
+</div>
+<a id="DWHSG9383"></a><a id="DWHSG9384"></a><a id="DWHSG9385"></a><a id="DWHSG8947"></a>
+<div class="props_rev_3"><a id="GUID-904D917B-DA6D-45AB-96F6-7FBF567D19FE"></a>
+<h3 id="DWHSG-GUID-904D917B-DA6D-45AB-96F6-7FBF567D19FE" class="sect3">Maintaining Zone Maps</h3>
+<div>
+<div class="section">
+<p>You can <a id="d50358e1646" class="indexterm-anchor"></a>specify how zone maps must be maintained either at the time of creating the zone map or, later, by altering the zone map definition. Refer to <span class="q">&#34;<a href="zone_maps.htm#GUID-394749A4-73A6-421D-B792-27B748450222">Zone Map Maintenance Considerations</a>&#34;</span>.</p>
+<div class="infoboxnotealso" id="GUID-904D917B-DA6D-45AB-96F6-7FBF567D19FE__GUID-84EA2C58-3612-44C8-B96C-A1124DFC97AC">
+<p class="notep1">See Also:</p>
+<p><span class="q">&#34;<a href="zone_maps.htm#GUID-08DB84F2-8163-4E02-9D2E-8A10351335E4">About Maintaining Zone Maps</a>&#34;</span></p>
+</div>
+<p>Use the <code class="codeph">REFRESH</code> clause in the <code class="codeph">CREATE MATERIALIZED ZONEMAP</code> or <code class="codeph">ALTER MATERIALIZED ZONEMAP</code> statement to specify how zone maps must be maintained. If you omit the <code class="codeph">REFRESH</code> clause in the <code class="codeph">CREATE MATERIALIZED ZONEMAP</code> statement, the default used is <code class="codeph">REFRESH ON LOAD DATA MOVEMENT</code>, which enables the maintenance of the zone map by Oracle Database upon direct path load and certain data movement operations.</p>
+<p>The following statement creates a zone map whose maintenance is managed manually by the user:</p>
+<pre dir="ltr">CREATE MATERIALIZED ZONEMAP sales_zmap
+REFRESH ON DEMAND 
+ON sales (cust_id, prod_id);
+</pre>
+<p>The following statement creates a zone map whose maintenance is managed by Oracle Database at the end of each transaction commit:</p>
+<pre dir="ltr">CREATE MATERIALIZED ZONEMAP sales_zmap 
+REFRESH ON COMMIT 
+ON sales (cust_id, prod_id);
+</pre>
+<p>Because it is refreshed on commit, the above zone map never becomes stale.</p>
+<p>Use the <code class="codeph">ALTER MATERIALIZED ZONEMAP</code> statement to change the maintenance of existing zone maps.</p>
+</div>
+<!-- class="section" -->
+<div class="example" id="GUID-904D917B-DA6D-45AB-96F6-7FBF567D19FE__GUID-0B1A533D-C0C3-455B-9B89-9D5B2D9841AB">
+<p class="titleinexample">Example 13-13 Enabling Zone Map Maintenance on Data Movement</p>
+<p>The following statement enables zone map maintenance by Oracle Database on data movement operations such as <code class="codeph">MOVE</code>, <code class="codeph">SPLIT</code>, <code class="codeph">MERGE</code>, and <code class="codeph">DROP</code>:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REFRESH ON DATA MOVEMENT;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-904D917B-DA6D-45AB-96F6-7FBF567D19FE__GUID-FD274025-ABB4-44D0-A936-A1DE072A003E">
+<p class="titleinexample">Example 13-14 Enabling Zone Map Maintenance on Direct Path Load</p>
+<p>The following statement enables zone map maintenance by Oracle Database on direct path load operations, such as <code class="codeph">INSERT /*+ APPEND */</code> statements:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REFRESH ON LOAD;
+</pre></div>
+<!-- class="example" -->
+<div class="example" id="GUID-904D917B-DA6D-45AB-96F6-7FBF567D19FE__GUID-371EE29C-DE59-47C7-B780-84B467514E23">
+<p class="titleinexample">Example 13-15 Enabling Zone Map Maintenance on both Data Movement and Load</p>
+<p>The following statement enables zone map maintenance by Oracle Database on data movement and load operations:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REFRESH ON LOAD DATA MOVEMENT;
+</pre>
+<p>Note that <code class="codeph">REFRESH ON LOAD DATA MOVEMENT</code> is the default option.</p>
+</div>
+<!-- class="example" --></div>
+<a id="DWHSG8948"></a>
+<div class="props_rev_3"><a id="GUID-394749A4-73A6-421D-B792-27B748450222"></a>
+<h4 id="DWHSG-GUID-394749A4-73A6-421D-B792-27B748450222" class="sect4">Zone Map Maintenance Considerations</h4>
+<div>
+<p>The following are some of the issues to keep in mind when maintaining zone maps or tracking their staleness:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p>DML/Parallel DML operations to the fact table</p>
+<p>When a zone map is created, an internal trigger is created by Oracle Database to track the row changes made by conventional DML operations. For example, if a new row is inserted into the <code class="codeph">sales</code> table, this trigger will compute <code class="codeph">zone_id</code> from <code class="codeph">rowid</code> and mark the corresponding aggregate row in the zone map as stale. So the staleness of a zone map is tracked zone by zone, which means even after DML has been done to the fact table the zone map can still be used for pruning using the <code class="codeph">MIN</code>/<code class="codeph">MAX</code> aggregates in the fresh zones.</p>
+<p>Upon fact table update, if the columns being updated are not referenced by the zone map, then zone map staleness is not affected. Otherwise, zones corresponding to updated rows are marked as stale by the internal trigger.</p>
+</li>
+<li>
+<p>Direct loads (that is, <code class="codeph">INSERT /*+ APPEND */</code>) operations to fact table</p>
+<p>Even though direct loads insert data above the high water mark, newly added rows can belong to zones already computed for the zone map. Therefore, Oracle Database will identify existing zones whose <code class="codeph">MIN</code>/<code class="codeph">MAX</code> aggregates are potentially affected by newly added data and mark such zones as stale. Again, Oracle Database can continue to use the zone map for pruning in spite of direct loads to the zone map by utilizing <code class="codeph">MIN</code>/<code class="codeph">MAX</code> aggregates of zones that still remain fresh. If the zone maps has the <code class="codeph">REFRESH ON LOAD</code> option, then Oracle Database will perform zone map refresh at the end of the load.</p>
+</li>
+<li>
+<p>Data movement (for example, partition maintenance operations) on the fact table</p>
+<p>Data movement operations include partition maintenance operations and online partition/table redefinition. However, data movement (for example, move partition) will make the existing zones belonging to the old partition obsolete in the zone map while zones belonging to the new partition are not computed until the zone map is refreshed. Oracle Database will continue to use the zone map for pruning following data movement operations regardless of whether the zone map was refreshed or not. If the zone map has the <code class="codeph">REFRESH</code> <code class="codeph">ON</code> <code class="codeph">DATA</code> <code class="codeph">MOVEMENT</code> option, Oracle Database will perform refresh at the end of the data movement operation.</p>
+</li>
+<li>
+<p>Data movements on the dimension table</p>
+<p>This operation does not affect the zone map.</p>
+</li>
+<li>
+<p>Any DML to the dimension table</p>
+<p>This operation makes the entire zone map stale, so it requires a full refresh. However, there is one exception. If it is an update operation and the set of updated columns are not referenced by the zone map, then it remains unaffected.</p>
+</li>
+<li>
+<p>Direct loads to dimension table</p>
+<p>This operation makes the entire zone map stale. If the <code class="codeph">REFRESH</code> <code class="codeph">ON</code> <code class="codeph">LOAD</code> option is specified for the zone map, then Oracle Database will perform zone map refresh immediately following the load operation.</p>
+</li>
+<li>
+<p>DDL to the fact or dimension table</p>
+<p>Upon DDL operation the zone map is marked with unknown staleness (that is, stale set to <code class="codeph">&#39;unknown&#39;</code>) and requiring compilation (that is, <code class="codeph">compile_state</code> set to <code class="codeph">&#39;needs_compile</code>&#39;). Under this state, Oracle Database will not use the zone map for pruning. However, upon the first use of a zone map following the DDL operation Oracle Database will compile the zone map and based on its outcome appropriately set the invalid and stale states. For example, if the DDL operation dropped a column whose <code class="codeph">MIN</code>/<code class="codeph">MAX</code> aggregates are stored in the zone map, then zone map compilation will fail so zone map <code class="codeph">compile_state</code> is set to <code class="codeph">&#39;compilation error&#39;</code>, stale remains as <code class="codeph">&#39;unknown&#39;</code>, and invalid is set to <code class="codeph">&#39;yes&#39;</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<a id="DWHSG9165"></a>
+<div class="props_rev_3"><a id="GUID-EEE26E3B-38B7-47DD-9892-818CB8432158"></a>
+<h2 id="DWHSG-GUID-EEE26E3B-38B7-47DD-9892-818CB8432158" class="sect2">Refresh and Staleness of Zone Maps</h2>
+<div>
+<p>Oracle Database marks either the zone maps as stale or individual zones within zone maps as stale when the data in their base tables changes. Stale zone maps are not used for pruning, but zone maps with stale zones are still used for pruning. You must refresh the zone maps to update the zones and make them usable for pruning.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-67445DF7-1688-4007-B52E-EE55EB55B090">About Staleness of Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-4B36B2E5-03A1-4004-9E8A-E95E94E91356">About Refreshing Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-3800B313-23CB-45C5-AD09-1ACA78EFD449">Refreshing Zone Maps</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG9387"></a><a id="DWHSG9388"></a><a id="DWHSG9389"></a><a id="DWHSG9386"></a>
+<div class="props_rev_3"><a id="GUID-67445DF7-1688-4007-B52E-EE55EB55B090"></a>
+<h3 id="DWHSG-GUID-67445DF7-1688-4007-B52E-EE55EB55B090" class="sect3">About Staleness of Zone Maps</h3>
+<div>
+<p>When the data in the tables on which a zone map is based changes, the zones corresponding to the changed rows is marked as stale. You need to refresh the zone map to make it current.</p>
+<p>When a row in a partition of the fact table is updated, the row corresponding to the zone in the partitioned table is marked as stale because of the update. This automatically invalidates the aggregated partition-level information, and pruning can only happen on a zone level. The row in the zone map corresponding to this particular partition is also marked as stale because of the update.</p>
+<p>In <a href="zone_maps.htm#GUID-67445DF7-1688-4007-B52E-EE55EB55B090__CIHGDIJE">Figure 13-1</a>, this is illustrated with an update in <code class="codeph">Z4</code> of <code class="codeph">P2</code>, and the corresponding <code class="codeph">Z4</code> is marked as stale. Note that the zone map is still usable, however. Table data corresponding to <code class="codeph">Z4</code> will always be read (no pruning is performed on <code class="codeph">Z4</code>) as long as the zone map is partially stale.</p>
+<div class="figure" id="GUID-67445DF7-1688-4007-B52E-EE55EB55B090__CIHGDIJE">
+<p class="titleinfigure">Figure 13-1 Partially Stale Zone Map</p>
+<img width="329" height="353" src="img/GUID-2874C780-0F83-4C88-A1D3-3B40572E4C27-default.gif" alt="Description of Figure 13-1 follows" title="Description of Figure 13-1 follows"/><br/>
+<a href="img_text/GUID-2874C780-0F83-4C88-A1D3-3B40572E4C27-print.htm">Description of &#34;Figure 13-1 Partially Stale Zone Map&#34;</a></div>
+<!-- class="figure" -->
+<p>If a dimension table is added to the fact table, then the status resembles that in <a href="zone_maps.htm#GUID-67445DF7-1688-4007-B52E-EE55EB55B090__CIHFDAEG">Figure 13-2</a>.</p>
+<div class="figure" id="GUID-67445DF7-1688-4007-B52E-EE55EB55B090__CIHFDAEG">
+<p class="titleinfigure">Figure 13-2 Zone Map with Dimension Table</p>
+<img width="504" height="384" src="img/GUID-2DD5FC61-5559-4C00-90B4-2B975F2D2B27-default.png" alt="Description of Figure 13-2 follows" title="Description of Figure 13-2 follows"/><br/>
+<a href="img_text/GUID-2DD5FC61-5559-4C00-90B4-2B975F2D2B27-print.htm">Description of &#34;Figure 13-2 Zone Map with Dimension Table&#34;</a></div>
+<!-- class="figure" -->
+<p>If any DML is made to the dimension table, the zone map becomes fully stale, as is illustrated in <a href="zone_maps.htm#GUID-67445DF7-1688-4007-B52E-EE55EB55B090__CIHBGBJE">Figure 13-3</a>. Because the zone map becomes fully state, it is not available for pruning until it is completely refreshed. Use the <code class="codeph">REBUILD</code> option of <code class="codeph">ALTER MATERIALIZED ZONEMAP</code> statement to refresh the zone map.</p>
+<div class="figure" id="GUID-67445DF7-1688-4007-B52E-EE55EB55B090__CIHBGBJE">
+<p class="titleinfigure">Figure 13-3 Zone Map with Dimension Table and Staleness</p>
+<img width="477" height="393" src="img/GUID-9E71C4B3-E2B9-417D-98FB-A9221377020B-default.gif" alt="Description of Figure 13-3 follows" title="Description of Figure 13-3 follows"/><br/>
+<a href="img_text/GUID-9E71C4B3-E2B9-417D-98FB-A9221377020B-print.htm">Description of &#34;Figure 13-3 Zone Map with Dimension Table and Staleness&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+<a id="DWHSG9390"></a>
+<div class="props_rev_3"><a id="GUID-4B36B2E5-03A1-4004-9E8A-E95E94E91356"></a>
+<h3 id="DWHSG-GUID-4B36B2E5-03A1-4004-9E8A-E95E94E91356" class="sect3">About Refreshing Zone Maps</h3>
+<div>
+<p>Oracle Database needs to maintain zone maps by refreshing them after changes to their underlying tables. The refresh method used for zone maps can be a complete refresh or an incremental refresh. A complete refresh, specified using the <code class="codeph">REFRESH COMPLETE</code> clause, involves rebuilding all the zones in the zone map. A complete refresh is slow when large amounts of data need to be processed. An incremental refresh, specified using the <code class="codeph">REFRESH FAST</code> clause, processes only the changes that have occurred since the last refresh. This method enables you to refresh the zone map without rebuilding them from scratch. Although zone maps are internally implemented using materialized view, materialized view logs on base tables are not required to perform a fast refresh of a zone map</p>
+<p>The refresh mode specifies the operations that trigger zone map refresh. Use one of the following refresh modes:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">ON COMMIT</code></p>
+<p>Zone maps are refreshed when changes to the base tables are committed.</p>
+</li>
+<li>
+<p><code class="codeph">ON DEMAND</code></p>
+<p>Zone maps must be refreshed manually after DML or partition maintenance operations.</p>
+</li>
+<li>
+<p><code class="codeph">ON DATA MOVEMENT</code></p>
+<p>Zone maps are refreshed when data movement operations are performed on the base tables.</p>
+</li>
+<li>
+<p><code class="codeph">ON LOAD</code></p>
+<p>Zone maps are refreshed when direct-path insert operations are performed on the base tables.</p>
+</li>
+<li>
+<p><code class="codeph">ON LOAD DATA MOVEMENT</code></p>
+<p>Zone maps are refreshed when direct-path insert or certain data movement operations are performed on the base tables. This is the default.</p>
+</li>
+</ul>
+<p>By default, zone maps are refreshed on load and on data movement. To override this default, specify one of the following refresh modes when creating or modifying the zone map: <code class="codeph">ON COMMIT</code>, <code class="codeph">ON LOAD</code>, <code class="codeph">ON DATA MOVEMENT</code>, or <code class="codeph">ON LOAD</code>.</p>
+</div>
+</div>
+<a id="DWHSG8943"></a>
+<div class="props_rev_3"><a id="GUID-3800B313-23CB-45C5-AD09-1ACA78EFD449"></a>
+<h3 id="DWHSG-GUID-3800B313-23CB-45C5-AD09-1ACA78EFD449" class="sect3">Refreshing Zone Maps</h3>
+<div>
+<div class="section">
+<p>When you create a zone map without specifying the <code class="codeph">REFRESH</code> option, Oracle Database by default performs zone map maintenance after direct load and certain data movement operations. The exception is the DML operations such as delete, insert, and update. For these operations, Oracle Database will appropriately mark the zone map or some zones in the zone map as stale. To manually control the refresh maintenance of zone maps, you must specify the <code class="codeph">REFRESH ON DEMAND</code> option.</p>
+<p>The following command creates a zone map whose refresh maintenance is disabled which means that you must manually refresh the zone map after changes are made to the underlying tables.</p>
+<pre dir="ltr">CREATE MATERIALIZED ZONEMAP sales_zmap 
+      ON sales (time_id, cust_id)
+      REFRESH ON DEMAND;
+</pre>
+<p>Oracle Database provides the following two methods of refreshing zone maps:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-3EB3014A-0713-4EA5-95FF-FA070172E33D">Refreshing Zone Maps Using the ALTER MATERIALIZED ZONEMAP Command</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-36F8CA88-FD6B-4911-9B84-E51B2A742219">Refreshing Zone Maps Using the DBMS_MVIEW Package</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="DWHSG9391"></a>
+<div class="props_rev_3"><a id="GUID-3EB3014A-0713-4EA5-95FF-FA070172E33D"></a>
+<h4 id="DWHSG-GUID-3EB3014A-0713-4EA5-95FF-FA070172E33D" class="sect4">Refreshing Zone Maps Using the ALTER MATERIALIZED ZONEMAP Command</h4>
+<div>
+<div class="section">
+<p>Use the <code class="codeph">REBUILD</code> option of <code class="codeph">ALTER MATERIALIZED ZONEMAP</code> command to refresh zone maps.</p>
+<p>The following command performs a complete refresh of the zone map:</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REBUILD COMPLETE;
+</pre>
+<p>The following command performs a complete refresh if the zone map is fully stale or marked as unusable. Otherwise, an incremental (fast) refresh is performed.</p>
+<pre dir="ltr">ALTER MATERIALIZED ZONEMAP sales_zmap REBUILD;
+</pre>
+<div class="infoboxnotealso" id="GUID-3EB3014A-0713-4EA5-95FF-FA070172E33D__GUID-8ADECBDA-95A8-4F57-B0C0-4EFD2C7277B7">
+<p class="notep1">See Also:</p>
+<p><a class="olink SQLRF56854" target="_blank" href="../SQLRF/statements_2004.htm#SQLRF56854"><span class="italic">Oracle Database SQL Language Reference</span></a> for the syntax to refresh a zone map</p>
+</div>
+</div>
+<!-- class="section" --></div>
+</div>
+<a id="DWHSG9392"></a>
+<div class="props_rev_3"><a id="GUID-36F8CA88-FD6B-4911-9B84-E51B2A742219"></a>
+<h4 id="DWHSG-GUID-36F8CA88-FD6B-4911-9B84-E51B2A742219" class="sect4">Refreshing Zone Maps Using the DBMS_MVIEW Package</h4>
+<div>
+<div class="section">
+<p>You can use the <code class="codeph">REFRESH</code> procedure of <code class="codeph">DBMS_MVIEW</code> package to refresh zone maps.</p>
+<p>When <code class="codeph">DBMS_MVIEW.REFRESH</code> procedure is used, Oracle Database will refresh the zone map according to the value specified for its <code class="codeph">refresh_method</code> parameter as follows:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>C: Performs a complete refresh.</p>
+</li>
+<li>
+<p>F - Performs a fast refresh. If a fast refresh is not possible, then an error is issued.</p>
+</li>
+<li>
+<p>? - Performs a fast refresh if possible. else a complete refresh is performed.</p>
+<p>This is the default used if no value is specified.</p>
+</li>
+</ul>
+<p>An example of using the <code class="codeph">REFRESH</code> procedure is the following:</p>
+<pre dir="ltr">EXECUTE DBMS_MVIEW.REFRESH(&#39;sales_zmap&#39;,&#39;C&#39;);
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<a id="DWHSG9164"></a>
+<div class="props_rev_3"><a id="GUID-1E6AF386-E601-4382-B84D-B811DA142E0F"></a>
+<h2 id="DWHSG-GUID-1E6AF386-E601-4382-B84D-B811DA142E0F" class="sect2">Performing Pruning Using Zone Maps</h2>
+<div>
+<div class="section">
+<p>The primary benefit of zone maps is I/O reduction for table scans. Pruning leverages information about the natural locality of records to avoid unnecessary I/O. When a SQL statement contains predicates on columns tracked in the zone map, the database compares the predicate values to the minimum and maximum for each zone to determine which zones of blocks to read or skip during the table scan.</p>
+<p>Candidates for zone map pruning include the following predicates:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p>Relational predicates =, &lt;=, &lt;, &gt;, &gt;=</p>
+</li>
+<li>
+<p>(of the form <code class="codeph">column_name</code> <code class="codeph">relational_predicate</code> <code class="codeph">constant</code>, for example, <code class="codeph">WHERE country_name=&#39;US&#39;</code> or <code class="codeph">WHERE country_name=:name</code>)</p>
+</li>
+<li>
+<p><code class="codeph">IN</code> lists (for example, <code class="codeph">WHERE product_name IN (&#39;a&#39;,&#39;b&#39;)</code>)</p>
+</li>
+<li>
+<p><code class="codeph">LIKE</code> predicates suffixed with <code class="codeph">%</code> (for example, <code class="codeph">company_name LIKE &#39;ORA%&#39;</code>)</p>
+</li>
+</ul>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-C6BD71FC-BCD6-46D3-B0F0-AB1F26CC0E15">How Oracle Database Performs Pruning Using Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-E91FA258-4538-4B14-ADAA-156B65A03F09">Examples: Performing Pruning with Zone Maps and Attribute Clustering</a></p>
+</li>
+</ul>
+</div>
+<!-- class="section" --></div>
+<a id="DWHSG9393"></a>
+<div class="props_rev_3"><a id="GUID-C6BD71FC-BCD6-46D3-B0F0-AB1F26CC0E15"></a>
+<h3 id="DWHSG-GUID-C6BD71FC-BCD6-46D3-B0F0-AB1F26CC0E15" class="sect3">How Oracle Database Performs Pruning Using Zone Maps</h3>
+<div>
+<p>This section uses the following examples to illustrate how pruning is performed with zone maps and attribute clustering:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-2814D6ED-6C38-4275-8BC5-09BB75A7DA84">Pruning Tables Using Zone Maps</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-C9F4766E-ED0E-4CEB-8C97-96326B29C536">Pruning Partitioned Tables Using Zone Maps and Attribute Clustering</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG9395"></a><a id="DWHSG9396"></a><a id="DWHSG9394"></a>
+<div class="props_rev_3"><a id="GUID-2814D6ED-6C38-4275-8BC5-09BB75A7DA84"></a>
+<h4 id="DWHSG-GUID-2814D6ED-6C38-4275-8BC5-09BB75A7DA84" class="sect4">Pruning Tables Using Zone Maps</h4>
+<div>
+<p>This example illustrates creating a zone map that can prune data in a query whose predicate contains a constant. The <code class="codeph">lineitem</code> table, illustrated in <a href="zone_maps.htm#GUID-2814D6ED-6C38-4275-8BC5-09BB75A7DA84__CIHBGDBJ" title="This table shows the data blocks and column values for data in the lineitem table.">Table 13-1</a>, is created using the following statement:</p>
+<pre dir="ltr">CREATE TABLE lineitem 
+  ( orderkey      NUMBER 
+  , shipdate      DATE
+  , receiptdate   DATE
+  , destination   VARCHAR2(50)
+  , quantity      NUMBER);
+</pre>
+<p>Assume that this table contains four data blocks with two rows per block. <a href="zone_maps.htm#GUID-2814D6ED-6C38-4275-8BC5-09BB75A7DA84__CIHBGDBJ" title="This table shows the data blocks and column values for data in the lineitem table.">Table 13-1</a> shows the eight rows of the table.</p>
+<div class="tblformal" id="GUID-2814D6ED-6C38-4275-8BC5-09BB75A7DA84__CIHBGDBJ">
+<p class="titleintable">Table 13-1 Data Blocks for lineitem Table</p>
+<table class="cellalignment1516" title="Data Blocks for lineitem Table" summary="This table shows the data blocks and column values for data in the lineitem table.">
+<thead>
+<tr class="cellalignment1507">
+<th class="cellalignment1562" id="d50358e2422">Block</th>
+<th class="cellalignment1563" id="d50358e2425">orderkey</th>
+<th class="cellalignment1544" id="d50358e2428">shipdate</th>
+<th class="cellalignment1535" id="d50358e2431">receiptdate</th>
+<th class="cellalignment1564" id="d50358e2434">destination</th>
+<th class="cellalignment1517" id="d50358e2437">quantity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1507">
+<td class="cellalignment1565" id="d50358e2442" headers="d50358e2422">
+<p>1</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2442 d50358e2425">
+<p>1</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2442 d50358e2428">
+<p>1-1-2011</p>
+</td>
+<td class="cellalignment1537" headers="d50358e2442 d50358e2431">
+<p>1-10-2011</p>
+</td>
+<td class="cellalignment1567" headers="d50358e2442 d50358e2434">
+<p>San_Fran</p>
+</td>
+<td class="cellalignment1520" headers="d50358e2442 d50358e2437">
+<p>100</p>
+</td>
+</tr>
+<tr class="cellalignment1507">
+<td class="cellalignment1565" id="d50358e2461" headers="d50358e2422">
+<p>1</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2461 d50358e2425">
+<p>2</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2461 d50358e2428">
+<p>1-2-2011</p>
+</td>
+<td class="cellalignment1537" headers="d50358e2461 d50358e2431">
+<p>1-10-2011</p>
+</td>
+<td class="cellalignment1567" headers="d50358e2461 d50358e2434">
+<p>San_Fran</p>
+</td>
+<td class="cellalignment1520" headers="d50358e2461 d50358e2437">
+<p>200</p>
+</td>
+</tr>
+<tr class="cellalignment1507">
+<td class="cellalignment1565" id="d50358e2480" headers="d50358e2422">
+<p>2</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2480 d50358e2425">
+<p>3</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2480 d50358e2428">
+<p>1-3-2011</p>
+</td>
+<td class="cellalignment1537" headers="d50358e2480 d50358e2431">
+<p>1-5-2011</p>
+</td>
+<td class="cellalignment1567" headers="d50358e2480 d50358e2434">
+<p>San_Fran</p>
+</td>
+<td class="cellalignment1520" headers="d50358e2480 d50358e2437">
+<p>100</p>
+</td>
+</tr>
+<tr class="cellalignment1507">
+<td class="cellalignment1565" id="d50358e2499" headers="d50358e2422">
+<p>2</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2499 d50358e2425">
+<p>4</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2499 d50358e2428">
+<p>1-5-2011</p>
+</td>
+<td class="cellalignment1537" headers="d50358e2499 d50358e2431">
+<p>1-10-2011</p>
+</td>
+<td class="cellalignment1567" headers="d50358e2499 d50358e2434">
+<p>San_Diego</p>
+</td>
+<td class="cellalignment1520" headers="d50358e2499 d50358e2437">
+<p>100</p>
+</td>
+</tr>
+<tr class="cellalignment1507">
+<td class="cellalignment1565" id="d50358e2518" headers="d50358e2422">
+<p>3</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2518 d50358e2425">
+<p>5</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2518 d50358e2428">
+<p>1-10-2011</p>
+</td>
+<td class="cellalignment1537" headers="d50358e2518 d50358e2431">
+<p>1-15-2011</p>
+</td>
+<td class="cellalignment1567" headers="d50358e2518 d50358e2434">
+<p>San_Fran</p>
+</td>
+<td class="cellalignment1520" headers="d50358e2518 d50358e2437">
+<p>100</p>
+</td>
+</tr>
+<tr class="cellalignment1507">
+<td class="cellalignment1565" id="d50358e2537" headers="d50358e2422">
+<p>3</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2537 d50358e2425">
+<p>6</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2537 d50358e2428">
+<p>1-12-2011</p>
+</td>
+<td class="cellalignment1537" headers="d50358e2537 d50358e2431">
+<p>1-16-2011</p>
+</td>
+<td class="cellalignment1567" headers="d50358e2537 d50358e2434">
+<p>San_Fran</p>
+</td>
+<td class="cellalignment1520" headers="d50358e2537 d50358e2437">
+<p>200</p>
+</td>
+</tr>
+<tr class="cellalignment1507">
+<td class="cellalignment1565" id="d50358e2556" headers="d50358e2422">
+<p>4</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2556 d50358e2425">
+<p>7</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2556 d50358e2428">
+<p>1-13-2011</p>
+</td>
+<td class="cellalignment1537" headers="d50358e2556 d50358e2431">
+<p>1-20-2011</p>
+</td>
+<td class="cellalignment1567" headers="d50358e2556 d50358e2434">
+<p>San_Fran</p>
+</td>
+<td class="cellalignment1520" headers="d50358e2556 d50358e2437">
+<p>100</p>
+</td>
+</tr>
+<tr class="cellalignment1507">
+<td class="cellalignment1565" id="d50358e2575" headers="d50358e2422">
+<p>4</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2575 d50358e2425">
+<p>8</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2575 d50358e2428">
+<p>1-15-2011</p>
+</td>
+<td class="cellalignment1537" headers="d50358e2575 d50358e2431">
+<p>1-30-2011</p>
+</td>
+<td class="cellalignment1567" headers="d50358e2575 d50358e2434">
+<p>San_Jose</p>
+</td>
+<td class="cellalignment1520" headers="d50358e2575 d50358e2437">
+<p>100</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>Next, you use the <code class="codeph">CREATE</code> <code class="codeph">MATERIALED</code> <code class="codeph">ZONEMAP</code> statement to create a zone map on the <code class="codeph">lineitem</code> table.</p>
+<pre dir="ltr">CREATE MATERIALIZED ZONEMAP lineitem_zmap 
+     ON lineitem (orderkey, shipdate, receiptdate);
+</pre>
+<p>Each zone contains two blocks and stores the minimum and maximum of the <code class="codeph">orderkey</code>, <code class="codeph">shipdate</code>, and <code class="codeph">receiptdate</code> columns. <a href="zone_maps.htm#GUID-2814D6ED-6C38-4275-8BC5-09BB75A7DA84__CIHEJACJ" title="This table shows the data block range and column values for the data in the lineitem table.">Table 13-2</a> represents the zone map.</p>
+<div class="tblformal" id="GUID-2814D6ED-6C38-4275-8BC5-09BB75A7DA84__CIHEJACJ">
+<p class="titleintable">Table 13-2 Zone Map for lineitem Table</p>
+<table class="cellalignment1516" title="Zone Map for lineitem Table" summary="This table shows the data block range and column values for the data in the lineitem table.">
+<thead>
+<tr class="cellalignment1507">
+<th class="cellalignment1568" id="d50358e2640">Block Range</th>
+<th class="cellalignment1563" id="d50358e2643">min orderkey</th>
+<th class="cellalignment1563" id="d50358e2646">max orderkey</th>
+<th class="cellalignment1563" id="d50358e2649">min shipdate</th>
+<th class="cellalignment1563" id="d50358e2652">max shipdate</th>
+<th class="cellalignment1569" id="d50358e2655">min receiptdate</th>
+<th class="cellalignment1544" id="d50358e2658">max receiptdate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="cellalignment1507">
+<td class="cellalignment1570" id="d50358e2663" headers="d50358e2640">
+<p>1-2</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2663 d50358e2643">
+<p>1</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2663 d50358e2646">
+<p>4</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2663 d50358e2649">
+<p>1-1-2011</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2663 d50358e2652">
+<p>1-5-2011</p>
+</td>
+<td class="cellalignment1571" headers="d50358e2663 d50358e2655">
+<p>1-9-2011</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2663 d50358e2658">
+<p>1-10-2011</p>
+</td>
+</tr>
+<tr class="cellalignment1507">
+<td class="cellalignment1570" id="d50358e2685" headers="d50358e2640">
+<p>3-4</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2685 d50358e2643">
+<p>5</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2685 d50358e2646">
+<p>8</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2685 d50358e2649">
+<p>1-10-2011</p>
+</td>
+<td class="cellalignment1566" headers="d50358e2685 d50358e2652">
+<p>1-15-2011</p>
+</td>
+<td class="cellalignment1571" headers="d50358e2685 d50358e2655">
+<p>1-15-2011</p>
+</td>
+<td class="cellalignment1546" headers="d50358e2685 d50358e2658">
+<p>1-30-2011</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- class="inftblhruleinformal" -->
+<p>When you execute the following query, the database can read the zone map and then scan only blocks 1 and 2 because the date 1-3-2011 falls between the minimum and maximum dates:</p>
+<pre dir="ltr">SELECT * FROM lineitem WHERE shipdate = &#39;1-3-2011&#39;;
+</pre></div>
+</div>
+<a id="DWHSG9398"></a><a id="DWHSG9397"></a>
+<div class="props_rev_3"><a id="GUID-C9F4766E-ED0E-4CEB-8C97-96326B29C536"></a>
+<h4 id="DWHSG-GUID-C9F4766E-ED0E-4CEB-8C97-96326B29C536" class="sect4">Pruning Partitioned Tables Using Zone Maps and Attribute Clustering</h4>
+<div>
+<p>This following statement creates a zone map, with attribute clustering, on a partitioned table:</p>
+<pre dir="ltr">CREATE TABLE sales
+(
+   prod_id        NUMBER NOT NULL,
+   cust_id        NUMBER NOT NULL,
+   time_id        DATE NOT NULL,
+   channel_id     NUMBER NOT NULL,
+   promo_id       NUMBER NOT NULL,
+   quantity_sold  NUMBER(10,2) NOT NULL,
+   amount_sold    NUMBER(10,2)
+)
+<span>CLUSTERING </span><span>sales JOIN products ON (sales.prod_id = products.prod_id)</span>
+   <span>BY LINEAR ORDER</span> <span>(products.prod_id)</span>
+   <span>WITH MATERIALIZED ZONEMAP</span> (sales_zmap)
+PARTITION BY HASH (amount_sold)
+     ( PARTITION p1, PARTITION p2);
+</pre>
+<p><a href="zone_maps.htm#GUID-C9F4766E-ED0E-4CEB-8C97-96326B29C536__CIHDGJGJ">Figure 13-4</a> illustrates creating zone maps for the partitioned table <code class="codeph">sales</code>. For each of the five zones, the zone map will store the minimum and maximum of the columns tracked in the zone map. If a predicate is outside the minimum and maximum for a stored column of a given zone, then this zone does not have to be read. As an example, if zone <code class="codeph">Z4</code> tracks a minimum of 10 and a maximum of 100 for a column <code class="codeph">prod_id</code>, then a predicate <code class="codeph">prod_id</code> <code class="codeph">=</code> <code class="codeph">200</code> will never have any matching records in this zone, so zone <code class="codeph">Z4</code> will not be read.</p>
+<p>For partitioned tables, pruning can happen both on a partition as well as zone level. If the aggregated partition-level information in the zone maps rules out any matching data for a given set of predicates, then the whole partition will be pruned; otherwise, pruning for the partition will happen on a per zone level.</p>
+<div class="figure" id="GUID-C9F4766E-ED0E-4CEB-8C97-96326B29C536__CIHDGJGJ">
+<p class="titleinfigure">Figure 13-4 Zone Map for a Partitioned Fact Table</p>
+<img width="371" height="384" src="img/GUID-5ABC152A-D4D4-4670-8EF5-0AB2D827AADE-default.png" alt="Description of Figure 13-4 follows" title="Description of Figure 13-4 follows"/><br/>
+<a href="img_text/GUID-5ABC152A-D4D4-4670-8EF5-0AB2D827AADE-print.htm">Description of &#34;Figure 13-4 Zone Map for a Partitioned Fact Table&#34;</a></div>
+<!-- class="figure" --></div>
+</div>
+</div>
+<a id="DWHSG9399"></a><a id="DWHSG8949"></a>
+<div class="props_rev_3"><a id="GUID-E91FA258-4538-4B14-ADAA-156B65A03F09"></a>
+<h3 id="DWHSG-GUID-E91FA258-4538-4B14-ADAA-156B65A03F09" class="sect3">Examples: Performing Pruning with Zone Maps and Attribute Clustering</h3>
+<div>
+<p>This section provides examples on performing pruning using zone maps and attribute clustering. The examples are based on the <code class="codeph">my_sales</code> table that is created as shown in <a href="zone_maps.htm#GUID-E91FA258-4538-4B14-ADAA-156B65A03F09__CIHEHFIE">Example 13-16</a>.</p>
+<div class="example" id="GUID-E91FA258-4538-4B14-ADAA-156B65A03F09__CIHEHFIE">
+<p class="titleinexample">Example 13-16 Creating the my_sales Table</p>
+<p>The <code class="codeph">my_sales</code> table is a join attribute clustered table that contains a zone map. It is based on the <code class="codeph">sales</code> tables in the <code class="codeph">SH</code> schema and is created using the following statement:</p>
+<pre dir="ltr">CREATE TABLE my_sales
+PARTITION BY LIST (channel_id)
+ (PARTITION mysales_chan_c VALUES (&#39;C&#39;),
+  PARTITION mysales_chan_i VALUES (&#39;I&#39;),
+  PARTITION mysales_chan_p VALUES (&#39;P&#39;),
+  PARTITION mysales_chan_s VALUES (&#39;S&#39;),
+  PARTITION mysales_chan_t VALUES (&#39;T&#39;))
+CLUSTERING
+  my_sales JOIN customers ON (my_sales.cust_id = customers.cust_id)
+  BY INTERLEAVED ORDER ((my_sales.time_id),
+                        (customers.country_id, 
+                         customers.cust_state_province, 
+                         customers.cust_city))
+  WITH MATERIALIZED ZONEMAP (mysales_zmap)
+AS SELECT * FROM sales;
+</pre></div>
+<!-- class="example" -->
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-82200641-EF9A-41FD-A2DE-536B49A4F6C7">Example: Partitions and Table Scan Pruning</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-5754CBC5-CCA4-4A1D-9721-1AC2AC6E2A85">Example: Zone Map Join Pruning</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG9400"></a>
+<div class="props_rev_3"><a id="GUID-82200641-EF9A-41FD-A2DE-536B49A4F6C7"></a>
+<h4 id="DWHSG-GUID-82200641-EF9A-41FD-A2DE-536B49A4F6C7" class="sect4">Example: Partitions and Table Scan Pruning</h4>
+<div>
+<div class="section">
+<p>This example illustrates how zone maps can prune zones and partitions (or sub-partitions in a composite-partitioned table).</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Create the <code class="codeph">my_sales</code> table. <a href="zone_maps.htm#GUID-E91FA258-4538-4B14-ADAA-156B65A03F09__CIHEHFIE">Example 13-16</a> contains the syntax used to create this table.</span></li>
+<li class="stepexpand"><span>Use the following statement to query the <code class="codeph">my_sales</code> table joined with the <code class="codeph">customers</code> dimension:</span>
+<div>
+<pre dir="ltr">SELECT c.cust_city, SUM(quantity_sold)
+   FROM   my_sales s, customers c
+   WHERE  s.cust_id = c.cust_id 
+      AND    c.country_id = &#39;US&#39; 
+      AND    c.cust_state_province = &#39;CA&#39; 
+      AND    s.promo_id &lt; 50
+   GROUP BY c.cust_city;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Display the plan using the following statement:</span>
+<div>
+<pre dir="ltr">SELECT * 
+FROM TABLE(dbms_xplan.display_cursor(FORMAT =&gt; &#39;BASIC PREDICATE PARTITION&#39;));
+</pre>
+<pre dir="ltr">-------------------------------------------------------------------------
+| Id  | Operation                           | Name      | Pstart| Pstop |
+-------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                    |           |       |       |
+|   1 |  HASH GROUP BY                      |           |       |       |
+|*  2 |   HASH JOIN                         |           |       |       |
+|   3 |    JOIN FILTER CREATE               | :BF0000   |       |       |
+|*  4 |     TABLE ACCESS FULL               | CUSTOMERS |       |       |
+|   5 |    JOIN FILTER USE                  | :BF0000   |       |       |
+|   6 |     PARTITION LIST ITERATOR         |           |KEY(ZM)|KEY(ZM)|
+|*  7 |      TABLE ACCESS FULL WITH ZONEMAP | MY_SALES  |KEY(ZM)|KEY(ZM)|
+-------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+
+PLAN_TABLE_OUTPUT
+-------------------------------------------------------------------------
+   2 - access(&#34;S&#34;.&#34;CUST_ID&#34;=&#34;C&#34;.&#34;CUST_ID&#34;)
+   4 - filter((&#34;C&#34;.&#34;CUST_STATE_PROVINCE&#34;=&#39;CA&#39; AND
+      &#34;C&#34;.&#34;COUNTRY_ID&#34;=&#39;US&#39;))
+   7 - filter((SYS_ZMAP_FILTER(&#39;/* ZM_PRUNING */ SELECT &#34;ZONE_ID$&#34;,
+      CASE WHEN BITAND(zm.&#34;ZONE_STATE$&#34;,1)=1 THEN 1 ELSE CASE WHEN
+      (zm.&#34;MIN_2_COUNTRY_ID&#34; &gt; :1 OR zm.&#34;MAX_2_COUNTRY_ID&#34; &lt; :2 OR
+      zm.&#34;MIN_3_CUST_STATE_PROVINCE&#34; &gt; :3 OR zm.&#34;MAX_3_CUST_STATE_PROVINCE&#34; &lt;
+      :4) THEN 3 ELSE 2 END END FROM &#34;SH&#34;.&#34;MYSALES_ZMAP&#34; zm WHERE
+      zm.&#34;ZONE_LEVEL$&#34;=0 ORDER BY zm.&#34;ZONE_ID$&#34;&#39;,SYS_OP_ZONE_ID(ROWID),&#39;US&#39;,&#39;U
+      S&#39;,&#39;CA&#39;,&#39;CA&#39;)&lt;3 AND &#34;S&#34;.&#34;PROMO_ID&#34;&lt;50 AND
+      SYS_OP_BLOOM_FILTER(:BF0000,&#34;S&#34;.&#34;CUST_ID&#34;)))
+</pre>
+<p>Line 7 illustrates that a zone map is being used. Note the zone map partition list iterator &ldquo;KEY(ZM)&#34;.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<a id="DWHSG9401"></a>
+<div class="props_rev_3"><a id="GUID-5754CBC5-CCA4-4A1D-9721-1AC2AC6E2A85"></a>
+<h4 id="DWHSG-GUID-5754CBC5-CCA4-4A1D-9721-1AC2AC6E2A85" class="sect4">Example: Zone Map Join Pruning</h4>
+<div>
+<div class="section">
+<p>This example illustrates join pruning using zone maps and attribute clustering. If the primary key of a dimension comprises of dimension hierarchy values, it is sufficient to cluster the fact table by the corresponding foreign key. In this example, <code class="codeph">times.time_id</code> comprises of (<code class="codeph">calendar_year</code>, <code class="codeph">calendar_month_number</code>, <code class="codeph">day_number_in_month</code>). Thus, <code class="codeph">time_id</code> translates to the calendar time hierarchy as well as the fiscal time hierarchy. You can prune the join between <code class="codeph">times</code> and <code class="codeph">my_sales</code> when there are predicates for either the fiscal or calendar hierarchies.</p>
+</div>
+<!-- class="section" -->
+<ol>
+<li class="stepexpand"><span>Create the <code class="codeph">my_sales</code> table. <a href="zone_maps.htm#GUID-E91FA258-4538-4B14-ADAA-156B65A03F09__CIHEHFIE">Example 13-16</a> contains the syntax used to create this table.</span></li>
+<li class="stepexpand"><span>Query the <code class="codeph">my_sales</code> table joined with <code class="codeph">times</code> using the following statement:</span>
+<div>
+<pre dir="ltr">SELECT SUM(quantity_sold) 
+FROM   my_sales s, times tWHERE  s.time_id = t.time_id AND t.calendar_year = &#39;1999&#39;;
+</pre></div>
+</li>
+<li class="stepexpand"><span>Display the plan using the following statement:</span>
+<div>
+<pre dir="ltr">SELECT * 
+FROM TABLE(dbms_xplan.display_cursor(FORMAT =&gt; &#39;BASIC PREDICATE PARTITION&#39;));
+</pre>
+<pre dir="ltr">---------------------------------------------------------------------------
+| Id  | Operation                               | Name    | Pstart| Pstop |
+---------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                        |         |       |       |
+|   1 |  SORT AGGREGATE                         |         |       |       |
+|*  2 |   HASH JOIN                             |         |       |       |
+|   3 |    JOIN FILTER CREATE                   | :BF0000 |       |       |
+|*  4 |     TABLE ACCESS FULL                   | TIMES   |       |       |
+|   5 |    JOIN FILTER USE                      | :BF0000 |       |       |
+|   6 |     PARTITION LIST ALL                  |         |     1 |     5 |
+|*  7 |      TABLE ACCESS FULL WITH ZONEMAP     | MY_SALES|     1 |     5 |
+---------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------
+   2 - access(&#34;S&#34;.&#34;TIME_ID&#34;=&#34;T&#34;.&#34;TIME_ID&#34;)
+   4 - filter(&#34;T&#34;.&#34;CALENDAR_YEAR&#34;=1999)
+   7 - filter((SYS_ZMAP_FILTER(&#39;/* ZM_PRUNING */ SELECT &#34;ZONE_ID$&#34;,
+      CASE WHEN BITAND(zm.&#34;ZONE_STATE$&#34;,1)=1 THEN 1 ELSE CASE WHEN
+      ((ORA_RAWCOMPARE(zm.&#34;MIN_1_TIME_ID&#34;,:1,8)&gt;0 OR
+      ORA_RAWCOMPARE(zm.&#34;MAX_1_TIME_ID&#34;,:2,8)&lt;0)) THEN 3 ELSE 2 END END FROM
+      &#34;SH&#34;.&#34;MYSALES_ZMAP&#34; zm WHERE zm.&#34;ZONE_LEVEL$&#34;=0 ORDER BY
+      zm.&#34;ZONE_ID$&#34;&#39;,SYS_OP_ZONE_ID(ROWID),SYSVARCOL,SYSVARCOL)&lt;3 AND
+      SYS_OP_BLOOM_FILTER(:BF0000,&#34;S&#34;.&#34;TIME_ID&#34;)))
+</pre>
+<p>Line 7 illustrates that a zone map is being used, joining on matching <code class="codeph">time_id</code> zones.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<a id="DWHSG9402"></a>
+<div class="props_rev_3"><a id="GUID-DA1762AC-4F66-4DDA-A28A-8A754FB6E75E"></a>
+<h2 id="DWHSG-GUID-DA1762AC-4F66-4DDA-A28A-8A754FB6E75E" class="sect2">Viewing Zone Map Information</h2>
+<div>
+<p>Information <a id="d50358e3017" class="indexterm-anchor"></a>about zone maps and their measures is stored in data dictionary views.</p>
+<p>This section contains the following topics:</p>
+<ul style="list-style-type: disc;">
+<li>
+<p><a href="zone_maps.htm#GUID-945125B2-FD0C-438E-90D8-1335B9190860">Viewing Details of Zone Maps in the Database</a></p>
+</li>
+<li>
+<p><a href="zone_maps.htm#GUID-A68118DA-01A5-41F6-87EF-3EB6C1742D26">Viewing the Measures of a Zone Map</a></p>
+</li>
+</ul>
+</div>
+<a id="DWHSG9403"></a>
+<div class="props_rev_3"><a id="GUID-945125B2-FD0C-438E-90D8-1335B9190860"></a>
+<h3 id="DWHSG-GUID-945125B2-FD0C-438E-90D8-1335B9190860" class="sect3">Viewing Details of Zone Maps in the Database</h3>
+<div>
+<div class="section">
+<p>Use one of the following data dictionary views to display information about the zone maps in the database:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">DBA_ZONEMAPS</code> to display all zone maps in the database</p>
+</li>
+<li>
+<p><code class="codeph">ALL_ZONEMAPS</code> to display zone maps that are accessible to the user</p>
+</li>
+<li>
+<p><code class="codeph">USER_ZONEMAPS</code> to display zone maps that are owned by the user</p>
+</li>
+</ul>
+<p>The following query displays the name, base table, type, refresh mode, and staleness of the zone maps owned by the current user and indicates if zone maps were created with attribute clustering:</p>
+<pre dir="ltr">SELECT zonemap_name,fact_table,hierarchical,with_clustering,refresh_mode,stale 
+       FROM USER_ZONEMAPS;
+
+ZONEMAP_NAME    FACT_TABLE  HIERARCHICAL  WITH_CLUSTERING REFRESH_MODE      STALE
+------------    ----------  ------------  --------------- ------------      -----
+ZMAP$_MY_SALES  MY_SALES      NO          YES             LOAD DATAMOVEMENT   NO
+</pre>
+<p>The following query displays the status of all zone maps that are accessible to the user. Zone maps with <code class="codeph">PRUNING</code> disabled are not used for I/O pruning. Zone maps marked invalid need to be recompiled because the structure of the underlying base tables has changed.</p>
+<pre dir="ltr">SQL&gt; SELECT zonemap_name,pruning,refresh_method,invalid,complie_state
+    FROM all_zonemaps;
+
+ZONEMAP_NAME     PRUNING    REFRESH_METHOD INVALID  UNUSABLE   COMPILE_STATE
+------------    ---------   -------------- -------  ------     -------------
+SALES_ZMAP       ENABLED    FORCE           NO      NO         VALID
+ZMAP$_MY_SALES   DISABLED   FORCE           NO      NO         VALID
+</pre></div>
+<!-- class="section" --></div>
+</div>
+<a id="DWHSG9404"></a>
+<div class="props_rev_3"><a id="GUID-A68118DA-01A5-41F6-87EF-3EB6C1742D26"></a>
+<h3 id="DWHSG-GUID-A68118DA-01A5-41F6-87EF-3EB6C1742D26" class="sect3">Viewing the Measures of a Zone Map</h3>
+<div>
+<div class="section">
+<p>Use one of the following views to display information about the measures in a zone map:</p>
+</div>
+<!-- class="section" -->
+<div class="section">
+<ul style="list-style-type: disc;">
+<li>
+<p><code class="codeph">DBA_ZONEMAP_MEASURES</code> to display the measures for all zone maps in the database</p>
+</li>
+<li>
+<p><code class="codeph">ALL_ZONEMAP_MEASURES</code> to display the measures for zone maps that are accessible to the user</p>
+</li>
+<li>
+<p><code class="codeph">USER_ZONEMAP_MEASURES</code> to display he measures for zone maps that are owned by the user</p>
+</li>
+</ul>
+<p>The following query displays the zone map, measure, and column whose MIN/MAX values are maintained for each zone that are accessible to the current user:</p>
+<pre dir="ltr">SELECT zonemap_name, measure, agg_function
+FROM ALL_ZONEMAP_MEASURES;
+
+ZONEMAP_NAME      MEASURE                         AGG_FUNCTION
+---------------   --------------------------      -------------
+ZMAP$_MY_SALES   &#34;SH&#34;.&#34;MY_SALES&#34;.&#34;PROD_ID&#34;        MAX
+ZMAP$_MY_SALES   &#34;SH&#34;.&#34;MY_SALES&#34;.&#34;PROD_ID&#34;        MIN
+ZMAP$_MY_SALES   &#34;SH&#34;.&#34;MY_SALES&#34;.&#34;CUST_ID&#34;        MAX
+ZMAP$_MY_SALES   &#34;SH&#34;.&#34;MY_SALES&#34;.&#34;CUST_ID&#34;        MIN
+</pre></div>
+<!-- class="section" --></div>
+</div>
+</div>
+</div>
+<!-- class="ind" --><!-- Start Footer -->
+</div>
+<!-- add extra wrapper close div-->
+<footer><!--
+<hr />
+<table class="cellalignment1506">
+<tr>
+<td class="cellalignment1513">
+<table class="cellalignment1511">
+<tr>
+<td class="cellalignment1510"><a href="attcluster.htm"><img width="24" height="24" src="../dcommon/gifs/leftnav.gif" alt="Go to previous page" /><br />
+<span class="icon">Previous</span></a></td>
+<td class="cellalignment1510"><a href="part4.htm"><img width="24" height="24" src="../dcommon/gifs/rightnav.gif" alt="Go to next page" /><br />
+<span class="icon">Next</span></a></td>
+</tr>
+</table>
+</td>
+<td class="cellalignment-copyrightlogo"><img width="144" height="18" src="../dcommon/gifs/oracle.gif" alt="Oracle" /><br />
+Copyright&nbsp;&copy;&nbsp;2001, 2017, Oracle&nbsp;and/or&nbsp;its&nbsp;affiliates.&nbsp;All&nbsp;rights&nbsp;reserved.<br />
+<a href="../dcommon/html/cpyr.htm">Legal Notices</a></td>
+<td class="cellalignment1515">
+<table class="cellalignment1509">
+<tr>
+<td class="cellalignment1510"><a href="../index.htm"><img width="24" height="24" src="../dcommon/gifs/doclib.gif" alt="Go to Documentation Home" /><br />
+<span class="icon">Home</span></a></td>
+<td class="cellalignment1510"><a href="../nav/portal_booklist.htm"><img width="24" height="24" src="../dcommon/gifs/booklist.gif" alt="Go to Book List" /><br />
+<span class="icon">Book List</span></a></td>
+<td class="cellalignment1510"><a href="toc.htm"><img width="24" height="24" src="../dcommon/gifs/toc.gif" alt="Go to Table of Contents" /><br />
+<span class="icon">Contents</span></a></td>
+<td class="cellalignment1510"><a href="index.htm"><img width="24" height="24" src="../dcommon/gifs/index.gif" alt="Go to Index" /><br />
+<span class="icon">Index</span></a></td>
+<td class="cellalignment1510"><a href="../nav/mindx.htm"><img width="24" height="24" src="../dcommon/gifs/masterix.gif" alt="Go to Master Index" /><br />
+<span class="icon">Master Index</span></a></td>
+<td class="cellalignment1510"><a href="../dcommon/html/feedback.htm"><img width="24" height="24" src="../dcommon/gifs/feedbck2.gif" alt="Go to Feedback page" /><br />
+<span class="icon">Contact Us</span></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+--></footer>
+<noscript>
+<p>Scripting on this page enhances content navigation, but does not change the content in any way.</p>
+</noscript>
+
+
+</body></html>
